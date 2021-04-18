@@ -1,0 +1,100 @@
+{
+  "project_info": {
+    "project_number": "930461821085",
+    "project_id": "discovrrapp-88c28",
+    "storage_bucket": "discovrrapp-88c28.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:930461821085:android:02254d61b90309a6678c74",
+        "android_client_info": {
+          "package_name": "com.discovrr"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "930461821085-5fm887mpstf64223jc2mkhh35ujsll28.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.discovrr",
+            "certificate_hash": "d3e018693267054e8205ee84c9d2193271b57794"
+          }
+        },
+        {
+          "client_id": "930461821085-pmo91isqq9jlvvhsteeoosm1n26ef3i4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDarS3x-3izreKF10YPGj9FC-NJRjYyOEg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "930461821085-pmo91isqq9jlvvhsteeoosm1n26ef3i4.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "930461821085-9oi5tufovr4ertfgiac4ducje18kbqmo.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.discovrr",
+                "app_store_id": "1541137819"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:930461821085:android:be8bd8a76411523c678c74",
+        "android_client_info": {
+          "package_name": "com.discovrr.debug"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "930461821085-47h09t742ffnjae50gf9ps3i20m8uh0l.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.discovrr.debug",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "930461821085-pmo91isqq9jlvvhsteeoosm1n26ef3i4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDarS3x-3izreKF10YPGj9FC-NJRjYyOEg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "930461821085-pmo91isqq9jlvvhsteeoosm1n26ef3i4.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "930461821085-9oi5tufovr4ertfgiac4ducje18kbqmo.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.discovrr",
+                "app_store_id": "1541137819"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
