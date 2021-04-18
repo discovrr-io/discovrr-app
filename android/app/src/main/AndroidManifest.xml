@@ -62,7 +62,7 @@
         </provider>
 
         <provider
-            android:authorities="com.facebook.app.FacebookContentProvider691371558227281"
+            android:authorities="@string/fbProviderId"
             android:name="com.facebook.FacebookContentProvider"
             android:exported="true" />
 

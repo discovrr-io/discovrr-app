@@ -176,10 +176,12 @@ android {
             applicationIdSuffix ".debug"
             signingConfig signingConfigs.debug
             resValue "string", "CodePushDeploymentKey", '""'
+            resValue "string", "fbProviderId", "com.facebook.app.FacebookContentProvider759877634893854"
         }
         releaseStaging {
             applicationIdSuffix ".staging"
             resValue "string", "CodePushDeploymentKey", '"SgI5BxrXPLuqHbbMqUxgRRJr2mARpovisHdU-"'
+            resValue "string", "fbProviderId", "com.facebook.app.FacebookContentProvider{**enjaga**}"
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
             matchingFallbacks = ['release']
@@ -189,6 +191,7 @@ android {
             // see https://reactnative.dev/docs/signed-apk-android.
             // signingConfig signingConfigs.debug
             resValue "string", "CodePushDeploymentKey", '"OadHGBPtsVP88ju21JVgJw5A7dfTSgRLCDaWj"'
+            resValue "string", "fbProviderId", "com.facebook.app.FacebookContentProvider691371558227281"
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
             signingConfig signingConfigs.release
