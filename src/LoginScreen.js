@@ -1,7 +1,4 @@
-import React, {
-  Component,
-  useState,
-} from 'react';
+import React, { Component, useState } from 'react';
 
 import {
   ActivityIndicator,
@@ -26,7 +23,6 @@ import * as Animatable from 'react-native-animatable';
 import ImagePicker from 'react-native-image-crop-picker';
 import RNPopoverMenu from 'react-native-popover-menu';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
-import Icon from 'react-native-vector-icons';
 import auth from '@react-native-firebase/auth';
 import storage from '@react-native-firebase/storage';
 
@@ -41,17 +37,11 @@ import {
   statusCodes,
 } from '@react-native-community/google-signin';
 
-import {
-  connect,
-} from 'react-redux';
+import { connect } from 'react-redux';
 
-import {
-  withSafeAreaInsets,
-} from 'react-native-safe-area-context';
+import { withSafeAreaInsets } from 'react-native-safe-area-context';
 
-import {
-  login,
-} from './utilities/Actions';
+import { login } from './utilities/Actions';
 
 import {
   isAndroid,
@@ -64,13 +54,15 @@ import ModalActivityIndicatorAlt from './components/ModalActivityIndicatorAlt';
 
 const Parse = require('parse/react-native');
 
-const videoPoster = Image.resolveAssetSource(require('../resources/images/videoPoster.png')).uri
+const videoPoster = Image.resolveAssetSource(
+  require('../resources/images/videoPoster.png'),
+).uri;
 const loginBackground = require('../resources/images/loginBackground.jpg');
 const discovrrLogo = require('../resources/images/discovrrLogoHorizontal.png');
 const defaultAvatar = require('../resources/images/defaultAvatar.jpeg');
 
-const cameraIcon = <Icon family="MaterialIcons" name="camera-alt" color="#000000" size={24} />;
-const photosIcon = <Icon family="MaterialIcons" name="collections" color="#000000" size={24} />;
+const cameraIcon = <MaterialIcon name="camera-alt" color="#000000" size={24} />;
+const photosIcon = <MaterialIcon name="collections" color="#000000" size={24} />;
 
 GoogleSignin.configure();
 
@@ -80,10 +72,7 @@ class LoginScreen extends Component {
 
     ({
       dispatch: this.dispatch,
-      navigation: {
-        goBack: this.goBack,
-        navigate: this.navigate,
-      },
+      navigation: { goBack: this.goBack, navigate: this.navigate },
     } = props);
 
     this.ageRef = React.createRef();
@@ -99,11 +88,7 @@ class LoginScreen extends Component {
         { label: '55 - 64' },
         { label: 'Above 64' },
       ],
-      gender: [
-        { label: 'Female' },
-        { label: 'Male' },
-        { label: 'Other' },
-      ],
+      gender: [{ label: 'Female' }, { label: 'Male' }, { label: 'Other' }],
       avatar: [
         {
           label: 'Camera',
@@ -173,13 +158,12 @@ class LoginScreen extends Component {
   //   }
   // }
 
-  refSelector = (selector) => (compRef) => { this[selector] = compRef; }
+  refSelector = (selector) => (compRef) => {
+    this[selector] = compRef;
+  };
 
   handleBackPress = () => {
-    const {
-      isProcessing,
-      inputMode,
-    } = this.state;
+    const { isProcessing, inputMode } = this.state;
 
     if (!isProcessing) {
       switch (inputMode) {
@@ -211,18 +195,25 @@ class LoginScreen extends Component {
       this.setState({ animatedHeight: event.endCoordinates.height });
     } else {
       const { animatedHeight } = this.state;
-      Animated.timing(animatedHeight, { toValue: event.endCoordinates.height - 40, duration: 200 }).start();
+      Animated.timing(animatedHeight, {
+        toValue: event.endCoordinates.height - 40,
+        duration: 200,
+      }).start();
     }
-  }
+  };
 
   keyboardWillHide = () => {
     if (isAndroid) {
       if (!this.ignoreKeyboardHiding) this.setState({ animatedHeight: 0 });
     } else {
       const { animatedHeight } = this.state;
-      Animated.timing(animatedHeight, { toValue: 0, delay: 200, duration: 200 }).start();
+      Animated.timing(animatedHeight, {
+        toValue: 0,
+        delay: 200,
+        duration: 200,
+      }).start();
     }
-  }
+  };
 
   notifyUser = ({ title, message, actions }) => {
     Alert.alert(
@@ -230,12 +221,13 @@ class LoginScreen extends Component {
       message,
       (Array.isArray(actions) && actions.length && actions) || [{ text: 'OK' }],
     );
-  }
+  };
 
   confirmProfileSkipping = () => {
     this.notifyUser({
       title: 'Incomplete Profile',
-      message: 'For the best experience while using Discovrr, it is recommended that you complete your profile.',
+      message:
+        'For the best experience while using Discovrr, it is recommended that you complete your profile.',
       actions: [
         {
           text: 'Complete Profile',
@@ -251,11 +243,11 @@ class LoginScreen extends Component {
         },
       ],
     });
-  }
+  };
 
   toggleActivityIndicator = (isBusy = false) => {
     this.setState({ isProcessing: isBusy });
-  }
+  };
 
   focusField = (selector) => () => {
     try {
@@ -269,36 +261,39 @@ class LoginScreen extends Component {
       this.ignoreKeyboardHiding = false;
       //
     }
-  }
+  };
 
   updateInputValue = (input) => (value) => {
-    const {
-      inputMode,
-    } = this.state;
+    const { inputMode } = this.state;
 
     // const newValue = input === 'displayName' || input === 'password' ? value : value.toLowerCase();
     this.values[inputMode][input] = value.trim();
     this.setState({
       [`${input}Error`]: false,
     });
-  }
+  };
 
   updatePickerInput = (selector, index, section) => {
     const selectedIndex = isAndroid ? index : section;
 
-    debugAppLogger({ info: 'updatePickerInput', selector, selectedIndex, section });
+    debugAppLogger({
+      info: 'updatePickerInput',
+      selector,
+      selectedIndex,
+      section,
+    });
 
-    const {
-      inputMode,
-    } = this.state;
+    const { inputMode } = this.state;
 
-    this.values[inputMode][selector] = this.pickerItems[selector][selectedIndex].label;
+    this.values[inputMode][selector] = this.pickerItems[selector][
+      selectedIndex
+    ].label;
 
     this.setState({
       [selector]: this.pickerItems[selector][selectedIndex].label,
       [`${selector}Error`]: false,
     });
-  }
+  };
 
   showPicker = (selector) => () => {
     Keyboard.dismiss();
@@ -314,13 +309,14 @@ class LoginScreen extends Component {
         tintColor: '#FAFAFA',
         textColor: '#000000',
         menus: menuItems,
-        onDone: (section, menuIndex) => this.updatePickerInput(selector, menuIndex, section),
-        onCancel: () => { },
+        onDone: (section, menuIndex) =>
+          this.updatePickerInput(selector, menuIndex, section),
+        onCancel: () => {},
       });
     } else {
       //
     }
-  }
+  };
 
   showImageAttachmentOptions = () => {
     if (isAndroid || true) {
@@ -328,18 +324,20 @@ class LoginScreen extends Component {
         tintColor: '#FAFAFA',
         textColor: '#000000',
         title: 'Select from',
-        menus: [{
-          menus: [
-            {
-              label: 'Camera',
-              icon: cameraIcon,
-            },
-            {
-              label: 'Photos',
-              icon: photosIcon,
-            },
-          ],
-        }],
+        menus: [
+          {
+            menus: [
+              {
+                label: 'Camera',
+                icon: cameraIcon,
+              },
+              {
+                label: 'Photos',
+                icon: photosIcon,
+              },
+            ],
+          },
+        ],
         onDone: (section, menuIndex) => {
           const selection = isAndroid ? menuIndex : section;
           ImagePicker[selection ? 'openPicker' : 'openCamera']({
@@ -354,19 +352,33 @@ class LoginScreen extends Component {
             cropperActiveWidgetColor: '#00D8C6',
             cropperStatusBarColor: '#000000',
           }).then(({ size, path, mime, width, height }) => {
-            debugAppLogger({ info: 'Attached image details', size, path, mime, width, height });
+            debugAppLogger({
+              info: 'Attached image details',
+              size,
+              path,
+              mime,
+              width,
+              height,
+            });
             this.setState({
               avatarUri: path,
               avatarError: false,
             });
 
-            this.values.profile.avatar = { size, path, mime, width, height, type: 'image' };
+            this.values.profile.avatar = {
+              size,
+              path,
+              mime,
+              width,
+              height,
+              type: 'image',
+            };
           });
         },
         onCancel: () => {},
       });
     }
-  }
+  };
 
   performAction = (action) => () => {
     this.setState({
@@ -386,10 +398,10 @@ class LoginScreen extends Component {
     });
 
     if (
-      action === 'login'
-      || action === 'register'
-      || action === 'forgot'
-      || action === 'profile'
+      action === 'login' ||
+      action === 'register' ||
+      action === 'forgot' ||
+      action === 'profile'
     ) {
       Object.values(this.values).forEach((value) => {
         Object.keys(value).forEach((key) => {
@@ -397,7 +409,7 @@ class LoginScreen extends Component {
         });
       });
     }
-  }
+  };
 
   signInAnonymously = () => {
     this.setState({ isAuthenticating: true });
@@ -415,14 +427,11 @@ class LoginScreen extends Component {
           message: error.message,
         });
       });
-  }
+  };
 
   signInWithApple = async () => {
     try {
-      const {
-        isProcessing,
-        isAuthenticating,
-      } = this.state;
+      const { isProcessing, isAuthenticating } = this.state;
 
       if (isProcessing || isAuthenticating) return;
 
@@ -453,12 +462,12 @@ class LoginScreen extends Component {
       }
 
       // Create a Firebase credential from the response
-      const {
+      const { identityToken, nonce } = appleAuthRequestResponse;
+
+      const appleCredential = auth.AppleAuthProvider.credential(
         identityToken,
         nonce,
-      } = appleAuthRequestResponse;
-
-      const appleCredential = auth.AppleAuthProvider.credential(identityToken, nonce);
+      );
 
       debugAppLogger({
         info: 'signInWithApple - LoginScreen',
@@ -468,8 +477,7 @@ class LoginScreen extends Component {
       });
 
       // Sign the user in with the credential
-      await auth()
-        .signInWithCredential(appleCredential);
+      await auth().signInWithCredential(appleCredential);
 
       this.setState({
         isAuthenticating: false,
@@ -495,14 +503,11 @@ class LoginScreen extends Component {
         error,
       });
     }
-  }
+  };
 
   signInWithGoogle = async () => {
     try {
-      const {
-        isProcessing,
-        isAuthenticating,
-      } = this.state;
+      const { isProcessing, isAuthenticating } = this.state;
 
       if (isProcessing || isAuthenticating) return;
 
@@ -513,18 +518,16 @@ class LoginScreen extends Component {
       let idToken;
       let accessToken;
 
-      ({
-        idToken,
-      } = await GoogleSignin.signIn());
+      ({ idToken } = await GoogleSignin.signIn());
 
       if (isAndroid) {
-        ({
-          idToken,
-          accessToken,
-        } = await GoogleSignin.getTokens());
+        ({ idToken, accessToken } = await GoogleSignin.getTokens());
       }
 
-      const googleCredential = auth.GoogleAuthProvider.credential(idToken, accessToken);
+      const googleCredential = auth.GoogleAuthProvider.credential(
+        idToken,
+        accessToken,
+      );
 
       debugAppLogger({
         info: 'signInWithGoogle - LoginScreen',
@@ -532,8 +535,7 @@ class LoginScreen extends Component {
         googleCredential,
       });
 
-      await auth()
-        .signInWithCredential(googleCredential);
+      await auth().signInWithCredential(googleCredential);
 
       this.setState({
         isAuthenticating: false,
@@ -575,15 +577,12 @@ class LoginScreen extends Component {
         });
       }
     }
-  }
+  };
 
   loginUser = async () => {
     debugAppLogger({ info: 'gonna login' });
     try {
-      const {
-        email = '',
-        password = '',
-      } = this.values.login;
+      const { email = '', password = '' } = this.values.login;
 
       let isBagus = true;
 
@@ -632,7 +631,11 @@ class LoginScreen extends Component {
                 message = error.message;
             }
 
-            this.notifyUser({ title: 'Login Failed', message, action: undefined });
+            this.notifyUser({
+              title: 'Login Failed',
+              message,
+              action: undefined,
+            });
           });
 
         // let userDetails = {
@@ -687,14 +690,9 @@ class LoginScreen extends Component {
       }
     } catch (error) {
       debugAppLogger({ info: 'Login User', error: JSON.stringify(error) });
-      const {
-        code,
-      } = error;
+      const { code } = error;
 
-      let {
-        message,
-        title,
-      } = error;
+      let { message, title } = error;
 
       if (code === 100) {
         title = 'Connection Failed';
@@ -704,7 +702,7 @@ class LoginScreen extends Component {
       if (message) this.notifyUser({ title, message, action: undefined });
       this.toggleActivityIndicator();
     }
-  }
+  };
 
   resetPassword = async () => {
     try {
@@ -713,28 +711,34 @@ class LoginScreen extends Component {
         values: this.values,
       });
 
-      const {
-        email = '',
-      } = this.values.forgot;
+      const { email = '' } = this.values.forgot;
 
       if (emailRegex.test(email)) {
         this.toggleActivityIndicator(true);
         Keyboard.dismiss();
 
-        await auth().sendPasswordResetEmail(email, null)
+        await auth()
+          .sendPasswordResetEmail(email, null)
           .then(() => {
             this.notifyUser({
               title: 'Password Reset Initiated',
-              message: 'Please following the instructions sent to your email to complete reseting your password.',
-              actions: [{
-                text: 'OK',
-                onPress: () => this.performAction('login')(),
-              }],
+              message:
+                'Please following the instructions sent to your email to complete reseting your password.',
+              actions: [
+                {
+                  text: 'OK',
+                  onPress: () => this.performAction('login')(),
+                },
+              ],
             });
           })
           .catch((error) => {
             // throw error;
-            this.notifyUser({ title: 'Password Reset Failed', message: error.message, action: undefined });
+            this.notifyUser({
+              title: 'Password Reset Failed',
+              message: error.message,
+              action: undefined,
+            });
           });
 
         this.toggleActivityIndicator(false);
@@ -751,7 +755,7 @@ class LoginScreen extends Component {
 
       this.toggleActivityIndicator(false);
     }
-  }
+  };
 
   registerUser = async () => {
     debugAppLogger({ info: 'Gonna register' });
@@ -817,14 +821,9 @@ class LoginScreen extends Component {
       }
     } catch (error) {
       debugAppLogger({ info: 'Register User', error: JSON.stringify(error) });
-      const {
-        code,
-      } = error;
+      const { code } = error;
 
-      let {
-        message,
-        title,
-      } = error;
+      let { message, title } = error;
 
       if (code === 100) {
         title = 'Connection Failed';
@@ -835,18 +834,12 @@ class LoginScreen extends Component {
 
       this.toggleActivityIndicator();
     }
-  }
+  };
 
   updateUserProfile = async () => {
     try {
       const {
-        profile: {
-          name,
-          surname,
-          age,
-          gender,
-          avatar,
-        } = {},
+        profile: { name, surname, age, gender, avatar } = {},
       } = this.values;
       debugAppLogger({ info: 'updateUserProfile', values: this.values });
 
@@ -886,15 +879,21 @@ class LoginScreen extends Component {
               const query = new Parse.Query(Parse.Object.extend('Profile'));
               query.equalTo('owner', currentUser);
               const results = await query.find();
-              debugAppLogger({ info: 'userProfile', objectId: currentUser.id, results });
+              debugAppLogger({
+                info: 'userProfile',
+                objectId: currentUser.id,
+                results,
+              });
 
               if (Array.isArray(results) && results.length) {
-                const filename = `avatars/${results[0].id}_${Math.random().toString(36).substring(2)}.jpg`;
-                const uploadUri = isAndroid ? avatar.path : avatar.path.replace('file://', '');
+                const filename = `avatars/${
+                  results[0].id
+                }_${Math.random().toString(36).substring(2)}.jpg`;
+                const uploadUri = isAndroid
+                  ? avatar.path
+                  : avatar.path.replace('file://', '');
 
-                const task = storage()
-                  .ref(filename)
-                  .putFile(uploadUri);
+                const task = storage().ref(filename).putFile(uploadUri);
 
                 await task;
 
@@ -908,17 +907,25 @@ class LoginScreen extends Component {
                 // parseUserProfile.set('surname', surname);
                 // parseUserProfile.set('ageRange', age);
                 // parseUserProfile.set('gender', gender);
-                parseUserProfile.set('avatar', { ...avatar, path: filename, url: imageUrl });
+                parseUserProfile.set('avatar', {
+                  ...avatar,
+                  path: filename,
+                  url: imageUrl,
+                });
 
                 await parseUserProfile.save();
 
-                debugAppLogger({ info: 'Successfully updated the donkey\'s profile ' });
+                debugAppLogger({
+                  info: "Successfully updated the donkey's profile ",
+                });
 
-                this.dispatch(login({
-                  ...this.skipUserDetails,
-                  name,
-                  avatar: { ...avatar, path: filename, url: imageUrl },
-                }));
+                this.dispatch(
+                  login({
+                    ...this.skipUserDetails,
+                    name,
+                    avatar: { ...avatar, path: filename, url: imageUrl },
+                  }),
+                );
               }
             } else {
               // navigate('Auth');
@@ -931,14 +938,9 @@ class LoginScreen extends Component {
             this.toggleActivityIndicator();
             debugAppLogger({ info: 'Error parse update user profile', error });
 
-            const {
-              code,
-            } = error;
+            const { code } = error;
 
-            let {
-              message,
-              title,
-            } = error;
+            let { message, title } = error;
 
             if (code === 100) {
               title = 'Connection Failed';
@@ -951,13 +953,11 @@ class LoginScreen extends Component {
     } catch (error) {
       this.toggleActivityIndicator();
     }
-  }
+  };
 
   flashErrorIndicator = (errorType) => {
     try {
-      const {
-        [errorType]: errorValue,
-      } = this.state;
+      const { [errorType]: errorValue } = this.state;
 
       if (errorValue) {
         this[errorType].flash(1000).then(() => {});
@@ -967,15 +967,15 @@ class LoginScreen extends Component {
     } catch (e) {
       //
     }
-  }
+  };
 
   showToast = (selector) => () => {
     ToastAndroid.show(this.toastMesages[selector], ToastAndroid.SHORT);
-  }
+  };
 
   videoLoaded = () => {
     this.setState({ videoHasLoaded: true });
-  }
+  };
 
   render() {
     const {
@@ -1001,10 +1001,7 @@ class LoginScreen extends Component {
     } = this.state;
 
     const {
-      insets: {
-        top: topInset,
-        bottom: bottomInset,
-      },
+      insets: { top: topInset, bottom: bottomInset },
     } = this.props;
 
     const activityColor = isProcessing ? '#AAAAAA' : 'black';
@@ -1021,7 +1018,13 @@ class LoginScreen extends Component {
 
     if (inputMode === 'none') {
       authComponents = (
-        <View style={{ flex: 1, paddingBottom: windowWidth * 0.8 * 0.271, justifyContent: 'center', backgroundColor: 'transparent' }}>
+        <View
+          style={{
+            flex: 1,
+            paddingBottom: windowWidth * 0.8 * 0.271,
+            justifyContent: 'center',
+            backgroundColor: 'transparent',
+          }}>
           <ActionButton
             label="Log in"
             backgroundColor="#0076CE"
@@ -1045,14 +1048,12 @@ class LoginScreen extends Component {
             paddingBottom: bottomInset + 10,
             // justifyContent: 'center',
             // backgroundColor: 'orange',
-          }}
-        >
+          }}>
           <View
             style={{
               flex: 1,
               justifyContent: 'center',
-            }}
-          >
+            }}>
             <NavButton
               isProcessing={isProcessing}
               iconName="arrow-back-ios"
@@ -1074,7 +1075,10 @@ class LoginScreen extends Component {
               updateInputValue={this.updateInputValue}
               error={emailError}
               selector="email"
-              containerStyle={{ maxWidth: windowWidth * 0.7, alignSelf: 'center' }}
+              containerStyle={{
+                maxWidth: windowWidth * 0.7,
+                alignSelf: 'center',
+              }}
               extraErrorStyles={{ bottom: 25, right: -10 }}
             />
 
@@ -1091,7 +1095,10 @@ class LoginScreen extends Component {
               updateInputValue={this.updateInputValue}
               error={passwordError}
               selector="password"
-              containerStyle={{ maxWidth: windowWidth * 0.7, alignSelf: 'center' }}
+              containerStyle={{
+                maxWidth: windowWidth * 0.7,
+                alignSelf: 'center',
+              }}
               extraErrorStyles={{ bottom: 25, right: -10 }}
             />
 
@@ -1106,8 +1113,7 @@ class LoginScreen extends Component {
                   paddingBottom: 7,
                   color: videoHasLoaded ? 'white' : activityColor,
                 }}
-                onPress={this.performAction('forgot')}
-              >
+                onPress={this.performAction('forgot')}>
                 Forgot password?
               </Text>
 
@@ -1139,8 +1145,7 @@ class LoginScreen extends Component {
               justifyContent: 'center',
               // marginTop: windowHeight * 0.1,
               alignItems: 'center',
-            }}
-          >
+            }}>
             <View
               style={{
                 flex: 0,
@@ -1148,13 +1153,15 @@ class LoginScreen extends Component {
                 justifyContent: 'center',
                 // marginTop: windowHeight * 0.1,
                 alignItems: 'center',
-              }}
-            >
-
+              }}>
               {!isAndroid && (
                 <AppleButton
                   // disabled={isProcessing || isAuthenticating}
-                  buttonStyle={videoHasLoaded ? AppleButton.Style.WHITE : AppleButton.Style.WHIITE}
+                  buttonStyle={
+                    videoHasLoaded
+                      ? AppleButton.Style.WHITE
+                      : AppleButton.Style.WHIITE
+                  }
                   buttonType={AppleButton.Type.SIGN_IN}
                   style={{
                     width: 160, // You must specify a width
@@ -1191,15 +1198,19 @@ class LoginScreen extends Component {
               }}
               // onPress={this.signInAnonymously}
             >
-              {/* skip for now */}
-              {' '}
+              {/* skip for now */}{' '}
             </Text>
           </View>
         </View>
       );
     } else if (inputMode === 'forgot') {
       authComponents = (
-        <View style={{ flex: 1, paddingBottom: windowWidth * 0.8 * 0.271, justifyContent: 'center' }}>
+        <View
+          style={{
+            flex: 1,
+            paddingBottom: windowWidth * 0.8 * 0.271,
+            justifyContent: 'center',
+          }}>
           <NavButton
             isProcessing={isProcessing}
             iconName="arrow-back-ios"
@@ -1221,7 +1232,10 @@ class LoginScreen extends Component {
             updateInputValue={this.updateInputValue}
             error={emailError}
             selector="email"
-            containerStyle={{ maxWidth: windowWidth * 0.7, alignSelf: 'center' }}
+            containerStyle={{
+              maxWidth: windowWidth * 0.7,
+              alignSelf: 'center',
+            }}
             extraErrorStyles={{ bottom: 25, right: -10 }}
           />
 
@@ -1241,14 +1255,12 @@ class LoginScreen extends Component {
             // paddingBottom: windowWidth * 0.8 * 0.271,
             paddingBottom: bottomInset + 10,
             // justifyContent: 'center',
-          }}
-        >
+          }}>
           <View
             style={{
               flex: 1,
               justifyContent: 'center',
-            }}
-          >
+            }}>
             <NavButton
               isProcessing={isProcessing}
               iconName="arrow-back-ios"
@@ -1305,7 +1317,10 @@ class LoginScreen extends Component {
               error={emailError}
               selector="email"
               extraStyles={{ marginVertical: 7 }}
-              containerStyle={{ maxWidth: windowWidth * 0.7, alignSelf: 'center' }}
+              containerStyle={{
+                maxWidth: windowWidth * 0.7,
+                alignSelf: 'center',
+              }}
               extraErrorStyles={{ bottom: 25, right: -10 }}
             />
 
@@ -1323,7 +1338,10 @@ class LoginScreen extends Component {
               error={passwordError}
               selector="password"
               extraStyles={{ marginVertical: 7 }}
-              containerStyle={{ maxWidth: windowWidth * 0.7, alignSelf: 'center' }}
+              containerStyle={{
+                maxWidth: windowWidth * 0.7,
+                alignSelf: 'center',
+              }}
               extraErrorStyles={{ bottom: 25, right: -10 }}
             />
 
@@ -1342,9 +1360,7 @@ class LoginScreen extends Component {
               justifyContent: 'center',
               // marginTop: windowHeight * 0.1,
               alignItems: 'center',
-            }}
-          >
-
+            }}>
             <View
               style={{
                 flex: 0,
@@ -1352,12 +1368,15 @@ class LoginScreen extends Component {
                 justifyContent: 'center',
                 // marginTop: windowHeight * 0.1,
                 alignItems: 'center',
-              }}
-            >
+              }}>
               {!isAndroid && (
                 <AppleButton
                   // disabled={isProcessing || isAuthenticating}
-                  buttonStyle={videoHasLoaded ? AppleButton.Style.WHITE : AppleButton.Style.WHIITE}
+                  buttonStyle={
+                    videoHasLoaded
+                      ? AppleButton.Style.WHITE
+                      : AppleButton.Style.WHIITE
+                  }
                   buttonType={AppleButton.Type.SIGN_UP}
                   style={{
                     width: 160, // You must specify a width
@@ -1394,56 +1413,57 @@ class LoginScreen extends Component {
               }}
               // onPress={this.signInAnonymously}
             >
-              {/* skip for now */}
-              {' '}
+              {/* skip for now */}{' '}
             </Text>
           </View>
         </View>
       );
     } else if (inputMode === 'profileIntro') {
       authComponents = (
-        <View style={{ flex: 1, paddingVertical: windowHeight * 0.05, justifyContent: 'center' }}>
+        <View
+          style={{
+            flex: 1,
+            paddingVertical: windowHeight * 0.05,
+            justifyContent: 'center',
+          }}>
           <View style={styles.signUpCard}>
             <View style={{ flex: 1, justifyContent: 'space-around' }}>
-              <Text>{' '}</Text>
+              <Text> </Text>
 
-              <Text>{' '}</Text>
+              <Text> </Text>
 
               <Text
                 allowFontScaling={false}
-                style={{ fontSize: 28, fontWeight: 'bold', textAlign: 'center' }}
-              >
+                style={{
+                  fontSize: 28,
+                  fontWeight: 'bold',
+                  textAlign: 'center',
+                }}>
                 Welcome to{'\n'}Discovrr!
               </Text>
 
               <Text
                 allowFontScaling={false}
-                style={{ fontSize: 18, textAlign: 'center' }}
-              >
+                style={{ fontSize: 18, textAlign: 'center' }}>
                 Here are a couple of steps to give you the best experience.
               </Text>
 
-              <Text>{' '}</Text>
+              <Text> </Text>
             </View>
 
             <View style={{}}>
               <TouchableOpacity
                 activeOpacity={0.9}
                 style={[styles.button, { backgroundColor: '#00D8C6' }]}
-                onPress={this.performAction('profile')}
-              >
-                <Text
-                  allowFontScaling={false}
-                  style={styles.buttonLabel}
-                >
+                onPress={this.performAction('profile')}>
+                <Text allowFontScaling={false} style={styles.buttonLabel}>
                   Next
                 </Text>
               </TouchableOpacity>
 
               <Text
                 style={styles.skipProfileAction}
-                onPress={this.confirmProfileSkipping}
-              >
+                onPress={this.confirmProfileSkipping}>
                 skip for now
               </Text>
             </View>
@@ -1455,13 +1475,21 @@ class LoginScreen extends Component {
       if (avatarUri) avatarImage = { uri: avatarUri };
 
       authComponents = (
-        <View style={{ flex: 1, paddingVertical: windowHeight * 0.05, justifyContent: 'center' }}>
+        <View
+          style={{
+            flex: 1,
+            paddingVertical: windowHeight * 0.05,
+            justifyContent: 'center',
+          }}>
           <View style={styles.signUpCard}>
             <View style={{ flex: 3, justifyContent: 'space-around' }}>
               <Text
                 allowFontScaling={false}
-                style={{ fontSize: 18, fontWeight: 'bold', textAlign: 'center' }}
-              >
+                style={{
+                  fontSize: 18,
+                  fontWeight: 'bold',
+                  textAlign: 'center',
+                }}>
                 Tell us about yourself
               </Text>
 
@@ -1471,8 +1499,7 @@ class LoginScreen extends Component {
                   disabled={isProcessing}
                   activeOpacity={0.8}
                   style={styles.avatarImage}
-                  onPress={this.showImageAttachmentOptions}
-                >
+                  onPress={this.showImageAttachmentOptions}>
                   <Image
                     style={styles.avatarImage}
                     source={avatarImage}
@@ -1485,7 +1512,11 @@ class LoginScreen extends Component {
                       name="add-a-photo"
                       size={24}
                       color="#777777"
-                      style={{ position: 'absolute', bottom: '20%', right: '10%' }}
+                      style={{
+                        position: 'absolute',
+                        bottom: '20%',
+                        right: '10%',
+                      }}
                     />
                   )}
                 </TouchableOpacity>
@@ -1494,7 +1525,10 @@ class LoginScreen extends Component {
                   <Animatable.View
                     animation="flash"
                     ref={this.refSelector('avatarError')}
-                    style={[styles.errorCircle, { bottom: '50%', right: '23%' }]}
+                    style={[
+                      styles.errorCircle,
+                      { bottom: '50%', right: '23%' },
+                    ]}
                   />
                 )}
               </View>
@@ -1589,8 +1623,7 @@ class LoginScreen extends Component {
               <Text
                 disabled={isProcessing}
                 style={[styles.skipProfileAction, { color: activityColor }]}
-                onPress={this.confirmProfileSkipping}
-              >
+                onPress={this.confirmProfileSkipping}>
                 skip for now
               </Text>
             </View>
@@ -1612,10 +1645,7 @@ class LoginScreen extends Component {
 
     return (
       <View style={{ height: windowHeight }}>
-        <ScrollView
-          keyboardShouldPersistTaps="handled"
-          bounces={false}
-        >
+        <ScrollView keyboardShouldPersistTaps="handled" bounces={false}>
           {/* <ImageBackground
             // source={loginBackground}
             source={{ uri: 'https://firebasestorage.googleapis.com/v0/b/discovrrapp-88c28.appspot.com/o/sys%2FvideoPoster.png?alt=media&token=d4ca6c5a-8d09-4721-9910-0e2a2e2b1578' }}
@@ -1643,8 +1673,7 @@ class LoginScreen extends Component {
           <View
             // source={loginBackground}
             // source={{ uri: 'https://firebasestorage.googleapis.com/v0/b/discovrrapp-88c28.appspot.com/o/sys%2FvideoPoster.png?alt=media&token=d4ca6c5a-8d09-4721-9910-0e2a2e2b1578' }}
-            style={styles.image}
-          >
+            style={styles.image}>
             <Video
               disableFocus
               muted
@@ -1658,7 +1687,10 @@ class LoginScreen extends Component {
               posterResizeMode="cover"
               // poster="https://firebasestorage.googleapis.com/v0/b/discovrrapp-88c28.appspot.com/o/sys%2FvideoPoster.png?alt=media&token=d4ca6c5a-8d09-4721-9910-0e2a2e2b1578"
               poster={videoPoster}
-              source={{ uri: 'https://firebasestorage.googleapis.com/v0/b/discovrrapp-88c28.appspot.com/o/sys%2FloginBackgroundVideo.mp4?alt=media&token=ee3959f1-71ae-4f7b-94d9-05a3979112bc' }}
+              source={{
+                uri:
+                  'https://firebasestorage.googleapis.com/v0/b/discovrrapp-88c28.appspot.com/o/sys%2FloginBackgroundVideo.mp4?alt=media&token=ee3959f1-71ae-4f7b-94d9-05a3979112bc',
+              }}
               onReadyForDisplay={this.videoLoaded}
               style={styles.backgroundVideo}
             />
@@ -1667,10 +1699,11 @@ class LoginScreen extends Component {
               style={[
                 styles.contentContainer,
                 {
-                  paddingTop: isAndroid ? StatusBar.currentHeight + 10 : topInset,
+                  paddingTop: isAndroid
+                    ? StatusBar.currentHeight + 10
+                    : topInset,
                 },
-              ]}
-            >
+              ]}>
               <Image
                 source={discovrrLogo}
                 resizeMethod="resize"
@@ -1678,7 +1711,6 @@ class LoginScreen extends Component {
               />
 
               {authComponents}
-
             </View>
           </View>
 
@@ -1748,8 +1780,7 @@ const InputField = ({
         <TouchableOpacity
           activeOpacity={0.9}
           style={styles.passVisibilityButton}
-          onPress={() => setHidePassword(!hidePassword)}
-        >
+          onPress={() => setHidePassword(!hidePassword)}>
           <MaterialIcon
             name={hidePassword ? 'visibility-off' : 'visibility'}
             size={20}
@@ -1769,48 +1800,29 @@ const InputField = ({
   );
 };
 
-const ActionButton = ({
-  isProcessing,
-  backgroundColor,
-  label,
-  action,
-}) => (
+const ActionButton = ({ isProcessing, backgroundColor, label, action }) => (
   <TouchableOpacity
     disabled={isProcessing}
     activeOpacity={0.9}
     style={[styles.button, { backgroundColor }]}
-    onPress={action}
-  >
+    onPress={action}>
     {isProcessing ? (
-      <ActivityIndicator
-        size="small"
-        color="white"
-      />
+      <ActivityIndicator size="small" color="white" />
     ) : (
-      <Text
-        allowFontScaling={false}
-        style={styles.buttonLabel}
-      >
+      <Text allowFontScaling={false} style={styles.buttonLabel}>
         {label}
       </Text>
     )}
   </TouchableOpacity>
 );
 
-const NavButton = ({
-  isProcessing,
-  iconName,
-  iconSize,
-  iconColor,
-  action,
-}) => (
+const NavButton = ({ isProcessing, iconName, iconSize, iconColor, action }) => (
   <View style={[styles.buttonLikeContainer, { marginBottom: 20 }]}>
     <TouchableOpacity
       disabled={isProcessing}
       activeOpacity={0.9}
       style={{ position: 'absolute', top: 0, left: 0, padding: 7 }}
-      onPress={action}
-    >
+      onPress={action}>
       <MaterialIcon
         name={iconName}
         size={iconSize}

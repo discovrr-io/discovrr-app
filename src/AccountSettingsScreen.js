@@ -1,9 +1,4 @@
-import React, {
-  Component,
-  useState,
-  useEffect,
-  useRef,
-} from 'react';
+import React, { Component, useState, useEffect, useRef } from 'react';
 
 import {
   // ActivityIndicator,
@@ -20,45 +15,26 @@ import {
   TextInput,
 } from 'react-native';
 
-import {
-  connect,
-} from 'react-redux';
+import { connect } from 'react-redux';
 
-import {
-  Surface,
-} from 'react-native-paper';
+import { Surface } from 'react-native-paper';
 
-import {
-  GooglePlacesAutocomplete,
-} from 'react-native-google-places-autocomplete';
+import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 
-import {
-  HeaderHeightContext,
-} from '@react-navigation/stack';
+import { HeaderHeightContext } from '@react-navigation/stack';
 
-import {
-  withSafeAreaInsets,
-} from 'react-native-safe-area-context';
+import { withSafeAreaInsets } from 'react-native-safe-area-context';
 
 import RNPopoverMenu from 'react-native-popover-menu';
-import Icon from 'react-native-vector-icons';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
-import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
+// import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import * as Animatable from 'react-native-animatable';
 
-import {
-  isAndroid,
-  windowWidth,
-} from './utilities/Constants';
+import { isAndroid, windowWidth } from './utilities/Constants';
 
-import {
-  logException,
-} from './utilities/NetworkRequests';
+import { logException } from './utilities/NetworkRequests';
 
-import {
-  updateProfile,
-} from './utilities/Actions';
-
+import { updateProfile } from './utilities/Actions';
 
 const Parse = require('parse/react-native');
 
@@ -112,25 +88,34 @@ class AccountSettingsScreen extends Component {
     this.subscriptions.forEach((sub) => sub.remove());
   }
 
-  refSelector = (selector) => (compRef) => { this[selector] = compRef; }
+  refSelector = (selector) => (compRef) => {
+    this[selector] = compRef;
+  };
 
   keyboardWillShow = (event) => {
     if (isAndroid) {
       this.setState({ animatedHeight: event.endCoordinates.height });
     } else {
       const { animatedHeight } = this.state;
-      Animated.timing(animatedHeight, { toValue: event.endCoordinates.height - 40, duration: 200 }).start();
+      Animated.timing(animatedHeight, {
+        toValue: event.endCoordinates.height - 40,
+        duration: 200,
+      }).start();
     }
-  }
+  };
 
   keyboardWillHide = () => {
     if (isAndroid) {
       if (!this.ignoreKeyboardHiding) this.setState({ animatedHeight: 0 });
     } else {
       const { animatedHeight } = this.state;
-      Animated.timing(animatedHeight, { toValue: 0, delay: 200, duration: 200 }).start();
+      Animated.timing(animatedHeight, {
+        toValue: 0,
+        delay: 200,
+        duration: 200,
+      }).start();
     }
-  }
+  };
 
   updateInputValue = (input) => (value = '') => {
     debugAppLogger({
@@ -143,7 +128,7 @@ class AccountSettingsScreen extends Component {
     this.setState({
       [`${input}Error`]: false,
     });
-  }
+  };
 
   validateInput = (input) => () => {
     debugAppLogger({
@@ -152,15 +137,13 @@ class AccountSettingsScreen extends Component {
       inputValue: this.name,
     });
 
-    if (
-      this[input]
-      && this[input].trim()
-    ) {
-      if (this[input].trim() !== this[`${input}Old`]) this.syncProfileChanges(input);
+    if (this[input] && this[input].trim()) {
+      if (this[input].trim() !== this[`${input}Old`])
+        this.syncProfileChanges(input);
     } else {
       this.flashErrorIndicator(`${input}Error`);
     }
-  }
+  };
 
   setPreferredLocation = (data, details) => {
     try {
@@ -179,7 +162,7 @@ class AccountSettingsScreen extends Component {
     } catch (error) {
       debugAppLogger({ info: '>> Google places Error', error });
     }
-  }
+  };
 
   syncProfileChanges = (input, extraData) => {
     try {
@@ -201,14 +184,8 @@ class AccountSettingsScreen extends Component {
               const [parseUserProfile] = results;
 
               if (input === 'hometown') {
-                const {
-                  geometry: {
-                    location: {
-                      lat,
-                      lng,
-                    } = {},
-                  } = {},
-                } = extraData || {};
+                const { geometry: { location: { lat, lng } = {} } = {} } =
+                  extraData || {};
 
                 if (lat && lng) {
                   const geoPoint = new Parse.GeoPoint(lat, lng);
@@ -224,7 +201,8 @@ class AccountSettingsScreen extends Component {
 
               this[`${input}Old`] = this[input];
 
-              if (input === 'hometown') this.locationUpdateEmitter.emit('locationUpdate', extraData);
+              if (input === 'hometown')
+                this.locationUpdateEmitter.emit('locationUpdate', extraData);
             }
           } else {
             // alert('should logout the donkey');
@@ -239,13 +217,11 @@ class AccountSettingsScreen extends Component {
       debugAppLogger({ info: 'Catch Error parse checkCurrent user!!', error });
       // this.errorLogout();
     }
-  }
+  };
 
   flashErrorIndicator = (errorType) => {
     try {
-      const {
-        [errorType]: errorValue,
-      } = this.state;
+      const { [errorType]: errorValue } = this.state;
       debugAppLogger({
         info: 'AccountSettingsScreen flashErrorIndicator',
         errorType,
@@ -258,15 +234,15 @@ class AccountSettingsScreen extends Component {
         this.setState({ [errorType]: true });
       }
     } catch (e) {
-      //
+      // TODO
     }
-  }
+  };
 
   errorLogout = () => {
     Parse.User.logOut()
       .then(() => {})
       .catch((innerError) => logException({ error: innerError }));
-  }
+  };
 
   render() {
     const {
@@ -281,118 +257,114 @@ class AccountSettingsScreen extends Component {
     } = this.state;
 
     const {
-      insets: {
-        bottom: bottomInset,
-      },
-      userDetails: {
-        name,
-        surname,
-        hometown,
-        description,
-      },
+      insets: { bottom: bottomInset },
+      userDetails: { name, surname, hometown, description },
     } = this.props;
-
 
     return (
       <HeaderHeightContext.Consumer>
         {(headerHeight) => (
-          <View style={{ flex: 1, backgroundColor: 'white', paddingBottom: bottomInset || 0 }}>
+          <View
+            style={{
+              flex: 1,
+              backgroundColor: 'white',
+              paddingBottom: bottomInset || 0,
+            }}>
             {/* <SafeAreaView style={styles.container}> */}
-              <ScrollView keyboardShouldPersistTaps="handled">
-                <View
-                  style={{
-                    // paddingTop: headerHeight,
-                    paddingTop: 20,
-                  }}
-                >
-                  <InputField
-                    refSelector={this.refSelector}
-                    label="Name"
-                    defaultValue={name}
-                    autoCompleteType="name"
-                    keyboardType="default"
-                    placeholder="Name"
-                    returnKeyType="done"
-                    textContentType="name"
-                    // focusAction={this.focusField('surname')}
-                    updateInputValue={this.updateInputValue}
-                    error={nameError}
-                    selector="name"
-                    extraStyles={{ marginVertical: 0 }}
-                    blurred={this.validateInput}
-                  />
+            <ScrollView keyboardShouldPersistTaps="handled">
+              <View
+                style={{
+                  // paddingTop: headerHeight,
+                  paddingTop: 20,
+                }}>
+                <InputField
+                  refSelector={this.refSelector}
+                  label="Name"
+                  defaultValue={name}
+                  autoCompleteType="name"
+                  keyboardType="default"
+                  placeholder="Name"
+                  returnKeyType="done"
+                  textContentType="name"
+                  // focusAction={this.focusField('surname')}
+                  updateInputValue={this.updateInputValue}
+                  error={nameError}
+                  selector="name"
+                  extraStyles={{ marginVertical: 0 }}
+                  blurred={this.validateInput}
+                />
 
-                  <View style={styles.divider} />
+                <View style={styles.divider} />
 
-                  <InputField
-                    refSelector={this.refSelector}
-                    label="Surname"
-                    defaultValue={surname}
-                    autoCompleteType="name"
-                    keyboardType="default"
-                    placeholder="Surname"
-                    returnKeyType="done"
-                    textContentType="name"
-                    // focusAction={this.focusField('surname')}
-                    updateInputValue={this.updateInputValue}
-                    error={surnameError}
-                    selector="surname"
-                    extraStyles={{ marginVertical: 0 }}
-                    blurred={this.validateInput}
-                  />
+                <InputField
+                  refSelector={this.refSelector}
+                  label="Surname"
+                  defaultValue={surname}
+                  autoCompleteType="name"
+                  keyboardType="default"
+                  placeholder="Surname"
+                  returnKeyType="done"
+                  textContentType="name"
+                  // focusAction={this.focusField('surname')}
+                  updateInputValue={this.updateInputValue}
+                  error={surnameError}
+                  selector="surname"
+                  extraStyles={{ marginVertical: 0 }}
+                  blurred={this.validateInput}
+                />
 
-                  <View style={styles.divider} />
+                <View style={styles.divider} />
 
-                  <InputField
-                    disabled
-                    refSelector={this.refSelector}
-                    label="Interests"
-                    // defaultValue={surname}
-                    autoCompleteType="off"
-                    keyboardType="default"
-                    placeholder="..."
-                    returnKeyType="done"
-                    textContentType="none"
-                    // focusAction={this.focusField('surname')}
-                    updateInputValue={this.updateInputValue}
-                    error={interestsError}
-                    selector="interests"
-                    extraStyles={{ marginVertical: 0 }}
-                    blurred={this.validateInput}
-                  />
+                <InputField
+                  disabled
+                  refSelector={this.refSelector}
+                  label="Interests"
+                  // defaultValue={surname}
+                  autoCompleteType="off"
+                  keyboardType="default"
+                  placeholder="..."
+                  returnKeyType="done"
+                  textContentType="none"
+                  // focusAction={this.focusField('surname')}
+                  updateInputValue={this.updateInputValue}
+                  error={interestsError}
+                  selector="interests"
+                  extraStyles={{ marginVertical: 0 }}
+                  blurred={this.validateInput}
+                />
 
-                  <View style={styles.divider} />
+                <View style={styles.divider} />
 
-                  <InputField
-                    refSelector={this.refSelector}
-                    multiline
-                    // isProcessing={isProcessing}
-                    fontSize={12}
-                    label="Profile Description"
-                    defaultValue={description}
-                    autoCompleteType="off"
-                    keyboardType="default"
-                    placeholder="..."
-                    returnKeyType="done"
-                    textContentType="none"
-                    // focusAction={this.focusField('surname')}
-                    updateInputValue={this.updateInputValue}
-                    error={descriptionError}
-                    selector="description"
-                    extraStyles={{ fontSize: 12, marginVertical: 0 }}
-                    blurred={this.validateInput}
-                  />
+                <InputField
+                  refSelector={this.refSelector}
+                  multiline
+                  // isProcessing={isProcessing}
+                  fontSize={12}
+                  label="Profile Description"
+                  defaultValue={description}
+                  autoCompleteType="off"
+                  keyboardType="default"
+                  placeholder="..."
+                  returnKeyType="done"
+                  textContentType="none"
+                  // focusAction={this.focusField('surname')}
+                  updateInputValue={this.updateInputValue}
+                  error={descriptionError}
+                  selector="description"
+                  extraStyles={{ fontSize: 12, marginVertical: 0 }}
+                  blurred={this.validateInput}
+                />
 
-                  <View style={styles.divider} />
+                <View style={styles.divider} />
 
-                  <LocationSearch
-                    hometown={hometown}
-                    setPreferredLocation={this.setPreferredLocation}
-                  />
-                </View>
+                <LocationSearch
+                  hometown={hometown}
+                  setPreferredLocation={this.setPreferredLocation}
+                />
+              </View>
 
-                <Animated.View style={{ height: animatedHeight }} />
-              </ScrollView>
+              <Animated.View style={{ height: animatedHeight }} />
+            </ScrollView>
             {/* </SafeAreaView> */}
 
             <StatusBar barStyle="dark-content" />
@@ -432,8 +404,7 @@ const InputField = ({
       <View style={containerStyle}>
         <Text
           allowFontScaling={false}
-          style={{ fontSize: 12, color: '#666666', marginBottom: 10 }}
-        >
+          style={{ fontSize: 12, color: '#666666', marginBottom: 10 }}>
           {label}
         </Text>
 
@@ -461,8 +432,7 @@ const InputField = ({
           <TouchableOpacity
             activeOpacity={0.9}
             style={styles.passVisibilityButton}
-            onPress={() => setHidePassword(!hidePassword)}
-          >
+            onPress={() => setHidePassword(!hidePassword)}>
             <MaterialIcon
               name={hidePassword ? 'visibility-off' : 'visibility'}
               size={20}
@@ -494,8 +464,7 @@ const LocationSearch = ({ hometown, setPreferredLocation }) => {
     <View style={{ paddingLeft: 30, marginBottom: 50 }}>
       <Text
         allowFontScaling={false}
-        style={{ fontSize: 12, color: '#666666', marginBottom: 10 }}
-      >
+        style={{ fontSize: 12, color: '#666666', marginBottom: 10 }}>
         Hometown
       </Text>
 
@@ -586,17 +555,14 @@ const styles = StyleSheet.create({
 });
 
 const mapStateToProps = (state) => {
-  const {
-    userState: {
-      locationPreference,
-      userDetails = {},
-    } = {},
-  } = state;
+  const { userState: { locationPreference, userDetails = {} } = {} } = state;
 
-  return ({
+  return {
     locationPreference,
     userDetails,
-  });
+  };
 };
 
-export default connect(mapStateToProps)(withSafeAreaInsets(AccountSettingsScreen));
+export default connect(mapStateToProps)(
+  withSafeAreaInsets(AccountSettingsScreen),
+);

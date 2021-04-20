@@ -1,7 +1,4 @@
-import React, {
-  Component,
-  useState,
-} from 'react';
+import React, { Component, useState } from 'react';
 
 import {
   Alert,
@@ -14,47 +11,28 @@ import {
   View,
 } from 'react-native';
 
+import { Avatar, Surface, Switch } from 'react-native-paper';
+import { connect } from 'react-redux';
+import { Placeholder, PlaceholderMedia, Fade } from 'rn-placeholder';
 import * as Animatable from 'react-native-animatable';
-import RNPopoverMenu from 'react-native-popover-menu';
 import FastImage from 'react-native-fast-image';
-import Icon from 'react-native-vector-icons';
-import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
-import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import MasonryList from 'react-native-masonry-list';
+import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialIcon from 'react-native-vector-icons';
+import RNPopoverMenu from 'react-native-popover-menu';
 
-import {
-  connect,
-} from 'react-redux';
-
-import {
-  Placeholder,
-  PlaceholderMedia,
-  Fade,
-} from 'rn-placeholder';
-
-import {
-  Avatar,
-  Surface,
-  Switch,
-} from 'react-native-paper';
-
-import {
-  isAndroid,
-  windowWidth,
-  windowHeight,
-} from './utilities/Constants';
-
+import { isAndroid, windowWidth, windowHeight } from './utilities/Constants';
 import BottomActivityIndicator from './components/BottomActivityIndicator';
 
 const Parse = require('parse/react-native');
 
-const deleteIcon = <Icon family="MaterialIcons" name="delete" color="#000000" size={24} />;
-const editIcon = <Icon family="MaterialIcons" name="create" color="#000000" size={24} />;
+const deleteIcon = <MaterialIcon name="delete" color="#000000" size={24} />;
+const editIcon = <MaterialIcon name="create" color="#000000" size={24} />;
 
 const defaultAvatar = require('../resources/images/defaultAvatar.jpeg');
 const imagePlaceholder = require('../resources/images/imagePlaceholder.png');
 
-const vpWidth = (windowWidth * 0.5) - 15;
+const vpWidth = windowWidth * 0.5 - 15;
 
 const maxHeaderWidth = windowWidth * 0.465;
 const maxFooterWidth = windowWidth * 0.475;
@@ -66,13 +44,8 @@ class NoteDetailScreen extends Component {
     super(props);
 
     ({
-      navigation: {
-        navigate: this.navigate,
-        setOptions: this.setOptions,
-      },
-      route: {
-        params: this.noteDetails,
-      },
+      navigation: { navigate: this.navigate, setOptions: this.setOptions },
+      route: { params: this.noteDetails },
     } = props);
 
     this.profileId = props.userDetails?.profileId ?? null;
@@ -80,9 +53,9 @@ class NoteDetailScreen extends Component {
 
     this.isOwner = false;
     if (
-      this.profileId
-      && this.noteOwnerProfileId
-      && this.profileId === this.noteOwnerProfileId
+      this.profileId &&
+      this.noteOwnerProfileId &&
+      this.profileId === this.noteOwnerProfileId
     ) {
       this.isOwner = true;
     }
@@ -103,7 +76,8 @@ class NoteDetailScreen extends Component {
   }
 
   componentDidMount() {
-    if (isAndroid) BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
+    if (isAndroid)
+      BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
 
     if (this.isOwner) {
       this.setOptions({
@@ -111,8 +85,7 @@ class NoteDetailScreen extends Component {
           <TouchableOpacity
             ref={this.refSelector('headerRightRef')}
             style={{ marginRight: 15 }}
-            onPress={this.showNoteActionMenu}
-          >
+            onPress={this.showNoteActionMenu}>
             <MaterialCommunityIcon
               name="dots-horizontal"
               size={26}
@@ -127,10 +100,16 @@ class NoteDetailScreen extends Component {
   }
 
   componentWillUnmount() {
-    if (isAndroid) BackHandler.removeEventListener('hardwareBackPress', this.handleBackPress);
+    if (isAndroid)
+      BackHandler.removeEventListener(
+        'hardwareBackPress',
+        this.handleBackPress,
+      );
   }
 
-  refSelector = (selector) => (compRef) => { this[selector] = compRef; }
+  refSelector = (selector) => (compRef) => {
+    this[selector] = compRef;
+  };
 
   handleBackPress = () => {
     try {
@@ -190,10 +169,7 @@ class NoteDetailScreen extends Component {
 
       if (Array.isArray(results) && results.length) {
         const {
-          userDetails: {
-            userId,
-            profileId,
-          },
+          userDetails: { userId, profileId },
         } = this.props;
 
         const items = results.map((item) => {
@@ -208,7 +184,8 @@ class NoteDetailScreen extends Component {
             if (isDevMode && false) images[0].isVideo = true;
           }
 
-          const firstImage = (Array.isArray(images) && images.length && images[0]) || null;
+          const firstImage =
+            (Array.isArray(images) && images.length && images[0]) || null;
           const imageUrl = firstImage?.url ?? null;
 
           const source = imageUrl ? { uri: imageUrl } : imagePlaceholder;
@@ -219,7 +196,7 @@ class NoteDetailScreen extends Component {
 
           let poster;
 
-          const width = (windowWidth / 2);
+          const width = windowWidth / 2;
           const title = item.get('caption');
           const avatar = item.get('profile')?.get('avatar') ?? undefined;
 
@@ -238,9 +215,15 @@ class NoteDetailScreen extends Component {
             ? item.get('profile').id === profileId
             : false;
 
-          const followingArray = hasProfile ? item.get('profile').get('followingArray') : 0;
-          const followingCount = hasProfile ? item.get('profile').get('followingCount') : 0;
-          const followersCount = hasProfile ? item.get('profile').get('followersCount') : 0;
+          const followingArray = hasProfile
+            ? item.get('profile').get('followingArray')
+            : 0;
+          const followingCount = hasProfile
+            ? item.get('profile').get('followingCount')
+            : 0;
+          const followersCount = hasProfile
+            ? item.get('profile').get('followersCount')
+            : 0;
 
           const itemData = {
             isOwner,
@@ -261,34 +244,55 @@ class NoteDetailScreen extends Component {
             followingCount,
             followersCount,
             viewCount: item.get('viewersCount'),
-            title: this.postTypes === 'nearMePosts' ? item.get('about') : title || '--',
+            title:
+              this.postTypes === 'nearMePosts'
+                ? item.get('about')
+                : title || '--',
             imageData: firstImage,
             key: `${imageUrl || imagePlaceholder}${title}`,
             id: item.id,
             isPrivate: false,
             isVendor: this.postTypes === 'nearMePosts',
-            height: width * ((imageUrl ? firstImage.height : 600) / (imageUrl ? firstImage.width : 800)),
-            name: this.postTypes === 'nearMePosts'
-              ? item.get('businessName') || '--'
-              : hasProfile ? item.get('profile').get('name') : '',
+            height:
+              width *
+              ((imageUrl ? firstImage.height : 600) /
+                (imageUrl ? firstImage.width : 800)),
+            name:
+              this.postTypes === 'nearMePosts'
+                ? item.get('businessName') || '--'
+                : hasProfile
+                ? item.get('profile').get('name')
+                : '',
             surname: hasProfile ? item.get('profile').get('surname') : '',
             user: {
               hometown,
               location,
               followingCount,
               followersCount,
-              _id: hasProfile ? (item.get('profile').get('owner')).id : Date.now(),
+              _id: hasProfile
+                ? item.get('profile').get('owner').id
+                : Date.now(),
               profileId: hasProfile ? item.get('profile').id : '',
-              name: this.postTypes === 'nearMePosts'
-                ? item.get('businessName') || '--'
-                : hasProfile ? item.get('profile').get('name') : '',
+              name:
+                this.postTypes === 'nearMePosts'
+                  ? item.get('businessName') || '--'
+                  : hasProfile
+                  ? item.get('profile').get('name')
+                  : '',
               surname: hasProfile ? item.get('profile').get('surname') : '',
               avatar: avatar?.url ?? undefined,
-              description: this.postTypes === 'nearMePosts'
-                ? item.get('about') || '--'
-                : hasProfile ? item.get('profile').get('description') : '',
-              avatarObject: hasProfile ? item.get('profile')?.get('avatar') ?? undefined : {},
-              coverPhoto: hasProfile ? item.get('profile')?.get('coverPhoto') ?? undefined : {},
+              description:
+                this.postTypes === 'nearMePosts'
+                  ? item.get('about') || '--'
+                  : hasProfile
+                  ? item.get('profile').get('description')
+                  : '',
+              avatarObject: hasProfile
+                ? item.get('profile')?.get('avatar') ?? undefined
+                : {},
+              coverPhoto: hasProfile
+                ? item.get('profile')?.get('coverPhoto') ?? undefined
+                : {},
             },
           };
 
@@ -316,7 +320,9 @@ class NoteDetailScreen extends Component {
               if (itemData.initials === '--') {
                 itemData.initials = itemData.name.substring(0, 1);
               } else {
-                itemData.initials = `${itemData.initials}${itemData.name.substring(0, 1)}`;
+                itemData.initials = `${
+                  itemData.initials
+                }${itemData.name.substring(0, 1)}`;
               }
             }
           }
@@ -358,88 +364,80 @@ class NoteDetailScreen extends Component {
       });
       //
     }
-  }
+  };
 
   toggleSwitch = (selector) => () => {
     this.setState(({ [`${selector}`]: value }) => ({
       [`${selector}`]: !value,
     }));
-  }
+  };
 
   showShareSheet = () => {
     try {
-      this.bottomSheetEmitter.emit(
-        'showPanel',
-        {
-          contentSelector: 'shareSheet',
-          onFinish: (data) => {
-            debugAppLogger({
-              info: 'inside onFinish',
-              data,
-            });
-            // this.hasEnjagad = false;
-            // this.setState({
-            //   masonryKey: Date.now(),
-            // });
-          },
+      this.bottomSheetEmitter.emit('showPanel', {
+        contentSelector: 'shareSheet',
+        onFinish: (data) => {
+          debugAppLogger({
+            info: 'inside onFinish',
+            data,
+          });
+          // this.hasEnjagad = false;
+          // this.setState({
+          //   masonryKey: Date.now(),
+          // });
         },
-      );
+      });
     } catch (e) {
       //
     }
-  }
+  };
 
   showEditNoteSheet = () => {
     try {
-      this.bottomSheetEmitter.emit(
-        'showPanel',
-        {
-          extraData: this.noteDetails,
-          contentSelector: 'editNote',
-          onFinish: (data) => {
-            debugAppLogger({
-              info: 'inside onFinish',
-              data,
+      this.bottomSheetEmitter.emit('showPanel', {
+        extraData: this.noteDetails,
+        contentSelector: 'editNote',
+        onFinish: (data) => {
+          debugAppLogger({
+            info: 'inside onFinish',
+            data,
+          });
+
+          this.noteDetails = {
+            ...this.noteDetails,
+            ...data,
+          };
+
+          this.setState({
+            noteVisibility: !data.isPrivate,
+          });
+
+          if (data.image) {
+            this.setOptions({
+              headerTitle: () => (
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <FastImage
+                    style={{ width: 40, height: 40, marginRight: 15 }}
+                    source={
+                      data.image ? { uri: data.image.url } : imagePlaceholder
+                    }
+                    resizeMode={FastImage.resizeMode.cover}
+                  />
+                  <Text allowFontScaling={false}>{data.title}</Text>
+                </View>
+              ),
             });
-
-            this.noteDetails = {
-              ...this.noteDetails,
-              ...data,
-            };
-
-            this.setState({
-              noteVisibility: !data.isPrivate,
+          } else if (data.title) {
+            this.setOptions({
+              title: data.title,
             });
-
-            if (data.image) {
-              this.setOptions({
-                headerTitle: () => (
-                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <FastImage
-                      style={{ width: 40, height: 40, marginRight: 15 }}
-                      source={data.image ? { uri: data.image.url } : imagePlaceholder}
-                      resizeMode={FastImage.resizeMode.cover}
-                    />
-                    <Text
-                      allowFontScaling={false}
-                    >
-                      {data.title}
-                    </Text>
-                  </View>
-                ),
-              });
-            } else if (data.title) {
-              this.setOptions({
-                title: data.title,
-              });
-            }
-          },
+          }
         },
-      );
+      });
     } catch (e) {
       //
     }
-  }
+  };
 
   showNoteActionMenu = () => {
     try {
@@ -447,18 +445,20 @@ class NoteDetailScreen extends Component {
         tintColor: '#FAFAFA',
         textColor: '#000000',
         title: 'Select from',
-        menus: [{
-          menus: [
-            {
-              label: 'Edit Note',
-              icon: editIcon,
-            },
-            {
-              label: 'Delete Note',
-              icon: deleteIcon,
-            },
-          ],
-        }],
+        menus: [
+          {
+            menus: [
+              {
+                label: 'Edit Note',
+                icon: editIcon,
+              },
+              {
+                label: 'Delete Note',
+                icon: deleteIcon,
+              },
+            ],
+          },
+        ],
         onDone: (section, menuIndex) => {
           const selection = isAndroid ? menuIndex : section;
           debugAppLogger({
@@ -495,14 +495,14 @@ class NoteDetailScreen extends Component {
     } catch (e) {
       //
     }
-  }
+  };
 
   showDetails = (data) => () => {
     debugAppLogger({
       info: 'NoteDetailScreen showDetails',
       data,
     });
-  }
+  };
 
   showCommenPostDetails = (dataItem) => () => {
     const data = {
@@ -511,11 +511,13 @@ class NoteDetailScreen extends Component {
     };
 
     this.navigate('PostDetailScreen', data);
-  }
+  };
 
   showProfileDetails = (dataItem) => () => {
     let avatar = dataItem.avatar ? { ...dataItem.avatar } : undefined;
-    let coverPhoto = dataItem.user.coverPhoto ? { ...dataItem.user.coverPhoto } : undefined;
+    let coverPhoto = dataItem.user.coverPhoto
+      ? { ...dataItem.user.coverPhoto }
+      : undefined;
 
     const isVendor = !!dataItem.isVendor;
     if (isVendor && dataItem.imageData) {
@@ -526,7 +528,8 @@ class NoteDetailScreen extends Component {
 
       if (!avatar) avatar = { ...dataItem.imageData };
 
-      if (!coverPhoto || !coverPhoto.url) coverPhoto = { ...dataItem.imageData };
+      if (!coverPhoto || !coverPhoto.url)
+        coverPhoto = { ...dataItem.imageData };
     }
 
     if (!coverPhoto && avatar) coverPhoto = avatar;
@@ -546,16 +549,20 @@ class NoteDetailScreen extends Component {
       dataItem,
     });
 
-    this.navigate('UserProfileScreen', { userProfile, isVendor, isUserProfile: true });
-  }
+    this.navigate('UserProfileScreen', {
+      userProfile,
+      isVendor,
+      isUserProfile: true,
+    });
+  };
 
   handleTapEnjaga = (dataItem) => () => {
     this.handleTap(dataItem);
-  }
+  };
 
   handleTap = (dataItem) => {
     this.navigate('PostDetailScreen', dataItem);
-  }
+  };
 
   renderEmptyView = () => (
     <View
@@ -564,17 +571,15 @@ class NoteDetailScreen extends Component {
         height: windowHeight * (!this.isOwner ? 0.8 : 0.7),
         justifyContent: 'center',
         alignItems: 'center',
-      }}
-    >
+      }}>
       <Text
         allowFontScaling={false}
         style={{
           fontSize: 12,
           color: '#777777',
-        }}
-      >
+        }}>
         {this.isOwner
-          ? 'You don\'t have any items in this note yet'
+          ? "You don't have any items in this note yet"
           : 'No items in this note yet'}
       </Text>
     </View>
@@ -592,7 +597,7 @@ class NoteDetailScreen extends Component {
         showProfileDetails={this.showProfileDetails(item)}
       />
     );
-  }
+  };
 
   renderItemFooter = (item) => {
     if (!item.imageUrl) return null;
@@ -607,20 +612,17 @@ class NoteDetailScreen extends Component {
         handleTap={this.handleTapEnjaga(item)}
       />
     );
-  }
+  };
 
   refreshData = () => {
-    const {
-      isRefreshingData,
-      isFetchingData,
-    } = this.state;
+    const { isRefreshingData, isFetchingData } = this.state;
 
     if (!isRefreshingData && !isFetchingData) {
       this.setState({ isRefreshingData: true });
 
       this.fetchData();
     }
-  }
+  };
 
   render() {
     const {
@@ -637,9 +639,7 @@ class NoteDetailScreen extends Component {
         surname,
         name,
         displayName,
-        avatar: {
-          url: avatarUrl,
-        } = {},
+        avatar: { url: avatarUrl } = {},
       } = {},
     } = this.props;
 
@@ -656,16 +656,14 @@ class NoteDetailScreen extends Component {
               paddingVertical: 8,
               borderBottomWidth: 1,
               borderColor: '#EEEEEE',
-            }}
-          >
+            }}>
             <Text
               allowFontScaling={false}
               style={{
                 color: '#727272',
                 fontSize: 10,
                 marginBottom: 5,
-              }}
-            >
+              }}>
               You have shared this note with...
             </Text>
 
@@ -673,19 +671,16 @@ class NoteDetailScreen extends Component {
               style={{
                 flexDirection: 'row',
                 justifyContent: 'space-between',
-              }}
-            >
+              }}>
               <View
                 style={{
                   flexDirection: 'row',
                   alignItems: 'center',
-                }}
-              >
+                }}>
                 <View
                   style={{
                     alignItems: 'center',
-                  }}
-                >
+                  }}>
                   <FastImage
                     style={{ width: 30, height: 30, borderRadius: 15 }}
                     source={avatarImage}
@@ -697,8 +692,7 @@ class NoteDetailScreen extends Component {
                     style={{
                       color: '#727272',
                       fontSize: 10,
-                    }}
-                  >
+                    }}>
                     {surname || name || displayName || '--'}
                   </Text>
                 </View>
@@ -710,8 +704,7 @@ class NoteDetailScreen extends Component {
                       alignItems: 'center',
                       marginLeft: 5,
                     }}
-                    onPress={this.showShareSheet}
-                  >
+                    onPress={this.showShareSheet}>
                     <MaterialIcon name="add" size={26} color="gray" />
                   </TouchableOpacity>
 
@@ -720,8 +713,7 @@ class NoteDetailScreen extends Component {
                     style={{
                       color: '#727272',
                       fontSize: 10,
-                    }}
-                  >
+                    }}>
                     {' '}
                   </Text>
                 </View>
@@ -730,8 +722,7 @@ class NoteDetailScreen extends Component {
               <TouchableOpacity
                 activeOpacity={0.8}
                 style={{ alignItems: 'center' }}
-                onPress={this.showEditNoteSheet}
-              >
+                onPress={this.showEditNoteSheet}>
                 <Switch
                   disabled
                   color="#00D8C6"
@@ -745,8 +736,7 @@ class NoteDetailScreen extends Component {
                     marginTop: 5,
                     fontSize: 10,
                     color: 'black',
-                  }}
-                >
+                  }}>
                   {noteVisibility ? 'Public' : 'Private'}
                 </Text>
               </TouchableOpacity>
@@ -852,7 +842,10 @@ const ItemHeader = ({
       item.hasLiked = newLikeState;
       item.likesCount = newLikesCount;
 
-      const response = await Parse.Cloud.run('likeOrUnlikePost', { postId: item.id, like: newLikeState });
+      const response = await Parse.Cloud.run('likeOrUnlikePost', {
+        postId: item.id,
+        like: newLikeState,
+      });
 
       setIsProcessing(false);
 
@@ -877,9 +870,7 @@ const ItemHeader = ({
         margin: 5,
         marginVertical: 10,
         maxWidth: maxHeaderWidth, // enjagaFlex
-      }}
-    >
-
+      }}>
       <TouchableOpacity
         activeOpacity={0.9}
         onPress={showCommenPostDetails}
@@ -893,8 +884,7 @@ const ItemHeader = ({
           borderColor: '#CCCCCC',
           flex: 1,
           // width: maxHeaderWidth, // enjagaFlex
-        }}
-      >
+        }}>
         <Text
           allowFontScaling={false}
           numberOfLines={4}
@@ -903,8 +893,7 @@ const ItemHeader = ({
             fontSize: 12,
             fontWeight: 'bold',
             // marginLeft: 5,
-          }}
-        >
+          }}>
           {item.title}
         </Text>
       </TouchableOpacity>
@@ -917,9 +906,7 @@ const ItemHeader = ({
           // marginVertical: 2,
           // marginLeft: item.column ? 0 : -5,
           // marginRight: item.column ? -5 : 0,
-        }}
-      >
-
+        }}>
         <View
           style={{
             flex: 0,
@@ -929,12 +916,8 @@ const ItemHeader = ({
             flexBasis: '45%',
             flexGrow: 10,
             // flexShrink: 10,
-          }}
-        >
-          <TouchableOpacity
-            activeOpacity={0.8}
-            onPress={showProfileDetails}
-          >
+          }}>
+          <TouchableOpacity activeOpacity={0.8} onPress={showProfileDetails}>
             {item.avatar && item.avatar.url ? (
               <FastImage
                 style={{
@@ -963,20 +946,17 @@ const ItemHeader = ({
                 marginLeft: 5,
                 // maxWidth: windowWidth * 0.15,
                 flex: 1,
-              }}
-            >
+              }}>
               <TouchableOpacity
                 activeOpacity={0.8}
-                onPress={showProfileDetails}
-              >
+                onPress={showProfileDetails}>
                 <Text
                   allowFontScaling={false}
                   numberOfLines={2}
                   style={{
                     fontSize: 10,
                     color: '#414141',
-                  }}
-                >
+                  }}>
                   {item.name || item.surname || '--'}
                 </Text>
               </TouchableOpacity>
@@ -991,8 +971,7 @@ const ItemHeader = ({
             justifyContent: 'flex-end',
             flexBasis: '50%', // enjagaFlex
             // overflow: 'hidden',
-          }}
-        >
+          }}>
           {!hideBookmarkAction && (
             <TouchableOpacity
               activeOpacity={0.8}
@@ -1015,8 +994,7 @@ const ItemHeader = ({
                   fontSize: 8,
                   alignSelf: 'flex-end',
                   color: '#414141',
-                }}
-              >
+                }}>
                 0
               </Text>
             </TouchableOpacity>
@@ -1031,12 +1009,8 @@ const ItemHeader = ({
                 marginHorizontal: 5,
                 paddingHorizontal: 3,
               }}
-              onPress={() => toggleLike()}
-            >
-              <Animatable.View
-                key={likeKey}
-                animation="bounceIn"
-              >
+              onPress={() => toggleLike()}>
+              <Animatable.View key={likeKey} animation="bounceIn">
                 <MaterialIcon
                   name={likedPost ? 'favorite' : 'favorite-border'}
                   size={18}
@@ -1049,8 +1023,7 @@ const ItemHeader = ({
                   fontSize: 8,
                   alignSelf: 'flex-end',
                   color: '#414141',
-                }}
-              >
+                }}>
                 {likesCount}
               </Text>
             </TouchableOpacity>
@@ -1075,8 +1048,7 @@ const ItemHeader = ({
                   fontSize: 9,
                   alignSelf: 'flex-end',
                   color: '#414141',
-                }}
-              >
+                }}>
                 {item.distance}km
               </Text>
             </View>
@@ -1120,7 +1092,10 @@ const ItemFooter = ({
       item.hasLiked = newLikeState;
       item.likesCount = newLikesCount;
 
-      const response = await Parse.Cloud.run('likeOrUnlikePost', { postId: item.id, like: newLikeState });
+      const response = await Parse.Cloud.run('likeOrUnlikePost', {
+        postId: item.id,
+        like: newLikeState,
+      });
 
       setIsProcessing(false);
 
@@ -1146,12 +1121,8 @@ const ItemFooter = ({
         marginTop: 0,
         marginBottom: 10,
         maxWidth: maxFooterWidth, // enjagaFlex
-      }}
-    >
-      <TouchableOpacity
-        activeOpacity={0.8}
-        onPress={handleTap}
-      >
+      }}>
+      <TouchableOpacity activeOpacity={0.8} onPress={handleTap}>
         <Text
           allowFontScaling={false}
           numberOfLines={2}
@@ -1161,8 +1132,7 @@ const ItemFooter = ({
             fontSize: 12,
             fontWeight: 'bold',
             color: 'black',
-          }}
-        >
+          }}>
           {item.title}
         </Text>
       </TouchableOpacity>
@@ -1187,8 +1157,7 @@ const ItemFooter = ({
               fontSize: 11,
               alignSelf: 'flex-end',
               color: '#414141',
-            }}
-          >
+            }}>
             {item.distance}km
           </Text>
         </View>
@@ -1202,9 +1171,7 @@ const ItemFooter = ({
           // marginVertical: 2,
           // marginLeft: item.column ? 0 : -5,
           // marginRight: item.column ? -5 : 0,
-        }}
-      >
-
+        }}>
         <View
           style={{
             flexDirection: 'row',
@@ -1213,12 +1180,8 @@ const ItemFooter = ({
             flexBasis: '45%',
             flexGrow: 10,
             flexShrink: 10,
-          }}
-        >
-          <TouchableOpacity
-            activeOpacity={0.8}
-            onPress={showProfileDetails}
-          >
+          }}>
+          <TouchableOpacity activeOpacity={0.8} onPress={showProfileDetails}>
             {item.avatar && item.avatar.url ? (
               <FastImage
                 style={{
@@ -1229,18 +1192,16 @@ const ItemFooter = ({
                 source={{ uri: item.avatar.url }}
                 resizeMode={FastImage.resizeMode.cover}
               />
-            ) : (
-              postTypes !== 'nearMePosts' ? (
-                <Avatar.Text
-                  size={32}
-                  label={item.initials}
-                  style={{
-                    backgroundColor: '#777777',
-                    color: 'white',
-                  }}
-                />
-              ) : null
-            )}
+            ) : postTypes !== 'nearMePosts' ? (
+              <Avatar.Text
+                size={32}
+                label={item.initials}
+                style={{
+                  backgroundColor: '#777777',
+                  color: 'white',
+                }}
+              />
+            ) : null}
           </TouchableOpacity>
 
           {(item.column === 0 || true) && (
@@ -1251,16 +1212,14 @@ const ItemFooter = ({
                 // maxWidth: windowWidth * 0.15, // enjagaFlex
                 flex: 1,
               }}
-              onPress={showProfileDetails}
-            >
+              onPress={showProfileDetails}>
               <Text
                 allowFontScaling={false}
                 numberOfLines={2}
                 style={{
                   fontSize: 10,
                   color: '#414141',
-                }}
-              >
+                }}>
                 {item.name || item.surname || '--'}
               </Text>
             </TouchableOpacity>
@@ -1273,8 +1232,7 @@ const ItemFooter = ({
             alignSelf: 'center',
             justifyContent: 'flex-end',
             flexBasis: '50%', // enjagaFlex
-          }}
-        >
+          }}>
           {!hideBookmarkAction && (
             <TouchableOpacity
               activeOpacity={0.8}
@@ -1297,8 +1255,7 @@ const ItemFooter = ({
                   fontSize: 8,
                   alignSelf: 'flex-end',
                   color: '#414141',
-                }}
-              >
+                }}>
                 0
               </Text>
             </TouchableOpacity>
@@ -1313,12 +1270,8 @@ const ItemFooter = ({
                 marginHorizontal: 5,
                 paddingHorizontal: 3,
               }}
-              onPress={() => toggleLike()}
-            >
-              <Animatable.View
-                key={likeKey}
-                animation="bounceIn"
-              >
+              onPress={() => toggleLike()}>
+              <Animatable.View key={likeKey} animation="bounceIn">
                 <MaterialIcon
                   name={likedPost ? 'favorite' : 'favorite-border'}
                   size={18}
@@ -1331,8 +1284,7 @@ const ItemFooter = ({
                   fontSize: 8,
                   alignSelf: 'flex-end',
                   color: '#414141',
-                }}
-              >
+                }}>
                 {likesCount}
               </Text>
             </TouchableOpacity>
@@ -1352,26 +1304,26 @@ const ImageItem = ({ data: { imageUrl, title } }) => {
         style={styles.img}
         source={{ uri: imageUrl }}
         resizeMode={FastImage.resizeMode.cover}
-        onLoad={() => setImageLoaded(true)}
-      >
+        onLoad={() => setImageLoaded(true)}>
         <View style={styles.imageOverlayContainer}>
-
           {!!title && (
-            <Text
-              allowFontScaling={false}
-              style={styles.noteTitle}
-            >
+            <Text allowFontScaling={false} style={styles.noteTitle}>
               {title}
             </Text>
           )}
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 7, marginBottom: 7 }} />
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              marginLeft: 7,
+              marginBottom: 7,
+            }}
+          />
         </View>
       </FastImage>
 
       {!imageLoaded && false && (
-        <Placeholder
-          Animation={Fade}
-        >
+        <Placeholder Animation={Fade}>
           <PlaceholderMedia style={{ width: '100%', height: '100%' }} />
         </Placeholder>
       )}
@@ -1421,15 +1373,11 @@ const styles = StyleSheet.create({
 });
 
 const mapStateToProps = (state) => {
-  const {
-    userState: {
-      userDetails = {},
-    } = {},
-  } = state;
+  const { userState: { userDetails = {} } = {} } = state;
 
-  return ({
+  return {
     userDetails,
-  });
+  };
 };
 
 export default connect(mapStateToProps)(NoteDetailScreen);

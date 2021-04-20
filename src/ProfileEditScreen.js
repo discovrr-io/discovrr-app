@@ -1,9 +1,4 @@
-import React, {
-  Component,
-  useState,
-  useEffect,
-  useRef,
-} from 'react';
+import React, { Component, useState, useEffect, useRef } from 'react';
 
 import {
   ActivityIndicator,
@@ -12,7 +7,6 @@ import {
   Keyboard,
   Linking,
   NativeEventEmitter,
-  SafeAreaView,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -22,55 +16,29 @@ import {
   TextInput,
 } from 'react-native';
 
-import {
-  connect,
-} from 'react-redux';
-
-import {
-  Surface,
-} from 'react-native-paper';
-
-import {
-  GooglePlacesAutocomplete,
-} from 'react-native-google-places-autocomplete';
-
-import {
-  HeaderHeightContext,
-} from '@react-navigation/stack';
-
-import {
-  withSafeAreaInsets,
-} from 'react-native-safe-area-context';
-
-import {
-  getVersion,
-} from 'react-native-device-info';
-
-import ProgressCircle from 'react-native-progress/Circle';
-import ImagePicker from 'react-native-image-crop-picker';
-import FastImage from 'react-native-fast-image';
-import RNPopoverMenu from 'react-native-popover-menu';
-import Icon from 'react-native-vector-icons';
-import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
-import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { connect } from 'react-redux';
+import { getVersion } from 'react-native-device-info';
+import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import { HeaderHeightContext } from '@react-navigation/stack';
+import { Surface } from 'react-native-paper';
+import { withSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Animatable from 'react-native-animatable';
+import FastImage from 'react-native-fast-image';
+import ImagePicker from 'react-native-image-crop-picker';
+import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
+import ProgressCircle from 'react-native-progress/Circle';
+import RNPopoverMenu from 'react-native-popover-menu';
 import storage from '@react-native-firebase/storage';
 
-import {
-  isAndroid,
-  windowWidth,
-} from './utilities/Constants';
+import { isAndroid, windowWidth } from './utilities/Constants';
+import { logException } from './utilities/NetworkRequests';
+import { updateProfile } from './utilities/Actions';
 
-import {
-  logException,
-} from './utilities/NetworkRequests';
-
-import {
-  updateProfile,
-} from './utilities/Actions';
-
-const cameraIcon = <Icon family="MaterialIcons" name="camera-alt" color="#000000" size={24} />;
-const photosIcon = <Icon family="MaterialIcons" name="collections" color="#000000" size={24} />;
+const cameraIcon = <MaterialIcon name="camera-alt" color="#000000" size={24} />;
+const photosIcon = (
+  <MaterialIcon name="collections" color="#000000" size={24} />
+);
 
 const Parse = require('parse/react-native');
 
@@ -136,25 +104,34 @@ class ProfileEditScreen extends Component {
     this.subscriptions.forEach((sub) => sub.remove());
   }
 
-  refSelector = (selector) => (compRef) => { this[selector] = compRef; }
+  refSelector = (selector) => (compRef) => {
+    this[selector] = compRef;
+  };
 
   keyboardWillShow = (event) => {
     if (isAndroid) {
       this.setState({ animatedHeight: event.endCoordinates.height });
     } else {
       const { animatedHeight } = this.state;
-      Animated.timing(animatedHeight, { toValue: event.endCoordinates.height - 40, duration: 200 }).start();
+      Animated.timing(animatedHeight, {
+        toValue: event.endCoordinates.height - 40,
+        duration: 200,
+      }).start();
     }
-  }
+  };
 
   keyboardWillHide = () => {
     if (isAndroid) {
       if (!this.ignoreKeyboardHiding) this.setState({ animatedHeight: 0 });
     } else {
       const { animatedHeight } = this.state;
-      Animated.timing(animatedHeight, { toValue: 0, delay: 200, duration: 200 }).start();
+      Animated.timing(animatedHeight, {
+        toValue: 0,
+        delay: 200,
+        duration: 200,
+      }).start();
     }
-  }
+  };
 
   showPicker = () => () => {
     Keyboard.dismiss();
@@ -181,12 +158,12 @@ class ProfileEditScreen extends Component {
         onDone: (section, menuIndex) => {
           // alert(menuIndex)
         },
-        onCancel: () => { },
+        onCancel: () => {},
       });
     } else {
       //
     }
-  }
+  };
 
   updateInputValue = (input) => (value = '') => {
     debugAppLogger({
@@ -199,25 +176,27 @@ class ProfileEditScreen extends Component {
     this.setState({
       [`${input}Error`]: false,
     });
-  }
+  };
 
   showImageAttachmentOptions = (selector) => () => {
     RNPopoverMenu.Show(this[`${selector}Ref`], {
       tintColor: '#FAFAFA',
       textColor: '#000000',
       title: 'Select from',
-      menus: [{
-        menus: [
-          {
-            label: 'Camera',
-            icon: cameraIcon,
-          },
-          {
-            label: 'Photos',
-            icon: photosIcon,
-          },
-        ],
-      }],
+      menus: [
+        {
+          menus: [
+            {
+              label: 'Camera',
+              icon: cameraIcon,
+            },
+            {
+              label: 'Photos',
+              icon: photosIcon,
+            },
+          ],
+        },
+      ],
       onDone: (section, menuIndex) => {
         const selection = isAndroid ? menuIndex : section;
         ImagePicker[selection ? 'openPicker' : 'openCamera']({
@@ -235,21 +214,28 @@ class ProfileEditScreen extends Component {
           cropperStatusBarColor: '#000000',
         })
           .then(({ size, path, mime, width, height }) => {
-            debugAppLogger({ info: `${selector} attached image details`, size, path, mime, width, height });
+            debugAppLogger({
+              info: `${selector} attached image details`,
+              size,
+              path,
+              mime,
+              width,
+              height,
+            });
 
             this[selector] = { size, path, mime, width, height, type: 'image' };
 
-            this.setState({
-              [`${selector}Uri`]: path,
-            }, () => {
-              this.syncProfileChanges(selector);
-            });
+            this.setState(
+              {
+                [`${selector}Uri`]: path,
+              },
+              () => {
+                this.syncProfileChanges(selector);
+              },
+            );
           })
           .catch((error) => {
-            const {
-              message,
-              code,
-            } = error;
+            const { message, code } = error;
 
             debugAppLogger({
               info: `ProfileEditScreen ${selector} showImageAttachmentOptions ImagePicker Error`,
@@ -268,10 +254,9 @@ class ProfileEditScreen extends Component {
                   {
                     text: 'Settings',
                     onPress: () => {
-                      Linking.openSettings('app-settings:')
-                        .catch(() => {
-                          // alert(e.message);
-                        });
+                      Linking.openSettings('app-settings:').catch(() => {
+                        // alert(e.message);
+                      });
                     },
                   },
                 ],
@@ -285,7 +270,7 @@ class ProfileEditScreen extends Component {
       },
       onCancel: () => {},
     });
-  }
+  };
 
   validateInput = (input) => () => {
     debugAppLogger({
@@ -294,15 +279,13 @@ class ProfileEditScreen extends Component {
       inputValue: this.name,
     });
 
-    if (
-      this[input]
-      && this[input].trim()
-    ) {
-      if (this[input].trim() !== this[`${input}Old`]) this.syncProfileChanges(input);
+    if (this[input] && this[input].trim()) {
+      if (this[input].trim() !== this[`${input}Old`])
+        this.syncProfileChanges(input);
     } else {
       this.flashErrorIndicator(`${input}Error`);
     }
-  }
+  };
 
   setPreferredLocation = (data, details) => {
     try {
@@ -321,7 +304,7 @@ class ProfileEditScreen extends Component {
     } catch (error) {
       debugAppLogger({ info: '>> Google places Error', error });
     }
-  }
+  };
 
   syncProfileChanges = (input, extraData) => {
     try {
@@ -344,12 +327,14 @@ class ProfileEditScreen extends Component {
 
               let avatar;
               if (input === 'avatar' || input === 'coverPhoto') {
-                const filename = `${input}s/${parseUserProfile.id}_${Math.random().toString(36).substring(2)}.jpg`;
-                const uploadUri = isAndroid ? this[input].path : this[input].path.replace('file://', '');
+                const filename = `${input}s/${
+                  parseUserProfile.id
+                }_${Math.random().toString(36).substring(2)}.jpg`;
+                const uploadUri = isAndroid
+                  ? this[input].path
+                  : this[input].path.replace('file://', '');
 
-                this.task = storage()
-                  .ref(filename)
-                  .putFile(uploadUri);
+                this.task = storage().ref(filename).putFile(uploadUri);
 
                 this.setState({
                   isUploading: true,
@@ -367,14 +352,8 @@ class ProfileEditScreen extends Component {
                 parseUserProfile.set(input, avatar);
               } else {
                 if (input === 'hometown') {
-                  const {
-                    geometry: {
-                      location: {
-                        lat,
-                        lng,
-                      } = {},
-                    } = {},
-                  } = extraData || {};
+                  const { geometry: { location: { lat, lng } = {} } = {} } =
+                    extraData || {};
 
                   if (lat && lng) {
                     const geoPoint = new Parse.GeoPoint(lat, lng);
@@ -395,7 +374,8 @@ class ProfileEditScreen extends Component {
 
               this[`${input}Old`] = this[input];
 
-              if (input === 'hometown') this.locationUpdateEmitter.emit('locationUpdate', extraData);
+              if (input === 'hometown')
+                this.locationUpdateEmitter.emit('locationUpdate', extraData);
             }
           } else {
             // alert('should logout the donkey');
@@ -410,7 +390,7 @@ class ProfileEditScreen extends Component {
       debugAppLogger({ info: 'Catch Error parse checkCurrent user!!', error });
       // this.errorLogout();
     }
-  }
+  };
 
   uploadFinsished = () => {
     this.setState({
@@ -419,13 +399,11 @@ class ProfileEditScreen extends Component {
     });
 
     debugAppLogger({ info: 'ProfileEditScreen ****Uploading avatar finished' });
-  }
+  };
 
   flashErrorIndicator = (errorType) => {
     try {
-      const {
-        [errorType]: errorValue,
-      } = this.state;
+      const { [errorType]: errorValue } = this.state;
       debugAppLogger({
         info: 'ProfileEditScreen flashErrorIndicator',
         errorType,
@@ -440,13 +418,13 @@ class ProfileEditScreen extends Component {
     } catch (e) {
       //
     }
-  }
+  };
 
   errorLogout = () => {
     Parse.User.logOut()
       .then(() => {})
       .catch((innerError) => logException({ error: innerError }));
-  }
+  };
 
   render() {
     const {
@@ -464,20 +442,14 @@ class ProfileEditScreen extends Component {
     } = this.state;
 
     const {
-      insets: {
-        bottom: bottomInset,
-      },
+      insets: { bottom: bottomInset },
       userDetails: {
         name,
         surname,
         hometown,
         description,
-        avatar: {
-          url: avatarUrl,
-        } = {},
-        coverPhoto: {
-          url: coverPhotoUrl,
-        } = {},
+        avatar: { url: avatarUrl } = {},
+        coverPhoto: { url: coverPhotoUrl } = {},
       },
     } = this.props;
 
@@ -491,7 +463,8 @@ class ProfileEditScreen extends Component {
       coverPhotoImage = {
         uri: avatarUri || avatarUrl,
       };
-      imageHeight = imageWidth * (this.coverPhoto.height / this.coverPhoto.width);
+      imageHeight =
+        imageWidth * (this.coverPhoto.height / this.coverPhoto.width);
     }
 
     debugAppLogger({
@@ -507,11 +480,15 @@ class ProfileEditScreen extends Component {
     return (
       <HeaderHeightContext.Consumer>
         {(headerHeight) => (
-          <View style={{ flex: 1, backgroundColor: 'white', paddingBottom: bottomInset || 0 }}>
+          <View
+            style={{
+              flex: 1,
+              backgroundColor: 'white',
+              paddingBottom: bottomInset || 0,
+            }}>
             {/* <SafeAreaView style={styles.container}> */}
             <ScrollView keyboardShouldPersistTaps="handled">
               <View style={{ paddingTop: headerHeight }}>
-
                 <View
                   style={{
                     paddingLeft: 20,
@@ -524,20 +501,21 @@ class ProfileEditScreen extends Component {
                     borderTopColor: '#CCCCCC',
                     borderBottomWidth: 1,
                     borderBottomColor: '#CCCCCC',
-                  }}
-                >
+                  }}>
                   <Text
                     allowFontScaling={false}
-                    style={{ fontSize: 12, color: '#666666', marginBottom: 10 }}
-                  >
+                    style={{
+                      fontSize: 12,
+                      color: '#666666',
+                      marginBottom: 10,
+                    }}>
                     Select Cover Photo
                   </Text>
 
                   <TouchableOpacity
                     activeOpacity={0.9}
                     // style={{ marginBottom: 20 }}
-                    onPress={this.showImageAttachmentOptions('coverPhoto')}
-                  >
+                    onPress={this.showImageAttachmentOptions('coverPhoto')}>
                     <AvatarImage
                       type="coverPhoto"
                       newAvatar={coverPhotoUri}
@@ -549,9 +527,7 @@ class ProfileEditScreen extends Component {
                       uploadFinsished={this.uploadFinsished}
                     />
 
-                    <Surface
-                      style={styles.cameraIconSurface}
-                    >
+                    <Surface style={styles.cameraIconSurface}>
                       <MaterialCommunityIcon
                         ref={this.refSelector('coverPhotoRef')}
                         name="camera-plus"
@@ -572,20 +548,21 @@ class ProfileEditScreen extends Component {
                     marginHorizontal: 10,
                     borderBottomWidth: 1,
                     borderBottomColor: '#CCCCCC',
-                  }}
-                >
+                  }}>
                   <Text
                     allowFontScaling={false}
-                    style={{ fontSize: 12, color: '#666666', marginBottom: 10 }}
-                  >
+                    style={{
+                      fontSize: 12,
+                      color: '#666666',
+                      marginBottom: 10,
+                    }}>
                     Select Profile Image
                   </Text>
 
                   <TouchableOpacity
                     activeOpacity={0.9}
                     // style={{ marginBottom: 20 }}
-                    onPress={this.showImageAttachmentOptions('avatar')}
-                  >
+                    onPress={this.showImageAttachmentOptions('avatar')}>
                     <AvatarImage
                       type="avatar"
                       newAvatar={avatarUri}
@@ -605,8 +582,7 @@ class ProfileEditScreen extends Component {
                         padding: 7,
                         borderRadius: 15,
                         backgroundColor: 'rgba(255, 255, 255, 0.4)',
-                      }}
-                    >
+                      }}>
                       <MaterialCommunityIcon
                         ref={this.refSelector('avatarRef')}
                         name="camera-plus"
@@ -744,8 +720,7 @@ const InputField = ({
       <View style={containerStyle}>
         <Text
           allowFontScaling={false}
-          style={{ fontSize: 12, color: '#666666', marginBottom: 10 }}
-        >
+          style={{ fontSize: 12, color: '#666666', marginBottom: 10 }}>
           {label}
         </Text>
 
@@ -773,8 +748,7 @@ const InputField = ({
           <TouchableOpacity
             activeOpacity={0.9}
             style={styles.passVisibilityButton}
-            onPress={() => setHidePassword(!hidePassword)}
-          >
+            onPress={() => setHidePassword(!hidePassword)}>
             <MaterialIcon
               name={hidePassword ? 'visibility-off' : 'visibility'}
               size={20}
@@ -806,8 +780,7 @@ const LocationSearch = ({ hometown, setPreferredLocation }) => {
     <View style={{ paddingLeft: 30, marginBottom: 50 }}>
       <Text
         allowFontScaling={false}
-        style={{ fontSize: 12, color: '#666666', marginBottom: 10 }}
-      >
+        style={{ fontSize: 12, color: '#666666', marginBottom: 10 }}>
         Hometown
       </Text>
 
@@ -880,7 +853,9 @@ const AvatarImage = ({
 
   if (isUploading && type === uploadType && uploadTask) {
     uploadTask.on('state_changed', (taskSnapshot) => {
-      const progress = Math.round((taskSnapshot.bytesTransferred * 100) / taskSnapshot.totalBytes);
+      const progress = Math.round(
+        (taskSnapshot.bytesTransferred * 100) / taskSnapshot.totalBytes,
+      );
       setUploadProgress(progress);
       debugAppLogger({
         info: `${taskSnapshot.bytesTransferred} transferred out of ${taskSnapshot.totalBytes}`,
@@ -898,13 +873,22 @@ const AvatarImage = ({
       <FastImage
         style={
           type === 'avatar'
-            ? { width: 120, height: 120, borderRadius: 75, justifyContent: 'center', alignItems: 'center' }
+            ? {
+                width: 120,
+                height: 120,
+                borderRadius: 75,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }
             : [styles.avatarImage, { width: imageWidth, height: imageHeight }]
         }
         source={avatarImage}
-        resizeMode={type === 'avatar' ? FastImage.resizeMode.cover : FastImage.resizeMode.fit}
-        onLoad={() => setImageLoaded(true)}
-      >
+        resizeMode={
+          type === 'avatar'
+            ? FastImage.resizeMode.cover
+            : FastImage.resizeMode.fit
+        }
+        onLoad={() => setImageLoaded(true)}>
         {isUploading && type === uploadType && appVersion !== '0.0.3' && (
           <ProgressCircle
             // useNativeDriver
@@ -921,7 +905,11 @@ const AvatarImage = ({
             color="white"
             borderColor="#666666"
             progress={uploadProgress}
-            style={{ width: 60, borderRadius: 30, backgroundColor: 'rgba(0, 0, 0 , 0.6)' }}
+            style={{
+              width: 60,
+              borderRadius: 30,
+              backgroundColor: 'rgba(0, 0, 0 , 0.6)',
+            }}
           />
         )}
       </FastImage>
@@ -998,17 +986,12 @@ const styles = StyleSheet.create({
 });
 
 const mapStateToProps = (state) => {
-  const {
-    userState: {
-      locationPreference,
-      userDetails = {},
-    } = {},
-  } = state;
+  const { userState: { locationPreference, userDetails = {} } = {} } = state;
 
-  return ({
+  return {
     locationPreference,
     userDetails,
-  });
+  };
 };
 
 export default connect(mapStateToProps)(withSafeAreaInsets(ProfileEditScreen));

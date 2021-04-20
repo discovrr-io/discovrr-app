@@ -1,6 +1,4 @@
-import React, {
-  Component,
-} from 'react';
+import React, { Component } from 'react';
 
 import {
   ActivityIndicator,
@@ -16,59 +14,36 @@ import {
   View,
 } from 'react-native';
 
+import { connect } from 'react-redux';
+import { getVersion } from 'react-native-device-info';
+import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import { Portal, TextInput } from 'react-native-paper';
 import * as Animatable from 'react-native-animatable';
+import FastImage from 'react-native-fast-image';
+import Geolocation from 'react-native-geolocation-service';
+import ImagePicker from 'react-native-image-crop-picker';
+import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import ProgressCircle from 'react-native-progress/Circle';
 import RNPopoverMenu from 'react-native-popover-menu';
-import ImagePicker from 'react-native-image-crop-picker';
-import FastImage from 'react-native-fast-image';
-import Icon from 'react-native-vector-icons';
-import Geolocation from 'react-native-geolocation-service';
-import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
-import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import storage from '@react-native-firebase/storage';
 
-import {
-  connect,
-} from 'react-redux';
-
-import {
-  GooglePlacesAutocomplete,
-} from 'react-native-google-places-autocomplete';
-
-import {
-  Portal,
-  // Switch,
-  TextInput,
-} from 'react-native-paper';
-
-import {
-  getVersion,
-} from 'react-native-device-info';
-
+import { isAndroid, windowWidth } from './utilities/Constants';
+import { requestPermissionConfig } from './utilities/Permissions';
+import { updateNotes } from './utilities/Actions';
 import ModalActivityIndicatorAlt from './components/ModalActivityIndicatorAlt';
-
-import {
-  requestPermissionConfig,
-} from './utilities/Permissions';
-
-import {
-  isAndroid,
-  windowWidth,
-} from './utilities/Constants';
-
-import {
-  updateNotes,
-} from './utilities/Actions';
 
 const Parse = require('parse/react-native');
 const isEqual = require('lodash/isEqual');
 
 const imagePlaceholder = require('../resources/images/imagePlaceholder.png');
 
-const cameraIcon = <Icon family="MaterialIcons" name="camera-alt" color="#000000" size={24} />;
-const photosIcon = <Icon family="MaterialIcons" name="collections" color="#000000" size={24} />;
-const videocamIcon = <Icon family="MaterialIcons" name="videocam" color="#000000" size={24} />;
-const videosIcon = <Icon family="MaterialIcons" name="movie" color="#000000" size={24} />;
+const cameraIcon = <MaterialIcon name="camera-alt" color="#000000" size={24} />;
+const photosIcon = (
+  <MaterialIcon name="collections" color="#000000" size={24} />
+);
+const videoCamIcon = <MaterialIcon name="videocam" color="#000000" size={24} />;
+const videosIcon = <MaterialIcon name="movie" color="#000000" size={24} />;
 
 const appVersion = getVersion();
 
@@ -87,23 +62,20 @@ class PostCreationScreen extends Component {
       isEditing: this.isEditing = false,
       postData: this.postData,
       dispatch: this.dispatch,
-      navigation: {
-        goBack: this.goBack,
-        navigate: this.navigate,
-      },
+      navigation: { goBack: this.goBack, navigate: this.navigate },
     } = props);
 
     let images;
     if (props.isEditing && props.postData) {
       ({
-        postData: {
-          title: this.title,
-          location: this.location,
-        },
+        postData: { title: this.title, location: this.location },
         editPostAfterAction: this.editPostAfterAction,
       } = props);
 
-      if (Array.isArray(props.postData.images) && props.postData.images.length) {
+      if (
+        Array.isArray(props.postData.images) &&
+        props.postData.images.length
+      ) {
         // images = props.postData.images.map((imageData) => ({ ...imageData, isExistingMedia: true }));
 
         images = [];
@@ -168,25 +140,34 @@ class PostCreationScreen extends Component {
     this.subscriptions.forEach((sub) => sub.remove());
   }
 
-  refSelector = (selector) => (compRef) => { this[selector] = compRef; }
+  refSelector = (selector) => (compRef) => {
+    this[selector] = compRef;
+  };
 
   keyboardWillShow = (event) => {
     if (isAndroid) {
       this.setState({ animatedHeight: event.endCoordinates.height });
     } else {
       const { animatedHeight } = this.state;
-      Animated.timing(animatedHeight, { toValue: event.endCoordinates.height - 40, duration: 200 }).start();
+      Animated.timing(animatedHeight, {
+        toValue: event.endCoordinates.height - 40,
+        duration: 200,
+      }).start();
     }
-  }
+  };
 
   keyboardWillHide = () => {
     if (isAndroid) {
       if (!this.ignoreKeyboardHiding) this.setState({ animatedHeight: 0 });
     } else {
       const { animatedHeight } = this.state;
-      Animated.timing(animatedHeight, { toValue: 0, delay: 200, duration: 200 }).start();
+      Animated.timing(animatedHeight, {
+        toValue: 0,
+        delay: 200,
+        duration: 200,
+      }).start();
     }
-  }
+  };
 
   handleBackPress = () => {
     try {
@@ -230,7 +211,7 @@ class PostCreationScreen extends Component {
                 const imageData = note.get('image');
                 const imageUrl = imageData?.url ?? null;
                 const source = imageUrl ? { uri: imageUrl } : imagePlaceholder;
-                const width = (windowWidth / 2);
+                const width = windowWidth / 2;
                 const title = note.get('title');
                 const noteData = {
                   width,
@@ -241,7 +222,10 @@ class PostCreationScreen extends Component {
                   key: `${imageUrl || imagePlaceholder}${title}`,
                   id: note.id,
                   isPrivate: note.get('private'),
-                  height: width * ((imageUrl ? imageData.height : 600) / (imageUrl ? imageData.width : 800)),
+                  height:
+                    width *
+                    ((imageUrl ? imageData.height : 600) /
+                      (imageUrl ? imageData.width : 800)),
                 };
 
                 noteData.dimensions = {
@@ -252,7 +236,8 @@ class PostCreationScreen extends Component {
                 return noteData;
               });
 
-              if (Array.isArray(notes) && notes.length) this.dispatch(updateNotes(notes));
+              if (Array.isArray(notes) && notes.length)
+                this.dispatch(updateNotes(notes));
 
               debugAppLogger({
                 info: 'PostCreationScreen fetchData',
@@ -275,40 +260,35 @@ class PostCreationScreen extends Component {
     } catch (error) {
       //
     }
-  }
+  };
 
   showBottomSheet = () => {
     try {
-      const {
-        items,
-      } = this.props;
+      const { items } = this.props;
 
       this.captionRef.blur();
 
-      this.bottomSheetEmitter.emit(
-        'showPanel',
-        {
-          extraData: {
-            notes: items,
-          },
-          contentSelector: 'selectNote',
-          onFinish: (data) => {
-            debugAppLogger({
-              info: 'onFinish PostCreationScreen',
-              data,
-            });
-
-            this.setState({
-              noteData: data,
-              noteError: false,
-            });
-          },
+      this.bottomSheetEmitter.emit('showPanel', {
+        extraData: {
+          notes: items,
         },
-      );
+        contentSelector: 'selectNote',
+        onFinish: (data) => {
+          debugAppLogger({
+            info: 'onFinish PostCreationScreen',
+            data,
+          });
+
+          this.setState({
+            noteData: data,
+            noteError: false,
+          });
+        },
+      });
     } catch (e) {
       //
     }
-  }
+  };
 
   updateInputValue = (input) => (value = '') => {
     debugAppLogger({
@@ -317,9 +297,7 @@ class PostCreationScreen extends Component {
       value,
     });
 
-    const {
-      [`${input}Error`]: errorValue,
-    } = this.state;
+    const { [`${input}Error`]: errorValue } = this.state;
 
     this[input] = value.trim();
 
@@ -328,7 +306,7 @@ class PostCreationScreen extends Component {
         [`${input}Error`]: false,
       });
     }
-  }
+  };
 
   getLocationPermission = () => {
     requestPermissionConfig({
@@ -336,9 +314,7 @@ class PostCreationScreen extends Component {
       showReason: false,
       grantedAction: this.useDeviceLocation,
       deniedAction: () => {
-        const {
-          locationKey,
-        } = this.state;
+        const { locationKey } = this.state;
 
         if (this.preferredLocation) {
           this.preferredLocation.description = '';
@@ -346,19 +322,16 @@ class PostCreationScreen extends Component {
           this.preferredLocation = { description: '' };
         }
 
-        this.snackbarEmitter.emit(
-          'showSnackbar',
-          {
-            message: 'Location permission denied',
-          },
-        );
+        this.snackbarEmitter.emit('showSnackbar', {
+          message: 'Location permission denied',
+        });
 
         this.setState({
           locationKey: locationKey + 1,
         });
       },
     });
-  }
+  };
 
   useDeviceLocation = () => {
     Geolocation.getCurrentPosition(
@@ -367,12 +340,7 @@ class PostCreationScreen extends Component {
         // alert(JSON.stringify(position), null, 2);
         // return;
         this.gotLocation = true;
-        const {
-          coords: {
-            latitude: lat,
-            longitude: lng,
-          } = {},
-        } = position;
+        const { coords: { latitude: lat, longitude: lng } = {} } = position;
 
         this.setPostLocation(
           {
@@ -389,9 +357,7 @@ class PostCreationScreen extends Component {
           true,
         );
 
-        const {
-          locationError,
-        } = this.state;
+        const { locationError } = this.state;
 
         if (locationError) this.setState({ locationError: false });
       },
@@ -403,9 +369,7 @@ class PostCreationScreen extends Component {
         });
         // alert(error.message);
 
-        const {
-          locationKey,
-        } = this.state;
+        const { locationKey } = this.state;
 
         if (this.preferredLocation) {
           this.preferredLocation.description = '';
@@ -413,12 +377,9 @@ class PostCreationScreen extends Component {
           this.preferredLocation = { description: '' };
         }
 
-        this.snackbarEmitter.emit(
-          'showSnackbar',
-          {
-            message: 'Location permission denied',
-          },
-        );
+        this.snackbarEmitter.emit('showSnackbar', {
+          message: 'Location permission denied',
+        });
 
         this.setState({
           locationKey: locationKey + 1,
@@ -433,13 +394,16 @@ class PostCreationScreen extends Component {
         maximumAge: 10000,
       },
     );
-  }
+  };
 
   setPostLocation = (data, details, alreadyHaveDeviceLocation = false) => {
     try {
       debugAppLogger({ info: '>> Google places', data, details });
 
-      if (data.description === 'My Current Location' && !alreadyHaveDeviceLocation) {
+      if (
+        data.description === 'My Current Location' &&
+        !alreadyHaveDeviceLocation
+      ) {
         this.getLocationPermission();
       } else if (details && details.geometry && details.geometry.location) {
         this.location = {
@@ -455,7 +419,7 @@ class PostCreationScreen extends Component {
     } catch (error) {
       debugAppLogger({ info: '>> Google places Error', error });
     }
-  }
+  };
 
   checkLocationError = (location) => {
     debugAppLogger({
@@ -466,33 +430,33 @@ class PostCreationScreen extends Component {
     this.location = location;
 
     if (location) {
-      const {
-        locationError,
-      } = this.state;
+      const { locationError } = this.state;
 
       if (locationError) this.setState({ locationError: false });
     }
-  }
+  };
 
   toggleSwitch = (selector) => () => {
     this.setState(({ [`${selector}`]: value }) => ({
       [`${selector}`]: !value,
     }));
-  }
+  };
 
   showImageAttachmentOptions = () => {
-    let menus = [{
-      menus: [
-        {
-          label: 'Camera',
-          icon: cameraIcon,
-        },
-        {
-          label: 'Photos',
-          icon: photosIcon,
-        },
-      ],
-    }];
+    let menus = [
+      {
+        menus: [
+          {
+            label: 'Camera',
+            icon: cameraIcon,
+          },
+          {
+            label: 'Photos',
+            icon: photosIcon,
+          },
+        ],
+      },
+    ];
 
     if (isDevMode) {
       menus = [
@@ -514,7 +478,7 @@ class PostCreationScreen extends Component {
           menus: [
             {
               label: 'Camera',
-              icon: videocamIcon,
+              icon: videoCamIcon,
             },
             {
               label: 'Video Library',
@@ -560,9 +524,7 @@ class PostCreationScreen extends Component {
         // return;
         // ImagePicker[selection ? 'openPicker' : 'openCamera']({
 
-        const {
-          images: currentImages,
-        } = this.state;
+        const { images: currentImages } = this.state;
 
         let hasAlreadySelectedIages = false;
         let numberOfSelectedImages = 0;
@@ -589,27 +551,45 @@ class PostCreationScreen extends Component {
             debugAppLogger({
               info: 'attach media - PostCreationScreen',
               media,
-            })
+            });
             // alert(JSON.stringify(media, null, 2));
             if (Array.isArray(media) && media.length) {
               let images = [];
 
-              if (isAndroid && (media.length + numberOfSelectedImages) > this.maxMedia) {
-                for (let x = 0; x < (this.maxMedia - numberOfSelectedImages); x++) {
+              if (
+                isAndroid &&
+                media.length + numberOfSelectedImages > this.maxMedia
+              ) {
+                for (
+                  let x = 0;
+                  x < this.maxMedia - numberOfSelectedImages;
+                  x++
+                ) {
                   const { size, path, mime, width, height } = media[x];
                   images.push({ size, path, mime, width, height });
                 }
 
-                ToastAndroid.show(`A max of ${this.maxMedia} media may be selected`, ToastAndroid.LONG);
+                ToastAndroid.show(
+                  `A max of ${this.maxMedia} media may be selected`,
+                  ToastAndroid.LONG,
+                );
               } else {
                 images = media.map((image) => {
                   const { size, path, mime, width, height } = image;
 
-                  return { size, path, mime, width, height, type: mediaType === 'photo' ? 'image' : 'video' };
+                  return {
+                    size,
+                    path,
+                    mime,
+                    width,
+                    height,
+                    type: mediaType === 'photo' ? 'image' : 'video',
+                  };
                 });
               }
 
-              if (hasAlreadySelectedIages) images = currentImages.concat(images);
+              if (hasAlreadySelectedIages)
+                images = currentImages.concat(images);
 
               this.setState({ images });
             }
@@ -617,7 +597,8 @@ class PostCreationScreen extends Component {
           .catch((error) => {
             if (error.code !== 'E_PICKER_CANCELLED') {
               debugAppLogger({
-                info: 'ProfileEditScreen showImageAttachmentOptions ImagePicker Error',
+                info:
+                  'ProfileEditScreen showImageAttachmentOptions ImagePicker Error',
                 errorMessage: error.message,
                 error,
               });
@@ -626,12 +607,10 @@ class PostCreationScreen extends Component {
       },
       onCancel: () => {},
     });
-  }
+  };
 
   removeMedia = (imageIndex) => () => {
-    const {
-      images,
-    } = this.state;
+    const { images } = this.state;
 
     if (Array.isArray(images) && images.length) {
       images.splice(imageIndex, 1);
@@ -645,14 +624,11 @@ class PostCreationScreen extends Component {
         images,
       });
     }
-  }
+  };
 
   createPost = async () => {
     try {
-      const {
-        noteData,
-        images,
-      } = this.state;
+      const { noteData, images } = this.state;
 
       let isBagus = true;
 
@@ -710,12 +686,9 @@ class PostCreationScreen extends Component {
         if (!hasChanges) {
           this.editPostAfterAction();
 
-          this.snackbarEmitter.emit(
-            'showSnackbar',
-            {
-              message: 'No changes were made',
-            },
-          );
+          this.snackbarEmitter.emit('showSnackbar', {
+            message: 'No changes were made',
+          });
 
           return;
         }
@@ -746,10 +719,7 @@ class PostCreationScreen extends Component {
 
           if (this.location?.coordinates?.latitude) {
             const {
-              coordinates: {
-                latitude,
-                longitude,
-              },
+              coordinates: { latitude, longitude },
             } = this.location;
 
             const geoPoint = new Parse.GeoPoint(latitude, longitude);
@@ -808,17 +778,23 @@ class PostCreationScreen extends Component {
           const uploadTasks = images.map((image, index) => {
             if (image.isExistingMedia) return null;
 
-            const filename = `post/${image.enjaga || 'enjaga'}_${Math.random().toString(36).substring(2)}.${image.type === 'image' ? 'jpg' : '.mp4'}`;
+            const filename = `post/${
+              image.enjaga || 'enjaga'
+            }_${Math.random().toString(36).substring(2)}.${
+              image.type === 'image' ? 'jpg' : '.mp4'
+            }`;
             images[index].filename = filename;
 
-            const uploadUri = isAndroid ? image.path : image.path.replace('file://', '');
+            const uploadUri = isAndroid
+              ? image.path
+              : image.path.replace('file://', '');
 
-            const task = storage()
-              .ref(filename)
-              .putFile(uploadUri);
+            const task = storage().ref(filename).putFile(uploadUri);
 
             task.on('state_changed', (taskSnapshot) => {
-              const uploadProgress = Math.round((taskSnapshot.bytesTransferred * 100) / taskSnapshot.totalBytes);
+              const uploadProgress = Math.round(
+                (taskSnapshot.bytesTransferred * 100) / taskSnapshot.totalBytes,
+              );
               debugAppLogger({
                 info: `image-${index} -> ${taskSnapshot.bytesTransferred} transferred out of ${taskSnapshot.totalBytes}`,
                 uploadProgress,
@@ -832,26 +808,24 @@ class PostCreationScreen extends Component {
               });
             });
 
-            return task
-              .then(() => {
-                this.setState(({ uploadProgresses: tempProgresses = [] }) => {
-                  const uploadProgresses = tempProgresses;
-                  uploadProgresses[index] = 101;
+            return task.then(() => {
+              this.setState(({ uploadProgresses: tempProgresses = [] }) => {
+                const uploadProgresses = tempProgresses;
+                uploadProgresses[index] = 101;
 
-                  return { uploadProgresses };
-                });
-
-                return storage()
-                  .ref(filename)
-                  .getDownloadURL()
-                  .catch(() => {});
+                return { uploadProgresses };
               });
+
+              return storage()
+                .ref(filename)
+                .getDownloadURL()
+                .catch(() => {});
+            });
           });
 
           this.setState({ isUploading: true });
 
-          const urls = await Promise.all(uploadTasks)
-            .then((values) => values);
+          const urls = await Promise.all(uploadTasks).then((values) => values);
 
           images.forEach((image, index) => {
             if (!image.isExistingMedia) image.url = urls[index];
@@ -880,12 +854,9 @@ class PostCreationScreen extends Component {
 
         this.updateEmitter.emit('refreshPosts');
 
-        this.snackbarEmitter.emit(
-          'showSnackbar',
-          {
-            message: `Post successfully ${this.isEditing ? 'updated' : 'shared'}`,
-          },
-        );
+        this.snackbarEmitter.emit('showSnackbar', {
+          message: `Post successfully ${this.isEditing ? 'updated' : 'shared'}`,
+        });
 
         debugAppLogger({
           info: 'Post creation',
@@ -905,19 +876,17 @@ class PostCreationScreen extends Component {
         isUploading: false,
       });
     }
-  }
+  };
 
   toggleActivityIndicator = () => {
     this.setState(({ isProcessing }) => ({
       isProcessing: !isProcessing,
     }));
-  }
+  };
 
   flashErrorIndicator = (errorType) => {
     try {
-      const {
-        [errorType]: errorValue,
-      } = this.state;
+      const { [errorType]: errorValue } = this.state;
 
       if (errorValue) {
         this[errorType].flash(1000).then(() => {});
@@ -932,7 +901,7 @@ class PostCreationScreen extends Component {
       });
       //
     }
-  }
+  };
 
   refreshData = () => {
     debugAppLogger({
@@ -941,7 +910,7 @@ class PostCreationScreen extends Component {
     });
 
     this.fetchData();
-  }
+  };
 
   render() {
     const {
@@ -965,10 +934,7 @@ class PostCreationScreen extends Component {
 
     return (
       <View style={styles.container}>
-        <ScrollView
-          keyboardShouldPersistTaps="handled"
-          indicatorStyle="black"
-        >
+        <ScrollView keyboardShouldPersistTaps="handled" indicatorStyle="black">
           {/* <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', marginTop: 20 }}>
             <Text style={{ marginRight: 10 }}>
               {visibility ? 'Public' : 'Private'}
@@ -984,27 +950,23 @@ class PostCreationScreen extends Component {
             style={{
               marginTop: 20,
               marginBottom: 10,
-            }}
-          >
+            }}>
             <View
               style={{
                 flexDirection: 'row',
                 alignItems: 'center',
-              }}
-            >
+              }}>
               <Text
                 style={{
                   marginHorizontal: 10,
-                }}
-              >
+                }}>
                 Media
               </Text>
 
               <TouchableOpacity
                 ref={this.refSelector('addMediaRef')}
                 activeOpacity={0.8}
-                onPress={this.showImageAttachmentOptions}
-              >
+                onPress={this.showImageAttachmentOptions}>
                 <MaterialCommunityIcon
                   name="camera-plus"
                   size={24}
@@ -1019,8 +981,7 @@ class PostCreationScreen extends Component {
                   flexDirection: 'row',
                   flexWrap: 'wrap',
                   marginTop: 10,
-                }}
-              >
+                }}>
                 {images.map(({ path, isExistingMedia }, index) => (
                   <FastImage
                     key={path}
@@ -1034,27 +995,37 @@ class PostCreationScreen extends Component {
                     }}
                     resizeMethod="resize"
                     resizeMode="cover"
-                    source={{ uri: path }}
-                  >
-                    {!isExistingMedia && !!isUploading && appVersion !== '0.0.3' && Array.isArray(uploadProgresses) && uploadProgresses[index] !== 101 && (
-                      <ProgressCircle
-                        // useNativeDriver
-                        // indeterminate
-                        showsText
-                        allowFontScaling={false}
-                        size={60}
-                        thickness={2}
-                        color="white"
-                        borderColor="#666666"
-                        progress={(Array.isArray(uploadProgresses) && uploadProgresses[index]) || 0}
-                        style={{ borderRadius: 30, backgroundColor: 'rgba(0, 0, 0 , 0.6)' }}
-                      />
-                    )}
+                    source={{ uri: path }}>
+                    {!isExistingMedia &&
+                      !!isUploading &&
+                      appVersion !== '0.0.3' &&
+                      Array.isArray(uploadProgresses) &&
+                      uploadProgresses[index] !== 101 && (
+                        <ProgressCircle
+                          // useNativeDriver
+                          // indeterminate
+                          showsText
+                          allowFontScaling={false}
+                          size={60}
+                          thickness={2}
+                          color="white"
+                          borderColor="#666666"
+                          progress={
+                            (Array.isArray(uploadProgresses) &&
+                              uploadProgresses[index]) ||
+                            0
+                          }
+                          style={{
+                            borderRadius: 30,
+                            backgroundColor: 'rgba(0, 0, 0 , 0.6)',
+                          }}
+                        />
+                      )}
 
-                    {(isExistingMedia || (Array.isArray(uploadProgresses) && uploadProgresses[index] === 101)) && (
-                      <View
-                        style={styles.removePhotoButton}
-                      >
+                    {(isExistingMedia ||
+                      (Array.isArray(uploadProgresses) &&
+                        uploadProgresses[index] === 101)) && (
+                      <View style={styles.removePhotoButton}>
                         <MaterialIcon
                           name="check-circle"
                           size={22}
@@ -1068,13 +1039,8 @@ class PostCreationScreen extends Component {
                         activeOpacity={0.6}
                         hitSlop={{ top: 10, right: 10, bottom: 10, left: 10 }}
                         onPress={this.removeMedia(index)}
-                        style={styles.removePhotoButton}
-                      >
-                        <MaterialIcon
-                          name="cancel"
-                          size={22}
-                          color="black"
-                        />
+                        style={styles.removePhotoButton}>
+                        <MaterialIcon name="cancel" size={22} color="black" />
                       </TouchableOpacity>
                     )}
                   </FastImage>
@@ -1116,8 +1082,7 @@ class PostCreationScreen extends Component {
             <View
               style={{
                 marginTop: 10,
-              }}
-            >
+              }}>
               <GooglePlacesAutocomplete
                 key={locationKey}
                 ref={this.refSelector('autoCompleteRef')}
@@ -1205,21 +1170,18 @@ class PostCreationScreen extends Component {
                 marginTop: 30,
                 alignSelf: 'flex-start',
               }}
-              onPress={this.showBottomSheet}
-            >
+              onPress={this.showBottomSheet}>
               <View
                 style={{
                   flexDirection: 'row',
                   alignItems: 'center',
                   paddingHorizontal: 10,
-                }}
-              >
+                }}>
                 <Text
                   style={{
                     marginRight: 5,
                     color: 'black',
-                  }}
-                >
+                  }}>
                   Upload to{noteData?.id ? ' feed:' : ' feed'}
                 </Text>
 
@@ -1237,8 +1199,7 @@ class PostCreationScreen extends Component {
                       flexDirection: 'row',
                       alignItems: 'center',
                       marginHorizontal: 10,
-                    }}
-                  >
+                    }}>
                     <FastImage
                       style={{
                         width: 40,
@@ -1254,8 +1215,7 @@ class PostCreationScreen extends Component {
                         color: '#555555',
                         fontStyle: 'italic',
                         maxWidth: windowWidth * 0.45,
-                      }}
-                    >
+                      }}>
                       {noteData.title}
                     </Text>
                   </View>
@@ -1274,8 +1234,7 @@ class PostCreationScreen extends Component {
             activeOpacity={0.9}
             disabled={isProcessing}
             onPress={this.createPost}
-            style={styles.submitButton}
-          >
+            style={styles.submitButton}>
             {isProcessing ? (
               <View
                 style={{
@@ -1284,16 +1243,14 @@ class PostCreationScreen extends Component {
                   flexDirection: 'row',
                   justifyContent: 'center',
                   alignItems: 'center',
-                }}
-              >
+                }}>
                 <Text
                   allowFontScaling={false}
                   style={{
                     fontSize: 18,
                     color: 'white',
                     marginRight: 7,
-                  }}
-                >
+                  }}>
                   {this.isEditing ? 'Update' : 'Share'}
                 </Text>
 
@@ -1316,16 +1273,14 @@ class PostCreationScreen extends Component {
                   flexDirection: 'row',
                   justifyContent: 'center',
                   alignItems: 'center',
-                }}
-              >
+                }}>
                 <Text
                   allowFontScaling={false}
                   style={{
                     fontSize: 18,
                     color: 'white',
                     marginRight: 7,
-                  }}
-                >
+                  }}>
                   {this.isEditing ? 'Update' : 'Share'}
                 </Text>
 
@@ -1343,10 +1298,7 @@ class PostCreationScreen extends Component {
 
         {isProcessing && (
           <Portal>
-            <ModalActivityIndicatorAlt
-              hideIndicator
-              opacity={0.1}
-            />
+            <ModalActivityIndicatorAlt hideIndicator opacity={0.1} />
           </Portal>
         )}
       </View>
@@ -1407,11 +1359,7 @@ const styles = StyleSheet.create({
 });
 
 const mapStateToProps = (state) => {
-  const {
-    cachedState: {
-      notes,
-    } = {},
-  } = state;
+  const { cachedState: { notes } = {} } = state;
 
   return {
     items: notes ?? [],

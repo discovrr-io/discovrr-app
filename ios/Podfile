@@ -3,17 +3,17 @@ require_relative '../node_modules/@react-native-community/cli-platform-ios/nativ
 
 platform :ios, '10.0'
 
-target 'discoverr' do
+target 'Discovrr' do
+  project 'Discovrr'
   config = use_native_modules!
 
-  use_react_native!(:path => config["reactNativePath"])
-  
-  # use_native_modules!
+  use_react_native!(
+    :path => config[:reactNativePath],
+    # to enable hermes on iOS, change `false` to `true` and then install pods
+    :hermes_enabled => false
+  )
 
-  pod 'RNPopoverMenu', :path => '../node_modules/react-native-popover-menu/ios'
-  pod 'Stripe', '~> 19.4.0'
-
-  target 'discoverrTests' do
+  target 'DiscovrrTests' do
     inherit! :complete
     # Pods for testing
   end
@@ -22,7 +22,7 @@ target 'discoverr' do
   #
   # Note that if you have use_frameworks! enabled, Flipper will not work and
   # you should disable these next few lines.
-  use_flipper!
+  use_flipper!({ 'Flipper' => '0.85.0' })
   post_install do |installer|
     flipper_post_install(installer)
     installer.pods_project.targets.each do |target|
@@ -30,18 +30,5 @@ target 'discoverr' do
         config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '9.0'
       end
     end
-  end
-end
-
-target 'OneSignalNotificationServiceExtension' do
-  pod 'OneSignal', '>= 3.0', '< 4.0'
-end
-
-target 'discoverr-tvOS' do
-  # Pods for discoverr-tvOS
-
-  target 'discoverr-tvOSTests' do
-    inherit! :search_paths
-    # Pods for testing
   end
 end

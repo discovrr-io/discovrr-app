@@ -1,9 +1,4 @@
-import React, {
-  Component,
-  useState,
-  useRef,
-  useEffect,
-} from 'react';
+import React, { Component, useState, useRef, useEffect } from 'react';
 
 import {
   ActivityIndicator,
@@ -11,10 +6,8 @@ import {
   Animated,
   BackHandler,
   DeviceEventEmitter,
-  // FlatList,
   Keyboard,
   NativeEventEmitter,
-  // ScrollView,
   StyleSheet,
   Text,
   TextInput as EnjagaTextInput,
@@ -23,14 +16,10 @@ import {
   View,
 } from 'react-native';
 
-import {
-  FlatList,
-  ScrollView,
-} from 'react-native-gesture-handler';
+import { FlatList, ScrollView } from 'react-native-gesture-handler';
 
 import {
   Caption,
-  IconButton,
   RadioButton,
   Snackbar,
   Surface,
@@ -38,13 +27,8 @@ import {
   TextInput,
 } from 'react-native-paper';
 
-import MapView, {
-  Circle,
-} from 'react-native-maps';
-
-import {
-  GooglePlacesAutocomplete,
-} from 'react-native-google-places-autocomplete';
+import MapView, { Circle } from 'react-native-maps';
+import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 
 import {
   AppleButton,
@@ -57,39 +41,28 @@ import {
   statusCodes,
 } from '@react-native-community/google-signin';
 
-import {
-  connect,
-} from 'react-redux';
-
-import {
-  getVersion,
-} from 'react-native-device-info';
-
-import messaging from '@react-native-firebase/messaging';
+import { connect } from 'react-redux';
+import { getVersion } from 'react-native-device-info';
 import * as Animatable from 'react-native-animatable';
-import Slider from '@react-native-community/slider';
-import ProgressCircle from 'react-native-progress/Circle';
-import ImagePicker from 'react-native-image-crop-picker';
+import auth from '@react-native-firebase/auth';
+import BottomSheet from 'reanimated-bottom-sheet';
 import FastImage from 'react-native-fast-image';
+import Geolocation from 'react-native-geolocation-service';
+import ImagePicker from 'react-native-image-crop-picker';
+import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
+import messaging from '@react-native-firebase/messaging';
+import ProgressCircle from 'react-native-progress/Circle';
 import RNPopoverMenu from 'react-native-popover-menu';
 import Share from 'react-native-share';
-// import * as Animatable from 'react-native-animatable';
-// import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
-import Icon from 'react-native-vector-icons';
-import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
-import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
-import Geolocation from 'react-native-geolocation-service';
-import BottomSheet from 'reanimated-bottom-sheet';
+import Slider from '@react-native-community/slider';
 import storage from '@react-native-firebase/storage';
-import auth from '@react-native-firebase/auth';
 
 import ModalActivityIndicatorAlt from './ModalActivityIndicatorAlt';
-
 import PostCreationScreen from '../PostCreationScreen';
-
-import {
-  requestPermissionConfig,
-} from '../utilities/Permissions';
+import { requestPermissionConfig } from '../utilities/Permissions';
+import { saveLocationPreference } from '../utilities/Actions';
+import { showOnMap } from '../utilities/LinkingActions';
 
 import {
   emailRegex,
@@ -98,22 +71,16 @@ import {
   windowHeight,
 } from '../utilities/Constants';
 
-import {
-  saveLocationPreference,
-} from '../utilities/Actions';
-
-import {
-  showOnMap,
-} from '../utilities/LinkingActions';
-
 const Parse = require('parse/react-native');
 
 const debounce = require('lodash/debounce');
 
 const imagePlaceholder = require('../../resources/images/imagePlaceholder.png');
 
-const cameraIcon = <Icon family="MaterialIcons" name="camera-alt" color="#000000" size={24} />;
-const photosIcon = <Icon family="MaterialIcons" name="collections" color="#000000" size={24} />;
+const cameraIcon = <MaterialIcon name="camera-alt" color="#000000" size={24} />;
+const photosIcon = (
+  <MaterialIcon name="collections" color="#000000" size={24} />
+);
 
 const snapPoints = ['75%', 0];
 // const snapPoints = ['70%', '50%', 0];
@@ -129,9 +96,7 @@ class BottomSheetPanel extends Component {
   constructor(props) {
     super(props);
 
-    ({
-      dispatch: this.dispatch,
-    } = props);
+    ({ dispatch: this.dispatch } = props);
 
     this.debouncedMapRegionChange = debounce(this.updateMapRegion, 500);
 
@@ -157,12 +122,14 @@ class BottomSheetPanel extends Component {
         searchRadius,
       };
 
-      markers = [{
-        id: 'you',
-        name: 'You',
-        color: 'linen',
-        coordinate: { ...coordinates },
-      }];
+      markers = [
+        {
+          id: 'you',
+          name: 'You',
+          color: 'linen',
+          coordinate: { ...coordinates },
+        },
+      ];
     } else {
       this.initialRegion = {
         latitude: -33.88013879489698,
@@ -205,7 +172,8 @@ class BottomSheetPanel extends Component {
   }
 
   componentDidMount() {
-    if (isAndroid) BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
+    if (isAndroid)
+      BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
 
     DeviceEventEmitter.addListener('showPanel', this.showBottomSheet);
     DeviceEventEmitter.addListener('showSnackbar', this.showSnackbarMessage);
@@ -214,19 +182,23 @@ class BottomSheetPanel extends Component {
   }
 
   componentWillUnmount() {
-    if (isAndroid) BackHandler.removeEventListener('hardwareBackPress', this.handleBackPress);
+    if (isAndroid)
+      BackHandler.removeEventListener(
+        'hardwareBackPress',
+        this.handleBackPress,
+      );
 
     DeviceEventEmitter.removeListener('showPanel', this.showBottomSheet);
     DeviceEventEmitter.removeListener('showSnackbar', this.showSnackbarMessage);
   }
 
-  refSelector = (selector) => (compRef) => { this[selector] = compRef; }
+  refSelector = (selector) => (compRef) => {
+    this[selector] = compRef;
+  };
 
   handleBackPress = () => {
     try {
-      const {
-        isBottomSheetOpen,
-      } = this.state;
+      const { isBottomSheetOpen } = this.state;
 
       if (isBottomSheetOpen) {
         Keyboard.dismiss();
@@ -256,8 +228,9 @@ class BottomSheetPanel extends Component {
   requestNotifPermission = async () => {
     try {
       const authStatus = await messaging().requestPermission();
-      const permissionAuthorized = authStatus === messaging.AuthorizationStatus.AUTHORIZED
-        || authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+      const permissionAuthorized =
+        authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+        authStatus === messaging.AuthorizationStatus.PROVISIONAL;
 
       debugAppLogger({
         info: 'requestNotifPermission - BottomSheetPanel',
@@ -280,13 +253,11 @@ class BottomSheetPanel extends Component {
             notifAuthStatus = 'Indeterminate';
             break;
           default:
-            //
+          //
         }
       }
 
-      const {
-        userDetails,
-      } = this.props;
+      const { userDetails } = this.props;
 
       if (!isAndroid && userDetails.notifAuthStatus !== notifAuthStatus) {
         const User = Parse.Object.extend('User');
@@ -341,14 +312,14 @@ class BottomSheetPanel extends Component {
       });
       //
     }
-  }
+  };
 
   dismissSnackbar = () => {
     this.setState({
       showSnackbar: false,
       snackbarMessage: '',
     });
-  }
+  };
 
   showMessage = (snackbarMessage) => () => {
     if (snackbarMessage) {
@@ -357,7 +328,7 @@ class BottomSheetPanel extends Component {
         showSnackbar: true,
       });
     }
-  }
+  };
 
   showSnackbarMessage = (data) => {
     debugAppLogger({
@@ -376,7 +347,7 @@ class BottomSheetPanel extends Component {
     } catch (e) {
       // alert(e.message);
     }
-  }
+  };
 
   showBottomSheet = (data) => {
     debugAppLogger({
@@ -385,18 +356,14 @@ class BottomSheetPanel extends Component {
     });
 
     try {
-      const {
-        backdropOpacity,
-      } = this.state;
+      const { backdropOpacity } = this.state;
 
       let pointOfInterest;
       let extraData = data?.extraData ?? null;
       const contentSelector = data?.contentSelector ?? null;
 
       if (contentSelector === 'pinPostToNote') {
-        const {
-          notes,
-        } = this.props;
+        const { notes } = this.props;
 
         if (!extraData) {
           extraData = { notes };
@@ -434,20 +401,20 @@ class BottomSheetPanel extends Component {
         useNativeDriver: true,
       }).start();
 
-      if (contentSelector === 'editNote' && extraData) this.title = extraData.title;
+      if (contentSelector === 'editNote' && extraData)
+        this.title = extraData.title;
 
-      if (data && typeof data.onFinish === 'function') this.finishedAction = data.onFinish;
+      if (data && typeof data.onFinish === 'function')
+        this.finishedAction = data.onFinish;
     } catch (e) {
       // alert(e.message);
       //
     }
-  }
+  };
 
   hideBottomSheetPanel = () => {
     try {
-      const {
-        backdropOpacity,
-      } = this.state;
+      const { backdropOpacity } = this.state;
 
       Animated.timing(backdropOpacity, {
         toValue: 0,
@@ -497,9 +464,9 @@ class BottomSheetPanel extends Component {
 
       this.hideBottomSheetPanel();
     } catch (e) {
-      //
+      // TODO
     }
-  }
+  };
 
   fetchData = async (selector) => {
     try {
@@ -508,9 +475,7 @@ class BottomSheetPanel extends Component {
         selector,
       });
 
-      const {
-        userDetails,
-      } = this.props;
+      const { userDetails } = this.props;
 
       let query;
 
@@ -522,7 +487,7 @@ class BottomSheetPanel extends Component {
           query.equalTo('owner', new User({ id: userDetails.id }));
           break;
         default:
-          //
+        //
       }
 
       const results = await query.find();
@@ -533,7 +498,7 @@ class BottomSheetPanel extends Component {
             const imageData = note.get('image');
             const imageUrl = imageData?.url ?? null;
             const source = imageUrl ? { uri: imageUrl } : imagePlaceholder;
-            const width = (windowWidth / 2);
+            const width = windowWidth / 2;
             const title = note.get('title');
             const noteData = {
               width,
@@ -544,7 +509,10 @@ class BottomSheetPanel extends Component {
               key: `${imageUrl || imagePlaceholder}${title}`,
               id: note.id,
               isPrivate: note.get('private'),
-              height: width * ((imageUrl ? imageData.height : 600) / (imageUrl ? imageData.width : 800)),
+              height:
+                width *
+                ((imageUrl ? imageData.height : 600) /
+                  (imageUrl ? imageData.width : 800)),
             };
 
             noteData.dimensions = {
@@ -577,25 +545,27 @@ class BottomSheetPanel extends Component {
     } catch (error) {
       this.setState({ isFetchingData: false });
     }
-  }
+  };
 
   showImageAttachmentOptions = () => {
     RNPopoverMenu.Show(this.attachmentButtonRef, {
       tintColor: '#FAFAFA',
       textColor: '#000000',
       title: 'Select from',
-      menus: [{
-        menus: [
-          {
-            label: 'Camera',
-            icon: cameraIcon,
-          },
-          {
-            label: 'Photos',
-            icon: photosIcon,
-          },
-        ],
-      }],
+      menus: [
+        {
+          menus: [
+            {
+              label: 'Camera',
+              icon: cameraIcon,
+            },
+            {
+              label: 'Photos',
+              icon: photosIcon,
+            },
+          ],
+        },
+      ],
       onDone: (section, menuIndex) => {
         const selection = isAndroid ? menuIndex : section;
         ImagePicker[selection ? 'openPicker' : 'openCamera']({
@@ -610,18 +580,36 @@ class BottomSheetPanel extends Component {
           cropperStatusBarColor: '#000000',
         })
           .then(({ size, path, mime, width, height }) => {
-            debugAppLogger({ info: 'Attached image details', size, path, mime, width, height });
-
-            this.setState({
-              imageUri: path,
-              imageDetails: { size, path, mime, width, height, type: 'image' },
-            }, () => {
-              // this.syncProfileChanges('avatar');
+            debugAppLogger({
+              info: 'Attached image details',
+              size,
+              path,
+              mime,
+              width,
+              height,
             });
+
+            this.setState(
+              {
+                imageUri: path,
+                imageDetails: {
+                  size,
+                  path,
+                  mime,
+                  width,
+                  height,
+                  type: 'image',
+                },
+              },
+              () => {
+                // this.syncProfileChanges('avatar');
+              },
+            );
           })
           .catch((error) => {
             debugAppLogger({
-              info: 'ProfileEditScreen showImageAttachmentOptions ImagePicker Error',
+              info:
+                'ProfileEditScreen showImageAttachmentOptions ImagePicker Error',
               errorMessage: error.message,
               error,
             });
@@ -629,21 +617,21 @@ class BottomSheetPanel extends Component {
       },
       onCancel: () => {},
     });
-  }
+  };
 
   openSystemShare = () => {
     try {
       this.hideBottomSheetPanel();
 
-      const {
-        extraData,
-      } = this.state;
+      const { extraData } = this.state;
 
       let message = 'Discovrr Share';
       if (extraData) {
-        if (extraData.title) message = `Check out ${extraData.title} on Discovrr`;
+        if (extraData.title)
+          message = `Check out ${extraData.title} on Discovrr`;
 
-        if (extraData.id) message = `${message}\n\nhttps://discovrrio.com/p/${extraData.id}`;
+        if (extraData.id)
+          message = `${message}\n\nhttps://discovrrio.com/p/${extraData.id}`;
       }
 
       const shareOptions = {
@@ -664,21 +652,21 @@ class BottomSheetPanel extends Component {
     } catch (e) {
       //
     }
-  }
+  };
 
   singleShare = (selector) => async () => {
     try {
       this.hideBottomSheetPanel();
 
-      const {
-        extraData,
-      } = this.state;
+      const { extraData } = this.state;
 
       let message = 'Discovrr Share';
       if (extraData) {
-        if (extraData.title) message = `Check out ${extraData.title} on Discovrr`;
+        if (extraData.title)
+          message = `Check out ${extraData.title} on Discovrr`;
 
-        if (extraData.id) message = `${message}\n\nhttps://discovrrio.com/p/${extraData.id}`;
+        if (extraData.id)
+          message = `${message}\n\nhttps://discovrrio.com/p/${extraData.id}`;
       }
 
       let social;
@@ -707,16 +695,14 @@ class BottomSheetPanel extends Component {
         social,
       };
 
-      Share
-        .shareSingle(shareOptions)
-        .catch((error) => {
-          // alert(JSON.stringify(error));
-          this.openSystemShare();
-        });
+      Share.shareSingle(shareOptions).catch((error) => {
+        // alert(JSON.stringify(error));
+        this.openSystemShare();
+      });
     } catch (error) {
       // alert(error.message);
     }
-  }
+  };
 
   updateInputValue = (input) => (value = '') => {
     debugAppLogger({
@@ -729,30 +715,28 @@ class BottomSheetPanel extends Component {
     this.setState({
       [`${input}Error`]: false,
     });
-  }
+  };
 
   authUpdateInputValue = (input) => (value) => {
-    const {
-      inputMode,
-    } = this.state;
+    const { inputMode } = this.state;
 
     this.values[inputMode][input] = value.trim();
     this.setState({
       [`${input}Error`]: false,
     });
-  }
+  };
 
   toggleActivityIndicator = () => {
     this.setState(({ isProcessing }) => ({
       isProcessing: !isProcessing,
     }));
-  }
+  };
 
   toggleSwitch = (selector) => () => {
     this.setState(({ [`${selector}`]: value }) => ({
       [`${selector}`]: !value,
     }));
-  }
+  };
 
   resetLocationFilter = () => {
     try {
@@ -765,32 +749,38 @@ class BottomSheetPanel extends Component {
 
       this.region = this.initialRegion;
 
-      this.setState({
-        hasCoordinates: false,
-        coordinates: null,
-        markers: null,
-        searchRadius: 3,
-      }, () => {
-        this.mapRef.animateToRegion(this.initialRegion);
-      });
+      this.setState(
+        {
+          hasCoordinates: false,
+          coordinates: null,
+          markers: null,
+          searchRadius: 3,
+        },
+        () => {
+          this.mapRef.animateToRegion(this.initialRegion);
+        },
+      );
     } catch (e) {
       //
     }
-  }
+  };
 
   applyLocationFilter = () => {
     if (typeof this.finishedAction === 'function') this.finishedAction();
 
     this.hideBottomSheetPanel();
-  }
+  };
 
   changeSearchRadius = (searchRadius) => {
-    this.setState({
-      searchRadius,
-    }, () => {
-      this.debouncedMapRegionChange();
-    });
-  }
+    this.setState(
+      {
+        searchRadius,
+      },
+      () => {
+        this.debouncedMapRegionChange();
+      },
+    );
+  };
 
   calculateRegion = (latitude, longitude, distance) => {
     const tempDistance = distance / 2;
@@ -799,10 +789,12 @@ class BottomSheetPanel extends Component {
     const angularDistance = tempDistance / circumference;
 
     const latitudeDelta = tempDistance / oneDegreeOfLatitudeInMeters;
-    const longitudeDelta = Math.abs(Math.atan2(
-      Math.sin(angularDistance) * Math.cos(latitude),
-      Math.cos(angularDistance) - Math.sin(longitude) * Math.sin(latitude),
-    ));
+    const longitudeDelta = Math.abs(
+      Math.atan2(
+        Math.sin(angularDistance) * Math.cos(latitude),
+        Math.cos(angularDistance) - Math.sin(longitude) * Math.sin(latitude),
+      ),
+    );
 
     return {
       latitude,
@@ -810,7 +802,7 @@ class BottomSheetPanel extends Component {
       latitudeDelta,
       longitudeDelta,
     };
-  }
+  };
 
   updateLocation = (data) => {
     debugAppLogger({
@@ -818,10 +810,16 @@ class BottomSheetPanel extends Component {
       data,
     });
 
-    if (data.description && data.geometry) this.setPreferredLocation(data, data, true);
-  }
+    if (data.description && data.geometry)
+      this.setPreferredLocation(data, data, true);
+  };
 
-  setPreferredLocation = (data, details, updateLocationKey = false, alreadyHaveDeviceLocation = false) => {
+  setPreferredLocation = (
+    data,
+    details,
+    updateLocationKey = false,
+    alreadyHaveDeviceLocation = false,
+  ) => {
     try {
       debugAppLogger({ info: '>> Google places', data, details });
 
@@ -829,67 +827,65 @@ class BottomSheetPanel extends Component {
       // alert(JSON.stringify(enjaga, null, 2));
       // return;
 
-      const {
-        description,
-      } = data;
+      const { description } = data;
 
       if (description === 'My Current Location' && !alreadyHaveDeviceLocation) {
         this.getLocationPermission();
       } else {
-        const {
-          geometry,
-        } = details || {};
+        const { geometry } = details || {};
 
         if (description && geometry) {
-          const markers = [{
-            id: 'you',
-            name: 'You',
-            color: 'linen',
-            coordinate: {
-              latitude: geometry.location.lat,
-              longitude: geometry.location.lng,
+          const markers = [
+            {
+              id: 'you',
+              name: 'You',
+              color: 'linen',
+              coordinate: {
+                latitude: geometry.location.lat,
+                longitude: geometry.location.lng,
+              },
             },
-          }];
+          ];
 
           this.fitMarkerIds = ['job', 'you'];
 
           if (updateLocationKey) this.preferredLocation = description;
 
-          const {
-            locationKey,
-            searchRadius,
-          } = this.state;
+          const { locationKey, searchRadius } = this.state;
 
-          this.setState({
-            markers,
-            hasCoordinates: true,
-            locationKey: updateLocationKey ? locationKey + 1 : locationKey,
-            coordinates: {
-              latitude: geometry.location.lat,
-              longitude: geometry.location.lng,
+          this.setState(
+            {
+              markers,
+              hasCoordinates: true,
+              locationKey: updateLocationKey ? locationKey + 1 : locationKey,
+              coordinates: {
+                latitude: geometry.location.lat,
+                longitude: geometry.location.lng,
+              },
             },
-          }, () => {
-            if (this.mapRef) {
-              this.region = this.calculateRegion(
-                geometry.location.lat,
-                geometry.location.lng,
-                (searchRadius * 1000) + (searchRadius * 2000),
-              );
+            () => {
+              if (this.mapRef) {
+                this.region = this.calculateRegion(
+                  geometry.location.lat,
+                  geometry.location.lng,
+                  searchRadius * 1000 + searchRadius * 2000,
+                );
 
-              this.region.searchRadius = searchRadius;
-              this.region.location = description;
+                this.region.searchRadius = searchRadius;
+                this.region.location = description;
 
-              this.mapRef.animateToRegion(this.region);
+                this.mapRef.animateToRegion(this.region);
 
-              this.dispatch(saveLocationPreference(this.region));
-            }
-          });
+                this.dispatch(saveLocationPreference(this.region));
+              }
+            },
+          );
         }
       }
     } catch (error) {
       debugAppLogger({ info: '>> Google places Error', error });
     }
-  }
+  };
 
   getLocationPermission = () => {
     requestPermissionConfig({
@@ -897,9 +893,7 @@ class BottomSheetPanel extends Component {
       showReason: false,
       grantedAction: this.useDeviceLocation,
       deniedAction: () => {
-        const {
-          locationKey,
-        } = this.state;
+        const { locationKey } = this.state;
 
         if (this.preferredLocation) {
           this.preferredLocation.description = '';
@@ -914,7 +908,7 @@ class BottomSheetPanel extends Component {
         });
       },
     });
-  }
+  };
 
   useDeviceLocation = () => {
     Geolocation.getCurrentPosition(
@@ -923,12 +917,7 @@ class BottomSheetPanel extends Component {
         // alert(JSON.stringify(position), null, 2);
         // return;
         this.gotLocation = true;
-        const {
-          coords: {
-            latitude: lat,
-            longitude: lng,
-          } = {},
-        } = position;
+        const { coords: { latitude: lat, longitude: lng } = {} } = position;
 
         this.setPreferredLocation(
           {
@@ -954,9 +943,7 @@ class BottomSheetPanel extends Component {
         });
         // alert(error.message);
 
-        const {
-          locationKey,
-        } = this.state;
+        const { locationKey } = this.state;
 
         if (this.preferredLocation) {
           this.preferredLocation.description = '';
@@ -979,31 +966,27 @@ class BottomSheetPanel extends Component {
         maximumAge: 10000,
       },
     );
-  }
+  };
 
   updateMapRegion = () => {
     if (this.region) {
-      const {
-        searchRadius,
-      } = this.state;
+      const { searchRadius } = this.state;
 
       this.region = this.calculateRegion(
         this.region.latitude,
         this.region.longitude,
-        (searchRadius * 1000) + (searchRadius * 2000),
+        searchRadius * 1000 + searchRadius * 2000,
       );
 
       this.region.searchRadius = searchRadius;
       this.mapRef.animateToRegion(this.region);
       this.dispatch(saveLocationPreference(this.region));
     }
-  }
+  };
 
   createNewNote = async () => {
     try {
-      const {
-        noteVisibility,
-      } = this.state;
+      const { noteVisibility } = this.state;
 
       let isBagus = true;
 
@@ -1036,7 +1019,8 @@ class BottomSheetPanel extends Component {
           source: imagePlaceholder,
         };
 
-        if (typeof this.finishedAction === 'function') this.finishedAction(data);
+        if (typeof this.finishedAction === 'function')
+          this.finishedAction(data);
 
         this.hideBottomSheetPanel();
 
@@ -1057,16 +1041,11 @@ class BottomSheetPanel extends Component {
       });
       this.toggleActivityIndicator();
     }
-  }
+  };
 
   updateNote = async () => {
     try {
-      const {
-        noteVisibility,
-        extraData,
-        imageUri,
-        imageDetails,
-      } = this.state;
+      const { noteVisibility, extraData, imageUri, imageDetails } = this.state;
 
       let isBagus = true;
       let hasChanges = false;
@@ -1111,19 +1090,24 @@ class BottomSheetPanel extends Component {
 
             let noteCover = null;
             if (imageUri && imageDetails) {
-              const filename = `board/${note.id}_${Math.random().toString(36).substring(2)}.jpg`;
-              const uploadUri = isAndroid ? imageDetails.path : imageDetails.path.replace('file://', '');
+              const filename = `board/${note.id}_${Math.random()
+                .toString(36)
+                .substring(2)}.jpg`;
+              const uploadUri = isAndroid
+                ? imageDetails.path
+                : imageDetails.path.replace('file://', '');
 
-              const task = storage()
-                .ref(filename)
-                .putFile(uploadUri);
+              const task = storage().ref(filename).putFile(uploadUri);
 
               this.setState({
                 isUploading: true,
               });
 
               task.on('state_changed', (taskSnapshot) => {
-                const uploadProgress = Math.round((taskSnapshot.bytesTransferred * 100) / taskSnapshot.totalBytes);
+                const uploadProgress = Math.round(
+                  (taskSnapshot.bytesTransferred * 100) /
+                    taskSnapshot.totalBytes,
+                );
                 this.setState({ uploadProgress });
                 debugAppLogger({
                   info: `${taskSnapshot.bytesTransferred} transferred out of ${taskSnapshot.totalBytes}`,
@@ -1162,14 +1146,17 @@ class BottomSheetPanel extends Component {
               });
             }
 
-            this.setState({
-              // snackbarMessage: 'Successfully updated note details',
-              snackbarMessage: 'Note successfully updated',
-              showSnackbar: true,
-              isUploading: false,
-            }, () => {
-              this.updateEmitter.emit('refreshNotes');
-            });
+            this.setState(
+              {
+                // snackbarMessage: 'Successfully updated note details',
+                snackbarMessage: 'Note successfully updated',
+                showSnackbar: true,
+                isUploading: false,
+              },
+              () => {
+                this.updateEmitter.emit('refreshNotes');
+              },
+            );
           }
 
           this.toggleActivityIndicator();
@@ -1192,12 +1179,10 @@ class BottomSheetPanel extends Component {
       });
       this.toggleActivityIndicator();
     }
-  }
+  };
 
   renderBackdrop = () => {
-    const {
-      backdropOpacity,
-    } = this.state;
+    const { backdropOpacity } = this.state;
 
     return (
       <Animated.View
@@ -1209,8 +1194,7 @@ class BottomSheetPanel extends Component {
           left: 0,
           right: 0,
           bottom: 0,
-        }}
-      >
+        }}>
         <TouchableOpacity
           style={{
             width: windowWidth,
@@ -1232,12 +1216,10 @@ class BottomSheetPanel extends Component {
         onPress={this.openPanel}
       />
     </View>
-  )
+  );
 
   renderShareSheet = () => {
-    const {
-      extraData,
-    } = this.state;
+    const { extraData } = this.state;
 
     const marginHorizontal = 7;
 
@@ -1245,25 +1227,21 @@ class BottomSheetPanel extends Component {
     if (extraData && extraData.title) shareTitle = `Share ${extraData.title}`;
 
     return (
-      <View
-        style={styles.bottomSheetSurface}
-      >
+      <View style={styles.bottomSheetSurface}>
         <View
           style={{
             justifyContent: 'center',
             alignItems: 'center',
             marginTop: 10,
             marginBottom: 5,
-          }}
-        >
+          }}>
           <Text
             allowFontScaling={false}
             numberOfLines={2}
             style={{
               fontSize: 16,
               color: '#777777',
-            }}
-          >
+            }}>
             {shareTitle}
           </Text>
         </View>
@@ -1276,20 +1254,14 @@ class BottomSheetPanel extends Component {
             justifyContent: 'space-between',
             alignItems: 'center',
             marginTop: 10,
-          }}
-        >
+          }}>
           <TouchableOpacity
             activeOpacity={0.9}
             style={{
               marginHorizontal,
             }}
-            onPress={this.singleShare('whatsapp')}
-          >
-            <MaterialCommunityIcon
-              name="whatsapp"
-              size={56}
-              color="#25D366"
-            />
+            onPress={this.singleShare('whatsapp')}>
+            <MaterialCommunityIcon name="whatsapp" size={56} color="#25D366" />
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -1297,13 +1269,8 @@ class BottomSheetPanel extends Component {
             style={{
               marginHorizontal,
             }}
-            onPress={this.singleShare('twitter')}
-          >
-            <MaterialCommunityIcon
-              name="twitter"
-              size={56}
-              color="#1da1f2"
-            />
+            onPress={this.singleShare('twitter')}>
+            <MaterialCommunityIcon name="twitter" size={56} color="#1da1f2" />
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -1311,13 +1278,8 @@ class BottomSheetPanel extends Component {
             style={{
               marginHorizontal,
             }}
-            onPress={this.singleShare('facebook')}
-          >
-            <MaterialCommunityIcon
-              name="facebook"
-              size={56}
-              color="#3b5998"
-            />
+            onPress={this.singleShare('facebook')}>
+            <MaterialCommunityIcon name="facebook" size={56} color="#3b5998" />
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -1325,13 +1287,8 @@ class BottomSheetPanel extends Component {
             style={{
               marginHorizontal,
             }}
-            onPress={this.singleShare('instagram')}
-          >
-            <MaterialCommunityIcon
-              name="instagram"
-              size={56}
-              color="black"
-            />
+            onPress={this.singleShare('instagram')}>
+            <MaterialCommunityIcon name="instagram" size={56} color="black" />
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -1339,8 +1296,7 @@ class BottomSheetPanel extends Component {
             style={{
               marginHorizontal,
             }}
-            onPress={this.openSystemShare}
-          >
+            onPress={this.openSystemShare}>
             <MaterialCommunityIcon
               name="dots-horizontal-circle"
               size={56}
@@ -1363,8 +1319,7 @@ class BottomSheetPanel extends Component {
             backgroundColor: 'white',
             marginTop: 30,
             maxWidth: windowWidth * 0.9,
-          }}
-        >
+          }}>
           <EnjagaTextInput
             allowFontScaling={false}
             autoCorrect={false}
@@ -1380,7 +1335,7 @@ class BottomSheetPanel extends Component {
               height: 40,
               paddingLeft: 10,
               marginRight: 10,
-             }}
+            }}
             // onSubmitEditing={focusAction}
             // onChangeText={updateInputValue(selector)}
           />
@@ -1399,21 +1354,19 @@ class BottomSheetPanel extends Component {
             justifyContent: 'center',
             alignItems: 'center',
             marginTop: 50,
-          }}
-        >
+          }}>
           <Text
             allowFontScaling={false}
             style={{
               fontSize: 12,
               color: '#888888',
-            }}
-          >
+            }}>
             No contacts
           </Text>
         </View>
       </View>
     );
-  }
+  };
 
   renderCreateNote = () => {
     const {
@@ -1426,9 +1379,7 @@ class BottomSheetPanel extends Component {
 
     return (
       <ScrollView keyboardShouldPersistTaps="handled" bounces={false}>
-        <View
-          style={styles.bottomSheetSurface}
-        >
+        <View style={styles.bottomSheetSurface}>
           {!!previousMode && (
             <TouchableOpacity
               activeOpacity={0.8}
@@ -1438,8 +1389,7 @@ class BottomSheetPanel extends Component {
                 alignSelf: 'flex-start',
                 marginBottom: 10,
               }}
-              onPress={this.switchToPreviousMode}
-            >
+              onPress={this.switchToPreviousMode}>
               <MaterialCommunityIcon
                 name="chevron-left"
                 size={28}
@@ -1452,15 +1402,20 @@ class BottomSheetPanel extends Component {
                   style={{
                     fontSize: 14,
                     color: '#727272',
-                  }}
-                >
+                  }}>
                   {previousModeTitle}
                 </Text>
               )}
             </TouchableOpacity>
           )}
 
-          <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', marginTop: 20 }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'flex-end',
+              alignItems: 'center',
+              marginTop: 20,
+            }}>
             <Text style={{ marginRight: 10 }}>
               {noteVisibility ? 'Public' : 'Private'}
             </Text>
@@ -1493,8 +1448,7 @@ class BottomSheetPanel extends Component {
             activeOpacity={0.9}
             disabled={isProcessing}
             onPress={this.createNewNote}
-            style={styles.actionButton}
-          >
+            style={styles.actionButton}>
             {isProcessing ? (
               <View
                 style={{
@@ -1503,8 +1457,7 @@ class BottomSheetPanel extends Component {
                   flexDirection: 'row',
                   justifyContent: 'center',
                   alignItems: 'center',
-                }}
-              >
+                }}>
                 <Text
                   allowFontScaling={false}
                   style={{
@@ -1512,8 +1465,7 @@ class BottomSheetPanel extends Component {
                     // fontWeight: '500',
                     color: 'white',
                     marginRight: 7,
-                  }}
-                >
+                  }}>
                   Create Note
                 </Text>
 
@@ -1536,8 +1488,7 @@ class BottomSheetPanel extends Component {
                   flexDirection: 'row',
                   justifyContent: 'center',
                   alignItems: 'center',
-                }}
-              >
+                }}>
                 <Text
                   allowFontScaling={false}
                   style={{
@@ -1545,8 +1496,7 @@ class BottomSheetPanel extends Component {
                     // fontWeight: '500',
                     color: 'white',
                     marginRight: 7,
-                  }}
-                >
+                  }}>
                   Create Note
                 </Text>
 
@@ -1561,7 +1511,7 @@ class BottomSheetPanel extends Component {
         </View>
       </ScrollView>
     );
-  }
+  };
 
   renderEditNote = () => {
     const {
@@ -1595,12 +1545,14 @@ class BottomSheetPanel extends Component {
         contentContainerStyle={{
           paddingBottom: windowHeight * 0.2,
           backgroundColor: 'white',
-        }}
-      >
-        <View
-          style={styles.bottomSheetSurface}
-        >
-          <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
+        }}>
+        <View style={styles.bottomSheetSurface}>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'flex-end',
+              alignItems: 'center',
+            }}>
             <Text style={{ fontSize: 12, marginRight: 10 }}>
               {noteVisibility ? 'Public' : 'Private'}
             </Text>
@@ -1632,8 +1584,7 @@ class BottomSheetPanel extends Component {
             style={{
               marginVertical: 20,
               alignItems: 'center',
-            }}
-          >
+            }}>
             <FastImage
               style={{
                 position: 'relative',
@@ -1677,11 +1628,8 @@ class BottomSheetPanel extends Component {
                   position: 'absolute',
                   top: 0,
                   left: 10,
-                }}
-              >
-                <Surface
-                  style={styles.cameraIconSurface}
-                >
+                }}>
+                <Surface style={styles.cameraIconSurface}>
                   <MaterialCommunityIcon
                     ref={this.refSelector('attachmentButtonRef')}
                     name="camera-plus"
@@ -1719,8 +1667,7 @@ class BottomSheetPanel extends Component {
             activeOpacity={0.9}
             disabled={isProcessing}
             onPress={this.updateNote}
-            style={styles.actionButton}
-          >
+            style={styles.actionButton}>
             {isProcessing ? (
               <View
                 style={{
@@ -1729,8 +1676,7 @@ class BottomSheetPanel extends Component {
                   flexDirection: 'row',
                   justifyContent: 'center',
                   alignItems: 'center',
-                }}
-              >
+                }}>
                 <Text
                   allowFontScaling={false}
                   style={{
@@ -1738,8 +1684,7 @@ class BottomSheetPanel extends Component {
                     // fontWeight: '500',
                     color: 'white',
                     marginRight: 7,
-                  }}
-                >
+                  }}>
                   Update Note
                 </Text>
 
@@ -1762,8 +1707,7 @@ class BottomSheetPanel extends Component {
                   flexDirection: 'row',
                   justifyContent: 'center',
                   alignItems: 'center',
-                }}
-              >
+                }}>
                 <Text
                   allowFontScaling={false}
                   style={{
@@ -1771,8 +1715,7 @@ class BottomSheetPanel extends Component {
                     // fontWeight: '500',
                     color: 'white',
                     marginRight: 7,
-                  }}
-                >
+                  }}>
                   Update Note
                 </Text>
 
@@ -1787,38 +1730,30 @@ class BottomSheetPanel extends Component {
         </View>
       </ScrollView>
     );
-  }
+  };
 
   renderReportSheet = () => {
-    const {
-      extraData,
-      selectedRadioButton,
-      isProcessing,
-    } = this.state;
+    const { extraData, selectedRadioButton, isProcessing } = this.state;
 
     let shareTitle = 'Report';
     if (extraData && extraData.title) shareTitle = `Report ${extraData.title}`;
 
     return (
-      <View
-        style={styles.bottomSheetSurface}
-      >
+      <View style={styles.bottomSheetSurface}>
         <View
           style={{
             justifyContent: 'center',
             alignItems: 'center',
             marginTop: 10,
             marginBottom: 5,
-          }}
-        >
+          }}>
           <Text
             allowFontScaling={false}
             numberOfLines={2}
             style={{
               fontSize: 16,
               color: '#777777',
-            }}
-          >
+            }}>
             {shareTitle}
           </Text>
         </View>
@@ -1830,22 +1765,21 @@ class BottomSheetPanel extends Component {
           style={{
             fontWeight: '600',
             color: '#333333',
-          }}
-        >
+          }}>
           Why are you reporting this post?
         </Text>
 
         <View>
-
           <RadioButton.Group
-            onValueChange={(newValue) => this.setState({ selectedRadioButton: newValue })}
-            value={selectedRadioButton}
-          >
+            onValueChange={(newValue) =>
+              this.setState({ selectedRadioButton: newValue })
+            }
+            value={selectedRadioButton}>
             <View
-              // style={{
-              //   flexDirection: 'row',
-              //   alignItems: 'center',
-              // }}
+            // style={{
+            //   flexDirection: 'row',
+            //   alignItems: 'center',
+            // }}
             >
               {/* <MaterialCommunityIcon
                 name="lens-black"
@@ -1911,7 +1845,6 @@ class BottomSheetPanel extends Component {
               />
             </View>
           </RadioButton.Group>
-
         </View>
 
         <TouchableOpacity
@@ -1925,23 +1858,28 @@ class BottomSheetPanel extends Component {
 
             await new Promise((resolve) => {
               setTimeout(() => {
-                this.setState({
-                  isProcessing: false,
-                }, () => {
-                  resolve('food');
-                });
+                this.setState(
+                  {
+                    isProcessing: false,
+                  },
+                  () => {
+                    resolve('food');
+                  },
+                );
               }, 1500);
             });
 
-            this.setState({
-              isProcessing: false,
-              snackbarMessage: 'Successfully reported',
-              showSnackbar: true,
-            }, () => {
-              this.hideBottomSheetPanel();
-            });
-          }}
-        >
+            this.setState(
+              {
+                isProcessing: false,
+                snackbarMessage: 'Successfully reported',
+                showSnackbar: true,
+              },
+              () => {
+                this.hideBottomSheetPanel();
+              },
+            );
+          }}>
           {isProcessing ? (
             <View
               style={{
@@ -1950,8 +1888,7 @@ class BottomSheetPanel extends Component {
                 flexDirection: 'row',
                 justifyContent: 'center',
                 alignItems: 'center',
-              }}
-            >
+              }}>
               <Text
                 allowFontScaling={false}
                 style={{
@@ -1959,8 +1896,7 @@ class BottomSheetPanel extends Component {
                   // fontWeight: '500',
                   color: 'white',
                   marginRight: 7,
-                }}
-              >
+                }}>
                 Submit
               </Text>
 
@@ -1983,8 +1919,7 @@ class BottomSheetPanel extends Component {
                 flexDirection: 'row',
                 justifyContent: 'center',
                 alignItems: 'center',
-              }}
-            >
+              }}>
               <Text
                 allowFontScaling={false}
                 style={{
@@ -1992,8 +1927,7 @@ class BottomSheetPanel extends Component {
                   // fontWeight: '500',
                   color: 'white',
                   marginRight: 7,
-                }}
-              >
+                }}>
                 Submit
               </Text>
 
@@ -2007,7 +1941,7 @@ class BottomSheetPanel extends Component {
         </TouchableOpacity>
       </View>
     );
-  }
+  };
 
   switchToPreviousMode = () => {
     this.setState(({ previousMode }) => ({
@@ -2015,7 +1949,7 @@ class BottomSheetPanel extends Component {
       previousModeTitle: '',
       contentSelector: previousMode,
     }));
-  }
+  };
 
   switchToCreateNote = (selector) => () => {
     // let previousMode;
@@ -2037,9 +1971,9 @@ class BottomSheetPanel extends Component {
       contentSelector: 'createNote',
       previousModeTitle: 'Select Note',
     });
-  }
+  };
 
-  noteKeyExtractor = (item) => item.id
+  noteKeyExtractor = (item) => item.id;
 
   noteSeparator = () => (
     <View
@@ -2047,7 +1981,7 @@ class BottomSheetPanel extends Component {
         height: 15,
       }}
     />
-  )
+  );
 
   selectNote = (note) => () => {
     debugAppLogger({
@@ -2059,7 +1993,7 @@ class BottomSheetPanel extends Component {
       this.finishedAction(note);
       this.hideBottomSheetPanel();
     }
-  }
+  };
 
   renderSelectNoteItem = ({ item }) => (
     <TouchableOpacity
@@ -2068,8 +2002,7 @@ class BottomSheetPanel extends Component {
         flexDirection: 'row',
         alignItems: 'center',
       }}
-      onPress={this.selectNote(item)}
-    >
+      onPress={this.selectNote(item)}>
       <FastImage
         style={{
           width: 50,
@@ -2084,8 +2017,7 @@ class BottomSheetPanel extends Component {
           fontSize: 14,
           fontWeight: 'bold',
           marginLeft: 20,
-        }}
-      >
+        }}>
         {item.title}uuuu
       </Text>
     </TouchableOpacity>
@@ -2103,7 +2035,8 @@ class BottomSheetPanel extends Component {
       // uploadProgress,
     } = this.state;
 
-    const notes = (extraData && Array.isArray(extraData.notes) && extraData.notes) || [];
+    const notes =
+      (extraData && Array.isArray(extraData.notes) && extraData.notes) || [];
 
     // const imageWidth = windowWidth / 2;
     // let imageHeight = imageWidth * (800 / 600);
@@ -2119,23 +2052,19 @@ class BottomSheetPanel extends Component {
     // }
 
     return (
-      <View
-        style={styles.bottomSheetSurface}
-      >
+      <View style={styles.bottomSheetSurface}>
         <View
           style={{
             justifyContent: 'center',
             alignItems: 'center',
             marginTop: 10,
             marginBottom: 5,
-          }}
-        >
+          }}>
           <Text
             style={{
               fontSize: 16,
               color: '#777777',
-            }}
-          >
+            }}>
             Your Travel Notes
           </Text>
         </View>
@@ -2150,8 +2079,7 @@ class BottomSheetPanel extends Component {
             paddingBottom: 10,
             borderBottomWidth: 1,
             borderColor: '#EEEEEE',
-          }}
-        >
+          }}>
           <TouchableOpacity
             activeOpacity={0.8}
             style={{
@@ -2159,8 +2087,7 @@ class BottomSheetPanel extends Component {
               alignItems: 'center',
               alignSelf: 'flex-start',
             }}
-            onPress={this.switchToCreateNote('selectNote')}
-          >
+            onPress={this.switchToCreateNote('selectNote')}>
             <MaterialIcon name="add" size={32} color="gray" />
 
             <Text style={{ fontSize: 18, marginLeft: 10 }}>
@@ -2172,11 +2099,8 @@ class BottomSheetPanel extends Component {
         <View
           style={{
             marginVertical: 20,
-          }}
-        >
-          <Text>
-            Upload to an exisitng note
-          </Text>
+          }}>
+          <Text>Upload to an exisitng note</Text>
         </View>
 
         <FlatList
@@ -2190,7 +2114,7 @@ class BottomSheetPanel extends Component {
         />
       </View>
     );
-  }
+  };
 
   selectPinPostNote = (note) => async () => {
     try {
@@ -2199,9 +2123,7 @@ class BottomSheetPanel extends Component {
         hideIndicator: false,
       });
 
-      const {
-        extraData,
-      } = this.state;
+      const { extraData } = this.state;
 
       debugAppLogger({
         info: 'selectPinPostNote - BottomSheetPanel',
@@ -2240,7 +2162,7 @@ class BottomSheetPanel extends Component {
       });
       //
     }
-  }
+  };
 
   renderPinPostItem = ({ item }) => (
     <TouchableOpacity
@@ -2249,8 +2171,7 @@ class BottomSheetPanel extends Component {
         flexDirection: 'row',
         alignItems: 'center',
       }}
-      onPress={this.selectPinPostNote(item)}
-    >
+      onPress={this.selectPinPostNote(item)}>
       <FastImage
         style={{
           width: 50,
@@ -2265,40 +2186,34 @@ class BottomSheetPanel extends Component {
           fontSize: 14,
           fontWeight: 'bold',
           marginLeft: 20,
-        }}
-      >
+        }}>
         {item.title}
       </Text>
     </TouchableOpacity>
   );
 
   renderPinPost = () => {
-    const {
-      extraData,
-    } = this.state;
+    const { extraData } = this.state;
 
-    const notes = (extraData && Array.isArray(extraData.notes) && extraData.notes) || [];
+    const notes =
+      (extraData && Array.isArray(extraData.notes) && extraData.notes) || [];
 
     return (
-      <View
-        style={styles.bottomSheetSurface}
-      >
+      <View style={styles.bottomSheetSurface}>
         <View
           style={{
             justifyContent: 'center',
             alignItems: 'center',
             marginTop: 10,
             marginBottom: 5,
-          }}
-        >
+          }}>
           <Text
             allowFontScaling={false}
             numberOfLines={1}
             style={{
               fontSize: 14,
               color: '#777777',
-            }}
-          >
+            }}>
             {`Pin ${extraData.postData.title}`}
           </Text>
         </View>
@@ -2313,8 +2228,7 @@ class BottomSheetPanel extends Component {
             paddingBottom: 10,
             borderBottomWidth: 1,
             borderColor: '#EEEEEE',
-          }}
-        >
+          }}>
           <TouchableOpacity
             activeOpacity={0.8}
             style={{
@@ -2322,8 +2236,7 @@ class BottomSheetPanel extends Component {
               alignItems: 'center',
               alignSelf: 'flex-start',
             }}
-            onPress={this.switchToCreateNote('pinPostToNote')}
-          >
+            onPress={this.switchToCreateNote('pinPostToNote')}>
             <MaterialIcon name="add" size={32} color="gray" />
 
             <Text style={{ fontSize: 18, marginLeft: 10 }}>
@@ -2335,11 +2248,8 @@ class BottomSheetPanel extends Component {
         <View
           style={{
             marginVertical: 20,
-          }}
-        >
-          <Text>
-            Pin to an exisitng note
-          </Text>
+          }}>
+          <Text>Pin to an exisitng note</Text>
         </View>
 
         <FlatList
@@ -2354,37 +2264,29 @@ class BottomSheetPanel extends Component {
         />
       </View>
     );
-  }
+  };
 
   renderEditPost = () => {
-    const {
-      extraData,
-    } = this.state;
+    const { extraData } = this.state;
 
-    const {
-      navigation,
-    } = this.props;
+    const { navigation } = this.props;
 
     return (
-      <View
-        style={[styles.bottomSheetSurface, { paddingHorizontal: 0 }]}
-      >
+      <View style={[styles.bottomSheetSurface, { paddingHorizontal: 0 }]}>
         <View
           style={{
             justifyContent: 'center',
             alignItems: 'center',
             marginTop: 10,
             marginBottom: 5,
-          }}
-        >
+          }}>
           <Text
             allowFontScaling={false}
             numberOfLines={1}
             style={{
               fontSize: 14,
               color: '#777777',
-            }}
-          >
+            }}>
             {`Edit ${extraData.title}`}
           </Text>
         </View>
@@ -2399,12 +2301,10 @@ class BottomSheetPanel extends Component {
         />
       </View>
     );
-  }
+  };
 
   renderNoNotes = () => {
-    const {
-      isFetchingData,
-    } = this.state;
+    const { isFetchingData } = this.state;
 
     return (
       <View
@@ -2412,15 +2312,13 @@ class BottomSheetPanel extends Component {
           justifyContent: 'center',
           alignItems: 'center',
           marginTop: 30,
-        }}
-      >
+        }}>
         <Text
           allowFontScaling={false}
           style={{
             fontSize: 12,
             color: '#888888',
-          }}
-        >
+          }}>
           No existing notes
         </Text>
 
@@ -2437,7 +2335,7 @@ class BottomSheetPanel extends Component {
         )}
       </View>
     );
-  }
+  };
 
   renderLocationFilter = () => {
     const {
@@ -2454,24 +2352,21 @@ class BottomSheetPanel extends Component {
           height: '100%',
           alignItems: 'center',
           backgroundColor: 'white',
-        }}
-      >
+        }}>
         <View
           style={{
             justifyContent: 'center',
             alignItems: 'center',
             marginTop: 10,
             marginBottom: 5,
-          }}
-        >
+          }}>
           <Text
             allowFontScaling={false}
             numberOfLines={1}
             style={{
               fontSize: 14,
               color: '#777777',
-            }}
-          >
+            }}>
             Set search location
           </Text>
         </View>
@@ -2492,9 +2387,8 @@ class BottomSheetPanel extends Component {
             // onPress={this.mapPressed}
             // onRegionChangeComplete={this.regionChangeComplete}
             showsUserLocation
-            showsMyLocationButton={false}
-          >
-            {hasCoordinates && (
+            showsMyLocationButton={false}>
+            {hasCoordinates &&
               markers.map(({ id, coordinate, name, color }) => (
                 <MapView.Marker
                   key={name}
@@ -2504,8 +2398,7 @@ class BottomSheetPanel extends Component {
                   title={name}
                   // onPress={this.markerPressed}
                 />
-              ))
-            )}
+              ))}
 
             {hasCoordinates && (
               <Circle
@@ -2522,7 +2415,6 @@ class BottomSheetPanel extends Component {
             preferredLocation={this.preferredLocation}
             setPreferredLocation={this.setPreferredLocation}
           />
-
         </View>
 
         <View
@@ -2531,13 +2423,13 @@ class BottomSheetPanel extends Component {
             justifyContent: 'space-between',
             marginTop: 20,
             width: windowWidth * 0.9,
-          }}
-        >
+          }}>
           <Caption style={[styles.caption, { color: '#099EA3' }]}>
             Search radius
           </Caption>
 
-          <Caption style={[styles.caption, { color: '#099EA3', fontWeight: 'bold' }]}>
+          <Caption
+            style={[styles.caption, { color: '#099EA3', fontWeight: 'bold' }]}>
             {searchRadius}km
           </Caption>
         </View>
@@ -2561,12 +2453,10 @@ class BottomSheetPanel extends Component {
           <TouchableOpacity
             activeOpacity={0.9}
             style={styles.resetFilterButton}
-            onPress={this.resetLocationFilter}
-          >
+            onPress={this.resetLocationFilter}>
             <Text
               allowFontScaling={false}
-              style={{ fontSize: 12, color: '#727272', textAlign: 'center' }}
-            >
+              style={{ fontSize: 12, color: '#727272', textAlign: 'center' }}>
               Reset Filters
             </Text>
           </TouchableOpacity>
@@ -2574,26 +2464,24 @@ class BottomSheetPanel extends Component {
           <TouchableOpacity
             activeOpacity={0.9}
             style={styles.applyFilterButton}
-            onPress={this.applyLocationFilter}
-          >
+            onPress={this.applyLocationFilter}>
             <Text
               allowFontScaling={false}
-              style={{ fontSize: 12, color: 'white', textAlign: 'center' }}
-            >
+              style={{ fontSize: 12, color: 'white', textAlign: 'center' }}>
               Apply Filters
             </Text>
           </TouchableOpacity>
         </View>
       </View>
     );
-  }
+  };
 
   regionChangeComplete = (data) => {
     debugAppLogger({
       info: 'onRegionChangeComplete - BottomSheetPanel',
       data,
     });
-  }
+  };
 
   renderShowOnMap = () => {
     const {
@@ -2612,24 +2500,21 @@ class BottomSheetPanel extends Component {
           height: '100%',
           alignItems: 'center',
           backgroundColor: 'white',
-        }}
-      >
+        }}>
         <View
           style={{
             justifyContent: 'center',
             alignItems: 'center',
             marginTop: 5,
             marginBottom: 5,
-          }}
-        >
+          }}>
           <Text
             allowFontScaling={false}
             numberOfLines={1}
             style={{
               fontSize: 14,
               color: '#444444',
-            }}
-          >
+            }}>
             {extraData.name || 'Location'}
           </Text>
         </View>
@@ -2641,9 +2526,7 @@ class BottomSheetPanel extends Component {
             fontSize: 12,
             color: '#777777',
             textAlign: 'center',
-
-          }}
-        >
+          }}>
           {extraData.location.text}
         </Text>
 
@@ -2663,8 +2546,7 @@ class BottomSheetPanel extends Component {
             // onPress={this.mapPressed}
             // onRegionChangeComplete={this.regionChangeComplete}
             showsUserLocation
-            showsMyLocationButton={false}
-          >
+            showsMyLocationButton={false}>
             <MapView.Marker
               // identifier={id}
               // pinColor={color}
@@ -2679,12 +2561,10 @@ class BottomSheetPanel extends Component {
           <TouchableOpacity
             activeOpacity={0.9}
             style={styles.resetFilterButton}
-            onPress={this.hideBottomSheetPanel}
-          >
+            onPress={this.hideBottomSheetPanel}>
             <Text
               allowFontScaling={false}
-              style={{ fontSize: 12, color: '#727272', textAlign: 'center' }}
-            >
+              style={{ fontSize: 12, color: '#727272', textAlign: 'center' }}>
               Back
             </Text>
           </TouchableOpacity>
@@ -2698,13 +2578,8 @@ class BottomSheetPanel extends Component {
                 alignItems: 'center',
               },
             ]}
-            onPress={this.showInMappingApp}
-          >
-            <MaterialIcon
-              name="directions"
-              size={20}
-              color="white"
-            />
+            onPress={this.showInMappingApp}>
+            <MaterialIcon name="directions" size={20} color="white" />
 
             <Text
               allowFontScaling={false}
@@ -2713,32 +2588,28 @@ class BottomSheetPanel extends Component {
                 color: 'white',
                 textAlign: 'center',
                 marginLeft: 5,
-              }}
-            >
+              }}>
               Directions
             </Text>
           </TouchableOpacity>
         </View>
       </View>
     );
-  }
+  };
 
   showInMappingApp = () => {
     const {
       extraData: {
         name,
         location: {
-          coordinates: {
-            latitude,
-            longitude,
-          },
+          coordinates: { latitude, longitude },
         },
       },
     } = this.state;
     const address = `${latitude},${longitude}`;
 
     showOnMap(address, '', name);
-  }
+  };
 
   performAction = (action) => () => {
     this.setState({
@@ -2747,18 +2618,14 @@ class BottomSheetPanel extends Component {
       passwordError: false,
     });
 
-    if (
-      action === 'login'
-      || action === 'register'
-      || action === 'forgot'
-    ) {
+    if (action === 'login' || action === 'register' || action === 'forgot') {
       Object.values(this.values).forEach((value) => {
         Object.keys(value).forEach((key) => {
           value[key] = '';
         });
       });
     }
-  }
+  };
 
   focusField = (selector) => () => {
     try {
@@ -2772,13 +2639,11 @@ class BottomSheetPanel extends Component {
       this.ignoreKeyboardHiding = false;
       //
     }
-  }
+  };
 
   flashErrorIndicator = (errorType) => {
     try {
-      const {
-        [errorType]: errorValue,
-      } = this.state;
+      const { [errorType]: errorValue } = this.state;
 
       if (errorValue) {
         this[errorType].flash(1000).then(() => {});
@@ -2793,7 +2658,7 @@ class BottomSheetPanel extends Component {
       });
       //
     }
-  }
+  };
 
   notifyUser = ({ title, message, actions }) => {
     Alert.alert(
@@ -2801,14 +2666,11 @@ class BottomSheetPanel extends Component {
       message,
       (Array.isArray(actions) && actions.length && actions) || [{ text: 'OK' }],
     );
-  }
+  };
 
   signInWithApple = async () => {
     try {
-      const {
-        isProcessing,
-        isAuthenticating,
-      } = this.state;
+      const { isProcessing, isAuthenticating } = this.state;
 
       if (isProcessing || isAuthenticating) return;
 
@@ -2839,12 +2701,12 @@ class BottomSheetPanel extends Component {
       }
 
       // Create a Firebase credential from the response
-      const {
+      const { identityToken, nonce } = appleAuthRequestResponse;
+
+      const appleCredential = auth.AppleAuthProvider.credential(
         identityToken,
         nonce,
-      } = appleAuthRequestResponse;
-
-      const appleCredential = auth.AppleAuthProvider.credential(identityToken, nonce);
+      );
 
       debugAppLogger({
         info: 'signInWithApple - LoginScreen',
@@ -2854,8 +2716,7 @@ class BottomSheetPanel extends Component {
       });
 
       // Sign the user in with the credential
-      await auth()
-        .signInWithCredential(appleCredential);
+      await auth().signInWithCredential(appleCredential);
 
       this.setState({
         isAuthenticating: false,
@@ -2881,14 +2742,11 @@ class BottomSheetPanel extends Component {
         error,
       });
     }
-  }
+  };
 
   signInWithGoogle = async () => {
     try {
-      const {
-        isProcessing,
-        isAuthenticating,
-      } = this.state;
+      const { isProcessing, isAuthenticating } = this.state;
 
       if (isProcessing || isAuthenticating) return;
 
@@ -2899,15 +2757,10 @@ class BottomSheetPanel extends Component {
       let idToken;
       let accessToken;
 
-      ({
-        idToken,
-      } = await GoogleSignin.signIn());
+      ({ idToken } = await GoogleSignin.signIn());
 
       if (isAndroid) {
-        ({
-          idToken,
-          accessToken,
-        } = await GoogleSignin.getTokens());
+        ({ idToken, accessToken } = await GoogleSignin.getTokens());
       }
 
       // const {
@@ -2917,7 +2770,10 @@ class BottomSheetPanel extends Component {
       // const enjaga = await GoogleSignin.getTokens();
       // alert(JSON.stringify(enjaga, null, 2)); return;
 
-      const googleCredential = auth.GoogleAuthProvider.credential(idToken, accessToken);
+      const googleCredential = auth.GoogleAuthProvider.credential(
+        idToken,
+        accessToken,
+      );
 
       debugAppLogger({
         info: 'signInWithGoogle - LoginScreen',
@@ -2925,8 +2781,7 @@ class BottomSheetPanel extends Component {
         googleCredential,
       });
 
-      await auth()
-        .linkWithCredential(googleCredential);
+      await auth().linkWithCredential(googleCredential);
 
       this.setState({
         isAuthenticating: false,
@@ -2968,15 +2823,12 @@ class BottomSheetPanel extends Component {
         });
       }
     }
-  }
+  };
 
   loginUser = (overrideLinking = false) => async () => {
     debugAppLogger({ info: 'gonna login' });
     try {
-      const {
-        email = '',
-        password = '',
-      } = this.values.login;
+      const { email = '', password = '' } = this.values.login;
 
       let isBagus = true;
 
@@ -3004,7 +2856,8 @@ class BottomSheetPanel extends Component {
               {
                 text: 'Simulate Success',
                 onPress: () => {
-                  if (typeof this.finishedAction === 'function') this.finishedAction();
+                  if (typeof this.finishedAction === 'function')
+                    this.finishedAction();
                   this.hideBottomSheetPanel();
                 },
               },
@@ -3012,11 +2865,12 @@ class BottomSheetPanel extends Component {
           );
           this.setState({ isProcessing: false });
         } else {
-          const {
-            currentUser,
-          } = auth();
+          const { currentUser } = auth();
 
-          const emailCredentials = auth.EmailAuthProvider.credential(email, password);
+          const emailCredentials = auth.EmailAuthProvider.credential(
+            email,
+            password,
+          );
 
           debugAppLogger({
             info: 'loginUser - BottomSheetPanel',
@@ -3038,7 +2892,8 @@ class BottomSheetPanel extends Component {
               this.setState({ isProcessing: false });
 
               console.log({
-                info: 'Error loginUser and linkWithCredential firebase - BottomSheetPanel',
+                info:
+                  'Error loginUser and linkWithCredential firebase - BottomSheetPanel',
                 errorMsg: error.message,
                 errorCode: error.code,
                 error,
@@ -3059,7 +2914,12 @@ class BottomSheetPanel extends Component {
                   message = error.message;
               }
 
-              if (showErrorMessage) this.notifyUser({ title: 'Action Failed', message, action: undefined });
+              if (showErrorMessage)
+                this.notifyUser({
+                  title: 'Action Failed',
+                  message,
+                  action: undefined,
+                });
             });
         }
       }
@@ -3071,14 +2931,9 @@ class BottomSheetPanel extends Component {
         error,
       });
 
-      const {
-        code,
-      } = error;
+      const { code } = error;
 
-      let {
-        message,
-        title,
-      } = error;
+      let { message, title } = error;
 
       if (code === 100) {
         title = 'Connection Failed';
@@ -3088,15 +2943,12 @@ class BottomSheetPanel extends Component {
       if (message) this.notifyUser({ title, message, action: undefined });
       this.setState({ isProcessing: false });
     }
-  }
+  };
 
   registerUser = async () => {
     debugAppLogger({ info: 'Gonna register' });
     try {
-      const {
-        email,
-        password,
-      } = this.values.register;
+      const { email, password } = this.values.register;
 
       let isBagus = true;
 
@@ -3151,14 +3003,9 @@ class BottomSheetPanel extends Component {
       }
     } catch (error) {
       debugAppLogger({ info: 'Register User', error: JSON.stringify(error) });
-      const {
-        code,
-      } = error;
+      const { code } = error;
 
-      let {
-        message,
-        title,
-      } = error;
+      let { message, title } = error;
 
       if (code === 100) {
         title = 'Connection Failed';
@@ -3169,7 +3016,7 @@ class BottomSheetPanel extends Component {
 
       this.toggleActivityIndicator();
     }
-  }
+  };
 
   resetPassword = async () => {
     try {
@@ -3178,28 +3025,34 @@ class BottomSheetPanel extends Component {
         values: this.values,
       });
 
-      const {
-        email = '',
-      } = this.values.forgot;
+      const { email = '' } = this.values.forgot;
 
       if (emailRegex.test(email)) {
         this.toggleActivityIndicator(true);
         Keyboard.dismiss();
 
-        await auth().sendPasswordResetEmail(email, null)
+        await auth()
+          .sendPasswordResetEmail(email, null)
           .then(() => {
             this.notifyUser({
               title: 'Password Reset Initiated',
-              message: 'Please following the instructions sent to your email to complete reseting your password.',
-              actions: [{
-                text: 'OK',
-                onPress: () => this.performAction('login')(),
-              }],
+              message:
+                'Please following the instructions sent to your email to complete reseting your password.',
+              actions: [
+                {
+                  text: 'OK',
+                  onPress: () => this.performAction('login')(),
+                },
+              ],
             });
           })
           .catch((error) => {
             // throw error;
-            this.notifyUser({ title: 'Password Reset Failed', message: error.message, action: undefined });
+            this.notifyUser({
+              title: 'Password Reset Failed',
+              message: error.message,
+              action: undefined,
+            });
           });
 
         this.toggleActivityIndicator(false);
@@ -3216,7 +3069,7 @@ class BottomSheetPanel extends Component {
 
       this.toggleActivityIndicator(false);
     }
-  }
+  };
 
   renderUserAuthentication = () => {
     const {
@@ -3228,10 +3081,7 @@ class BottomSheetPanel extends Component {
     } = this.state;
 
     const {
-      insets: {
-        top: topInset,
-        bottom: bottomInset,
-      },
+      insets: { top: topInset, bottom: bottomInset },
     } = this.props;
 
     const activityColor = isProcessing ? '#AAAAAA' : 'black';
@@ -3247,15 +3097,12 @@ class BottomSheetPanel extends Component {
             paddingBottom: bottomInset + windowHeight * 0.1,
             // justifyContent: 'center',
             // backgroundColor: 'orange',
-          }}
-        >
+          }}>
           <View
             style={{
               flex: 1,
               // justifyContent: 'center',
-            }}
-          >
-
+            }}>
             <NavButton
               isProcessing={isProcessing}
               inputMode={inputMode}
@@ -3279,7 +3126,10 @@ class BottomSheetPanel extends Component {
               updateInputValue={this.authUpdateInputValue}
               error={emailError}
               selector="email"
-              containerStyle={{ maxWidth: windowWidth * 0.7, alignSelf: 'center' }}
+              containerStyle={{
+                maxWidth: windowWidth * 0.7,
+                alignSelf: 'center',
+              }}
               extraErrorStyles={{ bottom: 25, right: -10 }}
             />
 
@@ -3297,7 +3147,10 @@ class BottomSheetPanel extends Component {
               updateInputValue={this.authUpdateInputValue}
               error={passwordError}
               selector="password"
-              containerStyle={{ maxWidth: windowWidth * 0.7, alignSelf: 'center' }}
+              containerStyle={{
+                maxWidth: windowWidth * 0.7,
+                alignSelf: 'center',
+              }}
               extraErrorStyles={{ bottom: 25, right: -10 }}
             />
 
@@ -3312,8 +3165,7 @@ class BottomSheetPanel extends Component {
                   paddingBottom: 7,
                   color: false ? 'white' : activityColor,
                 }}
-                onPress={this.performAction('forgot')}
-              >
+                onPress={this.performAction('forgot')}>
                 Forgot password?
               </Text>
 
@@ -3345,8 +3197,7 @@ class BottomSheetPanel extends Component {
               justifyContent: 'center',
               // marginTop: windowHeight * 0.1,
               alignItems: 'center',
-            }}
-          >
+            }}>
             <View
               style={{
                 flex: 0,
@@ -3354,9 +3205,7 @@ class BottomSheetPanel extends Component {
                 justifyContent: 'center',
                 // marginTop: windowHeight * 0.1,
                 alignItems: 'center',
-              }}
-            >
-
+              }}>
               {!isAndroid && (
                 <AppleButton
                   // disabled={isProcessing || isAuthenticating}
@@ -3395,14 +3244,12 @@ class BottomSheetPanel extends Component {
             // paddingBottom: windowWidth * 0.8 * 0.271,
             paddingBottom: bottomInset + windowHeight * 0.1,
             // justifyContent: 'center',
-          }}
-        >
+          }}>
           <View
             style={{
               flex: 1,
               // justifyContent: 'center',
-            }}
-          >
+            }}>
             <NavButton
               isProcessing={isProcessing}
               iconName="arrow-back-ios"
@@ -3425,7 +3272,10 @@ class BottomSheetPanel extends Component {
               error={emailError}
               selector="email"
               // extraStyles={{ marginVertical: 7 }}
-              containerStyle={{ maxWidth: windowWidth * 0.7, alignSelf: 'center' }}
+              containerStyle={{
+                maxWidth: windowWidth * 0.7,
+                alignSelf: 'center',
+              }}
               extraErrorStyles={{ bottom: 25, right: -10 }}
             />
 
@@ -3444,7 +3294,10 @@ class BottomSheetPanel extends Component {
               error={passwordError}
               selector="password"
               // extraStyles={{ marginVertical: 7 }}
-              containerStyle={{ maxWidth: windowWidth * 0.7, alignSelf: 'center' }}
+              containerStyle={{
+                maxWidth: windowWidth * 0.7,
+                alignSelf: 'center',
+              }}
               extraErrorStyles={{ bottom: 25, right: -10 }}
             />
 
@@ -3463,8 +3316,7 @@ class BottomSheetPanel extends Component {
               justifyContent: 'center',
               // marginTop: windowHeight * 0.1,
               alignItems: 'center',
-            }}
-          >
+            }}>
             {!isAndroid && (
               <AppleButton
                 // disabled={isProcessing || isAuthenticating}
@@ -3502,14 +3354,12 @@ class BottomSheetPanel extends Component {
             // paddingBottom: windowWidth * 0.8 * 0.271,
             paddingBottom: bottomInset + windowHeight * 0.1,
             // justifyContent: 'center',
-          }}
-        >
+          }}>
           <View
             style={{
               flex: 1,
               // justifyContent: 'center',
-            }}
-          >
+            }}>
             <NavButton
               isProcessing={isProcessing}
               iconName="arrow-back-ios"
@@ -3532,7 +3382,10 @@ class BottomSheetPanel extends Component {
               error={emailError}
               selector="email"
               // extraStyles={{ marginVertical: 7 }}
-              containerStyle={{ maxWidth: windowWidth * 0.7, alignSelf: 'center' }}
+              containerStyle={{
+                maxWidth: windowWidth * 0.7,
+                alignSelf: 'center',
+              }}
               extraErrorStyles={{ bottom: 25, right: -10 }}
             />
 
@@ -3547,14 +3400,8 @@ class BottomSheetPanel extends Component {
       );
     }
 
-    return (
-      <View
-        style={styles.bottomSheetSurface}
-      >
-        {authComponents}
-      </View>
-    );
-  }
+    return <View style={styles.bottomSheetSurface}>{authComponents}</View>;
+  };
 
   render() {
     const {
@@ -3618,8 +3465,7 @@ class BottomSheetPanel extends Component {
           action={{
             label: 'OK',
             onPress: () => this.dismissSnackbar(),
-          }}
-        >
+          }}>
           {snackbarMessage}
         </Snackbar>
       </>
@@ -3650,16 +3496,14 @@ const NavButton = ({
           alignItems: 'center',
           paddingVertical: 7,
         }}
-        onPress={action}
-      >
+        onPress={action}>
         <Text
           allowFontScaling={false}
           style={{
             fontSize: 14,
             color: isProcessing ? '#AAAAAA' : 'black',
             [`margin${isLoggingIn ? 'Right' : 'Left'}`]: 5,
-          }}
-        >
+          }}>
           {isLoggingIn ? 'Sign up' : 'Login'}
         </Text>
         <MaterialIcon
@@ -3670,30 +3514,18 @@ const NavButton = ({
       </TouchableOpacity>
     </View>
   );
-}
+};
 
-const AuthActionButton = ({
-  isProcessing,
-  backgroundColor,
-  label,
-  action,
-}) => (
+const AuthActionButton = ({ isProcessing, backgroundColor, label, action }) => (
   <TouchableOpacity
     disabled={isProcessing}
     activeOpacity={0.9}
     style={[styles.button, { backgroundColor }]}
-    onPress={action}
-  >
+    onPress={action}>
     {isProcessing ? (
-      <ActivityIndicator
-        size="small"
-        color="white"
-      />
+      <ActivityIndicator size="small" color="white" />
     ) : (
-      <Text
-        allowFontScaling={false}
-        style={styles.buttonLabel}
-      >
+      <Text allowFontScaling={false} style={styles.buttonLabel}>
         {label}
       </Text>
     )}
@@ -3744,8 +3576,7 @@ const InputField = ({
         <TouchableOpacity
           activeOpacity={0.9}
           style={styles.passVisibilityButton}
-          onPress={() => setHidePassword(!hidePassword)}
-        >
+          onPress={() => setHidePassword(!hidePassword)}>
           <MaterialIcon
             name={hidePassword ? 'visibility-off' : 'visibility'}
             size={20}
@@ -4005,13 +3836,8 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = (state) => {
   const {
-    cachedState: {
-      notes,
-    } = {},
-    userState: {
-      userDetails,
-      locationPreference,
-    } = {},
+    cachedState: { notes } = {},
+    userState: { userDetails, locationPreference } = {},
   } = state;
 
   return {

@@ -1,7 +1,4 @@
-import React, {
-  Component,
-  useState,
-} from 'react';
+import React, { Component, useState } from 'react';
 
 import {
   ActivityIndicator,
@@ -22,48 +19,28 @@ import {
   TextInput,
 } from 'react-native';
 
-import {
-  connect,
-} from 'react-redux';
-
-import {
-  Avatar,
-  Portal,
-} from 'react-native-paper';
-
-import Carousel, {
-  Pagination,
-} from 'react-native-snap-carousel';
-
-import Video from 'react-native-video';
-import Gallery from 'react-native-image-gallery';
-import FastImage from 'react-native-fast-image';
-import RNPopoverMenu from 'react-native-popover-menu';
-import Icon from 'react-native-vector-icons';
-import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
-import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { Avatar, Portal } from 'react-native-paper';
+import { connect } from 'react-redux';
 import * as Animatable from 'react-native-animatable';
+import Carousel, { Pagination } from 'react-native-snap-carousel';
+import FastImage from 'react-native-fast-image';
+import Gallery from 'react-native-image-gallery';
+import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
+import RNPopoverMenu from 'react-native-popover-menu';
+import Video from 'react-native-video';
 
+import { isAndroid, windowHeight, windowWidth } from './utilities/Constants';
+import { updateComments, updateBlockedProfiles } from './utilities/Actions';
 import FollowButton from './components/FollowButton';
 import ModalActivityIndicatorAlt from './components/ModalActivityIndicatorAlt';
 
-import {
-  isAndroid,
-  windowHeight,
-  windowWidth,
-} from './utilities/Constants';
-
-import {
-  updateComments,
-  updateBlockedProfiles,
-} from './utilities/Actions';
-
 const Parse = require('parse/react-native');
 
-const editIcon = <Icon family="MaterialIcons" name="create" color="#000000" size={24} />;
-const deleteIcon = <Icon family="MaterialIcons" name="delete" color="#000000" size={24} />;
-const reportIcon = <Icon family="MaterialIcons" name="report" color="#000000" size={24} />;
-const blockIcon = <Icon family="MaterialIcons" name="block" color="#000000" size={24} />;
+const editIcon = <MaterialIcon name="create" color="#000000" size={24} />;
+const deleteIcon = <MaterialIcon name="delete" color="#000000" size={24} />;
+const reportIcon = <MaterialIcon name="report" color="#000000" size={24} />;
+const blockIcon = <MaterialIcon name="block" color="#000000" size={24} />;
 
 const isDevMode = process.env.NODE_ENV === 'development';
 
@@ -84,9 +61,7 @@ class PostDetailScreen extends Component {
         removeListener: this.removeListener,
         setOptions: this.setOptions,
       },
-      route: {
-        params: this.postDetails,
-      },
+      route: { params: this.postDetails },
     } = props);
 
     let followingStatus = 'notFollowing';
@@ -102,22 +77,25 @@ class PostDetailScreen extends Component {
       });
 
       if (
-        props.userDetails
-        && props.userDetails.profileId === this.postDetails.user.profileId
+        props.userDetails &&
+        props.userDetails.profileId === this.postDetails.user.profileId
       ) {
         followingStatus = 'sameSame';
       }
 
       this.imageWidth = windowWidth - 20;
-      this.imageHeight = this.imageWidth * (this.postDetails.height / this.postDetails.width);
+      this.imageHeight =
+        this.imageWidth * (this.postDetails.height / this.postDetails.width);
 
-      if (this.postDetails.hasMedia
-        && Array.isArray(this.postDetails.images)
-        && this.postDetails.images.length
+      if (
+        this.postDetails.hasMedia &&
+        Array.isArray(this.postDetails.images) &&
+        this.postDetails.images.length
       ) {
         this.fullscreenImages = [];
         this.postDetails.images.forEach((media) => {
-          if (media.type !== 'video') this.fullscreenImages.push({ source: { uri: media.url } });
+          if (media.type !== 'video')
+            this.fullscreenImages.push({ source: { uri: media.url } });
         });
       }
     }
@@ -168,32 +146,38 @@ class PostDetailScreen extends Component {
     this.subscriptions.forEach((sub) => sub.remove());
   }
 
-  refSelector = (selector) => (compRef) => { this[selector] = compRef; }
+  refSelector = (selector) => (compRef) => {
+    this[selector] = compRef;
+  };
 
   keyboardWillShow = (event) => {
     if (isAndroid) {
       this.setState({ animatedHeight: event.endCoordinates.height });
     } else {
       const { animatedHeight } = this.state;
-      Animated.timing(animatedHeight, { toValue: event.endCoordinates.height - 40, duration: 200 }).start();
+      Animated.timing(animatedHeight, {
+        toValue: event.endCoordinates.height - 40,
+        duration: 200,
+      }).start();
     }
-  }
+  };
 
   keyboardWillHide = () => {
     if (isAndroid) {
       if (!this.ignoreKeyboardHiding) this.setState({ animatedHeight: 0 });
     } else {
       const { animatedHeight } = this.state;
-      Animated.timing(animatedHeight, { toValue: 0, delay: 200, duration: 200 }).start();
+      Animated.timing(animatedHeight, {
+        toValue: 0,
+        delay: 200,
+        duration: 200,
+      }).start();
     }
-  }
+  };
 
   handleBackPress = () => {
     try {
-      const {
-        showFullscreen,
-        showModalActivityIndicator,
-      } = this.state;
+      const { showFullscreen, showModalActivityIndicator } = this.state;
 
       if (showModalActivityIndicator) return true;
 
@@ -213,14 +197,11 @@ class PostDetailScreen extends Component {
 
   showMessage = (snackbarMessage) => () => {
     if (snackbarMessage) {
-      this.snackbarEmitter.emit(
-        'showSnackbar',
-        {
-          message: snackbarMessage,
-        },
-      );
+      this.snackbarEmitter.emit('showSnackbar', {
+        message: snackbarMessage,
+      });
     }
-  }
+  };
 
   logPostView = async () => {
     try {
@@ -231,7 +212,9 @@ class PostDetailScreen extends Component {
         string: JSON.stringify(this.postDetails),
       });
 
-      const response = await Parse.Cloud.run('registerPostView', { postId: this.postDetails.id });
+      const response = await Parse.Cloud.run('registerPostView', {
+        postId: this.postDetails.id,
+      });
       debugAppLogger({
         info: 'logPostView response - PostDetailScreen',
         response,
@@ -239,7 +222,7 @@ class PostDetailScreen extends Component {
     } catch (e) {
       //
     }
-  }
+  };
 
   fetchData = async (scrollToBottom = false) => {
     debugAppLogger({ info: '*********** Gonna query comments' });
@@ -324,7 +307,7 @@ class PostDetailScreen extends Component {
       debugAppLogger({ info: 'Main catch', errorMsg: error.message });
       this.setState({ isFetchingData: false });
     }
-  }
+  };
 
   showProfileDetails = (data) => () => {
     const avatar = data?.avatarObject ? { ...data.avatarObject } : undefined;
@@ -347,7 +330,7 @@ class PostDetailScreen extends Component {
     });
 
     this.push('UserProfileScreen', { userProfile, isUserProfile: true });
-  }
+  };
 
   showPostEditOptions = () => {
     Keyboard.dismiss();
@@ -356,36 +339,34 @@ class PostDetailScreen extends Component {
 
     const {
       title,
-      user: {
-        name,
-      },
+      user: { name },
     } = this.postDetails;
 
     const menus = isOwner
       ? {
-        menus: [
-          {
-            label: 'Edit post',
-            icon: editIcon,
-          },
-          {
-            label: 'Delete post',
-            icon: deleteIcon,
-          },
-        ],
-      }
+          menus: [
+            {
+              label: 'Edit post',
+              icon: editIcon,
+            },
+            {
+              label: 'Delete post',
+              icon: deleteIcon,
+            },
+          ],
+        }
       : {
-        menus: [
-          {
-            label: 'Report post',
-            icon: reportIcon,
-          },
-          {
-            label: 'Block user',
-            icon: blockIcon,
-          },
-        ],
-      };
+          menus: [
+            {
+              label: 'Report post',
+              icon: reportIcon,
+            },
+            {
+              label: 'Block user',
+              icon: blockIcon,
+            },
+          ],
+        };
 
     try {
       RNPopoverMenu.Show(this.postEditRef, {
@@ -405,7 +386,9 @@ class PostDetailScreen extends Component {
           if (selection) {
             Alert.alert(
               isOwner ? 'Delete Post?' : 'Block User?',
-              `Please confirm ${isOwner ? 'deletion' : 'blocking'} of ${isOwner ? title : name}`,
+              `Please confirm ${isOwner ? 'deletion' : 'blocking'} of ${
+                isOwner ? title : name
+              }`,
               [
                 {
                   text: 'Cancel',
@@ -434,17 +417,17 @@ class PostDetailScreen extends Component {
                         await postPointer.save();
                       } else {
                         const {
-                          userDetails: {
-                            profileId,
-                            blockedProfiles,
-                          },
+                          userDetails: { profileId, blockedProfiles },
                         } = this.props;
 
                         const Profile = Parse.Object.extend('Profile');
                         const profilePointer = new Profile();
                         profilePointer.id = profileId;
 
-                        profilePointer.addUnique('blockedProfileArray', this.postDetails.user.profileId);
+                        profilePointer.addUnique(
+                          'blockedProfileArray',
+                          this.postDetails.user.profileId,
+                        );
 
                         debugAppLogger({
                           info: 'block user - PostDetailScreen',
@@ -456,13 +439,23 @@ class PostDetailScreen extends Component {
                         await profilePointer.save();
 
                         let tempBlockedProfiles;
-                        if (Array.isArray(blockedProfiles) && blockedProfiles.length) {
-                          tempBlockedProfiles = [...blockedProfiles, this.postDetails.user.profileId];
+                        if (
+                          Array.isArray(blockedProfiles) &&
+                          blockedProfiles.length
+                        ) {
+                          tempBlockedProfiles = [
+                            ...blockedProfiles,
+                            this.postDetails.user.profileId,
+                          ];
                         } else {
-                          tempBlockedProfiles = [this.postDetails.user.profileId];
+                          tempBlockedProfiles = [
+                            this.postDetails.user.profileId,
+                          ];
                         }
 
-                        this.dispatch(updateBlockedProfiles(tempBlockedProfiles));
+                        this.dispatch(
+                          updateBlockedProfiles(tempBlockedProfiles),
+                        );
                       }
 
                       const message = isOwner
@@ -486,46 +479,42 @@ class PostDetailScreen extends Component {
               },
             );
           } else if (this.postDetails.isOwner) {
-            this.bottomSheetEmitter.emit(
-              'showPanel',
-              {
-                extraData: { ...this.postDetails },
-                contentSelector: 'editPost',
-                onFinish: ({ title: newTitle, images }) => {
-                  debugAppLogger({
-                    info: 'editPost - inside onFinish -> PostDetailScreen',
-                    title,
-                    images,
-                  });
+            this.bottomSheetEmitter.emit('showPanel', {
+              extraData: { ...this.postDetails },
+              contentSelector: 'editPost',
+              onFinish: ({ title: newTitle, images }) => {
+                debugAppLogger({
+                  info: 'editPost - inside onFinish -> PostDetailScreen',
+                  title,
+                  images,
+                });
 
-                  this.postDetails.title = newTitle;
-                  this.postDetails.images = images;
-                  this.postDetails.hasMedia = !!(Array.isArray(images) && images.length);
+                this.postDetails.title = newTitle;
+                this.postDetails.images = images;
+                this.postDetails.hasMedia = !!(
+                  Array.isArray(images) && images.length
+                );
 
-                  this.setOptions({
-                    title: newTitle,
-                  });
+                this.setOptions({
+                  title: newTitle,
+                });
 
-                  this.setState({
-                    isProcessing: false,
-                  });
-                },
+                this.setState({
+                  isProcessing: false,
+                });
               },
-            );
+            });
           } else {
-            this.bottomSheetEmitter.emit(
-              'showPanel',
-              {
-                extraData: { ...this.postDetails },
-                contentSelector: 'reportPost',
-                onFinish: (data) => {
-                  debugAppLogger({
-                    info: 'inside onFinish',
-                    data,
-                  });
-                },
+            this.bottomSheetEmitter.emit('showPanel', {
+              extraData: { ...this.postDetails },
+              contentSelector: 'reportPost',
+              onFinish: (data) => {
+                debugAppLogger({
+                  info: 'inside onFinish',
+                  data,
+                });
               },
-            );
+            });
           }
         },
         onCancel: () => {},
@@ -533,7 +522,7 @@ class PostDetailScreen extends Component {
     } catch (e) {
       //
     }
-  }
+  };
 
   updateInputValue = (input) => (value = '') => {
     debugAppLogger({
@@ -542,9 +531,7 @@ class PostDetailScreen extends Component {
       value,
     });
 
-    const {
-      [`${input}Error`]: errorValue,
-    } = this.state;
+    const { [`${input}Error`]: errorValue } = this.state;
 
     this[input] = value.trim();
 
@@ -553,35 +540,33 @@ class PostDetailScreen extends Component {
         [`${input}Error`]: false,
       });
     }
-  }
+  };
 
   toggleActivityIndicator = () => {
     this.setState(({ isProcessing }) => ({
       isProcessing: !isProcessing,
     }));
-  }
+  };
 
   showShareSheet = () => {
     try {
-      this.bottomSheetEmitter.emit(
-        'showPanel',
-        {
-          extraData: { ...this.postDetails },
-          contentSelector: 'shareSheet',
-          onFinish: (data) => {
-            debugAppLogger({
-              info: 'inside onFinish',
-              data,
-            });
-          },
+      this.bottomSheetEmitter.emit('showPanel', {
+        extraData: { ...this.postDetails },
+        contentSelector: 'shareSheet',
+        onFinish: (data) => {
+          debugAppLogger({
+            info: 'inside onFinish',
+            data,
+          });
         },
-      );
+      });
     } catch (e) {
       //
     }
-  }
+  };
 
-  postComment = async () => { // postEnjaga
+  postComment = async () => {
+    // postEnjaga
     try {
       let isBagus = true;
 
@@ -633,23 +618,25 @@ class PostDetailScreen extends Component {
 
       this.setState({ isProcessing: false });
     }
-  }
+  };
 
   showFullscreen = (imageUrl) => () => {
     try {
-      this.fullscreenPage = this.fullscreenImages.findIndex(({ source: { uri } }) => imageUrl === uri);
+      this.fullscreenPage = this.fullscreenImages.findIndex(
+        ({ source: { uri } }) => imageUrl === uri,
+      );
 
       if (this.fullscreenPage !== -1) this.setState({ showFullscreen: true });
     } catch (e) {
       //
     }
-  }
+  };
 
   closeFullscreenImageViewer = () => {
     this.setState({
       showFullscreen: false,
     });
-  }
+  };
 
   renderItem = ({ item }) => {
     return (
@@ -662,9 +649,9 @@ class PostDetailScreen extends Component {
         showFullscreen={this.showFullscreen}
       />
     );
-  }
+  };
 
-  commentKeyExtractor = (item) => item.id
+  commentKeyExtractor = (item) => item.id;
 
   commentSeparator = () => (
     <View
@@ -672,7 +659,7 @@ class PostDetailScreen extends Component {
         height: 15,
       }}
     />
-  )
+  );
 
   renderNoComments = () => (
     <View
@@ -680,19 +667,17 @@ class PostDetailScreen extends Component {
         justifyContent: 'center',
         alignItems: 'center',
         marginTop: 30,
-      }}
-    >
+      }}>
       <Text
         allowFontScaling={false}
         style={{
           fontSize: 12,
           color: '#888888',
-        }}
-      >
+        }}>
         This post has no comments
       </Text>
     </View>
-  )
+  );
 
   renderComment = ({ item }) => (
     <View
@@ -701,8 +686,7 @@ class PostDetailScreen extends Component {
         justifyContent: 'space-between',
         alignItems: 'center',
         // maxWidth: windowWidth * 0.85,
-      }}
-    >
+      }}>
       <View
         style={{
           flexDirection: 'row',
@@ -714,15 +698,13 @@ class PostDetailScreen extends Component {
           paddingVertical: 10,
           paddingHorizontal: 10,
           width: windowWidth * 0.8,
-        }}
-      >
+        }}>
         <Text
           style={{
             fontSize: 12,
             fontWeight: 'bold',
             color: '#666666',
-          }}
-        >
+          }}>
           {item.text}
         </Text>
       </View>
@@ -736,8 +718,7 @@ class PostDetailScreen extends Component {
         }}
         activeOpacity={0.8}
         disabled
-        onPress={this.showProfileDetails(item.user)}
-      >
+        onPress={this.showProfileDetails(item.user)}>
         {item.user.avatar && item.user.avatar ? (
           <FastImage
             style={{
@@ -765,8 +746,7 @@ class PostDetailScreen extends Component {
           style={{
             fontSize: 10,
             color: '#414141',
-          }}
-        >
+          }}>
           {item.user.name || item.user.surname || '--'}
         </Text>
       </TouchableOpacity>
@@ -790,22 +770,21 @@ class PostDetailScreen extends Component {
   //   return null;
   // }
 
-  renderCustomImage = (props) => <FastImage {...props} />
+  renderCustomImage = (props) => <FastImage {...props} />;
 
   getComments = () => {
     let postComments = [];
     try {
-      const {
-        comments,
-      } = this.props;
+      const { comments } = this.props;
 
-      if (Array.isArray(comments[this.postDetails.id])) postComments = comments[this.postDetails.id];
+      if (Array.isArray(comments[this.postDetails.id]))
+        postComments = comments[this.postDetails.id];
     } catch (e) {
       //
     }
 
     return postComments;
-  }
+  };
 
   toggleLike = async () => {
     debugAppLogger({
@@ -814,10 +793,7 @@ class PostDetailScreen extends Component {
     });
 
     try {
-      const {
-        likedPost,
-        likesCount,
-      } = this.state;
+      const { likedPost, likesCount } = this.state;
 
       const newLikeState = !likedPost;
       const newLikesCount = likesCount + (newLikeState ? 1 : -1);
@@ -839,7 +815,10 @@ class PostDetailScreen extends Component {
       //   post,
       // });
 
-      const response = await Parse.Cloud.run('likeOrUnlikePost', { postId: this.postDetails.id, like: newLikeState });
+      const response = await Parse.Cloud.run('likeOrUnlikePost', {
+        postId: this.postDetails.id,
+        like: newLikeState,
+      });
 
       debugAppLogger({
         info: 'toggleLike ItemFooter - HomeScreen',
@@ -865,7 +844,7 @@ class PostDetailScreen extends Component {
         error,
       });
     }
-  }
+  };
 
   togglePinnedState = ({ hasPinned, id }) => {
     try {
@@ -881,13 +860,11 @@ class PostDetailScreen extends Component {
     } catch (e) {
       //
     }
-  }
+  };
 
   flashErrorIndicator = (errorType) => {
     try {
-      const {
-        [errorType]: errorValue,
-      } = this.state;
+      const { [errorType]: errorValue } = this.state;
 
       if (errorValue) {
         this[errorType].flash(1000).then(() => {});
@@ -901,7 +878,7 @@ class PostDetailScreen extends Component {
         error: e,
       });
     }
-  }
+  };
 
   render() {
     const {
@@ -928,17 +905,14 @@ class PostDetailScreen extends Component {
         <SafeAreaView style={styles.container}>
           <ScrollView
             ref={this.refSelector('scrollView')}
-            keyboardShouldPersistTaps="handled"
-          >
+            keyboardShouldPersistTaps="handled">
             <View
               style={{
                 flex: 1,
                 paddingTop: 5,
                 paddingBottom: 50,
                 justifyContent: 'center',
-              }}
-            >
-
+              }}>
               {hasMedia && (
                 <View>
                   <Carousel
@@ -947,14 +921,20 @@ class PostDetailScreen extends Component {
                     data={this.postDetails.images}
                     renderItem={this.renderItem}
                     sliderWidth={windowWidth}
-                    itemWidth={this.imageWidth * 0.90}
-                    onSnapToItem={(index) => this.setState({ activeSlide: index })}
+                    itemWidth={this.imageWidth * 0.9}
+                    onSnapToItem={(index) =>
+                      this.setState({ activeSlide: index })
+                    }
                   />
 
                   <Pagination
                     // tappableDots
                     // carouselRef={this._carousel}
-                    dotsLength={Array.isArray(this.postDetails.images) ? this.postDetails.images.length : 0}
+                    dotsLength={
+                      Array.isArray(this.postDetails.images)
+                        ? this.postDetails.images.length
+                        : 0
+                    }
                     activeDotIndex={activeSlide}
                     containerStyle={{
                       // marginTop: 0,
@@ -972,9 +952,7 @@ class PostDetailScreen extends Component {
                 </View>
               )}
 
-              <View
-                style={{ marginHorizontal: 10 }}
-              >
+              <View style={{ marginHorizontal: 10 }}>
                 <View
                   style={{
                     flexDirection: !hasMedia ? 'row' : undefined,
@@ -987,8 +965,7 @@ class PostDetailScreen extends Component {
                     paddingHorizontal: !hasMedia ? 10 : undefined,
                     marginTop: !hasMedia ? 5 : undefined,
                     // width: windowWidth * 0.8,
-                  }}
-                >
+                  }}>
                   <Text
                     allowFontScaling={false}
                     // numberOfLines={4}
@@ -997,8 +974,7 @@ class PostDetailScreen extends Component {
                       fontSize: 14,
                       color: 'black',
                       marginVertical: 10,
-                    }}
-                  >
+                    }}>
                     {this.postDetails.title}
                   </Text>
                 </View>
@@ -1007,20 +983,18 @@ class PostDetailScreen extends Component {
                   style={{
                     flexDirection: 'row',
                     justifyContent: 'space-between',
-                  }}
-                >
+                  }}>
                   <View
                     style={{
                       flexDirection: 'row',
                       alignItems: 'center',
-                    }}
-                  >
+                    }}>
                     <TouchableOpacity
                       activeOpacity={0.8}
                       disabled
-                      onPress={this.showProfileDetails(this.postDetails.user)}
-                    >
-                      {this.postDetails.avatar && this.postDetails.avatar.url ? (
+                      onPress={this.showProfileDetails(this.postDetails.user)}>
+                      {this.postDetails.avatar &&
+                      this.postDetails.avatar.url ? (
                         <FastImage
                           style={{
                             height: 32,
@@ -1048,8 +1022,7 @@ class PostDetailScreen extends Component {
                     <TouchableOpacity
                       activeOpacity={0.8}
                       disabled
-                      onPress={this.showProfileDetails(this.postDetails.user)}
-                    >
+                      onPress={this.showProfileDetails(this.postDetails.user)}>
                       <Text
                         allowFontScaling={false}
                         numberOfLines={2}
@@ -1058,9 +1031,10 @@ class PostDetailScreen extends Component {
                           color: '#414141',
                           marginLeft: 10,
                           maxWidth: windowWidth * 0.15,
-                        }}
-                      >
-                        {this.postDetails.name || this.postDetails.displayName || '--'}
+                        }}>
+                        {this.postDetails.name ||
+                          this.postDetails.displayName ||
+                          '--'}
                       </Text>
                     </TouchableOpacity>
 
@@ -1085,17 +1059,19 @@ class PostDetailScreen extends Component {
                           // backgroundColor: followingStatus === 'notFollowing' ? '#00D8C6' : 'rgba(97, 95, 95, 0.48)',
                           // alignSelf: 'flex-end',
                         }}
-                        onPress={this.showMessage('Following pending implementation')}
-                      >
+                        onPress={this.showMessage(
+                          'Following pending implementation',
+                        )}>
                         <Text
                           allowFontScaling={false}
                           style={{
                             fontSize: 10,
                             fontWeight: 'normal',
                             color: 'black',
-                          }}
-                        >
-                          {followingStatus === 'notFollowing' ? 'Follow' : 'Unfollow'}
+                          }}>
+                          {followingStatus === 'notFollowing'
+                            ? 'Follow'
+                            : 'Unfollow'}
                         </Text>
                       </TouchableOpacity>
                     )}
@@ -1104,17 +1080,14 @@ class PostDetailScreen extends Component {
                   <View
                     style={{
                       justifyContent: 'center',
-                    }}
-                  >
+                    }}>
                     <View
                       style={{
                         flexDirection: 'row',
                         justifyContent: 'flex-start',
                         marginBottom: 3,
                         // marginLeft: 5,
-                      }}
-                    >
-
+                      }}>
                       <TouchableOpacity
                         hitSlop={{ top: 5, right: 0, bottom: 5, left: 0 }}
                         style={{
@@ -1122,8 +1095,7 @@ class PostDetailScreen extends Component {
                           paddingHorizontal: 3,
                           marginRight: 5,
                         }}
-                        onPress={this.showShareSheet}
-                      >
+                        onPress={this.showShareSheet}>
                         <MaterialCommunityIcon
                           name="share-variant"
                           size={18}
@@ -1137,8 +1109,7 @@ class PostDetailScreen extends Component {
                           flexDirection: 'row',
                           paddingHorizontal: 3,
                         }}
-                        onPress={this.pinPostToNote}
-                      >
+                        onPress={this.pinPostToNote}>
                         <MaterialCommunityIcon
                           name={hasPinned ? 'bookmark' : 'bookmark-outline'}
                           size={18}
@@ -1164,12 +1135,8 @@ class PostDetailScreen extends Component {
                           marginHorizontal: 5,
                           paddingHorizontal: 3,
                         }}
-                        onPress={this.toggleLike}
-                      >
-                        <Animatable.View
-                          key={likeKey}
-                          animation="bounceIn"
-                        >
+                        onPress={this.toggleLike}>
+                        <Animatable.View key={likeKey} animation="bounceIn">
                           <MaterialIcon
                             name={likedPost ? 'favorite' : 'favorite-border'}
                             size={18}
@@ -1182,8 +1149,7 @@ class PostDetailScreen extends Component {
                             fontSize: 8,
                             alignSelf: 'flex-end',
                             color: '#414141',
-                          }}
-                        >
+                          }}>
                           {likesCount}
                         </Text>
                       </TouchableOpacity>
@@ -1192,8 +1158,7 @@ class PostDetailScreen extends Component {
                         style={{
                           flexDirection: 'row',
                           paddingHorizontal: 3,
-                        }}
-                      >
+                        }}>
                         <MaterialIcon
                           name="chat-bubble-outline"
                           size={18}
@@ -1205,8 +1170,7 @@ class PostDetailScreen extends Component {
                             fontSize: 8,
                             alignSelf: 'flex-end',
                             color: '#414141',
-                          }}
-                        >
+                          }}>
                           {this.postDetails.commentsCount || 0}
                         </Text>
                       </View>
@@ -1220,8 +1184,7 @@ class PostDetailScreen extends Component {
                           marginHorizontal: 5,
                           paddingHorizontal: 3,
                         }}
-                        onPress={this.showPostEditOptions}
-                      >
+                        onPress={this.showPostEditOptions}>
                         <MaterialCommunityIcon
                           name="dots-vertical"
                           size={18}
@@ -1232,7 +1195,7 @@ class PostDetailScreen extends Component {
                   </View>
                 </View>
 
-                {(
+                {
                   <FlatList
                     data={items}
                     keyExtractor={this.itemKeyExtractor}
@@ -1244,7 +1207,7 @@ class PostDetailScreen extends Component {
                       paddingBottom: isFetchingData ? 0 : 0,
                     }}
                   />
-                )}
+                }
 
                 {isFetchingData && (
                   <ActivityIndicator
@@ -1262,22 +1225,18 @@ class PostDetailScreen extends Component {
                 <View
                   style={{
                     marginTop: 20,
-                  }}
-                >
+                  }}>
                   <View
                     style={{
                       flexDirection: 'row',
-                    }}
-                  >
+                    }}>
                     <View
                       style={{
                         flex: 5,
                         borderWidth: 1,
                         borderRadius: 20,
                         borderColor: '#707070',
-
-                      }}
-                    >
+                      }}>
                       <TextInput
                         ref={this.refSelector('commentInput')}
                         editable={!isProcessing}
@@ -1288,7 +1247,6 @@ class PostDetailScreen extends Component {
                           paddingLeft: 10,
                           paddingRight: 5,
                           paddingVertical: 5,
-
                         }}
                         onChangeText={this.updateInputValue('comment')}
                       />
@@ -1316,8 +1274,7 @@ class PostDetailScreen extends Component {
                         marginLeft: 10,
                         alignSelf: 'center',
                         backgroundColor: '#00D8C6',
-                      }}
-                    >
+                      }}>
                       {isProcessing ? (
                         <ActivityIndicator
                           animating
@@ -1336,8 +1293,7 @@ class PostDetailScreen extends Component {
                             fontSize: 14,
                             // fontWeight: '500',
                             color: 'white',
-                          }}
-                        >
+                          }}>
                           Post
                         </Text>
                       )}
@@ -1375,13 +1331,8 @@ class PostDetailScreen extends Component {
                   position: 'absolute',
                   top: windowHeight * 0.1,
                   left: 20,
-                }}
-              >
-                <MaterialIcon
-                  name="cancel"
-                  size={22}
-                  color="black"
-                />
+                }}>
+                <MaterialIcon name="cancel" size={22} color="black" />
               </TouchableOpacity>
 
               <StatusBar
@@ -1424,15 +1375,21 @@ class PostDetailScreen extends Component {
   }
 }
 
-const SliderImage = ({ imageHeight, imageWidth, isVideo, poster, uri, showFullscreen }) => {
+const SliderImage = ({
+  imageHeight,
+  imageWidth,
+  isVideo,
+  poster,
+  uri,
+  showFullscreen,
+}) => {
   const [loaded, setLoaded] = useState(false);
   const [paused, setPaused] = useState(false);
 
   return (
     <TouchableOpacity
       activeOpacity={0.9}
-      onPress={() => (isVideo ? setPaused(!paused) : showFullscreen(uri)())}
-    >
+      onPress={() => (isVideo ? setPaused(!paused) : showFullscreen(uri)())}>
       {isVideo ? (
         <View>
           <Video
@@ -1469,7 +1426,7 @@ const SliderImage = ({ imageHeight, imageWidth, isVideo, poster, uri, showFullsc
       ) : (
         <FastImage
           style={{
-            width: imageWidth * 0.90,
+            width: imageWidth * 0.9,
             height: imageHeight,
             borderRadius: 5,
             justifyContent: 'center',
@@ -1477,16 +1434,13 @@ const SliderImage = ({ imageHeight, imageWidth, isVideo, poster, uri, showFullsc
           }}
           source={{ uri }}
           resizeMode={FastImage.resizeMode.cover}
-          onLoad={() => setLoaded(true)}
-        >
+          onLoad={() => setLoaded(true)}>
           {!loaded && (
             <ActivityIndicator
               animating
               color="black"
               size="small"
-              style={{
-
-              }}
+              style={{}}
             />
           )}
         </FastImage>
@@ -1549,18 +1503,14 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = (state) => {
   const {
-    cachedState: {
-      comments,
-    } = {},
-    userState: {
-      userDetails = {},
-    } = {},
+    cachedState: { comments } = {},
+    userState: { userDetails = {} } = {},
   } = state;
 
-  return ({
+  return {
     comments,
     userDetails,
-  });
+  };
 };
 
 export default connect(mapStateToProps)(PostDetailScreen);

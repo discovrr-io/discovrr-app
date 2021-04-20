@@ -1,77 +1,36 @@
-import React, {
-  Component,
-} from 'react';
+import React, { Component } from 'react';
 
 import {
-  ActivityIndicator,
   Animated,
-  BackHandler,
-  Keyboard,
   NativeEventEmitter,
-  ScrollView,
   StyleSheet,
-  Text,
   ToastAndroid,
-  TouchableOpacity,
   View,
 } from 'react-native';
 
-import { GiftedChat } from 'react-native-gifted-chat'
-import * as Animatable from 'react-native-animatable';
-import ProgressCircle from 'react-native-progress/Circle';
+import { GiftedChat } from 'react-native-gifted-chat';
 import RNPopoverMenu from 'react-native-popover-menu';
 import ImagePicker from 'react-native-image-crop-picker';
-import FastImage from 'react-native-fast-image';
-import Icon from 'react-native-vector-icons';
-import Geolocation from 'react-native-geolocation-service';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
-import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
-import storage from '@react-native-firebase/storage';
 
-import {
-  connect,
-} from 'react-redux';
-
-import {
-  GooglePlacesAutocomplete,
-} from 'react-native-google-places-autocomplete';
-
-import {
-  Portal,
-  Switch,
-  TextInput,
-} from 'react-native-paper';
-
-import {
-  getVersion,
-} from 'react-native-device-info';
-
+import { connect } from 'react-redux';
+import { Portal } from 'react-native-paper';
+import { getVersion } from 'react-native-device-info';
 import ModalActivityIndicatorAlt from './components/ModalActivityIndicatorAlt';
-
-import {
-  requestPermissionConfig,
-} from './utilities/Permissions';
-
-import {
-  isAndroid,
-  windowWidth,
-} from './utilities/Constants';
-
-import {
-  updateNotes,
-} from './utilities/Actions';
+import { isAndroid } from './utilities/Constants';
+import { updateNotes } from './utilities/Actions';
 
 const Parse = require('parse/react-native');
 
 const imagePlaceholder = require('../resources/images/imagePlaceholder.png');
-
-const cameraIcon = <Icon family="MaterialIcons" name="camera-alt" color="#000000" size={24} />;
-const photosIcon = <Icon family="MaterialIcons" name="collections" color="#000000" size={24} />;
-const videocamIcon = <Icon family="MaterialIcons" name="videocam" color="#000000" size={24} />;
-const videosIcon = <Icon family="MaterialIcons" name="movie" color="#000000" size={24} />;
+const cameraIcon = <MaterialIcon name="camera-alt" color="#000000" size={24} />;
+const photosIcon = (
+  <MaterialIcon name="collections" color="#000000" size={24} />
+);
+const videoCamIcon = <MaterialIcon name="videocam" color="#000000" size={24} />;
+const videosIcon = <MaterialIcon name="movie" color="#000000" size={24} />;
 
 const appVersion = getVersion();
-
 const isDevMode = process.env.NODE_ENV === 'development';
 
 const currentLocation = {
@@ -85,14 +44,9 @@ class ChatMessageScreen extends Component {
 
     ({
       dispatch: this.dispatch,
-      navigation: {
-        goBack: this.goBack,
-        navigate: this.navigate,
-      },
+      navigation: { goBack: this.goBack, navigate: this.navigate },
       route: {
-        params: {
-          chatPartner: this.chatPartner,
-        },
+        params: { chatPartner: this.chatPartner },
       },
     } = props);
 
@@ -121,7 +75,9 @@ class ChatMessageScreen extends Component {
       messages: [
         {
           _id: 2,
-          text: 'As much as DMs are disabled, I am the best listener there is. Don\'t beleive me...type away and see',
+          text:
+            "As much as DMs are disabled, I am the best listener there is. \
+             Don't believe me? Type away and see!",
           createdAt: new Date(),
           user: {
             _id: this.chatPartner.profileId,
@@ -152,7 +108,6 @@ class ChatMessageScreen extends Component {
     //     Keyboard.addListener('keyboardWillHide', this.keyboardWillHide),
     //   ];
     // }
-
     // this.fetchData();
   }
 
@@ -160,25 +115,34 @@ class ChatMessageScreen extends Component {
     // this.subscriptions.forEach((sub) => sub.remove());
   }
 
-  refSelector = (selector) => (compRef) => { this[selector] = compRef; }
+  refSelector = (selector) => (compRef) => {
+    this[selector] = compRef;
+  };
 
   keyboardWillShow = (event) => {
     if (isAndroid) {
       this.setState({ animatedHeight: event.endCoordinates.height });
     } else {
       const { animatedHeight } = this.state;
-      Animated.timing(animatedHeight, { toValue: event.endCoordinates.height - 40, duration: 200 }).start();
+      Animated.timing(animatedHeight, {
+        toValue: event.endCoordinates.height - 40,
+        duration: 200,
+      }).start();
     }
-  }
+  };
 
   keyboardWillHide = () => {
     if (isAndroid) {
       if (!this.ignoreKeyboardHiding) this.setState({ animatedHeight: 0 });
     } else {
       const { animatedHeight } = this.state;
-      Animated.timing(animatedHeight, { toValue: 0, delay: 200, duration: 200 }).start();
+      Animated.timing(animatedHeight, {
+        toValue: 0,
+        delay: 200,
+        duration: 200,
+      }).start();
     }
-  }
+  };
 
   handleBackPress = () => {
     try {
@@ -208,50 +172,47 @@ class ChatMessageScreen extends Component {
 
   showBottomSheet = () => {
     try {
-      const {
-        items,
-      } = this.props;
+      const { items } = this.props;
 
       this.captionRef.blur();
 
-      this.bottomSheetEmitter.emit(
-        'showPanel',
-        {
-          extraData: {
-            notes: items,
-          },
-          contentSelector: 'selectNote',
-          onFinish: (data) => {
-            debugAppLogger({
-              info: 'onFinish ChatMessageScreen',
-              data,
-            });
-
-            this.setState({
-              noteData: data,
-              noteError: false,
-            });
-          },
+      this.bottomSheetEmitter.emit('showPanel', {
+        extraData: {
+          notes: items,
         },
-      );
+        contentSelector: 'selectNote',
+        onFinish: (data) => {
+          debugAppLogger({
+            info: 'onFinish ChatMessageScreen',
+            data,
+          });
+
+          this.setState({
+            noteData: data,
+            noteError: false,
+          });
+        },
+      });
     } catch (e) {
       //
     }
-  }
+  };
 
   showImageAttachmentOptions = () => {
-    let menus = [{
-      menus: [
-        {
-          label: 'Camera',
-          icon: cameraIcon,
-        },
-        {
-          label: 'Photos',
-          icon: photosIcon,
-        },
-      ],
-    }];
+    let menus = [
+      {
+        menus: [
+          {
+            label: 'Camera',
+            icon: cameraIcon,
+          },
+          {
+            label: 'Photos',
+            icon: photosIcon,
+          },
+        ],
+      },
+    ];
 
     if (isDevMode) {
       menus = [
@@ -273,7 +234,7 @@ class ChatMessageScreen extends Component {
           menus: [
             {
               label: 'Camera',
-              icon: videocamIcon,
+              icon: videoCamIcon,
             },
             {
               label: 'Video Library',
@@ -335,7 +296,7 @@ class ChatMessageScreen extends Component {
             debugAppLogger({
               info: 'attach media - ChatMessageScreen',
               media,
-            })
+            });
             // alert(JSON.stringify(media, null, 2));
             if (Array.isArray(media) && media.length) {
               let images = [];
@@ -345,12 +306,22 @@ class ChatMessageScreen extends Component {
                   images.push({ size, path, mime, width, height });
                 }
 
-                ToastAndroid.show(`A max of ${this.maxMedia} may be selected`, ToastAndroid.LONG);
+                ToastAndroid.show(
+                  `A max of ${this.maxMedia} may be selected`,
+                  ToastAndroid.LONG,
+                );
               } else {
                 images = media.map((image) => {
                   const { size, path, mime, width, height } = image;
 
-                  return { size, path, mime, width, height, type: mediaType === 'photo' ? 'image' : 'video' };
+                  return {
+                    size,
+                    path,
+                    mime,
+                    width,
+                    height,
+                    type: mediaType === 'photo' ? 'image' : 'video',
+                  };
                 });
               }
 
@@ -360,7 +331,8 @@ class ChatMessageScreen extends Component {
           .catch((error) => {
             if (error.code !== 'E_PICKER_CANCELLED') {
               debugAppLogger({
-                info: 'ProfileEditScreen showImageAttachmentOptions ImagePicker Error',
+                info:
+                  'ProfileEditScreen showImageAttachmentOptions ImagePicker Error',
                 errorMessage: error.message,
                 error,
               });
@@ -369,20 +341,17 @@ class ChatMessageScreen extends Component {
       },
       onCancel: () => {},
     });
-  }
+  };
 
   toggleActivityIndicator = () => {
     this.setState(({ isProcessing }) => ({
       isProcessing: !isProcessing,
     }));
-  }
+  };
 
   flashErrorIndicator = (errorType) => {
     try {
-      const {
-        [errorType]: errorValue,
-      } = this.state;
-
+      const { [errorType]: errorValue } = this.state;
       if (errorValue) {
         this[errorType].flash(1000).then(() => {});
       } else {
@@ -394,14 +363,11 @@ class ChatMessageScreen extends Component {
         errorMsg: e.message,
         error: e,
       });
-      //
     }
-  }
+  };
 
   sendMessage = (message) => {
-    const {
-      messages,
-    } = this.state;
+    const { messages } = this.state;
 
     const updateMessages = [...message, ...messages];
 
@@ -413,15 +379,10 @@ class ChatMessageScreen extends Component {
       info: 'sendMessage - ChatMessageScreen',
       message,
     });
-  }
+  };
 
   render() {
-    const {
-      isProcessing,
-      uploadProgresses,
-      messages,
-      user,
-    } = this.state;
+    const { isProcessing, uploadProgresses, messages, user } = this.state;
 
     debugAppLogger({
       info: 'ChatMessageScreen',
@@ -442,10 +403,7 @@ class ChatMessageScreen extends Component {
 
         {isProcessing && (
           <Portal>
-            <ModalActivityIndicatorAlt
-              hideIndicator
-              opacity={0.1}
-            />
+            <ModalActivityIndicatorAlt hideIndicator opacity={0.1} />
           </Portal>
         )}
       </View>
@@ -506,11 +464,7 @@ const styles = StyleSheet.create({
 });
 
 const mapStateToProps = (state) => {
-  const {
-    userState: {
-      userDetails,
-    } = {},
-  } = state;
+  const { userState: { userDetails } = {} } = state;
 
   return {
     userDetails,
