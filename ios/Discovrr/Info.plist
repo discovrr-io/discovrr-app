@@ -63,6 +63,10 @@
 	<string>691371558227281</string>
 	<key>FacebookDisplayName</key>
 	<string>Discovrr</string>
+	<key>FacebookAutoLogAppEventsEnabled</key>
+	<true/>
+	<key>FacebookAdvertiserIDCollectionEnabled</key>
+	<true/>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>fbapi</string>
