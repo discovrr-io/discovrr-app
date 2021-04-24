@@ -1,17 +1,18 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Image, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
 import { connect } from 'react-redux';
 
 import { typography, values } from './constants';
 import { Button, ToggleButton } from './components';
 
-const Parse = require('parse/react-native');
-
 const imagePlaceholder = require('../resources/images/imagePlaceholder.png');
 const defaultAvatar = require('../resources/images/defaultAvatar.jpeg');
 
 /*
+const Parse = require('parse/react-native');
+
 async function fetchData(selector, routeParams, userDetails) {
   const { isUserProfile, userProfile } = routeParams;
 
@@ -70,6 +71,8 @@ async function fetchNotes(isUserProfile, userProfile, currentUser) {
   }
 }
 */
+
+const Tab = createMaterialTopTabNavigator();
 
 const ProfileScreenHeader = ({ userProfile }) => {
   if (!userProfile) {
@@ -138,7 +141,6 @@ const avatarImageRadius = 80;
 const metricStyles = StyleSheet.create({
   container: {
     marginRight: values.spacing.md,
-
     width: 80,
   },
   title: {
@@ -213,17 +215,27 @@ const ProfileScreen = (props) => {
   //   fetchData('posts', routeParams, props.userDetails);
   //   fetchData('likedPosts', routeParams, props.userDetails);
   //   fetchData('notes', routeParams, props.userDetails);
-
+  //
   //   return () => {
   //     // This function is called when this component unmounts. Add cleanup code
   //     // here to deleting asynchronous subscriptions.
   //   };
   // }, []);
 
+  const ExampleComponent = () => (
+    <View>
+      <Text>Example!</Text>
+    </View>
+  );
+
   return (
     <View>
       <ProfileScreenHeader userProfile={routeParams?.userProfile} />
-      <SafeAreaView></SafeAreaView>
+      <Tab.Navigator>
+        <Tab.Screen name="Posts" component={ExampleComponent} />
+        <Tab.Screen name="Notes" component={ExampleComponent} />
+        <Tab.Screen name="Liked" component={ExampleComponent} />
+      </Tab.Navigator>
     </View>
   );
 };

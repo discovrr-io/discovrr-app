@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { StyleSheet, Text, TouchableHighlight } from 'react-native';
+import { Text, TouchableHighlight } from 'react-native';
 
-import { colors, typography, values } from '../constants';
+import { colors } from '../../constants';
 import styles from './styles';
 
 /* // TODO: For some reason this doesn't work:
