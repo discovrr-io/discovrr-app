@@ -59,14 +59,14 @@
 	<string>1</string>
 	<key>CodePushDeploymentKey</key>
 	<string>0vWpGJryvPCPsJJd48Eva71PtB8gIYZU-lE_W</string>
-	<key>FacebookAppID</key>
-	<string>691371558227281</string>
-	<key>FacebookDisplayName</key>
-	<string>Discovrr</string>
-	<key>FacebookAutoLogAppEventsEnabled</key>
-	<true/>
 	<key>FacebookAdvertiserIDCollectionEnabled</key>
 	<true/>
+	<key>FacebookAppID</key>
+	<string>691371558227281</string>
+	<key>FacebookAutoLogAppEventsEnabled</key>
+	<true/>
+	<key>FacebookDisplayName</key>
+	<string>Discovrr</string>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>fbapi</string>

@@ -1,40 +1,22 @@
 import React from 'react';
 
-import {
-  View,
-  StyleSheet,
-  TextInput,
-  Text,
-} from 'react-native';
+import { View, StyleSheet, TextInput, Text } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-import {
-  withSafeAreaInsets,
-} from 'react-native-safe-area-context';
+import { withSafeAreaInsets } from 'react-native-safe-area-context';
 
-import {
-  connect,
-} from 'react-redux';
+import { connect } from 'react-redux';
 
-import {
-  createBottomTabNavigator,
-} from '@react-navigation/bottom-tabs';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
-import {
-  createStackNavigator,
-} from '@react-navigation/stack';
+import { createStackNavigator } from '@react-navigation/stack';
 
-import {
-  createMaterialTopTabNavigator,
-} from '@react-navigation/material-top-tabs';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
-import {
-  IconButton,
-  Portal,
-} from 'react-native-paper';
+import { IconButton, Portal } from 'react-native-paper';
 
 import HomeScreen from './HomeScreen';
 import BoardsScreen from './BoardsScreen';
@@ -49,10 +31,7 @@ import FollowerScreen from './FollowerScreen';
 import ChatMessageScreen from './ChatMessageScreen';
 import BottomSheetPanel from './components/BottomSheetPanel';
 
-import {
-  isAndroid,
-  windowWidth,
-} from './utilities/Constants';
+import { isAndroid, windowWidth } from './utilities/Constants';
 
 const imagePlaceholder = require('../resources/images/imagePlaceholder.png');
 
@@ -67,18 +46,21 @@ const CreateScreen = () => (
 );
 
 const NotificationsScreen = () => (
-  <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'white' }}>
+  <View
+    style={{
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: 'white',
+    }}>
     <View
       style={{
         flex: 1,
         // height: windowHeight * 0.7,
         justifyContent: 'center',
         alignItems: 'center',
-      }}
-    >
-      <Text>
-        No notifications
-      </Text>
+      }}>
+      <Text>No notifications</Text>
     </View>
   </View>
 );
@@ -98,8 +80,7 @@ const HomeTopTabs = () => (
         fontSize: 12,
         textTransform: 'none',
       },
-    }}
-  >
+    }}>
     <Tab.Screen
       name="Discover"
       component={HomeScreen}
@@ -151,8 +132,7 @@ const HomeStack = () => (
                 // justifyContent: 'space-between',
                 alignItems: 'center',
                 // elevation: 4,
-              }}
-            >
+              }}>
               <IconButton
                 icon="menu"
                 color="#777777"
@@ -175,8 +155,7 @@ const HomeStack = () => (
                   borderWidth: 1,
                   borderColor: '#AAAAAA',
                   borderRadius: 30,
-                }}
-              >
+                }}>
                 <TextInput
                   allowFontScaling={false}
                   autoCorrect={false}
@@ -186,7 +165,12 @@ const HomeStack = () => (
                   placeholderTextColor={isAndroid ? undefined : '#BBBBBB'}
                   returnKeyType="done"
                   textContentType="addressCityAndState"
-                  style={{ flex: 1, height: 40, paddingLeft: 10, marginRight: 10 }}
+                  style={{
+                    flex: 1,
+                    height: 40,
+                    paddingLeft: 10,
+                    marginRight: 10,
+                  }}
                   // onSubmitEditing={focusAction}
                   // onChangeText={updateInputValue(selector)}
                 />
@@ -232,7 +216,12 @@ const ProfileStack = () => (
         // },
         title: '',
         headerBackground: () => (
-          <View style={[StyleSheet.absoluteFill, { backgroundColor: 'transparent' }]} />
+          <View
+            style={[
+              StyleSheet.absoluteFill,
+              { backgroundColor: 'transparent' },
+            ]}
+          />
         ),
       }}
     />
@@ -268,20 +257,18 @@ const HomeTabs = () => (
             //
           }
 
-          return (
-            isCommunityIcon ? (
-              <MaterialCommunityIcon
-                name={iconName}
-                size={focused ? 28 : 24}
-                color={tintColor}
-              />
-            ) : (
-              <MaterialIcon
-                name={iconName}
-                size={focused ? 28 : 24}
-                color={tintColor}
-              />
-            )
+          return isCommunityIcon ? (
+            <MaterialCommunityIcon
+              name={iconName}
+              size={focused ? 28 : 24}
+              color={tintColor}
+            />
+          ) : (
+            <MaterialIcon
+              name={iconName}
+              size={focused ? 28 : 24}
+              color={tintColor}
+            />
           );
         },
       })}
@@ -289,16 +276,9 @@ const HomeTabs = () => (
         allowFontScaling: false,
         activeTintColor: 'black',
         inactiveTintColor: 'gray',
-      }}
-    >
-      <Tab.Screen
-        name="Home"
-        component={HomeStack}
-      />
-      <Tab.Screen
-        name="Notes"
-        component={BoardsStack}
-      />
+      }}>
+      <Tab.Screen name="Home" component={HomeStack} />
+      <Tab.Screen name="Notes" component={BoardsStack} />
       <Tab.Screen
         name="Create"
         component={CreateScreen}
@@ -350,15 +330,15 @@ const GroundZero = ({ navigation, insets }) => (
                 {(!!route.params.imageUrl || route) && (
                   <FastImage
                     style={{ width: 40, height: 40, marginRight: 15 }}
-                    source={route.params.imageUrl ? { uri: route.params.imageUrl } : imagePlaceholder}
+                    source={
+                      route.params.imageUrl
+                        ? { uri: route.params.imageUrl }
+                        : imagePlaceholder
+                    }
                     resizeMode={FastImage.resizeMode.cover}
                   />
                 )}
-                <Text
-                  allowFontScaling={!!allowFontScaling}
-                >
-                  {children}
-                </Text>
+                <Text allowFontScaling={!!allowFontScaling}>{children}</Text>
               </View>
             );
           },
@@ -374,7 +354,12 @@ const GroundZero = ({ navigation, insets }) => (
           title: 'Profile Settings',
           headerTransparent: true,
           headerBackground: () => (
-            <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(255, 255, 255, 0.8)' }]} />
+            <View
+              style={[
+                StyleSheet.absoluteFill,
+                { backgroundColor: 'rgba(255, 255, 255, 0.8)' },
+              ]}
+            />
           ),
         }}
         cardStyle={{
@@ -452,7 +437,12 @@ const GroundZero = ({ navigation, insets }) => (
           title: 'Direct Message',
           headerTransparent: true,
           headerBackground: () => (
-            <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(255, 255, 255, 0.8)' }]} />
+            <View
+              style={[
+                StyleSheet.absoluteFill,
+                { backgroundColor: 'rgba(255, 255, 255, 0.8)' },
+              ]}
+            />
           ),
         }}
         cardStyle={{
@@ -470,7 +460,12 @@ const GroundZero = ({ navigation, insets }) => (
           title: '',
           headerTransparent: true,
           headerBackground: () => (
-            <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(255, 255, 255, 0.05)' }]} />
+            <View
+              style={[
+                StyleSheet.absoluteFill,
+                { backgroundColor: 'rgba(255, 255, 255, 0.05)' },
+              ]}
+            />
           ),
           cardStyle: {
             backgroundColor: 'white',
@@ -488,7 +483,7 @@ const GroundZero = ({ navigation, insets }) => (
           headerTitle: ({ allowFontScaling, style, children }) => {
             return (
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                {(!!route?.params?.avatar) && (
+                {!!route?.params?.avatar && (
                   <FastImage
                     style={{
                       width: 40,
@@ -501,11 +496,7 @@ const GroundZero = ({ navigation, insets }) => (
                   />
                 )}
 
-                <Text
-                  allowFontScaling={!!allowFontScaling}
-                >
-                  {children}
-                </Text>
+                <Text allowFontScaling={!!allowFontScaling}>{children}</Text>
               </View>
             );
           },
@@ -514,10 +505,7 @@ const GroundZero = ({ navigation, insets }) => (
     </Stack.Navigator>
 
     <Portal>
-      <BottomSheetPanel
-        insets={insets}
-        navigation={navigation}
-      />
+      <BottomSheetPanel insets={insets} navigation={navigation} />
     </Portal>
   </>
 );
