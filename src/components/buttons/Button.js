@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Text, TouchableHighlight } from 'react-native';
 
 import { colors } from '../../constants';
-import styles from './styles';
+import * as styles from './styles';
 
 const Button = ({
   title,

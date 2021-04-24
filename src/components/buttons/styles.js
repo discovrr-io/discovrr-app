@@ -1,3 +1,7 @@
+import React from 'react';
+import { StyleSheet } from 'react-native';
+import { colors, typography, values } from '../../constants';
+
 export const buttonStyles = {
   alignItems: 'center',
   borderWidth: values.border.thin,

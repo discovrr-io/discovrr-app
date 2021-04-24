@@ -1,51 +1,32 @@
-import React from 'react';
-import { Image, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import {
+  FlatList,
+  Image,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
 import { connect } from 'react-redux';
 
-import { typography, values } from './constants';
+import { colors, typography, values } from './constants';
 import { Button, ToggleButton } from './components';
 
 const imagePlaceholder = require('../resources/images/imagePlaceholder.png');
 const defaultAvatar = require('../resources/images/defaultAvatar.jpeg');
 
-/*
 const Parse = require('parse/react-native');
 
-async function fetchData(selector, routeParams, userDetails) {
-  const { isUserProfile, userProfile } = routeParams;
-
+async function fetchData(selector, setter, routeParams, userDetails) {
   try {
     const currentUser = await Parse.User.currentAsync();
     if (!currentUser) return;
 
-    const profileId = isUserProfile
-      ? userProfile.profileId
-      : userDetails.profileId;
-
     switch (selector) {
       case 'posts':
-        break;
-
-      case 'likedPosts':
-        const Profile = Parse.Object.extend('Profile');
-        const profilePointer = new Profile();
-        profilePointer.id = profileId;
-
-        const likedPostsRelation = profilePointer.relation('likedPosts');
-        const query = likedPostsRelation.query();
-        query.equalTo('status', 0);
-
-        const results = await query.find();
-        if (Array.isArray(results) && results.length) {
-          const { userId } = userDetails;
-        }
-
-        break;
-
-      case 'notes':
-        await fetchNotes(isUserProfile, userProfile, currentUser);
+        fetchPosts(setter, routeParams, userDetails);
         break;
 
       default:
@@ -57,20 +38,47 @@ async function fetchData(selector, routeParams, userDetails) {
   }
 }
 
-async function fetchNotes(isUserProfile, userProfile, currentUser) {
-  const userPointer = isUserProfile
-    ? { __type: 'Pointer', className: '_User', objectId: userProfile._id }
-    : currentUser;
+async function fetchPosts(setter, routeParams, userDetails) {
+  const { isUserProfile, userProfile } = routeParams;
+  const profileId = isUserProfile
+    ? userProfile.profileId
+    : userDetails.profileId;
 
-  const query = new Parse.Query(Parse.Object.extend('Board'));
-  query.equalTo('owner', userPointer);
+  const profilePointer = {
+    __type: 'Pointer',
+    className: 'Profile',
+    objectId: profileId,
+  };
+
+  const query = new Parse.Query(Parse.Object.extend('Post'));
+  query.include('profile');
+  query.equalTo('profile', profilePointer);
+
+  // !isDevMode && query.equalTo('status', 0);
+  query.greaterThanOrEqualTo('createdAt', new Date('2020-10-30'));
+  query.descending('createdAt');
+
   const results = await query.find();
-
   if (Array.isArray(results) && results.length) {
-    const _ = results.map((_) => {});
+    const items = results.map((item) => {
+      const images = item.get('media');
+      const imagePreview = (Array.isArray(images) && images[0]) || null;
+      const imagePreviewUrl = imagePreview?.url ?? null;
+      const imagePreviewSource = imagePreviewUrl
+        ? { uri: imagePreviewUrl }
+        : imagePlaceholder;
+
+      return {
+        images,
+        imagePreviewSource,
+      };
+    });
+
+    setter(items ?? []);
+  } else {
+    // TODO...
   }
 }
-*/
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -91,7 +99,9 @@ const ProfileScreenHeader = ({ userProfile }) => {
   const Metric = ({ title, value, ...props }) => (
     <View {...(props.style || {})} style={metricStyles.container}>
       <Text style={metricStyles.title}>{title}</Text>
-      <Text style={metricStyles.value}>{value}</Text>
+      <Text style={metricStyles.value}>
+        {value > 999 ? `${(value / 1000).toFixed(1)}k` : value}
+      </Text>
     </View>
   );
 
@@ -126,7 +136,7 @@ const ProfileScreenHeader = ({ userProfile }) => {
         </View>
         <Text
           style={[headerStyles.profileDetailsText, headerStyles.profileName]}>
-          {userProfile.name}
+          {userProfile.name ?? 'No name'}
         </Text>
         <Text style={headerStyles.profileDetailsText}>
           {userProfile.description ?? 'No description'}
@@ -144,13 +154,16 @@ const metricStyles = StyleSheet.create({
     width: 80,
   },
   title: {
-    color: 'white',
+    color: colors.white,
     fontSize: typography.size.x,
+    paddingBottom: values.spacing.sm,
+    textAlign: 'center',
   },
   value: {
-    color: 'white',
+    color: colors.white,
     fontWeight: '600',
     fontSize: typography.size.h4,
+    textAlign: 'center',
   },
 });
 
@@ -164,11 +177,11 @@ const headerStyles = StyleSheet.create({
     bottom: 0,
     paddingVertical: values.spacing.md * 1.25,
     paddingHorizontal: values.spacing.md * 1.5,
-    backgroundColor: 'rgba(82, 82, 82, 0.6)',
+    backgroundColor: 'rgba(82, 82, 82, 0.7)',
   },
   profileDetailsText: {
     fontSize: typography.size.sm,
-    color: 'white',
+    color: colors.white,
   },
   profileAvatar: {
     borderRadius: avatarImageRadius / 2,
@@ -195,13 +208,40 @@ const headerStyles = StyleSheet.create({
     marginTop: values.spacing.md,
   },
   profileActionsButton: {
-    width: 100,
+    width: 120,
     marginRight: values.spacing.md,
   },
 });
 
+const PostsTab = ({ posts }) => {
+  const renderedPosts = posts.map((post, key) => ({ key, post }));
+  console.log(renderedPosts);
+  return (
+    <FlatList
+      data={renderedPosts}
+      numColumns={2}
+      renderItem={({ item: { post } }) => (
+        <Image
+          style={{
+            height: 200,
+            width: '50%',
+            borderRadius: values.radius.md,
+          }}
+          source={post.imagePreviewSource}
+        />
+      )}
+    />
+  );
+};
+
+const NotesTab = (_) => <Text>NOTES</Text>;
+
+const LikedTab = (_) => <Text>LIKED</Text>;
+
 const ProfileScreen = (props) => {
   const routeParams = props.route?.params;
+
+  const [posts, setPosts] = useState([]);
 
   if (!routeParams) {
     return (
@@ -211,32 +251,26 @@ const ProfileScreen = (props) => {
     );
   }
 
-  // useEffect(() => {
-  //   fetchData('posts', routeParams, props.userDetails);
-  //   fetchData('likedPosts', routeParams, props.userDetails);
-  //   fetchData('notes', routeParams, props.userDetails);
-  //
-  //   return () => {
-  //     // This function is called when this component unmounts. Add cleanup code
-  //     // here to deleting asynchronous subscriptions.
-  //   };
-  // }, []);
+  useEffect(() => {
+    fetchData('posts', setPosts, routeParams, props.userDetails);
+    // fetchData('likedPosts', routeParams, props.userDetails);
+    // fetchData('notes', routeParams, props.userDetails);
 
-  const ExampleComponent = () => (
-    <View>
-      <Text>Example!</Text>
-    </View>
-  );
+    return () => {
+      // This function is called when this component unmounts. Add cleanup code
+      // here to deleting asynchronous subscriptions.
+    };
+  }, []);
 
   return (
-    <View>
+    <>
       <ProfileScreenHeader userProfile={routeParams?.userProfile} />
       <Tab.Navigator>
-        <Tab.Screen name="Posts" component={ExampleComponent} />
-        <Tab.Screen name="Notes" component={ExampleComponent} />
-        <Tab.Screen name="Liked" component={ExampleComponent} />
+        <Tab.Screen name="Posts" children={() => <PostsTab posts={posts} />} />
+        <Tab.Screen name="Notes" component={NotesTab} />
+        <Tab.Screen name="Liked" component={LikedTab} />
       </Tab.Navigator>
-    </View>
+    </>
   );
 };
 
