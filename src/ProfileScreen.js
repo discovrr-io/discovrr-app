@@ -4,7 +4,7 @@ import { Image, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import { connect } from 'react-redux';
 
 import { typography, values } from './constants';
-import { Button } from './components';
+import { Button, ToggleButton } from './components';
 
 const Parse = require('parse/react-native');
 
@@ -79,8 +79,8 @@ const ProfileScreenHeader = ({ userProfile }) => {
   const {
     avatar: { url: avatarUrl } = {},
     coverPhoto: { url: coverPhotoUrl } = {},
-    followingCount,
     followersCount,
+    followingCount,
   } = userProfile;
   const headerImage = coverPhotoUrl ? { uri: coverPhotoUrl } : imagePlaceholder;
   const avatarImage = avatarUrl ? { uri: avatarUrl } : defaultAvatar;
@@ -100,19 +100,21 @@ const ProfileScreenHeader = ({ userProfile }) => {
           <Image style={headerStyles.profileAvatar} source={avatarImage} />
           <View style={headerStyles.profileMetricsInner}>
             <View style={headerStyles.profileMetricsDetails}>
-              <Metric title={'Following'} value={followingCount} />
               <Metric title={'Followers'} value={followersCount} />
+              <Metric title={'Following'} value={followingCount} />
               <Metric title={'Likes'} value={0} />
             </View>
             <View style={headerStyles.profileActionsContainer}>
-              <Button
+              <ToggleButton
                 style={headerStyles.profileActionsButton}
                 primary
+                transparent
                 size="small"
-                title="Follow"
+                titles={{ on: 'Following', off: 'Follow' }}
               />
               <Button
                 style={headerStyles.profileActionsButton}
+                transparent
                 size="small"
                 title="Message"
               />
