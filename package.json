@@ -49,7 +49,6 @@
     "react-native-image-gallery": "^2.1.5",
     "react-native-image-helper": "0.0.3",
     "react-native-maps": "0.27.1",
-    "react-native-masonry": "git+https://github.com/eddyoc/react-native-masonry.git",
     "react-native-masonry-list": "^2.16.1",
     "react-native-onesignal": "^4.0.4",
     "react-native-paper": "^4.2.0",

@@ -1,18 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import {
-  FlatList,
-  Image,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import { Image, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import MasonryList from 'react-native-masonry-list';
 import { connect } from 'react-redux';
 
 import { colors, typography, values } from './constants';
-import { Button, ToggleButton } from './components';
+import { Button, PostItem, PostItemKind, ToggleButton } from './components';
 
 const imagePlaceholder = require('../resources/images/imagePlaceholder.png');
 const defaultAvatar = require('../resources/images/defaultAvatar.jpeg');
@@ -61,19 +55,43 @@ async function fetchPosts(setter, routeParams, userDetails) {
   const results = await query.find();
   if (Array.isArray(results) && results.length) {
     const items = results.map((item) => {
+      let postType = PostItemKind.IMAGE; // default value
+
       const images = item.get('media');
       const imagePreview = (Array.isArray(images) && images[0]) || null;
       const imagePreviewUrl = imagePreview?.url ?? null;
+
+      if (!imagePreviewUrl) {
+        postType = PostItemKind.TEXT;
+      }
+
+      // We use a placeholder if it is a text post.
       const imagePreviewSource = imagePreviewUrl
         ? { uri: imagePreviewUrl }
         : imagePlaceholder;
 
+      // MasonryList requires us to provide dimensions when using a placeholder
+      // so we'll set it to one (zero doesn't pass).
+      const imagePreviewSourceDimensions = imagePreviewUrl
+        ? undefined
+        : { width: 1, height: 1 };
+
+      const caption = item.get('caption') || '[NO CAPTION]';
+
       return {
         images,
-        imagePreviewSource,
+        postType,
+        source: imagePreviewSource,
+        dimensions: imagePreviewSourceDimensions,
+        author: {
+          avatar: item.get('profile')?.get('avatar') ?? undefined,
+          name: item.get('profile')?.get('name') ?? undefined,
+        },
+        caption,
       };
     });
 
+    console.log({ __THE_ITEMS__: items });
     setter(items ?? []);
   } else {
     // TODO...
@@ -170,6 +188,7 @@ const metricStyles = StyleSheet.create({
 const headerStyles = StyleSheet.create({
   headerBackground: {
     height: 360,
+    width: '100%',
   },
   profileDetails: {
     position: 'absolute',
@@ -213,34 +232,73 @@ const headerStyles = StyleSheet.create({
   },
 });
 
-const PostsTab = ({ posts }) => {
-  const renderedPosts = posts.map((post, key) => ({ key, post }));
-  console.log(renderedPosts);
+const ItemFooter = (data) => {
+  console.log(data.author);
+
+  if (data.postType === PostItemKind.TEXT) {
+    return null;
+  }
+
   return (
-    <FlatList
-      data={renderedPosts}
-      numColumns={2}
-      renderItem={({ item: { post } }) => (
-        <Image
-          style={{
-            height: 200,
-            width: '50%',
-            borderRadius: values.radius.md,
-          }}
-          source={post.imagePreviewSource}
-        />
-      )}
-    />
+    <View>
+      <Text
+        numberOfLines={2}
+        ellipsizeMode="tail"
+        style={{
+          fontSize: typography.size.xs,
+          fontWeight: '700',
+          maxWidth: data.masonryDimensions.width,
+          paddingHorizontal: values.spacing.md,
+          marginBottom: values.spacing.md,
+        }}>
+        {data.caption}
+      </Text>
+    </View>
+  );
+};
+
+const PostsTab = ({ posts }) => {
+  console.log(posts);
+  return (
+    <View style={{ height: '100%' }}>
+      <MasonryList
+        sorted
+        spacing={1.5}
+        images={posts}
+        initialNumInColsToRender={1}
+        imageContainerStyle={{ borderRadius: values.radius.md }}
+        listContainerStyle={{ paddingBottom: values.spacing.xl }}
+        backgroundColor={colors.white}
+        renderIndividualFooter={ItemFooter}
+        // completeCustomComponent={({ data }) => <Text>{data.caption}</Text>}
+      />
+    </View>
   );
 };
 
 const NotesTab = (_) => <Text>NOTES</Text>;
 
-const LikedTab = (_) => <Text>LIKED</Text>;
+const LikedTab = (_) => {
+  return (
+    <PostItem
+      kind={PostItemKind.TEXT}
+      text="I'm in Marrickville, anyone know a good place for a pork roll?"
+      imagePreview={{
+        uri:
+          'https://firebasestorage.googleapis.com/v0/b/discovrrapp-88c28.appspot.com/o/post%2Fenjaga_w5r3gg3jcp.jpg?alt=media&token=04a3f960-817b-49eb-9296-fca59905f6f4',
+      }}
+      imageHeight={400}
+      author={{
+        avatar:
+          'https://lh3.googleusercontent.com/a-/AOh14GipLN2XblA67SS_Agp7k6p_c6RGdTRa_moJN-li=s96-c',
+        name: 'Maggie Liu',
+      }}
+    />
+  );
+};
 
 const ProfileScreen = (props) => {
   const routeParams = props.route?.params;
-
   const [posts, setPosts] = useState([]);
 
   if (!routeParams) {

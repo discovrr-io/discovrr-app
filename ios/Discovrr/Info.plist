@@ -57,6 +57,8 @@
 	</array>
 	<key>CFBundleVersion</key>
 	<string>1</string>
+	<key>UIUserInterfaceStyle</key>
+	<string>Light</string>
 	<key>CodePushDeploymentKey</key>
 	<string>0vWpGJryvPCPsJJd48Eva71PtB8gIYZU-lE_W</string>
 	<key>FacebookAdvertiserIDCollectionEnabled</key>

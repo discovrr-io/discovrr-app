@@ -92,7 +92,7 @@ export const transparentStyle = StyleSheet.create({
   },
   disabled: {
     ...buttonStyles,
-    backgroundColor: colors.white,
-    borderColor: 'red',
+    backgroundColor: 'transparent',
+    borderColor: colors.lightGray,
   },
 });
