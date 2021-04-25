@@ -1,8 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import {
+  Image,
+  ShadowPropTypesIOS,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 
-import { colors, values } from '../constants';
+import { colors, typography, values } from '../constants';
 
 export const PostItemKind = {
   TEXT: 'TEXT',
@@ -11,7 +18,7 @@ export const PostItemKind = {
 };
 
 const AuthorPropTypes = PropTypes.shape({
-  avatar: PropTypes.string,
+  avatar: PropTypes.shape({ url: PropTypes.string.isRequired }),
   name: PropTypes.string.isRequired,
 });
 
@@ -21,14 +28,37 @@ const MetricsPropTypes = PropTypes.shape({
   isSaved: PropTypes.bool.isRequired,
 });
 
+const postItemIconSize = 26;
+const actionButtonSize = postItemIconSize;
+const avatarRadius = postItemIconSize;
+
 const PostItemFooter = ({ author, metrics }) => {
   return (
     <View style={postItemFooterStyles.container}>
-      <Image
-        style={postItemFooterStyles.avatar}
-        source={{ url: author.avatar }}
-      />
-      <Text style={postItemFooterStyles.authorName}>{author.name}</Text>
+      <View style={postItemFooterStyles.authorContainer}>
+        <Image style={postItemFooterStyles.avatar} source={author.avatar} />
+        <Text
+          numberOfLines={1}
+          ellipsizeMode="tail"
+          style={postItemFooterStyles.authorName}>
+          {author.name}
+        </Text>
+      </View>
+      <View style={postItemFooterStyles.actionsContainer}>
+        <MaterialIcon
+          style={postItemFooterStyles.actionButton}
+          name={metrics.isSaved ? 'bookmark' : 'bookmark-outline'}
+          color={metrics.isSaved ? colors.black : colors.gray}
+          size={actionButtonSize}
+        />
+        <MaterialIcon
+          style={postItemFooterStyles.actionButton}
+          name={metrics.isLiked ? 'favorite' : 'favorite-border'}
+          color={metrics.isLiked ? 'red' : colors.gray}
+          size={actionButtonSize}
+        />
+        <Text style={postItemFooterStyles.likesNumber}>{metrics.likes}</Text>
+      </View>
     </View>
   );
 };
@@ -38,10 +68,15 @@ PostItemFooter.propTypes = {
   metrics: MetricsPropTypes.isRequired,
 };
 
-const avatarRadius = 35;
-
 const postItemFooterStyles = StyleSheet.create({
   container: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: values.spacing.xs,
+    marginTop: values.spacing.sm,
+    marginBottom: values.spacing.lg,
+  },
+  authorContainer: {
     flexDirection: 'row',
     alignItems: 'center',
   },
@@ -53,41 +88,69 @@ const postItemFooterStyles = StyleSheet.create({
   authorName: {
     marginLeft: values.spacing.md,
     color: colors.black,
+    maxWidth: 250,
+  },
+  actionsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  actionButton: {
+    marginLeft: values.spacing.md,
+  },
+  likesNumber: {
+    marginLeft: values.spacing.xs,
   },
 });
 
 const PostItem = ({
   kind,
   text,
-  imagePreview,
-  imageHeight,
   author,
   metrics,
+  imagePreview = {},
+  imagePreviewDimensions = { width: 1, height: 1 },
+  displayFooter = true,
   ...props
 }) => {
   const PostItemContent = (props) => {
     switch (kind) {
       case PostItemKind.TEXT:
         return (
-          <Text
-            numberOfLines={4}
-            ellipsizeMode="tail"
-            style={[postItemStyles.dialogBox, props.style]}>
-            {text}
-          </Text>
+          <View style={[postItemStyles.dialogBox, props.style]}>
+            <Text
+              numberOfLines={4}
+              ellipsizeMode="tail"
+              style={postItemStyles.dialogBoxText}>
+              {text}
+            </Text>
+          </View>
         );
       case PostItemKind.IMAGE:
+        const { width, height } = imagePreviewDimensions;
+        const ratio = width / height;
         return (
-          <Image
-            style={[
-              {
-                height: imageHeight,
-                width: '100%',
-              },
-              props.style,
-            ]}
-            source={imagePreview}
-          />
+          <View>
+            <Image
+              style={{
+                width: width,
+                aspectRatio: ratio,
+                resizeMode: 'contain',
+                borderRadius: values.radius.md,
+              }}
+              source={imagePreview}
+            />
+            <Text
+              style={{
+                maxWidth: width,
+                fontWeight: '600',
+                fontSize: typography.size.sm,
+                marginTop: values.spacing.sm,
+              }}
+              numberOfLines={4}
+              ellipsizeMode="tail">
+              {text}
+            </Text>
+          </View>
         );
       case PostItemKind.VIDEO:
         return <Text>VIDEO</Text>;
@@ -97,9 +160,9 @@ const PostItem = ({
   };
 
   return (
-    <View style={[props.style]}>
-      <PostItemContent style={{ marginBottom: values.spacing.md }} />
-      <PostItemFooter author={author} metrics={metrics} />
+    <View style={[{ paddingLeft: values.spacing.sm }, props.style]}>
+      <PostItemContent />
+      {displayFooter && <PostItemFooter author={author} metrics={metrics} />}
     </View>
   );
 };
@@ -107,10 +170,14 @@ const PostItem = ({
 PostItem.propTypes = {
   kind: PropTypes.oneOf(Object.values(PostItemKind)).isRequired,
   text: PropTypes.string.isRequired, // All posts require some form of text
-  imagePreview: PropTypes.object,
-  imageHeight: PropTypes.number,
   author: AuthorPropTypes.isRequired,
   metrics: MetricsPropTypes.isRequired,
+  imagePreview: PropTypes.object,
+  imagePreviewDimensions: PropTypes.shape({
+    width: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired,
+  }),
+  displayFooter: PropTypes.bool,
 };
 
 const postItemStyles = StyleSheet.create({
@@ -119,9 +186,11 @@ const postItemStyles = StyleSheet.create({
     borderColor: colors.gray,
     borderRadius: values.radius.md,
     borderWidth: values.border.thin,
+    padding: values.spacing.md,
+  },
+  dialogBoxText: {
     color: colors.black,
     fontWeight: '600',
-    padding: values.spacing.md,
   },
 });
 

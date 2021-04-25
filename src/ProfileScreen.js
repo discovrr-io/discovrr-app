@@ -61,6 +61,11 @@ async function fetchPosts(setter, routeParams, userDetails) {
       const imagePreview = (Array.isArray(images) && images[0]) || null;
       const imagePreviewUrl = imagePreview?.url ?? null;
 
+      const imagePreviewDimensions = {
+        width: imagePreview.width,
+        height: imagePreview.height,
+      };
+
       if (!imagePreviewUrl) {
         postType = PostItemKind.TEXT;
       }
@@ -70,28 +75,19 @@ async function fetchPosts(setter, routeParams, userDetails) {
         ? { uri: imagePreviewUrl }
         : imagePlaceholder;
 
-      // MasonryList requires us to provide dimensions when using a placeholder
-      // so we'll set it to one (zero doesn't pass).
-      const imagePreviewSourceDimensions = imagePreviewUrl
-        ? undefined
-        : { width: 1, height: 1 };
-
-      const caption = item.get('caption') || '[NO CAPTION]';
-
       return {
         images,
         postType,
         source: imagePreviewSource,
-        dimensions: imagePreviewSourceDimensions,
+        dimensions: imagePreviewDimensions,
         author: {
           avatar: item.get('profile')?.get('avatar') ?? undefined,
           name: item.get('profile')?.get('name') ?? undefined,
         },
-        caption,
+        caption: item.get('caption') || '[NO CAPTION]',
       };
     });
 
-    console.log({ __THE_ITEMS__: items });
     setter(items ?? []);
   } else {
     // TODO...
@@ -232,45 +228,29 @@ const headerStyles = StyleSheet.create({
   },
 });
 
-const ItemFooter = (data) => {
-  console.log(data.author);
-
-  if (data.postType === PostItemKind.TEXT) {
-    return null;
-  }
-
-  return (
-    <View>
-      <Text
-        numberOfLines={2}
-        ellipsizeMode="tail"
-        style={{
-          fontSize: typography.size.xs,
-          fontWeight: '700',
-          maxWidth: data.masonryDimensions.width,
-          paddingHorizontal: values.spacing.md,
-          marginBottom: values.spacing.md,
-        }}>
-        {data.caption}
-      </Text>
-    </View>
-  );
-};
-
 const PostsTab = ({ posts }) => {
-  console.log(posts);
   return (
     <View style={{ height: '100%' }}>
       <MasonryList
         sorted
-        spacing={1.5}
+        // spacing={1.5}
         images={posts}
         initialNumInColsToRender={1}
-        imageContainerStyle={{ borderRadius: values.radius.md }}
-        listContainerStyle={{ paddingBottom: values.spacing.xl }}
+        listContainerStyle={{
+          paddingBottom: values.spacing.xl,
+        }}
         backgroundColor={colors.white}
-        renderIndividualFooter={ItemFooter}
-        // completeCustomComponent={({ data }) => <Text>{data.caption}</Text>}
+        completeCustomComponent={({ data }) => (
+          <PostItem
+            kind={PostItemKind.IMAGE}
+            text={data.caption}
+            imagePreview={data.source}
+            author={data.author}
+            metrics={{ likes: 4, isLiked: true, isSaved: true }}
+            imagePreviewDimensions={data.masonryDimensions}
+            // displayFooter={false}
+          />
+        )}
       />
     </View>
   );
@@ -280,20 +260,24 @@ const NotesTab = (_) => <Text>NOTES</Text>;
 
 const LikedTab = (_) => {
   return (
-    <PostItem
-      kind={PostItemKind.TEXT}
-      text="I'm in Marrickville, anyone know a good place for a pork roll?"
-      imagePreview={{
-        uri:
-          'https://firebasestorage.googleapis.com/v0/b/discovrrapp-88c28.appspot.com/o/post%2Fenjaga_w5r3gg3jcp.jpg?alt=media&token=04a3f960-817b-49eb-9296-fca59905f6f4',
-      }}
-      imageHeight={400}
-      author={{
-        avatar:
-          'https://lh3.googleusercontent.com/a-/AOh14GipLN2XblA67SS_Agp7k6p_c6RGdTRa_moJN-li=s96-c',
-        name: 'Maggie Liu',
-      }}
-    />
+    // <PostItem
+    //   kind={PostItemKind.IMAGE}
+    //   text="I'm in Marrickville, anyone know a good place for a sausage roll?"
+    //   author={{
+    //     avatar:
+    //       'https://lh3.googleusercontent.com/a-/AOh14GipLN2XblA67SS_Agp7k6p_c6RGdTRa_moJN-li=s96-c',
+    //     name: 'Maggie Liu',
+    //   }}
+    //   metrics={{ likes: 4, isLiked: true, isSaved: true }}
+    //   imagePreview={{
+    //     uri:
+    //       'https://firebasestorage.googleapis.com/v0/b/discovrrapp-88c28.appspot.com/o/post%2Fenjaga_w5r3gg3jcp.jpg?alt=media&token=04a3f960-817b-49eb-9296-fca59905f6f4',
+    //     // 'https://firebasestorage.googleapis.com/v0/b/discovrrapp-88c28.appspot.com/o/post%2Fenjaga_hzr5uhpi7re.jpg?alt=media&token=ec4aa5e4-9284-44d1-8eb8-f66976422956',
+    //   }}
+    //   imagePreviewDimensions={{ width: 1066, height: 800 }}
+    //   style={{ width: 200 }}
+    // />
+    <Text>LIKES</Text>
   );
 };
 
@@ -318,7 +302,7 @@ const ProfileScreen = (props) => {
       // This function is called when this component unmounts. Add cleanup code
       // here to deleting asynchronous subscriptions.
     };
-  }, []);
+  }, [setPosts]);
 
   return (
     <>
