@@ -25,7 +25,7 @@ async function fetchPosts(userProfile) {
   const { profileId } = userProfile;
   const profilePointer = {
     __type: 'Pointer',
-    classNae: 'Profile',
+    className: 'Profile',
     objectId: profileId,
   };
 
@@ -38,10 +38,36 @@ async function fetchPosts(userProfile) {
   query.descending('createdAt');
 
   const results = await query.find();
-  console.log({ resultsLength: results.length });
-
   const posts = results.map((post) => {
-    console.log({ images: post.get('media') });
+    let postType = PostItemKind.IMAGE; // default value
+
+    const images = post.get('media');
+    const imagePreview = Array.isArray(images) && images[0];
+    const imagePreviewUrl = imagePreview?.url;
+
+    const imagePreviewDimensions = {
+      width: imagePreview?.width ?? 1,
+      height: imagePreview?.height ?? 1,
+    };
+
+    if (!imagePreviewUrl) postType = PostItemKind.TEXT;
+
+    // We use a placeholder if it is a text post
+    const imagePreviewSource = imagePreviewUrl
+      ? { uri: imagePreviewUrl }
+      : imagePlaceholder;
+
+    return {
+      postType,
+      images,
+      source: imagePreviewSource,
+      dimensions: imagePreviewDimensions,
+      author: {
+        avatar: post.get('profile')?.get('avatar'),
+        name: post.get('profile')?.get('name'),
+      },
+      caption: post.get('caption'),
+    };
   });
 
   return posts;
@@ -58,7 +84,7 @@ const ProfileScreenHeader = ({ isMyProfile, userProfile }) => {
   const profileName =
     userProfile.name && userProfile.name.length > 0
       ? userProfile.name
-      : 'No name';
+      : 'Anonymous';
   const profileDescription =
     userProfile.description && userProfile.description.length > 0
       ? userProfile.description
@@ -294,7 +320,6 @@ const PostsTab = ({ userProfile }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [posts, setPosts] = useState([]);
   const [error, setError] = useState(null);
-  console.log(posts);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -333,24 +358,30 @@ const PostsTab = ({ userProfile }) => {
     <View style={{ height: '100%' }}>
       <MasonryList
         sorted
+        rerender
         images={posts}
+        columns={2}
         initialNumInColsToRender={1}
         listContainerStyle={{
           paddingTop: values.spacing.sm,
           paddingBottom: values.spacing.xl,
         }}
         backgroundColor={colors.white}
-        completeCustomComponent={({ data }) => (
-          <PostItem
-            kind={PostItemKind.IMAGE}
-            text={data.caption}
-            imagePreview={data.source}
-            author={data.author}
-            metrics={{ likes: 4, isLiked: true, isSaved: true }}
-            imagePreviewDimensions={data.masonryDimensions}
-            displayFooter={false}
-          />
-        )}
+        completeCustomComponent={({ data }) => {
+          console.log({ data });
+          return (
+            <PostItem
+              kind={data.postType}
+              text={data.caption}
+              author={data.author}
+              metrics={{ likes: 4, isLiked: true, isSaved: true }}
+              column={data.column}
+              imagePreview={data.source}
+              imagePreviewDimensions={data.masonryDimensions}
+              displayFooter={false}
+            />
+          );
+        }}
         emptyView={() => <EmptyTabView message="No Posts" />}
       />
     </View>
@@ -367,8 +398,6 @@ const ProfileScreen = (props) => {
     userDetails: myUserDetails,
     route: { params },
   } = props;
-
-  console.log({ params } ?? 'NO ROUTE PARAMS');
 
   const isMyProfile = !params;
   const { userProfile } = params ?? { userProfile: myUserDetails };

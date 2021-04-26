@@ -1,15 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  Image,
-  ShadowPropTypesIOS,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 
 import { colors, typography, values } from '../constants';
+
+const defaultAvatar = require('../../resources/images/defaultAvatar.jpeg');
 
 export const PostItemKind = {
   TEXT: 'TEXT',
@@ -36,12 +32,15 @@ const PostItemFooter = ({ author, metrics }) => {
   return (
     <View style={postItemFooterStyles.container}>
       <View style={postItemFooterStyles.authorContainer}>
-        <Image style={postItemFooterStyles.avatar} source={author.avatar} />
+        <Image
+          style={postItemFooterStyles.avatar}
+          source={author.avatar ?? defaultAvatar}
+        />
         <Text
           numberOfLines={1}
           ellipsizeMode="tail"
           style={postItemFooterStyles.authorName}>
-          {author.name}
+          {author.name && !(author.length < 0) ? author.name : 'Anonymous'}
         </Text>
       </View>
       <View style={postItemFooterStyles.actionsContainer}>
@@ -94,10 +93,12 @@ const postItemFooterStyles = StyleSheet.create({
     alignItems: 'center',
   },
   actionButton: {
-    marginLeft: values.spacing.md,
+    marginLeft: values.spacing.xs,
   },
   likesNumber: {
-    marginLeft: values.spacing.xs,
+    marginLeft: values.spacing.zero,
+    fontSize: typography.size.xs,
+    alignSelf: 'flex-end',
   },
 });
 
@@ -106,16 +107,39 @@ const PostItem = ({
   text,
   author,
   metrics,
+  column = 0,
   imagePreview = {},
   imagePreviewDimensions = { width: 1, height: 1 },
   displayFooter = true,
   ...props
 }) => {
   const PostItemContent = (props) => {
+    const PostItemContentCaption = ({ text, maxWidth }) => {
+      return (
+        <Text
+          style={{
+            maxWidth,
+            fontWeight: '600',
+            fontSize: typography.size.xs,
+            marginTop: values.spacing.sm,
+            color: colors.darkGray,
+          }}
+          numberOfLines={2}
+          ellipsizeMode="tail">
+          {text}
+        </Text>
+      );
+    };
+
     switch (kind) {
       case PostItemKind.TEXT:
         return (
-          <View style={[postItemStyles.dialogBox, props.style]}>
+          <View
+            style={[
+              postItemStyles.dialogBox,
+              // { maxWidth: imagePreviewDimensions.width - values.spacing.sm },
+              props.style,
+            ]}>
             <Text
               numberOfLines={4}
               ellipsizeMode="tail"
@@ -128,31 +152,25 @@ const PostItem = ({
         const { width, height } = imagePreviewDimensions;
         const ratio = width / height;
         return (
-          <View>
+          <View style={[props.style]}>
             <Image
               style={{
-                width: width,
+                // maxWidth: width,
                 aspectRatio: ratio,
                 resizeMode: 'contain',
                 borderRadius: values.radius.md,
               }}
               source={imagePreview}
             />
-            <Text
-              style={{
-                maxWidth: width,
-                fontWeight: '600',
-                fontSize: typography.size.sm,
-                marginTop: values.spacing.sm,
-              }}
-              numberOfLines={4}
-              ellipsizeMode="tail">
-              {text}
-            </Text>
+            <PostItemContentCaption maxWidth={width} text={text} />
           </View>
         );
       case PostItemKind.VIDEO:
-        return <Text>VIDEO</Text>;
+        return (
+          <View style={[props.style]}>
+            <PostItemContentCaption maxWidth={100} text={text} />
+          </View>
+        );
       default:
         return null;
     }
@@ -161,7 +179,12 @@ const PostItem = ({
   return (
     <View
       style={[
-        { paddingLeft: values.spacing.sm, marginBottom: values.spacing.lg },
+        {
+          maxWidth: imagePreviewDimensions.width,
+          marginLeft: values.spacing.sm,
+          marginBottom: values.spacing.lg,
+          // backgroundColor: 'red',
+        },
         props.style,
       ]}>
       <PostItemContent />
@@ -175,6 +198,7 @@ PostItem.propTypes = {
   text: PropTypes.string.isRequired, // All posts require some form of text
   author: AuthorPropTypes.isRequired,
   metrics: MetricsPropTypes.isRequired,
+  column: PropTypes.number,
   imagePreview: PropTypes.object,
   imagePreviewDimensions: PropTypes.shape({
     width: PropTypes.number.isRequired,
@@ -187,7 +211,9 @@ const postItemStyles = StyleSheet.create({
   dialogBox: {
     backgroundColor: colors.lightGray,
     borderColor: colors.gray,
-    borderRadius: values.radius.md,
+    borderTopLeftRadius: values.radius.md,
+    borderTopRightRadius: values.radius.md,
+    borderBottomRightRadius: values.radius.md,
     borderWidth: values.border.thin,
     padding: values.spacing.md,
   },
