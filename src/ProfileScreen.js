@@ -233,10 +233,10 @@ const PostsTab = ({ posts }) => {
     <View style={{ height: '100%' }}>
       <MasonryList
         sorted
-        // spacing={1.5}
         images={posts}
         initialNumInColsToRender={1}
         listContainerStyle={{
+          paddingTop: values.spacing.sm,
           paddingBottom: values.spacing.xl,
         }}
         backgroundColor={colors.white}
@@ -248,7 +248,7 @@ const PostsTab = ({ posts }) => {
             author={data.author}
             metrics={{ likes: 4, isLiked: true, isSaved: true }}
             imagePreviewDimensions={data.masonryDimensions}
-            // displayFooter={false}
+            displayFooter={false}
           />
         )}
       />
@@ -257,32 +257,11 @@ const PostsTab = ({ posts }) => {
 };
 
 const NotesTab = (_) => <Text>NOTES</Text>;
-
-const LikedTab = (_) => {
-  return (
-    // <PostItem
-    //   kind={PostItemKind.IMAGE}
-    //   text="I'm in Marrickville, anyone know a good place for a sausage roll?"
-    //   author={{
-    //     avatar:
-    //       'https://lh3.googleusercontent.com/a-/AOh14GipLN2XblA67SS_Agp7k6p_c6RGdTRa_moJN-li=s96-c',
-    //     name: 'Maggie Liu',
-    //   }}
-    //   metrics={{ likes: 4, isLiked: true, isSaved: true }}
-    //   imagePreview={{
-    //     uri:
-    //       'https://firebasestorage.googleapis.com/v0/b/discovrrapp-88c28.appspot.com/o/post%2Fenjaga_w5r3gg3jcp.jpg?alt=media&token=04a3f960-817b-49eb-9296-fca59905f6f4',
-    //     // 'https://firebasestorage.googleapis.com/v0/b/discovrrapp-88c28.appspot.com/o/post%2Fenjaga_hzr5uhpi7re.jpg?alt=media&token=ec4aa5e4-9284-44d1-8eb8-f66976422956',
-    //   }}
-    //   imagePreviewDimensions={{ width: 1066, height: 800 }}
-    //   style={{ width: 200 }}
-    // />
-    <Text>LIKES</Text>
-  );
-};
+const LikedTab = (_) => <Text>LIKES</Text>;
 
 const ProfileScreen = (props) => {
   const routeParams = props.route?.params;
+
   const [posts, setPosts] = useState([]);
 
   if (!routeParams) {
@@ -295,8 +274,8 @@ const ProfileScreen = (props) => {
 
   useEffect(() => {
     fetchData('posts', setPosts, routeParams, props.userDetails);
-    // fetchData('likedPosts', routeParams, props.userDetails);
-    // fetchData('notes', routeParams, props.userDetails);
+    // fetchData('notes', setPosts, routeParams, props.userDetails);
+    // fetchData('liked', setPosts, routeParams, props.userDetails);
 
     return () => {
       // This function is called when this component unmounts. Add cleanup code

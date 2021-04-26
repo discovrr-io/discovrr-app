@@ -74,7 +74,6 @@ const postItemFooterStyles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: values.spacing.xs,
     marginTop: values.spacing.sm,
-    marginBottom: values.spacing.lg,
   },
   authorContainer: {
     flexDirection: 'row',
@@ -160,7 +159,11 @@ const PostItem = ({
   };
 
   return (
-    <View style={[{ paddingLeft: values.spacing.sm }, props.style]}>
+    <View
+      style={[
+        { paddingLeft: values.spacing.sm, marginBottom: values.spacing.lg },
+        props.style,
+      ]}>
       <PostItemContent />
       {displayFooter && <PostItemFooter author={author} metrics={metrics} />}
     </View>
