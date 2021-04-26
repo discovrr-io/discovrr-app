@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import {
+  ActivityIndicator,
   Alert,
   Image,
-  SafeAreaView,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
 
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+// import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import MasonryList from 'react-native-masonry-list';
 import { connect } from 'react-redux';
 
@@ -20,7 +21,33 @@ const defaultAvatar = require('../resources/images/defaultAvatar.jpeg');
 
 const Parse = require('parse/react-native');
 
-const ProfileScreenHeader = ({ userProfile }) => {
+async function fetchPosts(userProfile) {
+  const { profileId } = userProfile;
+  const profilePointer = {
+    __type: 'Pointer',
+    classNae: 'Profile',
+    objectId: profileId,
+  };
+
+  // We won't handle exceptions here
+  const query = new Parse.Query(Parse.Object.extend('Post'));
+  query.include('profile');
+  query.equalTo('profile', profilePointer);
+
+  query.greaterThanOrEqualTo('createdAt', new Date('2020-10-30'));
+  query.descending('createdAt');
+
+  const results = await query.find();
+  console.log({ resultsLength: results.length });
+
+  const posts = results.map((post) => {
+    console.log({ images: post.get('media') });
+  });
+
+  return posts;
+}
+
+const ProfileScreenHeader = ({ isMyProfile, userProfile }) => {
   const {
     avatar: { url: avatarUrl } = {},
     coverPhoto: { url: coverPhotoUrl } = {},
@@ -51,12 +78,16 @@ const ProfileScreenHeader = ({ userProfile }) => {
     if (loadEvent) setIsHeaderLoaded(true);
   };
 
-  const onMessageButtonPress = (_) => {
+  const alertUnavailableFeature = () => {
     Alert.alert(`Sorry, this feature isn't available at the moment.`);
   };
 
+  const onFollowingButtonPress = (_) => alertUnavailableFeature();
+  const onMessageButtonPress = (_) => alertUnavailableFeature();
+  const onEditProfileButtonPress = (_) => alertUnavailableFeature();
+
   const Metric = ({ title, value, ...props }) => (
-    <View {...(props.style || {})} style={metricStyles.container}>
+    <View {...(props.style ?? {})} style={metricStyles.container}>
       <Text style={metricStyles.title}>{title}</Text>
       <Text style={metricStyles.value}>
         {value > 999 ? `${(value / 1000).toFixed(1)}k` : value}
@@ -72,6 +103,11 @@ const ProfileScreenHeader = ({ userProfile }) => {
         source={isHeaderLoaded ? headerImage : imagePlaceholder}
       />
       <View style={headerStyles.profileDetails}>
+        {/* {isMyProfile && (
+          <View style={headerStyles.profileEditButton}>
+            <MaterialIcon name="edit" size={20} color={colors.white} />
+          </View>
+        )} */}
         <View style={headerStyles.profileMetrics}>
           <Image
             onLoad={onAvatarLoaded}
@@ -85,20 +121,35 @@ const ProfileScreenHeader = ({ userProfile }) => {
               <Metric title={'Likes'} value={0} />
             </View>
             <View style={headerStyles.profileActionsContainer}>
-              <ToggleButton
-                style={headerStyles.profileActionsButton}
-                primary
-                transparent
-                size="small"
-                titles={{ on: 'Following', off: 'Follow' }}
-              />
-              <Button
-                style={headerStyles.profileActionsButton}
-                transparent
-                size="small"
-                title="Message"
-                onPress={onMessageButtonPress}
-              />
+              {isMyProfile ? (
+                <>
+                  <Button
+                    style={headerStyles.profileActionsButton}
+                    transparent
+                    size="small"
+                    title="Edit Profile"
+                    onPress={onEditProfileButtonPress}
+                  />
+                </>
+              ) : (
+                <>
+                  <ToggleButton
+                    style={headerStyles.profileActionsButton}
+                    primary
+                    transparent
+                    size="small"
+                    titles={{ on: 'Following', off: 'Follow' }}
+                    onPress={onFollowingButtonPress}
+                  />
+                  <Button
+                    style={headerStyles.profileActionsButton}
+                    transparent
+                    size="small"
+                    title="Message"
+                    onPress={onMessageButtonPress}
+                  />
+                </>
+              )}
             </View>
           </View>
         </View>
@@ -118,8 +169,7 @@ const avatarImageRadius = 80;
 
 const metricStyles = StyleSheet.create({
   container: {
-    marginRight: values.spacing.md,
-    width: 80,
+    width: 85,
   },
   title: {
     color: colors.white,
@@ -140,13 +190,21 @@ const headerStyles = StyleSheet.create({
     height: 360,
     width: '100%',
   },
+  profileEditButton: {
+    position: 'absolute',
+    top: values.spacing.md * 1.25,
+    right: values.spacing.md * 1.5,
+    backgroundColor: colors.gray,
+    padding: values.spacing.sm * 1.5,
+    borderRadius: values.radius.lg,
+  },
   profileDetails: {
     position: 'absolute',
     width: '100%',
     bottom: 0,
     paddingVertical: values.spacing.md * 1.25,
     paddingHorizontal: values.spacing.md * 1.5,
-    backgroundColor: 'rgba(82, 82, 82, 0.7)',
+    backgroundColor: 'rgba(82, 82, 82, 0.8)',
   },
   profileDetailsText: {
     fontSize: typography.size.sm,
@@ -156,34 +214,121 @@ const headerStyles = StyleSheet.create({
     borderRadius: avatarImageRadius / 2,
     width: avatarImageRadius,
     height: avatarImageRadius,
-    marginRight: values.spacing.xl,
+    marginRight: values.spacing.lg,
   },
   profileName: {
     fontSize: typography.size.h4,
     marginBottom: values.spacing.sm,
   },
   profileMetrics: {
-    marginBottom: values.spacing.md,
     flexDirection: 'row',
+    marginBottom: values.spacing.md,
   },
   profileMetricsInner: {
+    flex: 1,
     justifyContent: 'center',
+    alignSelf: 'stretch',
   },
   profileMetricsDetails: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   profileActionsContainer: {
     flexDirection: 'row',
     marginTop: values.spacing.md,
   },
   profileActionsButton: {
-    width: 120,
+    flex: 1,
     marginRight: values.spacing.md,
+    alignSelf: 'stretch',
   },
 });
 
-const PostsTab = (_) => {
-  const posts = [];
+const LoadingTabView = ({ message }) => {
+  return (
+    <View
+      style={{
+        height: '100%',
+        backgroundColor: colors.white,
+        justifyContent: 'space-around',
+      }}>
+      <View>
+        <ActivityIndicator
+          style={{ marginBottom: values.spacing.md }}
+          size="large"
+        />
+        <Text style={{ fontSize: typography.size.md, textAlign: 'center' }}>
+          {message}
+        </Text>
+      </View>
+    </View>
+  );
+};
+
+const EmptyTabView = ({ message }) => {
+  return (
+    <View
+      style={{
+        height: '100%',
+        backgroundColor: colors.white,
+        justifyContent: 'space-around',
+      }}>
+      <View>
+        <Text
+          style={{
+            fontSize: 36,
+            textAlign: 'center',
+            marginBottom: values.spacing.md,
+          }}>
+          🤔
+        </Text>
+        <Text style={{ fontSize: typography.size.md, textAlign: 'center' }}>
+          {message}
+        </Text>
+      </View>
+    </View>
+  );
+};
+
+const PostsTab = ({ userProfile }) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [posts, setPosts] = useState([]);
+  const [error, setError] = useState(null);
+  console.log(posts);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const posts = await fetchPosts(userProfile);
+        setPosts(posts);
+        setIsLoading(false);
+      } catch (error) {
+        setPosts([]);
+        setIsLoading(false);
+        setError(error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (isLoading) {
+    return <LoadingTabView message="Loading Posts..." />;
+  }
+
+  if (error) {
+    return (
+      <View
+        style={{
+          height: '100%',
+          backgroundColor: colors.white,
+          justifyContent: 'space-around',
+        }}>
+        <Text style={{ textAlign: 'center' }}>{error.message ?? error}</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={{ height: '100%' }}>
       <MasonryList
@@ -206,6 +351,7 @@ const PostsTab = (_) => {
             displayFooter={false}
           />
         )}
+        emptyView={() => <EmptyTabView message="No Posts" />}
       />
     </View>
   );
@@ -217,24 +363,32 @@ const LikedTab = (_) => <Text>LIKES</Text>;
 const Tab = createMaterialTopTabNavigator();
 
 const ProfileScreen = (props) => {
-  const routeParams = props.route?.params;
+  const {
+    userDetails: myUserDetails,
+    route: { params },
+  } = props;
 
-  if (!routeParams) {
-    return (
-      <SafeAreaView>
-        <Text>TODO: My User Profile</Text>
-      </SafeAreaView>
-    );
-  }
+  console.log({ params } ?? 'NO ROUTE PARAMS');
+
+  const isMyProfile = !params;
+  const { userProfile } = params ?? { userProfile: myUserDetails };
 
   return (
     <>
-      <ProfileScreenHeader userProfile={routeParams.userProfile} />
-      {/* <Tab.Navigator>
-        <Tab.Screen name="Posts" component={PostsTab} />
+      <ProfileScreenHeader
+        isMyProfile={isMyProfile}
+        userProfile={userProfile}
+      />
+      <Tab.Navigator
+        lazy={true}
+        tabBarOptions={{ indicatorStyle: { backgroundColor: colors.accent } }}>
+        <Tab.Screen
+          name="Posts"
+          children={() => <PostsTab userProfile={userProfile} />}
+        />
         <Tab.Screen name="Notes" component={NotesTab} />
         <Tab.Screen name="Liked" component={LikedTab} />
-      </Tab.Navigator> */}
+      </Tab.Navigator>
     </>
   );
 };
