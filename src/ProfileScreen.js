@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Image, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import {
+  Alert,
+  Image,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import MasonryList from 'react-native-masonry-list';
@@ -13,102 +20,40 @@ const defaultAvatar = require('../resources/images/defaultAvatar.jpeg');
 
 const Parse = require('parse/react-native');
 
-async function fetchData(selector, setter, routeParams, userDetails) {
-  try {
-    const currentUser = await Parse.User.currentAsync();
-    if (!currentUser) return;
-
-    switch (selector) {
-      case 'posts':
-        fetchPosts(setter, routeParams, userDetails);
-        break;
-
-      default:
-        console.log(`Unhandled selector: ${selector}`);
-        break;
-    }
-  } catch (error) {
-    console.error(`An error occurred: ${error}`);
-  }
-}
-
-async function fetchPosts(setter, routeParams, userDetails) {
-  const { isUserProfile, userProfile } = routeParams;
-  const profileId = isUserProfile
-    ? userProfile.profileId
-    : userDetails.profileId;
-
-  const profilePointer = {
-    __type: 'Pointer',
-    className: 'Profile',
-    objectId: profileId,
-  };
-
-  const query = new Parse.Query(Parse.Object.extend('Post'));
-  query.include('profile');
-  query.equalTo('profile', profilePointer);
-
-  // !isDevMode && query.equalTo('status', 0);
-  query.greaterThanOrEqualTo('createdAt', new Date('2020-10-30'));
-  query.descending('createdAt');
-
-  const results = await query.find();
-  if (Array.isArray(results) && results.length) {
-    const items = results.map((item) => {
-      let postType = PostItemKind.IMAGE; // default value
-
-      const images = item.get('media');
-      const imagePreview = (Array.isArray(images) && images[0]) || null;
-      const imagePreviewUrl = imagePreview?.url ?? null;
-
-      const imagePreviewDimensions = {
-        width: imagePreview.width,
-        height: imagePreview.height,
-      };
-
-      if (!imagePreviewUrl) {
-        postType = PostItemKind.TEXT;
-      }
-
-      // We use a placeholder if it is a text post.
-      const imagePreviewSource = imagePreviewUrl
-        ? { uri: imagePreviewUrl }
-        : imagePlaceholder;
-
-      return {
-        images,
-        postType,
-        source: imagePreviewSource,
-        dimensions: imagePreviewDimensions,
-        author: {
-          avatar: item.get('profile')?.get('avatar') ?? undefined,
-          name: item.get('profile')?.get('name') ?? undefined,
-        },
-        caption: item.get('caption') || '[NO CAPTION]',
-      };
-    });
-
-    setter(items ?? []);
-  } else {
-    // TODO...
-  }
-}
-
-const Tab = createMaterialTopTabNavigator();
-
 const ProfileScreenHeader = ({ userProfile }) => {
-  if (!userProfile) {
-    return <Text>NO USER PROFILE</Text>;
-  }
-
   const {
     avatar: { url: avatarUrl } = {},
     coverPhoto: { url: coverPhotoUrl } = {},
-    followersCount,
-    followingCount,
+    followersCount = 0,
+    followingCount = 0,
   } = userProfile;
+
+  const profileName =
+    userProfile.name && userProfile.name.length > 0
+      ? userProfile.name
+      : 'No name';
+  const profileDescription =
+    userProfile.description && userProfile.description.length > 0
+      ? userProfile.description
+      : 'No description';
+
   const headerImage = coverPhotoUrl ? { uri: coverPhotoUrl } : imagePlaceholder;
   const avatarImage = avatarUrl ? { uri: avatarUrl } : defaultAvatar;
+
+  const [isAvatarLoaded, setIsAvatarLoaded] = useState(false);
+  const [isHeaderLoaded, setIsHeaderLoaded] = useState(false);
+
+  const onAvatarLoaded = (loadEvent) => {
+    if (loadEvent) setIsAvatarLoaded(true);
+  };
+
+  const onHeaderLoaded = (loadEvent) => {
+    if (loadEvent) setIsHeaderLoaded(true);
+  };
+
+  const onMessageButtonPress = (_) => {
+    Alert.alert(`Sorry, this feature isn't available at the moment.`);
+  };
 
   const Metric = ({ title, value, ...props }) => (
     <View {...(props.style || {})} style={metricStyles.container}>
@@ -121,10 +66,18 @@ const ProfileScreenHeader = ({ userProfile }) => {
 
   return (
     <View>
-      <Image style={headerStyles.headerBackground} source={headerImage} />
+      <Image
+        onLoad={onHeaderLoaded}
+        style={headerStyles.headerBackground}
+        source={isHeaderLoaded ? headerImage : imagePlaceholder}
+      />
       <View style={headerStyles.profileDetails}>
         <View style={headerStyles.profileMetrics}>
-          <Image style={headerStyles.profileAvatar} source={avatarImage} />
+          <Image
+            onLoad={onAvatarLoaded}
+            style={headerStyles.profileAvatar}
+            source={isAvatarLoaded ? avatarImage : defaultAvatar}
+          />
           <View style={headerStyles.profileMetricsInner}>
             <View style={headerStyles.profileMetricsDetails}>
               <Metric title={'Followers'} value={followersCount} />
@@ -144,16 +97,17 @@ const ProfileScreenHeader = ({ userProfile }) => {
                 transparent
                 size="small"
                 title="Message"
+                onPress={onMessageButtonPress}
               />
             </View>
           </View>
         </View>
         <Text
           style={[headerStyles.profileDetailsText, headerStyles.profileName]}>
-          {userProfile.name ?? 'No name'}
+          {profileName}
         </Text>
         <Text style={headerStyles.profileDetailsText}>
-          {userProfile.description ?? 'No description'}
+          {profileDescription}
         </Text>
       </View>
     </View>
@@ -228,7 +182,8 @@ const headerStyles = StyleSheet.create({
   },
 });
 
-const PostsTab = ({ posts }) => {
+const PostsTab = (_) => {
+  const posts = [];
   return (
     <View style={{ height: '100%' }}>
       <MasonryList
@@ -259,10 +214,10 @@ const PostsTab = ({ posts }) => {
 const NotesTab = (_) => <Text>NOTES</Text>;
 const LikedTab = (_) => <Text>LIKES</Text>;
 
+const Tab = createMaterialTopTabNavigator();
+
 const ProfileScreen = (props) => {
   const routeParams = props.route?.params;
-
-  const [posts, setPosts] = useState([]);
 
   if (!routeParams) {
     return (
@@ -272,25 +227,14 @@ const ProfileScreen = (props) => {
     );
   }
 
-  useEffect(() => {
-    fetchData('posts', setPosts, routeParams, props.userDetails);
-    // fetchData('notes', setPosts, routeParams, props.userDetails);
-    // fetchData('liked', setPosts, routeParams, props.userDetails);
-
-    return () => {
-      // This function is called when this component unmounts. Add cleanup code
-      // here to deleting asynchronous subscriptions.
-    };
-  }, [setPosts]);
-
   return (
     <>
-      <ProfileScreenHeader userProfile={routeParams?.userProfile} />
-      <Tab.Navigator>
-        <Tab.Screen name="Posts" children={() => <PostsTab posts={posts} />} />
+      <ProfileScreenHeader userProfile={routeParams.userProfile} />
+      {/* <Tab.Navigator>
+        <Tab.Screen name="Posts" component={PostsTab} />
         <Tab.Screen name="Notes" component={NotesTab} />
         <Tab.Screen name="Liked" component={LikedTab} />
-      </Tab.Navigator>
+      </Tab.Navigator> */}
     </>
   );
 };
