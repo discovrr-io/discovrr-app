@@ -134,12 +134,7 @@ const PostItem = ({
     switch (kind) {
       case PostItemKind.TEXT:
         return (
-          <View
-            style={[
-              postItemStyles.dialogBox,
-              // { maxWidth: imagePreviewDimensions.width - values.spacing.sm },
-              props.style,
-            ]}>
+          <View style={[postItemStyles.dialogBox, props.style]}>
             <Text
               numberOfLines={4}
               ellipsizeMode="tail"
@@ -150,13 +145,12 @@ const PostItem = ({
         );
       case PostItemKind.IMAGE:
         const { width, height } = imagePreviewDimensions;
-        const ratio = width / height;
         return (
           <View style={[props.style]}>
             <Image
               style={{
-                // maxWidth: width,
-                aspectRatio: ratio,
+                width,
+                height,
                 resizeMode: 'contain',
                 borderRadius: values.radius.md,
               }}
@@ -184,6 +178,7 @@ const PostItem = ({
           marginLeft: values.spacing.sm,
           marginBottom: values.spacing.lg,
           // backgroundColor: 'red',
+          // width: imagePreviewDimensions.width,
         },
         props.style,
       ]}>
@@ -199,7 +194,7 @@ PostItem.propTypes = {
   author: AuthorPropTypes.isRequired,
   metrics: MetricsPropTypes.isRequired,
   column: PropTypes.number,
-  imagePreview: PropTypes.object,
+  imagePreview: PropTypes.oneOfType([PropTypes.object, PropTypes.number]),
   imagePreviewDimensions: PropTypes.shape({
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,

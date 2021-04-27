@@ -8,8 +8,9 @@ import {
   View,
 } from 'react-native';
 
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-// import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
+import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import MasonryList from 'react-native-masonry-list';
 import { connect } from 'react-redux';
 
@@ -73,7 +74,7 @@ async function fetchPosts(userProfile) {
   return posts;
 }
 
-const ProfileScreenHeader = ({ isMyProfile, userProfile }) => {
+const ProfileScreenHeader = ({ isMyProfile, userProfile, navigation }) => {
   const {
     avatar: { url: avatarUrl } = {},
     coverPhoto: { url: coverPhotoUrl } = {},
@@ -121,19 +122,33 @@ const ProfileScreenHeader = ({ isMyProfile, userProfile }) => {
     </View>
   );
 
+  const { top: topInset } = useSafeAreaInsets();
+
   return (
     <View>
+      <View
+        style={[
+          headerStyles.profileBackButton,
+          {
+            zIndex: 1,
+            position: 'absolute',
+            top: topInset + values.spacing.xs,
+            left: values.spacing.md,
+          },
+        ]}>
+        <MaterialIcon
+          name="arrow-back"
+          size={24}
+          color={colors.white}
+          onPress={navigation.goBack}
+        />
+      </View>
       <Image
         onLoad={onHeaderLoaded}
         style={headerStyles.headerBackground}
         source={isHeaderLoaded ? headerImage : imagePlaceholder}
       />
       <View style={headerStyles.profileDetails}>
-        {/* {isMyProfile && (
-          <View style={headerStyles.profileEditButton}>
-            <MaterialIcon name="edit" size={20} color={colors.white} />
-          </View>
-        )} */}
         <View style={headerStyles.profileMetrics}>
           <Image
             onLoad={onAvatarLoaded}
@@ -216,10 +231,7 @@ const headerStyles = StyleSheet.create({
     height: 360,
     width: '100%',
   },
-  profileEditButton: {
-    position: 'absolute',
-    top: values.spacing.md * 1.25,
-    right: values.spacing.md * 1.5,
+  profileBackButton: {
     backgroundColor: colors.gray,
     padding: values.spacing.sm * 1.5,
     borderRadius: values.radius.lg,
@@ -389,7 +401,7 @@ const PostsTab = ({ userProfile }) => {
 };
 
 const NotesTab = (_) => <Text>NOTES</Text>;
-const LikedTab = (_) => <Text>LIKES</Text>;
+// const LikedTab = (_) => <Text>LIKES</Text>;
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -407,6 +419,7 @@ const ProfileScreen = (props) => {
       <ProfileScreenHeader
         isMyProfile={isMyProfile}
         userProfile={userProfile}
+        navigation={props.navigation}
       />
       <Tab.Navigator
         lazy={true}
@@ -416,7 +429,7 @@ const ProfileScreen = (props) => {
           children={() => <PostsTab userProfile={userProfile} />}
         />
         <Tab.Screen name="Notes" component={NotesTab} />
-        <Tab.Screen name="Liked" component={LikedTab} />
+        {/* <Tab.Screen name="Liked" component={LikedTab} /> */}
       </Tab.Navigator>
     </>
   );
