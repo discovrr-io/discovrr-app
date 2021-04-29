@@ -74,7 +74,12 @@ async function fetchPosts(userProfile) {
   return posts;
 }
 
-const ProfileScreenHeader = ({ isMyProfile, userProfile, navigation }) => {
+const ProfileScreenHeader = ({
+  isMyProfile,
+  userProfile,
+  navigation,
+  ...props
+}) => {
   const {
     avatar: { url: avatarUrl } = {},
     coverPhoto: { url: coverPhotoUrl } = {},
@@ -125,7 +130,7 @@ const ProfileScreenHeader = ({ isMyProfile, userProfile, navigation }) => {
   const { top: topInset } = useSafeAreaInsets();
 
   return (
-    <View>
+    <View style={[props.style]}>
       <View
         style={[
           headerStyles.profileBackButton,
@@ -379,21 +384,18 @@ const PostsTab = ({ userProfile }) => {
           paddingBottom: values.spacing.xl,
         }}
         backgroundColor={colors.white}
-        completeCustomComponent={({ data }) => {
-          console.log({ data });
-          return (
-            <PostItem
-              kind={data.postType}
-              text={data.caption}
-              author={data.author}
-              metrics={{ likes: 4, isLiked: true, isSaved: true }}
-              column={data.column}
-              imagePreview={data.source}
-              imagePreviewDimensions={data.masonryDimensions}
-              displayFooter={false}
-            />
-          );
-        }}
+        completeCustomComponent={({ data }) => (
+          <PostItem
+            kind={data.postType}
+            text={data.caption}
+            author={data.author}
+            metrics={{ likes: 4, isLiked: true, isSaved: true }}
+            column={data.column}
+            imagePreview={data.source}
+            imagePreviewDimensions={data.masonryDimensions}
+            displayFooter={false}
+          />
+        )}
         emptyView={() => <EmptyTabView message="No Posts" />}
       />
     </View>
