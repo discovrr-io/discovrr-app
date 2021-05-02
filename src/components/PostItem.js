@@ -29,33 +29,43 @@ const POST_ITEM_ICON_SIZE = 26;
 const ACTION_BUTTON_SIZE = POST_ITEM_ICON_SIZE;
 const AVATAR_RADIUS = POST_ITEM_ICON_SIZE;
 
-const PostItemFooter = ({ author, metrics }) => {
+const PostItemFooter = ({
+  author,
+  metrics,
+  onPressAvatar,
+  onPressSave,
+  onPressLike,
+}) => {
   return (
     <View style={postItemFooterStyles.container}>
-      <View style={postItemFooterStyles.authorContainer}>
-        <Image
-          style={postItemFooterStyles.avatar}
-          source={author.avatar ?? defaultAvatar}
-        />
-        <Text
-          numberOfLines={1}
-          ellipsizeMode="tail"
-          style={postItemFooterStyles.authorName}>
-          {author.name && !(author.length < 0) ? author.name : 'Anonymous'}
-        </Text>
-      </View>
+      <TouchableOpacity onPress={onPressAvatar}>
+        <View style={postItemFooterStyles.authorContainer}>
+          <Image
+            style={postItemFooterStyles.avatar}
+            source={author.avatar ?? defaultAvatar}
+          />
+          <Text
+            numberOfLines={1}
+            ellipsizeMode="tail"
+            style={postItemFooterStyles.authorName}>
+            {author.name && !(author.length < 0) ? author.name : 'Anonymous'}
+          </Text>
+        </View>
+      </TouchableOpacity>
       <View style={postItemFooterStyles.actionsContainer}>
         <MaterialIcon
           style={postItemFooterStyles.actionButton}
           name={metrics.isSaved ? 'bookmark' : 'bookmark-outline'}
           color={metrics.isSaved ? colors.black : colors.gray}
           size={ACTION_BUTTON_SIZE}
+          onPress={onPressSave}
         />
         <MaterialIcon
           style={postItemFooterStyles.actionButton}
           name={metrics.isLiked ? 'favorite' : 'favorite-border'}
           color={metrics.isLiked ? 'red' : colors.gray}
           size={ACTION_BUTTON_SIZE}
+          onPress={onPressLike}
         />
         <Text style={postItemFooterStyles.likesNumber}>{metrics.likes}</Text>
       </View>
@@ -66,6 +76,9 @@ const PostItemFooter = ({ author, metrics }) => {
 PostItemFooter.propTypes = {
   author: AuthorPropTypes.isRequired,
   metrics: MetricsPropTypes.isRequired,
+  onPressAvatar: PropTypes.func,
+  onPressSave: PropTypes.func,
+  onPressLike: PropTypes.func,
 };
 
 const postItemFooterStyles = StyleSheet.create({
@@ -112,7 +125,10 @@ const PostItem = ({
   imagePreview = {},
   imagePreviewDimensions = { width: 1, height: 1 },
   displayFooter = true,
-  onPress = () => {},
+  onPressPost = () => {},
+  onPressAvatar = () => {},
+  onPressSave = () => {},
+  onPressLike = () => {},
   ...props
 }) => {
   const PostItemContent = (props) => {
@@ -143,7 +159,7 @@ const PostItem = ({
         return (
           <View style={[postItemStyles.dialogBox, props.style]}>
             <Text
-              numberOfLines={4}
+              numberOfLines={6}
               ellipsizeMode="tail"
               style={postItemStyles.dialogBoxText}>
               {text}
@@ -179,20 +195,28 @@ const PostItem = ({
   };
 
   return (
-    <TouchableOpacity onPress={onPress}>
-      <View
-        style={[
-          {
-            maxWidth: imagePreviewDimensions.width,
-            marginLeft: values.spacing.sm,
-            marginBottom: values.spacing.lg,
-          },
-          props.style,
-        ]}>
+    <View
+      style={[
+        {
+          maxWidth: imagePreviewDimensions.width,
+          marginLeft: values.spacing.sm,
+          marginBottom: values.spacing.lg,
+        },
+        props.style,
+      ]}>
+      <TouchableOpacity activeOpacity={0.8} onPress={onPressPost}>
         <PostItemContent />
-        {displayFooter && <PostItemFooter author={author} metrics={metrics} />}
-      </View>
-    </TouchableOpacity>
+      </TouchableOpacity>
+      {displayFooter && (
+        <PostItemFooter
+          author={author}
+          metrics={metrics}
+          onPressAvatar={onPressAvatar}
+          onPressSave={onPressSave}
+          onPressLike={onPressLike}
+        />
+      )}
+    </View>
   );
 };
 
@@ -208,7 +232,10 @@ PostItem.propTypes = {
     height: PropTypes.number.isRequired,
   }),
   displayFooter: PropTypes.bool,
-  onPress: PropTypes.func,
+  onPressPost: PropTypes.func,
+  onPressAvatar: PropTypes.func,
+  onPressSave: PropTypes.func,
+  onPressLike: PropTypes.func,
 };
 
 const postItemStyles = StyleSheet.create({

@@ -14,6 +14,7 @@ import { connect } from 'react-redux';
 import {
   Button,
   EmptyTabView,
+  ErrorTabView,
   LoadingTabView,
   PostItem,
   PostItemKind,
@@ -27,7 +28,7 @@ const defaultAvatar = require('../resources/images/defaultAvatar.jpeg');
 const Parse = require('parse/react-native');
 
 async function fetchPosts(userProfile) {
-  const { profileId } = userProfile;
+  const { id: profileId } = userProfile;
   const profilePointer = {
     __type: 'Pointer',
     className: 'Profile',
@@ -78,6 +79,11 @@ async function fetchPosts(userProfile) {
     }
 
     return {
+      author: {
+        id: post.get('profile')?.id,
+        name: post.get('profile')?.get('name'),
+        avatar: post.get('profile')?.get('avatar'),
+      },
       id: post.id,
       key: `${imagePreviewUrl ?? imagePlaceholder}`,
       postType,
@@ -85,11 +91,6 @@ async function fetchPosts(userProfile) {
       source: imagePreviewSource,
       dimensions: imagePreviewDimensions,
       caption: post.get('caption'),
-      author: {
-        id: post.get('profile')?.id,
-        name: post.get('profile')?.get('name'),
-        avatar: post.get('profile')?.get('avatar'),
-      },
       likesCount,
       hasLiked,
       viewersCount: post.get('viewersCount'),
@@ -308,6 +309,7 @@ const PostsTab = ({ userProfile, navigation }) => {
         setPosts([]);
         setIsLoading(false);
         setError(error);
+        console.error(`Failed to fetch posts: ${error}`);
       }
     };
 
@@ -315,15 +317,11 @@ const PostsTab = ({ userProfile, navigation }) => {
   }, []);
 
   if (isLoading) {
-    return <LoadingTabView message="Loading Posts..." />;
+    return <LoadingTabView message="Loading posts..." />;
   }
 
   if (error) {
-    return (
-      <View style={{ paddingTop: values.spacing.huge }}>
-        <Text style={{ textAlign: 'center' }}>{error.message ?? error}</Text>
-      </View>
-    );
+    return <ErrorTabView error={error} />;
   }
 
   const handlePostItemPress = (postData) => {
@@ -341,12 +339,12 @@ const PostsTab = ({ userProfile, navigation }) => {
     <MasonryList
       sorted
       rerender
-      images={posts}
       columns={2}
+      images={posts}
       initialNumInColsToRender={1}
       listContainerStyle={{ paddingTop: values.spacing.sm }}
       backgroundColor={colors.white}
-      emptyView={() => <EmptyTabView />}
+      emptyView={() => <EmptyTabView message={JSON.stringify(userProfile)} />}
       completeCustomComponent={({ data }) => (
         <PostItem
           kind={data.postType}
@@ -357,7 +355,7 @@ const PostsTab = ({ userProfile, navigation }) => {
           imagePreview={data.source}
           imagePreviewDimensions={data.masonryDimensions}
           displayFooter={false}
-          onPress={() => handlePostItemPress(data)}
+          onPressPost={() => handlePostItemPress(data)}
         />
       )}
     />

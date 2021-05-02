@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { ActivityIndicator, Text, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
 import { typography, values } from '../../constants';
 
@@ -12,9 +12,7 @@ const LoadingTabView = ({ message = 'Loading' }) => {
           style={{ marginBottom: values.spacing.md }}
           size="large"
         />
-        <Text style={{ fontSize: typography.size.md, textAlign: 'center' }}>
-          {message}
-        </Text>
+        <Text style={styles.message}>{message}</Text>
       </View>
     </View>
   );
@@ -23,5 +21,18 @@ const LoadingTabView = ({ message = 'Loading' }) => {
 LoadingTabView.propTypes = {
   message: PropTypes.string,
 };
+
+const commonTextStyles = {
+  textAlign: 'center',
+};
+
+const styles = StyleSheet.create({
+  message: {
+    ...commonTextStyles,
+    fontSize: typography.size.md,
+    fontWeight: '500',
+    marginBottom: values.spacing.sm,
+  },
+});
 
 export default LoadingTabView;
