@@ -8,10 +8,15 @@ import {
   View,
 } from 'react-native';
 
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
+import { Tabs } from 'react-native-collapsible-tab-view';
 import MasonryList from 'react-native-masonry-list';
+import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
+
+import {
+  useSafeAreaInsets,
+  withSafeAreaInsets,
+} from 'react-native-safe-area-context';
+
 import { connect } from 'react-redux';
 
 import { colors, typography, values } from './constants';
@@ -43,43 +48,60 @@ async function fetchPosts(userProfile) {
     let postType = PostItemKind.IMAGE; // default value
 
     const images = post.get('media');
-    const imagePreview = Array.isArray(images) && images[0];
+    if (Array.isArray(images) && images.length) {
+      images.forEach(({ type }, i) => {
+        if (type === 'video') images[i].isVideo = true;
+      });
+    }
+
+    const imagePreview =
+      (Array.isArray(images) && images.length && images[0]) ?? null;
     const imagePreviewUrl = imagePreview?.url;
 
     const imagePreviewDimensions = {
-      width: imagePreview?.width ?? 1,
-      height: imagePreview?.height ?? 1,
+      width: imagePreview?.width ?? 800,
+      height: imagePreview?.height ?? 600,
     };
 
     if (!imagePreviewUrl) postType = PostItemKind.TEXT;
 
-    // We use a placeholder if it is a text post
+    // We use a placeholder for now if it is a text post
     const imagePreviewSource = imagePreviewUrl
       ? { uri: imagePreviewUrl }
       : imagePlaceholder;
 
+    let likesCount = 0;
+    let hasLiked = false;
+    const likersArray = post.get('likersArray');
+    if (Array.isArray(likersArray) && likersArray.length) {
+      likesCount = likersArray.length;
+      hasLiked = likersArray.some((liker) => profileId === liker);
+    }
+
     return {
+      id: post.id,
+      key: `${imagePreviewUrl ?? imagePlaceholder}`,
       postType,
       images,
       source: imagePreviewSource,
       dimensions: imagePreviewDimensions,
-      author: {
-        avatar: post.get('profile')?.get('avatar'),
-        name: post.get('profile')?.get('name'),
-      },
       caption: post.get('caption'),
+      author: {
+        id: post.get('profile')?.id,
+        name: post.get('profile')?.get('name'),
+        avatar: post.get('profile')?.get('avatar'),
+      },
+      likesCount,
+      hasLiked,
+      viewersCount: post.get('viewersCount'),
+      __refactored: true,
     };
   });
 
   return posts;
 }
 
-const ProfileScreenHeader = ({
-  isMyProfile,
-  userProfile,
-  navigation,
-  ...props
-}) => {
+const ProfileScreenHeader = ({ isMyProfile, userProfile, ...props }) => {
   const {
     avatar: { url: avatarUrl } = {},
     coverPhoto: { url: coverPhotoUrl } = {},
@@ -127,27 +149,8 @@ const ProfileScreenHeader = ({
     </View>
   );
 
-  const { top: topInset } = useSafeAreaInsets();
-
   return (
-    <View style={[props.style]}>
-      <View
-        style={[
-          headerStyles.profileBackButton,
-          {
-            zIndex: 1,
-            position: 'absolute',
-            top: topInset + values.spacing.xs,
-            left: values.spacing.md,
-          },
-        ]}>
-        <MaterialIcon
-          name="arrow-back"
-          size={24}
-          color={colors.white}
-          onPress={navigation.goBack}
-        />
-      </View>
+    <View pointerEvents="box-none" style={[props.style]}>
       <Image
         onLoad={onHeaderLoaded}
         style={headerStyles.headerBackground}
@@ -211,7 +214,11 @@ const ProfileScreenHeader = ({
   );
 };
 
-const avatarImageRadius = 80;
+const HEADER_MAX_HEIGHT = 320;
+const HEADER_MIN_HEIGHT = 60;
+// const HEADER_SCROLL_DISTANCE = HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT;
+
+const AVATAR_IMAGE_RADIUS = 80;
 
 const metricStyles = StyleSheet.create({
   container: {
@@ -233,12 +240,12 @@ const metricStyles = StyleSheet.create({
 
 const headerStyles = StyleSheet.create({
   headerBackground: {
-    height: 360,
+    height: HEADER_MAX_HEIGHT,
     width: '100%',
   },
   profileBackButton: {
     backgroundColor: colors.gray,
-    padding: values.spacing.sm * 1.5,
+    padding: values.spacing.sm, // * 1.5,
     borderRadius: values.radius.lg,
   },
   profileDetails: {
@@ -254,9 +261,9 @@ const headerStyles = StyleSheet.create({
     color: colors.white,
   },
   profileAvatar: {
-    borderRadius: avatarImageRadius / 2,
-    width: avatarImageRadius,
-    height: avatarImageRadius,
+    borderRadius: AVATAR_IMAGE_RADIUS / 2,
+    width: AVATAR_IMAGE_RADIUS,
+    height: AVATAR_IMAGE_RADIUS,
     marginRight: values.spacing.lg,
   },
   profileName: {
@@ -289,12 +296,7 @@ const headerStyles = StyleSheet.create({
 
 const LoadingTabView = ({ message }) => {
   return (
-    <View
-      style={{
-        height: '100%',
-        backgroundColor: colors.white,
-        justifyContent: 'space-around',
-      }}>
+    <View style={{ paddingTop: values.spacing.huge }}>
       <View>
         <ActivityIndicator
           style={{ marginBottom: values.spacing.md }}
@@ -310,12 +312,7 @@ const LoadingTabView = ({ message }) => {
 
 const EmptyTabView = ({ message }) => {
   return (
-    <View
-      style={{
-        height: '100%',
-        backgroundColor: colors.white,
-        justifyContent: 'space-around',
-      }}>
+    <View style={{ paddingTop: values.spacing.huge }}>
       <View>
         <Text
           style={{
@@ -333,7 +330,7 @@ const EmptyTabView = ({ message }) => {
   );
 };
 
-const PostsTab = ({ userProfile }) => {
+const PostsTab = ({ userProfile, navigation }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [posts, setPosts] = useState([]);
   const [error, setError] = useState(null);
@@ -360,52 +357,51 @@ const PostsTab = ({ userProfile }) => {
 
   if (error) {
     return (
-      <View
-        style={{
-          height: '100%',
-          backgroundColor: colors.white,
-          justifyContent: 'space-around',
-        }}>
+      <View style={{ paddingTop: values.spacing.huge }}>
         <Text style={{ textAlign: 'center' }}>{error.message ?? error}</Text>
       </View>
     );
   }
 
+  const handlePostItemPress = (postData) => {
+    const postDetails = {
+      ...postData,
+      user: {},
+      pinPostToNote: () => {},
+      refreshData: () => {},
+    };
+
+    navigation.navigate('PostDetailScreen', postDetails);
+  };
+
   return (
-    <View style={{ height: '100%' }}>
-      <MasonryList
-        sorted
-        rerender
-        images={posts}
-        columns={2}
-        initialNumInColsToRender={1}
-        listContainerStyle={{
-          paddingTop: values.spacing.sm,
-          paddingBottom: values.spacing.xl,
-        }}
-        backgroundColor={colors.white}
-        completeCustomComponent={({ data }) => (
-          <PostItem
-            kind={data.postType}
-            text={data.caption}
-            author={data.author}
-            metrics={{ likes: 4, isLiked: true, isSaved: true }}
-            column={data.column}
-            imagePreview={data.source}
-            imagePreviewDimensions={data.masonryDimensions}
-            displayFooter={false}
-          />
-        )}
-        emptyView={() => <EmptyTabView message="No Posts" />}
-      />
-    </View>
+    <MasonryList
+      sorted
+      rerender
+      images={posts}
+      columns={2}
+      initialNumInColsToRender={1}
+      listContainerStyle={{ paddingTop: values.spacing.sm }}
+      backgroundColor={colors.white}
+      emptyView={() => <EmptyTabView message="No Posts" />}
+      completeCustomComponent={({ data }) => (
+        <PostItem
+          kind={data.postType}
+          text={data.caption}
+          author={data.author}
+          metrics={{ likes: 4, isLiked: true, isSaved: true }}
+          column={data.column}
+          imagePreview={data.source}
+          imagePreviewDimensions={data.masonryDimensions}
+          displayFooter={false}
+          onPress={() => handlePostItemPress(data)}
+        />
+      )}
+    />
   );
 };
 
 const NotesTab = (_) => <Text>NOTES</Text>;
-// const LikedTab = (_) => <Text>LIKES</Text>;
-
-const Tab = createMaterialTopTabNavigator();
 
 const ProfileScreen = (props) => {
   const {
@@ -415,24 +411,48 @@ const ProfileScreen = (props) => {
 
   const isMyProfile = !params;
   const { userProfile } = params ?? { userProfile: myUserDetails };
+  const { top: topInset } = useSafeAreaInsets();
 
   return (
     <>
-      <ProfileScreenHeader
-        isMyProfile={isMyProfile}
-        userProfile={userProfile}
-        navigation={props.navigation}
-      />
-      <Tab.Navigator
-        lazy={true}
-        tabBarOptions={{ indicatorStyle: { backgroundColor: colors.accent } }}>
-        <Tab.Screen
-          name="Posts"
-          children={() => <PostsTab userProfile={userProfile} />}
+      <View
+        style={[
+          headerStyles.profileBackButton,
+          {
+            zIndex: 1,
+            position: 'absolute',
+            top: topInset + values.spacing.xs,
+            left: values.spacing.md,
+          },
+        ]}>
+        <MaterialIcon
+          name="chevron-left"
+          size={28}
+          color={colors.white}
+          onPress={props.navigation.goBack}
         />
-        <Tab.Screen name="Notes" component={NotesTab} />
-        {/* <Tab.Screen name="Liked" component={LikedTab} /> */}
-      </Tab.Navigator>
+      </View>
+      <Tabs.Container
+        lazy
+        minHeaderHeight={topInset + HEADER_MIN_HEIGHT}
+        snapThreshold={0.25}
+        HeaderComponent={() => (
+          <ProfileScreenHeader
+            isMyProfile={isMyProfile}
+            userProfile={userProfile}
+          />
+        )}>
+        <Tabs.Tab name="posts" label="Posts">
+          <Tabs.ScrollView onScroll={() => console.log('ON_SCROLL')}>
+            <PostsTab userProfile={userProfile} navigation={props.navigation} />
+          </Tabs.ScrollView>
+        </Tabs.Tab>
+        <Tabs.Tab name="notes" label="Notes">
+          <Tabs.ScrollView>
+            <NotesTab />
+          </Tabs.ScrollView>
+        </Tabs.Tab>
+      </Tabs.Container>
     </>
   );
 };
@@ -451,4 +471,4 @@ const mapStateToProps = (state) => {
   };
 };
 
-export default connect(mapStateToProps)(ProfileScreen);
+export default connect(mapStateToProps)(withSafeAreaInsets(ProfileScreen));

@@ -404,8 +404,8 @@ const GroundZero = ({ navigation, insets }) => (
       <Stack.Screen
         name="PostDetailScreen"
         component={PostDetailScreen}
-        options={({ route }) => ({
-          title: route.params ? route.params.title : 'Post Details',
+        options={() => ({
+          title: 'Post',
           headerBackTitleVisible: false,
           headerTintColor: 'black',
         })}

@@ -430,7 +430,7 @@ PODS:
   - react-native-onesignal (4.0.4):
     - OneSignal (= 3.2.1)
     - React (< 1.0.0, >= 0.13.0)
-  - react-native-safe-area-context (3.1.8):
+  - react-native-safe-area-context (3.2.0):
     - React-Core
   - react-native-slider (3.0.3):
     - React
@@ -560,7 +560,7 @@ PODS:
     - FTPopOverMenu (~> 2.0.9)
     - React
     - RNImageHelper
-  - RNReanimated (2.0.0-rc.1):
+  - RNReanimated (2.0.0):
     - DoubleConversion
     - FBLazyVector
     - FBReactNativeSpec
@@ -926,7 +926,7 @@ SPEC CHECKSUMS:
   react-native-geolocation-service: 141e33bdb179bcba10b216ee13962611e21f2be4
   react-native-maps: f4b89da81626ad7f151a8bfcb79733295d31ce5c
   react-native-onesignal: 1de5a24906823ec20fb2a6576c7a4e2df869bfc3
-  react-native-safe-area-context: 79fea126c6830c85f65947c223a5e3058a666937
+  react-native-safe-area-context: f0906bf8bc9835ac9a9d3f97e8bde2a997d8da79
   react-native-slider: e99fc201cefe81270fc9d81714a7a0f5e566b168
   react-native-video: dbb8df4f0bbdf80de6797c90fcad8bc12b19401d
   react-native-webview: 0aa2cde4ee7e3e1c5fffdf64dbce9c709aa18155
@@ -958,7 +958,7 @@ SPEC CHECKSUMS:
   RNImageCropPicker: 16951bc02411f50c4d197488ed6406a23dc3b5f1
   RNImageHelper: efb1e1b39f0e19a40b8873c2c1c9614c0dd150ed
   RNPopoverMenu: bb654b7704123db59bb4b71f08fed45bbd072c7e
-  RNReanimated: b2d6785c8fc1f61e1c81179c64c9b6b1a00e6ab5
+  RNReanimated: 5231286440b796e09df3bfa5c1b12b02bfe07664
   RNScreens: 0e91da98ab26d5d04c7b59a9b6bd694124caf88c
   RNShare: af2aeae0587bf3e40e5268f1ef96aa162f1a6ac9
   RNVectorIcons: bc69e6a278b14842063605de32bec61f0b251a59

@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 
 import { colors, typography, values } from '../constants';
 
+const imagePlaceholder = require('../../resources/images/imagePlaceholder.png');
 const defaultAvatar = require('../../resources/images/defaultAvatar.jpeg');
 
 export const PostItemKind = {
@@ -24,9 +25,9 @@ const MetricsPropTypes = PropTypes.shape({
   isSaved: PropTypes.bool.isRequired,
 });
 
-const postItemIconSize = 26;
-const actionButtonSize = postItemIconSize;
-const avatarRadius = postItemIconSize;
+const POST_ITEM_ICON_SIZE = 26;
+const ACTION_BUTTON_SIZE = POST_ITEM_ICON_SIZE;
+const AVATAR_RADIUS = POST_ITEM_ICON_SIZE;
 
 const PostItemFooter = ({ author, metrics }) => {
   return (
@@ -48,13 +49,13 @@ const PostItemFooter = ({ author, metrics }) => {
           style={postItemFooterStyles.actionButton}
           name={metrics.isSaved ? 'bookmark' : 'bookmark-outline'}
           color={metrics.isSaved ? colors.black : colors.gray}
-          size={actionButtonSize}
+          size={ACTION_BUTTON_SIZE}
         />
         <MaterialIcon
           style={postItemFooterStyles.actionButton}
           name={metrics.isLiked ? 'favorite' : 'favorite-border'}
           color={metrics.isLiked ? 'red' : colors.gray}
-          size={actionButtonSize}
+          size={ACTION_BUTTON_SIZE}
         />
         <Text style={postItemFooterStyles.likesNumber}>{metrics.likes}</Text>
       </View>
@@ -79,9 +80,9 @@ const postItemFooterStyles = StyleSheet.create({
     alignItems: 'center',
   },
   avatar: {
-    width: avatarRadius,
-    height: avatarRadius,
-    borderRadius: avatarRadius / 2,
+    width: AVATAR_RADIUS,
+    height: AVATAR_RADIUS,
+    borderRadius: AVATAR_RADIUS / 2,
   },
   authorName: {
     marginLeft: values.spacing.md,
@@ -111,6 +112,7 @@ const PostItem = ({
   imagePreview = {},
   imagePreviewDimensions = { width: 1, height: 1 },
   displayFooter = true,
+  onPress = () => {},
   ...props
 }) => {
   const PostItemContent = (props) => {
@@ -131,6 +133,11 @@ const PostItem = ({
       );
     };
 
+    const [isImageLoaded, setIsImageLoaded] = useState(false);
+    const onImageLoad = (loadEvent) => {
+      if (loadEvent) setIsImageLoaded(true);
+    };
+
     switch (kind) {
       case PostItemKind.TEXT:
         return (
@@ -148,13 +155,14 @@ const PostItem = ({
         return (
           <View style={[props.style]}>
             <Image
+              onLoad={onImageLoad}
+              source={isImageLoaded ? imagePreview : imagePlaceholder}
               style={{
                 width,
                 height,
                 resizeMode: 'contain',
                 borderRadius: values.radius.md,
               }}
-              source={imagePreview}
             />
             <PostItemContentCaption maxWidth={width} text={text} />
           </View>
@@ -171,20 +179,20 @@ const PostItem = ({
   };
 
   return (
-    <View
-      style={[
-        {
-          maxWidth: imagePreviewDimensions.width,
-          marginLeft: values.spacing.sm,
-          marginBottom: values.spacing.lg,
-          // backgroundColor: 'red',
-          // width: imagePreviewDimensions.width,
-        },
-        props.style,
-      ]}>
-      <PostItemContent />
-      {displayFooter && <PostItemFooter author={author} metrics={metrics} />}
-    </View>
+    <TouchableOpacity onPress={onPress}>
+      <View
+        style={[
+          {
+            maxWidth: imagePreviewDimensions.width,
+            marginLeft: values.spacing.sm,
+            marginBottom: values.spacing.lg,
+          },
+          props.style,
+        ]}>
+        <PostItemContent />
+        {displayFooter && <PostItemFooter author={author} metrics={metrics} />}
+      </View>
+    </TouchableOpacity>
   );
 };
 
@@ -200,6 +208,7 @@ PostItem.propTypes = {
     height: PropTypes.number.isRequired,
   }),
   displayFooter: PropTypes.bool,
+  onPress: PropTypes.func,
 };
 
 const postItemStyles = StyleSheet.create({
