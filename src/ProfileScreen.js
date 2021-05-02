@@ -1,17 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  Image,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Alert, Image, StyleSheet, Text, View } from 'react-native';
 
 import { Tabs } from 'react-native-collapsible-tab-view';
 import MasonryList from 'react-native-masonry-list';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
-
 import {
   useSafeAreaInsets,
   withSafeAreaInsets,
@@ -19,8 +11,15 @@ import {
 
 import { connect } from 'react-redux';
 
+import {
+  Button,
+  EmptyTabView,
+  LoadingTabView,
+  PostItem,
+  PostItemKind,
+  ToggleButton,
+} from './components';
 import { colors, typography, values } from './constants';
-import { Button, PostItem, PostItemKind, ToggleButton } from './components';
 
 const imagePlaceholder = require('../resources/images/imagePlaceholder.png');
 const defaultAvatar = require('../resources/images/defaultAvatar.jpeg');
@@ -294,42 +293,6 @@ const headerStyles = StyleSheet.create({
   },
 });
 
-const LoadingTabView = ({ message }) => {
-  return (
-    <View style={{ paddingTop: values.spacing.huge }}>
-      <View>
-        <ActivityIndicator
-          style={{ marginBottom: values.spacing.md }}
-          size="large"
-        />
-        <Text style={{ fontSize: typography.size.md, textAlign: 'center' }}>
-          {message}
-        </Text>
-      </View>
-    </View>
-  );
-};
-
-const EmptyTabView = ({ message }) => {
-  return (
-    <View style={{ paddingTop: values.spacing.huge }}>
-      <View>
-        <Text
-          style={{
-            fontSize: 36,
-            textAlign: 'center',
-            marginBottom: values.spacing.md,
-          }}>
-          🤔
-        </Text>
-        <Text style={{ fontSize: typography.size.md, textAlign: 'center' }}>
-          {message}
-        </Text>
-      </View>
-    </View>
-  );
-};
-
 const PostsTab = ({ userProfile, navigation }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [posts, setPosts] = useState([]);
@@ -383,7 +346,7 @@ const PostsTab = ({ userProfile, navigation }) => {
       initialNumInColsToRender={1}
       listContainerStyle={{ paddingTop: values.spacing.sm }}
       backgroundColor={colors.white}
-      emptyView={() => <EmptyTabView message="No Posts" />}
+      emptyView={() => <EmptyTabView />}
       completeCustomComponent={({ data }) => (
         <PostItem
           kind={data.postType}
