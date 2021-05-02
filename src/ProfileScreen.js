@@ -344,7 +344,7 @@ const PostsTab = ({ userProfile, navigation }) => {
       initialNumInColsToRender={1}
       listContainerStyle={{ paddingTop: values.spacing.sm }}
       backgroundColor={colors.white}
-      emptyView={() => <EmptyTabView message={JSON.stringify(userProfile)} />}
+      emptyView={() => <EmptyTabView />}
       completeCustomComponent={({ data }) => (
         <PostItem
           kind={data.postType}

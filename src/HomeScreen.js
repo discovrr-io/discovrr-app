@@ -1,11 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  RefreshControl,
-  SafeAreaView,
-  ScrollView,
-  Text,
-  View,
-} from 'react-native';
+import { RefreshControl, SafeAreaView, Text, View } from 'react-native';
 
 import { useNavigation } from '@react-navigation/native';
 import MasonryList from 'react-native-masonry-list';
@@ -53,7 +47,6 @@ async function fetchData(myUserDetails, selector, pages, dispatch) {
   _pages.next += 1;
 
   if (!(Array.isArray(results) && results.length)) {
-    console.log('HERE');
     switch (selector) {
       case POST_TYPE.DISCOVER:
         dispatch(actions.updatePosts([]));
@@ -109,7 +102,7 @@ async function fetchData(myUserDetails, selector, pages, dispatch) {
     return {
       author: {
         id: post.get('profile')?.id,
-        name: post.get('profile')?.get('name') ?? post.get('businessName'),
+        name: post.get('profile')?.get('name') ?? 'Anonymous',
         avatar: post.get('profile')?.get('avatar'),
         followersCount: post.get('profile')?.get('followersCount'),
         followingCount: post.get('profile')?.get('followingCount'),
@@ -185,10 +178,17 @@ const DiscoverTab = ({ myUserDetails, dispatch }) => {
     };
 
     _fetchData();
-  }, []);
+  }, [isRefreshing]); // Will rerun this whenever `isRefreshing` changes
 
   const addPosts = (_) => {
     console.log('UNIMPLEMENTED: HomeScreen.addPosts');
+  };
+
+  const handleRefresh = () => {
+    if (!isRefreshing) {
+      setIsRefreshing(true);
+      setPages({ ...pages, next: 0, hasMoreData: true });
+    }
   };
 
   const handlePressPost = (postData) => {
@@ -217,7 +217,12 @@ const DiscoverTab = ({ myUserDetails, dispatch }) => {
       listContainerStyle={{ paddingTop: values.spacing.sm }}
       onEndReachedThreshold={0.1}
       onEndReached={addPosts}
-      emptyView={() => <EmptyTabView message="It's quiet here" />}
+      masonryFlatListColProps={{
+        ListEmptyComponent: () => <EmptyTabView style={{ width: '100%' }} />,
+        refreshControl: (
+          <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />
+        ),
+      }}
       completeCustomComponent={({ data }) => (
         <PostItem
           kind={data.postType}

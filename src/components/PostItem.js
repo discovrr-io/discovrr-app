@@ -100,14 +100,14 @@ const postItemFooterStyles = StyleSheet.create({
   authorName: {
     marginLeft: values.spacing.md,
     color: colors.black,
-    maxWidth: 250,
+    maxWidth: 75, // hard-coded for now
   },
   actionsContainer: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   actionButton: {
-    marginLeft: values.spacing.xs,
+    marginLeft: values.spacing.md,
   },
   likesNumber: {
     marginLeft: values.spacing.zero,

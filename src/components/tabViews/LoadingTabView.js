@@ -2,15 +2,16 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
-import { typography, values } from '../../constants';
+import { colors, typography, values } from '../../constants';
 
 const LoadingTabView = ({ message = 'Loading' }) => {
   return (
     <View style={{ paddingTop: values.spacing.huge }}>
       <View>
         <ActivityIndicator
-          style={{ marginBottom: values.spacing.md }}
           size="large"
+          color={colors.black}
+          style={{ marginBottom: values.spacing.md }}
         />
         <Text style={styles.message}>{message}</Text>
       </View>
