@@ -19,7 +19,7 @@ const ErrorTabView = ({
         {isDevMode && (
           <>
             <Text style={styles.error}>
-              The following message only show in development mode:
+              The following message is only shown in development mode:
             </Text>
             <Text style={styles.error}>{`${error}`}</Text>
           </>

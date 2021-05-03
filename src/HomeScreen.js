@@ -4,7 +4,7 @@ import { RefreshControl, SafeAreaView, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import MasonryList from 'react-native-masonry-list';
 
-import { connect, useDispatch } from 'react-redux';
+import { connect } from 'react-redux';
 import * as actions from './utilities/Actions';
 
 import {
@@ -108,6 +108,11 @@ async function fetchData(myUserDetails, selector, pages, dispatch) {
         followingCount: post.get('profile')?.get('followingCount'),
         coverPhoto: post.get('profile')?.get('coverPhoto'),
       },
+      metrics: {
+        likesCount,
+        hasLiked,
+        hasSaved: false, // TODO
+      },
       id: post.id,
       key: `${imagePreviewUrl ?? imagePlaceholder}`,
       postType,
@@ -116,9 +121,6 @@ async function fetchData(myUserDetails, selector, pages, dispatch) {
       dimensions: imagePreviewDimensions,
       caption: post.get('caption'),
       location: post.get('location'),
-      likesCount,
-      hasLiked,
-      hasSaved: false, // TODO
       __refactored: true,
     };
   });
@@ -196,7 +198,10 @@ const DiscoverTab = ({ myUserDetails, dispatch }) => {
   };
 
   const handlePressAvatar = (postData) => {
-    navigation.navigate('UserProfileScreen', { userProfile: postData.author });
+    navigation.navigate('UserProfileScreen', {
+      userProfile: postData.author,
+      metrics: postData.metrics,
+    });
   };
 
   if (isLoading) {
@@ -228,11 +233,7 @@ const DiscoverTab = ({ myUserDetails, dispatch }) => {
           kind={data.postType}
           text={data.caption}
           author={data.author}
-          metrics={{
-            likes: data.likesCount,
-            isLiked: data.hasLiked,
-            isSaved: data.hasSaved,
-          }}
+          metrics={data.metrics}
           column={data.column}
           imagePreview={data.source}
           imagePreviewDimensions={data.masonryDimensions}

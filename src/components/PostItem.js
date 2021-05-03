@@ -20,14 +20,14 @@ const AuthorPropTypes = PropTypes.shape({
 });
 
 const MetricsPropTypes = PropTypes.shape({
-  likes: PropTypes.number.isRequired,
-  isLiked: PropTypes.bool.isRequired,
-  isSaved: PropTypes.bool.isRequired,
+  likesCount: PropTypes.number.isRequired,
+  hasLiked: PropTypes.bool.isRequired,
+  hasSaved: PropTypes.bool.isRequired,
 });
 
-const POST_ITEM_ICON_SIZE = 26;
+const POST_ITEM_ICON_SIZE = 24;
 const ACTION_BUTTON_SIZE = POST_ITEM_ICON_SIZE;
-const AVATAR_RADIUS = POST_ITEM_ICON_SIZE;
+const AVATAR_DIAMETER = POST_ITEM_ICON_SIZE;
 
 const PostItemFooter = ({
   author,
@@ -55,19 +55,21 @@ const PostItemFooter = ({
       <View style={postItemFooterStyles.actionsContainer}>
         <MaterialIcon
           style={postItemFooterStyles.actionButton}
-          name={metrics.isSaved ? 'bookmark' : 'bookmark-outline'}
-          color={metrics.isSaved ? colors.black : colors.gray}
+          name={metrics.hasSaved ? 'bookmark' : 'bookmark-outline'}
+          color={metrics.hasSaved ? colors.black : colors.gray}
           size={ACTION_BUTTON_SIZE}
           onPress={onPressSave}
         />
         <MaterialIcon
           style={postItemFooterStyles.actionButton}
-          name={metrics.isLiked ? 'favorite' : 'favorite-border'}
-          color={metrics.isLiked ? 'red' : colors.gray}
+          name={metrics.hasLiked ? 'favorite' : 'favorite-border'}
+          color={metrics.hasLiked ? 'red' : colors.gray}
           size={ACTION_BUTTON_SIZE}
           onPress={onPressLike}
         />
-        <Text style={postItemFooterStyles.likesNumber}>{metrics.likes}</Text>
+        <Text style={postItemFooterStyles.likesCount}>
+          {metrics.likesCount}
+        </Text>
       </View>
     </View>
   );
@@ -93,14 +95,15 @@ const postItemFooterStyles = StyleSheet.create({
     alignItems: 'center',
   },
   avatar: {
-    width: AVATAR_RADIUS,
-    height: AVATAR_RADIUS,
-    borderRadius: AVATAR_RADIUS / 2,
+    width: AVATAR_DIAMETER,
+    height: AVATAR_DIAMETER,
+    borderRadius: AVATAR_DIAMETER / 2,
   },
   authorName: {
-    marginLeft: values.spacing.md,
+    fontSize: typography.size.xs,
+    marginLeft: values.spacing.sm * 1.5,
     color: colors.black,
-    maxWidth: 75, // hard-coded for now
+    maxWidth: 80, // hard-coded for now
   },
   actionsContainer: {
     flexDirection: 'row',
@@ -109,7 +112,7 @@ const postItemFooterStyles = StyleSheet.create({
   actionButton: {
     marginLeft: values.spacing.md,
   },
-  likesNumber: {
+  likesCount: {
     marginLeft: values.spacing.zero,
     fontSize: typography.size.xs,
     alignSelf: 'flex-end',
@@ -140,6 +143,7 @@ const PostItem = ({
             fontWeight: '600',
             fontSize: typography.size.xs,
             marginTop: values.spacing.sm,
+            marginHorizontal: values.spacing.sm,
             color: colors.darkGray,
           }}
           numberOfLines={2}
@@ -204,7 +208,7 @@ const PostItem = ({
         },
         props.style,
       ]}>
-      <TouchableOpacity activeOpacity={0.8} onPress={onPressPost}>
+      <TouchableOpacity activeOpacity={0.7} onPress={onPressPost}>
         <PostItemContent />
       </TouchableOpacity>
       {displayFooter && (
