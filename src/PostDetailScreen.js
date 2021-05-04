@@ -57,6 +57,16 @@ const PostDetails = ({ postDetails }) => {
 
   return (
     <ScrollView>
+      <View style={{ alignItems: 'center', marginBottom: values.spacing.md }}>
+        <Image
+          source={postDetails.source}
+          style={{
+            borderRadius: values.radius.md,
+            width: postDetails.dimensions.width * 0.55,
+            height: postDetails.dimensions.height * 0.55,
+          }}
+        />
+      </View>
       <Text style={postDetailsStyles.caption}>{caption}</Text>
       <Text style={postDetailsStyles.location}>{location.text}</Text>
       <View style={postDetailsStyles.footerContainer}>

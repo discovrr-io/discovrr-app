@@ -246,7 +246,7 @@ const headerStyles = StyleSheet.create({
   profileBackButton: {
     backgroundColor: colors.gray,
     padding: values.spacing.sm, // * 1.5,
-    borderRadius: values.radius.lg,
+    borderRadius: values.radius.md,
   },
   profileDetails: {
     position: 'absolute',
