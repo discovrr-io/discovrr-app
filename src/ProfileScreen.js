@@ -1,6 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, Image, StyleSheet, Text, View } from 'react-native';
+import {
+  Alert,
+  Image,
+  RefreshControl,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
+import { useNavigation } from '@react-navigation/native';
 import { Tabs } from 'react-native-collapsible-tab-view';
 import MasonryList from 'react-native-masonry-list';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
@@ -26,6 +35,26 @@ const imagePlaceholder = require('../resources/images/imagePlaceholder.png');
 const defaultAvatar = require('../resources/images/defaultAvatar.jpeg');
 
 const Parse = require('parse/react-native');
+
+async function fetchUser(profileId) {
+  const query = new Parse.Query('Profile');
+  query.equalTo('objectId', profileId);
+  query.include('owner');
+
+  const profile = await query.first();
+  if (!profile) {
+    throw new Error(`No user with id '${profileId}' found`);
+  }
+
+  return {
+    name: profile.get('name') ?? 'Anonymous',
+    avatar: profile.get('avatar'),
+    followersCount: profile.get('followersCount'),
+    followingCount: profile.get('followingCount'),
+    likesCount: profile.get('likedPostsArray').length,
+    coverPhoto: profile.get('coverPhoto'),
+  };
+}
 
 async function fetchPosts(userProfile) {
   const { id: profileId } = userProfile;
@@ -81,8 +110,17 @@ async function fetchPosts(userProfile) {
     return {
       author: {
         id: post.get('profile')?.id,
-        name: post.get('profile')?.get('name'),
+        name: post.get('profile')?.get('name') ?? 'Anonymous',
         avatar: post.get('profile')?.get('avatar'),
+        followersCount: post.get('profile')?.get('followersCount'),
+        followingCount: post.get('profile')?.get('followingCount'),
+        likesCount: post.get('profile')?.get('likesCount'),
+        coverPhoto: post.get('profile')?.get('coverPhoto'),
+      },
+      metrics: {
+        likesCount,
+        hasLiked,
+        hasSaved: false, // TODO
       },
       id: post.id,
       key: `${imagePreviewUrl ?? imagePlaceholder}`,
@@ -91,9 +129,8 @@ async function fetchPosts(userProfile) {
       source: imagePreviewSource,
       dimensions: imagePreviewDimensions,
       caption: post.get('caption'),
-      likesCount,
-      hasLiked,
       viewersCount: post.get('viewersCount'),
+      location: post.get('location'),
       __refactored: true,
     };
   });
@@ -101,12 +138,39 @@ async function fetchPosts(userProfile) {
   return posts;
 }
 
-const ProfileScreenHeader = ({ isMyProfile, userProfile, ...props }) => {
+const ProfileScreenHeader = ({
+  isMyProfile,
+  userProfile: givenUserProfile,
+  fetchUser: shouldFetchUser = false,
+  ...props
+}) => {
+  const navigation = useNavigation();
+
+  const [userProfile, setUserProfile] = useState(givenUserProfile);
+  const [_isLoading, setIsLoading] = useState(shouldFetchUser);
+  const [_error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const newUserProfile = await fetchUser(givenUserProfile.id);
+        setUserProfile({ ...givenUserProfile, ...newUserProfile });
+      } catch (error) {
+        setError(error);
+        console.error(`Failed to fetch user: ${error.message ?? error}`);
+      }
+      setIsLoading(false);
+    };
+
+    if (fetchUser) fetchData();
+  }, []);
+
   const {
     avatar: { url: avatarUrl } = {},
     coverPhoto: { url: coverPhotoUrl } = {},
     followersCount = 0,
     followingCount = 0,
+    likesCount = 0,
   } = userProfile;
 
   const profileName =
@@ -136,17 +200,33 @@ const ProfileScreenHeader = ({ isMyProfile, userProfile, ...props }) => {
     Alert.alert(`Sorry, this feature isn't available at the moment.`);
   };
 
-  const onFollowingButtonPress = (_) => alertUnavailableFeature();
+  const onFollowButtonPress = (_) => alertUnavailableFeature();
   const onMessageButtonPress = (_) => alertUnavailableFeature();
   const onEditProfileButtonPress = (_) => alertUnavailableFeature();
 
-  const Metric = ({ title, value, ...props }) => (
-    <View {...(props.style ?? {})} style={metricStyles.container}>
+  const handleShowFollowers = () => {
+    navigation.push('FollowerScreen', {
+      userProfile,
+      selector: 'Followers',
+    });
+  };
+
+  const handleShowFollowing = () => {
+    navigation.push('FollowerScreen', {
+      userProfile,
+      selector: 'Following',
+    });
+  };
+
+  const Metric = ({ title, value, onPress = () => {}, ...props }) => (
+    <TouchableOpacity
+      onPress={onPress}
+      style={[metricStyles.container, props.style]}>
       <Text style={metricStyles.title}>{title}</Text>
       <Text style={metricStyles.value}>
         {value > 999 ? `${(value / 1000).toFixed(1)}k` : value}
       </Text>
-    </View>
+    </TouchableOpacity>
   );
 
   return (
@@ -165,9 +245,17 @@ const ProfileScreenHeader = ({ isMyProfile, userProfile, ...props }) => {
           />
           <View style={headerStyles.profileMetricsInner}>
             <View style={headerStyles.profileMetricsDetails}>
-              <Metric title={'Followers'} value={followersCount} />
-              <Metric title={'Following'} value={followingCount} />
-              <Metric title={'Likes'} value={0} />
+              <Metric
+                title={'Followers'}
+                value={followersCount}
+                onPress={handleShowFollowers}
+              />
+              <Metric
+                title={'Following'}
+                value={followingCount}
+                onPress={handleShowFollowing}
+              />
+              <Metric title={'Likes'} value={likesCount} />
             </View>
             <View style={headerStyles.profileActionsContainer}>
               {isMyProfile ? (
@@ -188,7 +276,7 @@ const ProfileScreenHeader = ({ isMyProfile, userProfile, ...props }) => {
                     transparent
                     size="small"
                     titles={{ on: 'Following', off: 'Follow' }}
-                    onPress={onFollowingButtonPress}
+                    onPress={onFollowButtonPress}
                   />
                   <Button
                     style={headerStyles.profileActionsButton}
@@ -294,8 +382,11 @@ const headerStyles = StyleSheet.create({
   },
 });
 
-const PostsTab = ({ userProfile, navigation }) => {
+const PostsTab = ({ userProfile }) => {
+  const navigation = useNavigation();
+
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [posts, setPosts] = useState([]);
   const [error, setError] = useState(null);
 
@@ -314,7 +405,22 @@ const PostsTab = ({ userProfile, navigation }) => {
     };
 
     fetchData();
-  }, []);
+  }, [isRefreshing]);
+
+  const handleRefresh = () => {
+    if (!isRefreshing) {
+      setIsRefreshing(true);
+      setPages({ ...pages, next: 0, hasMoreData: true });
+    }
+  };
+
+  const handlePostItemPress = (postData) => {
+    const postDetails = {
+      ...postData,
+    };
+
+    navigation.push('PostDetailScreen', postDetails);
+  };
 
   if (isLoading) {
     return <LoadingTabView message="Loading posts..." />;
@@ -323,17 +429,6 @@ const PostsTab = ({ userProfile, navigation }) => {
   if (error) {
     return <ErrorTabView error={error} />;
   }
-
-  const handlePostItemPress = (postData) => {
-    const postDetails = {
-      ...postData,
-      user: {},
-      pinPostToNote: () => {},
-      refreshData: () => {},
-    };
-
-    navigation.navigate('PostDetailScreen', postDetails);
-  };
 
   return (
     <MasonryList
@@ -344,13 +439,17 @@ const PostsTab = ({ userProfile, navigation }) => {
       initialNumInColsToRender={1}
       listContainerStyle={{ paddingTop: values.spacing.sm }}
       backgroundColor={colors.white}
-      emptyView={() => <EmptyTabView />}
+      masonryFlatListColProps={{
+        ListEmptyComponent: () => <EmptyTabView style={{ width: '100%' }} />,
+        refreshControl: (
+          <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />
+        ),
+      }}
       completeCustomComponent={({ data }) => (
         <PostItem
           kind={data.postType}
           text={data.caption}
           author={data.author}
-          metrics={{ likes: 4, isLiked: true, isSaved: true }}
           column={data.column}
           imagePreview={data.source}
           imagePreviewDimensions={data.masonryDimensions}
@@ -371,7 +470,10 @@ const ProfileScreen = (props) => {
   } = props;
 
   const isMyProfile = !params;
-  const { userProfile } = params ?? { userProfile: myUserDetails };
+  const { userProfile, fetchUser = false } = params ?? {
+    userProfile: myUserDetails,
+  };
+
   const { top: topInset } = useSafeAreaInsets();
 
   return (
@@ -390,7 +492,7 @@ const ProfileScreen = (props) => {
           name="chevron-left"
           size={28}
           color={colors.white}
-          onPress={props.navigation.goBack}
+          onPress={() => props.navigation.goBack()}
         />
       </View>
       <Tabs.Container
@@ -401,11 +503,12 @@ const ProfileScreen = (props) => {
           <ProfileScreenHeader
             isMyProfile={isMyProfile}
             userProfile={userProfile}
+            fetchUser={fetchUser}
           />
         )}>
         <Tabs.Tab name="posts" label="Posts">
           <Tabs.ScrollView onScroll={() => console.log('ON_SCROLL')}>
-            <PostsTab userProfile={userProfile} navigation={props.navigation} />
+            <PostsTab userProfile={userProfile} />
           </Tabs.ScrollView>
         </Tabs.Tab>
         <Tabs.Tab name="notes" label="Notes">

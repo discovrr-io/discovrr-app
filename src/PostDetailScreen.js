@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import {
-  useWindowDimensions,
+  // useWindowDimensions,
   Keyboard,
   KeyboardAvoidingView,
   Image,
@@ -15,12 +15,12 @@ import {
 } from 'react-native';
 
 import { useNavigation } from '@react-navigation/native';
-import FastImage from 'react-native-fast-image';
-import Carousel, { Pagination } from 'react-native-snap-carousel';
+// import FastImage from 'react-native-fast-image';
+// import Carousel, { Pagination } from 'react-native-snap-carousel';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { connect } from 'react-redux';
 
-import { Button, PostItem } from './components';
+import { Button } from './components';
 import { colors, values, typography } from './constants';
 
 const defaultAvatar = require('../resources/images/defaultAvatar.jpeg');
@@ -30,7 +30,13 @@ const AVATAR_DIAMETER = POST_DETAIL_ICON_SIZE;
 
 const PostDetails = ({ postDetails }) => {
   const navigation = useNavigation();
-  const { caption, author, metrics, location } = postDetails;
+  const {
+    caption,
+    author,
+    location,
+    metrics = { likes: 0, isLiked: false, isSaved: false },
+    dimensions = { width: 1, height: 1 },
+  } = postDetails;
 
   const handlePressAvatar = () => {
     navigation.navigate('UserProfileScreen', {
@@ -62,8 +68,8 @@ const PostDetails = ({ postDetails }) => {
           source={postDetails.source}
           style={{
             borderRadius: values.radius.md,
-            width: postDetails.dimensions.width * 0.55,
-            height: postDetails.dimensions.height * 0.55,
+            width: dimensions.width * 0.55,
+            height: dimensions.height * 0.55,
           }}
         />
       </View>
@@ -80,7 +86,7 @@ const PostDetails = ({ postDetails }) => {
               numberOfLines={1}
               ellipsizeMode="tail"
               style={postDetailsStyles.authorName}>
-              {author.name}
+              {author.name.length === 0 ? 'Anonymous' : author.name}
             </Text>
           </View>
         </TouchableOpacity>
@@ -150,7 +156,7 @@ const postDetailsStyles = StyleSheet.create({
     right: 0,
     fontSize: typography.size.sm,
     fontWeight: '500',
-    color: colors.darkGray,
+    color: colors.gray700,
     backgroundColor: '#f2f2f2',
   },
 });

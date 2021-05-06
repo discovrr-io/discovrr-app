@@ -4,7 +4,7 @@ import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
 import { colors, typography, values } from '../../constants';
 
-const LoadingTabView = ({ message = 'Loading' }) => {
+const LoadingTabView = ({ message = 'Loading...' }) => {
   return (
     <View style={{ paddingTop: values.spacing.huge }}>
       <View>

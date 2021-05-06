@@ -120,6 +120,7 @@ async function fetchData(myUserDetails, selector, pages, dispatch) {
       source: imagePreviewSource,
       dimensions: imagePreviewDimensions,
       caption: post.get('caption'),
+      viewersCount: post.get('viewersCount'),
       location: post.get('location'),
       __refactored: true,
     };
@@ -183,7 +184,7 @@ const DiscoverTab = ({ myUserDetails, dispatch }) => {
   }, [isRefreshing]); // Will rerun this whenever `isRefreshing` changes
 
   const addPosts = (_) => {
-    console.log('UNIMPLEMENTED: HomeScreen.addPosts');
+    console.warn('UNIMPLEMENTED: HomeScreen.addPosts');
   };
 
   const handleRefresh = () => {

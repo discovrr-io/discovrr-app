@@ -1,396 +1,219 @@
-import React, {
-  Component,
-} from 'react';
-
+import React, { useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
   FlatList,
   RefreshControl,
+  SafeAreaView,
   StyleSheet,
   Text,
+  TouchableHighlight,
   View,
 } from 'react-native';
 
-import {
-  Avatar,
-} from 'react-native-paper';
-
-import {
-  connect,
-} from 'react-redux';
-
+import { useNavigation } from '@react-navigation/native';
+import { connect } from 'react-redux';
 import FastImage from 'react-native-fast-image';
+import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 
-import FollowButton from './components/FollowButton';
+import { EmptyTabView, ErrorTabView, LoadingTabView } from './components';
+import { colors, typography, values } from './constants';
 
-import {
-  windowWidth,
-} from './utilities/Constants';
-
+const defaultAvatar = require('../resources/images/defaultAvatar.jpeg');
 const Parse = require('parse/react-native');
 
-class FollowerScreen extends Component {
-  constructor(props) {
-    super(props);
+async function fetchData(userProfile, selector) {
+  const Profile = Parse.Object.extend('Profile');
+  const profilePointer = new Profile();
+  profilePointer.id = userProfile.id;
 
-    this.params = props?.route?.params ?? {};
+  const type = selector === 'Followers' ? 'followers' : 'following';
+  const userRelation = profilePointer.relation(type);
+  const query = userRelation.query();
+  const results = await query.find();
 
-    this.userProfileId = props?.userDetails?.profileId ?? 'enjaga';
-    const userDetails = props.userDetails ?? {};
-    const isSameSameDonkey = props.profileId === this.userProfileId;
-    let isFollowing = false;
+  console.log(results.length);
+  if (!(Array.isArray(results) && results.length)) {
+    throw new Error(`The type of results is not Array.`);
+  }
 
-    if (
-      !isSameSameDonkey
-      && Array.isArray(props.followingArray)
-      && props.followingArray.includes(this.userProfileId)
-    ) {
-      isFollowing = true;
-    }
-
-    debugAppLogger({
-      info: 'constructor - FollowerScreen',
-      isFollowing,
-      userProfileId: this.userProfileId,
-      isSameSameDonkey,
-      followingArray: props.followingArray,
-    });
-
-    this.state = {
-      isFollowing,
-      isFetchingData: true,
-      isRefreshingData: false,
+  const items = results.map((item) => {
+    return {
+      id: item.id,
+      avatar: item.get('avatar'),
+      name: item.get('name'),
+      description: item.get('description') ?? 'No description',
+      coverPhoto: item.get('coverPhoto'),
     };
-  }
-
-  componentDidMount() {
-    this.fetchData();
-  }
-
-  fetchData = async () => {
-    try {
-      const Profile = Parse.Object.extend('Profile');
-      const profilePointer = new Profile();
-      profilePointer.id = this.params.profileId;
-
-      const userRelation = profilePointer.relation(this.params.userTypes);
-      const query = userRelation.query();
-      const results = await query.find();
-
-      if (Array.isArray(results) && results.length) {
-        const items = results.map((item) => {
-          const avatar = item.get('avatar');
-          const name = item.get('name');
-          const surname = item.get('surname');
-
-          let initials = '--';
-          if (!avatar?.url) {
-            if (surname) initials = surname.substring(0, 1);
-
-            if (name) {
-              if (initials === '--') {
-                initials = name.substring(0, 1);
-              } else {
-                initials = `${initials}${name.substring(0, 1)}`;
-              }
-            }
-          }
-          const itemData = {
-            avatar,
-            name,
-            id: item.id,
-            profileId: item.id,
-            text: item.get('message'),
-            displayName: item.get('displayName'),
-            coverPhoto: item.get('coverPhoto'),
-            description: item.get('description'),
-            hometown: item.get('hometown'),
-          };
-
-          return itemData;
-        });
-
-        debugAppLogger({
-          info: 'fetchProfileDetails items - FollowerScreen',
-          items,
-        });
-
-        this.setState({
-          items,
-        });
-      }
-
-      debugAppLogger({
-        info: 'fetchProfileDetails - FollowerScreen',
-        params: this.params,
-        resultsLength: Array.isArray(results) ? results.length : 'Not an array',
-        results,
-      });
-
-      this.setState({
-        isFetchingData: false,
-        isRefreshingData: false,
-      });
-    } catch (error) {
-      this.setState({
-        isFetchingData: false,
-        isRefreshingData: false,
-      });
-
-      debugAppLogger({
-        info: 'fetchData error - FollowerScreen',
-        errorMsg: error.message,
-        error,
-      });
-    }
-  }
-
-  refreshData = () => {
-    const {
-      isRefreshingData,
-    } = this.state;
-
-    debugAppLogger({
-      info: 'Gonna attempt to refresh - FollowerScreen',
-      isRefreshingData,
-    });
-
-    if (!isRefreshingData) {
-      this.setState({ isRefreshingData: true });
-
-      this.fetchData();
-    }
-  }
-
-  renderEmptyView = () => (
-    <View
-      style={{
-        flex: 1,
-        // height: windowHeight * 0.8,
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}
-    >
-      <Text
-        allowFontScaling={false}
-        style={{
-          fontSize: 12,
-          color: '#777777',
-        }}
-      >
-        {this.params.userTypes === 'following' ? 'Not following' : 'No followers'}
-      </Text>
-    </View>
-  );
-
-  renderItemSeparator = () => (
-    <View
-      style={{
-        marginVertical: 5,
-        borderBottomWidth: 1,
-        borderBottomColor: '#EEEEEE',
-      }}
-    />
-  )
-
-  renderItem = ({ item }) => (
-    <UserListIem data={item} />
-  )
-
-  render() {
-    const {
-      isFetchingData,
-      items,
-    } = this.state;
-
-    if (isFetchingData) {
-      return (
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: 'white',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-        >
-          <ActivityIndicator
-            animating
-            color="black"
-            size="large"
-          />
-        </View>
-      );
-    }
-
-    const {
-      // userDetails,
-      isRefreshingData,
-    } = this.props;
-
-    return (
-      <View
-        style={styles.container}
-      >
-        <FlatList
-          contentContainerStyle={{
-            // flex: 1,
-            paddingHorizontal: 10,
-            paddingTop: 10,
-            paddingBottom: 20,
-          }}
-          data={items}
-          ItemSeparatorComponent={this.renderItemSeparator}
-          ListEmptyComponent={this.renderEmptyView}
-          renderItem={this.renderItem}
-          refreshControl={(
-            <RefreshControl
-              refreshing={isRefreshingData}
-              onRefresh={this.refreshData}
-              colors={['#212121']}
-              tintColor="#212121"
-            />
-          )}
-        />
-      </View>
-    );
-  }
-}
-
-const UserListIem = ({ data }) => {
-  debugAppLogger({
-    info: 'UserListIem - FollowerScreen',
-    data,
   });
 
-  const {
-    name,
-    initials,
-    description,
-    avatar,
-  } = data;
+  return items;
+}
+
+const AVATAR_IMAGE_RADIUS = 45;
+
+const UserListItem = ({ item }) => {
+  const [isAvatarLoaded, setIsAvatarLoaded] = useState(false);
+
+  const navigation = useNavigation();
+  const avatar = item.avatar ? { uri: item.avatar.url } : defaultAvatar;
+  const name = (item.name ?? '').length === 0 ? 'Anonymous' : item.name;
+
+  const onLoadAvatar = (loadEvent) => {
+    if (loadEvent) setIsAvatarLoaded(true);
+  };
+
+  const handleGoToProfile = () => {
+    navigation.push('UserProfileScreen', {
+      userProfile: item,
+      fetchUser: true,
+    });
+  };
 
   return (
-    <View
-      style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: 7,
-      }}
-    >
-      {avatar?.url ? (
+    <TouchableHighlight
+      underlayColor={colors.gray200}
+      onPress={handleGoToProfile}>
+      <View style={userListItemStyles.container}>
         <FastImage
-          style={{
-            height: 40,
-            width: 40,
-            borderRadius: 20,
-          }}
-          source={{ uri: avatar.url }}
+          onLoad={onLoadAvatar}
+          source={isAvatarLoaded ? avatar : defaultAvatar}
+          width={AVATAR_IMAGE_RADIUS}
+          height={AVATAR_IMAGE_RADIUS}
+          style={userListItemStyles.avatar}
           resizeMode={FastImage.resizeMode.cover}
         />
-      ) : (
-        <Avatar.Text
-          size={32}
-          label={initials || '--'}
-          style={{
-            backgroundColor: '#777777',
-            color: 'white',
-          }}
-        />
-      )}
-
-      <View
-        style={{
-          flex: 1,
-          marginLeft: 5,
-          // marginVertical: 7,
-        }}
-      >
-        <View
-          style={{
-            flex: 1,
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            minHeight: 25,
-            // backgroundColor: 'orange',
-          }}
-        >
+        <View style={userListItemStyles.textContainer}>
+          <Text style={userListItemStyles.name}>{name}</Text>
           <Text
-            allowFontScaling={false}
+            style={userListItemStyles.description}
             numberOfLines={1}
-            style={{
-              maxWidth: windowWidth * 0.6, // enjagaTodo make name take entire space if same same donkey
-              fontSize: 14,
-            }}
-          >
-            {name}
+            ellipsizeMode="tail">
+            {item.description}
           </Text>
-
-          <FollowButton
-            isFollowerScreen
-            userDetails={data}
-          />
         </View>
-
-        <Text
-          allowFontScaling={false}
-          numberOfLines={2}
-          style={{
-            fontSize: 12,
-          }}
-        >
-          {description || '...'}
-        </Text>
+        <MaterialIcon name="chevron-right" size={AVATAR_IMAGE_RADIUS * 0.75} />
       </View>
-    </View>
+    </TouchableHighlight>
   );
 };
 
-const styles = StyleSheet.create({
+const userListItemStyles = StyleSheet.create({
   container: {
+    flexDirection: 'row',
+    paddingHorizontal: values.spacing.md,
+    paddingVertical: values.spacing.lg * 0.75,
+    alignItems: 'center',
+  },
+  avatar: {
+    borderRadius: AVATAR_IMAGE_RADIUS / 2,
+    width: AVATAR_IMAGE_RADIUS,
+    height: AVATAR_IMAGE_RADIUS,
+  },
+  textContainer: {
     flex: 1,
-    backgroundColor: 'white',
+    alignSelf: 'center',
+    marginLeft: values.spacing.md,
+    marginTop: values.spacing.sm,
   },
-  postDetailButton: {
-    marginLeft: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#707070',
-    justifyContent: 'center',
-    alignItems: 'center',
+  name: {
+    flex: 1,
+    color: colors.black,
+    fontSize: typography.size.md,
   },
-  postDetailButtonLabel: {
-    fontSize: 10,
-    fontWeight: 'normal',
-    color: 'black',
-  },
-  profileButton: {
-    marginRight: 10,
-    paddingHorizontal: 15,
-    paddingVertical: 5,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#00D8C6',
-    // backgroundColor: isFollowing ? '#00D8C6' : 'rgba(97, 95, 95, 0.48)',
-    alignSelf: 'flex-end',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  profileButtonLabel: {
-    fontSize: 11, fontWeight: 'normal', color: 'white',
+  description: {
+    flex: 1,
+    color: colors.gray700,
+    fontSize: typography.size.sm,
   },
 });
+
+const FollowerScreen = ({ route }) => {
+  const {
+    params: { userProfile, selector },
+  } = route;
+
+  const [items, setItems] = useState([]);
+
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const _fetchData = async () => {
+      try {
+        const items = await fetchData(userProfile, selector);
+        setItems(items);
+      } catch (error) {
+        setItems([]);
+        setError(error);
+        console.error(`${error.message ?? error}`);
+      }
+
+      setIsLoading(false);
+      setIsRefreshing(false);
+    };
+
+    _fetchData();
+  }, [isRefreshing]); // Will rerun this whenever `isRefreshing` changes
+
+  const handleRefresh = () => {
+    if (!isRefreshing) {
+      setIsRefreshing(true);
+      setPages({ ...pages, next: 0, hasMoreData: true });
+    }
+  };
+
+  if (isLoading) {
+    return <LoadingTabView message="Loading..." />;
+  }
+
+  if (error) {
+    return <ErrorTabView error={error} />;
+  }
+
+  return (
+    <SafeAreaView style={{ flex: 1 }}>
+      <FlatList
+        data={items}
+        renderItem={({ item }) => <UserListItem item={item} />}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={handleRefresh}
+            colors={[colors.black]}
+            tintColor={colors.black}
+          />
+        }
+        ItemSeparatorComponent={() => (
+          <View
+            style={{
+              borderBottomColor: colors.gray200,
+              borderBottomWidth: values.border.thin,
+              marginHorizontal: values.spacing.lg,
+            }}
+          />
+        )}
+        ListEmptyComponent={() => (
+          <EmptyTabView
+            message={
+              selector === 'Followers'
+                ? "This user doesn't have any followers"
+                : "This user isn't following anyone"
+            }
+          />
+        )}
+      />
+    </SafeAreaView>
+  );
+};
 
 const mapStateToProps = (state) => {
   const followingArray = state?.userState?.userDetails?.followingArray ?? [];
   const profileId = state?.userState?.userDetails?.profileId ?? null;
 
-  return ({
+  return {
     followingArray,
     profileId,
-  });
+  };
 };
 
 export default connect(mapStateToProps)(FollowerScreen);

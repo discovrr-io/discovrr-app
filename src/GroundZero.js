@@ -476,31 +476,22 @@ const GroundZero = ({ navigation, insets }) => (
       <Stack.Screen
         name="FollowerScreen"
         component={FollowerScreen}
-        options={({ route }) => ({
-          title: route?.params?.title ?? '--',
-          headerBackTitleVisible: false,
-          headerTintColor: 'black',
-          headerTitle: ({ allowFontScaling, style, children }) => {
-            return (
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                {!!route?.params?.avatar && (
-                  <FastImage
-                    style={{
-                      width: 40,
-                      height: 40,
-                      borderRadius: 20,
-                      marginRight: 15,
-                    }}
-                    source={{ uri: route.params.avatar }}
-                    resizeMode={FastImage.resizeMode.cover}
-                  />
-                )}
+        options={({ route }) => {
+          const {
+            params: { userProfile, selector },
+          } = route;
 
-                <Text allowFontScaling={!!allowFontScaling}>{children}</Text>
-              </View>
-            );
-          },
-        })}
+          const name =
+            (userProfile?.name ?? '').length > 0
+              ? userProfile.name
+              : 'Anonymous';
+
+          return {
+            title: `${name} – ${selector}` ?? selector,
+            headerBackTitleVisible: false,
+            headerTintColor: 'black',
+          };
+        }}
       />
     </Stack.Navigator>
 

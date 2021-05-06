@@ -55,7 +55,7 @@ const ToggleButton = ({
   return (
     <TouchableHighlight
       disabled={disabled}
-      underlayColor={toggleState ? colors.accentFocused : colors.lightGray}
+      underlayColor={toggleState ? colors.accentFocused : colors.gray300}
       onPress={() => {
         setToggleState(!toggleState);
         onPress();

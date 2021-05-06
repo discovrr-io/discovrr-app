@@ -38,7 +38,7 @@ const PostItemFooter = ({
 }) => {
   return (
     <View style={postItemFooterStyles.container}>
-      <TouchableOpacity onPress={onPressAvatar}>
+      <TouchableOpacity style={{ flex: 1 }} onPress={onPressAvatar}>
         <View style={postItemFooterStyles.authorContainer}>
           <Image
             style={postItemFooterStyles.avatar}
@@ -77,7 +77,7 @@ const PostItemFooter = ({
 
 PostItemFooter.propTypes = {
   author: AuthorPropTypes.isRequired,
-  metrics: MetricsPropTypes.isRequired,
+  metrics: MetricsPropTypes,
   onPressAvatar: PropTypes.func,
   onPressSave: PropTypes.func,
   onPressLike: PropTypes.func,
@@ -100,17 +100,17 @@ const postItemFooterStyles = StyleSheet.create({
     borderRadius: AVATAR_DIAMETER / 2,
   },
   authorName: {
+    flex: 1,
     fontSize: typography.size.xs,
     marginLeft: values.spacing.sm * 1.5,
     color: colors.black,
-    maxWidth: 80, // hard-coded for now
   },
   actionsContainer: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   actionButton: {
-    marginLeft: values.spacing.md,
+    marginLeft: values.spacing.sm,
   },
   likesCount: {
     marginLeft: values.spacing.zero,
@@ -123,7 +123,7 @@ const PostItem = ({
   kind,
   text,
   author,
-  metrics,
+  metrics = { likesCount: 0, isLiked: false, isSaved: false },
   column = 0,
   imagePreview = {},
   imagePreviewDimensions = { width: 1, height: 1 },
@@ -144,7 +144,7 @@ const PostItem = ({
             fontSize: typography.size.xs,
             marginTop: values.spacing.sm,
             marginHorizontal: values.spacing.sm,
-            color: colors.darkGray,
+            color: colors.gray700,
           }}
           numberOfLines={2}
           ellipsizeMode="tail">
@@ -161,12 +161,17 @@ const PostItem = ({
     switch (kind) {
       case PostItemKind.TEXT:
         return (
-          <View style={[postItemStyles.dialogBox, props.style]}>
+          <View
+            style={[
+              postItemStyles.dialogBox,
+              { minWidth: imagePreviewDimensions.width },
+              props.style,
+            ]}>
             <Text
               numberOfLines={6}
               ellipsizeMode="tail"
               style={postItemStyles.dialogBoxText}>
-              {text}
+              {text.trim()}
             </Text>
           </View>
         );
@@ -228,7 +233,7 @@ PostItem.propTypes = {
   kind: PropTypes.oneOf(Object.values(PostItemKind)).isRequired,
   text: PropTypes.string.isRequired, // All posts require some form of text
   author: AuthorPropTypes.isRequired,
-  metrics: MetricsPropTypes.isRequired,
+  metrics: MetricsPropTypes,
   column: PropTypes.number,
   imagePreview: PropTypes.oneOfType([PropTypes.object, PropTypes.number]),
   imagePreviewDimensions: PropTypes.shape({
@@ -244,13 +249,14 @@ PostItem.propTypes = {
 
 const postItemStyles = StyleSheet.create({
   dialogBox: {
-    backgroundColor: colors.lightGray,
+    backgroundColor: colors.gray100,
     borderColor: colors.gray,
     borderTopLeftRadius: values.radius.md,
     borderTopRightRadius: values.radius.md,
     borderBottomRightRadius: values.radius.md,
     borderWidth: values.border.thin,
     padding: values.spacing.md,
+    marginBottom: values.spacing.sm,
   },
   dialogBoxText: {
     color: colors.black,

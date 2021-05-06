@@ -27,7 +27,7 @@ const Button = ({
   return (
     <TouchableHighlight
       disabled={disabled}
-      underlayColor={primary ? colors.accentFocused : colors.lightGray}
+      underlayColor={primary ? colors.accentFocused : colors.gray300}
       onPress={onPress}
       style={[currentStyle, sizeStyle, props.style]}>
       <Text style={isBig ? stateStyle.text : stateStyle.textSmall}>

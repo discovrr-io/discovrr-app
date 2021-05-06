@@ -72,7 +72,7 @@ export const secondaryStyle = StyleSheet.create({
   disabled: {
     ...buttonStyles,
     backgroundColor: colors.white,
-    borderColor: colors.lightGray,
+    borderColor: colors.gray300,
   },
 });
 
@@ -93,6 +93,6 @@ export const transparentStyle = StyleSheet.create({
   disabled: {
     ...buttonStyles,
     backgroundColor: 'transparent',
-    borderColor: colors.lightGray,
+    borderColor: colors.gray300,
   },
 });
