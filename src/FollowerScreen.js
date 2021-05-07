@@ -30,8 +30,7 @@ async function fetchData(userProfile, selector) {
   const query = userRelation.query();
   const results = await query.find();
 
-  console.log(results.length);
-  if (!(Array.isArray(results) && results.length)) {
+  if (!Array.isArray(results)) {
     throw new Error(`The type of results is not Array.`);
   }
 
@@ -156,10 +155,7 @@ const FollowerScreen = ({ route }) => {
   }, [isRefreshing]); // Will rerun this whenever `isRefreshing` changes
 
   const handleRefresh = () => {
-    if (!isRefreshing) {
-      setIsRefreshing(true);
-      setPages({ ...pages, next: 0, hasMoreData: true });
-    }
+    if (!isRefreshing) setIsRefreshing(true);
   };
 
   if (isLoading) {

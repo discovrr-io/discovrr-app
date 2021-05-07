@@ -46,7 +46,7 @@ async function fetchData(myUserDetails, selector, pages, dispatch) {
   const results = await query.find();
   _pages.next += 1;
 
-  if (!(Array.isArray(results) && results.length)) {
+  if (!Array.isArray(results)) {
     switch (selector) {
       case POST_TYPE.DISCOVER:
         dispatch(actions.updatePosts([]));

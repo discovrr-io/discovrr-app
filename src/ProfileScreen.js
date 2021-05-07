@@ -408,10 +408,7 @@ const PostsTab = ({ userProfile }) => {
   }, [isRefreshing]);
 
   const handleRefresh = () => {
-    if (!isRefreshing) {
-      setIsRefreshing(true);
-      setPages({ ...pages, next: 0, hasMoreData: true });
-    }
+    if (!isRefreshing) setIsRefreshing(true);
   };
 
   const handlePostItemPress = (postData) => {
