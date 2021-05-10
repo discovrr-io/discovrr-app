@@ -18,7 +18,7 @@ import {
   withSafeAreaInsets,
 } from 'react-native-safe-area-context';
 
-import { connect } from 'react-redux';
+import { connect /* useDispatch */ } from 'react-redux';
 
 import {
   Button,
@@ -41,10 +41,15 @@ async function fetchUser(profileId) {
   query.equalTo('objectId', profileId);
   query.include('owner');
 
+  // const myProfile = await new Parse.User.currentAsync();
   const profile = await query.first();
   if (!profile) {
     throw new Error(`No user with id '${profileId}' found`);
   }
+
+  // const followersArray = profile.get('followersArray') ?? [];
+  // const isFollowing = myProfileId ? followersArray.some((follower) => follower === myProfileId) : false;
+  // console.log({ myProfileId, profileId, isFollowing });
 
   return {
     name: profile.get('name') ?? 'Anonymous',
@@ -107,6 +112,11 @@ async function fetchPosts(userProfile) {
       hasLiked = likersArray.some((liker) => profileId === liker);
     }
 
+    // console.log({
+    //   // followers: post.get('profile')?.get('followers'),
+    //   followersArray: post.get('profile')?.get('followersArray'),
+    // });
+
     return {
       author: {
         id: post.get('profile')?.id,
@@ -138,21 +148,73 @@ async function fetchPosts(userProfile) {
   return posts;
 }
 
+async function fetchNotes(userProfile) {
+  const currentUser = await Parse.User.currentAsync();
+  const userPointer = userProfile
+    ? {
+        __type: 'Pointer',
+        className: '_User',
+        objectId: userProfile.id,
+      }
+    : currentUser;
+
+  console.log({ userProfile, currentUser });
+
+  // We won't handle exceptions here
+  const query = new Parse.Query(Parse.Object.extend('Board'));
+  query.equalTo('owner', userPointer);
+  const results = await query.find();
+  console.log({ results });
+
+  if (!Array.isArray(results)) {
+    throw new Error('fetchNotes: The type of results is not Array.');
+  }
+
+  const notes = results.map((note) => {
+    const imageData = note.get('image');
+    const imageUrl = imageData?.url;
+    const imageSource = imageUrl ? { uri: imageUrl } : imagePlaceholder;
+    const imageDimensions = {
+      width: imageData?.width ?? 800,
+      height: imageData?.height ?? 600,
+    };
+
+    return {
+      id: note.id,
+      title: note.get('title'),
+      isPrivate: note.get('private'),
+      imageData,
+      imageSource,
+      imageDimensions,
+    };
+  });
+
+  return notes;
+}
+
 const ProfileScreenHeader = ({
   isMyProfile,
   userProfile: givenUserProfile,
   fetchUser: shouldFetchUser = false,
   ...props
 }) => {
+  // const dispatch = useDispatch();
   const navigation = useNavigation();
 
   const [userProfile, setUserProfile] = useState(givenUserProfile);
   const [_isLoading, setIsLoading] = useState(shouldFetchUser);
   const [_error, setError] = useState(null);
 
+  const [isProcessingFollow, setIsProcessingFollow] = useState(false);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
+        // const profileQuery = new Parse.Query('Profile');
+        // profileQuery.equalTo('owner', userProfile.id);
+        // const myProfile = await profileQuery.first();
+        // console.log({ __MY_PROFILE__: myProfile });
+
         const newUserProfile = await fetchUser(givenUserProfile.id);
         setUserProfile({ ...givenUserProfile, ...newUserProfile });
       } catch (error) {
@@ -162,7 +224,8 @@ const ProfileScreenHeader = ({
       setIsLoading(false);
     };
 
-    if (fetchUser) fetchData();
+    console.log({ shouldFetchUser });
+    if (shouldFetchUser) fetchData();
   }, []);
 
   const {
@@ -187,6 +250,7 @@ const ProfileScreenHeader = ({
 
   const [isAvatarLoaded, setIsAvatarLoaded] = useState(false);
   const [isHeaderLoaded, setIsHeaderLoaded] = useState(false);
+  const [currFollowersCount, setCurrFollowersCount] = useState(followersCount);
 
   const onAvatarLoaded = (loadEvent) => {
     if (loadEvent) setIsAvatarLoaded(true);
@@ -196,11 +260,31 @@ const ProfileScreenHeader = ({
     if (loadEvent) setIsHeaderLoaded(true);
   };
 
+  const onFollowButtonPress = async (isFollowing) => {
+    setIsProcessingFollow(true);
+
+    try {
+      await Parse.Cloud.run('followOrUnfollowProfile', {
+        profileId: userProfile.id,
+        follow: isFollowing,
+      });
+
+      setCurrFollowersCount((prevCount) => prevCount + (isFollowing ? 1 : -1));
+    } catch (error) {
+      const message = `Failed to ${
+        isFollowing ? 'follow' : 'unfollow'
+      } user. Please try again later.`;
+      Alert.alert(message);
+      console.error(message);
+    }
+
+    setIsProcessingFollow(false);
+  };
+
   const alertUnavailableFeature = () => {
     Alert.alert(`Sorry, this feature isn't available at the moment.`);
   };
 
-  const onFollowButtonPress = (_) => alertUnavailableFeature();
   const onMessageButtonPress = (_) => alertUnavailableFeature();
   const onEditProfileButtonPress = (_) => alertUnavailableFeature();
 
@@ -247,7 +331,7 @@ const ProfileScreenHeader = ({
             <View style={headerStyles.profileMetricsDetails}>
               <Metric
                 title={'Followers'}
-                value={followersCount}
+                value={currFollowersCount}
                 onPress={handleShowFollowers}
               />
               <Metric
@@ -277,6 +361,7 @@ const ProfileScreenHeader = ({
                     size="small"
                     titles={{ on: 'Following', off: 'Follow' }}
                     onPress={onFollowButtonPress}
+                    isLoading={isProcessingFollow}
                   />
                   <Button
                     style={headerStyles.profileActionsButton}
@@ -385,10 +470,11 @@ const headerStyles = StyleSheet.create({
 const PostsTab = ({ userProfile }) => {
   const navigation = useNavigation();
 
-  const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [posts, setPosts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const [posts, setPosts] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -458,7 +544,44 @@ const PostsTab = ({ userProfile }) => {
   );
 };
 
-const NotesTab = (_) => <Text>NOTES</Text>;
+const NotesTab = ({ userProfile }) => {
+  // const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [notes, setNotes] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const notes = await fetchNotes(userProfile);
+        console.log({ notes });
+        setNotes(notes);
+        setIsLoading(false);
+      } catch (error) {
+        setNotes([]);
+        setIsLoading(false);
+        setError(error);
+        console.error(`Failed to fetch notes: ${error}`);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (isLoading) {
+    return <LoadingTabView message="Loading notes..." />;
+  }
+
+  if (error) {
+    return <ErrorTabView error={error} />;
+  }
+
+  if (notes.length < 1) {
+    return <EmptyTabView message="This user hasn't made any notes" />;
+  }
+
+  return <Text>{JSON.stringify(notes)}</Text>;
+};
 
 const ProfileScreen = (props) => {
   const {
@@ -475,23 +598,25 @@ const ProfileScreen = (props) => {
 
   return (
     <>
-      <View
-        style={[
-          headerStyles.profileBackButton,
-          {
-            zIndex: 1,
-            position: 'absolute',
-            top: topInset + values.spacing.xs,
-            left: values.spacing.md,
-          },
-        ]}>
-        <MaterialIcon
-          name="chevron-left"
-          size={28}
-          color={colors.white}
-          onPress={() => props.navigation.goBack()}
-        />
-      </View>
+      {!isMyProfile && (
+        <View
+          style={[
+            headerStyles.profileBackButton,
+            {
+              zIndex: 1,
+              position: 'absolute',
+              top: topInset + values.spacing.xs,
+              left: values.spacing.md,
+            },
+          ]}>
+          <MaterialIcon
+            name="chevron-left"
+            size={28}
+            color={colors.white}
+            onPress={() => props.navigation.goBack()}
+          />
+        </View>
+      )}
       <Tabs.Container
         lazy
         minHeaderHeight={topInset + HEADER_MIN_HEIGHT}
@@ -504,13 +629,16 @@ const ProfileScreen = (props) => {
           />
         )}>
         <Tabs.Tab name="posts" label="Posts">
-          <Tabs.ScrollView onScroll={() => console.log('ON_SCROLL')}>
+          <Tabs.ScrollView
+            onScroll={() => console.log('ON_SCROLL')}
+            onScrollEndDrag={() => console.log('END DRAG')}
+            onMomentumScrollEnd={() => console.log('END SCROLL')}>
             <PostsTab userProfile={userProfile} />
           </Tabs.ScrollView>
         </Tabs.Tab>
         <Tabs.Tab name="notes" label="Notes">
           <Tabs.ScrollView>
-            <NotesTab />
+            <NotesTab userProfile={userProfile} />
           </Tabs.ScrollView>
         </Tabs.Tab>
       </Tabs.Container>

@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import {
-  // useWindowDimensions,
+  useWindowDimensions,
   Keyboard,
   KeyboardAvoidingView,
   Image,
@@ -15,14 +15,16 @@ import {
 } from 'react-native';
 
 import { useNavigation } from '@react-navigation/native';
-// import FastImage from 'react-native-fast-image';
-// import Carousel, { Pagination } from 'react-native-snap-carousel';
+import FastImage from 'react-native-fast-image';
+import Carousel, { Pagination } from 'react-native-snap-carousel';
+// import { SliderBox } from 'react-native-image-slider-box';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { connect } from 'react-redux';
 
 import { Button } from './components';
 import { colors, values, typography } from './constants';
 
+const imagePlaceholder = require('../resources/images/imagePlaceholder.png');
 const defaultAvatar = require('../resources/images/defaultAvatar.jpeg');
 
 const POST_DETAIL_ICON_SIZE = 32;
@@ -30,12 +32,14 @@ const AVATAR_DIAMETER = POST_DETAIL_ICON_SIZE;
 
 const PostDetails = ({ postDetails }) => {
   const navigation = useNavigation();
+  const { width: screenWidth } = useWindowDimensions();
+
   const {
     caption,
     author,
     location,
     metrics = { likes: 0, isLiked: false, isSaved: false },
-    dimensions = { width: 1, height: 1 },
+    // dimensions = { width: 1, height: 1 },
   } = postDetails;
 
   const handlePressAvatar = () => {
@@ -45,32 +49,52 @@ const PostDetails = ({ postDetails }) => {
     });
   };
 
-  // const renderItem = ({ item }) => {
-  //   return (
-  //     <Image
-  //       width={100}
-  //       height={100}
-  //       resizeMode="cover"
-  //       source={{ uri: item.url }}
-  //     />
-  //   );
-  // };
-
   const likesCount =
     metrics.likesCount > 999
       ? `${(metrics.likesCount / 1000).toFixed(1)}k`
       : `${metrics.likesCount}`;
 
+  const carouselRef = useRef(null);
+
+  const SliderImage = ({ item }) => {
+    const width = screenWidth * 0.8;
+    const height = item.height * (width / item.height);
+    console.log({ width, height });
+
+    const image = { uri: item.url };
+    const [isImageLoaded, setIsImageLoaded] = useState(false);
+
+    const onImageLoaded = (loadEvent) => {
+      if (loadEvent) setIsImageLoaded(true);
+    };
+
+    return (
+      <Image
+        style={{
+          width: item.width,
+          height: item.height,
+          borderRadius: values.radius.md,
+        }}
+        onLoad={onImageLoaded}
+        source={isImageLoaded ? image : imagePlaceholder}
+        width={width}
+        height={height}
+        resizeMode="cover"
+      />
+    );
+  };
+
+  const renderItem = ({ item }) => <SliderImage item={item} />;
+
   return (
-    <ScrollView>
+    <View>
       <View style={{ alignItems: 'center', marginBottom: values.spacing.md }}>
-        <Image
-          source={postDetails.source}
-          style={{
-            borderRadius: values.radius.md,
-            width: dimensions.width * 0.55,
-            height: dimensions.height * 0.55,
-          }}
+        <Carousel
+          ref={(c) => (carouselRef.current = c)}
+          data={postDetails.images}
+          sliderWidth={screenWidth}
+          itemWidth={screenWidth * 0.8}
+          renderItem={renderItem}
         />
       </View>
       <Text style={postDetailsStyles.caption}>{caption}</Text>
@@ -109,7 +133,7 @@ const PostDetails = ({ postDetails }) => {
           <Text style={postDetailsStyles.likesCount}>{likesCount}</Text>
         </View>
       </View>
-    </ScrollView>
+    </View>
   );
 };
 
@@ -181,18 +205,20 @@ const PostDetailScreen = (props) => {
   } = props;
 
   return (
-    <KeyboardAvoidingView behavior="position">
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <SafeAreaView
-          style={{
-            marginTop: values.spacing.md,
-            marginHorizontal: values.spacing.md,
-          }}>
-          <PostDetails postDetails={postDetails} />
-          <CommentContainer />
-        </SafeAreaView>
-      </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+    <ScrollView nestedScrollEnabled={true}>
+      <KeyboardAvoidingView behavior="position">
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <SafeAreaView
+            style={{
+              marginTop: values.spacing.md,
+              marginHorizontal: values.spacing.md,
+            }}>
+            <PostDetails postDetails={postDetails} />
+            <CommentContainer />
+          </SafeAreaView>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
+    </ScrollView>
   );
 };
 

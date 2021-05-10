@@ -1,33 +1,9 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Text, TouchableHighlight } from 'react-native';
+import { ActivityIndicator, Text, TouchableHighlight } from 'react-native';
 
 import { colors } from '../../constants';
 import * as styles from './styles';
-
-/* // TODO: For some reason this doesn't work:
-import Button from './Button';
-
-const ToggleButton = ({
-  titles,
-  initialState = false,
-  onPress = () => {},
-  ...props
-}) => {
-  const [toggleState, setToggleState] = useState(initialState);
-
-  return (
-    <Button
-      primary={toggleState}
-      onPress={() => {
-        setToggleState(!toggleState);
-        onPress && onPress();
-      }}
-      {...props}
-    />
-  );
-};
-*/
 
 const ToggleButton = ({
   titles,
@@ -35,7 +11,8 @@ const ToggleButton = ({
   size = 'big',
   disabled = false,
   transparent = false,
-  onPress = () => {},
+  onPress = (_) => {},
+  isLoading = false,
   ...props
 }) => {
   const [toggleState, setToggleState] = useState(initialState);
@@ -58,12 +35,16 @@ const ToggleButton = ({
       underlayColor={toggleState ? colors.accentFocused : colors.gray300}
       onPress={() => {
         setToggleState(!toggleState);
-        onPress();
+        onPress(!toggleState);
       }}
       style={[currentStyle, sizeStyle, props.style]}>
-      <Text style={isBig ? stateStyle.text : stateStyle.textSmall}>
-        {title}
-      </Text>
+      {isLoading ? (
+        <ActivityIndicator color={colors.white} size="small" />
+      ) : (
+        <Text style={isBig ? stateStyle.text : stateStyle.textSmall}>
+          {title}
+        </Text>
+      )}
     </TouchableHighlight>
   );
 };
@@ -74,9 +55,19 @@ ToggleButton.propTypes = {
     off: PropTypes.string.isRequired,
   }).isRequired,
   initialState: PropTypes.bool,
-  onPress: PropTypes.func,
   size: PropTypes.oneOf(['big', 'small']),
   disabled: PropTypes.bool,
+  isLoading: PropTypes.bool,
+  onPress: PropTypes.func,
+};
+
+ToggleButton.defaultProps = {
+  initialState: false,
+  size: 'big',
+  disabled: false,
+  transparent: false,
+  isLoading: false,
+  onPress: (_) => {},
 };
 
 export default ToggleButton;

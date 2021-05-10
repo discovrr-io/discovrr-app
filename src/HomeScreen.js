@@ -104,6 +104,7 @@ async function fetchData(myUserDetails, selector, pages, dispatch) {
         id: post.get('profile')?.id,
         name: post.get('profile')?.get('name') ?? 'Anonymous',
         avatar: post.get('profile')?.get('avatar'),
+        description: post.get('profile')?.get('description'),
         followersCount: post.get('profile')?.get('followersCount'),
         followingCount: post.get('profile')?.get('followingCount'),
         coverPhoto: post.get('profile')?.get('coverPhoto'),
