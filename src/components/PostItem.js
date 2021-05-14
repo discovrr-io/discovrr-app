@@ -1,12 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import PropTypes from 'prop-types';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  Alert,
+  Animated,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 
 import { colors, typography, values } from '../constants';
 
 const imagePlaceholder = require('../../resources/images/imagePlaceholder.png');
 const defaultAvatar = require('../../resources/images/defaultAvatar.jpeg');
+
+const Parse = require('parse/react-native');
 
 export const PostItemKind = {
   TEXT: 'TEXT',
@@ -30,12 +40,50 @@ const ACTION_BUTTON_SIZE = POST_ITEM_ICON_SIZE;
 const AVATAR_DIAMETER = POST_ITEM_ICON_SIZE;
 
 const PostItemFooter = ({
+  id,
   author,
   metrics,
   onPressAvatar,
   onPressSave,
-  onPressLike,
 }) => {
+  const hasLiked = useRef(metrics.hasLiked);
+  const likesCount = useRef(metrics.likesCount);
+
+  const [isProcessingLike, setIsProcessingLike] = useState(false);
+
+  const handleToggleLike = async () => {
+    const prevHasLiked = hasLiked.current;
+    const prevLikesCount = likesCount.current;
+    setIsProcessingLike(true);
+
+    try {
+      hasLiked.current = !prevHasLiked;
+      likesCount.current = Math.max(
+        0,
+        prevLikesCount + (hasLiked.current ? 1 : -1),
+      );
+
+      await Parse.Cloud.run('likeOrUnlikePost', {
+        postId: id,
+        like: hasLiked.current,
+      });
+
+      console.log(
+        `Successfully ${hasLiked.current ? 'liked' : 'unliked'} post`,
+      );
+    } catch (error) {
+      likesCount.current = prevLikesCount;
+      hasLiked.current = prevHasLiked;
+
+      Alert.alert('Sorry, something went wrong. Please try again later.');
+      console.error(
+        `Failed to ${!hasLiked.current ? 'liked' : 'unliked'} post: ${error}`,
+      );
+    }
+
+    setIsProcessingLike(false);
+  };
+
   return (
     <View style={postItemFooterStyles.container}>
       <TouchableOpacity style={{ flex: 1 }} onPress={onPressAvatar}>
@@ -60,15 +108,20 @@ const PostItemFooter = ({
           size={ACTION_BUTTON_SIZE}
           onPress={onPressSave}
         />
-        <MaterialIcon
-          style={postItemFooterStyles.actionButton}
-          name={metrics.hasLiked ? 'favorite' : 'favorite-border'}
-          color={metrics.hasLiked ? 'red' : colors.gray}
-          size={ACTION_BUTTON_SIZE}
-          onPress={onPressLike}
-        />
+        <TouchableOpacity
+          disabled={isProcessingLike}
+          onPress={handleToggleLike}>
+          <Animated.View animation="bounceIn">
+            <MaterialIcon
+              style={postItemFooterStyles.actionButton}
+              name={hasLiked.current ? 'favorite' : 'favorite-border'}
+              color={hasLiked.current ? 'red' : colors.gray}
+              size={ACTION_BUTTON_SIZE}
+            />
+          </Animated.View>
+        </TouchableOpacity>
         <Text style={postItemFooterStyles.likesCount}>
-          {metrics.likesCount}
+          {likesCount.current}
         </Text>
       </View>
     </View>
@@ -76,11 +129,12 @@ const PostItemFooter = ({
 };
 
 PostItemFooter.propTypes = {
+  id: PropTypes.any.isRequired,
   author: AuthorPropTypes.isRequired,
   metrics: MetricsPropTypes,
   onPressAvatar: PropTypes.func,
   onPressSave: PropTypes.func,
-  onPressLike: PropTypes.func,
+  // onPressLike: PropTypes.func,
 };
 
 const postItemFooterStyles = StyleSheet.create({
@@ -120,6 +174,7 @@ const postItemFooterStyles = StyleSheet.create({
 });
 
 const PostItem = ({
+  id,
   kind,
   text,
   author,
@@ -218,6 +273,7 @@ const PostItem = ({
       </TouchableOpacity>
       {displayFooter && (
         <PostItemFooter
+          id={id}
           author={author}
           metrics={metrics}
           onPressAvatar={onPressAvatar}
@@ -230,6 +286,7 @@ const PostItem = ({
 };
 
 PostItem.propTypes = {
+  id: PropTypes.any.isRequired,
   kind: PropTypes.oneOf(Object.values(PostItemKind)).isRequired,
   text: PropTypes.string.isRequired, // All posts require some form of text
   author: AuthorPropTypes.isRequired,
@@ -244,7 +301,7 @@ PostItem.propTypes = {
   onPressPost: PropTypes.func,
   onPressAvatar: PropTypes.func,
   onPressSave: PropTypes.func,
-  onPressLike: PropTypes.func,
+  // onPressLike: PropTypes.func,
 };
 
 const postItemStyles = StyleSheet.create({

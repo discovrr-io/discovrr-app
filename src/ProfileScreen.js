@@ -148,23 +148,28 @@ async function fetchPosts(userProfile) {
   return posts;
 }
 
-async function fetchNotes(userProfile) {
+async function fetchNotes(userProfile, isMyProfile) {
+  console.log({ __ID: userProfile.id });
   const currentUser = await Parse.User.currentAsync();
-  const userPointer = userProfile
-    ? {
-        __type: 'Pointer',
-        className: '_User',
-        objectId: userProfile.id,
-      }
-    : currentUser;
-
-  console.log({ userProfile, currentUser });
+  // const userPointer = !isMyProfile
+  //   ? {
+  //       __type: 'Pointer',
+  //       className: '_User',
+  //       objectId: userProfile.id,
+  //     }
+  //   : currentUser;
 
   // We won't handle exceptions here
   const query = new Parse.Query(Parse.Object.extend('Board'));
-  query.equalTo('owner', userPointer);
+  // query.equalTo('owner', isMyProfile ? userPointer );
+
+  if (isMyProfile) {
+    query.equalTo('owner', currentUser);
+  } else {
+    query.equalTo('profile', userProfile.id);
+  }
+
   const results = await query.find();
-  console.log({ results });
 
   if (!Array.isArray(results)) {
     throw new Error('fetchNotes: The type of results is not Array.');
@@ -183,9 +188,9 @@ async function fetchNotes(userProfile) {
       id: note.id,
       title: note.get('title'),
       isPrivate: note.get('private'),
-      imageData,
-      imageSource,
-      imageDimensions,
+      image: imageData,
+      source: imageSource,
+      dimensions: imageDimensions,
     };
   });
 
@@ -224,7 +229,6 @@ const ProfileScreenHeader = ({
       setIsLoading(false);
     };
 
-    console.log({ shouldFetchUser });
     if (shouldFetchUser) fetchData();
   }, []);
 
@@ -473,7 +477,6 @@ const PostsTab = ({ userProfile }) => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
@@ -544,8 +547,8 @@ const PostsTab = ({ userProfile }) => {
   );
 };
 
-const NotesTab = ({ userProfile }) => {
-  // const [isRefreshing, setIsRefreshing] = useState(false);
+const NotesTab = ({ userProfile, isMyProfile }) => {
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [notes, setNotes] = useState([]);
@@ -553,8 +556,7 @@ const NotesTab = ({ userProfile }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const notes = await fetchNotes(userProfile);
-        console.log({ notes });
+        const notes = await fetchNotes(userProfile, isMyProfile);
         setNotes(notes);
         setIsLoading(false);
       } catch (error) {
@@ -566,7 +568,11 @@ const NotesTab = ({ userProfile }) => {
     };
 
     fetchData();
-  }, []);
+  }, [isRefreshing]);
+
+  const handleRefresh = () => {
+    if (!isRefreshing) setIsRefreshing(true);
+  };
 
   if (isLoading) {
     return <LoadingTabView message="Loading notes..." />;
@@ -576,11 +582,56 @@ const NotesTab = ({ userProfile }) => {
     return <ErrorTabView error={error} />;
   }
 
-  if (notes.length < 1) {
-    return <EmptyTabView message="This user hasn't made any notes" />;
-  }
-
-  return <Text>{JSON.stringify(notes)}</Text>;
+  return (
+    <MasonryList
+      sorted
+      rerender
+      columns={2}
+      spacing={2}
+      images={notes}
+      initialNumInColsToRender={1}
+      listContainerStyle={{ paddingTop: values.spacing.sm }}
+      backgroundColor={colors.white}
+      masonryFlatListColProps={{
+        ListEmptyComponent: () => <EmptyTabView style={{ width: '100%' }} />,
+        refreshControl: (
+          <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />
+        ),
+      }}
+      completeCustomComponent={({ data }) => {
+        const { width, height } = data.masonryDimensions;
+        return (
+          <View
+            style={{
+              marginRight: values.spacing.md,
+              marginBottom: values.spacing.md,
+              flexDirection: 'column-reverse',
+            }}>
+            <Image
+              style={{
+                width,
+                height,
+                borderRadius: values.radius.md,
+              }}
+              source={data.source}
+            />
+            <Text
+              style={{
+                fontWeight: '700',
+                fontSize: typography.size.lg,
+                // color: colors.white,
+                position: 'absolute',
+                marginBottom: values.spacing.md,
+                marginLeft: values.spacing.md,
+                backgroundColor: colors.gray100,
+              }}>
+              {data.title}
+            </Text>
+          </View>
+        );
+      }}
+    />
+  );
 };
 
 const ProfileScreen = (props) => {
@@ -638,7 +689,7 @@ const ProfileScreen = (props) => {
         </Tabs.Tab>
         <Tabs.Tab name="notes" label="Notes">
           <Tabs.ScrollView>
-            <NotesTab userProfile={userProfile} />
+            <NotesTab userProfile={userProfile} isMyProfile={isMyProfile} />
           </Tabs.ScrollView>
         </Tabs.Tab>
       </Tabs.Container>

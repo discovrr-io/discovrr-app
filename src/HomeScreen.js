@@ -144,6 +144,14 @@ function postsQuery(pages) {
   return query;
 }
 
+function followingQuery(followingArray) {
+  const query = new Parse.Query(Parse.Object.extend('Post'));
+  query.containedIn('profile', followingArray);
+  query.greaterThanOrEqualTo('createdAt', new Date('2020-10-30'));
+
+  return query;
+}
+
 const DiscoverTab = ({ myUserDetails, dispatch }) => {
   const navigation = useNavigation();
 
@@ -232,6 +240,7 @@ const DiscoverTab = ({ myUserDetails, dispatch }) => {
       }}
       completeCustomComponent={({ data }) => (
         <PostItem
+          id={data.id}
           kind={data.postType}
           text={data.caption}
           author={data.author}
