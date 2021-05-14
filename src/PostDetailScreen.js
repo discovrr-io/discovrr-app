@@ -77,7 +77,7 @@ const PostBody = ({ postDetails }) => {
                 </Text>
               </View>
             );
-          case PostItemKind.IMAGE:
+          case PostItemKind.MEDIA:
             return (
               <Carousel
                 ref={(c) => (carouselRef.current = c)}

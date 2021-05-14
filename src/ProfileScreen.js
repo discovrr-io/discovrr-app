@@ -79,7 +79,7 @@ async function fetchPosts(userProfile) {
 
   const results = await query.find();
   const posts = results.map((post) => {
-    let postType = PostItemKind.IMAGE; // default value
+    let postType = PostItemKind.MEDIA; // default value
 
     const images = post.get('media');
     if (Array.isArray(images) && images.length) {

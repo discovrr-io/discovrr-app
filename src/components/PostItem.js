@@ -20,8 +20,8 @@ const Parse = require('parse/react-native');
 
 export const PostItemKind = {
   TEXT: 'TEXT',
-  IMAGE: 'IMAGE',
-  VIDEO: 'VIDEO',
+  MEDIA: 'MEDIA',
+  VIDEO: 'VIDEO', // TODO: Remove
 };
 
 const AuthorPropTypes = PropTypes.shape({
@@ -230,7 +230,7 @@ const PostItem = ({
             </Text>
           </View>
         );
-      case PostItemKind.IMAGE:
+      case PostItemKind.MEDIA:
         const { width, height } = imagePreviewDimensions;
         return (
           <View style={[props.style]}>
@@ -247,12 +247,12 @@ const PostItem = ({
             <PostItemContentCaption maxWidth={width} text={text} />
           </View>
         );
-      case PostItemKind.VIDEO:
-        return (
-          <View style={[props.style]}>
-            <PostItemContentCaption maxWidth={100} text={text} />
-          </View>
-        );
+      // case PostItemKind.VIDEO:
+      //   return (
+      //     <View style={[props.style]}>
+      //       <PostItemContentCaption maxWidth={100} text={text} />
+      //     </View>
+      //   );
       default:
         return null;
     }

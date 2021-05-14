@@ -66,7 +66,7 @@ async function fetchData(myUserDetails, selector, pages, dispatch) {
 
   const posts = results.map((post) => {
     // const hasProfile = !!post.get('profile');
-    let postType = PostItemKind.IMAGE; // default value
+    let postType = PostItemKind.MEDIA; // default value
 
     const images = post.get('media');
     if (Array.isArray(images) && images.length) {
