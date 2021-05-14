@@ -21,7 +21,7 @@ import Carousel, { Pagination } from 'react-native-snap-carousel';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { connect } from 'react-redux';
 
-import { Button } from './components';
+import { Button, PostItemKind } from './components';
 import { colors, values, typography } from './constants';
 
 const imagePlaceholder = require('../resources/images/imagePlaceholder.png');
@@ -30,29 +30,8 @@ const defaultAvatar = require('../resources/images/defaultAvatar.jpeg');
 const POST_DETAIL_ICON_SIZE = 32;
 const AVATAR_DIAMETER = POST_DETAIL_ICON_SIZE;
 
-const PostDetails = ({ postDetails }) => {
-  const navigation = useNavigation();
+const PostBody = ({ postDetails }) => {
   const { width: screenWidth } = useWindowDimensions();
-
-  const {
-    caption,
-    author,
-    location,
-    metrics = { likes: 0, isLiked: false, isSaved: false },
-    // dimensions = { width: 1, height: 1 },
-  } = postDetails;
-
-  const handlePressAvatar = () => {
-    navigation.navigate('UserProfileScreen', {
-      userProfile: author,
-      metrics: metrics,
-    });
-  };
-
-  const likesCount =
-    metrics.likesCount > 999
-      ? `${(metrics.likesCount / 1000).toFixed(1)}k`
-      : `${metrics.likesCount}`;
 
   const carouselRef = useRef(null);
 
@@ -88,7 +67,87 @@ const PostDetails = ({ postDetails }) => {
 
   return (
     <View>
-      <View style={{ alignItems: 'center', marginBottom: values.spacing.md }}>
+      {(() => {
+        switch (postDetails.postType) {
+          case PostItemKind.TEXT:
+            return (
+              <View style={postBodyStyles.dialogBox}>
+                <Text style={postBodyStyles.dialogBoxText}>
+                  {postDetails.caption}
+                </Text>
+              </View>
+            );
+          case PostItemKind.IMAGE:
+            return (
+              <Carousel
+                ref={(c) => (carouselRef.current = c)}
+                data={postDetails.images}
+                sliderWidth={screenWidth}
+                itemWidth={screenWidth * 0.8}
+                renderItem={renderItem}
+              />
+            );
+          case PostItemKind.VIDEO:
+            return <Text>VIDEO</Text>;
+          default:
+            return null;
+        }
+      })()}
+      {postDetails.postType !== PostItemKind.TEXT && (
+        <Text style={postBodyStyles.caption}>{postDetails.caption ?? ''}</Text>
+      )}
+    </View>
+  );
+};
+
+const postBodyStyles = StyleSheet.create({
+  caption: {
+    marginTop: values.spacing.md,
+    fontSize: typography.size.md,
+  },
+  dialogBox: {
+    backgroundColor: colors.gray100,
+    borderColor: colors.gray,
+    borderTopLeftRadius: values.radius.md,
+    borderTopRightRadius: values.radius.md,
+    borderBottomRightRadius: values.radius.md,
+    borderWidth: values.border.thin,
+    padding: values.spacing.md * 1.5,
+    marginBottom: values.spacing.sm,
+  },
+  dialogBoxText: {
+    color: colors.black,
+    fontSize: typography.size.md,
+    fontWeight: '600',
+  },
+});
+
+const PostDetails = ({ postDetails }) => {
+  const navigation = useNavigation();
+  // const { width: screenWidth } = useWindowDimensions();
+
+  const {
+    author,
+    location,
+    metrics = { likes: 0, isLiked: false, isSaved: false },
+    // dimensions = { width: 1, height: 1 },
+  } = postDetails;
+
+  const handlePressAvatar = () => {
+    navigation.navigate('UserProfileScreen', {
+      userProfile: author,
+      metrics: metrics,
+    });
+  };
+
+  const likesCount =
+    metrics.likesCount > 999
+      ? `${(metrics.likesCount / 1000).toFixed(1)}k`
+      : `${metrics.likesCount}`;
+
+  return (
+    <View>
+      {/* <View style={{ alignItems: 'center', marginBottom: values.spacing.md }}>
         <Carousel
           ref={(c) => (carouselRef.current = c)}
           data={postDetails.images}
@@ -96,8 +155,8 @@ const PostDetails = ({ postDetails }) => {
           itemWidth={screenWidth * 0.8}
           renderItem={renderItem}
         />
-      </View>
-      <Text style={postDetailsStyles.caption}>{caption}</Text>
+      </View> */}
+      <PostBody postDetails={postDetails} />
       <Text style={postDetailsStyles.location}>{location.text}</Text>
       <View style={postDetailsStyles.footerContainer}>
         <TouchableOpacity style={{ flexGrow: 1 }} onPress={handlePressAvatar}>
@@ -138,9 +197,6 @@ const PostDetails = ({ postDetails }) => {
 };
 
 const postDetailsStyles = StyleSheet.create({
-  caption: {
-    fontSize: typography.size.md,
-  },
   location: {
     fontSize: typography.size.sm,
     color: colors.gray,
@@ -205,7 +261,9 @@ const PostDetailScreen = (props) => {
   } = props;
 
   return (
-    <ScrollView nestedScrollEnabled={true}>
+    <ScrollView
+      style={{ backgroundColor: colors.white }}
+      nestedScrollEnabled={true}>
       <KeyboardAvoidingView behavior="position">
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <SafeAreaView
