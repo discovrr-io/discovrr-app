@@ -4,7 +4,6 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Image,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -15,7 +14,6 @@ import {
 } from 'react-native';
 
 import { useNavigation } from '@react-navigation/native';
-import FastImage from 'react-native-fast-image';
 import Carousel, { Pagination } from 'react-native-snap-carousel';
 // import { SliderBox } from 'react-native-image-slider-box';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
@@ -33,14 +31,13 @@ const AVATAR_DIAMETER = POST_DETAIL_ICON_SIZE;
 const PostBody = ({ postDetails }) => {
   const { width: screenWidth } = useWindowDimensions();
 
+  const [activeMediaIndex, setActiveMediaIndex] = useState(0);
+
   const carouselRef = useRef(null);
 
   const SliderImage = ({ item }) => {
-    const width = screenWidth * 0.8;
-    const height = item.height * (width / item.height);
-    console.log({ width, height });
-
     const image = { uri: item.url };
+
     const [isImageLoaded, setIsImageLoaded] = useState(false);
 
     const onImageLoaded = (loadEvent) => {
@@ -50,14 +47,11 @@ const PostBody = ({ postDetails }) => {
     return (
       <Image
         style={{
-          width: item.width,
-          height: item.height,
+          aspectRatio: item.width / item.height,
           borderRadius: values.radius.md,
         }}
         onLoad={onImageLoaded}
         source={isImageLoaded ? image : imagePlaceholder}
-        width={width}
-        height={height}
         resizeMode="cover"
       />
     );
@@ -79,13 +73,20 @@ const PostBody = ({ postDetails }) => {
             );
           case PostItemKind.MEDIA:
             return (
-              <Carousel
-                ref={(c) => (carouselRef.current = c)}
-                data={postDetails.images}
-                sliderWidth={screenWidth}
-                itemWidth={screenWidth * 0.8}
-                renderItem={renderItem}
-              />
+              <>
+                <Carousel
+                  ref={(c) => (carouselRef.current = c)}
+                  data={postDetails.images}
+                  sliderWidth={screenWidth}
+                  itemWidth={screenWidth * 0.8}
+                  renderItem={renderItem}
+                  onSnapToItem={(index) => setActiveMediaIndex(index)}
+                />
+                <Pagination
+                  dotsLength={postDetails.images.length}
+                  activeDotIndex={activeMediaIndex}
+                />
+              </>
             );
           case PostItemKind.VIDEO:
             return <Text>VIDEO</Text>;
@@ -146,57 +147,60 @@ const PostDetails = ({ postDetails }) => {
       : `${metrics.likesCount}`;
 
   return (
-    <View>
-      {/* <View style={{ alignItems: 'center', marginBottom: values.spacing.md }}>
-        <Carousel
-          ref={(c) => (carouselRef.current = c)}
-          data={postDetails.images}
-          sliderWidth={screenWidth}
-          itemWidth={screenWidth * 0.8}
-          renderItem={renderItem}
-        />
-      </View> */}
-      <PostBody postDetails={postDetails} />
-      <Text style={postDetailsStyles.location}>{location.text}</Text>
-      <View style={postDetailsStyles.footerContainer}>
-        <TouchableOpacity style={{ flexGrow: 1 }} onPress={handlePressAvatar}>
-          <View style={postDetailsStyles.authorContainer}>
-            <Image
-              style={postDetailsStyles.avatar}
-              source={author.avatar ?? defaultAvatar}
+    <View style={postDetailsStyles.container}>
+      <ScrollView>
+        <PostBody postDetails={postDetails} />
+        <Text style={postDetailsStyles.location}>{location.text}</Text>
+        <View style={postDetailsStyles.footerContainer}>
+          <TouchableOpacity style={{ flexGrow: 1 }} onPress={handlePressAvatar}>
+            <View style={postDetailsStyles.authorContainer}>
+              <Image
+                style={postDetailsStyles.avatar}
+                source={author.avatar ?? defaultAvatar}
+              />
+              <Text
+                numberOfLines={1}
+                ellipsizeMode="tail"
+                style={postDetailsStyles.authorName}>
+                {author.name.length === 0 ? 'Anonymous' : author.name}
+              </Text>
+            </View>
+          </TouchableOpacity>
+          <View style={postDetailsStyles.metricsContainer}>
+            <MaterialIcon
+              style={postDetailsStyles.actionButton}
+              name="share"
+              color={colors.gray}
+              size={POST_DETAIL_ICON_SIZE}
             />
-            <Text
-              numberOfLines={1}
-              ellipsizeMode="tail"
-              style={postDetailsStyles.authorName}>
-              {author.name.length === 0 ? 'Anonymous' : author.name}
-            </Text>
+            <MaterialIcon
+              style={postDetailsStyles.actionButton}
+              name={metrics.hasSaved ? 'bookmark' : 'bookmark-outline'}
+              color={metrics.hasSaved ? colors.black : colors.gray}
+              size={POST_DETAIL_ICON_SIZE}
+            />
+            <MaterialIcon
+              style={[
+                postDetailsStyles.actionButton,
+                { marginRight: values.spacing.md },
+              ]}
+              name={metrics.hasLiked ? 'favorite' : 'favorite-border'}
+              color={metrics.hasLiked ? 'red' : colors.gray}
+              size={POST_DETAIL_ICON_SIZE}
+            />
+            <Text style={postDetailsStyles.likesCount}>{likesCount}</Text>
           </View>
-        </TouchableOpacity>
-        <View style={postDetailsStyles.metricsContainer}>
-          <MaterialIcon
-            style={postDetailsStyles.actionButton}
-            name={metrics.hasSaved ? 'bookmark' : 'bookmark-outline'}
-            color={metrics.hasSaved ? colors.black : colors.gray}
-            size={POST_DETAIL_ICON_SIZE}
-          />
-          <MaterialIcon
-            style={[
-              postDetailsStyles.actionButton,
-              { marginRight: values.spacing.md },
-            ]}
-            name={metrics.hasLiked ? 'favorite' : 'favorite-border'}
-            color={metrics.hasLiked ? 'red' : colors.gray}
-            size={POST_DETAIL_ICON_SIZE}
-          />
-          <Text style={postDetailsStyles.likesCount}>{likesCount}</Text>
         </View>
-      </View>
+      </ScrollView>
     </View>
   );
 };
 
 const postDetailsStyles = StyleSheet.create({
+  container: {
+    height: '100%',
+    padding: values.spacing.md,
+  },
   location: {
     fontSize: typography.size.sm,
     color: colors.gray,
@@ -228,7 +232,7 @@ const postDetailsStyles = StyleSheet.create({
     alignItems: 'center',
   },
   actionButton: {
-    marginLeft: values.spacing.sm,
+    marginLeft: values.spacing.md,
   },
   likesCount: {
     alignSelf: 'flex-end',
@@ -243,17 +247,47 @@ const postDetailsStyles = StyleSheet.create({
 
 const CommentContainer = ({}) => {
   return (
-    <View
-      style={{
-        flexDirection: 'row',
-        alignContent: 'stretch',
-        marginTop: values.spacing.sm,
-      }}>
-      <TextInput style={{ flexGrow: 1 }} placeholder="Add your comment..." />
-      <Button primary size="small" title="Post" />
+    <View style={commentContainerStyles.container}>
+      <TextInput
+        multiline
+        style={commentContainerStyles.commentTextInput}
+        placeholder="Add your comment..."
+      />
+      <Button
+        style={commentContainerStyles.postButton}
+        primary
+        size="small"
+        title="Post"
+      />
     </View>
   );
 };
+
+const TEXT_INPUT_HEIGHT = 36;
+
+const commentContainerStyles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    marginTop: values.spacing.sm,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: values.spacing.md,
+    paddingHorizontal: values.spacing.md,
+  },
+  commentTextInput: {
+    flexGrow: 1,
+    height: TEXT_INPUT_HEIGHT,
+    borderColor: colors.gray700,
+    borderWidth: values.border.thin,
+    borderRadius: values.radius.md,
+    padding: values.spacing.md,
+  },
+  postButton: {
+    height: TEXT_INPUT_HEIGHT,
+    width: 50,
+    marginLeft: values.spacing.md,
+  },
+});
 
 const PostDetailScreen = (props) => {
   const {
@@ -261,22 +295,17 @@ const PostDetailScreen = (props) => {
   } = props;
 
   return (
-    <ScrollView
-      style={{ backgroundColor: colors.white }}
-      nestedScrollEnabled={true}>
-      <KeyboardAvoidingView behavior="position">
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <SafeAreaView
-            style={{
-              marginTop: values.spacing.md,
-              marginHorizontal: values.spacing.md,
-            }}>
-            <PostDetails postDetails={postDetails} />
-            <CommentContainer />
-          </SafeAreaView>
-        </TouchableWithoutFeedback>
-      </KeyboardAvoidingView>
-    </ScrollView>
+    <KeyboardAvoidingView
+      behavior="position"
+      keyboardVerticalOffset={75}
+      style={{ backgroundColor: colors.white }}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        {/* <SafeAreaView> */}
+        <PostDetails postDetails={postDetails} />
+        {/* <CommentContainer /> */}
+        {/* </SafeAreaView> */}
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 };
 
