@@ -81,15 +81,15 @@ async function fetchPosts(userProfile) {
   const posts = results.map((post) => {
     let postType = PostItemKind.MEDIA; // default value
 
-    const images = post.get('media');
-    if (Array.isArray(images) && images.length) {
-      images.forEach(({ type }, i) => {
-        if (type === 'video') images[i].isVideo = true;
+    const media = post.get('media');
+    if (Array.isArray(media) && media.length) {
+      media.forEach(({ type }, i) => {
+        if (type === 'video') media[i].isVideo = true;
       });
     }
 
     const imagePreview =
-      (Array.isArray(images) && images.length && images[0]) ?? null;
+      (Array.isArray(media) && media.length && media[0]) ?? null;
     const imagePreviewUrl = imagePreview?.url;
 
     const imagePreviewDimensions = {
@@ -135,7 +135,7 @@ async function fetchPosts(userProfile) {
       id: post.id,
       key: `${imagePreviewUrl ?? imagePlaceholder}`,
       postType,
-      images,
+      media,
       source: imagePreviewSource,
       dimensions: imagePreviewDimensions,
       caption: post.get('caption'),
@@ -286,7 +286,10 @@ const ProfileScreenHeader = ({
   };
 
   const alertUnavailableFeature = () => {
-    Alert.alert(`Sorry, this feature isn't available at the moment.`);
+    Alert.alert(
+      'Feature Unavailable',
+      "Sorry, this feature isn't available at the moment.",
+    );
   };
 
   const onMessageButtonPress = (_) => alertUnavailableFeature();
@@ -541,6 +544,7 @@ const PostsTab = ({ userProfile }) => {
           imagePreviewDimensions={data.masonryDimensions}
           displayFooter={false}
           onPressPost={() => handlePostItemPress(data)}
+          style={{ marginLeft: values.spacing.xs * 1.5 }}
         />
       )}
     />

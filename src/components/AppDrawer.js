@@ -1,6 +1,4 @@
-import React, {
-  Component,
-} from 'react';
+import React, { Component } from 'react';
 
 import {
   Alert,
@@ -12,10 +10,7 @@ import {
   View,
 } from 'react-native';
 
-import {
-  DrawerItem,
-  DrawerContentScrollView,
-} from '@react-navigation/drawer';
+import { DrawerItem, DrawerContentScrollView } from '@react-navigation/drawer';
 
 import {
   Title,
@@ -26,30 +21,20 @@ import {
   Switch,
 } from 'react-native-paper';
 
-import {
-  connect,
-} from 'react-redux';
+import { connect } from 'react-redux';
 
-import {
-  getVersion,
-} from 'react-native-device-info';
+import { getVersion } from 'react-native-device-info';
 
-import {
-  GoogleSignin,
-} from '@react-native-community/google-signin';
+import { GoogleSignin } from '@react-native-community/google-signin';
 
 import auth from '@react-native-firebase/auth';
 import FastImage from 'react-native-fast-image';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-import {
-  SafeAreaView,
-} from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-import {
-  logout, saveLeftDrawerContext,
-} from '../utilities/Actions';
+import { logout, saveLeftDrawerContext } from '../utilities/Actions';
 
 // import {
 //   windowHeight,
@@ -87,11 +72,7 @@ class AppDrawer extends Component {
   }
 
   goToScreen = (screen) => () => {
-    const {
-      userDetails: {
-        isAnonymous,
-      } = {},
-    } = this.props;
+    const { userDetails: { isAnonymous } = {} } = this.props;
 
     // let navScreen = screen;
 
@@ -107,7 +88,7 @@ class AppDrawer extends Component {
           };
           break;
         default:
-          //
+        //
       }
 
       debugAppLogger({
@@ -119,7 +100,7 @@ class AppDrawer extends Component {
     } else {
       this.navigate(screen);
     }
-  }
+  };
 
   showLocationFilter = () => {
     try {
@@ -127,25 +108,22 @@ class AppDrawer extends Component {
         info: 'Gonna show location filter',
       });
 
-      this.bottomSheetEmitter.emit(
-        'showPanel',
-        {
-          contentSelector: 'locationFilter',
-        },
-      );
+      this.bottomSheetEmitter.emit('showPanel', {
+        contentSelector: 'locationFilter',
+      });
 
       this.closeDrawer();
     } catch (e) {
       //
     }
-  }
+  };
 
   dismissSnackbar = () => {
     this.setState({
       showSnackbar: false,
       snackbarMessage: '',
     });
-  }
+  };
 
   showUserAuthenticationPanel = (extraData = {}) => {
     try {
@@ -154,33 +132,26 @@ class AppDrawer extends Component {
         extraData,
       });
 
-      this.bottomSheetEmitter.emit(
-        'showPanel',
-        {
-          ...extraData,
-          contentSelector: 'userAuthentication',
-        },
-      );
+      this.bottomSheetEmitter.emit('showPanel', {
+        ...extraData,
+        contentSelector: 'userAuthentication',
+      });
 
       this.closeDrawer();
     } catch (e) {
       //
     }
-  }
+  };
 
   authAction = () => {
-    const {
-      userDetails: {
-        isAnonymous,
-      } = {},
-    } = this.props;
+    const { userDetails: { isAnonymous } = {} } = this.props;
 
     if (isAnonymous) {
       this.showUserAuthenticationPanel();
     } else {
       this.confirmLogout();
     }
-  }
+  };
 
   confirmLogout = () => {
     this.closeDrawer();
@@ -203,7 +174,7 @@ class AppDrawer extends Component {
         cancelable: true,
       },
     );
-  }
+  };
 
   logout = () => {
     requestAnimationFrame(() => {
@@ -214,20 +185,12 @@ class AppDrawer extends Component {
         // .catch(error => logException({ error }));
         .catch(() => {});
 
-      const {
-        userDetails: {
-          provider,
-        } = {},
-      } = this.props;
+      const { userDetails: { provider } = {} } = this.props;
 
       if (provider === 'google.com') {
-        GoogleSignin
-          .revokeAccess()
-          .catch(() => {});
+        GoogleSignin.revokeAccess().catch(() => {});
 
-        GoogleSignin
-          .signOut()
-          .catch(() => {});
+        GoogleSignin.signOut().catch(() => {});
       }
 
       this.dispatch(logout());
@@ -236,7 +199,7 @@ class AppDrawer extends Component {
         .signOut()
         .catch(() => {});
     });
-  }
+  };
 
   showMessage = (snackbarMessage) => () => {
     if (snackbarMessage) {
@@ -246,20 +209,14 @@ class AppDrawer extends Component {
       //   showSnackbar: true,
       // });
 
-      this.snackbarEmitter.emit(
-        'showSnackbar',
-        {
-          message: snackbarMessage,
-        },
-      );
+      this.snackbarEmitter.emit('showSnackbar', {
+        message: snackbarMessage,
+      });
     }
-  }
+  };
 
   render() {
-    const {
-      showSnackbar,
-      snackbarMessage,
-    } = this.state;
+    const { showSnackbar, snackbarMessage } = this.state;
 
     const {
       userDetails: {
@@ -270,9 +227,7 @@ class AppDrawer extends Component {
         followersCount = 0,
         followingCount = 0,
         likesCount = 0,
-        avatar: {
-          url: avatarUrl,
-        } = {},
+        avatar: { url: avatarUrl } = {},
       } = {},
     } = this.props;
 
@@ -285,8 +240,7 @@ class AppDrawer extends Component {
             <View style={styles.userInfoSection}>
               <TouchableOpacity
                 activeOpacity={0.8}
-                onPress={this.goToScreen('ProfileEditScreen')}
-              >
+                onPress={this.goToScreen('ProfileEditScreen')}>
                 <FastImage
                   source={avatarImage}
                   resizeMode={FastImage.resizeMode.cover}
@@ -299,9 +253,7 @@ class AppDrawer extends Component {
                 />
               </TouchableOpacity>
 
-              <Title style={styles.title}>
-                {name || displayName || '--'}
-              </Title>
+              <Title style={styles.title}>{name || displayName || '--'}</Title>
 
               <View
                 style={{
@@ -387,12 +339,10 @@ class AppDrawer extends Component {
             borderTopWidth: 1,
             borderBottomWidth: 0,
             borderTopColor: '#EEEEEE',
-          }}
-        >
+          }}>
           <TouchableRipple
             // onPress={() => ToastAndroid.show('Pending implementation', ToastAndroid.SHORT)}
-            onPress={this.showMessage('Dark theme pending implementation')}
-          >
+            onPress={this.showMessage('Dark theme pending implementation')}>
             <View style={styles.preference}>
               <Text>Dark Theme</Text>
               <View pointerEvents="none">
@@ -415,9 +365,9 @@ class AppDrawer extends Component {
               alignSelf: 'flex-start',
               marginTop: 15,
               marginLeft: 15,
-            }}
-          >
-            v{getVersion()}{this.pushedUpdate}
+            }}>
+            v{getVersion()}
+            {this.pushedUpdate}
           </Text>
         </View>
 
@@ -427,8 +377,7 @@ class AppDrawer extends Component {
           action={{
             label: 'OK',
             onPress: () => this.dismissSnackbar(),
-          }}
-        >
+          }}>
           {snackbarMessage}
         </Snackbar>
       </SafeAreaView>
@@ -479,16 +428,12 @@ const styles = StyleSheet.create({
 });
 
 const mapStateToProps = (state) => {
-  const {
-    userState: {
-      userDetails = {},
-    } = {},
-  } = state;
+  const { userState: { userDetails = {} } = {} } = state;
 
-  return ({
+  return {
     userDetails,
     // appVersion: userDetails.appVersion,
-  });
+  };
 };
 
 export default connect(mapStateToProps)(AppDrawer);

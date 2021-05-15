@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   useWindowDimensions,
   Keyboard,
@@ -15,8 +15,10 @@ import {
 
 import { useNavigation } from '@react-navigation/native';
 import Carousel, { Pagination } from 'react-native-snap-carousel';
-// import { SliderBox } from 'react-native-image-slider-box';
+import FastImage from 'react-native-fast-image';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
+import Video from 'react-native-video';
+
 import { connect } from 'react-redux';
 
 import { Button, PostItemKind } from './components';
@@ -36,25 +38,36 @@ const PostBody = ({ postDetails }) => {
   const carouselRef = useRef(null);
 
   const SliderImage = ({ item }) => {
-    const image = { uri: item.url };
+    const itemSource = item.url ? { uri: item.url } : imagePlaceholder;
 
-    const [isImageLoaded, setIsImageLoaded] = useState(false);
-
-    const onImageLoaded = (loadEvent) => {
-      if (loadEvent) setIsImageLoaded(true);
-    };
-
-    return (
-      <Image
-        style={{
-          aspectRatio: item.width / item.height,
-          borderRadius: values.radius.md,
-        }}
-        onLoad={onImageLoaded}
-        source={isImageLoaded ? image : imagePlaceholder}
-        resizeMode="cover"
-      />
-    );
+    // TODO: work on this code
+    if (item.type === 'video') {
+      return (
+        <Video
+          paused
+          allowsExternalPlayback={false}
+          resizeMode="cover"
+          source={{
+            uri: 'https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4',
+          }}
+          style={{
+            aspectRatio: item.width / item.height,
+            borderRadius: values.radius.md,
+          }}
+        />
+      );
+    } else {
+      return (
+        <FastImage
+          style={{
+            aspectRatio: item.width / item.height,
+            borderRadius: values.radius.md,
+          }}
+          source={itemSource}
+          resizeMode={FastImage.resizeMode.contain}
+        />
+      );
+    }
   };
 
   const renderItem = ({ item }) => <SliderImage item={item} />;
@@ -71,25 +84,40 @@ const PostBody = ({ postDetails }) => {
                 </Text>
               </View>
             );
+          case PostItemKind.VIDEO /* FALLTHROUGH */:
+            console.warn(
+              '`PostItemKind.VIDEO` has been deprecated.',
+              'Defaulting to `PostItemKind.MEDIA`...',
+            );
           case PostItemKind.MEDIA:
             return (
               <>
                 <Carousel
                   ref={(c) => (carouselRef.current = c)}
-                  data={postDetails.images}
+                  data={postDetails.media}
                   sliderWidth={screenWidth}
                   itemWidth={screenWidth * 0.8}
                   renderItem={renderItem}
                   onSnapToItem={(index) => setActiveMediaIndex(index)}
                 />
                 <Pagination
-                  dotsLength={postDetails.images.length}
+                  dotsLength={postDetails.media.length}
                   activeDotIndex={activeMediaIndex}
+                  dotStyle={{
+                    width: 10,
+                    height: 10,
+                    borderRadius: 5,
+                    marginHorizontal: values.spacing.sm,
+                    backgroundColor: colors.gray700,
+                  }}
+                  inactiveDotStyle={{
+                    backgroundColor: colors.gray300,
+                  }}
+                  inactiveDotOpacity={0.4}
+                  inactiveDotScale={0.6}
                 />
               </>
             );
-          case PostItemKind.VIDEO:
-            return <Text>VIDEO</Text>;
           default:
             return null;
         }
@@ -119,7 +147,7 @@ const postBodyStyles = StyleSheet.create({
   dialogBoxText: {
     color: colors.black,
     fontSize: typography.size.md,
-    fontWeight: '600',
+    fontWeight: '700',
   },
 });
 
@@ -129,10 +157,14 @@ const PostDetails = ({ postDetails }) => {
 
   const {
     author,
-    location,
+    location = undefined,
     metrics = { likes: 0, isLiked: false, isSaved: false },
     // dimensions = { width: 1, height: 1 },
   } = postDetails;
+
+  const avatarSource = author.avatar
+    ? { uri: author.avatar.url }
+    : defaultAvatar;
 
   const handlePressAvatar = () => {
     navigation.navigate('UserProfileScreen', {
@@ -150,13 +182,15 @@ const PostDetails = ({ postDetails }) => {
     <View style={postDetailsStyles.container}>
       <ScrollView>
         <PostBody postDetails={postDetails} />
-        <Text style={postDetailsStyles.location}>{location.text}</Text>
+        {location && (
+          <Text style={postDetailsStyles.location}>{location.text}</Text>
+        )}
         <View style={postDetailsStyles.footerContainer}>
           <TouchableOpacity style={{ flexGrow: 1 }} onPress={handlePressAvatar}>
             <View style={postDetailsStyles.authorContainer}>
-              <Image
+              <FastImage
                 style={postDetailsStyles.avatar}
-                source={author.avatar ?? defaultAvatar}
+                source={avatarSource}
               />
               <Text
                 numberOfLines={1}
@@ -300,10 +334,10 @@ const PostDetailScreen = (props) => {
       keyboardVerticalOffset={75}
       style={{ backgroundColor: colors.white }}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        {/* <SafeAreaView> */}
+        {/* <> */}
         <PostDetails postDetails={postDetails} />
         {/* <CommentContainer /> */}
-        {/* </SafeAreaView> */}
+        {/* </> */}
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
   );

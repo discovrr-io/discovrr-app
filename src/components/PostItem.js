@@ -9,6 +9,8 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+
+import FastImage from 'react-native-fast-image';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 
 import { colors, typography, values } from '../constants';
@@ -25,7 +27,10 @@ export const PostItemKind = {
 };
 
 const AuthorPropTypes = PropTypes.shape({
-  avatar: PropTypes.shape({ url: PropTypes.string.isRequired }),
+  avatar: PropTypes.oneOfType([
+    PropTypes.shape({ url: PropTypes.string.isRequired }),
+    PropTypes.number,
+  ]),
   name: PropTypes.string.isRequired,
 });
 
@@ -48,6 +53,10 @@ const PostItemFooter = ({
 }) => {
   const hasLiked = useRef(metrics.hasLiked);
   const likesCount = useRef(metrics.likesCount);
+
+  const avatarSource = author.avatar
+    ? { uri: author.avatar.url }
+    : defaultAvatar;
 
   const [isProcessingLike, setIsProcessingLike] = useState(false);
 
@@ -88,9 +97,9 @@ const PostItemFooter = ({
     <View style={postItemFooterStyles.container}>
       <TouchableOpacity style={{ flex: 1 }} onPress={onPressAvatar}>
         <View style={postItemFooterStyles.authorContainer}>
-          <Image
+          <FastImage
             style={postItemFooterStyles.avatar}
-            source={author.avatar ?? defaultAvatar}
+            source={avatarSource}
           />
           <Text
             numberOfLines={1}
@@ -230,6 +239,11 @@ const PostItem = ({
             </Text>
           </View>
         );
+      case PostItemKind.VIDEO /* FALLTHROUGH */:
+        console.warn(
+          '`PostItemKind.VIDEO` has been deprecated.',
+          'Defaulting to `PostItemKind.MEDIA`...',
+        );
       case PostItemKind.MEDIA:
         const { width, height } = imagePreviewDimensions;
         return (
@@ -247,12 +261,6 @@ const PostItem = ({
             <PostItemContentCaption maxWidth={width} text={text} />
           </View>
         );
-      // case PostItemKind.VIDEO:
-      //   return (
-      //     <View style={[props.style]}>
-      //       <PostItemContentCaption maxWidth={100} text={text} />
-      //     </View>
-      //   );
       default:
         return null;
     }
@@ -263,7 +271,6 @@ const PostItem = ({
       style={[
         {
           maxWidth: imagePreviewDimensions.width,
-          marginLeft: values.spacing.sm,
           marginBottom: values.spacing.lg,
         },
         props.style,
@@ -317,7 +324,7 @@ const postItemStyles = StyleSheet.create({
   },
   dialogBoxText: {
     color: colors.black,
-    fontWeight: '600',
+    fontWeight: '700',
   },
 });
 

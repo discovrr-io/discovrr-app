@@ -1,10 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { RefreshControl, SafeAreaView, Text, View } from 'react-native';
+import {
+  FlatList,
+  RefreshControl,
+  SafeAreaView,
+  Text,
+  View,
+} from 'react-native';
 
 import { useNavigation } from '@react-navigation/native';
 import MasonryList from 'react-native-masonry-list';
 
-import { connect } from 'react-redux';
+import { connect, useDispatch } from 'react-redux';
 import * as actions from './utilities/Actions';
 
 import {
@@ -27,133 +33,171 @@ const POST_TYPE = {
   FOLLOWING: 'followingPosts',
 };
 
-async function fetchData(myUserDetails, selector, pages, dispatch) {
-  const { profileId } = myUserDetails;
+const DEFAULT_DATE = new Date('2020-10-30');
 
-  let query = null;
+function postQuery(blockedProfiles, pages) {
+  const query = new Parse.Query(Parse.Object.extend('Post'));
+  query.include('profile');
+  query.limit(pages.size);
+  query.skip(pages.size * pages.next);
+  query.greaterThanOrEqualTo('createdAt', DEFAULT_DATE);
+  query.descending('createdAt');
+  if (!isDevMode) query.equalTo('status', 0);
+
+  if (Array.isArray(blockedProfiles) && blockedProfiles.length) {
+    query.notContainedIn('profile', blockedProfiles);
+  }
+
+  return query;
+}
+
+function followingPostsQuery(followingArray, blockedProfiles) {
+  const query = new Parse.Query(Parse.Object.extend('Post'));
+  query.containedIn('profile', followingArray);
+  query.greaterThanOrEqualTo('createdAt', DEFAULT_DATE);
+  query.descending('createdAt');
+  if (!isDevMode) query.equalTo('status', 0);
+
+  if (Array.isArray(blockedProfiles) && blockedProfiles.length) {
+    query.notContainedIn('profile', blockedProfiles);
+  }
+
+  return query;
+}
+
+async function fetchData(selector, myUserDetails, pages, dispatch) {
   let _pages = pages;
+  const {
+    profileId,
+    followingArray = [],
+    blockedProfiles = [],
+  } = myUserDetails;
 
+  let query = undefined;
   switch (selector) {
     case POST_TYPE.DISCOVER:
-      query = postsQuery(_pages);
-      break;
-    case POST_TYPE.NEAR_ME:
+      query = postQuery(blockedProfiles, _pages);
       break;
     case POST_TYPE.FOLLOWING:
+      query = followingPostsQuery(followingArray, blockedProfiles);
+      break;
+    case POST_TYPE.FOLLOWING:
+      query = postQuery(blockedProfiles);
+      break;
+    case POST_TYPE.NEAR_ME:
+      console.warn('Unimplemented: POST_TYPE.NEAR_ME');
+      return { posts: [], pages };
+    default:
+      console.warn(
+        `Unrecognised selector '${selector}'.`,
+        `Defaulting to 'posts'...`,
+      );
+      query = postQuery(blockedProfiles);
       break;
   }
 
   const results = await query.find();
   _pages.next += 1;
 
-  if (!Array.isArray(results)) {
-    switch (selector) {
-      case POST_TYPE.DISCOVER:
+  if (selector === POST_TYPE.DISCOVER || selector === POST_TYPE.FOLLOWING) {
+    // TODO: pinnedEnjagaArray (???)
+
+    if (!(Array.isArray(results) && results.length)) {
+      if (selector === POST_TYPE.DISCOVER) {
         dispatch(actions.updatePosts([]));
-        break;
-      case POST_TYPE.NEAR_ME:
-        dispatch(actions.updateNearMePosts([]));
-        break;
-      case POST_TYPE.FOLLOWING:
+      } else {
         dispatch(actions.updateFollowingPosts([]));
-        break;
+      }
+
+      return { posts: [], pages: _pages };
     }
 
+    _pages.hasMoreData = results.length >= _pages.size;
+
+    const posts = results.map((post) => {
+      let postType = PostItemKind.MEDIA; // default value
+
+      const media = post.get('media');
+      if (Array.isArray(media) && media.length) {
+        media.forEach(({ type }, i) => {
+          if (type === 'video') media[i].isVideo = true;
+        });
+      }
+
+      const postPreview =
+        (Array.isArray(media) && media.length && media[0]) ?? null;
+      const imagePreviewUrl = postPreview?.url;
+
+      const imagePreviewDimensions = {
+        width: postPreview?.width ?? 800,
+        height: postPreview?.height ?? 600,
+      };
+
+      if (!imagePreviewUrl) postType = PostItemKind.TEXT;
+
+      // We use a placeholder for now if it is a text post
+      const imagePreviewSource = imagePreviewUrl
+        ? { uri: imagePreviewUrl }
+        : imagePlaceholder;
+
+      let likesCount = 0;
+      let hasLiked = false;
+      const likersArray = post.get('likersArray');
+      if (Array.isArray(likersArray) && likersArray.length) {
+        likesCount = likersArray.length;
+        hasLiked = likersArray.some((liker) => profileId === liker);
+      }
+
+      return {
+        author: {
+          id: post.get('profile')?.id,
+          name: post.get('profile')?.get('name') ?? 'Anonymous',
+          avatar: post.get('profile')?.get('avatar'),
+          description: post.get('profile')?.get('description'),
+          followersCount: post.get('profile')?.get('followersCount'),
+          followingCount: post.get('profile')?.get('followingCount'),
+          coverPhoto: post.get('profile')?.get('coverPhoto'),
+        },
+        metrics: {
+          likesCount,
+          hasLiked,
+          hasSaved: false, // TODO
+        },
+        id: post.id,
+        key: `${imagePreviewUrl ?? imagePlaceholder}`,
+        postType,
+        media,
+        source: imagePreviewSource,
+        dimensions: imagePreviewDimensions,
+        caption: post.get('caption'),
+        viewersCount: post.get('viewersCount'),
+        location: post.get('location'),
+        __refactored: true,
+      };
+    });
+
+    if (selector === POST_TYPE.DISCOVER) {
+      dispatch(actions.updatePosts(posts));
+    } else {
+      dispatch(actions.updateFollowingPosts(posts));
+    }
+
+    return { posts, pages: _pages };
+  } else {
+    /* TODO: NEAR ME */
     return null;
   }
-
-  _pages.hasMoreData = results.length >= _pages.size;
-
-  const posts = results.map((post) => {
-    // const hasProfile = !!post.get('profile');
-    let postType = PostItemKind.MEDIA; // default value
-
-    const images = post.get('media');
-    if (Array.isArray(images) && images.length) {
-      images.forEach(({ type }, i) => {
-        if (type === 'video') images[i].isVideo = true;
-      });
-    }
-
-    const imagePreview =
-      (Array.isArray(images) && images.length && images[0]) ?? null;
-    const imagePreviewUrl = imagePreview?.url;
-
-    const imagePreviewDimensions = {
-      width: imagePreview?.width ?? 800,
-      height: imagePreview?.height ?? 600,
-    };
-
-    if (!imagePreviewUrl) postType = PostItemKind.TEXT;
-
-    // We use a placeholder for now if it is a text post
-    const imagePreviewSource = imagePreviewUrl
-      ? { uri: imagePreviewUrl }
-      : imagePlaceholder;
-
-    let likesCount = 0;
-    let hasLiked = false;
-    const likersArray = post.get('likersArray');
-    if (Array.isArray(likersArray) && likersArray.length) {
-      likesCount = likersArray.length;
-      hasLiked = likersArray.some((liker) => profileId === liker);
-    }
-
-    return {
-      author: {
-        id: post.get('profile')?.id,
-        name: post.get('profile')?.get('name') ?? 'Anonymous',
-        avatar: post.get('profile')?.get('avatar'),
-        description: post.get('profile')?.get('description'),
-        followersCount: post.get('profile')?.get('followersCount'),
-        followingCount: post.get('profile')?.get('followingCount'),
-        coverPhoto: post.get('profile')?.get('coverPhoto'),
-      },
-      metrics: {
-        likesCount,
-        hasLiked,
-        hasSaved: false, // TODO
-      },
-      id: post.id,
-      key: `${imagePreviewUrl ?? imagePlaceholder}`,
-      postType,
-      images,
-      source: imagePreviewSource,
-      dimensions: imagePreviewDimensions,
-      caption: post.get('caption'),
-      viewersCount: post.get('viewersCount'),
-      location: post.get('location'),
-      __refactored: true,
-    };
-  });
-
-  return { posts, pages: _pages };
 }
 
-function postsQuery(pages) {
-  const query = new Parse.Query(Parse.Object.extend('Post'));
-  query.include('profile');
-  query.limit(pages.size);
-  query.skip(pages.size * pages.next);
+const HomeScreen = (props) => {
+  const {
+    userDetails: myUserDetails,
+    route: { params },
+  } = props;
 
-  if (!isDevMode) query.equalTo('status', 0);
-
-  query.greaterThanOrEqualTo('createdAt', new Date('2020-10-30'));
-  query.descending('createdAt');
-
-  return query;
-}
-
-function followingQuery(followingArray) {
-  const query = new Parse.Query(Parse.Object.extend('Post'));
-  query.containedIn('profile', followingArray);
-  query.greaterThanOrEqualTo('createdAt', new Date('2020-10-30'));
-
-  return query;
-}
-
-const DiscoverTab = ({ myUserDetails, dispatch }) => {
+  const activeTab = params.postTypes ?? POST_TYPE.DISCOVER;
   const navigation = useNavigation();
+  const dispatch = useDispatch();
 
   const [posts, setPosts] = useState([]);
   const [pages, setPages] = useState({ next: 0, hasMoreData: true, size: 40 });
@@ -165,12 +209,7 @@ const DiscoverTab = ({ myUserDetails, dispatch }) => {
   useEffect(() => {
     const _fetchData = async () => {
       try {
-        const data = await fetchData(
-          myUserDetails,
-          POST_TYPE.DISCOVER,
-          pages,
-          dispatch,
-        );
+        const data = await fetchData(activeTab, myUserDetails, pages, dispatch);
 
         if (data) {
           const { posts, pages: newPages } = data;
@@ -189,12 +228,10 @@ const DiscoverTab = ({ myUserDetails, dispatch }) => {
       setIsRefreshing(false);
     };
 
-    _fetchData();
-  }, [isRefreshing]); // Will rerun this whenever `isRefreshing` changes
+    if (isLoading || isRefreshing) _fetchData();
 
-  const addPosts = (_) => {
-    console.warn('UNIMPLEMENTED: HomeScreen.addPosts');
-  };
+    // syncOneSignal
+  }, [isRefreshing]);
 
   const handleRefresh = () => {
     if (!isRefreshing) {
@@ -215,7 +252,15 @@ const DiscoverTab = ({ myUserDetails, dispatch }) => {
   };
 
   if (isLoading) {
-    return <LoadingTabView message="Loading your experience..." />;
+    return (
+      <LoadingTabView
+        message={
+          activeTab === POST_TYPE.DISCOVER
+            ? 'Loading your experience...'
+            : 'Loading posts...'
+        }
+      />
+    );
   }
 
   if (error) {
@@ -223,81 +268,8 @@ const DiscoverTab = ({ myUserDetails, dispatch }) => {
   }
 
   return (
-    <MasonryList
-      sorted
-      rerender
-      columns={2}
-      images={posts}
-      initialNumInColsToRender={1}
-      listContainerStyle={{ paddingTop: values.spacing.sm }}
-      onEndReachedThreshold={0.1}
-      onEndReached={addPosts}
-      masonryFlatListColProps={{
-        ListEmptyComponent: () => <EmptyTabView style={{ width: '100%' }} />,
-        refreshControl: (
-          <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />
-        ),
-      }}
-      completeCustomComponent={({ data }) => (
-        <PostItem
-          id={data.id}
-          kind={data.postType}
-          text={data.caption}
-          author={data.author}
-          metrics={data.metrics}
-          column={data.column}
-          imagePreview={data.source}
-          imagePreviewDimensions={data.masonryDimensions}
-          onPressPost={() => handlePressPost(data)}
-          onPressAvatar={() => handlePressAvatar(data)}
-        />
-      )}
-    />
-  );
-};
-
-const NearMeTab = ({}) => {
-  return (
-    <View>
-      <Text>NEAR ME</Text>
-    </View>
-  );
-};
-
-const FollowingTab = ({}) => {
-  return (
-    <View>
-      <Text>FOLLOWING</Text>
-    </View>
-  );
-};
-
-const HomeScreen = (props) => {
-  const {
-    userDetails: myUserDetails,
-    route: { params },
-  } = props;
-
-  const activeTab = params.postTypes ?? POST_TYPE.DISCOVER;
-
-  return (
     <SafeAreaView style={{ flex: 1 }}>
-      {(() => {
-        switch (activeTab) {
-          case POST_TYPE.NEAR_ME:
-            return <NearMeTab />;
-          case POST_TYPE.FOLLOWING:
-            return <FollowingTab />;
-          case POST_TYPE.DISCOVER: /* fallthrough */
-          default:
-            return (
-              <DiscoverTab
-                myUserDetails={myUserDetails}
-                dispatch={props.dispatch}
-              />
-            );
-        }
-      })()}
+      <Text>{JSON.stringify(posts)}</Text>
     </SafeAreaView>
   );
 };
