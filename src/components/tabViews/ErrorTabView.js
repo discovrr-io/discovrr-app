@@ -9,9 +9,10 @@ const ErrorTabView = ({
   title = '😓',
   message = 'Oops, something went wrong.\nPlease try again later.',
   error,
+  ...props
 }) => {
   return (
-    <View style={{ paddingTop: values.spacing.huge }}>
+    <View style={[{ paddingTop: values.spacing.huge }, props.style]}>
       <View>
         <Text style={styles.title}>{title}</Text>
         <Text style={styles.message}>{message}</Text>

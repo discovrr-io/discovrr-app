@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
+  useWindowDimensions,
   FlatList,
   RefreshControl,
   SafeAreaView,
@@ -20,7 +21,7 @@ import {
   PostItem,
   PostItemKind,
 } from './components';
-import { values } from './constants';
+import { colors, values } from './constants';
 
 const isDevMode = process.env.NODE_ENV === 'development';
 const imagePlaceholder = require('../resources/images/imagePlaceholder.png');
@@ -42,10 +43,34 @@ function postQuery(blockedProfiles, pages) {
   query.skip(pages.size * pages.next);
   query.greaterThanOrEqualTo('createdAt', DEFAULT_DATE);
   query.descending('createdAt');
+
   if (!isDevMode) query.equalTo('status', 0);
 
   if (Array.isArray(blockedProfiles) && blockedProfiles.length) {
     query.notContainedIn('profile', blockedProfiles);
+  }
+
+  return query;
+}
+
+function nearMePostsQuery(locationPreference) {
+  const query = new Parse.Query(Parse.Object.extend('Vendor'));
+  query.equalTo('editedDelete', true);
+
+  let pointOfInterest;
+  if (locationPreference) {
+    pointOfInterest = new Parse.GeoPoint(
+      locationPreference.latitude,
+      locationPreference.longitude,
+    );
+    query.withinKilometers(
+      'geopoint',
+      pointOfInterest,
+      locationPreference.searchRadius,
+    );
+  } else {
+    pointOfInterest = new Parse.GeoPoint(-33.88013879489698, 151.1145074106);
+    query.withinKilometers('geopoint', pointOfInterest, 5);
   }
 
   return query;
@@ -56,6 +81,7 @@ function followingPostsQuery(followingArray, blockedProfiles) {
   query.containedIn('profile', followingArray);
   query.greaterThanOrEqualTo('createdAt', DEFAULT_DATE);
   query.descending('createdAt');
+
   if (!isDevMode) query.equalTo('status', 0);
 
   if (Array.isArray(blockedProfiles) && blockedProfiles.length) {
@@ -73,6 +99,8 @@ async function fetchData(selector, myUserDetails, pages, dispatch) {
     blockedProfiles = [],
   } = myUserDetails;
 
+  console.log({ myUserDetails });
+
   let query = undefined;
   switch (selector) {
     case POST_TYPE.DISCOVER:
@@ -85,8 +113,8 @@ async function fetchData(selector, myUserDetails, pages, dispatch) {
       query = postQuery(blockedProfiles);
       break;
     case POST_TYPE.NEAR_ME:
-      console.warn('Unimplemented: POST_TYPE.NEAR_ME');
-      return { posts: [], pages };
+      query = nearMePostsQuery(undefined);
+      break;
     default:
       console.warn(
         `Unrecognised selector '${selector}'.`,
@@ -185,6 +213,7 @@ async function fetchData(selector, myUserDetails, pages, dispatch) {
     return { posts, pages: _pages };
   } else {
     /* TODO: NEAR ME */
+    console.warn('Unimplemented: Near Me tab');
     return null;
   }
 }
@@ -199,6 +228,8 @@ const HomeScreen = (props) => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
 
+  const { width: screenWidth } = useWindowDimensions();
+
   const [posts, setPosts] = useState([]);
   const [pages, setPages] = useState({ next: 0, hasMoreData: true, size: 40 });
 
@@ -210,7 +241,6 @@ const HomeScreen = (props) => {
     const _fetchData = async () => {
       try {
         const data = await fetchData(activeTab, myUserDetails, pages, dispatch);
-
         if (data) {
           const { posts, pages: newPages } = data;
           setPosts(posts);
@@ -230,8 +260,12 @@ const HomeScreen = (props) => {
 
     if (isLoading || isRefreshing) _fetchData();
 
-    // syncOneSignal
-  }, [isRefreshing]);
+    // TODO: syncOneSignal
+  }, [isRefreshing]); // Will rerun this whenever `isRefreshing` changes
+
+  const addPosts = (_) => {
+    console.warn('UNIMPLEMENTED: HomeScreen.addPosts');
+  };
 
   const handleRefresh = () => {
     if (!isRefreshing) {
@@ -259,17 +293,107 @@ const HomeScreen = (props) => {
             ? 'Loading your experience...'
             : 'Loading posts...'
         }
+        style={{ flex: 1, backgroundColor: colors.white }}
       />
     );
   }
 
   if (error) {
-    return <ErrorTabView error={error} />;
+    return (
+      <ErrorTabView
+        error={error}
+        style={{ flex: 1, backgroundColor: colors.white }}
+      />
+    );
   }
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <Text>{JSON.stringify(posts)}</Text>
+      {activeTab === POST_TYPE.FOLLOWING ? (
+        <FlatList
+          data={posts}
+          keyExtractor={(item, _) => item.id}
+          contentContainerStyle={{
+            flexGrow: 1,
+            paddingHorizontal: values.spacing.sm,
+            paddingTop: values.spacing.sm,
+          }}
+          ListEmptyComponent={() => <EmptyTabView style={{ width: '100%' }} />}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={handleRefresh}
+              colors={[colors.gray500]}
+              tintColor={colors.gray500}
+            />
+          }
+          renderItem={({ item }) => {
+            console.log({ item });
+            const { height } = item.dimensions;
+            const imageWidth = screenWidth - values.spacing.md;
+            const imageHeight = height * (imageWidth / height);
+
+            const imageDimensions = {
+              width: imageWidth,
+              height: imageHeight,
+            };
+
+            return (
+              <PostItem
+                id={item.id}
+                kind={item.postType}
+                text={item.caption}
+                author={item.author}
+                metrics={item.metrics}
+                column={item.column}
+                imagePreview={item.source}
+                imagePreviewDimensions={imageDimensions}
+                onPressPost={() => handlePressPost(item)}
+                onPressAvatar={() => handlePressAvatar(item)}
+              />
+            );
+          }}
+        />
+      ) : (
+        <MasonryList
+          sorted
+          rerender
+          columns={2}
+          images={posts}
+          initialNumInColsToRender={activeTab === POST_TYPE.NEAR_ME ? 0 : 1}
+          listContainerStyle={{ paddingTop: values.spacing.sm }}
+          onEndReachedThreshold={0.1}
+          onEndReached={addPosts}
+          masonryFlatListColProps={{
+            ListEmptyComponent: () => (
+              <EmptyTabView style={{ width: '100%' }} />
+            ),
+            refreshControl: (
+              <RefreshControl
+                refreshing={isRefreshing}
+                onRefresh={handleRefresh}
+                colors={[colors.gray500]}
+                tintColor={colors.gray500}
+              />
+            ),
+          }}
+          completeCustomComponent={({ data }) => (
+            <PostItem
+              id={data.id}
+              kind={data.postType}
+              text={data.caption}
+              author={data.author}
+              metrics={data.metrics}
+              column={data.column}
+              imagePreview={data.source}
+              imagePreviewDimensions={data.masonryDimensions}
+              onPressPost={() => handlePressPost(data)}
+              onPressAvatar={() => handlePressAvatar(data)}
+              style={{ marginLeft: values.spacing.xs * 1.5 }}
+            />
+          )}
+        />
+      )}
     </SafeAreaView>
   );
 };

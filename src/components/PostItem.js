@@ -228,7 +228,7 @@ const PostItem = ({
           <View
             style={[
               postItemStyles.dialogBox,
-              { minWidth: imagePreviewDimensions.width },
+              { maxWidth: imagePreviewDimensions.width },
               props.style,
             ]}>
             <Text
@@ -313,6 +313,7 @@ PostItem.propTypes = {
 
 const postItemStyles = StyleSheet.create({
   dialogBox: {
+    flex: 1,
     backgroundColor: colors.gray100,
     borderColor: colors.gray,
     borderTopLeftRadius: values.radius.md,
