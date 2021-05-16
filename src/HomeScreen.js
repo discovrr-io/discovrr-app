@@ -99,8 +99,6 @@ async function fetchData(selector, myUserDetails, pages, dispatch) {
     blockedProfiles = [],
   } = myUserDetails;
 
-  console.log({ myUserDetails });
-
   let query = undefined;
   switch (selector) {
     case POST_TYPE.DISCOVER:
@@ -261,7 +259,7 @@ const HomeScreen = (props) => {
     if (isLoading || isRefreshing) _fetchData();
 
     // TODO: syncOneSignal
-  }, [isRefreshing]); // Will rerun this whenever `isRefreshing` changes
+  }, [isRefreshing]); // This will run whenever `isRefreshing` changes
 
   const addPosts = (_) => {
     console.warn('UNIMPLEMENTED: HomeScreen.addPosts');
@@ -275,11 +273,11 @@ const HomeScreen = (props) => {
   };
 
   const handlePressPost = (postData) => {
-    navigation.navigate('PostDetailScreen', postData);
+    navigation.push('PostDetailScreen', postData);
   };
 
   const handlePressAvatar = (postData) => {
-    navigation.navigate('UserProfileScreen', {
+    navigation.push('UserProfileScreen', {
       userProfile: postData.author,
       metrics: postData.metrics,
     });
@@ -328,7 +326,6 @@ const HomeScreen = (props) => {
             />
           }
           renderItem={({ item }) => {
-            console.log({ item });
             const { height } = item.dimensions;
             const imageWidth = screenWidth - values.spacing.md;
             const imageHeight = height * (imageWidth / height);

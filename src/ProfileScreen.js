@@ -496,8 +496,8 @@ const PostsTab = ({ userProfile }) => {
       }
     };
 
-    fetchData();
-  }, [isRefreshing]);
+    if (isLoading || isRefreshing) fetchData();
+  }, [isRefreshing]); // This will run whenever `isRefreshing` changes
 
   const handleRefresh = () => {
     if (!isRefreshing) setIsRefreshing(true);
@@ -536,6 +536,7 @@ const PostsTab = ({ userProfile }) => {
       }}
       completeCustomComponent={({ data }) => (
         <PostItem
+          id={data.id}
           kind={data.postType}
           text={data.caption}
           author={data.author}
@@ -571,8 +572,8 @@ const NotesTab = ({ userProfile, isMyProfile }) => {
       }
     };
 
-    fetchData();
-  }, [isRefreshing]);
+    if (isLoading || isRefreshing) fetchData();
+  }, [isRefreshing]); // This will run whenever `isRefreshing` changes
 
   const handleRefresh = () => {
     if (!isRefreshing) setIsRefreshing(true);

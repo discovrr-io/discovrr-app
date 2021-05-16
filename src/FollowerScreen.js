@@ -151,8 +151,8 @@ const FollowerScreen = ({ route }) => {
       setIsRefreshing(false);
     };
 
-    _fetchData();
-  }, [isRefreshing]); // Will rerun this whenever `isRefreshing` changes
+    if (isLoading || isRefreshing) _fetchData();
+  }, [isRefreshing]); // This will run whenever `isRefreshing` changes
 
   const handleRefresh = () => {
     if (!isRefreshing) setIsRefreshing(true);
