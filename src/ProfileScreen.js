@@ -18,13 +18,14 @@ import {
   withSafeAreaInsets,
 } from 'react-native-safe-area-context';
 
-import { connect /* useDispatch */ } from 'react-redux';
+import { connect } from 'react-redux';
 
 import {
   Button,
   EmptyTabView,
   ErrorTabView,
   LoadingTabView,
+  NoteItem,
   PostItem,
   PostItemKind,
   ToggleButton,
@@ -149,48 +150,37 @@ async function fetchPosts(userProfile) {
 }
 
 async function fetchNotes(userProfile, isMyProfile) {
-  console.log({ __ID: userProfile.id });
-  const currentUser = await Parse.User.currentAsync();
-  // const userPointer = !isMyProfile
-  //   ? {
-  //       __type: 'Pointer',
-  //       className: '_User',
-  //       objectId: userProfile.id,
-  //     }
-  //   : currentUser;
+  const userPointer = {
+    __type: 'Pointer',
+    className: '_User',
+    objectId: isMyProfile ? userProfile.userId : userProfile.ownerId,
+  };
 
-  // We won't handle exceptions here
   const query = new Parse.Query(Parse.Object.extend('Board'));
-  // query.equalTo('owner', isMyProfile ? userPointer );
-
-  if (isMyProfile) {
-    query.equalTo('owner', currentUser);
-  } else {
-    query.equalTo('profile', userProfile.id);
-  }
+  query.equalTo('owner', userPointer);
 
   const results = await query.find();
-
   if (!Array.isArray(results)) {
     throw new Error('fetchNotes: The type of results is not Array.');
   }
 
   const notes = results.map((note) => {
-    const imageData = note.get('image');
-    const imageUrl = imageData?.url;
-    const imageSource = imageUrl ? { uri: imageUrl } : imagePlaceholder;
-    const imageDimensions = {
-      width: imageData?.width ?? 800,
-      height: imageData?.height ?? 600,
+    const imagePreviewData = note.get('image');
+    const imagePreviewUrl = imagePreviewData?.url;
+    const imagePreviewSource = imagePreviewUrl
+      ? { uri: imagePreviewUrl }
+      : imagePlaceholder;
+    const imagePreviewDimensions = {
+      width: imagePreviewData?.width ?? 800,
+      height: imagePreviewData?.height ?? 600,
     };
 
     return {
       id: note.id,
       title: note.get('title'),
       isPrivate: note.get('private'),
-      image: imageData,
-      source: imageSource,
-      dimensions: imageDimensions,
+      source: imagePreviewSource,
+      dimensions: imagePreviewDimensions,
     };
   });
 
@@ -203,29 +193,23 @@ const ProfileScreenHeader = ({
   fetchUser: shouldFetchUser = false,
   ...props
 }) => {
-  // const dispatch = useDispatch();
   const navigation = useNavigation();
 
   const [userProfile, setUserProfile] = useState(givenUserProfile);
+  const [isProcessingFollow, setIsProcessingFollow] = useState(false);
   const [_isLoading, setIsLoading] = useState(shouldFetchUser);
   const [_error, setError] = useState(null);
-
-  const [isProcessingFollow, setIsProcessingFollow] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // const profileQuery = new Parse.Query('Profile');
-        // profileQuery.equalTo('owner', userProfile.id);
-        // const myProfile = await profileQuery.first();
-        // console.log({ __MY_PROFILE__: myProfile });
-
         const newUserProfile = await fetchUser(givenUserProfile.id);
         setUserProfile({ ...givenUserProfile, ...newUserProfile });
       } catch (error) {
         setError(error);
         console.error(`Failed to fetch user: ${error.message ?? error}`);
       }
+
       setIsLoading(false);
     };
 
@@ -292,8 +276,13 @@ const ProfileScreenHeader = ({
     );
   };
 
-  const onMessageButtonPress = (_) => alertUnavailableFeature();
-  const onEditProfileButtonPress = (_) => alertUnavailableFeature();
+  const onMessageButtonPress = (_) => {
+    alertUnavailableFeature();
+  };
+
+  const onEditProfileButtonPress = (_) => {
+    navigation.navigate('ProfileEditScreen');
+  };
 
   const handleShowFollowers = () => {
     navigation.push('FollowerScreen', {
@@ -474,26 +463,26 @@ const headerStyles = StyleSheet.create({
   },
 });
 
-const PostsTab = ({ userProfile }) => {
+const PostsTab = ({ userProfile, isMyProfile }) => {
   const navigation = useNavigation();
 
+  const [posts, setPosts] = useState([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [posts, setPosts] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const posts = await fetchPosts(userProfile);
         setPosts(posts);
-        setIsLoading(false);
       } catch (error) {
         setPosts([]);
-        setIsLoading(false);
         setError(error);
         console.error(`Failed to fetch posts: ${error}`);
       }
+
+      setIsLoading(false);
     };
 
     if (isLoading || isRefreshing) fetchData();
@@ -519,6 +508,11 @@ const PostsTab = ({ userProfile }) => {
     return <ErrorTabView error={error} />;
   }
 
+  const emptyTabViewMessage =
+    (isMyProfile
+      ? `You haven't `
+      : `${userProfile.name ?? 'This user'} hasn't `) + 'posted anything';
+
   return (
     <MasonryList
       sorted
@@ -529,7 +523,12 @@ const PostsTab = ({ userProfile }) => {
       listContainerStyle={{ paddingTop: values.spacing.sm }}
       backgroundColor={colors.white}
       masonryFlatListColProps={{
-        ListEmptyComponent: () => <EmptyTabView style={{ width: '100%' }} />,
+        ListEmptyComponent: () => (
+          <EmptyTabView
+            message={emptyTabViewMessage}
+            style={{ width: '100%' }}
+          />
+        ),
         refreshControl: (
           <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />
         ),
@@ -553,23 +552,23 @@ const PostsTab = ({ userProfile }) => {
 };
 
 const NotesTab = ({ userProfile, isMyProfile }) => {
+  const [notes, setNotes] = useState([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [notes, setNotes] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const notes = await fetchNotes(userProfile, isMyProfile);
         setNotes(notes);
-        setIsLoading(false);
       } catch (error) {
         setNotes([]);
-        setIsLoading(false);
         setError(error);
         console.error(`Failed to fetch notes: ${error}`);
       }
+
+      setIsLoading(false);
     };
 
     if (isLoading || isRefreshing) fetchData();
@@ -587,6 +586,12 @@ const NotesTab = ({ userProfile, isMyProfile }) => {
     return <ErrorTabView error={error} />;
   }
 
+  const emptyTabViewMessage =
+    (isMyProfile
+      ? `You haven't `
+      : `${userProfile.name ?? 'This user'} hasn't `) +
+    'created any public notes';
+
   return (
     <MasonryList
       sorted
@@ -598,43 +603,25 @@ const NotesTab = ({ userProfile, isMyProfile }) => {
       listContainerStyle={{ paddingTop: values.spacing.sm }}
       backgroundColor={colors.white}
       masonryFlatListColProps={{
-        ListEmptyComponent: () => <EmptyTabView style={{ width: '100%' }} />,
+        ListEmptyComponent: () => (
+          <EmptyTabView
+            message={emptyTabViewMessage}
+            style={{ width: '100%' }}
+          />
+        ),
         refreshControl: (
           <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />
         ),
       }}
-      completeCustomComponent={({ data }) => {
-        const { width, height } = data.masonryDimensions;
-        return (
-          <View
-            style={{
-              marginRight: values.spacing.md,
-              marginBottom: values.spacing.md,
-              flexDirection: 'column-reverse',
-            }}>
-            <Image
-              style={{
-                width,
-                height,
-                borderRadius: values.radius.md,
-              }}
-              source={data.source}
-            />
-            <Text
-              style={{
-                fontWeight: '700',
-                fontSize: typography.size.lg,
-                // color: colors.white,
-                position: 'absolute',
-                marginBottom: values.spacing.md,
-                marginLeft: values.spacing.md,
-                backgroundColor: colors.gray100,
-              }}>
-              {data.title}
-            </Text>
-          </View>
-        );
-      }}
+      completeCustomComponent={({ data }) => (
+        <NoteItem
+          id={data.id}
+          title={data.title}
+          imagePreview={data.source}
+          imagePreviewDimensions={data.masonryDimensions}
+          style={{ marginLeft: values.spacing.sm * 1.5 }}
+        />
+      )}
     />
   );
 };
@@ -689,7 +676,7 @@ const ProfileScreen = (props) => {
             onScroll={() => console.log('ON_SCROLL')}
             onScrollEndDrag={() => console.log('END DRAG')}
             onMomentumScrollEnd={() => console.log('END SCROLL')}>
-            <PostsTab userProfile={userProfile} />
+            <PostsTab userProfile={userProfile} isMyProfile={isMyProfile} />
           </Tabs.ScrollView>
         </Tabs.Tab>
         <Tabs.Tab name="notes" label="Notes">

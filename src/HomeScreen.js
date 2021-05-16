@@ -177,6 +177,7 @@ async function fetchData(selector, myUserDetails, pages, dispatch) {
       return {
         author: {
           id: post.get('profile')?.id,
+          ownerId: post.get('profile')?.get('owner').id,
           name: post.get('profile')?.get('name') ?? 'Anonymous',
           avatar: post.get('profile')?.get('avatar'),
           description: post.get('profile')?.get('description'),
