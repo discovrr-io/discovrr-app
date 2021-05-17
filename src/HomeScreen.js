@@ -305,7 +305,7 @@ const HomeScreen = (props) => {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      {activeTab === POST_TYPE.FOLLOWING ? (
+      {/* {activeTab === POST_TYPE.FOLLOWING ? (
         <FlatList
           data={posts}
           keyExtractor={(item, _) => item.id}
@@ -384,11 +384,47 @@ const HomeScreen = (props) => {
               imagePreviewDimensions={data.masonryDimensions}
               onPressPost={() => handlePressPost(data)}
               onPressAvatar={() => handlePressAvatar(data)}
-              style={{ marginLeft: values.spacing.xs * 1.5 }}
+              style={{ marginHorizontal: values.spacing.xs * 1.1 }}
             />
           )}
         />
-      )}
+      )} */}
+      <MasonryList
+        sorted
+        rerender
+        columns={activeTab === POST_TYPE.FOLLOWING ? 1 : 2}
+        images={posts}
+        // initialNumInColsToRender={activeTab === POST_TYPE.DISCOVER ? 1 : 0}
+        listContainerStyle={{ paddingTop: values.spacing.sm }}
+        onEndReachedThreshold={0.1}
+        onEndReached={addPosts}
+        masonryFlatListColProps={{
+          ListEmptyComponent: () => <EmptyTabView style={{ width: '100%' }} />,
+          refreshControl: (
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={handleRefresh}
+              colors={[colors.gray500]}
+              tintColor={colors.gray500}
+            />
+          ),
+        }}
+        completeCustomComponent={({ data }) => (
+          <PostItem
+            id={data.id}
+            kind={data.postType}
+            text={data.caption}
+            author={data.author}
+            metrics={data.metrics}
+            column={data.column}
+            imagePreview={data.source}
+            imagePreviewDimensions={data.masonryDimensions}
+            onPressPost={() => handlePressPost(data)}
+            onPressAvatar={() => handlePressAvatar(data)}
+            style={{ marginHorizontal: values.spacing.xs * 1.1 }}
+          />
+        )}
+      />
     </SafeAreaView>
   );
 };

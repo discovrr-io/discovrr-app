@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Alert,
   Image,
@@ -11,6 +11,7 @@ import {
 
 import { useNavigation } from '@react-navigation/native';
 import { Tabs } from 'react-native-collapsible-tab-view';
+import FastImage from 'react-native-fast-image';
 import MasonryList from 'react-native-masonry-list';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import {
@@ -200,22 +201,6 @@ const ProfileScreenHeader = ({
   const [_isLoading, setIsLoading] = useState(shouldFetchUser);
   const [_error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const newUserProfile = await fetchUser(givenUserProfile.id);
-        setUserProfile({ ...givenUserProfile, ...newUserProfile });
-      } catch (error) {
-        setError(error);
-        console.error(`Failed to fetch user: ${error.message ?? error}`);
-      }
-
-      setIsLoading(false);
-    };
-
-    if (shouldFetchUser) fetchData();
-  }, []);
-
   const {
     avatar: { url: avatarUrl } = {},
     coverPhoto: { url: coverPhotoUrl } = {},
@@ -238,7 +223,26 @@ const ProfileScreenHeader = ({
 
   const [isAvatarLoaded, setIsAvatarLoaded] = useState(false);
   const [isHeaderLoaded, setIsHeaderLoaded] = useState(false);
-  const [currFollowersCount, setCurrFollowersCount] = useState(followersCount);
+  // const [currFollowersCount, setCurrFollowersCount] = useState(followersCount);
+
+  const currFollowersCount = useRef(followersCount);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const newUserProfile = await fetchUser(givenUserProfile.id);
+        setUserProfile({ ...givenUserProfile, ...newUserProfile });
+        currFollowersCount.current = newUserProfile.followersCount;
+      } catch (error) {
+        setError(error);
+        console.error(`Failed to fetch user: ${error.message ?? error}`);
+      }
+
+      setIsLoading(false);
+    };
+
+    if (shouldFetchUser) fetchData();
+  }, []);
 
   const onAvatarLoaded = (loadEvent) => {
     if (loadEvent) setIsAvatarLoaded(true);
@@ -257,7 +261,9 @@ const ProfileScreenHeader = ({
         follow: isFollowing,
       });
 
-      setCurrFollowersCount((prevCount) => prevCount + (isFollowing ? 1 : -1));
+      // setCurrFollowersCount((prevCount) => prevCount + (isFollowing ? 1 : -1));
+      currFollowersCount.current =
+        currFollowersCount.current + (isFollowing ? 1 : -1);
     } catch (error) {
       const message = `Failed to ${
         isFollowing ? 'follow' : 'unfollow'
@@ -311,14 +317,14 @@ const ProfileScreenHeader = ({
 
   return (
     <View pointerEvents="box-none" style={[props.style]}>
-      <Image
+      <FastImage
         onLoad={onHeaderLoaded}
         style={headerStyles.headerBackground}
         source={isHeaderLoaded ? headerImage : imagePlaceholder}
       />
       <View style={headerStyles.profileDetails}>
         <View style={headerStyles.profileMetrics}>
-          <Image
+          <FastImage
             onLoad={onAvatarLoaded}
             style={headerStyles.profileAvatar}
             source={isAvatarLoaded ? avatarImage : defaultAvatar}
@@ -327,7 +333,7 @@ const ProfileScreenHeader = ({
             <View style={headerStyles.profileMetricsDetails}>
               <Metric
                 title={'Followers'}
-                value={currFollowersCount}
+                value={currFollowersCount.current}
                 onPress={handleShowFollowers}
               />
               <Metric

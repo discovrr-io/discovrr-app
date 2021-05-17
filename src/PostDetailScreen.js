@@ -1,17 +1,17 @@
 import React from 'react';
 import {
   useWindowDimensions,
-  Image,
   FlatList,
+  KeyboardAvoidingView,
+  LogBox,
+  Platform,
+  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
-  KeyboardAvoidingView,
-  Platform,
-  SafeAreaView,
 } from 'react-native';
 
 import { useNavigation } from '@react-navigation/native';
@@ -25,6 +25,7 @@ import * as reduxActions from './utilities/Actions';
 
 import {
   Button,
+  EmptyTabView,
   ErrorTabView,
   LoadingTabView,
   PostItemKind,
@@ -196,6 +197,9 @@ const PostDetailFooter = ({ postDetails, ...props }) => {
 
   const { author, metrics = { likes: 0, isLiked: false, isSaved: false } } =
     postDetails;
+  const avatarSource = author.avatar?.url
+    ? { uri: author.avatar.url }
+    : defaultAvatar;
 
   const handlePressAvatar = () => {
     navigation.navigate('UserProfileScreen', {
@@ -219,11 +223,11 @@ const PostDetailFooter = ({ postDetails, ...props }) => {
       <View style={postDetailsFooterStyles.footerContainer}>
         <TouchableOpacity style={{ flexGrow: 1 }} onPress={handlePressAvatar}>
           <View style={postDetailsFooterStyles.authorContainer}>
-            <Image
+            <FastImage
               width={AVATAR_DIAMETER}
               height={AVATAR_DIAMETER}
               style={postDetailsFooterStyles.avatar}
-              source={author?.avatar ?? defaultAvatar}
+              source={avatarSource}
             />
             <Text
               numberOfLines={1}
@@ -313,6 +317,7 @@ const postDetailsFooterStyles = StyleSheet.create({
 
 const PostDetailComments = ({ postDetails, ...props }) => {
   const dispatch = useDispatch();
+  const navigation = useNavigation();
 
   const [comments, setComments] = React.useState([]);
   const [isRefreshing, setIsRefreshing] = React.useState(false);
@@ -320,6 +325,9 @@ const PostDetailComments = ({ postDetails, ...props }) => {
   const [error, setError] = React.useState(null);
 
   React.useEffect(() => {
+    // Ignore warning that FlatList is nested in ScrollView for now
+    LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
+
     const fetchData = async () => {
       try {
         const comments = await fetchPostComments(postDetails, dispatch);
@@ -330,7 +338,6 @@ const PostDetailComments = ({ postDetails, ...props }) => {
         console.error(`Failed to fetch comments: ${error}`);
       }
 
-      console.log({ comments });
       setIsLoading(false);
       setIsRefreshing(false);
     };
@@ -338,30 +345,86 @@ const PostDetailComments = ({ postDetails, ...props }) => {
     if (isLoading || isRefreshing) fetchData();
   }, [isRefreshing]);
 
-  if (isLoading) {
-    return (
-      <LoadingTabView
-        message="Loading comments..."
-        style={{ paddingTop: values.spacing.lg }}
-      />
-    );
-  }
-
-  if (error) {
-    return <ErrorTabView error={error} />;
-  }
-
   const renderComment = ({ item }) => {
+    const { avatar } = item.author;
+    const avatarSource = avatar.url ? { uri: avatar.url } : defaultAvatar;
+
+    const handlePressAvatar = () => {
+      navigation.push('UserProfileScreen', {
+        userProfile: item.author,
+        fetchUser: true,
+      });
+    };
+
     return (
-      <View>
-        <Text>{item.comment}</Text>
+      <View
+        style={{
+          maxWidth: '100%',
+          flexDirection: 'row',
+          paddingVertical: values.spacing.md,
+        }}>
+        <TouchableOpacity activeOpacity={0.6} onPress={handlePressAvatar}>
+          <FastImage
+            width={AVATAR_DIAMETER}
+            height={AVATAR_DIAMETER}
+            style={[
+              postDetailsFooterStyles.avatar,
+              { marginRight: values.spacing.md },
+            ]}
+            source={avatarSource}
+          />
+        </TouchableOpacity>
+        <View
+          style={[
+            postDetailContentStyles.dialogBox,
+            {
+              flexGrow: 1,
+              flexShrink: 1,
+              padding: values.spacing.sm * 1.5,
+              borderTopLeftRadius: 0,
+              borderBottomLeftRadius: values.radius.md,
+              marginHorizontal: 0,
+            },
+          ]}>
+          <Text
+            style={[
+              postDetailContentStyles.dialogBoxText,
+              {
+                fontSize: typography.size.sm,
+                fontWeight: '500',
+              },
+            ]}>
+            {item.comment}
+          </Text>
+        </View>
       </View>
     );
   };
 
   return (
     <View style={[postDetailCommentsStyles.container, props.style]}>
-      <FlatList data={comments} renderItem={renderComment} />
+      {isLoading ? (
+        <LoadingTabView
+          message="Loading comments..."
+          style={postDetailCommentsStyles.tabViewContainer}
+        />
+      ) : error ? (
+        <ErrorTabView
+          error={error}
+          style={postDetailCommentsStyles.tabViewContainer}
+        />
+      ) : (
+        <FlatList
+          data={comments}
+          renderItem={renderComment}
+          ListEmptyComponent={
+            <EmptyTabView
+              message="No comments. Be the first one!"
+              style={postDetailCommentsStyles.tabViewContainer}
+            />
+          }
+        />
+      )}
       <View style={postDetailCommentsStyles.textInputContainer}>
         <TextInput
           multiline
@@ -384,8 +447,13 @@ const postDetailCommentsStyles = StyleSheet.create({
     marginHorizontal: values.spacing.md,
     marginTop: values.spacing.md,
   },
+  tabViewContainer: {
+    paddingTop: values.spacing.lg,
+    paddingBottom: values.spacing.lg,
+  },
   textInputContainer: {
     flexDirection: 'row',
+    marginVertical: values.spacing.md,
   },
   commentTextInput: {
     flexGrow: 1,
@@ -402,6 +470,143 @@ const postDetailCommentsStyles = StyleSheet.create({
   },
 });
 
+/*
+const PostDetailScreen = (props) => {
+  const {
+    route: { params: postDetails },
+  } = props;
+
+  const dispatch = useDispatch();
+
+  const [comments, setComments] = React.useState([]);
+  const [isRefreshing, setIsRefreshing] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [error, setError] = React.useState(null);
+
+  React.useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const comments = await fetchPostComments(postDetails, dispatch);
+        setComments(comments);
+      } catch (error) {
+        setComments([]);
+        setError(error);
+        console.error(`Failed to fetch comments: ${error}`);
+      }
+
+      setIsLoading(false);
+      setIsRefreshing(false);
+    };
+
+    if (isLoading || isRefreshing) fetchData();
+  }, [isRefreshing]);
+
+  const handleRefresh = () => {
+    if (!isRefreshing) setIsRefreshing(true);
+  };
+
+  if (isLoading) {
+    return (
+      <LoadingTabView
+        message="Loading post..."
+        style={{ paddingTop: values.spacing.lg }}
+      />
+    );
+  }
+
+  if (error) {
+    return <ErrorTabView error={error} />;
+  }
+
+  const renderComment = ({ item }) => {
+    const { avatar } = item.author;
+    const avatarSource = avatar.url ? { uri: avatar.url } : defaultAvatar;
+
+    return (
+      <View
+        style={{
+          maxWidth: '100%',
+          flexDirection: 'row',
+          padding: values.spacing.md,
+        }}>
+        <FastImage
+          width={AVATAR_DIAMETER}
+          height={AVATAR_DIAMETER}
+          style={[
+            postDetailsFooterStyles.avatar,
+            {
+              marginRight: values.spacing.md,
+            },
+          ]}
+          source={avatarSource}
+        />
+        <View
+          style={[
+            postDetailContentStyles.dialogBox,
+            {
+              flexGrow: 1,
+              flexShrink: 1,
+              padding: values.spacing.sm,
+              borderTopLeftRadius: 0,
+              borderBottomLeftRadius: values.radius.md,
+              marginHorizontal: 0,
+            },
+          ]}>
+          <Text
+            style={[
+              postDetailContentStyles.dialogBoxText,
+              {
+                fontSize: typography.size.sm,
+                fontWeight: '500',
+              },
+            ]}>
+            {item.comment}
+          </Text>
+        </View>
+      </View>
+    );
+  };
+
+  return (
+    <KeyboardAvoidingView behavior="position">
+      <SafeAreaView style={{ height: '100%' }}>
+        <FlatList
+          data={comments}
+          renderItem={renderComment}
+          ListHeaderComponent={() => (
+            <View style={{ marginVertical: values.spacing.md }}>
+              <PostDetailContent postDetails={postDetails} />
+              <PostDetailFooter postDetails={postDetails} />
+            </View>
+          )}
+          ListFooterComponent={() => (
+            <View
+              style={[
+                postDetailCommentsStyles.textInputContainer,
+                {
+                  marginHorizontal: values.spacing.md,
+                },
+              ]}>
+              <TextInput
+                multiline
+                style={postDetailCommentsStyles.commentTextInput}
+                placeholder="Add your comment..."
+              />
+              <Button
+                style={postDetailCommentsStyles.postButton}
+                primary
+                size="small"
+                title="Post"
+              />
+            </View>
+          )}
+        />
+      </SafeAreaView>
+    </KeyboardAvoidingView>
+  );
+};
+*/
+
 const PostDetailScreen = (props) => {
   const {
     route: { params: postDetails },
@@ -409,9 +614,10 @@ const PostDetailScreen = (props) => {
 
   return (
     <KeyboardAvoidingView
-      behavior="position"
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 120 : 0}>
-      <SafeAreaView style={{ height: '100%' }}>
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 120 : -100}
+      style={{ height: '100%', backgroundColor: colors.white }}>
+      <SafeAreaView style={{ paddingBottom: values.spacing.lg }}>
         <ScrollView>
           <PostDetailContent
             postDetails={postDetails}
