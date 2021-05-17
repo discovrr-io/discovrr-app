@@ -2,6 +2,7 @@ import React from 'react';
 import {
   useWindowDimensions,
   Image,
+  FlatList,
   ScrollView,
   StyleSheet,
   Text,
@@ -9,6 +10,8 @@ import {
   TouchableOpacity,
   View,
   KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
 } from 'react-native';
 
 import { useNavigation } from '@react-navigation/native';
@@ -17,9 +20,15 @@ import FastImage from 'react-native-fast-image';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import Video from 'react-native-video';
 
-import { connect } from 'react-redux';
+import { connect, useDispatch } from 'react-redux';
+import * as reduxActions from './utilities/Actions';
 
-import { Button, PostItemKind } from './components';
+import {
+  Button,
+  ErrorTabView,
+  LoadingTabView,
+  PostItemKind,
+} from './components';
 import { colors, values, typography } from './constants';
 
 const imagePlaceholder = require('../resources/images/imagePlaceholder.png');
@@ -32,11 +41,11 @@ const AVATAR_DIAMETER = POST_DETAIL_ICON_SIZE;
 const TEXT_INPUT_HEIGHT = 35;
 const TEXT_INPUT_WIDTH = 50;
 
-async function fetchPostComments(postDetails) {
+async function fetchPostComments(postDetails, dispatch) {
   const { id: postId } = postDetails;
   const postPointer = {
     __type: 'Pointer',
-    className: 'Profile',
+    className: 'Post',
     objectId: postId,
   };
 
@@ -45,7 +54,24 @@ async function fetchPostComments(postDetails) {
   query.include('profile');
 
   const results = await query.find();
-  console.log({ comments: results });
+  const comments = results.map((comment) => {
+    return {
+      id: comment.id,
+      comment: comment.get('message'),
+      createdAt: comment.get('createdAt'),
+      author: {
+        id: comment.get('profile')?.id,
+        name: comment.get('profile')?.get('name') ?? 'Anonymous',
+        avatar: comment.get('profile')?.get('avatar'),
+      },
+    };
+  });
+
+  if (Array.isArray(comments) && comments.length) {
+    dispatch(reduxActions.updateComments(postId, comments));
+  }
+
+  return comments;
 }
 
 const SliderImage = ({ item }) => {
@@ -194,6 +220,8 @@ const PostDetailFooter = ({ postDetails, ...props }) => {
         <TouchableOpacity style={{ flexGrow: 1 }} onPress={handlePressAvatar}>
           <View style={postDetailsFooterStyles.authorContainer}>
             <Image
+              width={AVATAR_DIAMETER}
+              height={AVATAR_DIAMETER}
               style={postDetailsFooterStyles.avatar}
               source={author?.avatar ?? defaultAvatar}
             />
@@ -284,20 +312,56 @@ const postDetailsFooterStyles = StyleSheet.create({
 });
 
 const PostDetailComments = ({ postDetails, ...props }) => {
+  const dispatch = useDispatch();
+
+  const [comments, setComments] = React.useState([]);
+  const [isRefreshing, setIsRefreshing] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [error, setError] = React.useState(null);
+
   React.useEffect(() => {
     const fetchData = async () => {
       try {
-        await fetchPostComments(postDetails);
+        const comments = await fetchPostComments(postDetails, dispatch);
+        setComments(comments);
       } catch (error) {
+        setComments([]);
+        setError(error);
         console.error(`Failed to fetch comments: ${error}`);
       }
+
+      console.log({ comments });
+      setIsLoading(false);
+      setIsRefreshing(false);
     };
 
-    fetchData();
-  }, []);
+    if (isLoading || isRefreshing) fetchData();
+  }, [isRefreshing]);
+
+  if (isLoading) {
+    return (
+      <LoadingTabView
+        message="Loading comments..."
+        style={{ paddingTop: values.spacing.lg }}
+      />
+    );
+  }
+
+  if (error) {
+    return <ErrorTabView error={error} />;
+  }
+
+  const renderComment = ({ item }) => {
+    return (
+      <View>
+        <Text>{item.comment}</Text>
+      </View>
+    );
+  };
 
   return (
     <View style={[postDetailCommentsStyles.container, props.style]}>
+      <FlatList data={comments} renderItem={renderComment} />
       <View style={postDetailCommentsStyles.textInputContainer}>
         <TextInput
           multiline
@@ -344,15 +408,19 @@ const PostDetailScreen = (props) => {
   } = props;
 
   return (
-    <KeyboardAvoidingView behavior="position" keyboardVerticalOffset={80}>
-      <ScrollView>
-        <PostDetailContent
-          postDetails={postDetails}
-          style={{ marginTop: values.spacing.md }}
-        />
-        <PostDetailFooter postDetails={postDetails} />
-        <PostDetailComments postDetails={postDetails} />
-      </ScrollView>
+    <KeyboardAvoidingView
+      behavior="position"
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 120 : 0}>
+      <SafeAreaView style={{ height: '100%' }}>
+        <ScrollView>
+          <PostDetailContent
+            postDetails={postDetails}
+            style={{ marginTop: values.spacing.md }}
+          />
+          <PostDetailFooter postDetails={postDetails} />
+          <PostDetailComments postDetails={postDetails} />
+        </ScrollView>
+      </SafeAreaView>
     </KeyboardAvoidingView>
   );
 };
