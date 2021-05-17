@@ -1,16 +1,19 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { colors, typography, values } from '../constants';
 
 const imagePlaceholder = require('../../resources/images/imagePlaceholder.png');
+
+const DEFAULT_ACTIVE_OPACITY = 0.6;
 
 const NoteItem = ({
   id,
   title,
   imagePreview,
   imagePreviewDimensions,
+  onPressNote = () => {},
   ...props
 }) => {
   const { width, height } = imagePreviewDimensions;
@@ -22,36 +25,41 @@ const NoteItem = ({
   };
 
   return (
-    <View
-      style={[
-        {
-          borderWidth: 0,
-          borderColor: 'red',
-          marginBottom: values.spacing.sm * 1.5,
-        },
-        props.style,
-      ]}>
-      <Image
-        onLoad={onImageLoad}
-        source={isImageLoaded ? imagePreview : imagePlaceholder}
-        style={{
-          width,
-          height,
-          resizeMode: 'contain',
-          borderRadius: values.radius.md,
-        }}
-      />
-      <Text
-        style={{
-          fontWeight: '600',
-          fontSize: typography.size.xs,
-          marginTop: values.spacing.sm,
-          marginHorizontal: values.spacing.sm,
-          color: colors.gray700,
-        }}>
-        {title}
-      </Text>
-    </View>
+    <TouchableOpacity
+      activeOpacity={DEFAULT_ACTIVE_OPACITY}
+      onPress={onPressNote}>
+      <View
+        style={[
+          {
+            width,
+            marginBottom: values.spacing.sm * 1.5,
+          },
+          props.style,
+        ]}>
+        <Image
+          onLoad={onImageLoad}
+          source={isImageLoaded ? imagePreview : imagePlaceholder}
+          style={{
+            width,
+            height,
+            resizeMode: 'cover',
+            borderRadius: values.radius.md,
+          }}
+        />
+        <Text
+          numberOfLines={2}
+          ellipsizeMode="tail"
+          style={{
+            fontWeight: '700',
+            fontSize: typography.size.xs,
+            marginTop: values.spacing.sm,
+            marginHorizontal: values.spacing.sm,
+            color: colors.gray700,
+          }}>
+          {title}
+        </Text>
+      </View>
+    </TouchableOpacity>
   );
 };
 
@@ -63,6 +71,7 @@ NoteItem.propTypes = {
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
   }),
+  onPressNote: PropTypes.func,
 };
 
 const noteItemStyles = StyleSheet.create({});

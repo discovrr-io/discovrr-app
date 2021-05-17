@@ -18,6 +18,8 @@ import { colors, typography, values } from '../constants';
 const imagePlaceholder = require('../../resources/images/imagePlaceholder.png');
 const defaultAvatar = require('../../resources/images/defaultAvatar.jpeg');
 
+const DEFAULT_ACTIVE_OPACITY = 0.6;
+
 const Parse = require('parse/react-native');
 
 export const PostItemKind = {
@@ -48,8 +50,9 @@ const PostItemFooter = ({
   id,
   author,
   metrics,
-  onPressAvatar,
-  onPressSave,
+  onPressAvatar = () => {},
+  onPressSave = () => {},
+  onPressLike = () => {},
 }) => {
   const hasLiked = useRef(metrics.hasLiked);
   const likesCount = useRef(metrics.likesCount);
@@ -95,7 +98,10 @@ const PostItemFooter = ({
 
   return (
     <View style={postItemFooterStyles.container}>
-      <TouchableOpacity style={{ flex: 1 }} onPress={onPressAvatar}>
+      <TouchableOpacity
+        activeOpacity={DEFAULT_ACTIVE_OPACITY}
+        style={{ flex: 1 }}
+        onPress={onPressAvatar}>
         <View style={postItemFooterStyles.authorContainer}>
           <FastImage
             style={postItemFooterStyles.avatar}
@@ -119,6 +125,7 @@ const PostItemFooter = ({
         />
         <TouchableOpacity
           disabled={isProcessingLike}
+          activeOpacity={DEFAULT_ACTIVE_OPACITY}
           onPress={handleToggleLike}>
           <Animated.View animation="bounceIn">
             <MaterialIcon
@@ -143,7 +150,7 @@ PostItemFooter.propTypes = {
   metrics: MetricsPropTypes,
   onPressAvatar: PropTypes.func,
   onPressSave: PropTypes.func,
-  // onPressLike: PropTypes.func,
+  onPressLike: PropTypes.func,
 };
 
 const postItemFooterStyles = StyleSheet.create({
@@ -198,7 +205,7 @@ const PostItem = ({
   onPressLike = () => {},
   ...props
 }) => {
-  const PostItemContent = (props) => {
+  const PostItemContent = ({ onPressPost, ...props }) => {
     const PostItemContentCaption = ({ text, maxWidth }) => {
       return (
         <Text
@@ -254,7 +261,7 @@ const PostItem = ({
               style={{
                 width,
                 height,
-                resizeMode: 'contain',
+                resizeMode: 'cover',
                 borderRadius: values.radius.md,
               }}
             />
@@ -275,8 +282,10 @@ const PostItem = ({
         },
         props.style,
       ]}>
-      <TouchableOpacity activeOpacity={0.7} onPress={onPressPost}>
-        <PostItemContent />
+      <TouchableOpacity
+        activeOpacity={DEFAULT_ACTIVE_OPACITY}
+        onPress={onPressPost}>
+        <PostItemContent onPressPost={onPressPost} />
       </TouchableOpacity>
       {displayFooter && (
         <PostItemFooter
@@ -308,7 +317,7 @@ PostItem.propTypes = {
   onPressPost: PropTypes.func,
   onPressAvatar: PropTypes.func,
   onPressSave: PropTypes.func,
-  // onPressLike: PropTypes.func,
+  onPressLike: PropTypes.func,
 };
 
 const postItemStyles = StyleSheet.create({

@@ -321,27 +321,9 @@ const GroundZero = ({ navigation, insets }) => (
         name="NoteDetailScreen"
         component={NoteDetailScreen}
         options={({ route }) => ({
-          title: route.params ? route.params.title : 'Note Details',
+          title: route.params?.title ?? 'Note Details',
           headerBackTitleVisible: false,
           headerTintColor: 'black',
-          headerTitle: ({ allowFontScaling, style, children }) => {
-            return (
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                {(!!route.params.imageUrl || route) && (
-                  <FastImage
-                    style={{ width: 40, height: 40, marginRight: 15 }}
-                    source={
-                      route.params.imageUrl
-                        ? { uri: route.params.imageUrl }
-                        : imagePlaceholder
-                    }
-                    resizeMode={FastImage.resizeMode.cover}
-                  />
-                )}
-                <Text allowFontScaling={!!allowFontScaling}>{children}</Text>
-              </View>
-            );
-          },
         })}
       />
 

@@ -552,6 +552,8 @@ const PostsTab = ({ userProfile, isMyProfile }) => {
 };
 
 const NotesTab = ({ userProfile, isMyProfile }) => {
+  const navigation = useNavigation();
+
   const [notes, setNotes] = useState([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -592,6 +594,10 @@ const NotesTab = ({ userProfile, isMyProfile }) => {
       : `${userProfile.name ?? 'This user'} hasn't `) +
     'created any public notes';
 
+  const handleNoteItemPress = (noteItem) => {
+    navigation.push('NoteDetailScreen', noteItem);
+  };
+
   return (
     <MasonryList
       sorted
@@ -619,6 +625,7 @@ const NotesTab = ({ userProfile, isMyProfile }) => {
           title={data.title}
           imagePreview={data.source}
           imagePreviewDimensions={data.masonryDimensions}
+          onPressNote={() => handleNoteItemPress(data)}
           style={{ marginLeft: values.spacing.sm * 1.5 }}
         />
       )}

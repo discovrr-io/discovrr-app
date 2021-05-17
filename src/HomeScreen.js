@@ -104,21 +104,18 @@ async function fetchData(selector, myUserDetails, pages, dispatch) {
     case POST_TYPE.DISCOVER:
       query = postQuery(blockedProfiles, _pages);
       break;
-    case POST_TYPE.FOLLOWING:
-      query = followingPostsQuery(followingArray, blockedProfiles);
-      break;
-    case POST_TYPE.FOLLOWING:
-      query = postQuery(blockedProfiles);
-      break;
     case POST_TYPE.NEAR_ME:
       query = nearMePostsQuery(undefined);
+      break;
+    case POST_TYPE.FOLLOWING:
+      query = followingPostsQuery(followingArray, blockedProfiles);
       break;
     default:
       console.warn(
         `Unrecognised selector '${selector}'.`,
         `Defaulting to 'posts'...`,
       );
-      query = postQuery(blockedProfiles);
+      query = postQuery(blockedProfiles, _pages);
       break;
   }
 
@@ -177,7 +174,7 @@ async function fetchData(selector, myUserDetails, pages, dispatch) {
       return {
         author: {
           id: post.get('profile')?.id,
-          ownerId: post.get('profile')?.get('owner').id,
+          ownerId: post.get('profile')?.get('owner')?.id,
           name: post.get('profile')?.get('name') ?? 'Anonymous',
           avatar: post.get('profile')?.get('avatar'),
           description: post.get('profile')?.get('description'),
@@ -250,7 +247,7 @@ const HomeScreen = (props) => {
       } catch (error) {
         setPosts([]);
         setError(error);
-        console.error(`Failed to fetch posts: ${error}`);
+        console.error(`Failed to fetch posts for tab '${activeTab}': ${error}`);
       }
 
       setIsLoading(false);
