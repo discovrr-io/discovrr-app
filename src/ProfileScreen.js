@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Alert,
-  Image,
   RefreshControl,
+  SafeAreaView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -49,13 +49,10 @@ async function fetchUser(profileId) {
     throw new Error(`No user with id '${profileId}' found`);
   }
 
-  // const followersArray = profile.get('followersArray') ?? [];
-  // const isFollowing = myProfileId ? followersArray.some((follower) => follower === myProfileId) : false;
-  // console.log({ myProfileId, profileId, isFollowing });
-
   return {
-    name: profile.get('name') ?? 'Anonymous',
     avatar: profile.get('avatar'),
+    name: profile.get('name') ?? 'Anonymous',
+    description: profile.get('description') ?? 'No description',
     followersCount: profile.get('followersCount'),
     followingCount: profile.get('followingCount'),
     likesCount: profile.get('likedPostsArray').length,
@@ -114,11 +111,6 @@ async function fetchPosts(userProfile) {
       hasLiked = likersArray.some((liker) => profileId === liker);
     }
 
-    // console.log({
-    //   // followers: post.get('profile')?.get('followers'),
-    //   followersArray: post.get('profile')?.get('followersArray'),
-    // });
-
     return {
       author: {
         id: post.get('profile')?.id,
@@ -166,6 +158,9 @@ async function fetchNotes(userProfile, isMyProfile) {
   }
 
   const notes = results.map((note) => {
+    const firstPostQuery = new Parse.Query(Parse.Object.extend('Post'));
+    firstPostQuery.equalTo('');
+
     const imagePreviewData = note.get('image');
     const imagePreviewUrl = imagePreviewData?.url;
     const imagePreviewSource = imagePreviewUrl
@@ -232,6 +227,7 @@ const ProfileScreenHeader = ({
       try {
         const newUserProfile = await fetchUser(givenUserProfile.id);
         setUserProfile({ ...givenUserProfile, ...newUserProfile });
+        console.log({ userProfile });
         currFollowersCount.current = newUserProfile.followersCount;
       } catch (error) {
         setError(error);
@@ -550,7 +546,7 @@ const PostsTab = ({ userProfile, isMyProfile }) => {
           imagePreviewDimensions={data.masonryDimensions}
           displayFooter={false}
           onPressPost={() => handlePostItemPress(data)}
-          style={{ marginLeft: values.spacing.xs * 1.5 }}
+          style={{ marginHorizontal: values.spacing.xs * 1.1 }}
         />
       )}
     />
@@ -601,7 +597,11 @@ const NotesTab = ({ userProfile, isMyProfile }) => {
     'created any public notes';
 
   const handleNoteItemPress = (noteItem) => {
-    navigation.push('NoteDetailScreen', noteItem);
+    navigation.push('NoteDetailScreen', {
+      noteDetails: noteItem,
+      userDetails: userProfile,
+      // ...noteItem,
+    });
   };
 
   return (
@@ -609,7 +609,6 @@ const NotesTab = ({ userProfile, isMyProfile }) => {
       sorted
       rerender
       columns={2}
-      spacing={2}
       images={notes}
       initialNumInColsToRender={1}
       listContainerStyle={{ paddingTop: values.spacing.sm }}
@@ -632,7 +631,7 @@ const NotesTab = ({ userProfile, isMyProfile }) => {
           imagePreview={data.source}
           imagePreviewDimensions={data.masonryDimensions}
           onPressNote={() => handleNoteItemPress(data)}
-          style={{ marginLeft: values.spacing.sm * 1.5 }}
+          style={{ marginHorizontal: values.spacing.xs * 1.1 }}
         />
       )}
     />

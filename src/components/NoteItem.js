@@ -31,7 +31,7 @@ const NoteItem = ({
       <View
         style={[
           {
-            width,
+            maxWidth: imagePreviewDimensions.width,
             marginBottom: values.spacing.sm * 1.5,
           },
           props.style,
@@ -44,6 +44,8 @@ const NoteItem = ({
             height,
             resizeMode: 'cover',
             borderRadius: values.radius.md,
+            borderWidth: 1,
+            borderColor: colors.gray500,
           }}
         />
         <Text
@@ -53,7 +55,7 @@ const NoteItem = ({
             fontWeight: '700',
             fontSize: typography.size.xs,
             marginTop: values.spacing.sm,
-            marginHorizontal: values.spacing.sm,
+            marginHorizontal: values.spacing.xs * 0.5,
             color: colors.gray700,
           }}>
           {title}

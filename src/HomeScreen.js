@@ -224,8 +224,6 @@ const HomeScreen = (props) => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
 
-  const { width: screenWidth } = useWindowDimensions();
-
   const [posts, setPosts] = useState([]);
   const [pages, setPages] = useState({ next: 0, hasMoreData: true, size: 40 });
 
@@ -245,6 +243,7 @@ const HomeScreen = (props) => {
           setPosts([]);
         }
       } catch (error) {
+        console.log({ code: error.code });
         setPosts([]);
         setError(error);
         console.error(`Failed to fetch posts for tab '${activeTab}': ${error}`);
@@ -304,128 +303,45 @@ const HomeScreen = (props) => {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      {/* {activeTab === POST_TYPE.FOLLOWING ? (
-        <FlatList
-          data={posts}
-          keyExtractor={(item, _) => item.id}
-          contentContainerStyle={{
-            flexGrow: 1,
-            paddingHorizontal: values.spacing.sm,
-            paddingTop: values.spacing.sm,
-          }}
-          ListEmptyComponent={() => <EmptyTabView style={{ width: '100%' }} />}
-          refreshControl={
-            <RefreshControl
-              refreshing={isRefreshing}
-              onRefresh={handleRefresh}
-              colors={[colors.gray500]}
-              tintColor={colors.gray500}
-            />
-          }
-          renderItem={({ item }) => {
-            const { height } = item.dimensions;
-            const imageWidth = screenWidth - values.spacing.md;
-            const imageHeight = height * (imageWidth / height);
-
-            const imageDimensions = {
-              width: imageWidth,
-              height: imageHeight,
-            };
-
-            return (
-              <PostItem
-                id={item.id}
-                kind={item.postType}
-                text={item.caption}
-                author={item.author}
-                metrics={item.metrics}
-                column={item.column}
-                imagePreview={item.source}
-                imagePreviewDimensions={imageDimensions}
-                onPressPost={() => handlePressPost(item)}
-                onPressAvatar={() => handlePressAvatar(item)}
-              />
-            );
-          }}
-        />
-      ) : (
-        <MasonryList
-          sorted
-          rerender
-          columns={2}
-          images={posts}
-          initialNumInColsToRender={activeTab === POST_TYPE.NEAR_ME ? 0 : 1}
-          listContainerStyle={{ paddingTop: values.spacing.sm }}
-          onEndReachedThreshold={0.1}
-          onEndReached={addPosts}
-          masonryFlatListColProps={{
-            ListEmptyComponent: () => (
-              <EmptyTabView style={{ width: '100%' }} />
-            ),
-            refreshControl: (
-              <RefreshControl
-                refreshing={isRefreshing}
-                onRefresh={handleRefresh}
-                colors={[colors.gray500]}
-                tintColor={colors.gray500}
-              />
-            ),
-          }}
-          completeCustomComponent={({ data }) => (
-            <PostItem
-              id={data.id}
-              kind={data.postType}
-              text={data.caption}
-              author={data.author}
-              metrics={data.metrics}
-              column={data.column}
-              imagePreview={data.source}
-              imagePreviewDimensions={data.masonryDimensions}
-              onPressPost={() => handlePressPost(data)}
-              onPressAvatar={() => handlePressAvatar(data)}
-              style={{ marginHorizontal: values.spacing.xs * 1.1 }}
-            />
-          )}
-        />
-      )} */}
-      <MasonryList
-        sorted
-        rerender
-        columns={activeTab === POST_TYPE.FOLLOWING ? 1 : 2}
-        images={posts}
-        // initialNumInColsToRender={activeTab === POST_TYPE.DISCOVER ? 1 : 0}
-        listContainerStyle={{ paddingTop: values.spacing.sm }}
-        onEndReachedThreshold={0.1}
-        onEndReached={addPosts}
-        masonryFlatListColProps={{
-          ListEmptyComponent: () => <EmptyTabView style={{ width: '100%' }} />,
-          refreshControl: (
-            <RefreshControl
-              refreshing={isRefreshing}
-              onRefresh={handleRefresh}
-              colors={[colors.gray500]}
-              tintColor={colors.gray500}
-            />
-          ),
-        }}
-        completeCustomComponent={({ data }) => (
-          <PostItem
-            id={data.id}
-            kind={data.postType}
-            text={data.caption}
-            author={data.author}
-            metrics={data.metrics}
-            column={data.column}
-            imagePreview={data.source}
-            imagePreviewDimensions={data.masonryDimensions}
-            onPressPost={() => handlePressPost(data)}
-            onPressAvatar={() => handlePressAvatar(data)}
-            style={{ marginHorizontal: values.spacing.xs * 1.1 }}
+    <MasonryList
+      sorted
+      rerender
+      columns={activeTab === POST_TYPE.FOLLOWING ? 1 : 2}
+      images={posts}
+      // initialNumInColsToRender={activeTab === POST_TYPE.DISCOVER ? 1 : 0}
+      listContainerStyle={{ paddingTop: values.spacing.sm }}
+      onEndReachedThreshold={0.1}
+      onEndReached={addPosts}
+      masonryFlatListColProps={{
+        ListEmptyComponent: () => <EmptyTabView style={{ width: '100%' }} />,
+        refreshControl: (
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={handleRefresh}
+            colors={[colors.gray500]}
+            tintColor={colors.gray500}
           />
-        )}
-      />
-    </SafeAreaView>
+        ),
+      }}
+      completeCustomComponent={({ data }) => (
+        <PostItem
+          id={data.id}
+          kind={data.postType}
+          text={data.caption}
+          author={data.author}
+          metrics={data.metrics}
+          column={data.column}
+          imagePreview={data.source}
+          imagePreviewDimensions={data.masonryDimensions}
+          onPressPost={() => handlePressPost(data)}
+          onPressAvatar={() => handlePressAvatar(data)}
+          style={{
+            marginHorizontal:
+              values.spacing.xs * (activeTab === POST_TYPE.FOLLOWING ? 1 : 1.1),
+          }}
+        />
+      )}
+    />
   );
 };
 

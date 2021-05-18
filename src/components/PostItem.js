@@ -50,6 +50,7 @@ const PostItemFooter = ({
   id,
   author,
   metrics,
+  displayActions = true,
   onPressAvatar = () => {},
   onPressSave = () => {},
   onPressLike = () => {},
@@ -115,31 +116,33 @@ const PostItemFooter = ({
           </Text>
         </View>
       </TouchableOpacity>
-      <View style={postItemFooterStyles.actionsContainer}>
-        <MaterialIcon
-          style={postItemFooterStyles.actionButton}
-          name={metrics.hasSaved ? 'bookmark' : 'bookmark-outline'}
-          color={metrics.hasSaved ? colors.black : colors.gray}
-          size={ACTION_BUTTON_SIZE}
-          onPress={onPressSave}
-        />
-        <TouchableOpacity
-          disabled={isProcessingLike}
-          activeOpacity={DEFAULT_ACTIVE_OPACITY}
-          onPress={handleToggleLike}>
-          <Animated.View animation="bounceIn">
-            <MaterialIcon
-              style={postItemFooterStyles.actionButton}
-              name={hasLiked.current ? 'favorite' : 'favorite-border'}
-              color={hasLiked.current ? 'red' : colors.gray}
-              size={ACTION_BUTTON_SIZE}
-            />
-          </Animated.View>
-        </TouchableOpacity>
-        <Text style={postItemFooterStyles.likesCount}>
-          {likesCount.current}
-        </Text>
-      </View>
+      {displayActions && (
+        <View style={postItemFooterStyles.actionsContainer}>
+          <MaterialIcon
+            style={postItemFooterStyles.actionButton}
+            name={metrics.hasSaved ? 'bookmark' : 'bookmark-outline'}
+            color={metrics.hasSaved ? colors.black : colors.gray}
+            size={ACTION_BUTTON_SIZE}
+            onPress={onPressSave}
+          />
+          <TouchableOpacity
+            disabled={isProcessingLike}
+            activeOpacity={DEFAULT_ACTIVE_OPACITY}
+            onPress={handleToggleLike}>
+            <Animated.View animation="bounceIn">
+              <MaterialIcon
+                style={postItemFooterStyles.actionButton}
+                name={hasLiked.current ? 'favorite' : 'favorite-border'}
+                color={hasLiked.current ? 'red' : colors.gray}
+                size={ACTION_BUTTON_SIZE}
+              />
+            </Animated.View>
+          </TouchableOpacity>
+          <Text style={postItemFooterStyles.likesCount}>
+            {likesCount.current}
+          </Text>
+        </View>
+      )}
     </View>
   );
 };
@@ -199,6 +202,7 @@ const PostItem = ({
   imagePreview = {},
   imagePreviewDimensions = { width: 1, height: 1 },
   displayFooter = true,
+  displayActions = true,
   onPressPost = () => {},
   onPressAvatar = () => {},
   onPressSave = () => {},
@@ -214,7 +218,7 @@ const PostItem = ({
             fontWeight: '600',
             fontSize: typography.size.xs,
             marginTop: values.spacing.sm,
-            marginHorizontal: values.spacing.sm,
+            marginHorizontal: values.spacing.xs * 0.5,
             color: colors.gray700,
           }}
           numberOfLines={2}
@@ -263,6 +267,8 @@ const PostItem = ({
                 height,
                 resizeMode: 'cover',
                 borderRadius: values.radius.md,
+                borderWidth: 1,
+                borderColor: colors.gray300,
               }}
             />
             <PostItemContentCaption maxWidth={width} text={text} />
@@ -292,6 +298,7 @@ const PostItem = ({
           id={id}
           author={author}
           metrics={metrics}
+          displayActions={displayActions}
           onPressAvatar={onPressAvatar}
           onPressSave={onPressSave}
           onPressLike={onPressLike}
@@ -324,11 +331,11 @@ const postItemStyles = StyleSheet.create({
   dialogBox: {
     flex: 1,
     backgroundColor: colors.gray100,
-    borderColor: colors.gray,
+    borderWidth: values.border.thin,
+    borderColor: colors.gray500,
     borderTopLeftRadius: values.radius.md,
     borderTopRightRadius: values.radius.md,
     borderBottomRightRadius: values.radius.md,
-    borderWidth: values.border.thin,
     padding: values.spacing.md,
     marginBottom: values.spacing.sm,
   },
