@@ -290,23 +290,25 @@ class PostCreationScreen extends Component {
     }
   };
 
-  updateInputValue = (input) => (value = '') => {
-    debugAppLogger({
-      info: 'ProfileEditScreen updateInputValue',
-      input,
-      value,
-    });
-
-    const { [`${input}Error`]: errorValue } = this.state;
-
-    this[input] = value.trim();
-
-    if (errorValue) {
-      this.setState({
-        [`${input}Error`]: false,
+  updateInputValue =
+    (input) =>
+    (value = '') => {
+      debugAppLogger({
+        info: 'ProfileEditScreen updateInputValue',
+        input,
+        value,
       });
-    }
-  };
+
+      const { [`${input}Error`]: errorValue } = this.state;
+
+      this[input] = value.trim();
+
+      if (errorValue) {
+        this.setState({
+          [`${input}Error`]: false,
+        });
+      }
+    };
 
   getLocationPermission = () => {
     requestPermissionConfig({
@@ -448,63 +450,52 @@ class PostCreationScreen extends Component {
         menus: [
           {
             label: 'Camera',
-            icon: cameraIcon,
+            // icon: cameraIcon,
           },
           {
             label: 'Photos',
-            icon: photosIcon,
+            // icon: photosIcon,
           },
         ],
       },
     ];
 
-    if (isDevMode) {
-      menus = [
-        {
-          label: 'Photo',
-          menus: [
-            {
-              label: 'Camera',
-              icon: cameraIcon,
-            },
-            {
-              label: 'Photo Library',
-              icon: photosIcon,
-            },
-          ],
-        },
-        {
-          label: 'Video',
-          menus: [
-            {
-              label: 'Camera',
-              icon: videoCamIcon,
-            },
-            {
-              label: 'Video Library',
-              icon: videosIcon,
-            },
-          ],
-        },
-      ];
-    }
+    // if (isDevMode) {
+    //   menus = [
+    //     {
+    //       label: 'Photo',
+    //       menus: [
+    //         {
+    //           label: 'Camera',
+    //           icon: cameraIcon,
+    //         },
+    //         {
+    //           label: 'Photo Library',
+    //           icon: photosIcon,
+    //         },
+    //       ],
+    //     },
+    //     {
+    //       label: 'Video',
+    //       menus: [
+    //         {
+    //           label: 'Camera',
+    //           icon: videoCamIcon,
+    //         },
+    //         {
+    //           label: 'Video Library',
+    //           icon: videosIcon,
+    //         },
+    //       ],
+    //     },
+    //   ];
+    // }
+
     RNPopoverMenu.Show(this.addMediaRef, {
       menus,
       tintColor: '#FAFAFA',
       textColor: '#000000',
       title: 'Select from',
-      // menus: [{
-      //   menus: [
-      //     {
-      //       label: 'Camera',
-      //       icon: cameraIcon,
-      //     },
-      //     {
-      //       label: 'Photos',
-      //       icon: photosIcon,
-      //     },
-      //   ],
-      // }],
       onDone: (section, menuIndex) => {
         let mediaType = 'photo';
         let pickerMethod = 'openCamera';
@@ -526,10 +517,10 @@ class PostCreationScreen extends Component {
 
         const { images: currentImages } = this.state;
 
-        let hasAlreadySelectedIages = false;
+        let hasAlreadySelectedImages = false;
         let numberOfSelectedImages = 0;
         if (Array.isArray(currentImages) && currentImages.length) {
-          hasAlreadySelectedIages = true;
+          hasAlreadySelectedImages = true;
           numberOfSelectedImages = currentImages.length;
         }
 
@@ -588,7 +579,7 @@ class PostCreationScreen extends Component {
                 });
               }
 
-              if (hasAlreadySelectedIages)
+              if (hasAlreadySelectedImages)
                 images = currentImages.concat(images);
 
               this.setState({ images });
@@ -597,8 +588,7 @@ class PostCreationScreen extends Component {
           .catch((error) => {
             if (error.code !== 'E_PICKER_CANCELLED') {
               debugAppLogger({
-                info:
-                  'ProfileEditScreen showImageAttachmentOptions ImagePicker Error',
+                info: 'ProfileEditScreen showImageAttachmentOptions ImagePicker Error',
                 errorMessage: error.message,
                 error,
               });
@@ -778,11 +768,9 @@ class PostCreationScreen extends Component {
           const uploadTasks = images.map((image, index) => {
             if (image.isExistingMedia) return null;
 
-            const filename = `post/${
-              image.enjaga || 'enjaga'
-            }_${Math.random().toString(36).substring(2)}.${
-              image.type === 'image' ? 'jpg' : '.mp4'
-            }`;
+            const filename = `post/${image.enjaga || 'enjaga'}_${Math.random()
+              .toString(36)
+              .substring(2)}.${image.type === 'image' ? 'jpg' : '.mp4'}`;
             images[index].filename = filename;
 
             const uploadUri = isAndroid
@@ -951,29 +939,23 @@ class PostCreationScreen extends Component {
               marginTop: 20,
               marginBottom: 10,
             }}>
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-              }}>
-              <Text
+            <TouchableOpacity
+              activeOpacity={0.8}
+              ref={this.refSelector('addMediaRef')}
+              onPress={this.showImageAttachmentOptions}>
+              <View
                 style={{
-                  marginHorizontal: 10,
+                  flexDirection: 'row',
+                  alignItems: 'center',
                 }}>
-                Media
-              </Text>
-
-              <TouchableOpacity
-                ref={this.refSelector('addMediaRef')}
-                activeOpacity={0.8}
-                onPress={this.showImageAttachmentOptions}>
+                <Text style={{ marginHorizontal: 10 }}>Media</Text>
                 <MaterialCommunityIcon
                   name="camera-plus"
                   size={24}
                   color="black"
                 />
-              </TouchableOpacity>
-            </View>
+              </View>
+            </TouchableOpacity>
 
             {!!(Array.isArray(images) && images.length) && (
               <View

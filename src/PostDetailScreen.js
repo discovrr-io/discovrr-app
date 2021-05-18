@@ -40,7 +40,45 @@ const Parse = require('parse/react-native');
 const POST_DETAIL_ICON_SIZE = 32;
 const AVATAR_DIAMETER = POST_DETAIL_ICON_SIZE;
 const TEXT_INPUT_HEIGHT = 35;
-const TEXT_INPUT_WIDTH = 50;
+
+async function fetchPostMetrics(postId) {
+  const postQuery = new Parse.Query(Parse.Object.extend('Post'));
+  postQuery.equalTo('objectId', postId);
+
+  const post = await postQuery.first();
+
+  // const currentUser = await Parse.User.currentAsync();
+  // const profileQuery = new Parse.Query(Parse.Object.extend('Profile'));
+  // profileQuery.equalTo('owner', currentUser);
+  // const profileResult = await profileQuery.find();
+  // console.log({ profileResult });
+
+  let likesCount = 0;
+  let hasLiked = false;
+  const likersArray = post.get('likersArray');
+  if (Array.isArray(likersArray) && likersArray.length) {
+    likesCount = likersArray.length;
+    // hasLiked = likersArray.some((liker) => profileId === liker);
+  }
+
+  return {
+    author: {
+      id: post.get('profile')?.id,
+      ownerId: post.get('profile')?.get('owner')?.id,
+      name: post.get('profile')?.get('name') ?? 'Anonymous',
+      avatar: post.get('profile')?.get('avatar'),
+      description: post.get('profile')?.get('description'),
+      followersCount: post.get('profile')?.get('followersCount'),
+      followingCount: post.get('profile')?.get('followingCount'),
+      coverPhoto: post.get('profile')?.get('coverPhoto'),
+    },
+    metrics: {
+      likesCount,
+      hasLiked,
+      hasSaved: false, // TODO
+    },
+  };
+}
 
 async function fetchPostComments(postDetails, dispatch) {
   const { id: postId } = postDetails;
@@ -192,14 +230,36 @@ const postDetailContentStyles = StyleSheet.create({
   },
 });
 
-const PostDetailFooter = ({ postDetails, ...props }) => {
+const PostDetailFooter = ({
+  postDetails,
+  isRefreshingMetrics = false,
+  setIsRefreshingMetrics = () => {},
+  ...props
+}) => {
   const navigation = useNavigation();
 
-  const { author, metrics = { likes: 0, isLiked: false, isSaved: false } } =
-    postDetails;
+  const [author, setAuthor] = React.useState(postDetails.author);
+  const [metrics, setMetrics] = React.useState(postDetails.metrics);
+
   const avatarSource = author.avatar?.url
     ? { uri: author.avatar.url }
     : defaultAvatar;
+
+  React.useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const newPostDetails = await fetchPostMetrics(postDetails.id);
+        setAuthor({ ...author, ...newPostDetails.author });
+        setMetrics({ ...metrics, ...newPostDetails.metrics });
+      } catch (error) {
+        console.error(`Failed to refresh metrics: ${error}`);
+      }
+
+      setIsRefreshingMetrics(false);
+    };
+
+    if (isRefreshingMetrics || !author || !metrics) fetchData();
+  }, []);
 
   const handlePressAvatar = () => {
     navigation.navigate('UserProfileScreen', {
@@ -470,155 +530,33 @@ const postDetailCommentsStyles = StyleSheet.create({
   },
 });
 
-/*
 const PostDetailScreen = (props) => {
   const {
     route: { params: postDetails },
   } = props;
 
-  const dispatch = useDispatch();
+  // const [isRefreshing, setIsRefreshing] = React.useState(false);
 
-  const [comments, setComments] = React.useState([]);
-  const [isRefreshing, setIsRefreshing] = React.useState(false);
-  const [isLoading, setIsLoading] = React.useState(true);
-  const [error, setError] = React.useState(null);
-
-  React.useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const comments = await fetchPostComments(postDetails, dispatch);
-        setComments(comments);
-      } catch (error) {
-        setComments([]);
-        setError(error);
-        console.error(`Failed to fetch comments: ${error}`);
-      }
-
-      setIsLoading(false);
-      setIsRefreshing(false);
-    };
-
-    if (isLoading || isRefreshing) fetchData();
-  }, [isRefreshing]);
-
-  const handleRefresh = () => {
-    if (!isRefreshing) setIsRefreshing(true);
-  };
-
-  if (isLoading) {
-    return (
-      <LoadingTabView
-        message="Loading post..."
-        style={{ paddingTop: values.spacing.lg }}
-      />
-    );
-  }
-
-  if (error) {
-    return <ErrorTabView error={error} />;
-  }
-
-  const renderComment = ({ item }) => {
-    const { avatar } = item.author;
-    const avatarSource = avatar.url ? { uri: avatar.url } : defaultAvatar;
-
-    return (
-      <View
-        style={{
-          maxWidth: '100%',
-          flexDirection: 'row',
-          padding: values.spacing.md,
-        }}>
-        <FastImage
-          width={AVATAR_DIAMETER}
-          height={AVATAR_DIAMETER}
-          style={[
-            postDetailsFooterStyles.avatar,
-            {
-              marginRight: values.spacing.md,
-            },
-          ]}
-          source={avatarSource}
-        />
-        <View
-          style={[
-            postDetailContentStyles.dialogBox,
-            {
-              flexGrow: 1,
-              flexShrink: 1,
-              padding: values.spacing.sm,
-              borderTopLeftRadius: 0,
-              borderBottomLeftRadius: values.radius.md,
-              marginHorizontal: 0,
-            },
-          ]}>
-          <Text
-            style={[
-              postDetailContentStyles.dialogBoxText,
-              {
-                fontSize: typography.size.sm,
-                fontWeight: '500',
-              },
-            ]}>
-            {item.comment}
-          </Text>
-        </View>
-      </View>
-    );
-  };
-
-  return (
-    <KeyboardAvoidingView behavior="position">
-      <SafeAreaView style={{ height: '100%' }}>
-        <FlatList
-          data={comments}
-          renderItem={renderComment}
-          ListHeaderComponent={() => (
-            <View style={{ marginVertical: values.spacing.md }}>
-              <PostDetailContent postDetails={postDetails} />
-              <PostDetailFooter postDetails={postDetails} />
-            </View>
-          )}
-          ListFooterComponent={() => (
-            <View
-              style={[
-                postDetailCommentsStyles.textInputContainer,
-                {
-                  marginHorizontal: values.spacing.md,
-                },
-              ]}>
-              <TextInput
-                multiline
-                style={postDetailCommentsStyles.commentTextInput}
-                placeholder="Add your comment..."
-              />
-              <Button
-                style={postDetailCommentsStyles.postButton}
-                primary
-                size="small"
-                title="Post"
-              />
-            </View>
-          )}
-        />
-      </SafeAreaView>
-    </KeyboardAvoidingView>
-  );
-};
-*/
-
-const PostDetailScreen = (props) => {
-  const {
-    route: { params: postDetails },
-  } = props;
+  // const handleRefresh = () => {
+  //   if (!isRefreshing) setIsRefreshing(true);
+  // };
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === 'ios' ? 'position' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 120 : -100}
       style={{ height: '100%', backgroundColor: colors.white }}>
       <SafeAreaView style={{ paddingBottom: values.spacing.lg }}>
-        <ScrollView>
+        <ScrollView
+        // refreshControl={
+        //   <RefreshControl
+        //     refreshing={isRefreshing}
+        //     onRefresh={handleRefresh}
+        //     colors={[colors.gray500]}
+        //     tintColor={colors.gray500}
+        //   />
+        // }
+        >
           <PostDetailContent
             postDetails={postDetails}
             style={{ marginTop: values.spacing.md }}

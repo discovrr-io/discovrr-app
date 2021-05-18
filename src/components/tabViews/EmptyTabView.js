@@ -4,11 +4,15 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { typography, values } from '../../constants';
 
-const EmptyTabView = ({ message = "It's quiet here", ...props }) => {
+const EmptyTabView = ({
+  title = '🤔',
+  message = "It's quiet here",
+  ...props
+}) => {
   return (
     <View style={[{ paddingTop: values.spacing.huge }, props.style]}>
       <View>
-        <Text style={styles.title}>🤔</Text>
+        <Text style={styles.title}>{title}</Text>
         <Text style={styles.message}>{message}</Text>
       </View>
     </View>

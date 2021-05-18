@@ -52,7 +52,7 @@ class AppDrawer extends Component {
     this.snackbarEmitter = new NativeEventEmitter('showSnackbar');
     this.bottomSheetEmitter = new NativeEventEmitter('locationFilter');
 
-    this.pushedUpdate = '-rc';
+    this.pushedUpdate = '';
 
     ({
       dispatch: this.dispatch,

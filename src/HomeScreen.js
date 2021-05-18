@@ -280,6 +280,17 @@ const HomeScreen = (props) => {
     });
   };
 
+  if (activeTab === POST_TYPE.NEAR_ME) {
+    return (
+      <>
+        <EmptyTabView title="🚧" message="Under Construction" />
+        <Text style={{ textAlign: 'center' }}>
+          We're working on this page at the moment.
+        </Text>
+      </>
+    );
+  }
+
   if (isLoading) {
     return (
       <LoadingTabView

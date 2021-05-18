@@ -142,8 +142,8 @@ android {
         applicationId "com.discovrr"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1001
-        versionName "1.0.1"
+        versionCode 1999
+        versionName "2.0.0-beta"
         multiDexEnabled true
         vectorDrawables.useSupportLibrary = true
     }
