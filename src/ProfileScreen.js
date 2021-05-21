@@ -158,9 +158,6 @@ async function fetchNotes(userProfile, isMyProfile) {
   }
 
   const notes = results.map((note) => {
-    const firstPostQuery = new Parse.Query(Parse.Object.extend('Post'));
-    firstPostQuery.equalTo('');
-
     const imagePreviewData = note.get('image');
     const imagePreviewUrl = imagePreviewData?.url;
     const imagePreviewSource = imagePreviewUrl

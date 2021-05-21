@@ -1,7 +1,4 @@
-import React, {
-  Component,
-  useState,
-} from 'react';
+import React, { Component, useState } from 'react';
 
 import {
   BackHandler,
@@ -18,35 +15,21 @@ import FastImage from 'react-native-fast-image';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import MasonryList from 'react-native-masonry-list';
 
-import {
-  connect,
-} from 'react-redux';
+import { connect } from 'react-redux';
 
-import {
-  Placeholder,
-  PlaceholderMedia,
-  Fade,
-} from 'rn-placeholder';
+import { Placeholder, PlaceholderMedia, Fade } from 'rn-placeholder';
+import { isAndroid, windowWidth, windowHeight } from './utilities/Constants';
+import { updateNotes } from './utilities/Actions';
+import { fetchNotes } from './utilities/NetworkRequests';
 
-import {
-  isAndroid,
-  windowWidth,
-  windowHeight,
-} from './utilities/Constants';
-
-import {
-  updateNotes,
-} from './utilities/Actions';
-
-import {
-  fetchNotes,
-} from './utilities/NetworkRequests';
+import { NoteItem } from './components';
+import { colors, values, typography } from './constants';
 
 const Parse = require('parse/react-native');
 
 const imagePlaceholder = require('../resources/images/imagePlaceholder.png');
 
-const vpWidth = (windowWidth * 0.5) - 15;
+const vpWidth = windowWidth * 0.5 - 15;
 
 class BoardsScreen extends Component {
   constructor(props) {
@@ -54,9 +37,7 @@ class BoardsScreen extends Component {
 
     ({
       dispatch: this.dispatch,
-      navigation: {
-        navigate: this.navigate,
-      },
+      navigation: { navigate: this.navigate },
     } = props);
 
     debugAppLogger({
@@ -72,7 +53,8 @@ class BoardsScreen extends Component {
   }
 
   componentDidMount() {
-    if (isAndroid) BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
+    if (isAndroid)
+      BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
 
     DeviceEventEmitter.addListener('refreshNotes', this.refreshData);
 
@@ -81,12 +63,18 @@ class BoardsScreen extends Component {
   }
 
   componentWillUnmount() {
-    if (isAndroid) BackHandler.removeEventListener('hardwareBackPress', this.handleBackPress);
+    if (isAndroid)
+      BackHandler.removeEventListener(
+        'hardwareBackPress',
+        this.handleBackPress,
+      );
 
     DeviceEventEmitter.removeListener('refreshNotes', this.refreshData);
   }
 
-  refSelector = (selector) => (compRef) => { this[selector] = compRef; }
+  refSelector = (selector) => (compRef) => {
+    this[selector] = compRef;
+  };
 
   handleBackPress = () => {
     try {
@@ -127,54 +115,28 @@ class BoardsScreen extends Component {
             const results = await query.find();
 
             if (Array.isArray(results) && results.length) {
-              // const images = [
-              //   {
-              //     imageUrl: 'https://www.headshotsprague.com/wp-content/uploads/2019/08/Emotional-headshot-of-aspiring-actress-on-white-background-made-by-Headshots-Prague-1.jpg',
-              //     height: 1709,
-              //     width: 2560,
-              //   },
-              //   {
-              //     imageUrl: 'https://nadiazheng.com/wp-content/uploads/2015/12/Montreal-personal-branding-linkedin-profile-professional-headshot-by-nadia-zheng-800x1000.jpg',
-              //     height: 1000,
-              //     width: 800,
-              //   },
-              //   {
-              //     imageUrl: 'https://43laq7hfw6b26gd6y23qp1cq-wpengine.netdna-ssl.com/wp-content/uploads/2017/10/Ben-Marcum-Photography-Headshot-Photographer-Louisville-Kentucky-Actor-Headshots-Evvie-Johnson-Sep-04-2017-137-1024x819.jpg',
-              //     height: 819,
-              //     width: 1024,
-              //   },
-              // ];
               const notes = results.map((note) => {
-                const imageData = note.get('image');
-                const imageUrl = imageData?.url ?? null;
-                const source = imageUrl ? { uri: imageUrl } : imagePlaceholder;
-                const width = (windowWidth / 2);
-                const title = note.get('title');
-                const noteData = {
-                  width,
-                  imageData,
-                  imageUrl,
-                  source,
-                  title,
-                  // uri: imageUrl,
-                  // uri: images[index] ? images[index].imageUrl : 'https://nadiazheng.com/wp-content/uploads/2015/12/Montreal-personal-branding-linkedin-profile-professional-headshot-by-nadia-zheng-800x1000.jpg',
-                  // key: note.id,
-                  key: `${imageUrl || imagePlaceholder}${title}`,
+                const imagePreviewData = note.get('image');
+                const imagePreviewUrl = imagePreviewData?.url;
+                const imagePreviewSource = imagePreviewUrl
+                  ? { uri: imagePreviewUrl }
+                  : imagePlaceholder;
+                const imagePreviewDimensions = {
+                  width: imagePreviewData?.width ?? 800,
+                  height: imagePreviewData?.height ?? 600,
+                };
+
+                return {
                   id: note.id,
+                  title: note.get('title'),
                   isPrivate: note.get('private'),
-                  noteOwnerProfileId: note.get('profile').id,
-                  height: width * ((imageUrl ? imageData.height : 600) / (imageUrl ? imageData.width : 800)),
+                  source: imagePreviewSource,
+                  dimensions: imagePreviewDimensions,
                 };
-
-                noteData.dimensions = {
-                  height: noteData.height,
-                  width: noteData.width,
-                };
-
-                return noteData;
               });
 
-              if (Array.isArray(notes) && notes.length) this.dispatch(updateNotes(notes));
+              if (Array.isArray(notes) && notes.length)
+                this.dispatch(updateNotes(notes));
 
               debugAppLogger({
                 info: 'BoardsScreen fetchData',
@@ -199,45 +161,27 @@ class BoardsScreen extends Component {
     } catch (error) {
       //
     }
-  }
+  };
 
   showNoteCreationSheet = () => {
     try {
-      this.bottomSheetEmitter.emit(
-        'showPanel',
-        {
-          contentSelector: 'createNote',
-          onFinish: () => {
-            // this.hasEnjagad = false;
-            // this.setState({
-            //   masonryKey: Date.now(),
-            // });
-          },
+      this.bottomSheetEmitter.emit('showPanel', {
+        contentSelector: 'createNote',
+        onFinish: () => {
+          // this.hasEnjagad = false;
+          // this.setState({
+          //   masonryKey: Date.now(),
+          // });
         },
-      );
+      });
     } catch (e) {
       //
     }
-  }
+  };
 
-  showNoteDetails = (data, data2) => {
-    debugAppLogger({
-      info: 'showNoteDetails',
-      data,
-      data2,
-    });
-
-    this.showDetails(data)();
-  }
-
-  showDetails = (data) => () => {
-    debugAppLogger({
-      info: 'BoardsScreen showDetails',
-      data,
-    });
-
-    this.navigate('NoteDetailScreen', data);
-  }
+  showNoteDetails = (data) => {
+    this.navigate('NoteDetailScreen', { noteDetails: data });
+  };
 
   renderEmptyView = () => (
     <View
@@ -246,18 +190,13 @@ class BoardsScreen extends Component {
         height: windowHeight * 0.7,
         justifyContent: 'center',
         alignItems: 'center',
-      }}
-    >
-      <Text>
-        No notes
-      </Text>
+      }}>
+      <Text>No notes</Text>
     </View>
-  )
+  );
 
   refreshData = () => {
-    const {
-      isRefreshingData,
-    } = this.state;
+    const { isRefreshingData } = this.state;
 
     debugAppLogger({
       info: 'Gonna attempt to refresh - BoardsScreen',
@@ -269,16 +208,12 @@ class BoardsScreen extends Component {
 
       this.fetchData();
     }
-  }
+  };
 
   render() {
-    const {
-      isRefreshingData,
-    } = this.state;
+    const { isRefreshingData } = this.state;
 
-    const {
-      notes,
-    } = this.props;
+    const { notes } = this.props;
 
     debugAppLogger({
       info: 'renderNotes - ProfileScreen2',
@@ -295,8 +230,7 @@ class BoardsScreen extends Component {
             borderBottomWidth: 1,
             borderColor: '#EEEEEE',
             marginBottom: 5,
-          }}
-        >
+          }}>
           <TouchableOpacity
             activeOpacity={0.8}
             style={{
@@ -304,13 +238,10 @@ class BoardsScreen extends Component {
               alignItems: 'center',
               alignSelf: 'flex-start',
             }}
-            onPress={this.showNoteCreationSheet}
-          >
+            onPress={this.showNoteCreationSheet}>
             <MaterialIcon name="add" size={32} color="gray" />
 
-            <Text style={{ fontSize: 18, marginLeft: 10 }}>
-              Create a note
-            </Text>
+            <Text style={{ fontSize: 18, marginLeft: 10 }}>Create a note</Text>
           </TouchableOpacity>
         </View>
 
@@ -327,7 +258,6 @@ class BoardsScreen extends Component {
           imageContainerStyle={{
             borderRadius: 5,
           }}
-          onPressImage={this.showNoteDetails}
           listContainerStyle={{
             paddingBottom: 10,
           }}
@@ -343,6 +273,16 @@ class BoardsScreen extends Component {
               />
             ),
           }}
+          completeCustomComponent={({ data }) => (
+            <NoteItem
+              id={data.id}
+              title={data.title}
+              imagePreview={data.source}
+              imagePreviewDimensions={data.masonryDimensions}
+              onPressNote={this.showNoteDetails}
+              style={{ marginHorizontal: values.spacing.xs * 1.1 }}
+            />
+          )}
         />
       </View>
     );
@@ -358,10 +298,8 @@ const ImageItem = ({ data: { imageUrl, title } }) => {
         style={styles.img}
         source={imageUrl ? { uri: imageUrl } : imagePlaceholder}
         resizeMode={FastImage.resizeMode.cover}
-        onLoad={() => setImageLoaded(true)}
-      >
+        onLoad={() => setImageLoaded(true)}>
         <View style={styles.imageOverlayContainer}>
-
           {!!title && (
             <Text
               allowFontScaling={false}
@@ -371,19 +309,23 @@ const ImageItem = ({ data: { imageUrl, title } }) => {
                   color: imageUrl ? 'white' : 'black',
                   fontWeight: imageUrl ? 'bold' : 'normal',
                 },
-              ]}
-            >
+              ]}>
               {title}
             </Text>
           )}
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 7, marginBottom: 7 }} />
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              marginLeft: 7,
+              marginBottom: 7,
+            }}
+          />
         </View>
       </FastImage>
 
       {!imageLoaded && false && (
-        <Placeholder
-          Animation={Fade}
-        >
+        <Placeholder Animation={Fade}>
           <PlaceholderMedia style={{ width: '100%', height: '100%' }} />
         </Placeholder>
       )}
@@ -433,11 +375,7 @@ const styles = StyleSheet.create({
 });
 
 const mapStateToProps = (state) => {
-  const {
-    cachedState: {
-      notes,
-    } = {},
-  } = state;
+  const { cachedState: { notes } = {} } = state;
 
   return {
     notes: notes ?? [],

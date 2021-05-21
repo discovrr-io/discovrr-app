@@ -608,8 +608,7 @@ class BottomSheetPanel extends Component {
           })
           .catch((error) => {
             debugAppLogger({
-              info:
-                'ProfileEditScreen showImageAttachmentOptions ImagePicker Error',
+              info: 'ProfileEditScreen showImageAttachmentOptions ImagePicker Error',
               errorMessage: error.message,
               error,
             });
@@ -704,18 +703,20 @@ class BottomSheetPanel extends Component {
     }
   };
 
-  updateInputValue = (input) => (value = '') => {
-    debugAppLogger({
-      info: `updateInputValue ${input} - BottomSheetPanels`,
-      input,
-      value,
-    });
+  updateInputValue =
+    (input) =>
+    (value = '') => {
+      debugAppLogger({
+        info: `updateInputValue ${input} - BottomSheetPanels`,
+        input,
+        value,
+      });
 
-    this[input] = value.trim();
-    this.setState({
-      [`${input}Error`]: false,
-    });
-  };
+      this[input] = value.trim();
+      this.setState({
+        [`${input}Error`]: false,
+      });
+    };
 
   authUpdateInputValue = (input) => (value) => {
     const { inputMode } = this.state;
@@ -2018,7 +2019,7 @@ class BottomSheetPanel extends Component {
           fontWeight: 'bold',
           marginLeft: 20,
         }}>
-        {item.title}uuuu
+        {item.title}
       </Text>
     </TouchableOpacity>
   );
@@ -2338,13 +2339,8 @@ class BottomSheetPanel extends Component {
   };
 
   renderLocationFilter = () => {
-    const {
-      markers,
-      hasCoordinates,
-      coordinates,
-      searchRadius,
-      locationKey,
-    } = this.state;
+    const { markers, hasCoordinates, coordinates, searchRadius, locationKey } =
+      this.state;
 
     return (
       <View
@@ -2825,125 +2821,126 @@ class BottomSheetPanel extends Component {
     }
   };
 
-  loginUser = (overrideLinking = false) => async () => {
-    debugAppLogger({ info: 'gonna login' });
-    try {
-      const { email = '', password = '' } = this.values.login;
+  loginUser =
+    (overrideLinking = false) =>
+    async () => {
+      debugAppLogger({ info: 'gonna login' });
+      try {
+        const { email = '', password = '' } = this.values.login;
 
-      let isBagus = true;
+        let isBagus = true;
 
-      if (!emailRegex.test(email)) {
-        isBagus = false;
-        this.flashErrorIndicator('emailError');
-      }
-
-      if (!password) {
-        isBagus = false;
-        this.flashErrorIndicator('passwordError');
-      }
-
-      if (isBagus) {
-        this.setState({ isProcessing: true });
-
-        if (overrideLinking) {
-          Alert.alert(
-            'Enjaga Navigate',
-            'Looks like we should instead try logging in the donkey without linking',
-            [
-              {
-                text: 'Cancel',
-              },
-              {
-                text: 'Simulate Success',
-                onPress: () => {
-                  if (typeof this.finishedAction === 'function')
-                    this.finishedAction();
-                  this.hideBottomSheetPanel();
-                },
-              },
-            ],
-          );
-          this.setState({ isProcessing: false });
-        } else {
-          const { currentUser } = auth();
-
-          const emailCredentials = auth.EmailAuthProvider.credential(
-            email,
-            password,
-          );
-
-          debugAppLogger({
-            info: 'loginUser - BottomSheetPanel',
-            currentUser,
-            emailCredentials,
-          });
-
-          currentUser
-            .linkWithCredential(emailCredentials)
-            .then(() => {
-              debugAppLogger({
-                info: 'loginUser firebase - BottomSheetPanel',
-                extraInfo: 'User account successfully linkWithCredential',
-              });
-
-              this.setState({ isProcessing: false });
-            })
-            .catch((error) => {
-              this.setState({ isProcessing: false });
-
-              console.log({
-                info:
-                  'Error loginUser and linkWithCredential firebase - BottomSheetPanel',
-                errorMsg: error.message,
-                errorCode: error.code,
-                error,
-              });
-
-              let message;
-              let showErrorMessage = true;
-              switch (error.code) {
-                case 'auth/email-already-in-use':
-                  showErrorMessage = false;
-                  this.loginUser(true)();
-                  break;
-                case 'auth/invalid-email':
-                  message = `Email address, ${email}, is invalid!`;
-                  break;
-                default:
-                  // message = 'Registration failed, please try again later';
-                  message = error.message;
-              }
-
-              if (showErrorMessage)
-                this.notifyUser({
-                  title: 'Action Failed',
-                  message,
-                  action: undefined,
-                });
-            });
+        if (!emailRegex.test(email)) {
+          isBagus = false;
+          this.flashErrorIndicator('emailError');
         }
+
+        if (!password) {
+          isBagus = false;
+          this.flashErrorIndicator('passwordError');
+        }
+
+        if (isBagus) {
+          this.setState({ isProcessing: true });
+
+          if (overrideLinking) {
+            Alert.alert(
+              'Enjaga Navigate',
+              'Looks like we should instead try logging in the donkey without linking',
+              [
+                {
+                  text: 'Cancel',
+                },
+                {
+                  text: 'Simulate Success',
+                  onPress: () => {
+                    if (typeof this.finishedAction === 'function')
+                      this.finishedAction();
+                    this.hideBottomSheetPanel();
+                  },
+                },
+              ],
+            );
+            this.setState({ isProcessing: false });
+          } else {
+            const { currentUser } = auth();
+
+            const emailCredentials = auth.EmailAuthProvider.credential(
+              email,
+              password,
+            );
+
+            debugAppLogger({
+              info: 'loginUser - BottomSheetPanel',
+              currentUser,
+              emailCredentials,
+            });
+
+            currentUser
+              .linkWithCredential(emailCredentials)
+              .then(() => {
+                debugAppLogger({
+                  info: 'loginUser firebase - BottomSheetPanel',
+                  extraInfo: 'User account successfully linkWithCredential',
+                });
+
+                this.setState({ isProcessing: false });
+              })
+              .catch((error) => {
+                this.setState({ isProcessing: false });
+
+                console.log({
+                  info: 'Error loginUser and linkWithCredential firebase - BottomSheetPanel',
+                  errorMsg: error.message,
+                  errorCode: error.code,
+                  error,
+                });
+
+                let message;
+                let showErrorMessage = true;
+                switch (error.code) {
+                  case 'auth/email-already-in-use':
+                    showErrorMessage = false;
+                    this.loginUser(true)();
+                    break;
+                  case 'auth/invalid-email':
+                    message = `Email address, ${email}, is invalid!`;
+                    break;
+                  default:
+                    // message = 'Registration failed, please try again later';
+                    message = error.message;
+                }
+
+                if (showErrorMessage)
+                  this.notifyUser({
+                    title: 'Action Failed',
+                    message,
+                    action: undefined,
+                  });
+              });
+          }
+        }
+      } catch (error) {
+        console.log({
+          info: 'Error - Login User - BottomSheetPanel',
+          errorMsg: error.message,
+          errorCode: error.code,
+          error,
+        });
+
+        const { code } = error;
+
+        let { message, title } = error;
+
+        if (code === 100) {
+          title = 'Connection Failed';
+          message = 'Please check your internet connection and try again.';
+        }
+
+        if (message) this.notifyUser({ title, message, action: undefined });
+        this.setState({ isProcessing: false });
       }
-    } catch (error) {
-      console.log({
-        info: 'Error - Login User - BottomSheetPanel',
-        errorMsg: error.message,
-        errorCode: error.code,
-        error,
-      });
-
-      const { code } = error;
-
-      let { message, title } = error;
-
-      if (code === 100) {
-        title = 'Connection Failed';
-        message = 'Please check your internet connection and try again.';
-      }
-
-      if (message) this.notifyUser({ title, message, action: undefined });
-      this.setState({ isProcessing: false });
-    }
-  };
+    };
 
   registerUser = async () => {
     debugAppLogger({ info: 'Gonna register' });

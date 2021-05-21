@@ -58,7 +58,7 @@
 	<key>CFBundleVersion</key>
 	<string>1</string>
 	<key>CodePushDeploymentKey</key>
-	<string>0vWpGJryvPCPsJJd48Eva71PtB8gIYZU-lE_W</string>
+	<string>$(CODEPUSH_KEY)</string>
 	<key>FacebookAdvertiserIDCollectionEnabled</key>
 	<true/>
 	<key>FacebookAppID</key>
