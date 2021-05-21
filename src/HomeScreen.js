@@ -123,7 +123,28 @@ async function fetchData(selector, myUserDetails, pages, dispatch) {
   _pages.next += 1;
 
   if (selector === POST_TYPE.DISCOVER || selector === POST_TYPE.FOLLOWING) {
-    // TODO: pinnedEnjagaArray (???)
+    const Profile = Parse.Object.extend('Profile');
+    const profilePointer = new Profile();
+    profilePointer.id = profileId;
+
+    const notesQuery = new Parse.Query(Parse.Object.extend('Board'));
+    notesQuery.equalTo('profile', profilePointer);
+    notesQuery.equalTo('status', 0);
+    notesQuery.select('title', 'image', 'pinnedEnjagaArray');
+
+    const pinnedPosts = {};
+
+    const notesResult = await notesQuery.find();
+    if (Array.isArray(notesResult) && notesResult.length) {
+      for (const note of notesResult) {
+        const pinnedEnjagaArray = note.get('pinnedEnjagaArray');
+        if (Array.isArray(pinnedEnjagaArray) && pinnedEnjagaArray.length) {
+          for (const postId of pinnedEnjagaArray) {
+            pinnedPosts[postId] = note.id;
+          }
+        }
+      }
+    }
 
     if (!(Array.isArray(results) && results.length)) {
       if (selector === POST_TYPE.DISCOVER) {
@@ -185,7 +206,7 @@ async function fetchData(selector, myUserDetails, pages, dispatch) {
         metrics: {
           likesCount,
           hasLiked,
-          hasSaved: false, // TODO
+          hasSaved: !!pinnedPosts[post.id],
         },
         id: post.id,
         key: `${imagePreviewUrl ?? imagePlaceholder}`,
@@ -280,6 +301,10 @@ const HomeScreen = (props) => {
     });
   };
 
+  const handlePressSave = async (postData, hasSaved) => {
+    console.warn(`Unimplemented: HomeScreen.handlePressSave(..., ${hasSaved})`);
+  };
+
   if (activeTab === POST_TYPE.NEAR_ME) {
     return (
       <>
@@ -319,7 +344,6 @@ const HomeScreen = (props) => {
       rerender
       columns={activeTab === POST_TYPE.FOLLOWING ? 1 : 2}
       images={posts}
-      // initialNumInColsToRender={activeTab === POST_TYPE.DISCOVER ? 1 : 0}
       listContainerStyle={{ paddingTop: values.spacing.sm }}
       onEndReachedThreshold={0.1}
       onEndReached={addPosts}
@@ -346,6 +370,7 @@ const HomeScreen = (props) => {
           imagePreviewDimensions={data.masonryDimensions}
           onPressPost={() => handlePressPost(data)}
           onPressAvatar={() => handlePressAvatar(data)}
+          onPressSave={(hasSaved) => handlePressSave(data, hasSaved)}
           style={{
             marginHorizontal:
               values.spacing.xs * (activeTab === POST_TYPE.FOLLOWING ? 1 : 1.1),

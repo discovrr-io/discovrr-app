@@ -52,9 +52,10 @@ const PostItemFooter = ({
   metrics,
   displayActions = true,
   onPressAvatar = () => {},
-  onPressSave = () => {},
-  onPressLike = () => {},
+  onPressSave = async (_hasSaved) => {},
+  onPressLike = async (_hasLiked, _likesCount) => {},
 }) => {
+  const hasSaved = useRef(metrics.hasSaved);
   const hasLiked = useRef(metrics.hasLiked);
   const likesCount = useRef(metrics.likesCount);
 
@@ -63,6 +64,7 @@ const PostItemFooter = ({
     : defaultAvatar;
 
   const [isProcessingLike, setIsProcessingLike] = useState(false);
+  const [isProcessingSave, setIsProcessingSave] = useState(false);
 
   const handleToggleLike = async () => {
     const prevHasLiked = hasLiked.current;
@@ -81,6 +83,8 @@ const PostItemFooter = ({
         like: hasLiked.current,
       });
 
+      await onPressLike(hasLiked.current, likesCount.current);
+
       console.log(
         `Successfully ${hasLiked.current ? 'liked' : 'unliked'} post`,
       );
@@ -95,6 +99,26 @@ const PostItemFooter = ({
     }
 
     setIsProcessingLike(false);
+  };
+
+  const handleToggleSave = async () => {
+    setIsProcessingSave(true);
+
+    try {
+      hasSaved.current = !hasSaved.current;
+      await onPressSave(hasSaved.current);
+      console.log(
+        `Successfully ${hasSaved.current ? 'saved' : 'unsaved'} post`,
+      );
+    } catch (error) {
+      hasSaved.current = !hasSaved.current;
+      Alert.alert('Sorry, something went wrong. Please try again later.');
+      console.error(
+        `Failed to ${hasSaved.current ? 'save' : 'unsave'} post: ${error}`,
+      );
+    }
+
+    setIsProcessingSave(false);
   };
 
   return (
@@ -118,13 +142,17 @@ const PostItemFooter = ({
       </TouchableOpacity>
       {displayActions && (
         <View style={postItemFooterStyles.actionsContainer}>
-          <MaterialIcon
-            style={postItemFooterStyles.actionButton}
-            name={metrics.hasSaved ? 'bookmark' : 'bookmark-outline'}
-            color={metrics.hasSaved ? colors.black : colors.gray}
-            size={ACTION_BUTTON_SIZE}
-            onPress={onPressSave}
-          />
+          <TouchableOpacity
+            disabled={isProcessingSave}
+            activeOpacity={DEFAULT_ACTIVE_OPACITY}
+            onPress={handleToggleSave}>
+            <MaterialIcon
+              style={postItemFooterStyles.actionButton}
+              name={hasSaved.current ? 'bookmark' : 'bookmark-outline'}
+              color={hasSaved.current ? colors.black : colors.gray}
+              size={ACTION_BUTTON_SIZE}
+            />
+          </TouchableOpacity>
           <TouchableOpacity
             disabled={isProcessingLike}
             activeOpacity={DEFAULT_ACTIVE_OPACITY}
@@ -139,7 +167,9 @@ const PostItemFooter = ({
             </Animated.View>
           </TouchableOpacity>
           <Text style={postItemFooterStyles.likesCount}>
-            {likesCount.current}
+            {likesCount.current > 999
+              ? `${(likesCount.current / 1000).toFixed(1)}k`
+              : likesCount.current}
           </Text>
         </View>
       )}
@@ -205,8 +235,8 @@ const PostItem = ({
   displayActions = true,
   onPressPost = () => {},
   onPressAvatar = () => {},
-  onPressSave = () => {},
-  onPressLike = () => {},
+  onPressSave = async (_hasSaved) => {},
+  onPressLike = async (_hasLiked, _likesCount) => {},
   ...props
 }) => {
   const PostItemContent = ({ onPressPost, ...props }) => {
