@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   useWindowDimensions,
-  FlatList,
+  Modal,
   RefreshControl,
   SafeAreaView,
+  StyleSheet,
   Text,
   View,
 } from 'react-native';
@@ -15,13 +16,14 @@ import { connect, useDispatch } from 'react-redux';
 import * as actions from './utilities/Actions';
 
 import {
+  Button,
   EmptyTabView,
   ErrorTabView,
   LoadingTabView,
   PostItem,
   PostItemKind,
 } from './components';
-import { colors, values } from './constants';
+import { colors, typography, values } from './constants';
 
 const isDevMode = process.env.NODE_ENV === 'development';
 const imagePlaceholder = require('../resources/images/imagePlaceholder.png');
@@ -252,6 +254,9 @@ const HomeScreen = (props) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const [isModalVisible, setIsModalVisible] = useState(true);
+  const { width: screenWidth } = useWindowDimensions();
+
   useEffect(() => {
     const _fetchData = async () => {
       try {
@@ -339,47 +344,116 @@ const HomeScreen = (props) => {
   }
 
   return (
-    <MasonryList
-      sorted
-      rerender
-      columns={activeTab === POST_TYPE.FOLLOWING ? 1 : 2}
-      images={posts}
-      listContainerStyle={{ paddingTop: values.spacing.sm }}
-      onEndReachedThreshold={0.1}
-      onEndReached={addPosts}
-      masonryFlatListColProps={{
-        ListEmptyComponent: () => <EmptyTabView style={{ width: '100%' }} />,
-        refreshControl: (
-          <RefreshControl
-            refreshing={isRefreshing}
-            onRefresh={handleRefresh}
-            colors={[colors.gray500]}
-            tintColor={colors.gray500}
+    <>
+      <Modal
+        transparent
+        animationType="slide"
+        visible={isModalVisible && activeTab === POST_TYPE.DISCOVER}
+        onRequestClose={() => setIsModalVisible(false)}>
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.3)' }}>
+          <SafeAreaView
+            style={{
+              flex: 1,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+            <View
+              style={[
+                modalStyles.container,
+                { width: Math.min(screenWidth * 0.85, 360) },
+              ]}>
+              <View style={modalStyles.textContainer}>
+                <Text style={modalStyles.title}>Hi there 👋</Text>
+                <Text style={modalStyles.message}>
+                  Cheers for downloading our app!
+                </Text>
+                <Text style={modalStyles.message}>
+                  We're currently in beta – that means you're one of the first
+                  to use Discovrr! Please excuse any bugs or hiccups you may
+                  encounter. However, make as many posts or comments as you
+                  like! 😀
+                </Text>
+                <Text style={modalStyles.message}>
+                  The Discovrr team is here if you have any feedback to provide.
+                  Get in contact us with at discovrrapp@gmail.com. We value all
+                  feedback you can share!
+                </Text>
+              </View>
+              <Button
+                primary
+                title="Lemme Try"
+                style={modalStyles.button}
+                onPress={() => setIsModalVisible(false)}
+              />
+            </View>
+          </SafeAreaView>
+        </View>
+      </Modal>
+      <MasonryList
+        sorted
+        rerender
+        columns={activeTab === POST_TYPE.FOLLOWING ? 1 : 2}
+        images={posts}
+        listContainerStyle={{ paddingTop: values.spacing.sm }}
+        onEndReachedThreshold={0.1}
+        onEndReached={addPosts}
+        masonryFlatListColProps={{
+          ListEmptyComponent: () => <EmptyTabView style={{ width: '100%' }} />,
+          refreshControl: (
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={handleRefresh}
+              colors={[colors.gray500]}
+              tintColor={colors.gray500}
+            />
+          ),
+        }}
+        completeCustomComponent={({ data }) => (
+          <PostItem
+            id={data.id}
+            kind={data.postType}
+            text={data.caption}
+            author={data.author}
+            metrics={data.metrics}
+            column={data.column}
+            imagePreview={data.source}
+            imagePreviewDimensions={data.masonryDimensions}
+            onPressPost={() => handlePressPost(data)}
+            onPressAvatar={() => handlePressAvatar(data)}
+            onPressSave={(hasSaved) => handlePressSave(data, hasSaved)}
+            style={{
+              marginHorizontal:
+                values.spacing.xs *
+                (activeTab === POST_TYPE.FOLLOWING ? 1 : 1.1),
+            }}
           />
-        ),
-      }}
-      completeCustomComponent={({ data }) => (
-        <PostItem
-          id={data.id}
-          kind={data.postType}
-          text={data.caption}
-          author={data.author}
-          metrics={data.metrics}
-          column={data.column}
-          imagePreview={data.source}
-          imagePreviewDimensions={data.masonryDimensions}
-          onPressPost={() => handlePressPost(data)}
-          onPressAvatar={() => handlePressAvatar(data)}
-          onPressSave={(hasSaved) => handlePressSave(data, hasSaved)}
-          style={{
-            marginHorizontal:
-              values.spacing.xs * (activeTab === POST_TYPE.FOLLOWING ? 1 : 1.1),
-          }}
-        />
-      )}
-    />
+        )}
+      />
+    </>
   );
 };
+
+const modalStyles = StyleSheet.create({
+  container: {
+    backgroundColor: colors.white,
+    borderRadius: values.radius.lg,
+    padding: values.spacing.lg + values.spacing.sm,
+  },
+  textContainer: {
+    paddingHorizontal: values.spacing.sm,
+    marginBottom: values.spacing.lg,
+  },
+  title: {
+    fontSize: typography.size.h2,
+    fontWeight: '700',
+    marginBottom: values.spacing.md,
+  },
+  message: {
+    fontSize: typography.size.md,
+    marginBottom: values.spacing.md,
+  },
+  button: {},
+});
 
 const mapStateToProps = (state, props) => {
   const { postTypes } = props;
