@@ -2211,11 +2211,12 @@ class BottomSheetPanel extends Component {
           <Text
             allowFontScaling={false}
             numberOfLines={1}
+            ellipsizeMode="middle"
             style={{
               fontSize: 14,
               color: '#777777',
             }}>
-            {`Pin ${extraData.postData.title}`}
+            {`Pin ${extraData.postData.author.name}'s post`}
           </Text>
         </View>
 
@@ -2250,7 +2251,7 @@ class BottomSheetPanel extends Component {
           style={{
             marginVertical: 20,
           }}>
-          <Text>Pin to an exisitng note</Text>
+          <Text>Pin to an existing note</Text>
         </View>
 
         <FlatList

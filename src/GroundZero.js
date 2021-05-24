@@ -1,22 +1,25 @@
 import React from 'react';
-
-import { View, StyleSheet, TextInput, Text } from 'react-native';
+import {
+  useWindowDimensions,
+  Modal,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 
 import FastImage from 'react-native-fast-image';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import { withSafeAreaInsets } from 'react-native-safe-area-context';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createStackNavigator } from '@react-navigation/stack';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import { IconButton, Portal } from 'react-native-paper';
 
 import { connect } from 'react-redux';
-
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-
-import { createStackNavigator } from '@react-navigation/stack';
-
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-
-import { IconButton, Portal } from 'react-native-paper';
 
 import HomeScreen from './HomeScreen';
 import BoardsScreen from './BoardsScreen';
@@ -32,6 +35,8 @@ import ChatMessageScreen from './ChatMessageScreen';
 import BottomSheetPanel from './components/BottomSheetPanel';
 
 import { isAndroid, windowWidth } from './utilities/Constants';
+import { Button } from './components';
+import { colors, typography, values } from './constants';
 
 const imagePlaceholder = require('../resources/images/imagePlaceholder.png');
 
@@ -303,184 +308,255 @@ const HomeTabs = () => (
   </>
 );
 
-const GroundZero = ({ navigation, insets }) => (
-  <>
-    <Stack.Navigator>
-      <Stack.Screen
-        name="HomeTabs"
-        component={HomeTabs}
-        options={{
-          headerShown: false,
-        }}
-        cardStyle={{
-          backgroundColor: 'white',
-        }}
-      />
+const GroundZero = ({ navigation, insets }) => {
+  const [isModalVisible, setIsModalVisible] = React.useState(true);
+  const { width: screenWidth } = useWindowDimensions();
 
-      <Stack.Screen
-        name="NoteDetailScreen"
-        component={NoteDetailScreen}
-        options={({ route }) => ({
-          title: route.params?.noteDetails?.title ?? 'Note Details',
-          headerBackTitleVisible: false,
-          headerTintColor: 'black',
-        })}
-      />
-
-      <Stack.Screen
-        name="ProfileEditScreen"
-        component={ProfileEditScreen}
-        options={{
-          headerBackTitleVisible: false,
-          headerTintColor: 'black',
-          title: 'Profile Settings',
-          headerTransparent: true,
-          headerBackground: () => (
+  return (
+    <>
+      <Modal
+        transparent
+        animationType="slide"
+        visible={isModalVisible}
+        onRequestClose={() => setIsModalVisible(false)}>
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.3)' }}>
+          <SafeAreaView
+            style={{
+              flex: 1,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
             <View
               style={[
-                StyleSheet.absoluteFill,
-                { backgroundColor: 'rgba(255, 255, 255, 0.8)' },
-              ]}
-            />
-          ),
-        }}
-        cardStyle={{
-          backgroundColor: 'white',
-        }}
-      />
+                modalStyles.container,
+                { width: Math.min(screenWidth * 0.85, 360) },
+              ]}>
+              <View style={modalStyles.textContainer}>
+                <Text style={modalStyles.title}>Hi there 👋</Text>
+                <Text style={modalStyles.message}>
+                  Cheers for downloading our app!
+                </Text>
+                <Text style={modalStyles.message}>
+                  We're currently in beta – that means you're one of the first
+                  to use Discovrr! Please excuse any bugs you may encounter. In
+                  the meantime, make as many posts or comments as you like! 😀
+                </Text>
+                <Text style={modalStyles.message}>
+                  The Discovrr team is here if you have any feedback to provide.
+                  Get in contact with us at discovrrapp@gmail.com. We value all
+                  feedback you can share!
+                </Text>
+              </View>
+              <Button
+                primary
+                title="Alright that's cool"
+                style={modalStyles.button}
+                onPress={() => setIsModalVisible(false)}
+              />
+            </View>
+          </SafeAreaView>
+        </View>
+      </Modal>
 
-      <Stack.Screen
-        name="AccountSettingsScreen"
-        component={AccountSettingsScreen}
-        options={{
-          headerBackTitleVisible: false,
-          headerTintColor: 'black',
-          title: 'Account Settings',
-          // headerTransparent: true,
-          // headerBackground: () => (
-          //   <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(255, 255, 255, 0.8)' }]} />
-          // ),
-        }}
-        cardStyle={{
-          backgroundColor: 'white',
-        }}
-      />
-
-      <Stack.Screen
-        name="PostCreationScreen"
-        component={PostCreationScreen}
-        options={{
-          headerBackTitleVisible: false,
-          headerTintColor: 'black',
-          title: 'New Post',
-          // headerTransparent: true,
-          // headerBackground: () => (
-          //   <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(255, 255, 255, 0.8)' }]} />
-          // ),
-        }}
-        cardStyle={{
-          backgroundColor: 'white',
-        }}
-      />
-
-      <Stack.Screen
-        name="PostDetailScreen"
-        component={PostDetailScreen}
-        options={() => ({
-          title: 'Post',
-          headerBackTitleVisible: false,
-          headerTintColor: 'black',
-        })}
-      />
-
-      <Stack.Screen
-        name="NotificationsScreen"
-        component={NotificationsScreen}
-        options={{
-          headerBackTitleVisible: false,
-          headerTintColor: 'black',
-          title: 'Notifications',
-          // headerTransparent: true,
-          // headerBackground: () => (
-          //   <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(255, 255, 255, 0.8)' }]} />
-          // ),
-        }}
-        cardStyle={{
-          backgroundColor: 'white',
-        }}
-      />
-
-      <Stack.Screen
-        name="ChatMessageScreen"
-        component={ChatMessageScreen}
-        options={{
-          headerBackTitleVisible: false,
-          headerTintColor: 'black',
-          title: 'Direct Message',
-          headerTransparent: true,
-          headerBackground: () => (
-            <View
-              style={[
-                StyleSheet.absoluteFill,
-                { backgroundColor: 'rgba(255, 255, 255, 0.8)' },
-              ]}
-            />
-          ),
-        }}
-        cardStyle={{
-          backgroundColor: 'white',
-        }}
-      />
-
-      <Stack.Screen
-        name="UserProfileScreen"
-        component={ProfileScreen}
-        options={{
-          headerShown: false,
-          headerBackTitleVisible: false,
-          headerTintColor: 'white',
-          title: '',
-          headerTransparent: true,
-          headerBackground: () => (
-            <View
-              style={[
-                StyleSheet.absoluteFill,
-                { backgroundColor: 'rgba(255, 255, 255, 0.05)' },
-              ]}
-            />
-          ),
-          cardStyle: {
+      <Stack.Navigator>
+        <Stack.Screen
+          name="HomeTabs"
+          component={HomeTabs}
+          options={{
+            headerShown: false,
+          }}
+          cardStyle={{
             backgroundColor: 'white',
-          },
-        }}
-      />
+          }}
+        />
 
-      <Stack.Screen
-        name="FollowerScreen"
-        component={FollowerScreen}
-        options={({ route }) => {
-          const {
-            params: { userProfile, selector },
-          } = route;
-
-          const name =
-            (userProfile?.name ?? '').length > 0
-              ? userProfile.name
-              : 'Anonymous';
-
-          return {
-            title: `${name} – ${selector}` ?? selector,
+        <Stack.Screen
+          name="NoteDetailScreen"
+          component={NoteDetailScreen}
+          options={({ route }) => ({
+            title: route.params?.noteDetails?.title ?? 'Note Details',
             headerBackTitleVisible: false,
             headerTintColor: 'black',
-          };
-        }}
-      />
-    </Stack.Navigator>
+          })}
+        />
 
-    <Portal>
-      <BottomSheetPanel insets={insets} navigation={navigation} />
-    </Portal>
-  </>
-);
+        <Stack.Screen
+          name="ProfileEditScreen"
+          component={ProfileEditScreen}
+          options={{
+            headerBackTitleVisible: false,
+            headerTintColor: 'black',
+            title: 'Profile Settings',
+            headerTransparent: true,
+            headerBackground: () => (
+              <View
+                style={[
+                  StyleSheet.absoluteFill,
+                  { backgroundColor: 'rgba(255, 255, 255, 0.8)' },
+                ]}
+              />
+            ),
+          }}
+          cardStyle={{
+            backgroundColor: 'white',
+          }}
+        />
+
+        <Stack.Screen
+          name="AccountSettingsScreen"
+          component={AccountSettingsScreen}
+          options={{
+            headerBackTitleVisible: false,
+            headerTintColor: 'black',
+            title: 'Account Settings',
+            // headerTransparent: true,
+            // headerBackground: () => (
+            //   <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(255, 255, 255, 0.8)' }]} />
+            // ),
+          }}
+          cardStyle={{
+            backgroundColor: 'white',
+          }}
+        />
+
+        <Stack.Screen
+          name="PostCreationScreen"
+          component={PostCreationScreen}
+          options={{
+            headerBackTitleVisible: false,
+            headerTintColor: 'black',
+            title: 'New Post',
+            // headerTransparent: true,
+            // headerBackground: () => (
+            //   <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(255, 255, 255, 0.8)' }]} />
+            // ),
+          }}
+          cardStyle={{
+            backgroundColor: 'white',
+          }}
+        />
+
+        <Stack.Screen
+          name="PostDetailScreen"
+          component={PostDetailScreen}
+          options={() => ({
+            title: 'Post',
+            headerBackTitleVisible: false,
+            headerTintColor: 'black',
+          })}
+        />
+
+        <Stack.Screen
+          name="NotificationsScreen"
+          component={NotificationsScreen}
+          options={{
+            headerBackTitleVisible: false,
+            headerTintColor: 'black',
+            title: 'Notifications',
+            // headerTransparent: true,
+            // headerBackground: () => (
+            //   <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(255, 255, 255, 0.8)' }]} />
+            // ),
+          }}
+          cardStyle={{
+            backgroundColor: 'white',
+          }}
+        />
+
+        <Stack.Screen
+          name="ChatMessageScreen"
+          component={ChatMessageScreen}
+          options={{
+            headerBackTitleVisible: false,
+            headerTintColor: 'black',
+            title: 'Direct Message',
+            headerTransparent: true,
+            headerBackground: () => (
+              <View
+                style={[
+                  StyleSheet.absoluteFill,
+                  { backgroundColor: 'rgba(255, 255, 255, 0.8)' },
+                ]}
+              />
+            ),
+          }}
+          cardStyle={{
+            backgroundColor: 'white',
+          }}
+        />
+
+        <Stack.Screen
+          name="UserProfileScreen"
+          component={ProfileScreen}
+          options={{
+            headerShown: false,
+            headerBackTitleVisible: false,
+            headerTintColor: 'white',
+            title: '',
+            headerTransparent: true,
+            headerBackground: () => (
+              <View
+                style={[
+                  StyleSheet.absoluteFill,
+                  { backgroundColor: 'rgba(255, 255, 255, 0.05)' },
+                ]}
+              />
+            ),
+            cardStyle: {
+              backgroundColor: 'white',
+            },
+          }}
+        />
+
+        <Stack.Screen
+          name="FollowerScreen"
+          component={FollowerScreen}
+          options={({ route }) => {
+            const {
+              params: { userProfile, selector },
+            } = route;
+
+            const name =
+              (userProfile?.name ?? '').length > 0
+                ? userProfile.name
+                : 'Anonymous';
+
+            return {
+              title: `${name} – ${selector}` ?? selector,
+              headerBackTitleVisible: false,
+              headerTintColor: 'black',
+            };
+          }}
+        />
+      </Stack.Navigator>
+
+      <Portal>
+        <BottomSheetPanel insets={insets} navigation={navigation} />
+      </Portal>
+    </>
+  );
+};
+
+const modalStyles = StyleSheet.create({
+  container: {
+    backgroundColor: colors.white,
+    borderRadius: values.radius.lg,
+    padding: values.spacing.lg + values.spacing.sm,
+  },
+  textContainer: {
+    paddingHorizontal: values.spacing.sm,
+    marginBottom: values.spacing.lg,
+  },
+  title: {
+    fontSize: typography.size.h2,
+    fontWeight: '700',
+    marginBottom: values.spacing.md,
+  },
+  message: {
+    fontSize: typography.size.md,
+    marginBottom: values.spacing.md,
+  },
+  button: {},
+});
 
 export default connect()(withSafeAreaInsets(GroundZero));

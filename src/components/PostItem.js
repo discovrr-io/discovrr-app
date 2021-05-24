@@ -1,8 +1,7 @@
-import React, { useState, useRef } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import {
   Alert,
-  Animated,
   Image,
   StyleSheet,
   Text,
@@ -10,6 +9,7 @@ import {
   View,
 } from 'react-native';
 
+import * as Animatable from 'react-native-animatable';
 import FastImage from 'react-native-fast-image';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 
@@ -52,69 +52,58 @@ const PostItemFooter = ({
   metrics,
   displayActions = true,
   onPressAvatar = () => {},
-  onPressSave = async (_hasSaved) => {},
-  onPressLike = async (_hasLiked, _likesCount) => {},
+  onPressSave = async (hasSaved, setHasSaved) => {},
 }) => {
-  const hasSaved = useRef(metrics.hasSaved);
-  const hasLiked = useRef(metrics.hasLiked);
-  const likesCount = useRef(metrics.likesCount);
-
   const avatarSource = author.avatar
     ? { uri: author.avatar.url }
     : defaultAvatar;
 
-  const [isProcessingLike, setIsProcessingLike] = useState(false);
-  const [isProcessingSave, setIsProcessingSave] = useState(false);
+  const [isProcessingLike, setIsProcessingLike] = React.useState(false);
+  const [isProcessingSave, setIsProcessingSave] = React.useState(false);
 
-  const handleToggleLike = async () => {
-    const prevHasLiked = hasLiked.current;
-    const prevLikesCount = likesCount.current;
+  const [hasSaved, setHasSaved] = React.useState(metrics.hasLiked);
+  const [hasLiked, setHasLiked] = React.useState(metrics.hasLiked);
+  const [likesCount, setLikesCount] = React.useState(metrics.likesCount);
+
+  const handlePressLike = async () => {
+    const oldHasLiked = hasLiked;
+    const oldLikesCount = likesCount;
     setIsProcessingLike(true);
 
     try {
-      hasLiked.current = !prevHasLiked;
-      likesCount.current = Math.max(
-        0,
-        prevLikesCount + (hasLiked.current ? 1 : -1),
-      );
+      setHasLiked(!oldHasLiked);
+      setLikesCount((prev) => Math.max(0, prev + (!oldHasLiked ? 1 : -1)));
 
       await Parse.Cloud.run('likeOrUnlikePost', {
         postId: id,
-        like: hasLiked.current,
+        like: !oldHasLiked,
       });
 
-      await onPressLike(hasLiked.current, likesCount.current);
-
-      console.log(
-        `Successfully ${hasLiked.current ? 'liked' : 'unliked'} post`,
-      );
+      console.log(`Successfully ${!oldHasLiked ? 'liked' : 'unliked'} post`);
     } catch (error) {
-      likesCount.current = prevLikesCount;
-      hasLiked.current = prevHasLiked;
+      setHasLiked(oldHasLiked);
+      setLikesCount(oldLikesCount);
 
       Alert.alert('Sorry, something went wrong. Please try again later.');
       console.error(
-        `Failed to ${!hasLiked.current ? 'liked' : 'unliked'} post: ${error}`,
+        `Failed to ${!oldHasLiked ? 'like' : 'unlike'} post: ${error}`,
       );
     }
 
     setIsProcessingLike(false);
   };
 
-  const handleToggleSave = async () => {
+  const handlePressSave = async () => {
+    const oldHasSaved = hasSaved;
     setIsProcessingSave(true);
 
     try {
-      hasSaved.current = !hasSaved.current;
-      await onPressSave(hasSaved.current);
-      console.log(
-        `Successfully ${hasSaved.current ? 'saved' : 'unsaved'} post`,
-      );
+      await onPressSave(!oldHasSaved, setHasSaved);
     } catch (error) {
-      hasSaved.current = !hasSaved.current;
+      setHasSaved(oldHasSaved);
       Alert.alert('Sorry, something went wrong. Please try again later.');
       console.error(
-        `Failed to ${hasSaved.current ? 'save' : 'unsave'} post: ${error}`,
+        `Failed to ${!oldHasSaved ? 'save' : 'unsave'} post: ${error}`,
       );
     }
 
@@ -145,31 +134,31 @@ const PostItemFooter = ({
           <TouchableOpacity
             disabled={isProcessingSave}
             activeOpacity={DEFAULT_ACTIVE_OPACITY}
-            onPress={handleToggleSave}>
+            onPress={handlePressSave}>
             <MaterialIcon
               style={postItemFooterStyles.actionButton}
-              name={hasSaved.current ? 'bookmark' : 'bookmark-outline'}
-              color={hasSaved.current ? colors.black : colors.gray}
+              name={hasSaved ? 'bookmark' : 'bookmark-outline'}
+              color={hasSaved ? colors.black : colors.gray}
               size={ACTION_BUTTON_SIZE}
             />
           </TouchableOpacity>
           <TouchableOpacity
             disabled={isProcessingLike}
             activeOpacity={DEFAULT_ACTIVE_OPACITY}
-            onPress={handleToggleLike}>
-            <Animated.View animation="bounceIn">
+            onPress={handlePressLike}>
+            <Animatable.View key={hasLiked.toString()} animation="bounceIn">
               <MaterialIcon
                 style={postItemFooterStyles.actionButton}
-                name={hasLiked.current ? 'favorite' : 'favorite-border'}
-                color={hasLiked.current ? 'red' : colors.gray}
+                name={hasLiked ? 'favorite' : 'favorite-border'}
+                color={hasLiked ? 'red' : colors.gray}
                 size={ACTION_BUTTON_SIZE}
               />
-            </Animated.View>
+            </Animatable.View>
           </TouchableOpacity>
           <Text style={postItemFooterStyles.likesCount}>
-            {likesCount.current > 999
-              ? `${(likesCount.current / 1000).toFixed(1)}k`
-              : likesCount.current}
+            {likesCount > 999
+              ? `${(likesCount / 1000).toFixed(1)}k`
+              : likesCount}
           </Text>
         </View>
       )}
@@ -182,8 +171,6 @@ PostItemFooter.propTypes = {
   author: AuthorPropTypes.isRequired,
   metrics: MetricsPropTypes,
   onPressAvatar: PropTypes.func,
-  onPressSave: PropTypes.func,
-  onPressLike: PropTypes.func,
 };
 
 const postItemFooterStyles = StyleSheet.create({
@@ -235,8 +222,7 @@ const PostItem = ({
   displayActions = true,
   onPressPost = () => {},
   onPressAvatar = () => {},
-  onPressSave = async (_hasSaved) => {},
-  onPressLike = async (_hasLiked, _likesCount) => {},
+  onPressSave = async (hasSaved, setHasSaved) => {},
   ...props
 }) => {
   const PostItemContent = ({ onPressPost, ...props }) => {
@@ -258,7 +244,7 @@ const PostItem = ({
       );
     };
 
-    const [isImageLoaded, setIsImageLoaded] = useState(false);
+    const [isImageLoaded, setIsImageLoaded] = React.useState(false);
     const onImageLoad = (loadEvent) => {
       if (loadEvent) setIsImageLoaded(true);
     };
@@ -331,7 +317,6 @@ const PostItem = ({
           displayActions={displayActions}
           onPressAvatar={onPressAvatar}
           onPressSave={onPressSave}
-          onPressLike={onPressLike}
         />
       )}
     </View>
@@ -353,8 +338,6 @@ PostItem.propTypes = {
   displayFooter: PropTypes.bool,
   onPressPost: PropTypes.func,
   onPressAvatar: PropTypes.func,
-  onPressSave: PropTypes.func,
-  onPressLike: PropTypes.func,
 };
 
 const postItemStyles = StyleSheet.create({

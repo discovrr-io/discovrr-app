@@ -1,13 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import {
-  useWindowDimensions,
-  Modal,
-  RefreshControl,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import React from 'react';
+import { NativeEventEmitter, RefreshControl, Text } from 'react-native';
 
 import { useNavigation } from '@react-navigation/native';
 import MasonryList from 'react-native-masonry-list';
@@ -16,14 +8,13 @@ import { connect, useDispatch } from 'react-redux';
 import * as actions from './utilities/Actions';
 
 import {
-  Button,
   EmptyTabView,
   ErrorTabView,
   LoadingTabView,
   PostItem,
   PostItemKind,
 } from './components';
-import { colors, typography, values } from './constants';
+import { colors, values } from './constants';
 
 const isDevMode = process.env.NODE_ENV === 'development';
 const imagePlaceholder = require('../resources/images/imagePlaceholder.png');
@@ -209,6 +200,7 @@ async function fetchData(selector, myUserDetails, pages, dispatch) {
           likesCount,
           hasLiked,
           hasSaved: !!pinnedPosts[post.id],
+          savedTo: pinnedPosts[post.id],
         },
         id: post.id,
         key: `${imagePreviewUrl ?? imagePlaceholder}`,
@@ -247,17 +239,21 @@ const HomeScreen = (props) => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
 
-  const [posts, setPosts] = useState([]);
-  const [pages, setPages] = useState({ next: 0, hasMoreData: true, size: 40 });
+  const bottomSheetEmitter = new NativeEventEmitter('pinPostToNote');
+  const pinnedEmitter = new NativeEventEmitter('postPinned');
 
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [posts, setPosts] = React.useState([]);
+  const [pages, setPages] = React.useState({
+    next: 0,
+    hasMoreData: true,
+    size: 40,
+  });
 
-  const [isModalVisible, setIsModalVisible] = useState(true);
-  const { width: screenWidth } = useWindowDimensions();
+  const [isRefreshing, setIsRefreshing] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [error, setError] = React.useState(null);
 
-  useEffect(() => {
+  React.useEffect(() => {
     const _fetchData = async () => {
       try {
         const data = await fetchData(activeTab, myUserDetails, pages, dispatch);
@@ -306,8 +302,54 @@ const HomeScreen = (props) => {
     });
   };
 
-  const handlePressSave = async (postData, hasSaved) => {
-    console.warn(`Unimplemented: HomeScreen.handlePressSave(..., ${hasSaved})`);
+  const handlePressSave = async (postData, hasSaved, setHasSaved) => {
+    if (hasSaved) {
+      console.log('Will save post to new note');
+
+      bottomSheetEmitter.emit('showPanel', {
+        extraData: { postData },
+        contentSelector: 'pinPostToNote',
+        onFinish: (data, hasSaved) => {
+          const pinnedPosts = myUserDetails.pinnedPosts ?? [];
+          const newPinnedPosts = Array.isArray(pinnedPosts) || [];
+
+          if (hasSaved) {
+            newPinnedPosts.push(data.id);
+            setHasSaved(hasSaved);
+          } else {
+            const index = pinnedPosts.findIndex((id) => id === data.id);
+            if (index !== -1) pinnedPosts.splice(index, 1);
+          }
+
+          dispatch(actions.updatePinnedPosts(newPinnedPosts));
+          bottomSheetEmitter.emit('postPinned', {
+            hasPinned: hasSaved,
+            id: data.id,
+          });
+        },
+      });
+
+      console.log('Successfully saved post to new note');
+    } else {
+      console.log('Will remove post from note');
+      setHasSaved(false);
+
+      const Post = Parse.Object.extend('Post');
+      const postPointer = new Post();
+      postPointer.id = postData.id;
+
+      const Board = Parse.Object.extend('Board');
+      const boardPointer = new Board();
+      boardPointer.id = postData.savedTo;
+
+      const pinnedRelation = boardPointer.relation('pinnedEnjaga');
+      pinnedRelation.remove(postPointer);
+
+      boardPointer.remove('pinnedEnjagaArray', postData.id);
+      await boardPointer.save();
+
+      console.log('Successfully removed post from note');
+    }
   };
 
   if (activeTab === POST_TYPE.NEAR_ME) {
@@ -344,116 +386,49 @@ const HomeScreen = (props) => {
   }
 
   return (
-    <>
-      <Modal
-        transparent
-        animationType="slide"
-        visible={isModalVisible && activeTab === POST_TYPE.DISCOVER}
-        onRequestClose={() => setIsModalVisible(false)}>
-        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.3)' }}>
-          <SafeAreaView
-            style={{
-              flex: 1,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}>
-            <View
-              style={[
-                modalStyles.container,
-                { width: Math.min(screenWidth * 0.85, 360) },
-              ]}>
-              <View style={modalStyles.textContainer}>
-                <Text style={modalStyles.title}>Hi there 👋</Text>
-                <Text style={modalStyles.message}>
-                  Cheers for downloading our app!
-                </Text>
-                <Text style={modalStyles.message}>
-                  We're currently in beta – that means you're one of the first
-                  to use Discovrr! Please excuse any bugs or hiccups you may
-                  encounter. However, make as many posts or comments as you
-                  like! 😀
-                </Text>
-                <Text style={modalStyles.message}>
-                  The Discovrr team is here if you have any feedback to provide.
-                  Get in contact us with at discovrrapp@gmail.com. We value all
-                  feedback you can share!
-                </Text>
-              </View>
-              <Button
-                primary
-                title="Lemme Try"
-                style={modalStyles.button}
-                onPress={() => setIsModalVisible(false)}
-              />
-            </View>
-          </SafeAreaView>
-        </View>
-      </Modal>
-      <MasonryList
-        sorted
-        rerender
-        columns={activeTab === POST_TYPE.FOLLOWING ? 1 : 2}
-        images={posts}
-        listContainerStyle={{ paddingTop: values.spacing.sm }}
-        onEndReachedThreshold={0.1}
-        onEndReached={addPosts}
-        masonryFlatListColProps={{
-          ListEmptyComponent: () => <EmptyTabView style={{ width: '100%' }} />,
-          refreshControl: (
-            <RefreshControl
-              refreshing={isRefreshing}
-              onRefresh={handleRefresh}
-              colors={[colors.gray500]}
-              tintColor={colors.gray500}
-            />
-          ),
-        }}
-        completeCustomComponent={({ data }) => (
-          <PostItem
-            id={data.id}
-            kind={data.postType}
-            text={data.caption}
-            author={data.author}
-            metrics={data.metrics}
-            column={data.column}
-            imagePreview={data.source}
-            imagePreviewDimensions={data.masonryDimensions}
-            onPressPost={() => handlePressPost(data)}
-            onPressAvatar={() => handlePressAvatar(data)}
-            onPressSave={(hasSaved) => handlePressSave(data, hasSaved)}
-            style={{
-              marginHorizontal:
-                values.spacing.xs *
-                (activeTab === POST_TYPE.FOLLOWING ? 1 : 1.1),
-            }}
+    <MasonryList
+      sorted
+      rerender
+      columns={activeTab === POST_TYPE.FOLLOWING ? 1 : 2}
+      images={posts}
+      listContainerStyle={{ paddingTop: values.spacing.sm }}
+      onEndReachedThreshold={0.1}
+      onEndReached={addPosts}
+      masonryFlatListColProps={{
+        ListEmptyComponent: () => <EmptyTabView style={{ width: '100%' }} />,
+        refreshControl: (
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={handleRefresh}
+            colors={[colors.gray500]}
+            tintColor={colors.gray500}
           />
-        )}
-      />
-    </>
+        ),
+      }}
+      completeCustomComponent={({ data }) => (
+        <PostItem
+          id={data.id}
+          kind={data.postType}
+          text={data.caption}
+          author={data.author}
+          metrics={data.metrics}
+          column={data.column}
+          imagePreview={data.source}
+          imagePreviewDimensions={data.masonryDimensions}
+          onPressPost={() => handlePressPost(data)}
+          onPressAvatar={() => handlePressAvatar(data)}
+          onPressSave={(hasSaved, setHasSaved) =>
+            handlePressSave(data, hasSaved, setHasSaved)
+          }
+          style={{
+            marginHorizontal:
+              values.spacing.xs * (activeTab === POST_TYPE.FOLLOWING ? 1 : 1.1),
+          }}
+        />
+      )}
+    />
   );
 };
-
-const modalStyles = StyleSheet.create({
-  container: {
-    backgroundColor: colors.white,
-    borderRadius: values.radius.lg,
-    padding: values.spacing.lg + values.spacing.sm,
-  },
-  textContainer: {
-    paddingHorizontal: values.spacing.sm,
-    marginBottom: values.spacing.lg,
-  },
-  title: {
-    fontSize: typography.size.h2,
-    fontWeight: '700',
-    marginBottom: values.spacing.md,
-  },
-  message: {
-    fontSize: typography.size.md,
-    marginBottom: values.spacing.md,
-  },
-  button: {},
-});
 
 const mapStateToProps = (state, props) => {
   const { postTypes } = props;
