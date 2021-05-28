@@ -20,6 +20,7 @@ import Carousel, { Pagination } from 'react-native-snap-carousel';
 import FastImage from 'react-native-fast-image';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import Video from 'react-native-video';
+import * as Animatable from 'react-native-animatable';
 
 import { connect, useDispatch } from 'react-redux';
 import * as reduxActions from './utilities/Actions';
@@ -41,6 +42,7 @@ const Parse = require('parse/react-native');
 const POST_DETAIL_ICON_SIZE = 32;
 const AVATAR_DIAMETER = POST_DETAIL_ICON_SIZE;
 const TEXT_INPUT_HEIGHT = 35;
+const DEFAULT_ACTIVE_OPACITY = 0.6;
 
 async function fetchPostDetails(postId) {
   const postQuery = new Parse.Query(Parse.Object.extend('Post'));
@@ -243,6 +245,13 @@ const PostDetailFooter = ({
   const [author, setAuthor] = React.useState(postDetails.author);
   const [metrics, setMetrics] = React.useState(postDetails.metrics);
 
+  const [isProcessingLike, setIsProcessingLike] = React.useState(false);
+  const [isProcessingSave, setIsProcessingSave] = React.useState(false);
+
+  const [hasSaved, setHasSaved] = React.useState(metrics.hasLiked);
+  const [hasLiked, setHasLiked] = React.useState(metrics.hasLiked);
+  const [likesCount, setLikesCount] = React.useState(metrics.likesCount);
+
   const avatarSource = author.avatar?.url
     ? { uri: author.avatar.url }
     : defaultAvatar;
@@ -270,10 +279,41 @@ const PostDetailFooter = ({
     });
   };
 
-  const likesCount =
-    metrics.likesCount > 999
-      ? `${(metrics.likesCount / 1000).toFixed(1)}k`
-      : `${metrics.likesCount}`;
+  const handlePressShare = async () => {
+    console.warn('Unimplemented: handlePressShare');
+  };
+
+  const handlePressSave = async () => {
+    setHasSaved((prev) => !prev);
+  };
+
+  const handlePressLike = async () => {
+    const oldHasLiked = hasLiked;
+    const oldLikesCount = likesCount;
+    setIsProcessingLike(true);
+
+    try {
+      setHasLiked(!oldHasLiked);
+      setLikesCount((prev) => Math.max(0, prev + (!oldHasLiked ? 1 : -1)));
+
+      await Parse.Cloud.run('likeOrUnlikePost', {
+        postId: postDetails.id,
+        like: !oldHasLiked,
+      });
+
+      console.log(`Successfully ${!oldHasLiked ? 'liked' : 'unliked'} post`);
+    } catch (error) {
+      setHasLiked(oldHasLiked);
+      setLikesCount(oldLikesCount);
+
+      Alert.alert('Sorry, something went wrong. Please try again later.');
+      console.error(
+        `Failed to ${!oldHasLiked ? 'like' : 'unlike'} post: ${error}`,
+      );
+    }
+
+    setIsProcessingLike(false);
+  };
 
   return (
     <View style={[postDetailsFooterStyles.container, props.style]}>
@@ -301,28 +341,50 @@ const PostDetailFooter = ({
           </View>
         </TouchableOpacity>
         <View style={postDetailsFooterStyles.metricsContainer}>
-          <MaterialIcon
-            style={postDetailsFooterStyles.actionButton}
-            name="share"
-            color={colors.gray}
-            size={POST_DETAIL_ICON_SIZE}
-          />
-          <MaterialIcon
-            style={postDetailsFooterStyles.actionButton}
-            name={metrics.hasSaved ? 'bookmark' : 'bookmark-outline'}
-            color={metrics.hasSaved ? colors.black : colors.gray}
-            size={POST_DETAIL_ICON_SIZE}
-          />
-          <MaterialIcon
-            style={[
-              postDetailsFooterStyles.actionButton,
-              { marginRight: values.spacing.md },
-            ]}
-            name={metrics.hasLiked ? 'favorite' : 'favorite-border'}
-            color={metrics.hasLiked ? 'red' : colors.gray}
-            size={POST_DETAIL_ICON_SIZE}
-          />
-          <Text style={postDetailsFooterStyles.likesCount}>{likesCount}</Text>
+          <TouchableOpacity
+            activeOpacity={DEFAULT_ACTIVE_OPACITY}
+            onPress={handlePressShare}>
+            <MaterialIcon
+              style={postDetailsFooterStyles.actionButton}
+              name="share"
+              color={colors.gray}
+              size={POST_DETAIL_ICON_SIZE}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            disabled={isProcessingSave}
+            activeOpacity={DEFAULT_ACTIVE_OPACITY}
+            onPress={handlePressSave}>
+            <MaterialIcon
+              style={postDetailsFooterStyles.actionButton}
+              name={hasSaved ? 'bookmark' : 'bookmark-outline'}
+              color={hasSaved ? colors.black : colors.gray}
+              size={POST_DETAIL_ICON_SIZE}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            disabled={isProcessingLike}
+            activeOpacity={DEFAULT_ACTIVE_OPACITY}
+            onPress={handlePressLike}>
+            <Animatable.View
+              key={hasLiked.toString()}
+              animation={hasLiked && 'bounceIn'}>
+              <MaterialIcon
+                style={[
+                  postDetailsFooterStyles.actionButton,
+                  { marginRight: values.spacing.md },
+                ]}
+                name={hasLiked ? 'favorite' : 'favorite-border'}
+                color={hasLiked ? 'red' : colors.gray}
+                size={POST_DETAIL_ICON_SIZE}
+              />
+            </Animatable.View>
+          </TouchableOpacity>
+          <Text style={postDetailsFooterStyles.likesCount}>
+            {likesCount > 999
+              ? `${(likesCount / 1000).toFixed(1)}k`
+              : likesCount}
+          </Text>
         </View>
       </View>
     </View>
@@ -371,9 +433,9 @@ const postDetailsFooterStyles = StyleSheet.create({
     position: 'absolute',
     right: 0,
     fontSize: typography.size.sm,
-    fontWeight: '500',
+    fontWeight: '700',
     color: colors.gray700,
-    backgroundColor: '#f2f2f2',
+    // backgroundColor: colors.white,
   },
 });
 
@@ -452,7 +514,9 @@ const PostDetailComments = ({ postDetails, ...props }) => {
           flexDirection: 'row',
           paddingVertical: values.spacing.md,
         }}>
-        <TouchableOpacity activeOpacity={0.6} onPress={handlePressAvatar}>
+        <TouchableOpacity
+          activeOpacity={DEFAULT_ACTIVE_OPACITY}
+          onPress={handlePressAvatar}>
           <FastImage
             width={AVATAR_DIAMETER}
             height={AVATAR_DIAMETER}
