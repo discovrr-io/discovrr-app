@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Text, TouchableHighlight } from 'react-native';
+import { ActivityIndicator, Text, TouchableHighlight } from 'react-native';
 
 import { colors } from '../../constants';
 import * as styles from './styles';
@@ -12,6 +12,7 @@ const Button = ({
   disabled = false,
   transparent = false,
   onPress = () => {},
+  isLoading = false,
   ...props
 }) => {
   const stateStyle = primary
@@ -30,9 +31,13 @@ const Button = ({
       underlayColor={primary ? colors.accentFocused : colors.gray300}
       onPress={onPress}
       style={[currentStyle, sizeStyle, props.style]}>
-      <Text style={isBig ? stateStyle.text : stateStyle.textSmall}>
-        {title}
-      </Text>
+      {isLoading ? (
+        <ActivityIndicator color={colors.white} size="small" />
+      ) : (
+        <Text style={isBig ? stateStyle.text : stateStyle.textSmall}>
+          {title}
+        </Text>
+      )}
     </TouchableHighlight>
   );
 };

@@ -5,6 +5,7 @@ import {
   KeyboardAvoidingView,
   LogBox,
   Platform,
+  RefreshControl,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -41,24 +42,25 @@ const POST_DETAIL_ICON_SIZE = 32;
 const AVATAR_DIAMETER = POST_DETAIL_ICON_SIZE;
 const TEXT_INPUT_HEIGHT = 35;
 
-async function fetchPostMetrics(postId) {
+async function fetchPostDetails(postId) {
   const postQuery = new Parse.Query(Parse.Object.extend('Post'));
   postQuery.equalTo('objectId', postId);
 
   const post = await postQuery.first();
 
-  // const currentUser = await Parse.User.currentAsync();
-  // const profileQuery = new Parse.Query(Parse.Object.extend('Profile'));
-  // profileQuery.equalTo('owner', currentUser);
-  // const profileResult = await profileQuery.find();
-  // console.log({ profileResult });
+  const currentUser = await Parse.User.currentAsync();
+  const profileQuery = new Parse.Query(Parse.Object.extend('Profile'));
+  profileQuery.equalTo('owner', currentUser);
+
+  const profileResult = await profileQuery.first();
 
   let likesCount = 0;
   let hasLiked = false;
   const likersArray = post.get('likersArray');
   if (Array.isArray(likersArray) && likersArray.length) {
     likesCount = likersArray.length;
-    // hasLiked = likersArray.some((liker) => profileId === liker);
+    hasLiked = likersArray.some((liker) => profileResult.id === liker);
+    console.log({ hasLiked });
   }
 
   return {
@@ -248,7 +250,7 @@ const PostDetailFooter = ({
   React.useEffect(() => {
     const fetchData = async () => {
       try {
-        const newPostDetails = await fetchPostMetrics(postDetails.id);
+        const newPostDetails = await fetchPostDetails(postDetails.id);
         setAuthor({ ...author, ...newPostDetails.author });
         setMetrics({ ...metrics, ...newPostDetails.metrics });
       } catch (error) {
@@ -384,6 +386,9 @@ const PostDetailComments = ({ postDetails, ...props }) => {
   const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState(null);
 
+  const [commentInput, setCommentInput] = React.useState('');
+  const [isProcessingComment, setIsProcessingComment] = React.useState(false);
+
   React.useEffect(() => {
     // Ignore warning that FlatList is nested in ScrollView for now
     LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
@@ -404,6 +409,30 @@ const PostDetailComments = ({ postDetails, ...props }) => {
 
     if (isLoading || isRefreshing) fetchData();
   }, [isRefreshing]);
+
+  const handlePostComment = async () => {
+    setIsProcessingComment(true);
+
+    try {
+      const postQuery = new Parse.Query(Parse.Object.extend('Post'));
+      postQuery.equalTo('objectId', postDetails.id);
+      const post = await postQuery.first();
+
+      const PostComment = Parse.Object.extend('PostComment');
+      const postComment = new PostComment();
+
+      const response = await postComment.save({ post, message: commentInput });
+      console.log({ response });
+
+      setIsRefreshing(true);
+      setCommentInput('');
+    } catch (error) {
+      Alert.alert('Sorry, something went wrong. Please try again later.');
+      console.error(`Failed to post comment: ${error}`);
+    }
+
+    setIsProcessingComment(false);
+  };
 
   const renderComment = ({ item }) => {
     const { avatar } = item.author;
@@ -488,14 +517,20 @@ const PostDetailComments = ({ postDetails, ...props }) => {
       <View style={postDetailCommentsStyles.textInputContainer}>
         <TextInput
           multiline
+          maxLength={200}
+          value={commentInput}
           style={postDetailCommentsStyles.commentTextInput}
-          placeholder="Add your comment..."
+          placeholder="Add a comment..."
+          onChangeText={setCommentInput}
         />
         <Button
           style={postDetailCommentsStyles.postButton}
           primary
           size="small"
           title="Post"
+          onPress={handlePostComment}
+          disabled={commentInput.trim().length === 0}
+          isLoading={isProcessingComment}
         />
       </View>
     </View>
@@ -514,10 +549,12 @@ const postDetailCommentsStyles = StyleSheet.create({
   textInputContainer: {
     flexDirection: 'row',
     marginVertical: values.spacing.md,
+    alignItems: 'flex-end',
   },
   commentTextInput: {
     flexGrow: 1,
-    height: TEXT_INPUT_HEIGHT,
+    flexShrink: 1,
+    minHeight: TEXT_INPUT_HEIGHT,
     borderColor: colors.gray700,
     borderWidth: values.border.thin,
     borderRadius: values.radius.md,
@@ -532,14 +569,31 @@ const postDetailCommentsStyles = StyleSheet.create({
 
 const PostDetailScreen = (props) => {
   const {
-    route: { params: postDetails },
+    route: { params: givenPostDetails },
   } = props;
 
-  // const [isRefreshing, setIsRefreshing] = React.useState(false);
+  const [postDetails, setPostDetails] = React.useState(givenPostDetails);
+  const [isRefreshing, setIsRefreshing] = React.useState(false);
 
-  // const handleRefresh = () => {
-  //   if (!isRefreshing) setIsRefreshing(true);
-  // };
+  // TODO: Work on this
+  React.useEffect(() => {
+    const fetchMetrics = async () => {
+      try {
+        const newPostDetails = await fetchPostDetails(postDetails.id);
+        setPostDetails({ ...givenPostDetails, ...newPostDetails });
+      } catch (error) {
+        console.error(`Failed to refresh metrics: ${error}`);
+      }
+
+      setIsRefreshing(false);
+    };
+
+    if (isRefreshing) fetchMetrics();
+  }, [isRefreshing]);
+
+  const handleRefresh = () => {
+    if (!isRefreshing) setIsRefreshing(true);
+  };
 
   return (
     <KeyboardAvoidingView
@@ -548,15 +602,14 @@ const PostDetailScreen = (props) => {
       style={{ height: '100%', backgroundColor: colors.white }}>
       <SafeAreaView style={{ paddingBottom: values.spacing.lg }}>
         <ScrollView
-        // refreshControl={
-        //   <RefreshControl
-        //     refreshing={isRefreshing}
-        //     onRefresh={handleRefresh}
-        //     colors={[colors.gray500]}
-        //     tintColor={colors.gray500}
-        //   />
-        // }
-        >
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={handleRefresh}
+              colors={[colors.gray500]}
+              tintColor={colors.gray500}
+            />
+          }>
           <PostDetailContent
             postDetails={postDetails}
             style={{ marginTop: values.spacing.md }}

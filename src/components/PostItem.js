@@ -53,6 +53,7 @@ const PostItemFooter = ({
   displayActions = true,
   onPressAvatar = () => {},
   onPressSave = async (hasSaved, setHasSaved) => {},
+  onPressLike = (hasLiked) => {},
 }) => {
   const avatarSource = author.avatar
     ? { uri: author.avatar.url }
@@ -223,6 +224,7 @@ const PostItem = ({
   onPressPost = () => {},
   onPressAvatar = () => {},
   onPressSave = async (hasSaved, setHasSaved) => {},
+  onPressLike = (hasLiked) => {},
   ...props
 }) => {
   const PostItemContent = ({ onPressPost, ...props }) => {
@@ -317,6 +319,7 @@ const PostItem = ({
           displayActions={displayActions}
           onPressAvatar={onPressAvatar}
           onPressSave={onPressSave}
+          onPressLike={onPressLike}
         />
       )}
     </View>
