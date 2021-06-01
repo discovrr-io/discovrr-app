@@ -3,9 +3,8 @@ import React, { Component } from 'react';
 import {
   Alert,
   NativeEventEmitter,
-  // StatusBar,
   StyleSheet,
-  // ToastAndroid,
+  SafeAreaView,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -22,23 +21,17 @@ import {
 } from 'react-native-paper';
 
 import { connect } from 'react-redux';
-
 import { getVersion } from 'react-native-device-info';
 
 import { GoogleSignin } from '@react-native-community/google-signin';
-
 import auth from '@react-native-firebase/auth';
 import FastImage from 'react-native-fast-image';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-import { SafeAreaView } from 'react-native-safe-area-context';
-
 import { logout, saveLeftDrawerContext } from '../utilities/Actions';
 
-// import {
-//   windowHeight,
-// } from '../utilities/Constants';
+import { colors, values } from '../constants';
 
 const Parse = require('parse/react-native');
 const defaultAvatar = require('../../resources/images/defaultAvatar.jpeg');
@@ -74,10 +67,6 @@ class AppDrawer extends Component {
   goToScreen = (screen) => () => {
     const { userDetails: { isAnonymous } = {} } = this.props;
 
-    // let navScreen = screen;
-
-    // if (screen === 'AccountSettingsScreen' && !isDevMode) navScreen = 'ProfileEditScreen';
-
     if (isAnonymous) {
       let nextAction;
       switch (screen) {
@@ -88,7 +77,7 @@ class AppDrawer extends Component {
           };
           break;
         default:
-        //
+          break;
       }
 
       debugAppLogger({
@@ -303,17 +292,36 @@ class AppDrawer extends Component {
                   onPress={this.goToScreen('ProfileEditScreen')}
                 />
 
-                {/* <DrawerItem // enjagaiOS
+                <DrawerItem
                   icon={({ size }) => (
                     <MaterialIcon
-                      name="settings"
+                      name="shopping-bag"
                       size={size}
                       color="black"
                     />
                   )}
+                  label="Your Shopping"
+                  onPress={() =>
+                    Alert.alert(
+                      'Feature Unavailable',
+                      "Sorry, this feature isn't available at the moment.",
+                    )
+                  }
+                />
+
+                <DrawerItem
+                  icon={({ size }) => (
+                    <MaterialIcon name="settings" size={size} color="black" />
+                  )}
                   label="Account Settings"
-                  onPress={this.goToScreen('AccountSettingsScreen')}
-                /> */}
+                  // onPress={this.goToScreen('AccountSettingsScreen')}
+                  onPress={() =>
+                    Alert.alert(
+                      'Feature Unavailable',
+                      "Sorry, this feature isn't available at the moment.",
+                    )
+                  }
+                />
               </Drawer.Section>
 
               <Drawer.Section>
@@ -339,6 +347,7 @@ class AppDrawer extends Component {
             borderTopWidth: 1,
             borderBottomWidth: 0,
             borderTopColor: '#EEEEEE',
+            paddingBottom: values.spacing.lg,
           }}>
           <TouchableRipple
             // onPress={() => ToastAndroid.show('Pending implementation', ToastAndroid.SHORT)}
@@ -361,10 +370,10 @@ class AppDrawer extends Component {
           <Text
             allowFontScaling={false}
             style={{
-              color: '#777777',
+              color: colors.gray700,
               alignSelf: 'flex-start',
-              marginTop: 15,
-              marginLeft: 15,
+              marginTop: values.spacing.lg,
+              marginLeft: values.spacing.lg,
             }}>
             v{getVersion()}
             {this.pushedUpdate}

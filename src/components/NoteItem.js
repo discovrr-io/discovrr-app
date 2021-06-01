@@ -46,6 +46,7 @@ const NoteItem = ({
             borderRadius: values.radius.md,
             borderWidth: 1,
             borderColor: colors.gray500,
+            backgroundColor: colors.gray100,
           }}
         />
         <Text

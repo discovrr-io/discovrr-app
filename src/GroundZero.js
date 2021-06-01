@@ -37,6 +37,7 @@ import BottomSheetPanel from './components/BottomSheetPanel';
 import { isAndroid, windowWidth } from './utilities/Constants';
 import { Button } from './components';
 import { colors, typography, values } from './constants';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 const imagePlaceholder = require('../resources/images/imagePlaceholder.png');
 
@@ -409,10 +410,17 @@ const GroundZero = ({ navigation, insets }) => {
             headerBackTitleVisible: false,
             headerTintColor: 'black',
             title: 'Account Settings',
-            // headerTransparent: true,
-            // headerBackground: () => (
-            //   <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(255, 255, 255, 0.8)' }]} />
-            // ),
+            headerRight: () => (
+              <TouchableOpacity style={{ marginRight: values.spacing.lg }}>
+                <Text
+                  style={{
+                    fontSize: typography.size.md,
+                    color: colors.accentFocused,
+                  }}>
+                  Save
+                </Text>
+              </TouchableOpacity>
+            ),
           }}
           cardStyle={{
             backgroundColor: 'white',

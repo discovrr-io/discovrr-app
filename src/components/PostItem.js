@@ -279,7 +279,7 @@ const PostItem = ({
           <View style={[props.style]}>
             <Image
               onLoad={onImageLoad}
-              source={isImageLoaded ? imagePreview : imagePlaceholder}
+              source={imagePreview}
               style={{
                 width,
                 height,
@@ -287,6 +287,7 @@ const PostItem = ({
                 borderRadius: values.radius.md,
                 borderWidth: 1,
                 borderColor: colors.gray300,
+                backgroundColor: colors.gray100,
               }}
             />
             <PostItemContentCaption maxWidth={width} text={text} />

@@ -117,18 +117,20 @@ class AccountSettingsScreen extends Component {
     }
   };
 
-  updateInputValue = (input) => (value = '') => {
-    debugAppLogger({
-      info: 'AccountSettingsScreen updateInputValue',
-      input,
-      value,
-    });
+  updateInputValue =
+    (input) =>
+    (value = '') => {
+      debugAppLogger({
+        info: 'AccountSettingsScreen updateInputValue',
+        input,
+        value,
+      });
 
-    this[input] = value.trim();
-    this.setState({
-      [`${input}Error`]: false,
-    });
-  };
+      this[input] = value.trim();
+      this.setState({
+        [`${input}Error`]: false,
+      });
+    };
 
   validateInput = (input) => () => {
     debugAppLogger({
@@ -258,7 +260,7 @@ class AccountSettingsScreen extends Component {
 
     const {
       insets: { bottom: bottomInset },
-      userDetails: { name, surname, hometown, description },
+      userDetails: { displayName, name, surname, hometown, description },
     } = this.props;
 
     return (
@@ -279,7 +281,26 @@ class AccountSettingsScreen extends Component {
                 }}>
                 <InputField
                   refSelector={this.refSelector}
-                  label="Name"
+                  label="Username"
+                  defaultValue={displayName && `@${displayName}`}
+                  autoCompleteType="name"
+                  keyboardType="default"
+                  placeholder="@username"
+                  returnKeyType="done"
+                  textContentType="name"
+                  // focusAction={this.focusField('surname')}
+                  updateInputValue={this.updateInputValue}
+                  error={nameError}
+                  selector="name"
+                  extraStyles={{ marginVertical: 0 }}
+                  blurred={this.validateInput}
+                />
+
+                <View style={styles.divider} />
+
+                <InputField
+                  refSelector={this.refSelector}
+                  label="First Name"
                   defaultValue={name}
                   autoCompleteType="name"
                   keyboardType="default"
@@ -316,51 +337,23 @@ class AccountSettingsScreen extends Component {
                 <View style={styles.divider} />
 
                 <InputField
-                  disabled
                   refSelector={this.refSelector}
-                  label="Interests"
-                  // defaultValue={surname}
-                  autoCompleteType="off"
+                  label="Email"
+                  defaultValue={surname}
+                  autoCompleteType="name"
                   keyboardType="default"
-                  placeholder="..."
+                  placeholder="Email"
                   returnKeyType="done"
-                  textContentType="none"
+                  textContentType="name"
                   // focusAction={this.focusField('surname')}
                   updateInputValue={this.updateInputValue}
-                  error={interestsError}
-                  selector="interests"
+                  error={surnameError}
+                  selector="surname"
                   extraStyles={{ marginVertical: 0 }}
                   blurred={this.validateInput}
                 />
 
                 <View style={styles.divider} />
-
-                <InputField
-                  refSelector={this.refSelector}
-                  multiline
-                  // isProcessing={isProcessing}
-                  fontSize={12}
-                  label="Profile Description"
-                  defaultValue={description}
-                  autoCompleteType="off"
-                  keyboardType="default"
-                  placeholder="..."
-                  returnKeyType="done"
-                  textContentType="none"
-                  // focusAction={this.focusField('surname')}
-                  updateInputValue={this.updateInputValue}
-                  error={descriptionError}
-                  selector="description"
-                  extraStyles={{ fontSize: 12, marginVertical: 0 }}
-                  blurred={this.validateInput}
-                />
-
-                <View style={styles.divider} />
-
-                <LocationSearch
-                  hometown={hometown}
-                  setPreferredLocation={this.setPreferredLocation}
-                />
               </View>
 
               <Animated.View style={{ height: animatedHeight }} />
@@ -449,62 +442,6 @@ const InputField = ({
           />
         )}
       </View>
-    </View>
-  );
-};
-
-const LocationSearch = ({ hometown, setPreferredLocation }) => {
-  const autoCompleteRef = useRef();
-
-  useEffect(() => {
-    autoCompleteRef.current?.setAddressText(hometown || '');
-  }, []);
-
-  return (
-    <View style={{ paddingLeft: 30, marginBottom: 50 }}>
-      <Text
-        allowFontScaling={false}
-        style={{ fontSize: 12, color: '#666666', marginBottom: 10 }}>
-        Hometown
-      </Text>
-
-      <GooglePlacesAutocomplete
-        ref={autoCompleteRef}
-        autoFillOnNotFound
-        // currentLocation
-        fetchDetails
-        enablePoweredByContainer={false}
-        placeholder="Search"
-        minLength={0}
-        onPress={setPreferredLocation}
-        anchor="top"
-        query={{
-          key: 'AIzaSyAqZGkR0XP10HNHhFFvUiwHSxgq5W9s1iE',
-          language: 'en',
-        }}
-        textInputProps={{
-          selectTextOnFocus: isAndroid,
-          placeholderTextColor: isAndroid ? undefined : '#BBBBBB',
-        }}
-        styles={{
-          textInputContainer: {
-            height: 40,
-            maxWidth: windowWidth * 0.9,
-            // borderRadius: 10,
-          },
-          textInput: {
-            paddingLeft: 0,
-          },
-          listView: {
-            backgroundColor: 'red',
-            // position: 'absolute',
-            // top: 5,
-            // width: '95%',
-            // alignSelf: 'center',
-          },
-        }}
-        // listEmptyComponent={this.renderEmptySearchList}
-      />
     </View>
   );
 };

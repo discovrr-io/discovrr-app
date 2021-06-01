@@ -62,7 +62,7 @@ async function fetchPostDetails(postId) {
   if (Array.isArray(likersArray) && likersArray.length) {
     likesCount = likersArray.length;
     hasLiked = likersArray.some((liker) => profileResult.id === liker);
-    console.log({ hasLiked });
+    // console.log({ hasLiked });
   }
 
   return {
@@ -236,8 +236,8 @@ const postDetailContentStyles = StyleSheet.create({
 
 const PostDetailFooter = ({
   postDetails,
-  isRefreshingMetrics = false,
-  setIsRefreshingMetrics = () => {},
+  // isRefreshingMetrics = false,
+  // setIsRefreshingMetrics = () => {},
   ...props
 }) => {
   const navigation = useNavigation();
@@ -256,21 +256,22 @@ const PostDetailFooter = ({
     ? { uri: author.avatar.url }
     : defaultAvatar;
 
-  React.useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const newPostDetails = await fetchPostDetails(postDetails.id);
-        setAuthor({ ...author, ...newPostDetails.author });
-        setMetrics({ ...metrics, ...newPostDetails.metrics });
-      } catch (error) {
-        console.error(`Failed to refresh metrics: ${error}`);
-      }
+  // React.useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const newPostDetails = await fetchPostDetails(postDetails.id);
+  //       console.log({ metrics, newMetrics: newPostDetails.metrics });
+  //       setAuthor({ ...author, ...newPostDetails.author });
+  //       setMetrics({ ...metrics, ...newPostDetails.metrics });
+  //     } catch (error) {
+  //       console.error(`Failed to refresh metrics: ${error}`);
+  //     }
 
-      setIsRefreshingMetrics(false);
-    };
+  //     setIsRefreshingMetrics(false);
+  //   };
 
-    if (isRefreshingMetrics || !author || !metrics) fetchData();
-  }, []);
+  //   if (isRefreshingMetrics || !author || !metrics) fetchData();
+  // }, []);
 
   const handlePressAvatar = () => {
     navigation.navigate('UserProfileScreen', {
