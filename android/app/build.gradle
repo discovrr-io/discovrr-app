@@ -178,7 +178,7 @@ android {
             resValue "string", "CodePushDeploymentKey", '""'
             resValue "string", "fbProviderId", "com.facebook.app.FacebookContentProvider759877634893854"
         }
-        releaseStaging {
+        staging {
             applicationIdSuffix ".staging"
             resValue "string", "CodePushDeploymentKey", '"SgI5BxrXPLuqHbbMqUxgRRJr2mARpovisHdU-"'
             resValue "string", "fbProviderId", "com.facebook.app.FacebookContentProvider{**enjaga**}"

@@ -62,7 +62,9 @@ const discovrrLogo = require('../resources/images/discovrrLogoHorizontal.png');
 const defaultAvatar = require('../resources/images/defaultAvatar.jpeg');
 
 const cameraIcon = <MaterialIcon name="camera-alt" color="#000000" size={24} />;
-const photosIcon = <MaterialIcon name="collections" color="#000000" size={24} />;
+const photosIcon = (
+  <MaterialIcon name="collections" color="#000000" size={24} />
+);
 
 GoogleSignin.configure();
 
@@ -285,9 +287,8 @@ class LoginScreen extends Component {
 
     const { inputMode } = this.state;
 
-    this.values[inputMode][selector] = this.pickerItems[selector][
-      selectedIndex
-    ].label;
+    this.values[inputMode][selector] =
+      this.pickerItems[selector][selectedIndex].label;
 
     this.setState({
       [selector]: this.pickerItems[selector][selectedIndex].label,
@@ -454,7 +455,7 @@ class LoginScreen extends Component {
 
         this.notifyUser({
           title: 'Authentication Failed',
-          message: 'Apple sign-in failed, plrease try agian later',
+          message: 'Apple sign-in failed, please try again later',
           action: undefined,
         });
 
@@ -838,9 +839,8 @@ class LoginScreen extends Component {
 
   updateUserProfile = async () => {
     try {
-      const {
-        profile: { name, surname, age, gender, avatar } = {},
-      } = this.values;
+      const { profile: { name, surname, age, gender, avatar } = {} } =
+        this.values;
       debugAppLogger({ info: 'updateUserProfile', values: this.values });
 
       let isBagus = true;
@@ -886,9 +886,9 @@ class LoginScreen extends Component {
               });
 
               if (Array.isArray(results) && results.length) {
-                const filename = `avatars/${
-                  results[0].id
-                }_${Math.random().toString(36).substring(2)}.jpg`;
+                const filename = `avatars/${results[0].id}_${Math.random()
+                  .toString(36)
+                  .substring(2)}.jpg`;
                 const uploadUri = isAndroid
                   ? avatar.path
                   : avatar.path.replace('file://', '');
@@ -1688,8 +1688,7 @@ class LoginScreen extends Component {
               // poster="https://firebasestorage.googleapis.com/v0/b/discovrrapp-88c28.appspot.com/o/sys%2FvideoPoster.png?alt=media&token=d4ca6c5a-8d09-4721-9910-0e2a2e2b1578"
               poster={videoPoster}
               source={{
-                uri:
-                  'https://firebasestorage.googleapis.com/v0/b/discovrrapp-88c28.appspot.com/o/sys%2FloginBackgroundVideo.mp4?alt=media&token=ee3959f1-71ae-4f7b-94d9-05a3979112bc',
+                uri: 'https://firebasestorage.googleapis.com/v0/b/discovrrapp-88c28.appspot.com/o/sys%2FloginBackgroundVideo.mp4?alt=media&token=ee3959f1-71ae-4f7b-94d9-05a3979112bc',
               }}
               onReadyForDisplay={this.videoLoaded}
               style={styles.backgroundVideo}
