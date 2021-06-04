@@ -75,8 +75,7 @@ class ChatMessageScreen extends Component {
       messages: [
         {
           _id: 2,
-          text:
-            "As much as DMs are disabled, I am the best listener there is. \
+          text: "As much as DMs are disabled, I am the best listener there is. \
              Don't believe me? Type away and see!",
           createdAt: new Date(),
           user: {
@@ -204,11 +203,11 @@ class ChatMessageScreen extends Component {
         menus: [
           {
             label: 'Camera',
-            icon: cameraIcon,
+            // icon: cameraIcon,
           },
           {
             label: 'Photos',
-            icon: photosIcon,
+            // icon: photosIcon,
           },
         ],
       },
@@ -221,11 +220,11 @@ class ChatMessageScreen extends Component {
           menus: [
             {
               label: 'Camera',
-              icon: cameraIcon,
+              // icon: cameraIcon,
             },
             {
               label: 'Photo Library',
-              icon: photosIcon,
+              // icon: photosIcon,
             },
           ],
         },
@@ -234,11 +233,11 @@ class ChatMessageScreen extends Component {
           menus: [
             {
               label: 'Camera',
-              icon: videoCamIcon,
+              // icon: videoCamIcon,
             },
             {
               label: 'Video Library',
-              icon: videosIcon,
+              // icon: videosIcon,
             },
           ],
         },
@@ -331,8 +330,7 @@ class ChatMessageScreen extends Component {
           .catch((error) => {
             if (error.code !== 'E_PICKER_CANCELLED') {
               debugAppLogger({
-                info:
-                  'ProfileEditScreen showImageAttachmentOptions ImagePicker Error',
+                info: 'ProfileEditScreen showImageAttachmentOptions ImagePicker Error',
                 errorMessage: error.message,
                 error,
               });

@@ -94,11 +94,11 @@ class LoginScreen extends Component {
       avatar: [
         {
           label: 'Camera',
-          icon: cameraIcon,
+          // icon: cameraIcon,
         },
         {
           label: 'Photos',
-          icon: photosIcon,
+          // icon: photosIcon,
         },
       ],
     };
@@ -330,11 +330,11 @@ class LoginScreen extends Component {
             menus: [
               {
                 label: 'Camera',
-                icon: cameraIcon,
+                // icon: cameraIcon,
               },
               {
                 label: 'Photos',
-                icon: photosIcon,
+                // icon: photosIcon,
               },
             ],
           },

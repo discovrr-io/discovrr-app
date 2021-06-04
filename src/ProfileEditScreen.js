@@ -142,11 +142,11 @@ class ProfileEditScreen extends Component {
           menus: [
             {
               label: 'Camera',
-              icon: cameraIcon,
+              // icon: cameraIcon,
             },
             {
               label: 'Photos',
-              icon: photosIcon,
+              // icon: photosIcon,
             },
           ],
         },
@@ -165,18 +165,20 @@ class ProfileEditScreen extends Component {
     }
   };
 
-  updateInputValue = (input) => (value = '') => {
-    debugAppLogger({
-      info: 'ProfileEditScreen updateInputValue',
-      input,
-      value,
-    });
+  updateInputValue =
+    (input) =>
+    (value = '') => {
+      debugAppLogger({
+        info: 'ProfileEditScreen updateInputValue',
+        input,
+        value,
+      });
 
-    this[input] = value.trim();
-    this.setState({
-      [`${input}Error`]: false,
-    });
-  };
+      this[input] = value.trim();
+      this.setState({
+        [`${input}Error`]: false,
+      });
+    };
 
   showImageAttachmentOptions = (selector) => () => {
     RNPopoverMenu.Show(this[`${selector}Ref`], {
@@ -188,11 +190,11 @@ class ProfileEditScreen extends Component {
           menus: [
             {
               label: 'Camera',
-              icon: cameraIcon,
+              // icon: cameraIcon,
             },
             {
               label: 'Photos',
-              icon: photosIcon,
+              // icon: photosIcon,
             },
           ],
         },
