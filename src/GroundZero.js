@@ -338,9 +338,10 @@ const GroundZero = ({ navigation, insets }) => {
                   Cheers for downloading our app!
                 </Text>
                 <Text style={modalStyles.message}>
-                  You're one of the first to use Discovrr! We're current in
-                  beta, so please excuse any bugs you may encounter. In the
-                  meantime, make as many posts or comments as you like! 😀
+                  You're one of the first to use Discovrr! We're still working
+                  on this app, so please excuse any hiccups you may encounter.
+                  In the meantime, don't shy away from creating as many posts
+                  and comments as you like! 😀
                 </Text>
                 <Text style={modalStyles.message}>
                   The Discovrr team is here if you have any feedback to provide.
