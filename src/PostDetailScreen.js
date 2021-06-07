@@ -20,6 +20,7 @@ import Carousel, { Pagination } from 'react-native-snap-carousel';
 import FastImage from 'react-native-fast-image';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import Video from 'react-native-video';
+import OneSignal from 'react-native-onesignal';
 import * as Animatable from 'react-native-animatable';
 
 import { connect, useDispatch } from 'react-redux';
@@ -297,6 +298,21 @@ const PostDetailFooter = ({
       setHasLiked(!oldHasLiked);
       setLikesCount((prev) => Math.max(0, prev + (!oldHasLiked ? 1 : -1)));
 
+      console.log('Sending notification...');
+      OneSignal.postNotification(
+        JSON.stringify({
+          include_player_ids: ['3976c91b-5460-4002-b0d1-e7babf5e5249'],
+          headings: { en: 'Ta-Seen liked a post (not your one, yet...)' },
+          contents: { en: '(This was not a manual notification)' },
+        }),
+        (success) => {
+          console.log('ONESIGNAL SUCCESS:', success);
+        },
+        (error) => {
+          console.log('ONESIGNAL FAILURE:', error);
+        },
+      );
+
       await Parse.Cloud.run('likeOrUnlikePost', {
         postId: postDetails.id,
         like: !oldHasLiked,
@@ -369,7 +385,7 @@ const PostDetailFooter = ({
             onPress={handlePressLike}>
             <Animatable.View
               key={hasLiked.toString()}
-              animation={hasLiked && 'bounceIn'}>
+              animation={hasLiked ? 'bounceIn' : undefined}>
               <MaterialIcon
                 style={[
                   postDetailsFooterStyles.actionButton,

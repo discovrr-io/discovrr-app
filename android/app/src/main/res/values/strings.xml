@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">Discovrr</string>
-<!--    <string moduleConfig="true" name="CodePushDeploymentKey">OadHGBPtsVP88ju21JVgJw5A7dfTSgRLCDaWj</string>-->
+   <string moduleConfig="true" name="CodePushDeploymentKey">OadHGBPtsVP88ju21JVgJw5A7dfTSgRLCDaWj</string>
     <string name="facebook_app_id">691371558227281</string>
 </resources>

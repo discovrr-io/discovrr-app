@@ -5,17 +5,11 @@ import {
   StatusBar,
 } from 'react-native';
 
-import {
-  connect,
-} from 'react-redux';
+import { connect } from 'react-redux';
 
-import {
-  createStackNavigator,
-} from '@react-navigation/stack';
+import { createStackNavigator } from '@react-navigation/stack';
 
-import {
-  createDrawerNavigator,
-} from '@react-navigation/drawer';
+import { createDrawerNavigator } from '@react-navigation/drawer';
 
 import auth from '@react-native-firebase/auth';
 import OneSignal from 'react-native-onesignal';
@@ -28,18 +22,11 @@ import AppDrawer from './components/AppDrawer';
 // import FilteringDrawer from './components/FilteringDrawer';
 import ModalActivityIndicatorAlt from './components/ModalActivityIndicatorAlt';
 
-import {
-  logException,
-} from './utilities/NetworkRequests';
+import { logException } from './utilities/NetworkRequests';
 
-import {
-  login,
-  logout,
-} from './utilities/Actions';
+import { login, logout } from './utilities/Actions';
 
-import {
-  windowWidth,
-} from './utilities/Constants';
+import { windowWidth } from './utilities/Constants';
 
 const Parse = require('parse/react-native');
 
@@ -73,16 +60,14 @@ class AuthLoadingScreen extends Component {
   constructor(props) {
     super(props);
 
-    ({
-      dispatch: this.dispatch,
-    } = props);
-
+    ({ dispatch: this.dispatch } = props);
 
     this.splashFadingDuration = 250;
     // this.errorLogout();
     // this.splashFadingDuration = 500000;
 
-    if (props.isSignedIn) RNBootSplash.hide({ duration: this.splashFadingDuration });
+    if (props.isSignedIn)
+      RNBootSplash.hide({ duration: this.splashFadingDuration });
     // RNBootSplash.hide({ duration: this.splashFadingDuration });
 
     // this.checkCurrentUser();
@@ -101,7 +86,9 @@ class AuthLoadingScreen extends Component {
       isInitialRender: false,
     });
 
-    this.unsubscribeAuthChanges = auth().onAuthStateChanged(this.firebaseAuthStateChanged);
+    this.unsubscribeAuthChanges = auth().onAuthStateChanged(
+      this.firebaseAuthStateChanged,
+    );
   }
 
   componentWillUnmount() {
@@ -114,9 +101,7 @@ class AuthLoadingScreen extends Component {
       user,
     });
 
-    const {
-      isInitializing,
-    } = this.state;
+    const { isInitializing } = this.state;
 
     this.firebaseUser = user;
 
@@ -158,16 +143,11 @@ class AuthLoadingScreen extends Component {
     // } else {
     //   this.checkCurrentUser();
     // }
-  }
+  };
 
   checkCurrentUser = () => {
     debugAppLogger({ info: 'Gonna check Current user' });
-    const {
-      isLoggedIn,
-      navigation: {
-        navigate,
-      } = {},
-    } = this.props;
+    const { isLoggedIn, navigation: { navigate } = {} } = this.props;
 
     try {
       Parse.User.currentAsync()
@@ -188,44 +168,50 @@ class AuthLoadingScreen extends Component {
             });
 
             let provider;
-            if (Array.isArray(this.firebaseUser.providerData) && this.firebaseUser.providerData.length) {
-              ([{
-                providerId: provider,
-              }] = this.firebaseUser.providerData);
+            if (
+              Array.isArray(this.firebaseUser.providerData) &&
+              this.firebaseUser.providerData.length
+            ) {
+              [{ providerId: provider }] = this.firebaseUser.providerData;
             }
 
             if (parseUserProfile && parseUserProfile.id) {
-              this.dispatch(login({
-                provider,
-                isAnonymous: !!this.firebaseUser.isAnonymous,
-                id: currentUser.id,
-                userId: currentUser.id,
-                profileId: parseUserProfile.id,
-                email: this.firebaseUser.email,
-                phone: currentUser.get('phone'), // enjagaUser_v_Profile
-                displayName: currentUser.get('displayName'),
-                username: currentUser.get('username'),
-                name: parseUserProfile.get('name'),
-                surname: parseUserProfile.get('surname'),
-                coverPhoto: parseUserProfile.get('coverPhoto'),
-                avatar: parseUserProfile.get('avatar'),
-                gender: parseUserProfile.get('gender'),
-                ageRange: parseUserProfile.get('ageRange'),
-                description: parseUserProfile.get('description'),
-                hometown: parseUserProfile.get('hometown'),
-                likesCount: parseUserProfile.get('likesCount'),
-                followersCount: parseUserProfile.get('followersCount'),
-                followingCount: parseUserProfile.get('followingCount'),
-                postsCount: parseUserProfile.get('postsCount'),
-                followingArray: parseUserProfile.get('followingArray'),
-                blockedProfiles: parseUserProfile.get('blockedProfileArray'),
-              }));
+              this.dispatch(
+                login({
+                  provider,
+                  isAnonymous: !!this.firebaseUser.isAnonymous,
+                  id: currentUser.id,
+                  userId: currentUser.id,
+                  profileId: parseUserProfile.id,
+                  email: this.firebaseUser.email,
+                  phone: currentUser.get('phone'), // enjagaUser_v_Profile
+                  displayName: currentUser.get('displayName'),
+                  username: currentUser.get('username'),
+                  name: parseUserProfile.get('name'),
+                  surname: parseUserProfile.get('surname'),
+                  coverPhoto: parseUserProfile.get('coverPhoto'),
+                  avatar: parseUserProfile.get('avatar'),
+                  gender: parseUserProfile.get('gender'),
+                  ageRange: parseUserProfile.get('ageRange'),
+                  description: parseUserProfile.get('description'),
+                  hometown: parseUserProfile.get('hometown'),
+                  likesCount: parseUserProfile.get('likesCount'),
+                  followersCount: parseUserProfile.get('followersCount'),
+                  followingCount: parseUserProfile.get('followingCount'),
+                  postsCount: parseUserProfile.get('postsCount'),
+                  followingArray: parseUserProfile.get('followingArray'),
+                  blockedProfiles: parseUserProfile.get('blockedProfileArray'),
+                }),
+              );
 
-              this.setState({
-                isSignedIn: true,
-              }, () => {
-                this.initializeOneSignal();
-              });
+              this.setState(
+                {
+                  isSignedIn: true,
+                },
+                () => {
+                  this.initializeOneSignal();
+                },
+              );
             } else {
               this.errorLogout({});
             }
@@ -246,7 +232,9 @@ class AuthLoadingScreen extends Component {
               id: this.firebaseUser.uid,
             };
 
-            const parseUser = await Parse.User.logInWith('firebase', { authData });
+            const parseUser = await Parse.User.logInWith('firebase', {
+              authData,
+            });
 
             const query = new Parse.Query(Parse.Object.extend('Profile'));
             query.equalTo('owner', parseUser);
@@ -256,7 +244,8 @@ class AuthLoadingScreen extends Component {
 
             let name = parseUserProfile.get('name');
             if (!name) {
-              name = this.firebaseUser.name || this.firebaseUser.displayName || '';
+              name =
+                this.firebaseUser.name || this.firebaseUser.displayName || '';
               parseUserProfile.set('name', name);
               syncProfile = true;
             }
@@ -297,37 +286,40 @@ class AuthLoadingScreen extends Component {
             if (syncProfile) await parseUserProfile.save();
 
             let provider;
-            if (Array.isArray(this.firebaseUser.providerData) && this.firebaseUser.providerData.length) {
-              ([{
-                providerId: provider,
-              }] = this.firebaseUser.providerData);
+            if (
+              Array.isArray(this.firebaseUser.providerData) &&
+              this.firebaseUser.providerData.length
+            ) {
+              [{ providerId: provider }] = this.firebaseUser.providerData;
             }
 
-            this.dispatch(login({
-              provider,
-              isAnonymous: !!this.firebaseUser.isAnonymous,
-              id: parseUser.id,
-              userId: parseUser.id,
-              profileId: parseUserProfile.id,
-              email,
-              phone, // enjagaUser_v_Profile
-              displayName,
-              // username: currentUser.get('username'),
-              name,
-              // surname: parseUserProfile.get('surname'),
-              // coverPhoto: parseUserProfile.get('coverPhoto'),
-              avatar,
-              gender: parseUserProfile.get('gender'),
-              ageRange: parseUserProfile.get('ageRange'),
-              description: parseUserProfile.get('description'),
-              hometown: parseUserProfile.get('hometown'),
-              likesCount: parseUserProfile.get('likesCount'),
-              followersCount: parseUserProfile.get('followersCount'),
-              followingCount: parseUserProfile.get('followingCount'),
-              postsCount: parseUserProfile.get('postsCount'),
-              followingArray: parseUserProfile.get('followingArray'),
-              blockedProfiles: parseUserProfile.get('blockedProfileArray'),
-            }));
+            this.dispatch(
+              login({
+                provider,
+                isAnonymous: !!this.firebaseUser.isAnonymous,
+                id: parseUser.id,
+                userId: parseUser.id,
+                profileId: parseUserProfile.id,
+                email,
+                phone, // enjagaUser_v_Profile
+                displayName,
+                // username: currentUser.get('username'),
+                name,
+                // surname: parseUserProfile.get('surname'),
+                // coverPhoto: parseUserProfile.get('coverPhoto'),
+                avatar,
+                gender: parseUserProfile.get('gender'),
+                ageRange: parseUserProfile.get('ageRange'),
+                description: parseUserProfile.get('description'),
+                hometown: parseUserProfile.get('hometown'),
+                likesCount: parseUserProfile.get('likesCount'),
+                followersCount: parseUserProfile.get('followersCount'),
+                followingCount: parseUserProfile.get('followingCount'),
+                postsCount: parseUserProfile.get('postsCount'),
+                followingArray: parseUserProfile.get('followingArray'),
+                blockedProfiles: parseUserProfile.get('blockedProfileArray'),
+              }),
+            );
 
             this.setState({
               isSignedIn: true,
@@ -367,7 +359,7 @@ class AuthLoadingScreen extends Component {
       debugAppLogger({ info: 'Catch Error parse checkCurrent user', error });
       this.errorLogout({});
     }
-  }
+  };
 
   initializeOneSignal = async () => {
     debugAppLogger({ info: 'Gonna setUp OneSignal' });
@@ -384,51 +376,53 @@ class AuthLoadingScreen extends Component {
     });
 
     /* O N E S I G N A L  H A N D L E R S */
-    OneSignal.setNotificationWillShowInForegroundHandler((notifReceivedEvent) => {
-      debugAppLogger({
-        info: 'OneSignal: notification will show in foreground: - App',
-        notifReceivedEvent,
-      });
-      const notif = notifReceivedEvent.getNotification();
+    OneSignal.setNotificationWillShowInForegroundHandler(
+      (notifReceivedEvent) => {
+        debugAppLogger({
+          info: 'OneSignal: notification will show in foreground: - App',
+          notifReceivedEvent,
+        });
+        const notif = notifReceivedEvent.getNotification();
 
-      // const button1 = {
-      //   text: 'Cancel',
-      //   onPress: () => {
-      //     notifReceivedEvent.complete();
-      //   },
-      //   style: 'cancel',
-      // };
-      //
-      // const button2 = {
-      //   text: 'Complete',
-      //   onPress: () => {
-      //     notifReceivedEvent.complete(notif);
-      //   },
-      // };
+        // const button1 = {
+        //   text: 'Cancel',
+        //   onPress: () => {
+        //     notifReceivedEvent.complete();
+        //   },
+        //   style: 'cancel',
+        // };
+        //
+        // const button2 = {
+        //   text: 'Complete',
+        //   onPress: () => {
+        //     notifReceivedEvent.complete(notif);
+        //   },
+        // };
 
-      // Alert.alert(
-      //   'Complete notification?',
-      //   'Test',
-      //   [
-      //     {
-      //       text: 'Cancel',
-      //       onPress: () => {
-      //         notifReceivedEvent.complete();
-      //       },
-      //       style: 'cancel',
-      //     },
-      //     {
-      //       text: 'Complete',
-      //       onPress: () => {
-      //         notifReceivedEvent.complete(notif);
-      //       },
-      //     },
-      //   ],
-      //   {
-      //     cancelable: true,
-      //   },
-      // );
-    });
+        // Alert.alert(
+        //   'Complete notification?',
+        //   'Test',
+        //   [
+        //     {
+        //       text: 'Cancel',
+        //       onPress: () => {
+        //         notifReceivedEvent.complete();
+        //       },
+        //       style: 'cancel',
+        //     },
+        //     {
+        //       text: 'Complete',
+        //       onPress: () => {
+        //         notifReceivedEvent.complete(notif);
+        //       },
+        //     },
+        //   ],
+        //   {
+        //     cancelable: true,
+        //   },
+        // );
+      },
+    );
 
     OneSignal.setNotificationOpenedHandler((notification) => {
       debugAppLogger({
@@ -477,7 +471,7 @@ class AuthLoadingScreen extends Component {
     // OneSignal.setEmail(email, sha_token, (error) => {
     //   //handle error if it occurred
     // });
-  }
+  };
 
   errorLogout = ({ navigate, error }) => {
     Parse.User.logOut()
@@ -489,15 +483,11 @@ class AuthLoadingScreen extends Component {
     // logException({ error });
     // navigate('Auth');
     RNBootSplash.hide({ duration: this.splashFadingDuration });
-  }
+  };
 
   render() {
-    const {
-      isInitialRender,
-      isInitializing,
-      isSignedIn,
-      isProcessing,
-    } = this.state;
+    const { isInitialRender, isInitializing, isSignedIn, isProcessing } =
+      this.state;
 
     if (isInitializing) return null;
 
@@ -513,49 +503,37 @@ class AuthLoadingScreen extends Component {
       isProcessing,
     });
 
-    return (
-      isSignedIn ? (
-        <>
-          <Drawer.Navigator
-            drawerStyle={isInitialRender ? { width: 0 } : undefined}
-            drawerContent={(props) => <AppDrawer {...props} />}
-          >
-            <Drawer.Screen name="GroundZero" component={GroundZero} />
-            {/* <Drawer.Screen name="FilteringDrawer" component={PrefsDrawer} /> */}
-          </Drawer.Navigator>
+    return isSignedIn ? (
+      <>
+        <Drawer.Navigator
+          drawerStyle={isInitialRender ? { width: 0 } : undefined}
+          drawerContent={(props) => <AppDrawer {...props} />}>
+          <Drawer.Screen name="GroundZero" component={GroundZero} />
+          {/* <Drawer.Screen name="FilteringDrawer" component={PrefsDrawer} /> */}
+        </Drawer.Navigator>
 
-          <StatusBar
-            backgroundColor="white"
-            barStyle="dark-content"
+        <StatusBar backgroundColor="white" barStyle="dark-content" />
+      </>
+    ) : (
+      <>
+        <Stack.Navigator headerMode="none">
+          <Stack.Screen name="Login" component={LoginScreen} />
+        </Stack.Navigator>
+
+        {isProcessing && (
+          <ModalActivityIndicatorAlt
+            hideIndicator={false}
+            opacity={0.3}
+            color="white"
           />
-        </>
-      ) : (
-        <>
-          <Stack.Navigator
-            headerMode="none"
-          >
-            <Stack.Screen name="Login" component={LoginScreen} />
-          </Stack.Navigator>
-
-          {isProcessing && (
-            <ModalActivityIndicatorAlt
-              hideIndicator={false}
-              opacity={0.3}
-              color="white"
-            />
-          )}
-        </>
-      )
+        )}
+      </>
     );
   }
 }
 
 const mapStateToProps = (state) => {
-  const {
-    userState: {
-      isLoggedIn,
-    } = {},
-  } = state;
+  const { userState: { isLoggedIn } = {} } = state;
 
   return {
     isSignedIn: isLoggedIn === 'signedIn',
