@@ -3033,9 +3033,9 @@ class BottomSheetPanel extends Component {
           .sendPasswordResetEmail(email, null)
           .then(() => {
             this.notifyUser({
-              title: 'Password Reset Initiated',
+              title: 'Password Reset Email Sent',
               message:
-                'Please following the instructions sent to your email to complete reseting your password.',
+                "We've sent you an email with instructions on how to reset your password.",
               actions: [
                 {
                   text: 'OK',
@@ -3045,10 +3045,19 @@ class BottomSheetPanel extends Component {
             });
           })
           .catch((error) => {
-            // throw error;
+            console.error('Firebase reset email error:', error);
+
+            let message = error.message;
+            switch (error.code) {
+              case 'auth/user-not-found':
+                message =
+                  "We don't have an account registered to the email address you gave. Did you type it in correctly?";
+                break;
+            }
+
             this.notifyUser({
               title: 'Password Reset Failed',
-              message: error.message,
+              message: message,
               action: undefined,
             });
           });

@@ -417,7 +417,7 @@ class LoginScreen extends Component {
 
     auth()
       .signInAnonymously()
-      .then(() => {
+      .then(async () => {
         this.setState({ isAuthenticating: false });
       })
       .catch((error) => {
@@ -600,94 +600,51 @@ class LoginScreen extends Component {
       if (isBagus) {
         this.toggleActivityIndicator(true);
 
-        auth()
-          .signInWithEmailAndPassword(email, password)
-          .then(() => {
-            debugAppLogger({
-              info: 'loginUser firebase - LoginScreen',
-              extraInfo: 'User account successfully signed in!',
-            });
-
-            this.toggleActivityIndicator();
-          })
-          .catch((error) => {
-            this.toggleActivityIndicator();
-
-            console.log({
-              info: 'Error registerUser firebase - LoginScreen',
-              errorMsg: error.message,
-              error,
-            });
-
-            let message;
-            switch (error.code) {
-              case 'auth/email-already-in-use':
-                message = `${email} is already in use!`;
-                break;
-              case 'auth/invalid-email':
-                message = `Email address, ${email}, is invalid!`;
-                break;
-              default:
-                // message = 'Registration failed, please try again later';
-                message = error.message;
-            }
-
-            this.notifyUser({
-              title: 'Login Failed',
-              message,
-              action: undefined,
-            });
+        try {
+          await auth().signInWithEmailAndPassword(email, password);
+          debugAppLogger({
+            info: 'loginUser firebase - LoginScreen',
+            extraInfo: 'User account successfully signed in!',
           });
 
-        // let userDetails = {
-        //   email,
-        //   phone: userLogin.get('phone'),
-        //   displayName: userLogin.get('displayName'),
-        //   username: userLogin.get('username'),
-        // };
-        //
-        // const query = new Parse.Query(Parse.Object.extend('Profile'));
-        // query.equalTo('owner', userLogin);
-        // const results = await query.find();
-        // debugAppLogger({ info: 'Login succeeded', objectId: userLogin.id, results });
-        //
-        // if (Array.isArray(results) && results.length) {
-        //   const [parseUserProfile] = results;
-        //   debugAppLogger({ info: 'userProfile', parseUserProfile });
-        //
-        //   userDetails = {
-        //     ...userDetails,
-        //     name: parseUserProfile.get('name'),
-        //     surname: parseUserProfile.get('surname'),
-        //     avatar: parseUserProfile.get('avatar'),
-        //     coverPhoto: parseUserProfile.get('coverPhoto'),
-        //     gender: parseUserProfile.get('gender'),
-        //     ageRange: parseUserProfile.get('ageRange'),
-        //     description: parseUserProfile.get('description'),
-        //     hometown: parseUserProfile.get('hometown'),
-        //     likesCount: parseUserProfile.get('likesCount'),
-        //     followersCount: parseUserProfile.get('followersCount'),
-        //     followingCount: parseUserProfile.get('followingCount'),
-        //     postsCount: parseUserProfile.get('postsCount'),
-        //     id: userLogin.id,
-        //     userId: userLogin.id,
-        //     profileId: parseUserProfile.id,
-        //     // email: currentUser.get('phone'),
-        //     phone: parseUserProfile.get('phone'),
-        //     displayName: parseUserProfile.get('displayName'),
-        //     // username: currentUser.get('username'),
-        //     followingArray: parseUserProfile.get('followingArray'),
-        //     blockedProfiles: parseUserProfile.get('blockedProfileArray'),
-        //   };
-        // }
-        //
-        // debugAppLogger({
-        //   info: 'Login - LoginScreen',
-        //   userDetails,
-        //   userLogin,
-        // });
-        //
-        // this.dispatch(login(userDetails));
+          this.toggleActivityIndicator();
+        } catch (error) {
+          this.toggleActivityIndicator();
+
+          console.log({
+            info: 'Error registerUser firebase - LoginScreen',
+            errorMsg: error.message,
+            error,
+          });
+
+          let title, message;
+          switch (error.code) {
+            case 'auth/wrong-password':
+              title = 'Incorrect details';
+              message =
+                'The provided email or password is incorrect. Please try again.';
+              break;
+            case 'auth/user-not-found':
+              title = 'Invalid email address';
+              message =
+                'The provided email is not registered with Discovrr. Perhaps you meant to register instead?';
+              break;
+            default:
+              console.error(
+                'Encountered unhandled firebase error:',
+                error.code,
+              );
+              title = 'We encountered an error';
+              message =
+                "We weren't able to log you in at this time. Please try again later.";
+          }
+
+          this.notifyUser({
+            title,
+            message,
+            action: undefined,
+          });
+        }
       }
     } catch (error) {
       debugAppLogger({ info: 'Login User', error: JSON.stringify(error) });
@@ -722,9 +679,9 @@ class LoginScreen extends Component {
           .sendPasswordResetEmail(email, null)
           .then(() => {
             this.notifyUser({
-              title: 'Password Reset Initiated',
+              title: 'Password Reset Email Sent',
               message:
-                'Please following the instructions sent to your email to complete reseting your password.',
+                "We've sent you an email with instructions on how to reset your password.",
               actions: [
                 {
                   text: 'OK',
@@ -734,10 +691,19 @@ class LoginScreen extends Component {
             });
           })
           .catch((error) => {
-            // throw error;
+            console.error('Firebase reset email error:', error);
+
+            let message = error.message;
+            switch (error.code) {
+              case 'auth/user-not-found':
+                message =
+                  "We don't have an account registered to the email address you gave. Did you type it in correctly?";
+                break;
+            }
+
             this.notifyUser({
               title: 'Password Reset Failed',
-              message: error.message,
+              message,
               action: undefined,
             });
           });
@@ -805,19 +771,28 @@ class LoginScreen extends Component {
               error,
             });
 
-            let message;
+            let title, message;
             switch (error.code) {
               case 'auth/email-already-in-use':
-                message = `${email} is already in use!`;
+                title = 'Email already in use';
+                message = 'The provided email is already in use.';
                 break;
               case 'auth/invalid-email':
-                message = `Email address, ${email}, is invalid!`;
+                title = 'Invalid email';
+                message =
+                  'The provided email address is not valid. Please try again.';
                 break;
               default:
-                message = error.message;
+                console.error(
+                  'Encountered unhandled firebase error:',
+                  error.code,
+                );
+                title = 'We encountered an error';
+                message =
+                  "We weren't able to log you in at this time. Please try again later.";
             }
 
-            this.notifyUser({ title: '', message, action: undefined });
+            this.notifyUser({ title, message, action: undefined });
           });
       }
     } catch (error) {

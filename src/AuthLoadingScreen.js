@@ -362,115 +362,65 @@ class AuthLoadingScreen extends Component {
   };
 
   initializeOneSignal = async () => {
-    debugAppLogger({ info: 'Gonna setUp OneSignal' });
+    const {
+      userDetails: {
+        userId,
+        profileId,
+        email,
+        name,
+        locationPreference = '',
+      } = {},
+    } = this.props.userState;
+
     /* O N E S I G N A L   S E T U P */
     OneSignal.setAppId('c20ba65b-d412-4a82-8cc4-df3ab545c0b1');
     OneSignal.setLogLevel(6, 0);
     OneSignal.setLocationShared(false);
     OneSignal.setRequiresUserPrivacyConsent(false);
-    OneSignal.promptForPushNotificationsWithUserResponse((response) => {
-      debugAppLogger({
-        info: 'OneSignal: Prompt response: - App',
-        response,
+
+    await this.setOneSignalPlayerId(profileId);
+
+    if (userId && profileId && email) {
+      // We'll send both userId and profileId for convenience
+      OneSignal.sendTags({
+        userId,
+        profileId,
+        email,
+        name,
+        locationPreference,
       });
+
+      OneSignal.setExternalUserId(userId, (results) => {
+        console.log('[OneSignal]: Result of setting external id:', results);
+      });
+    } else {
+      console.warn('One of the following required fields is not defined:', {
+        userId: userId,
+        profileId: profileId,
+        email: email,
+      });
+    }
+
+    OneSignal.promptForPushNotificationsWithUserResponse((response) => {
+      console.log('[OneSignal]: Permission to push notifications:', response);
     });
 
     /* O N E S I G N A L  H A N D L E R S */
-    OneSignal.setNotificationWillShowInForegroundHandler(
-      (notifReceivedEvent) => {
-        debugAppLogger({
-          info: 'OneSignal: notification will show in foreground: - App',
-          notifReceivedEvent,
-        });
-        const notif = notifReceivedEvent.getNotification();
-
-        // const button1 = {
-        //   text: 'Cancel',
-        //   onPress: () => {
-        //     notifReceivedEvent.complete();
-        //   },
-        //   style: 'cancel',
-        // };
-        //
-        // const button2 = {
-        //   text: 'Complete',
-        //   onPress: () => {
-        //     notifReceivedEvent.complete(notif);
-        //   },
-        // };
-
-        // Alert.alert(
-        //   'Complete notification?',
-        //   'Test',
-        //   [
-        //     {
-        //       text: 'Cancel',
-        //       onPress: () => {
-        //         notifReceivedEvent.complete();
-        //       },
-        //       style: 'cancel',
-        //     },
-        //     {
-        //       text: 'Complete',
-        //       onPress: () => {
-        //         notifReceivedEvent.complete(notif);
-        //       },
-        //     },
-        //   ],
-        //   {
-        //     cancelable: true,
-        //   },
-        // );
-      },
-    );
+    OneSignal.setNotificationWillShowInForegroundHandler((event) => {
+      console.log('[OneSignal]: Notification will show in foreground:', event);
+    });
 
     OneSignal.setNotificationOpenedHandler((notification) => {
-      debugAppLogger({
-        info: 'OneSignal: notification opened: - App',
-        notification,
-      });
+      console.log('[OneSignal]: Notification opened:', notification);
     });
+
     OneSignal.setInAppMessageClickHandler((event) => {
-      debugAppLogger({
-        info: 'OneSignal IAM clicked: - App',
-        event,
-      });
-    });
-
-    OneSignal.addEmailSubscriptionObserver((event) => {
-      debugAppLogger({
-        info: 'OneSignal: email subscription changed: - App',
-        event,
-      });
-    });
-
-    OneSignal.addSubscriptionObserver((event) => {
-      debugAppLogger({
-        info: 'OneSignal: subscription changed: - App',
-        event,
-      });
-
-      // this.setState({ isSubscribed: event.to.isSubscribed})
+      console.log('[OneSignal]: In-app message clicked:', event);
     });
 
     OneSignal.addPermissionObserver((event) => {
-      debugAppLogger({
-        info: 'OneSignal: permission changed:: - App',
-        event,
-      });
+      console.log('[OneSignal]: Permission changed:', event);
     });
-
-    // OneSignal.sendTags({ name, })
-
-    // const deviceState = await OneSignal.getDeviceState();
-
-    // this.setState({
-    //   isSubscribed : deviceState.isSubscribed
-    // });
-
-    // OneSignal.setEmail(email, sha_token, (error) => {
-    //   //handle error if it occurred
-    // });
   };
 
   errorLogout = ({ navigate, error }) => {
@@ -484,6 +434,36 @@ class AuthLoadingScreen extends Component {
     // navigate('Auth');
     RNBootSplash.hide({ duration: this.splashFadingDuration });
   };
+
+  // TODO: This also needs to be invoked when the user logs in after logging out
+  async setOneSignalPlayerId(profileId) {
+    console.info(`Setting OneSignal player id for profile: ${profileId}`);
+    const { userId: currentPlayerId } = await OneSignal.getDeviceState();
+
+    try {
+      const Profile = Parse.Object.extend('Profile');
+      const profilePointer = new Profile();
+      profilePointer.id = profileId;
+
+      const oneSignalPlayerIds = profilePointer.get('oneSignalPlayerIds') ?? [];
+      console.log('before:', profilePointer.get('oneSignalPlayerIds'));
+
+      if (!oneSignalPlayerIds.includes(currentPlayerId)) {
+        profilePointer.set('oneSignalPlayerIds', [
+          ...oneSignalPlayerIds,
+          currentPlayerId,
+        ]);
+        await profilePointer.save();
+      }
+
+      console.log('after:', profilePointer.get('oneSignalPlayerIds'));
+    } catch (error) {
+      console.error(
+        `Failed to set oneSignalPlayerIds for profile '${profileId}':`,
+        error,
+      );
+    }
+  }
 
   render() {
     const { isInitialRender, isInitializing, isSignedIn, isProcessing } =
@@ -533,10 +513,18 @@ class AuthLoadingScreen extends Component {
 }
 
 const mapStateToProps = (state) => {
-  const { userState: { isLoggedIn } = {} } = state;
+  const {
+    userState = {
+      isLoggedIn: 'notSignedIn',
+      userDetails: {},
+      locationPreference: null,
+      configData: null,
+    },
+  } = state;
 
   return {
-    isSignedIn: isLoggedIn === 'signedIn',
+    userState,
+    isSignedIn: userState.isLoggedIn === 'signedIn',
   };
 };
 

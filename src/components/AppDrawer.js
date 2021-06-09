@@ -146,8 +146,8 @@ class AppDrawer extends Component {
     this.closeDrawer();
 
     Alert.alert(
-      'Logout?',
-      'Please confirm logging out from your account',
+      'Are you sure you want to logout?',
+      'You will need to sign in again',
       [
         {
           text: 'Cancel',

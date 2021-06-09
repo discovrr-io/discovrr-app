@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   useWindowDimensions,
+  Alert,
   FlatList,
   KeyboardAvoidingView,
   LogBox,
@@ -33,7 +34,7 @@ import {
   LoadingTabView,
   PostItemKind,
 } from './components';
-import { colors, values, typography } from './constants';
+import { colors, messages, values, typography } from './constants';
 
 const imagePlaceholder = require('../resources/images/imagePlaceholder.png');
 const defaultAvatar = require('../resources/images/defaultAvatar.jpeg');
@@ -243,11 +244,11 @@ const PostDetailFooter = ({
 }) => {
   const navigation = useNavigation();
 
-  const [author, setAuthor] = React.useState(postDetails.author);
-  const [metrics, setMetrics] = React.useState(postDetails.metrics);
+  const [author, _setAuthor] = React.useState(postDetails.author);
+  const [metrics, _setMetrics] = React.useState(postDetails.metrics);
 
   const [isProcessingLike, setIsProcessingLike] = React.useState(false);
-  const [isProcessingSave, setIsProcessingSave] = React.useState(false);
+  const [isProcessingSave, _setIsProcessingSave] = React.useState(false);
 
   const [hasSaved, setHasSaved] = React.useState(metrics.hasLiked);
   const [hasLiked, setHasLiked] = React.useState(metrics.hasLiked);
@@ -267,10 +268,10 @@ const PostDetailFooter = ({
   //     } catch (error) {
   //       console.error(`Failed to refresh metrics: ${error}`);
   //     }
-
+  //
   //     setIsRefreshingMetrics(false);
   //   };
-
+  //
   //   if (isRefreshingMetrics || !author || !metrics) fetchData();
   // }, []);
 
@@ -298,25 +299,40 @@ const PostDetailFooter = ({
       setHasLiked(!oldHasLiked);
       setLikesCount((prev) => Math.max(0, prev + (!oldHasLiked ? 1 : -1)));
 
-      console.log('Sending notification...');
-      OneSignal.postNotification(
-        JSON.stringify({
-          include_player_ids: ['3976c91b-5460-4002-b0d1-e7babf5e5249'],
-          headings: { en: 'Ta-Seen liked a post (not your one, yet...)' },
-          contents: { en: '(This was not a manual notification)' },
-        }),
-        (success) => {
-          console.log('ONESIGNAL SUCCESS:', success);
-        },
-        (error) => {
-          console.log('ONESIGNAL FAILURE:', error);
-        },
-      );
-
       await Parse.Cloud.run('likeOrUnlikePost', {
         postId: postDetails.id,
         like: !oldHasLiked,
       });
+
+      if (!oldHasLiked && postDetails.author.id) {
+        const Profile = Parse.Object.extend('Profile');
+        const profilePointer = new Profile();
+        profilePointer.id = postDetails.author.id;
+
+        console.log(
+          `oneSignalPlayerIds for ${postDetails.author.id}:`,
+          profilePointer.get('oneSignalPlayerIds'),
+        );
+
+        /*
+        console.log('Sending liked post notification...');
+        OneSignal.postNotification(
+          JSON.stringify({
+            include_player_ids: ['084064d7-f468-4ad3-954d-fc5a8b319636'],
+            headings: {
+              en: "Hello {{ name | default: 'there' }}! Someone liked your post!",
+            },
+            contents: { en: "Looks like you're getting popular 😎" },
+          }),
+          (success) => {
+            console.log('[OneSignal]: Successfully sent message:', success);
+          },
+          (error) => {
+            console.error('[OneSignal]: Failed to send message:', error);
+          },
+        );
+        */
+      }
 
       console.log(`Successfully ${!oldHasLiked ? 'liked' : 'unliked'} post`);
     } catch (error) {
@@ -500,8 +516,25 @@ const PostDetailComments = ({ postDetails, ...props }) => {
       const PostComment = Parse.Object.extend('PostComment');
       const postComment = new PostComment();
 
-      const response = await postComment.save({ post, message: commentInput });
-      console.log({ response });
+      await postComment.save({ post, message: commentInput });
+
+      const message = JSON.stringify({
+        // include_external_user_ids: ['vwDlK5a1RC'],
+        include_player_ids: ['2b2d1313-b2ad-47e2-a20a-ebe79ce36985'],
+        headings: { en: `Ta-Seen commented on your post!` },
+        contents: { en: 'Check it out 👀' },
+      });
+
+      console.log('Sending commented post notification...');
+      OneSignal.postNotification(
+        message,
+        (success) => {
+          console.log('[OneSignal]: Successfully sent message:', success);
+        },
+        (error) => {
+          console.error('[OneSignal]: Failed to send message:', error);
+        },
+      );
 
       setIsRefreshing(true);
       setCommentInput('');
