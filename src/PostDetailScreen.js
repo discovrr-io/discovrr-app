@@ -46,6 +46,18 @@ const AVATAR_DIAMETER = POST_DETAIL_ICON_SIZE;
 const TEXT_INPUT_HEIGHT = 35;
 const DEFAULT_ACTIVE_OPACITY = 0.6;
 
+async function getCurrentUserName() {
+  const currentUser = await Parse.User.currentAsync();
+  const profileQuery = new Parse.Query(Parse.Object.extend('Profile'));
+  profileQuery.equalTo('owner', currentUser);
+
+  const result = await profileQuery.first();
+  const name = result.get('name');
+  const displayName = result.get('displayName');
+
+  return (name || displayName) ?? 'Someone';
+}
+
 async function fetchPostDetails(postId) {
   const postQuery = new Parse.Query(Parse.Object.extend('Post'));
   postQuery.equalTo('objectId', postId);
@@ -309,29 +321,27 @@ const PostDetailFooter = ({
         const profilePointer = new Profile();
         profilePointer.id = postDetails.author.id;
 
-        console.log(
-          `oneSignalPlayerIds for ${postDetails.author.id}:`,
-          profilePointer.get('oneSignalPlayerIds'),
-        );
+        const oneSignalPlayerIds = profilePointer.get('oneSignalPlayerIds');
+        const currentUserName = await getCurrentUserName();
 
-        /*
-        console.log('Sending liked post notification...');
-        OneSignal.postNotification(
-          JSON.stringify({
-            include_player_ids: ['084064d7-f468-4ad3-954d-fc5a8b319636'],
-            headings: {
-              en: "Hello {{ name | default: 'there' }}! Someone liked your post!",
+        if (oneSignalPlayerIds) {
+          console.log('Sending liked post notification...');
+          OneSignal.postNotification(
+            JSON.stringify({
+              include_player_ids: oneSignalPlayerIds,
+              headings: {
+                en: `${currentUserName} liked your post!`,
+              },
+              contents: { en: "Looks like you're getting popular 😎" },
+            }),
+            (success) => {
+              console.log('[OneSignal]: Successfully sent message:', success);
             },
-            contents: { en: "Looks like you're getting popular 😎" },
-          }),
-          (success) => {
-            console.log('[OneSignal]: Successfully sent message:', success);
-          },
-          (error) => {
-            console.error('[OneSignal]: Failed to send message:', error);
-          },
-        );
-        */
+            (error) => {
+              console.error('[OneSignal]: Failed to send message:', error);
+            },
+          );
+        }
       }
 
       console.log(`Successfully ${!oldHasLiked ? 'liked' : 'unliked'} post`);
@@ -515,14 +525,19 @@ const PostDetailComments = ({ postDetails, ...props }) => {
 
       const PostComment = Parse.Object.extend('PostComment');
       const postComment = new PostComment();
-
       await postComment.save({ post, message: commentInput });
 
+      const Profile = Parse.Object.extend('Profile');
+      const profilePointer = new Profile();
+      profilePointer.id = postDetails.author.id;
+
+      const oneSignalPlayerIds = profilePointer.get('oneSignalPlayerIds');
+      const currentUserName = await getCurrentUserName();
+
       const message = JSON.stringify({
-        // include_external_user_ids: ['vwDlK5a1RC'],
-        include_player_ids: ['2b2d1313-b2ad-47e2-a20a-ebe79ce36985'],
-        headings: { en: `Ta-Seen commented on your post!` },
-        contents: { en: 'Check it out 👀' },
+        include_player_ids: oneSignalPlayerIds,
+        headings: { en: `${currentUserName} commented on your post!` },
+        contents: { en: 'Check out what they said 👀' },
       });
 
       console.log('Sending commented post notification...');
