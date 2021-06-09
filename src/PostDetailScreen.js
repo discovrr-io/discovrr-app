@@ -325,14 +325,16 @@ const PostDetailFooter = ({
         const currentUserName = await getCurrentUserName();
 
         if (oneSignalPlayerIds) {
+          const { headings, contents } = messages.someoneLikedPost({
+            person: currentUserName,
+          });
+
           console.log('Sending liked post notification...');
           OneSignal.postNotification(
             JSON.stringify({
               include_player_ids: oneSignalPlayerIds,
-              headings: {
-                en: `${currentUserName} liked your post!`,
-              },
-              contents: { en: "Looks like you're getting popular 😎" },
+              headings,
+              contents,
             }),
             (success) => {
               console.log('[OneSignal]: Successfully sent message:', success);
@@ -534,10 +536,14 @@ const PostDetailComments = ({ postDetails, ...props }) => {
       const oneSignalPlayerIds = profilePointer.get('oneSignalPlayerIds');
       const currentUserName = await getCurrentUserName();
 
+      const { headings, contents } = messages.someoneCommentedPost({
+        person: currentUserName,
+      });
+
       const message = JSON.stringify({
         include_player_ids: oneSignalPlayerIds,
-        headings: { en: `${currentUserName} commented on your post!` },
-        contents: { en: 'Check out what they said 👀' },
+        headings,
+        contents,
       });
 
       console.log('Sending commented post notification...');
