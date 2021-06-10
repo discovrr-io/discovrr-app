@@ -139,7 +139,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.discovrr"
+        applicationId "com.discovrr.discovrr_app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 2001
@@ -151,7 +151,7 @@ android {
         abi {
             reset()
             enable enableSeparateBuildPerCPUArchitecture
-            universalApk false  // If true, also generate a universal APK
+            universalApk false // If true, also generate a universal APK
             include "armeabi-v7a", "x86", "arm64-v8a", "x86_64"
         }
     }
