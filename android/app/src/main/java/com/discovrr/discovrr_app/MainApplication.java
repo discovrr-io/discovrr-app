@@ -3,7 +3,7 @@ package com.discovrr.discovrr_app;
 import android.app.Application;
 import android.content.Context;
 
-import com.discovrr.BuildConfig;
+import com.discovrr.discovrr_app.BuildConfig;
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactInstanceManager;
