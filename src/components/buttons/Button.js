@@ -11,8 +11,8 @@ const Button = ({
   size = 'big',
   disabled = false,
   transparent = false,
-  onPress = () => {},
   isLoading = false,
+  onPress = () => {},
   ...props
 }) => {
   const stateStyle = primary
@@ -34,7 +34,7 @@ const Button = ({
       {isLoading ? (
         <ActivityIndicator color={colors.white} size="small" />
       ) : (
-        <Text style={isBig ? stateStyle.text : stateStyle.textSmall}>
+        <Text style={[isBig ? stateStyle.text : stateStyle.textSmall]}>
           {title}
         </Text>
       )}

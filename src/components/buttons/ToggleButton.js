@@ -11,8 +11,8 @@ const ToggleButton = ({
   size = 'big',
   disabled = false,
   transparent = false,
-  onPress = (_) => {},
   isLoading = false,
+  onPress = (_) => {},
   ...props
 }) => {
   const [toggleState, setToggleState] = useState(initialState);

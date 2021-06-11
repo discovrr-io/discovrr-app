@@ -9,14 +9,19 @@ export const spacing = {
   zero: 0,
 };
 
-export const radius = {
-  lg: 15,
-  md: 10,
-  sm: 5,
-};
-
 export const border = {
   zero: 0,
   thin: 1,
   thick: 2,
+};
+
+export const buttonSizes = {
+  large: 50,
+  small: 28,
+};
+
+export const radius = {
+  lg: 15,
+  md: 10,
+  sm: 5,
 };

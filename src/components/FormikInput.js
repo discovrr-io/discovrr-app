@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { StyleSheet, Text, View } from 'react-native';
 
 import TextInput from './TextInput';
-import { font, layout } from '../constants';
+import { typography as font, values as layout } from '../constants';
 
 export default function FormikInput({
   formikProps,
@@ -12,6 +12,7 @@ export default function FormikInput({
   keyboardType,
   secureTextEntry,
   autoComplete,
+  autoCapitalize,
   ...props
 }) {
   return (
@@ -22,6 +23,7 @@ export default function FormikInput({
         secureTextEntry={secureTextEntry}
         autoComplete={autoComplete}
         autoCorrect={false}
+        autoCapitalize={autoCapitalize}
         error={formikProps.touched[field] && formikProps.errors[field]}
         value={formikProps.values[field]}
         onChangeText={formikProps.handleChange(field)}

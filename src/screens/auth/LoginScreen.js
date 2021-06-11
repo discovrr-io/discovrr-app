@@ -1,12 +1,27 @@
-import React from 'react';
-import { useWindowDimensions, Image, StyleSheet, View } from 'react-native';
-import Video from 'react-native-video';
+import React, { useState } from 'react';
+import {
+  useWindowDimensions,
+  Image,
+  Keyboard,
+  KeyboardAvoidingView,
+  StyleSheet,
+  Text,
+  TouchableWithoutFeedback,
+  View,
+  TouchableOpacity,
+  Alert,
+  TouchableHighlight,
+} from 'react-native';
 
 import { connect } from 'react-redux';
+import Video from 'react-native-video';
+import auth from '@react-native-firebase/auth';
 
 import { Formik } from 'formik';
 import * as yup from 'yup';
-import { FormikInput } from '../../components';
+import { Button, FormikInput } from '../../components';
+import { colors, typography, values } from '../../constants';
+import * as buttonStyles from '../../components/buttons/styles';
 
 const discovrrLogo = require('../../../resources/images/discovrrLogoHorizontal.png');
 
@@ -27,11 +42,46 @@ const formSchema = yup.object({
     .min(8, 'Incomplete password'),
 });
 
-function LoginScreen({}) {
-  const { width: screenWidth, height: screenHeight } = useWindowDimensions();
+function authErrorMessage(authError) {
+  switch (authError.code) {
+    case 'auth/wrong-password':
+      return {
+        title: 'Incorrect details',
+        message:
+          'The provided email or password is incorrect. Please try again.',
+      };
+    case 'auth/user-not-found':
+      return {
+        title: 'Invalid email address',
+        message: 'The provided email is not registered with Discovrr.',
+      };
+    default:
+      console.error('Encountered unhandled firebase error:', authError.code);
+      return {
+        title: 'We encountered an error',
+        message:
+          "We weren't able to log you in at this time. Please try again later.",
+      };
+  }
+}
 
-  const handleSubmitForm = (values) => {
-    console.log(values);
+function LoginScreen({}) {
+  const { width: screenWidth } = useWindowDimensions();
+
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const handleLogin = async ({ email, password }) => {
+    setIsProcessing(true);
+
+    try {
+      await auth().signInWithEmailAndPassword(email, password);
+    } catch (error) {
+      console.error('[LoginScreen]: Authentication error:', error.message);
+      const { title, message } = authErrorMessage(error);
+      Alert.alert(title, message);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   return (
@@ -50,33 +100,106 @@ function LoginScreen({}) {
         source={{ uri: videoSource }}
         style={loginScreenStyles.backgroundVideo}
       />
-      <View style={{ flexGrow: 1, borderColor: 'red', borderWidth: 1 }}>
-        <Image
-          source={discovrrLogo}
-          resizeMode="contain"
-          style={[
-            loginScreenStyles.discovrrLogo,
-            {
-              width: screenWidth * 0.65,
-              height: screenWidth * 0.65 * 0.271,
-              marginTop: screenHeight * 0.05,
-            },
-          ]}
-        />
-        <Formik
-          validationSchema={formSchema}
-          initialValues={{ email: '', password: '' }}
-          onSubmit={handleSubmitForm}>
-          {(props) => (
-            <FormikInput
-              formikProps={props}
-              field="email"
-              placeholder="Email"
-              keyboardType="email"
-            />
-          )}
-        </Formik>
-      </View>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View
+          style={{
+            flexGrow: 1,
+            alignItems: 'center',
+          }}>
+          <KeyboardAvoidingView
+            behavior="padding"
+            keyboardVerticalOffset={values.spacing.sm}
+            style={{
+              flexGrow: 1,
+              justifyContent: 'center',
+            }}>
+            <View
+              style={{
+                backgroundColor: 'rgba(255, 255, 255, 0.85)',
+                width: screenWidth * 0.9,
+                paddingVertical: values.spacing.lg * 1.5,
+                paddingHorizontal: values.spacing.lg * 1.25,
+                borderRadius: values.radius.lg * 1.25,
+              }}>
+              <Image
+                source={discovrrLogo}
+                resizeMode="contain"
+                style={[
+                  loginScreenStyles.discovrrLogo,
+                  {
+                    width: screenWidth * 0.6,
+                    height: undefined,
+                    aspectRatio: 5105 / 1397,
+                    marginBottom: values.spacing.xl,
+                  },
+                ]}
+              />
+              <Formik
+                validationSchema={formSchema}
+                initialValues={{ email: '', password: '' }}
+                onSubmit={handleLogin}>
+                {(props) => (
+                  <>
+                    <FormikInput
+                      field="email"
+                      placeholder="Email"
+                      keyboardType="email-address"
+                      autoCapitalize="none"
+                      formikProps={props}
+                    />
+                    <FormikInput
+                      secureTextEntry
+                      field="password"
+                      placeholder="Password"
+                      formikProps={props}
+                    />
+                    <Button
+                      primary
+                      title="Sign In"
+                      onPress={props.handleSubmit}
+                      isLoading={isProcessing}
+                      style={{ marginTop: values.spacing.md }}
+                    />
+                    <TouchableHighlight
+                      onPress={() => {}}
+                      underlayColor={colors.gray200}
+                      disabled={
+                        props.touched.email &&
+                        props.touched.password &&
+                        !props.isValid
+                      }
+                      style={[
+                        buttonStyles.transparentStyle.default,
+                        buttonStyles.bigStyle,
+                        {
+                          borderColor: colors.black,
+                          marginTop: values.spacing.md,
+                        },
+                      ]}>
+                      <Text
+                        style={[
+                          buttonStyles.transparentStyle.text,
+                          { color: colors.black },
+                        ]}>
+                        Create New Account
+                      </Text>
+                    </TouchableHighlight>
+                    <TouchableOpacity style={{ marginTop: values.spacing.lg }}>
+                      <Text
+                        style={[
+                          buttonStyles.smallTextStyle,
+                          { color: colors.black, textAlign: 'center' },
+                        ]}>
+                        Forgot Password
+                      </Text>
+                    </TouchableOpacity>
+                  </>
+                )}
+              </Formik>
+            </View>
+          </KeyboardAvoidingView>
+        </View>
+      </TouchableWithoutFeedback>
     </View>
   );
 }
