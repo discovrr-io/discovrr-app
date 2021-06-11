@@ -59,14 +59,6 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>CodePushDeploymentKey</key>
 	<string>$(CODEPUSH_KEY)</string>
-	<!-- <key>FacebookAdvertiserIDCollectionEnabled</key>
-	<true/> -->
-	<!-- <key>FacebookAppID</key>
-	<string>691371558227281</string> -->
-	<!-- <key>FacebookAutoLogAppEventsEnabled</key>
-	<true/> -->
-	<!-- <key>FacebookDisplayName</key>
-	<string>Discovrr</string> -->
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>fbapi</string>

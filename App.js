@@ -1,6 +1,4 @@
-import React, {
-  Component,
-} from 'react';
+import React, { Component } from 'react';
 
 import Bugsnag from '@bugsnag/react-native';
 // import BugsnagPluginReactNavigation from '@bugsnag/plugin-react-navigation';
@@ -9,38 +7,26 @@ import codePush from 'react-native-code-push';
 import autoMergeLevel2 from 'redux-persist/lib/stateReconciler/autoMergeLevel2';
 import AsyncStorage from '@react-native-community/async-storage';
 
-import {
-  PersistGate,
-} from 'redux-persist/integration/react';
+import { PersistGate } from 'redux-persist/integration/react';
 
-import {
-  persistReducer,
-  persistStore,
-} from 'redux-persist';
+import { persistReducer, persistStore } from 'redux-persist';
 
-import {
-  Provider,
-} from 'react-redux';
+import { Provider } from 'react-redux';
 
 import {
   createStore,
   // applyMiddleware,
 } from 'redux';
 
-import {
-  NavigationContainer,
-} from '@react-navigation/native';
+import { NavigationContainer } from '@react-navigation/native';
 
-import {
-  DefaultTheme,
-  Provider as PaperProvider,
-} from 'react-native-paper';
+import { DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
 
 import { rootReducer } from './src/utilities/Reducers';
 
 import debugAppLogger from './src/utilities/DebugAppLogger';
 
-import AuthLoadingScreen from './src/AuthLoadingScreen';
+import AuthLoadingScreen from './src/screens/auth/AuthLoadingScreen';
 // import HomeScreen from './src/HomeScreen';
 // import BoardsScreen from './src/BoardsScreen';
 
@@ -102,30 +88,26 @@ class App extends Component {
     const storeVer = '3';
     await AsyncStorage.multiGet(['storeVersion'])
       .then(async ([[, previousStoreVersion]]) => {
-        debugAppLogger({ info: 'onBeforeLift', storeVer, previousStoreVersion });
+        debugAppLogger({
+          info: 'onBeforeLift',
+          storeVer,
+          previousStoreVersion,
+        });
         if (previousStoreVersion !== storeVer) {
-          AsyncStorage
-            .setItem('storeVersion', storeVer)
-            .catch(() => {});
+          AsyncStorage.setItem('storeVersion', storeVer).catch(() => {});
 
-          persistor
-            .purge()
-            .catch(() => {});
+          persistor.purge().catch(() => {});
         }
       })
       .catch((error) => {
         debugAppLogger({ info: 'onBeforeLift', errorMessage: error.message });
-        AsyncStorage
-          .setItem('storeVersion', storeVer)
-          .catch(() => {});
+        AsyncStorage.setItem('storeVersion', storeVer).catch(() => {});
 
-        persistor
-          .purge()
-          .catch(() => {});
+        persistor.purge().catch(() => {});
       });
 
     // linkStore(store);
-  }
+  };
 
   render() {
     return (
@@ -133,12 +115,11 @@ class App extends Component {
         <PersistGate
           loading={null}
           persistor={persistor}
-          onBeforeLift={this.onBeforeLift}
-        >
+          onBeforeLift={this.onBeforeLift}>
           <PaperProvider theme={theme}>
             <NavigationContainer
-              // linking={linking}
-              // fallback={<Text>Food</Text>}
+            // linking={linking}
+            // fallback={<Text>Food</Text>}
             >
               <AuthLoadingScreen />
             </NavigationContainer>
