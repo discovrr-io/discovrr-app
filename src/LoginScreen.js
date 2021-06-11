@@ -417,7 +417,7 @@ class LoginScreen extends Component {
 
     auth()
       .signInAnonymously()
-      .then(async () => {
+      .then(() => {
         this.setState({ isAuthenticating: false });
       })
       .catch((error) => {

@@ -34,7 +34,7 @@
               "client_id": "930461821085-9oi5tufovr4ertfgiac4ducje18kbqmo.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.discovrr.discovrr_app",
+                "bundle_id": "com.discovrr",
                 "app_store_id": "1541137819"
               }
             }
@@ -71,7 +71,7 @@
               "client_id": "930461821085-9oi5tufovr4ertfgiac4ducje18kbqmo.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.discovrr.discovrr_app",
+                "bundle_id": "com.discovrr",
                 "app_store_id": "1541137819"
               }
             }

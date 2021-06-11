@@ -142,7 +142,7 @@ android {
         applicationId "com.discovrr.discovrr_app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 2001
+        versionCode 2002
         versionName "2.0.1"
         multiDexEnabled true
         vectorDrawables.useSupportLibrary = true
@@ -176,7 +176,7 @@ android {
             applicationIdSuffix ".debug"
             signingConfig signingConfigs.debug
             // resValue "string", "CodePushDeploymentKey", '""'
-            resValue "string", "fbProviderId", "com.facebook.app.FacebookContentProvider759877634893854"
+            // resValue "string", "fbProviderId", "com.facebook.app.FacebookContentProvider759877634893854"
         }
         // staging {
         //     applicationIdSuffix ".staging"
@@ -191,7 +191,7 @@ android {
             // see https://reactnative.dev/docs/signed-apk-android.
             // signingConfig signingConfigs.debug
             // resValue "string", "CodePushDeploymentKey", '"OadHGBPtsVP88ju21JVgJw5A7dfTSgRLCDaWj"'
-            resValue "string", "fbProviderId", "com.facebook.app.FacebookContentProvider691371558227281"
+            // resValue "string", "fbProviderId", "com.facebook.app.FacebookContentProvider691371558227281"
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
             signingConfig signingConfigs.release
