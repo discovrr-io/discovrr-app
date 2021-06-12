@@ -92,7 +92,8 @@ function authErrorMessage(authError) {
     case 'auth/user-not-found':
       return {
         title: 'Invalid email address',
-        message: 'The email you provided is not registered with Discovrr.',
+        message:
+          'The email address you provided is not registered with Discovrr.',
       };
     case 'auth/username-taken':
       return {
@@ -101,6 +102,7 @@ function authErrorMessage(authError) {
           'The username you provided is already taken. Please choose another username.',
       };
     default:
+      console.error('Unhandled error:', authError);
       return {
         title: 'We encountered an error',
         message:
@@ -209,10 +211,10 @@ function LoginForm({ setFormType }) {
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleLoginWithEmailAndPassword = async ({ email, password }) => {
-    console.log('[LoginForm] Starting login process...');
-    setIsProcessing(true);
-
     try {
+      console.log('[LoginForm] Starting login process...');
+      setIsProcessing(true);
+
       const { user: firebaseUser } = await auth().signInWithEmailAndPassword(
         email,
         password,
@@ -221,8 +223,6 @@ function LoginForm({ setFormType }) {
 
       let currentUser = await Parse.User.currentAsync();
       if (currentUser) {
-        console.log('currentUser:', currentUser);
-
         const query = new Parse.Query(Parse.Object.extend('Profile'));
         query.equalTo('owner', currentUser);
 
@@ -264,8 +264,11 @@ function LoginForm({ setFormType }) {
           profile.get('name') ||
           profile.get('displayName');
         if (!fullName && firebaseUser.displayName) {
-          profile.set('fullName', firebaseUser.displayName);
+          profile.set('fullName', firebaseUser.displayName ?? '');
           syncProfile = true;
+        } else if (fullName /* && !firebaseUser.displayName */) {
+          console.log('[LoginForm] Updating Firebase display name...');
+          await firebaseUser.updateProfile({ displayName: fullName });
         }
 
         let phone = profile.get('phone');
@@ -330,9 +333,9 @@ function LoginForm({ setFormType }) {
           <Button
             primary
             title="Sign In"
-            onPress={props.handleSubmit}
             isLoading={isProcessing}
             disabled={isProcessing}
+            onPress={props.handleSubmit}
             style={{ marginTop: values.spacing.md }}
           />
           <OutlineButton
@@ -367,10 +370,10 @@ function RegisterForm({ setFormType }) {
     email,
     password,
   }) => {
-    console.log('[RegisterForm] Starting registration process...');
-    setIsProcessing(true);
-
     try {
+      console.log('[RegisterForm] Starting registration process...');
+      setIsProcessing(true);
+
       if (!(await checkUsernameAvailable(username))) {
         throw { code: 'auth/username-taken', message: 'Username taken' };
       }
@@ -378,6 +381,8 @@ function RegisterForm({ setFormType }) {
       const { user: firebaseUser } =
         await auth().createUserWithEmailAndPassword(email, password);
       console.log('[RegisterForm] Registered firebase user:', firebaseUser);
+
+      await firebaseUser.updateProfile({ displayName: fullName });
 
       const authData = {
         access_token: await firebaseUser.getIdToken(),
@@ -486,7 +491,29 @@ function RegisterForm({ setFormType }) {
 }
 
 function ForgotPasswordForm({ setFormType }) {
-  const handleResetPassword = async ({ email }) => {};
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const handleResetPassword = async ({ email }) => {
+    try {
+      console.log('[ForgotPasswordForm] Sending reset link...');
+      setIsProcessing(true);
+      await auth().sendPasswordResetEmail(email);
+      Alert.alert(
+        'Reset Link Sent',
+        "We've sent you an email with instructions on how to reset your password.",
+        [{ text: 'I understand', onPress: () => setFormType('login') }],
+      );
+    } catch (error) {
+      console.error(
+        `[ForgotPasswordForm] Reset error (${error.code}):`,
+        error.message,
+      );
+      const { title, message } = authErrorMessage(error);
+      Alert.alert(title, message);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   return (
     <Formik
@@ -516,6 +543,8 @@ function ForgotPasswordForm({ setFormType }) {
           <Button
             primary
             title="Email Me Reset Link"
+            isLoading={isProcessing}
+            disabled={isProcessing}
             onPress={props.handleSubmit}
             style={{ marginTop: values.spacing.md }}
           />
