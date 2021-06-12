@@ -34,15 +34,41 @@ const videoPosterSource = Image.resolveAssetSource(
   require('../../../resources/images/videoPoster.png'),
 );
 
-const formSchema = yup.object({
+const loginFormSchema = yup.object({
   email: yup
     .string()
+    .trim()
     .required('Please enter your email address')
     .email('Please enter a valid email address'),
   password: yup
     .string()
     .required('Please enter your password')
     .min(8, 'Incomplete password'),
+});
+
+const registerFormSchema = yup.object({
+  fullName: yup
+    .string()
+    .trim()
+    .required('Please enter your full name')
+    .min(3, 'Your full name should have at least 3 characters'),
+  email: yup
+    .string()
+    .trim()
+    .required('Please enter your email address')
+    .email('Please enter a valid email address'),
+  password: yup
+    .string()
+    .required('Please enter your password')
+    .min(8, 'Incomplete password'),
+});
+
+const resetPasswordFormSchema = yup.object({
+  email: yup
+    .string()
+    .trim()
+    .required('Please enter your email address')
+    .email('Please enter a valid email address'),
 });
 
 function authErrorMessage(authError) {
@@ -68,9 +94,56 @@ function authErrorMessage(authError) {
   }
 }
 
-function LoginScreen({}) {
+function OutlineButton({ title, disabled, onPress, ...props }) {
+  return (
+    <TouchableHighlight
+      disabled={disabled}
+      onPress={onPress}
+      underlayColor={colors.gray200}
+      style={[
+        buttonStyles.transparentStyle.default,
+        buttonStyles.bigStyle,
+        {
+          borderColor: disabled ? colors.gray500 : colors.black,
+          marginTop: values.spacing.md,
+        },
+        props.style,
+      ]}>
+      <Text
+        style={[
+          buttonStyles.transparentStyle.text,
+          {
+            color: disabled ? colors.gray500 : colors.black,
+          },
+        ]}>
+        {title}
+      </Text>
+    </TouchableHighlight>
+  );
+}
+
+function TextButton({ title, disabled, onPress, ...props }) {
+  return (
+    <TouchableOpacity
+      disabled={disabled}
+      onPress={onPress}
+      style={[{ marginTop: values.spacing.lg }, props.style]}>
+      <Text
+        style={[
+          buttonStyles.smallTextStyle,
+          {
+            color: disabled ? colors.gray500 : colors.accentFocused,
+            textAlign: 'center',
+          },
+        ]}>
+        {title}
+      </Text>
+    </TouchableOpacity>
+  );
+}
+
+function LoginForm({ setFormType }) {
   const dispatch = useDispatch();
-  const { width: screenWidth } = useWindowDimensions();
 
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -125,7 +198,7 @@ function LoginScreen({}) {
     );
   }
 
-  const handleLogin = async ({ email, password }) => {
+  const handleLoginWithEmailAndPassword = async ({ email, password }) => {
     console.log('[LoginScreen] Starting login process...');
     setIsProcessing(true);
 
@@ -219,6 +292,151 @@ function LoginScreen({}) {
   };
 
   return (
+    <Formik
+      validationSchema={loginFormSchema}
+      initialValues={{ email: '', password: '' }}
+      onSubmit={handleLoginWithEmailAndPassword}>
+      {(props) => (
+        <>
+          <FormikInput
+            field="email"
+            placeholder="Email"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            formikProps={props}
+          />
+          <FormikInput
+            secureTextEntry
+            field="password"
+            placeholder="Password"
+            formikProps={props}
+          />
+          <Button
+            primary
+            title="Sign In"
+            onPress={props.handleSubmit}
+            isLoading={isProcessing}
+            disabled={isProcessing || !props.isValid}
+            style={{ marginTop: values.spacing.md }}
+          />
+          <OutlineButton
+            title="Create New Account"
+            disabled={isProcessing}
+            onPress={() => setFormType('register')}
+          />
+          <TextButton
+            title="Forgot your password?"
+            disabled={isProcessing}
+            onPress={() => setFormType('forgotPassword')}
+          />
+        </>
+      )}
+    </Formik>
+  );
+}
+
+function RegisterForm({ setFormType }) {
+  const handleRegisterAccount = async ({ fullName, email, password }) => {};
+
+  return (
+    <Formik
+      validationSchema={registerFormSchema}
+      initialValues={{ fullName: '', email: '', password: '' }}
+      onSubmit={handleRegisterAccount}>
+      {(props) => (
+        <>
+          <Text
+            style={[
+              buttonStyles.smallTextStyle,
+              {
+                marginBottom: values.spacing.lg,
+                marginHorizontal: values.spacing.md,
+              },
+            ]}>
+            Welcome to Discovrr! To register an account with us, please fill in
+            the details below.
+          </Text>
+          <FormikInput
+            field="fullName"
+            placeholder="Full Name"
+            formikProps={props}
+          />
+          <FormikInput
+            field="email"
+            placeholder="Email"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            formikProps={props}
+          />
+          <FormikInput
+            secureTextEntry
+            field="password"
+            placeholder="Password"
+            formikProps={props}
+          />
+          <Button
+            primary
+            title="Register"
+            onPress={props.handleSubmit}
+            style={{ marginTop: values.spacing.md }}
+          />
+          <OutlineButton title="Go Back" onPress={() => setFormType('login')} />
+        </>
+      )}
+    </Formik>
+  );
+}
+
+function ForgotPasswordForm({ setFormType }) {
+  const handleResetPassword = async ({ email }) => {};
+
+  return (
+    <Formik
+      validationSchema={resetPasswordFormSchema}
+      initialValues={{ email: '' }}
+      onSubmit={handleResetPassword}>
+      {(props) => (
+        <>
+          <Text
+            style={[
+              buttonStyles.smallTextStyle,
+              {
+                marginBottom: values.spacing.lg,
+                marginHorizontal: values.spacing.md,
+              },
+            ]}>
+            Forgot your password? No worries! Just enter your email address
+            below and we'll send you a link to reset your password.
+          </Text>
+          <FormikInput
+            field="email"
+            placeholder="Email"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            formikProps={props}
+          />
+          <Button
+            primary
+            disabled={
+              props.errors.email || (props.touched.email && !props.isValid)
+            }
+            title="Email Me Reset Link"
+            onPress={props.handleSubmit}
+            style={{ marginTop: values.spacing.md }}
+          />
+          <OutlineButton title="Go Back" onPress={() => setFormType('login')} />
+        </>
+      )}
+    </Formik>
+  );
+}
+
+function LoginScreen({}) {
+  const { width: screenWidth } = useWindowDimensions();
+
+  const [formType, setFormType] = useState('login');
+
+  return (
     <View style={loginScreenStyles.backgroundVideo}>
       <Video
         muted
@@ -249,93 +467,36 @@ function LoginScreen({}) {
             }}>
             <View
               style={{
-                backgroundColor: 'rgba(255, 255, 255, 0.85)',
                 width: screenWidth * 0.9,
+                backgroundColor: 'rgba(255, 255, 255, 0.85)',
                 paddingVertical: values.spacing.lg * 1.5,
                 paddingHorizontal: values.spacing.lg * 1.25,
                 borderRadius: values.radius.lg * 1.25,
               }}>
               <Image
                 source={discovrrLogo}
-                resizeMode="contain"
                 style={[
                   loginScreenStyles.discovrrLogo,
                   {
-                    width: screenWidth * 0.6,
+                    width: screenWidth * 0.62,
                     height: undefined,
                     aspectRatio: 5105 / 1397,
                     marginBottom: values.spacing.xl,
                   },
                 ]}
               />
-              <Formik
-                validationSchema={formSchema}
-                initialValues={{ email: '', password: '' }}
-                onSubmit={handleLogin}>
-                {(props) => (
-                  <>
-                    <FormikInput
-                      field="email"
-                      placeholder="Email"
-                      keyboardType="email-address"
-                      autoCapitalize="none"
-                      formikProps={props}
-                    />
-                    <FormikInput
-                      secureTextEntry
-                      field="password"
-                      placeholder="Password"
-                      formikProps={props}
-                    />
-                    <Button
-                      primary
-                      title="Sign In"
-                      onPress={props.handleSubmit}
-                      isLoading={isProcessing}
-                      disabled={isProcessing}
-                      style={{ marginTop: values.spacing.md }}
-                    />
-                    <TouchableHighlight
-                      onPress={() => console.log('HERE')}
-                      underlayColor={colors.gray200}
-                      disabled={
-                        isProcessing ||
-                        (props.touched.email &&
-                          props.touched.password &&
-                          !props.isValid)
-                      }
-                      style={[
-                        buttonStyles.transparentStyle.default,
-                        buttonStyles.bigStyle,
-                        {
-                          borderColor: isProcessing
-                            ? colors.gray500
-                            : colors.black,
-                          marginTop: values.spacing.md,
-                        },
-                      ]}>
-                      <Text
-                        style={[
-                          buttonStyles.transparentStyle.text,
-                          {
-                            color: isProcessing ? colors.gray500 : colors.black,
-                          },
-                        ]}>
-                        Create New Account
-                      </Text>
-                    </TouchableHighlight>
-                    <TouchableOpacity style={{ marginTop: values.spacing.lg }}>
-                      <Text
-                        style={[
-                          buttonStyles.smallTextStyle,
-                          { color: colors.black, textAlign: 'center' },
-                        ]}>
-                        Forgot Password
-                      </Text>
-                    </TouchableOpacity>
-                  </>
-                )}
-              </Formik>
+              {(() => {
+                switch (formType) {
+                  case 'login':
+                    return <LoginForm setFormType={setFormType} />;
+                  case 'register':
+                    return <RegisterForm setFormType={setFormType} />;
+                  case 'forgotPassword':
+                    return <ForgotPasswordForm setFormType={setFormType} />;
+                  default:
+                    return <LoginForm setFormType={setFormType} />;
+                }
+              })()}
             </View>
           </KeyboardAvoidingView>
         </View>
