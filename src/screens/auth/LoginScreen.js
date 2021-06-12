@@ -97,9 +97,9 @@ function authErrorMessage(authError) {
       };
     case 'auth/username-taken':
       return {
-        title: 'Username taken',
+        title: 'Username already taken',
         message:
-          'The username you provided is already taken. Please choose another username.',
+          'The username you provided is already taken by someone else. Please choose another username.',
       };
     default:
       console.error('Unhandled error:', authError);
@@ -355,7 +355,7 @@ function LoginForm({ setFormType }) {
 }
 
 function RegisterForm({ setFormType }) {
-  // const dispatch = useDispatch();
+  const dispatch = useDispatch();
   const [isProcessing, setIsProcessing] = useState(false);
 
   const checkUsernameAvailable = async (username) => {
@@ -402,7 +402,7 @@ function RegisterForm({ setFormType }) {
         currentUser.id,
       );
 
-      profile.set('owner', currentUser.id);
+      profile.set('owner', currentUser);
       profile.set('fullName', fullName);
       profile.set('username', username);
       profile.set('email', email);
@@ -412,6 +412,8 @@ function RegisterForm({ setFormType }) {
         '[RegisterForm] Successfully created new profile with objectId:',
         newProfile.id,
       );
+
+      dispatchLoginAction(dispatch, firebaseUser, currentUser, profile);
     } catch (error) {
       console.error(
         `[RegisterForm] Register error (${error.code}):`,

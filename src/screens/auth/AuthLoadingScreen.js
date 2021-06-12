@@ -8,7 +8,6 @@ import { connect } from 'react-redux';
 import AsyncStorage from '@react-native-community/async-storage';
 import OneSignal from 'react-native-onesignal';
 
-// import * as actions from '../../utilities/Actions';
 import LoginScreen from './LoginScreen';
 import GroundZero from '../../GroundZero';
 import AppDrawer from '../../components/AppDrawer';
