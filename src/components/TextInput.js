@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import {
   StyleSheet,
   TextInput as RNTextInput,
-  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
 } from 'react-native';
 
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import {
   colors as color,
-  colors,
   typography as font,
   values as layout,
 } from '../constants';
@@ -29,7 +29,7 @@ export default function TextInput({
         secureTextEntry={hidePassword && secureTextEntry}
         style={[
           textInputStyles.container,
-          secureTextEntry && { paddingRight: 40 },
+          secureTextEntry && { paddingRight: 42 },
           error && { borderColor: 'red' },
           size === 'small'
             ? textInputStyles.smallContainer
@@ -38,20 +38,18 @@ export default function TextInput({
         ]}
       />
       {!!secureTextEntry && (
-        <TouchableOpacity
+        <MaterialCommunityIcon
+          size={24}
+          name={hidePassword ? 'eye' : 'eye-off'}
           onPress={() => setHidePassword((prev) => !prev)}
           style={{
             position: 'absolute',
-            right: 10,
-            top: 11,
-            padding: 2,
-            backgroundColor: colors.white,
-          }}>
-          <MaterialCommunityIcon
-            size={24}
-            name={hidePassword ? 'eye-off' : 'eye'}
-          />
-        </TouchableOpacity>
+            right: 8,
+            top: 8,
+            padding: 5,
+            backgroundColor: color.white,
+          }}
+        />
       )}
     </>
   );
@@ -59,6 +57,7 @@ export default function TextInput({
 
 const textInputStyles = StyleSheet.create({
   container: {
+    width: '100%',
     backgroundColor: color.white,
     borderRadius: layout.radius.lg,
     borderWidth: layout.border.thin,

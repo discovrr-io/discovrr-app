@@ -9,5 +9,5 @@ export const gray = gray500;
 export const white = '#FAFAFA';
 
 export const accent = '#1DCEC0';
-export const accentFocused = '#03A194';
-export const accentDisabled = '#A5EBE6';
+export const accentFocused = '#149086';
+export const accentDisabled = '#61ddd3';
