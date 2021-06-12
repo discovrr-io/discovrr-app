@@ -8,16 +8,18 @@ import { typography as font, values as layout } from '../constants';
 export default function FormikInput({
   formikProps,
   field,
-  placeholder,
-  keyboardType,
-  secureTextEntry,
-  autoComplete,
-  autoCapitalize,
+  editable = true,
+  placeholder = '',
+  keyboardType = 'default',
+  secureTextEntry = false,
+  autoComplete = false,
+  autoCapitalize = 'sentences',
   ...props
 }) {
   return (
     <View style={[formikInputStyles.textInputContainer, props.style]}>
       <TextInput
+        editable={editable}
         placeholder={placeholder}
         keyboardType={keyboardType}
         secureTextEntry={secureTextEntry}

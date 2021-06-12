@@ -8,7 +8,7 @@ import { connect } from 'react-redux';
 import AsyncStorage from '@react-native-community/async-storage';
 import OneSignal from 'react-native-onesignal';
 
-import * as actions from '../../utilities/Actions';
+// import * as actions from '../../utilities/Actions';
 import LoginScreen from './LoginScreen';
 import GroundZero from '../../GroundZero';
 import AppDrawer from '../../components/AppDrawer';
@@ -23,19 +23,19 @@ Parse.serverURL = 'https://discovrr-uat.herokuapp.com/discovrrServer'; // produc
 const AuthStack = createStackNavigator();
 const MainDrawer = createDrawerNavigator();
 
-async function setUpOneSignal() {
+async function setUpOneSignal(userDetails) {
   OneSignal.setAppId('c20ba65b-d412-4a82-8cc4-df3ab545c0b1');
   OneSignal.setLogLevel(6, 0);
   OneSignal.setLocationShared(false);
   OneSignal.setRequiresUserPrivacyConsent(false);
 
   const { userId: currentPlayerId } = await OneSignal.getDeviceState();
-  await setOneSignalPlayerId(currentPlayerId);
-  sendOneSignalTags();
+  await setOneSignalPlayerId(currentPlayerId, userDetails.profileId);
+  sendOneSignalTags(userDetails);
   setUpOneSignalHandlers();
 }
 
-async function setOneSignalPlayerId(currentPlayerId) {
+async function setOneSignalPlayerId(currentPlayerId, profileId) {
   try {
     const Profile = Parse.Object.extend('Profile');
     const profilePointer = new Profile();
@@ -80,7 +80,9 @@ function setUpOneSignalHandlers() {
   });
 }
 
-function sendOneSignalTags() {
+function sendOneSignalTags(userDetails) {
+  const { userId, profileId, email, name, locationPreference } = userDetails;
+
   if (userId && profileId && email) {
     // We'll send both userId and profileId for convenience
     OneSignal.sendTags({
@@ -103,11 +105,11 @@ function sendOneSignalTags() {
   }
 }
 
-function AuthLoadingScreen({ isAuthenticated }) {
+function AuthLoadingScreen({ isAuthenticated, userDetails }) {
   console.log('[AuthLoadingScreen] isAuthenticated:', isAuthenticated);
 
   useEffect(() => {
-    if (isAuthenticated) setUpOneSignal();
+    if (isAuthenticated) setUpOneSignal(userDetails);
   }, []);
 
   return isAuthenticated ? (

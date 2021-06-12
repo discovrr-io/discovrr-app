@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 import {
   useWindowDimensions,
+  Alert,
   Image,
   Keyboard,
   KeyboardAvoidingView,
   StyleSheet,
   Text,
+  TouchableHighlight,
+  TouchableOpacity,
   TouchableWithoutFeedback,
   View,
-  TouchableOpacity,
-  Alert,
-  TouchableHighlight,
+  ScrollView,
 } from 'react-native';
 
 import { connect, useDispatch } from 'react-redux';
@@ -57,10 +58,19 @@ const registerFormSchema = yup.object({
     .trim()
     .required('Please enter your email address')
     .email('Please enter a valid email address'),
+  username: yup
+    .string()
+    .required('Please enter a username')
+    .min(3, 'Your username should have at least 3 characters')
+    .max(15, 'Your username should not be more than 15 characters')
+    .matches(/^[A-Za-z_][A-Za-z0-9_]*$/, {
+      message:
+        'Your username should only contain letters, numbers, and underscores with no spaces',
+    }),
   password: yup
     .string()
-    .required('Please enter your password')
-    .min(8, 'Incomplete password'),
+    .required('Please enter a password')
+    .min(8, 'Your password should have at least 8 characters'),
 });
 
 const resetPasswordFormSchema = yup.object({
@@ -82,10 +92,15 @@ function authErrorMessage(authError) {
     case 'auth/user-not-found':
       return {
         title: 'Invalid email address',
-        message: 'The provided email is not registered with Discovrr.',
+        message: 'The email you provided is not registered with Discovrr.',
+      };
+    case 'auth/username-taken':
+      return {
+        title: 'Username taken',
+        message:
+          'The username you provided is already taken. Please choose another username.',
       };
     default:
-      console.error('Encountered unhandled firebase error:', authError.code);
       return {
         title: 'We encountered an error',
         message:
@@ -142,64 +157,59 @@ function TextButton({ title, disabled, onPress, ...props }) {
   );
 }
 
+function dispatchLoginAction(dispatcher, firebaseUser, currentUser, profile) {
+  console.log('Dispatching login action...');
+  dispatcher(
+    actions.login({
+      provider: firebaseUser.providerId,
+      isAnonymous: firebaseUser.isAnonymous,
+      userId: currentUser.id,
+      profileId: profile.id,
+      fullName:
+        profile.get('fullName') ??
+        profile.get('name') ??
+        profile.get('displayName') ??
+        firebaseUser.displayName,
+      username: profile.get('username'),
+      email:
+        // Email may be undefined if the user is anonymous
+        profile.get('email') ?? firebaseUser.email,
+      phone: profile.get('phone'),
+      avatar: profile.get('avatar'),
+      description: profile.get('description'),
+      // --- Extra details ---
+      gender: profile.get('gender'),
+      ageRange: profile.get('ageRange'),
+      hometown: profile.get('hometown'),
+      // posts: profile.get('posts'),
+      // postsCount: profile.get('postsCount'),
+      // likedPostsArray: profile.get('likedPostsArray'),
+      // followingArray: profile.get('followingArray'),
+      // blockedProfiles: profile.get('blockedProfiles'),
+      // --- Deprecated fields ---
+      get id() {
+        console.warn('Deprecated field "id", use "userId" instead');
+        return this.userId;
+      },
+      get name() {
+        console.warn('Deprecated field "name", use "fullName" instead');
+        return this.fullName;
+      },
+      get displayName() {
+        console.warn('Deprecated field "displayName", use "fullName" instead');
+        return this.fullName;
+      },
+    }),
+  );
+}
+
 function LoginForm({ setFormType }) {
   const dispatch = useDispatch();
 
   const [isProcessing, setIsProcessing] = useState(false);
 
-  function dispatchLoginAction(firebaseUser, currentUser, profile) {
-    console.log('[LoginScreen] Dispatching login action...');
-
-    console.log({ firebaseUser, currentUser, profile });
-
-    dispatch(
-      actions.login({
-        provider: firebaseUser.providerId,
-        isAnonymous: firebaseUser.isAnonymous,
-        userId: currentUser.id,
-        profileId: profile.id,
-        fullName:
-          profile.get('fullName') ??
-          profile.get('name') ??
-          profile.get('displayName') ??
-          firebaseUser.displayName,
-        username: profile.get('username'),
-        email:
-          // Email may be undefined if the user is anonymous
-          profile.get('email') ?? firebaseUser.email,
-        phone: profile.get('phone'),
-        avatar: profile.get('avatar'),
-        description: profile.get('description'),
-        // --- Extra details ---
-        gender: profile.get('gender'),
-        ageRange: profile.get('ageRange'),
-        hometown: profile.get('hometown'),
-        // posts: profile.get('posts'),
-        // postsCount: profile.get('postsCount'),
-        // likedPostsArray: profile.get('likedPostsArray'),
-        // followingArray: profile.get('followingArray'),
-        // blockedProfiles: profile.get('blockedProfiles'),
-        // --- Deprecated fields ---
-        get id() {
-          console.warn('Deprecated field "id", use "userId" instead');
-          return this.userId;
-        },
-        get name() {
-          console.warn('Deprecated field "name", use "fullName" instead');
-          return this.fullName;
-        },
-        get displayName() {
-          console.warn(
-            'Deprecated field "displayName", use "fullName" instead',
-          );
-          return this.fullName;
-        },
-      }),
-    );
-  }
-
   const handleLoginWithEmailAndPassword = async ({ email, password }) => {
-    console.log('[LoginScreen] Starting login process...');
+    console.log('[LoginForm] Starting login process...');
     setIsProcessing(true);
 
     try {
@@ -207,22 +217,24 @@ function LoginForm({ setFormType }) {
         email,
         password,
       );
-      console.log('[LoginScreen] Retrieved firebase user:', firebaseUser);
+      console.log('[LoginForm] Signed in firebase user:', firebaseUser);
 
       let currentUser = await Parse.User.currentAsync();
       if (currentUser) {
+        console.log('currentUser:', currentUser);
+
         const query = new Parse.Query(Parse.Object.extend('Profile'));
         query.equalTo('owner', currentUser);
 
         const profile = await query.first();
-        console.log('[LoginScreen] Found Parse profile:', profile);
+        console.log('[LoginForm] Query profile result:', profile);
 
         if (profile && profile.id) {
-          dispatchLoginAction(firebaseUser, currentUser, profile);
+          dispatchLoginAction(dispatch, firebaseUser, currentUser, profile);
         } else {
           console.error(
-            '[LoginScreen] Found invalid currentUser:',
-            currentUser,
+            `[LoginForm] Parse couldn't profile with owner:`,
+            currentUser.id,
           );
         }
       } else {
@@ -231,9 +243,11 @@ function LoginForm({ setFormType }) {
           id: firebaseUser.uid,
         };
 
+        console.log('[LoginForm] Firebase authData:', authData);
+
         currentUser = await Parse.User.logInWith('firebase', { authData });
         console.log(
-          '[LoginScreen] Successfully logged in with firebase:',
+          '[LoginForm] Successfully logged in with firebase:',
           currentUser,
         );
 
@@ -241,7 +255,7 @@ function LoginForm({ setFormType }) {
         query.equalTo('owner', currentUser);
 
         const profile = await query.first();
-        console.log('[LoginScreen] Found Parse profile:', profile);
+        console.log('[LoginForm] Found Parse profile:', profile);
 
         let syncProfile = false;
 
@@ -280,10 +294,10 @@ function LoginForm({ setFormType }) {
         }
 
         if (syncProfile) await profile.save();
-        dispatchLoginAction(firebaseUser, currentUser, profile);
+        dispatchLoginAction(dispatch, firebaseUser, currentUser, profile);
       }
     } catch (error) {
-      console.error('[LoginScreen] Authentication error:', error.message);
+      console.error(`[LoginForm] Login error (${error.code}):`, error.message);
       const { title, message } = authErrorMessage(error);
       Alert.alert(title, message);
     } finally {
@@ -303,12 +317,14 @@ function LoginForm({ setFormType }) {
             placeholder="Email"
             keyboardType="email-address"
             autoCapitalize="none"
+            editable={!isProcessing}
             formikProps={props}
           />
           <FormikInput
             secureTextEntry
             field="password"
             placeholder="Password"
+            editable={!isProcessing}
             formikProps={props}
           />
           <Button
@@ -316,7 +332,7 @@ function LoginForm({ setFormType }) {
             title="Sign In"
             onPress={props.handleSubmit}
             isLoading={isProcessing}
-            disabled={isProcessing || !props.isValid}
+            disabled={isProcessing}
             style={{ marginTop: values.spacing.md }}
           />
           <OutlineButton
@@ -336,12 +352,77 @@ function LoginForm({ setFormType }) {
 }
 
 function RegisterForm({ setFormType }) {
-  const handleRegisterAccount = async ({ fullName, email, password }) => {};
+  // const dispatch = useDispatch();
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const checkUsernameAvailable = async (username) => {
+    const query = new Parse.Query(Parse.Object.extend('Profile'));
+    query.equalTo('username', username);
+    return (await query.findAll()).length === 0;
+  };
+
+  const handleRegisterAccount = async ({
+    fullName,
+    username,
+    email,
+    password,
+  }) => {
+    console.log('[RegisterForm] Starting registration process...');
+    setIsProcessing(true);
+
+    try {
+      if (!(await checkUsernameAvailable(username))) {
+        throw { code: 'auth/username-taken', message: 'Username taken' };
+      }
+
+      const { user: firebaseUser } =
+        await auth().createUserWithEmailAndPassword(email, password);
+      console.log('[RegisterForm] Registered firebase user:', firebaseUser);
+
+      const authData = {
+        access_token: await firebaseUser.getIdToken(),
+        id: firebaseUser.uid,
+      };
+
+      const currentUser = await Parse.User.logInWith('firebase', { authData });
+      console.log(
+        '[RegisterForm] Successfully logged in with firebase:',
+        currentUser,
+      );
+
+      const Profile = Parse.Object.extend('Profile');
+      const profile = new Profile();
+      console.log(
+        '[RegisterForm] Creating new profile with owner:',
+        currentUser.id,
+      );
+
+      profile.set('owner', currentUser.id);
+      profile.set('fullName', fullName);
+      profile.set('username', username);
+      profile.set('email', email);
+
+      const newProfile = await profile.save();
+      console.log(
+        '[RegisterForm] Successfully created new profile with objectId:',
+        newProfile.id,
+      );
+    } catch (error) {
+      console.error(
+        `[RegisterForm] Register error (${error.code}):`,
+        error.message,
+      );
+      const { title, message } = authErrorMessage(error);
+      Alert.alert(title, message);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   return (
     <Formik
       validationSchema={registerFormSchema}
-      initialValues={{ fullName: '', email: '', password: '' }}
+      initialValues={{ fullName: '', email: '', username: '', password: '' }}
       onSubmit={handleRegisterAccount}>
       {(props) => (
         <>
@@ -359,6 +440,8 @@ function RegisterForm({ setFormType }) {
           <FormikInput
             field="fullName"
             placeholder="Full Name"
+            autoCapitalize="words"
+            editable={!isProcessing}
             formikProps={props}
           />
           <FormikInput
@@ -366,21 +449,36 @@ function RegisterForm({ setFormType }) {
             placeholder="Email"
             keyboardType="email-address"
             autoCapitalize="none"
+            editable={!isProcessing}
+            formikProps={props}
+          />
+          <FormikInput
+            field="username"
+            placeholder="Username"
+            autoCapitalize="none"
+            editable={!isProcessing}
             formikProps={props}
           />
           <FormikInput
             secureTextEntry
             field="password"
             placeholder="Password"
+            editable={!isProcessing}
             formikProps={props}
           />
           <Button
             primary
             title="Register"
             onPress={props.handleSubmit}
+            isLoading={isProcessing}
+            disabled={isProcessing}
             style={{ marginTop: values.spacing.md }}
           />
-          <OutlineButton title="Go Back" onPress={() => setFormType('login')} />
+          <OutlineButton
+            title="Go Back"
+            disabled={isProcessing}
+            onPress={() => setFormType('login')}
+          />
         </>
       )}
     </Formik>
@@ -417,9 +515,6 @@ function ForgotPasswordForm({ setFormType }) {
           />
           <Button
             primary
-            disabled={
-              props.errors.email || (props.touched.email && !props.isValid)
-            }
             title="Email Me Reset Link"
             onPress={props.handleSubmit}
             style={{ marginTop: values.spacing.md }}
@@ -452,15 +547,16 @@ function LoginScreen({}) {
         source={{ uri: videoSource }}
         style={loginScreenStyles.backgroundVideo}
       />
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View
-          style={{
-            flexGrow: 1,
-            alignItems: 'center',
-          }}>
+      <ScrollView
+        contentContainerStyle={{
+          justifyContent: 'center',
+          flexGrow: 1,
+          alignItems: 'center',
+        }}>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <KeyboardAvoidingView
-            behavior="padding"
-            keyboardVerticalOffset={values.spacing.sm}
+            behavior="position"
+            keyboardVerticalOffset={-135}
             style={{
               flexGrow: 1,
               justifyContent: 'center',
@@ -499,8 +595,8 @@ function LoginScreen({}) {
               })()}
             </View>
           </KeyboardAvoidingView>
-        </View>
-      </TouchableWithoutFeedback>
+        </TouchableWithoutFeedback>
+      </ScrollView>
     </View>
   );
 }

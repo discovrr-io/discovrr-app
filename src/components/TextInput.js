@@ -15,8 +15,9 @@ import {
 } from '../constants';
 
 export default function TextInput({
-  size,
-  error,
+  size = 'big',
+  editable = true,
+  error = undefined,
   secureTextEntry = false,
   ...props
 }) {
@@ -25,15 +26,17 @@ export default function TextInput({
   return (
     <>
       <RNTextInput
-        {...props}
+        editable={editable}
         secureTextEntry={hidePassword && secureTextEntry}
+        {...props}
         style={[
           textInputStyles.container,
-          secureTextEntry && { paddingRight: 42 },
-          error && { borderColor: 'red' },
           size === 'small'
             ? textInputStyles.smallContainer
             : textInputStyles.largeContainer,
+          secureTextEntry && { paddingRight: 42 },
+          error && { borderColor: 'red' },
+          !editable && { borderColor: color.gray500, color: color.gray500 },
           props.style,
         ]}
       />
@@ -42,6 +45,7 @@ export default function TextInput({
           size={24}
           name={hidePassword ? 'eye' : 'eye-off'}
           onPress={() => setHidePassword((prev) => !prev)}
+          color={editable ? color.black : color.gray500}
           style={{
             position: 'absolute',
             right: 8,
