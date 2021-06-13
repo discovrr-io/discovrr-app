@@ -117,10 +117,7 @@ class App extends Component {
           persistor={persistor}
           onBeforeLift={this.onBeforeLift}>
           <PaperProvider theme={theme}>
-            <NavigationContainer
-            // linking={linking}
-            // fallback={<Text>Food</Text>}
-            >
+            <NavigationContainer>
               <AuthLoadingScreen />
             </NavigationContainer>
           </PaperProvider>

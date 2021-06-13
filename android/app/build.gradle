@@ -130,6 +130,10 @@ def jscFlavor = 'org.webkit:android-jsc:+'
  */
 def enableHermes = project.ext.react.get("enableHermes", false);
 
+// def versionMajor = 2 // Can be more than 2 digits
+// def versionMinor = 0 // Must be between 0 and 99
+// def versionPatch = 4 // Must be between 0 and 99
+
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
 
@@ -142,8 +146,8 @@ android {
         applicationId "com.discovrr.discovrr_app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 2002
-        versionName "2.0.1"
+        versionCode 2004
+        versionName "2.0.2"
         multiDexEnabled true
         vectorDrawables.useSupportLibrary = true
     }
