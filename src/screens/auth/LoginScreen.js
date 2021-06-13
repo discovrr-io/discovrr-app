@@ -23,6 +23,7 @@ import {
 import {
   GoogleSignin,
   GoogleSigninButton,
+  statusCodes,
 } from '@react-native-google-signin/google-signin';
 
 import { connect, useDispatch } from 'react-redux';
@@ -589,6 +590,8 @@ function LoginScreen({}) {
   const [formType, setFormType] = useState('login');
 
   const handleSignInWithApple = async () => {
+    if (isProcessing /* || isAuthenticating */) return;
+
     try {
       console.log('[LoginScreen] Starting Apple authentication...');
       const appleAuthRequestResponse = await appleAuth.performRequest({
@@ -616,7 +619,6 @@ function LoginScreen({}) {
       );
 
       setIsProcessing(true);
-
       console.log('[LoginScreen] Signing into Firebase with Apple...');
       const { user: firebaseUser } = await auth().signInWithCredential(
         appleCredential,
@@ -641,7 +643,44 @@ function LoginScreen({}) {
     }
   };
 
-  const handleSignInWithGoogle = async () => {};
+  const handleSignInWithGoogle = async () => {
+    if (isProcessing /* || isAuthenticating */) return;
+
+    try {
+      setIsProcessing(true);
+
+      const { idToken } = await GoogleSignin.signIn();
+      const { accessToken } = await GoogleSignin.getTokens();
+
+      const googleCredential = auth.GithubAuthProvider.credential(
+        idToken,
+        accessToken,
+      );
+
+      console.log('[LoginScreen] Signing into Firebase with Google...');
+      const { user: firebaseUser } = await auth().signInWithCredential(
+        googleCredential,
+      );
+
+      loginFirebaseUser(firebaseUser);
+    } catch (error) {
+      console.error(
+        `[LoginScreen] Google sign-in error (${error.code}):`,
+        error.message,
+      );
+
+      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+        // We'll just return here
+        console.info('[LoginScreen] Google authentication cancelled');
+        return;
+      }
+
+      const { title, message } = authErrorMessage(error);
+      Alert.alert(title, message);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   return (
     <View style={loginScreenStyles.container}>
@@ -731,10 +770,10 @@ function LoginScreen({}) {
             />
           )}
           <GoogleSigninButton
-            disabled={isProcessing}
+            // disabled={isProcessing}
             size={GoogleSigninButton.Size.Wide}
             style={{ width: 192, height: 48 }}
-            onPress={handleSignInWithGoogle}
+            onPress={!isProcessing ? handleSignInWithGoogle : null}
           />
         </View>
       </ScrollView>
