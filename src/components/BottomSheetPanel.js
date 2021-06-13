@@ -39,7 +39,7 @@ import {
   GoogleSignin,
   GoogleSigninButton,
   statusCodes,
-} from '@react-native-community/google-signin';
+} from '@react-native-google-signin/google-signin';
 
 import { connect } from 'react-redux';
 import { getVersion } from 'react-native-device-info';

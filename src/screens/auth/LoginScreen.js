@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {
   useWindowDimensions,
   Alert,
+  ActivityIndicator,
   Image,
   Keyboard,
   KeyboardAvoidingView,
@@ -12,7 +13,17 @@ import {
   TouchableWithoutFeedback,
   View,
   ScrollView,
+  Platform,
 } from 'react-native';
+
+import {
+  appleAuth,
+  AppleButton,
+} from '@invertase/react-native-apple-authentication';
+import {
+  GoogleSignin,
+  GoogleSigninButton,
+} from '@react-native-google-signin/google-signin';
 
 import { connect, useDispatch } from 'react-redux';
 import Video from 'react-native-video';
@@ -81,6 +92,8 @@ const resetPasswordFormSchema = yup.object({
     .email('Please enter a valid email address'),
 });
 
+GoogleSignin.configure();
+
 function authErrorMessage(authError) {
   switch (authError.code) {
     case 'auth/wrong-password':
@@ -100,6 +113,11 @@ function authErrorMessage(authError) {
         title: 'Username already taken',
         message:
           'The username you provided is already taken by someone else. Please choose another username.',
+      };
+    case 'apple/missing-identity-token':
+      return {
+        title: 'Authentication Failed',
+        message: `We weren't able to sign you in with Apple. Please try again later.`,
       };
     default:
       console.error('Unhandled error:', authError);
@@ -159,8 +177,91 @@ function TextButton({ title, disabled, onPress, ...props }) {
   );
 }
 
+async function loginFirebaseUser(dispatcher, firebaseUser) {
+  console.log('[LoginScreen] Will log in Firebase user...');
+  let currentUser = await Parse.User.currentAsync();
+
+  if (currentUser) {
+    const query = new Parse.Query(Parse.Object.extend('Profile'));
+    query.equalTo('owner', currentUser);
+
+    const profile = await query.first();
+    console.log('[LoginScreen] Query profile result:', profile);
+
+    if (profile && profile.id) {
+      dispatchLoginAction(dispatcher, firebaseUser, currentUser, profile);
+    } else {
+      console.error(
+        `[LoginScreen] Parse couldn't profile with owner:`,
+        currentUser.id,
+      );
+    }
+  } else {
+    const authData = {
+      access_token: await firebaseUser.getIdToken(),
+      id: firebaseUser.uid,
+    };
+
+    console.log('[LoginScreen] Firebase authData:', authData);
+
+    currentUser = await Parse.User.logInWith('firebase', { authData });
+    console.log(
+      '[LoginScreen] Successfully logged in with Firebase:',
+      currentUser,
+    );
+
+    const query = new Parse.Query(Parse.Object.extend('Profile'));
+    query.equalTo('owner', currentUser);
+
+    const profile = await query.first();
+    console.log('[LoginScreen] Found Parse profile:', profile);
+
+    let syncProfile = false;
+
+    let fullName =
+      profile.get('fullName') ||
+      profile.get('name') ||
+      profile.get('displayName');
+    if (!fullName && firebaseUser.displayName) {
+      profile.set('fullName', firebaseUser.displayName ?? '');
+      syncProfile = true;
+    } else if (fullName /* && !firebaseUser.displayName */) {
+      console.log('[LoginScreen] Updating Firebase display name...');
+      await firebaseUser.updateProfile({ displayName: fullName });
+    }
+
+    let phone = profile.get('phone');
+    if (!phone && firebaseUser.phoneNumber) {
+      profile.set('phone', firebaseUser.phoneNumber);
+      syncProfile = true;
+    }
+
+    // May be undefined if anonymous
+    let email = profile.get('email');
+    if (!email && firebaseUser.email) {
+      profile.set('email', firebaseUser.email);
+      syncProfile = true;
+    }
+
+    let avatar = profile.get('avatar');
+    if (!avatar && firebaseUser.photoURL) {
+      avatar = {
+        mime: 'image/jpeg',
+        type: 'image',
+        url: firebaseUser.photoURL,
+      };
+
+      profile.set('avatar', avatar);
+      syncProfile = true;
+    }
+
+    if (syncProfile) await profile.save();
+    dispatchLoginAction(dispatcher, firebaseUser, currentUser, profile);
+  }
+}
+
 function dispatchLoginAction(dispatcher, firebaseUser, currentUser, profile) {
-  console.log('Dispatching login action...');
+  console.log('[LoginScreen] Dispatching login action...');
   dispatcher(
     actions.login({
       provider: firebaseUser.providerId,
@@ -219,86 +320,9 @@ function LoginForm({ setFormType }) {
         email,
         password,
       );
-      console.log('[LoginForm] Signed in firebase user:', firebaseUser);
 
-      let currentUser = await Parse.User.currentAsync();
-      if (currentUser) {
-        const query = new Parse.Query(Parse.Object.extend('Profile'));
-        query.equalTo('owner', currentUser);
-
-        const profile = await query.first();
-        console.log('[LoginForm] Query profile result:', profile);
-
-        if (profile && profile.id) {
-          dispatchLoginAction(dispatch, firebaseUser, currentUser, profile);
-        } else {
-          console.error(
-            `[LoginForm] Parse couldn't profile with owner:`,
-            currentUser.id,
-          );
-        }
-      } else {
-        const authData = {
-          access_token: await firebaseUser.getIdToken(),
-          id: firebaseUser.uid,
-        };
-
-        console.log('[LoginForm] Firebase authData:', authData);
-
-        currentUser = await Parse.User.logInWith('firebase', { authData });
-        console.log(
-          '[LoginForm] Successfully logged in with firebase:',
-          currentUser,
-        );
-
-        const query = new Parse.Query(Parse.Object.extend('Profile'));
-        query.equalTo('owner', currentUser);
-
-        const profile = await query.first();
-        console.log('[LoginForm] Found Parse profile:', profile);
-
-        let syncProfile = false;
-
-        let fullName =
-          profile.get('fullName') ||
-          profile.get('name') ||
-          profile.get('displayName');
-        if (!fullName && firebaseUser.displayName) {
-          profile.set('fullName', firebaseUser.displayName ?? '');
-          syncProfile = true;
-        } else if (fullName /* && !firebaseUser.displayName */) {
-          console.log('[LoginForm] Updating Firebase display name...');
-          await firebaseUser.updateProfile({ displayName: fullName });
-        }
-
-        let phone = profile.get('phone');
-        if (!phone && firebaseUser.phoneNumber) {
-          profile.set('phone', firebaseUser.phoneNumber);
-          syncProfile = true;
-        }
-
-        // May be undefined if anonymous
-        let email = profile.get('email');
-        if (!email && firebaseUser.email) {
-          profile.set('email', firebaseUser.email);
-          syncProfile = true;
-        }
-
-        let avatar = profile.get('avatar');
-        if (!avatar && firebaseUser.photoURL) {
-          avatar = {
-            mime: 'image/jpeg',
-            type: 'image',
-            url: firebaseUser.photoURL,
-          };
-
-          profile.set('avatar', avatar);
-          syncProfile = true;
-        }
-
-        if (syncProfile) await profile.save();
-        dispatchLoginAction(dispatch, firebaseUser, currentUser, profile);
-      }
+      console.log('[LoginForm] Signed in Firebase user:', firebaseUser);
+      await loginFirebaseUser(dispatch, firebaseUser);
     } catch (error) {
       console.error(`[LoginForm] Login error (${error.code}):`, error.message);
       const { title, message } = authErrorMessage(error);
@@ -380,7 +404,7 @@ function RegisterForm({ setFormType }) {
 
       const { user: firebaseUser } =
         await auth().createUserWithEmailAndPassword(email, password);
-      console.log('[RegisterForm] Registered firebase user:', firebaseUser);
+      console.log('[RegisterForm] Registered Firebase user:', firebaseUser);
 
       await firebaseUser.updateProfile({ displayName: fullName });
 
@@ -391,7 +415,7 @@ function RegisterForm({ setFormType }) {
 
       const currentUser = await Parse.User.logInWith('firebase', { authData });
       console.log(
-        '[RegisterForm] Successfully logged in with firebase:',
+        '[RegisterForm] Successfully logged in with Firebase:',
         currentUser,
       );
 
@@ -558,22 +582,80 @@ function ForgotPasswordForm({ setFormType }) {
 }
 
 function LoginScreen({}) {
+  const dispatch = useDispatch();
   const { width: screenWidth } = useWindowDimensions();
 
+  const [isProcessing, setIsProcessing] = useState(false);
   const [formType, setFormType] = useState('login');
 
+  const handleSignInWithApple = async () => {
+    try {
+      console.log('[LoginScreen] Starting Apple authentication...');
+      const appleAuthRequestResponse = await appleAuth.performRequest({
+        requestedOperation: appleAuth.Operation.LOGIN,
+        requestedScopes: [appleAuth.Scope.FULL_NAME, appleAuth.Scope.EMAIL],
+      });
+
+      console.log(
+        '[LoginScreen] Apple Authentication response:',
+        appleAuthRequestResponse,
+      );
+
+      if (!appleAuthRequestResponse.identityToken) {
+        console.warn(`[LoginScreen] "identityToken" is not defined`);
+        throw {
+          code: 'apple/missing-identity-token',
+          message: 'No identity token found in Apple authentication response',
+        };
+      }
+
+      const { identityToken, nonce } = appleAuthRequestResponse;
+      const appleCredential = auth.AppleAuthProvider.credential(
+        identityToken,
+        nonce,
+      );
+
+      setIsProcessing(true);
+
+      console.log('[LoginScreen] Signing into Firebase with Apple...');
+      const { user: firebaseUser } = await auth().signInWithCredential(
+        appleCredential,
+      );
+
+      loginFirebaseUser(dispatch, firebaseUser);
+    } catch (error) {
+      if (error.code === appleAuth.Error.CANCELED) {
+        // We'll just return here
+        console.info('[LoginScreen] Apple authentication cancelled');
+        return;
+      }
+
+      console.error(
+        `[LoginScreen] Apple sign-in error (${error.code}):`,
+        error.message,
+      );
+      const { title, message } = authErrorMessage(error);
+      Alert.alert(title, message);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleSignInWithGoogle = async () => {};
+
   return (
-    <View style={loginScreenStyles.backgroundVideo}>
+    <View style={loginScreenStyles.container}>
       <Video
         muted
         repeat
         disableFocus
         playWhenInactive
-        allowsExternalPlayback={false}
-        controls={false}
-        preventsDisplaySleepDuringVideoPlayback={false}
         paused={false}
+        controls={false}
+        allowsExternalPlayback={false}
+        preventsDisplaySleepDuringVideoPlayback={false}
         resizeMode="cover"
+        posterResizeMode="cover"
         poster={videoPosterSource.uri}
         source={{ uri: videoSource }}
         style={loginScreenStyles.backgroundVideo}
@@ -627,7 +709,52 @@ function LoginScreen({}) {
             </View>
           </KeyboardAvoidingView>
         </TouchableWithoutFeedback>
+        <View
+          style={{
+            position: 'absolute',
+            bottom: values.spacing.lg,
+            // minWidth: screenWidth * 0.9,
+            // maxWidth: screenWidth,
+            flexDirection: 'row',
+            // alignContent: 'center',
+            // alignSelf: 'center',
+            // justifyContent: 'space-evenly',
+          }}>
+          {/* Firebase's Apple authentication provider is currently only
+           * available for iOS. */}
+          {Platform.OS === 'ios' && (
+            <AppleButton
+              buttonStyle={AppleButton.Style.WHITE}
+              buttonType={AppleButton.Type.SIGN_IN}
+              style={{ width: 192, height: 41, marginTop: 3 }}
+              onPress={!isProcessing ? handleSignInWithApple : null}
+            />
+          )}
+          <GoogleSigninButton
+            disabled={isProcessing}
+            size={GoogleSigninButton.Size.Wide}
+            style={{ width: 192, height: 48 }}
+            onPress={handleSignInWithGoogle}
+          />
+        </View>
       </ScrollView>
+      {isProcessing && (
+        <View
+          style={{
+            position: 'absolute',
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(0, 0, 0, 0.45)',
+            alignContent: 'center',
+            justifyContent: 'center',
+          }}>
+          <ActivityIndicator
+            size="large"
+            color={colors.white}
+            style={{ transform: [{ scale: 1.5 }] }}
+          />
+        </View>
+      )}
     </View>
   );
 }
@@ -635,8 +762,8 @@ function LoginScreen({}) {
 const loginScreenStyles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    // alignItems: 'center',
+    // justifyContent: 'center',
   },
   backgroundVideo: {
     position: 'absolute',

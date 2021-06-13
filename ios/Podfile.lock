@@ -518,7 +518,7 @@ PODS:
     - RNFBApp
   - RNGestureHandler (1.10.3):
     - React-Core
-  - RNGoogleSignin (5.0.0):
+  - RNGoogleSignin (6.0.0):
     - GoogleSignIn (~> 5.0.0)
     - React-Core
   - RNImageCropPicker (0.35.3):
@@ -655,7 +655,7 @@ DEPENDENCIES:
   - "RNFBPerf (from `../node_modules/@react-native-firebase/perf`)"
   - "RNFBStorage (from `../node_modules/@react-native-firebase/storage`)"
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
-  - "RNGoogleSignin (from `../node_modules/@react-native-community/google-signin`)"
+  - "RNGoogleSignin (from `../node_modules/@react-native-google-signin/google-signin`)"
   - RNImageCropPicker (from `../node_modules/react-native-image-crop-picker`)
   - RNImageHelper (from `../node_modules/react-native-image-helper/ios`)
   - RNPopoverMenu (from `../node_modules/react-native-popover-menu/ios`)
@@ -814,7 +814,7 @@ EXTERNAL SOURCES:
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
   RNGoogleSignin:
-    :path: "../node_modules/@react-native-community/google-signin"
+    :path: "../node_modules/@react-native-google-signin/google-signin"
   RNImageCropPicker:
     :path: "../node_modules/react-native-image-crop-picker"
   RNImageHelper:
@@ -922,7 +922,7 @@ SPEC CHECKSUMS:
   RNFBPerf: 4d6ab97701da4aeb51da94117bf4026a0c3a5843
   RNFBStorage: fb33c149ca21187b86f4e32dc35693525b5f2ac0
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
-  RNGoogleSignin: ad866d4c4af2651e36801dd3b7771d7715353499
+  RNGoogleSignin: 111fd4792913208f338fe3178005f7a22e490ff9
   RNImageCropPicker: 08ba3a2e2f4f8833d606f01906c371e382c4dea9
   RNImageHelper: efb1e1b39f0e19a40b8873c2c1c9614c0dd150ed
   RNPopoverMenu: bb654b7704123db59bb4b71f08fed45bbd072c7e

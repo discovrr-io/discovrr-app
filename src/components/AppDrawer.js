@@ -23,7 +23,7 @@ import {
 import { connect } from 'react-redux';
 import { getVersion } from 'react-native-device-info';
 
-import { GoogleSignin } from '@react-native-community/google-signin';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import auth from '@react-native-firebase/auth';
 import FastImage from 'react-native-fast-image';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
