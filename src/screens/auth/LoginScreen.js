@@ -16,6 +16,13 @@ import {
   Platform,
 } from 'react-native';
 
+import { connect, useDispatch } from 'react-redux';
+import Video from 'react-native-video';
+import auth from '@react-native-firebase/auth';
+
+import { Formik } from 'formik';
+import * as yup from 'yup';
+
 import {
   appleAuth,
   AppleButton,
@@ -25,13 +32,6 @@ import {
   GoogleSigninButton,
   statusCodes,
 } from '@react-native-google-signin/google-signin';
-
-import { connect, useDispatch } from 'react-redux';
-import Video from 'react-native-video';
-import auth from '@react-native-firebase/auth';
-
-import { Formik } from 'formik';
-import * as yup from 'yup';
 
 import { Button, FormikInput } from '../../components';
 import { colors, values } from '../../constants';
@@ -626,6 +626,8 @@ function LoginScreen({}) {
 
       loginFirebaseUser(dispatch, firebaseUser);
     } catch (error) {
+      setIsProcessing(false);
+
       if (error.code === appleAuth.Error.CANCELED) {
         // We'll just return here
         console.info('[LoginScreen] Apple authentication cancelled');
@@ -638,8 +640,6 @@ function LoginScreen({}) {
       );
       const { title, message } = authErrorMessage(error);
       Alert.alert(title, message);
-    } finally {
-      setIsProcessing(false);
     }
   };
 
@@ -759,9 +759,7 @@ function LoginScreen({}) {
             // alignSelf: 'center',
             // justifyContent: 'space-evenly',
           }}>
-          {/* Firebase's Apple authentication provider is currently only
-           * available for iOS. */}
-          {Platform.OS === 'ios' && (
+          {appleAuth.isSupported && (
             <AppleButton
               buttonStyle={AppleButton.Style.WHITE}
               buttonType={AppleButton.Type.SIGN_IN}

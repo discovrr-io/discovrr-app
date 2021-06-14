@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { StatusBar } from 'react-native';
 
 import { createDrawerNavigator } from '@react-navigation/drawer';
@@ -7,6 +7,7 @@ import { connect } from 'react-redux';
 
 import AsyncStorage from '@react-native-community/async-storage';
 import OneSignal from 'react-native-onesignal';
+import RNBootSplash from 'react-native-bootsplash';
 
 import LoginScreen from './LoginScreen';
 import GroundZero from '../../GroundZero';
@@ -108,6 +109,7 @@ function AuthLoadingScreen({ isAuthenticated, userDetails }) {
   console.log('[AuthLoadingScreen] isAuthenticated:', isAuthenticated);
 
   useEffect(() => {
+    RNBootSplash.hide({ duration: 250 });
     if (isAuthenticated) setUpOneSignal(userDetails);
   }, []);
 
