@@ -771,7 +771,7 @@ function LoginScreen({}) {
             // disabled={isProcessing}
             size={GoogleSigninButton.Size.Wide}
             style={{ width: 192, height: 48 }}
-            onPress={!isProcessing ? handleSignInWithGoogle : null}
+            onPress={!isProcessing ? handleSignInWithGoogle : () => {}}
           />
         </View>
       </ScrollView>

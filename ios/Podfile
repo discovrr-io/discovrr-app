@@ -13,6 +13,7 @@ target 'Discovrr' do
     :hermes_enabled => false
   )
 
+  pod 'GoogleSignIn', '~> 5.0.2'
   pod 'Stripe', '~> 19.4.0'
 
   target 'DiscovrrTests' do

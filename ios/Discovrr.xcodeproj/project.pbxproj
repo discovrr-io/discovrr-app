@@ -8,10 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		00E356F31AD99517003FC87E /* DiscovrrTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* DiscovrrTests.m */; };
+		0379520B267762F000A9E0D6 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 0379520A267762F000A9E0D6 /* GoogleService-Info.plist */; };
 		039EAA60262DCEE80088184B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 039EAA5F262DCEE80088184B /* LaunchScreen.storyboard */; };
 		03D0FE0C2665B9BE00AD22DE /* Info-release.plist in Resources */ = {isa = PBXBuildFile; fileRef = 03D0FE0B2665B9BE00AD22DE /* Info-release.plist */; };
 		03DC1AE2262DDCF900A0D5C5 /* Discovrr.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03DC1AE1262DDCF900A0D5C5 /* Discovrr.swift */; };
-		03DC1AE6262DDF7000A0D5C5 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 03DC1AE5262DDF7000A0D5C5 /* GoogleService-Info.plist */; };
 		03DC1B05262DE70600A0D5C5 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03DC1B04262DE70600A0D5C5 /* NotificationService.swift */; };
 		03DC1B09262DE70600A0D5C5 /* OneSignalNotificationServiceExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 03DC1B02262DE70600A0D5C5 /* OneSignalNotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
@@ -74,12 +74,12 @@
 		035DC84A262E938500AAEDBC /* EvilIcons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = EvilIcons.ttf; sourceTree = "<group>"; };
 		035DC84B262E938500AAEDBC /* SimpleLineIcons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = SimpleLineIcons.ttf; sourceTree = "<group>"; };
 		035DC84C262E938500AAEDBC /* MaterialIcons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = MaterialIcons.ttf; sourceTree = "<group>"; };
+		0379520A267762F000A9E0D6 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		038584352665EA38005DECD2 /* Discovrr.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; name = Discovrr.entitlements; path = Discovrr/Discovrr.entitlements; sourceTree = "<group>"; };
 		039EAA5F262DCEE80088184B /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		03D0FE0B2665B9BE00AD22DE /* Info-release.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "Info-release.plist"; path = "Discovrr/Info-release.plist"; sourceTree = "<group>"; };
 		03DC1AE0262DDCF800A0D5C5 /* Discovrr-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Discovrr-Bridging-Header.h"; sourceTree = "<group>"; };
 		03DC1AE1262DDCF900A0D5C5 /* Discovrr.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Discovrr.swift; path = Discovrr/Discovrr.swift; sourceTree = "<group>"; };
-		03DC1AE5262DDF7000A0D5C5 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		03DC1B02262DE70600A0D5C5 /* OneSignalNotificationServiceExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = OneSignalNotificationServiceExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		03DC1B04262DE70600A0D5C5 /* NotificationService.swift */ = {isa = PBXFileReference; indentWidth = 4; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; tabWidth = 4; };
 		03DC1B06262DE70600A0D5C5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -191,8 +191,8 @@
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				03D0FE0B2665B9BE00AD22DE /* Info-release.plist */,
+				0379520A267762F000A9E0D6 /* GoogleService-Info.plist */,
 				038584352665EA38005DECD2 /* Discovrr.entitlements */,
-				03DC1AE5262DDF7000A0D5C5 /* GoogleService-Info.plist */,
 				008F07F21AC5B25A0029DE68 /* main.jsbundle */,
 				039EAA5F262DCEE80088184B /* LaunchScreen.storyboard */,
 				13B07FB71A68108700A75B9A /* main.m */,
@@ -397,9 +397,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
+				0379520B267762F000A9E0D6 /* GoogleService-Info.plist in Resources */,
 				039EAA60262DCEE80088184B /* LaunchScreen.storyboard in Resources */,
 				03D0FE0C2665B9BE00AD22DE /* Info-release.plist in Resources */,
-				03DC1AE6262DDF7000A0D5C5 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -834,12 +834,12 @@
 				CODE_SIGN_ENTITLEMENTS = Discovrr/Discovrr.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2004;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = K9APN5C6Z2;
 				INFOPLIST_FILE = Discovrr/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 2.0.2;
+				MARKETING_VERSION = 2.0.3;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -889,14 +889,14 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 2004;
+				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = K9APN5C6Z2;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = OneSignalNotificationServiceExtension/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
-				MARKETING_VERSION = 2.0.2;
+				MARKETING_VERSION = 2.0.3;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.discovrr.OneSignalNotificationServiceExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -919,14 +919,14 @@
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2004;
+				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = K9APN5C6Z2;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = OneSignalNotificationServiceExtension/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
-				MARKETING_VERSION = 2.0.2;
+				MARKETING_VERSION = 2.0.3;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.discovrr.OneSignalNotificationServiceExtension;
@@ -952,14 +952,14 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 2004;
+				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = K9APN5C6Z2;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = OneSignalNotificationServiceExtension/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
-				MARKETING_VERSION = 2.0.2;
+				MARKETING_VERSION = 2.0.3;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.discovrr.OneSignalNotificationServiceExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -981,13 +981,13 @@
 				CODE_SIGN_ENTITLEMENTS = Discovrr/Discovrr.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2004;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = K9APN5C6Z2;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Discovrr/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 2.0.2;
+				MARKETING_VERSION = 2.0.3;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -1013,12 +1013,12 @@
 				CODE_SIGN_ENTITLEMENTS = Discovrr/Discovrr.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2004;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = K9APN5C6Z2;
 				INFOPLIST_FILE = "Discovrr/Info-release.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 2.0.2;
+				MARKETING_VERSION = 2.0.3;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
