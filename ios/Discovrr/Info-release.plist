@@ -41,6 +41,16 @@
 			<string>com.discovrr.Discovrr</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
+				<string>com.googleusercontent.apps.930461821085-r4k2pg3flbloaqthi5ereeep4tscqdnf</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.discovrr.Discovrr</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
 				<string>com.googleusercontent.apps.930461821085-9oi5tufovr4ertfgiac4ducje18kbqmo</string>
 			</array>
 		</dict>
@@ -59,14 +69,6 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>CodePushDeploymentKey</key>
 	<string>$(CODEPUSH_KEY)</string>
-	<!-- <key>FacebookAdvertiserIDCollectionEnabled</key>
-	<true/> -->
-	<!-- <key>FacebookAppID</key>
-	<string>691371558227281</string> -->
-	<!-- <key>FacebookAutoLogAppEventsEnabled</key>
-	<true/> -->
-	<!-- <key>FacebookDisplayName</key>
-	<string>Discovrr</string> -->
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>fbapi</string>
