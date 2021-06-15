@@ -9,13 +9,18 @@ import {
   View,
 } from 'react-native';
 
-import * as Animatable from 'react-native-animatable';
 import FastImage from 'react-native-fast-image';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
+import OneSignal from 'react-native-onesignal';
+import * as Animatable from 'react-native-animatable';
 
-import { colors, typography, values } from '../constants';
+import { useNavigation } from '@react-navigation/native';
+import { useDispatch } from 'react-redux';
 
-const imagePlaceholder = require('../../resources/images/imagePlaceholder.png');
+import { colors, messages, typography, values } from '../constants';
+import * as actions from '../utilities/Actions';
+
+// const imagePlaceholder = require('../../resources/images/imagePlaceholder.png');
 const defaultAvatar = require('../../resources/images/defaultAvatar.jpeg');
 
 const DEFAULT_ACTIVE_OPACITY = 0.6;
@@ -42,19 +47,43 @@ const MetricsPropTypes = PropTypes.shape({
   hasSaved: PropTypes.bool.isRequired,
 });
 
-const POST_ITEM_ICON_SIZE = 24;
-const ACTION_BUTTON_SIZE = POST_ITEM_ICON_SIZE;
-const AVATAR_DIAMETER = POST_ITEM_ICON_SIZE;
+const SMALL_ICON = 24;
+const LARGE_ICON = 32;
 
-const PostItemFooter = ({
+const iconSize = {
+  small: {
+    action: SMALL_ICON,
+    avatar: SMALL_ICON,
+  },
+  large: {
+    action: LARGE_ICON,
+    avatar: LARGE_ICON,
+  },
+};
+
+async function getCurrentUserName() {
+  const currentUser = await Parse.User.currentAsync();
+  const profileQuery = new Parse.Query(Parse.Object.extend('Profile'));
+  profileQuery.equalTo('owner', currentUser);
+
+  const result = await profileQuery.first();
+  const name = result.get('name');
+  const displayName = result.get('displayName');
+
+  return (name || displayName) ?? 'Someone';
+}
+
+export const PostItemFooter = ({
   id,
   author,
   metrics,
-  displayActions = true,
-  onPressAvatar = () => {},
-  onPressSave = async (hasSaved, setHasSaved) => {},
-  onPressLike = (hasLiked) => {},
+  options = { largeIcons: false, showActions: true, showShareIcon: false },
+  onPressSave = async () => {},
+  ...props
 }) => {
+  // const dispatch = useDispatch();
+  const navigation = useNavigation();
+
   const avatarSource = author.avatar
     ? { uri: author.avatar.url }
     : defaultAvatar;
@@ -65,6 +94,18 @@ const PostItemFooter = ({
   const [hasSaved, setHasSaved] = React.useState(metrics.hasLiked);
   const [hasLiked, setHasLiked] = React.useState(metrics.hasLiked);
   const [likesCount, setLikesCount] = React.useState(metrics.likesCount);
+
+  const handlePressAvatar = () => {
+    navigation.push('UserProfileScreen', {
+      userProfile: author,
+      metrics: metrics,
+    });
+  };
+
+  const handlePressShare = async () => {
+    // console.warn('Unimplemented: handlePressShare');
+    await onPressSave();
+  };
 
   const handlePressLike = async () => {
     const oldHasLiked = hasLiked;
@@ -80,6 +121,37 @@ const PostItemFooter = ({
         like: !oldHasLiked,
       });
 
+      if (!oldHasLiked && author.id) {
+        const Profile = Parse.Object.extend('Profile');
+        const profilePointer = new Profile();
+        profilePointer.id = author.id;
+
+        const oneSignalPlayerIds = profilePointer.get('oneSignalPlayerIds');
+        const currentUserName = await getCurrentUserName();
+
+        if (oneSignalPlayerIds) {
+          const { headings, contents } = messages.someoneLikedPost({
+            person: currentUserName,
+          });
+
+          console.log('Sending liked post notification...');
+          OneSignal.postNotification(
+            JSON.stringify({
+              include_player_ids: oneSignalPlayerIds,
+              headings,
+              contents,
+            }),
+            (success) => {
+              console.log('[OneSignal]: Successfully sent message:', success);
+            },
+            (error) => {
+              console.error('[OneSignal]: Failed to send message:', error);
+            },
+          );
+        }
+      }
+
+      // dispatch(actions.updateLikedPosts(???));
       console.log(`Successfully ${!oldHasLiked ? 'liked' : 'unliked'} post`);
     } catch (error) {
       setHasLiked(oldHasLiked);
@@ -111,27 +183,59 @@ const PostItemFooter = ({
     setIsProcessingSave(false);
   };
 
+  const avatarIconSize = options.largeIcons
+    ? iconSize.large.avatar
+    : iconSize.small.avatar;
+
+  const actionIconSize = options.largeIcons
+    ? iconSize.large.action
+    : iconSize.small.action;
+
+  const authorFontSize = options.largeIcons
+    ? typography.size.md
+    : typography.size.xs;
+
   return (
-    <View style={postItemFooterStyles.container}>
+    <View style={[postItemFooterStyles.container, props.style]}>
       <TouchableOpacity
         activeOpacity={DEFAULT_ACTIVE_OPACITY}
         style={{ flex: 1 }}
-        onPress={onPressAvatar}>
+        onPress={handlePressAvatar}>
         <View style={postItemFooterStyles.authorContainer}>
           <FastImage
-            style={postItemFooterStyles.avatar}
+            style={{
+              width: avatarIconSize,
+              height: avatarIconSize,
+              borderRadius: avatarIconSize / 2,
+            }}
             source={avatarSource}
           />
           <Text
             numberOfLines={1}
             ellipsizeMode="tail"
-            style={postItemFooterStyles.authorName}>
+            style={[
+              postItemFooterStyles.authorName,
+              { fontSize: authorFontSize },
+            ]}>
             {author.name && !(author.length < 0) ? author.name : 'Anonymous'}
           </Text>
         </View>
       </TouchableOpacity>
-      {displayActions && (
+      {options.showActions && (
         <View style={postItemFooterStyles.actionsContainer}>
+          {options.showShareIcon && (
+            <TouchableOpacity
+              disabled={false}
+              activeOpacity={DEFAULT_ACTIVE_OPACITY}
+              onPress={handlePressShare}>
+              <MaterialIcon
+                style={postItemFooterStyles.actionButton}
+                name="share"
+                color={colors.gray}
+                size={actionIconSize}
+              />
+            </TouchableOpacity>
+          )}
           <TouchableOpacity
             disabled={isProcessingSave}
             activeOpacity={DEFAULT_ACTIVE_OPACITY}
@@ -140,7 +244,7 @@ const PostItemFooter = ({
               style={postItemFooterStyles.actionButton}
               name={hasSaved ? 'bookmark' : 'bookmark-outline'}
               color={hasSaved ? colors.black : colors.gray}
-              size={ACTION_BUTTON_SIZE}
+              size={actionIconSize}
             />
           </TouchableOpacity>
           <TouchableOpacity
@@ -152,7 +256,7 @@ const PostItemFooter = ({
                 style={postItemFooterStyles.actionButton}
                 name={hasLiked ? 'favorite' : 'favorite-border'}
                 color={hasLiked ? 'red' : colors.gray}
-                size={ACTION_BUTTON_SIZE}
+                size={actionIconSize}
               />
             </Animatable.View>
           </TouchableOpacity>
@@ -167,11 +271,17 @@ const PostItemFooter = ({
   );
 };
 
+const PostItemFooterOptions = PropTypes.shape({
+  largeIcons: PropTypes.bool,
+  showActions: PropTypes.bool,
+  showShareIcon: PropTypes.bool,
+});
+
 PostItemFooter.propTypes = {
   id: PropTypes.any.isRequired,
   author: AuthorPropTypes.isRequired,
   metrics: MetricsPropTypes,
-  onPressAvatar: PropTypes.func,
+  options: PostItemFooterOptions,
 };
 
 const postItemFooterStyles = StyleSheet.create({
@@ -185,14 +295,8 @@ const postItemFooterStyles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  avatar: {
-    width: AVATAR_DIAMETER,
-    height: AVATAR_DIAMETER,
-    borderRadius: AVATAR_DIAMETER / 2,
-  },
   authorName: {
     flex: 1,
-    fontSize: typography.size.xs,
     marginLeft: values.spacing.sm * 1.5,
     color: colors.black,
   },
@@ -219,12 +323,14 @@ const PostItem = ({
   column = 0,
   imagePreview = {},
   imagePreviewDimensions = { width: 1, height: 1 },
-  displayFooter = true,
-  displayActions = true,
   onPressPost = () => {},
-  onPressAvatar = () => {},
-  onPressSave = async (hasSaved, setHasSaved) => {},
-  onPressLike = (hasLiked) => {},
+  onPressSave = () => {},
+  displayFooter = true,
+  footerOptions = {
+    largeIcons: false,
+    showActions: true,
+    showShareIcon: false,
+  },
   ...props
 }) => {
   const PostItemContent = ({ onPressPost, ...props }) => {
@@ -317,10 +423,8 @@ const PostItem = ({
           id={id}
           author={author}
           metrics={metrics}
-          displayActions={displayActions}
-          onPressAvatar={onPressAvatar}
+          options={footerOptions}
           onPressSave={onPressSave}
-          onPressLike={onPressLike}
         />
       )}
     </View>
@@ -339,9 +443,9 @@ PostItem.propTypes = {
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
   }),
-  displayFooter: PropTypes.bool,
   onPressPost: PropTypes.func,
-  onPressAvatar: PropTypes.func,
+  displayFooter: PropTypes.bool,
+  footerOptions: PostItemFooterOptions,
 };
 
 const postItemStyles = StyleSheet.create({

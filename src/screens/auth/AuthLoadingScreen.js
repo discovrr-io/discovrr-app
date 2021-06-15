@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { StatusBar } from 'react-native';
 
 import { createDrawerNavigator } from '@react-navigation/drawer';
@@ -23,16 +23,40 @@ Parse.serverURL = 'https://discovrr-uat.herokuapp.com/discovrrServer'; // produc
 const AuthStack = createStackNavigator();
 const MainDrawer = createDrawerNavigator();
 
-async function setUpOneSignal(userDetails) {
+async function setUpOneSignal() {
   OneSignal.setAppId('c20ba65b-d412-4a82-8cc4-df3ab545c0b1');
   OneSignal.setLogLevel(6, 0);
   OneSignal.setLocationShared(false);
   OneSignal.setRequiresUserPrivacyConsent(false);
+  setUpOneSignalHandlers();
+}
 
+function setUpOneSignalHandlers() {
+  OneSignal.promptForPushNotificationsWithUserResponse((response) => {
+    console.log('[OneSignal]: Permission to push notifications:', response);
+  });
+
+  OneSignal.setNotificationWillShowInForegroundHandler((event) => {
+    console.log('[OneSignal]: Notification will show in foreground:', event);
+  });
+
+  OneSignal.setNotificationOpenedHandler((notification) => {
+    console.log('[OneSignal]: Notification opened:', notification);
+  });
+
+  OneSignal.setInAppMessageClickHandler((event) => {
+    console.log('[OneSignal]: In-app message clicked:', event);
+  });
+
+  OneSignal.addPermissionObserver((event) => {
+    console.log('[OneSignal]: Permission changed:', event);
+  });
+}
+
+async function setUpOneSignalUserDetails(userDetails) {
   const { userId: currentPlayerId } = await OneSignal.getDeviceState();
   await setOneSignalPlayerId(currentPlayerId, userDetails.profileId);
   sendOneSignalTags(userDetails);
-  setUpOneSignalHandlers();
 }
 
 async function setOneSignalPlayerId(currentPlayerId, profileId) {
@@ -56,28 +80,6 @@ async function setOneSignalPlayerId(currentPlayerId, profileId) {
       error,
     );
   }
-}
-
-function setUpOneSignalHandlers() {
-  OneSignal.promptForPushNotificationsWithUserResponse((response) => {
-    console.log('[OneSignal]: Permission to push notifications:', response);
-  });
-
-  OneSignal.setNotificationWillShowInForegroundHandler((event) => {
-    console.log('[OneSignal]: Notification will show in foreground:', event);
-  });
-
-  OneSignal.setNotificationOpenedHandler((notification) => {
-    console.log('[OneSignal]: Notification opened:', notification);
-  });
-
-  OneSignal.setInAppMessageClickHandler((event) => {
-    console.log('[OneSignal]: In-app message clicked:', event);
-  });
-
-  OneSignal.addPermissionObserver((event) => {
-    console.log('[OneSignal]: Permission changed:', event);
-  });
 }
 
 function sendOneSignalTags(userDetails) {
@@ -106,11 +108,20 @@ function sendOneSignalTags(userDetails) {
 }
 
 function AuthLoadingScreen({ isAuthenticated, userDetails }) {
-  console.log('[AuthLoadingScreen] isAuthenticated:', isAuthenticated);
+  const didSetUpOneSignal = useRef(false);
 
   useEffect(() => {
     RNBootSplash.hide({ duration: 250 });
-    if (isAuthenticated) setUpOneSignal(userDetails);
+    if (!didSetUpOneSignal.current) {
+      console.log('[AuthLoadingScreen] Will set up OneSignal...');
+      didSetUpOneSignal.current = true;
+      setUpOneSignal();
+    }
+
+    if (isAuthenticated) {
+      console.log('[AuthLoadingScreen] Will set up OneSignal user details...');
+      setUpOneSignalUserDetails(userDetails);
+    }
   }, []);
 
   return isAuthenticated ? (
@@ -129,6 +140,8 @@ function AuthLoadingScreen({ isAuthenticated, userDetails }) {
 
 const mapStateToProps = (state) => {
   const { userState } = state;
+
+  // console.warn('USER_STATE:', userState);
 
   return {
     userDetails: userState.userDetails,

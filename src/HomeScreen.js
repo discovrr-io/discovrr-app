@@ -295,13 +295,6 @@ const HomeScreen = (props) => {
     navigation.push('PostDetailScreen', postData);
   };
 
-  const handlePressAvatar = (postData) => {
-    navigation.push('UserProfileScreen', {
-      userProfile: postData.author,
-      metrics: postData.metrics,
-    });
-  };
-
   const handlePressSave = async (postData, hasSaved, setHasSaved) => {
     if (hasSaved) {
       console.log('Will save post to new note');
@@ -416,7 +409,7 @@ const HomeScreen = (props) => {
           imagePreview={data.source}
           imagePreviewDimensions={data.masonryDimensions}
           onPressPost={() => handlePressPost(data)}
-          onPressAvatar={() => handlePressAvatar(data)}
+          // onPressAvatar={() => handlePressAvatar(data)}
           onPressSave={(hasSaved, setHasSaved) =>
             handlePressSave(data, hasSaved, setHasSaved)
           }

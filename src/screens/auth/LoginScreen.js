@@ -34,7 +34,7 @@ import {
 } from '@react-native-google-signin/google-signin';
 
 import { Button, FormikInput } from '../../components';
-import { colors, values } from '../../constants';
+import { colors, typography, values } from '../../constants';
 import * as buttonStyles from '../../components/buttons/styles';
 import * as actions from '../../utilities/Actions';
 
@@ -787,15 +787,36 @@ function LoginScreen({}) {
             position: 'absolute',
             width: '100%',
             height: '100%',
-            backgroundColor: 'rgba(0, 0, 0, 0.45)',
+            backgroundColor: 'rgba(0, 0, 0, 0.55)',
             alignContent: 'center',
             justifyContent: 'center',
           }}>
-          <ActivityIndicator
-            size="large"
-            color={colors.white}
-            style={{ transform: [{ scale: 1.5 }] }}
-          />
+          <View style={{ alignContent: 'center' }}>
+            <ActivityIndicator
+              size="large"
+              color={colors.white}
+              style={{ transform: [{ scale: 1.5 }] }}
+            />
+            <Text
+              style={{
+                color: colors.white,
+                fontSize: typography.size.lg,
+                fontWeight: '700',
+                textAlign: 'center',
+                marginTop: values.spacing.md * 1.5,
+              }}>
+              Signing you in...
+            </Text>
+            <Text
+              style={{
+                color: colors.white,
+                fontSize: typography.size.md,
+                textAlign: 'center',
+                marginTop: values.spacing.sm,
+              }}>
+              This may take a while
+            </Text>
+          </View>
         </View>
       )}
     </View>
