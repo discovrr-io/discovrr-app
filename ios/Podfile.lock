@@ -611,7 +611,6 @@ DEPENDENCIES:
   - FlipperKit/SKIOSNetworkPlugin (= 0.85.0)
   - Folly (from `../node_modules/react-native/third-party-podspecs/Folly.podspec`)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
-  - GoogleSignIn (~> 5.0.2)
   - OneSignal (< 4.0, >= 3.0)
   - RCTRequired (from `../node_modules/react-native/Libraries/RCTRequired`)
   - RCTTypeSafety (from `../node_modules/react-native/Libraries/TypeSafety`)
@@ -939,6 +938,6 @@ SPEC CHECKSUMS:
   Yoga: 7740b94929bbacbddda59bf115b5317e9a161598
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: f19dcc308c030034a3a90d81a02d1c1face1faf8
+PODFILE CHECKSUM: 35b9cc610aa5e3e89c237cbcaf32c2178e863b92
 
 COCOAPODS: 1.10.1

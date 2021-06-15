@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		00E356F31AD99517003FC87E /* DiscovrrTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* DiscovrrTests.m */; };
-		037953922677785B00A9E0D6 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 037953912677785B00A9E0D6 /* GoogleService-Info.plist */; };
+		039764AE26783A250092756A /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 039764AD26783A250092756A /* GoogleService-Info.plist */; };
 		039EAA60262DCEE80088184B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 039EAA5F262DCEE80088184B /* LaunchScreen.storyboard */; };
 		03D0FE0C2665B9BE00AD22DE /* Info-release.plist in Resources */ = {isa = PBXBuildFile; fileRef = 03D0FE0B2665B9BE00AD22DE /* Info-release.plist */; };
 		03DC1AE2262DDCF900A0D5C5 /* Discovrr.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03DC1AE1262DDCF900A0D5C5 /* Discovrr.swift */; };
@@ -74,8 +74,8 @@
 		035DC84A262E938500AAEDBC /* EvilIcons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = EvilIcons.ttf; sourceTree = "<group>"; };
 		035DC84B262E938500AAEDBC /* SimpleLineIcons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = SimpleLineIcons.ttf; sourceTree = "<group>"; };
 		035DC84C262E938500AAEDBC /* MaterialIcons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = MaterialIcons.ttf; sourceTree = "<group>"; };
-		037953912677785B00A9E0D6 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		038584352665EA38005DECD2 /* Discovrr.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; name = Discovrr.entitlements; path = Discovrr/Discovrr.entitlements; sourceTree = "<group>"; };
+		039764AD26783A250092756A /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		039EAA5F262DCEE80088184B /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		03D0FE0B2665B9BE00AD22DE /* Info-release.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "Info-release.plist"; path = "Discovrr/Info-release.plist"; sourceTree = "<group>"; };
 		03DC1AE0262DDCF800A0D5C5 /* Discovrr-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Discovrr-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -191,7 +191,7 @@
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				03D0FE0B2665B9BE00AD22DE /* Info-release.plist */,
-				037953912677785B00A9E0D6 /* GoogleService-Info.plist */,
+				039764AD26783A250092756A /* GoogleService-Info.plist */,
 				038584352665EA38005DECD2 /* Discovrr.entitlements */,
 				008F07F21AC5B25A0029DE68 /* main.jsbundle */,
 				039EAA5F262DCEE80088184B /* LaunchScreen.storyboard */,
@@ -397,7 +397,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
-				037953922677785B00A9E0D6 /* GoogleService-Info.plist in Resources */,
+				039764AE26783A250092756A /* GoogleService-Info.plist in Resources */,
 				039EAA60262DCEE80088184B /* LaunchScreen.storyboard in Resources */,
 				03D0FE0C2665B9BE00AD22DE /* Info-release.plist in Resources */,
 			);
