@@ -109,6 +109,12 @@ function authErrorMessage(authError) {
         message:
           'The email address you provided is not registered with Discovrr.',
       };
+    case 'auth/email-already-in-use':
+      return {
+        title: 'Email already taken',
+        message:
+          'The email address you provided is already registered with Discovrr. Did you mean to sign in?',
+      };
     case 'auth/username-taken':
       return {
         title: 'Username already taken',
