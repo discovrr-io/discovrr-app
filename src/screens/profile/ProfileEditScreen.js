@@ -31,9 +31,9 @@ import ProgressCircle from 'react-native-progress/Circle';
 import RNPopoverMenu from 'react-native-popover-menu';
 import storage from '@react-native-firebase/storage';
 
-import { isAndroid, windowWidth } from './utilities/Constants';
-import { logException } from './utilities/NetworkRequests';
-import { updateProfile } from './utilities/Actions';
+import { isAndroid, windowWidth } from '../../utilities/Constants';
+import { logException } from '../../utilities/NetworkRequests';
+import { updateProfile } from '../../utilities/Actions';
 
 const cameraIcon = <MaterialIcon name="camera-alt" color="#000000" size={24} />;
 const photosIcon = (
@@ -42,8 +42,8 @@ const photosIcon = (
 
 const Parse = require('parse/react-native');
 
-const defaultAvatar = require('../resources/images/defaultAvatar.jpeg');
-const defaultCoverPhoto = require('../resources/images/imagePlaceholder.png');
+const defaultAvatar = require('../../../resources/images/defaultAvatar.jpeg');
+const defaultCoverPhoto = require('../../../resources/images/imagePlaceholder.png');
 
 const appVersion = getVersion();
 

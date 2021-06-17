@@ -18,20 +18,24 @@ import MasonryList from 'react-native-masonry-list';
 import { connect } from 'react-redux';
 
 import { Placeholder, PlaceholderMedia, Fade } from 'rn-placeholder';
-import { isAndroid, windowWidth, windowHeight } from './utilities/Constants';
-import { updateNotes } from './utilities/Actions';
-import { fetchNotes } from './utilities/NetworkRequests';
+import {
+  isAndroid,
+  windowWidth,
+  windowHeight,
+} from '../../utilities/Constants';
+import { updateNotes } from '../../utilities/Actions';
+// import { fetchNotes } from '../../utilities/NetworkRequests';
 
-import { NoteItem } from './components';
-import { colors, values, typography } from './constants';
+import { NoteItem } from '../../components';
+import { values } from '../../constants';
 
 const Parse = require('parse/react-native');
 
-const imagePlaceholder = require('../resources/images/imagePlaceholder.png');
+const imagePlaceholder = require('../../../resources/images/imagePlaceholder.png');
 
 const vpWidth = windowWidth * 0.5 - 15;
 
-class BoardsScreen extends Component {
+class NotesScreen extends Component {
   constructor(props) {
     super(props);
 
@@ -382,4 +386,4 @@ const mapStateToProps = (state) => {
   };
 };
 
-export default connect(mapStateToProps)(BoardsScreen);
+export default connect(mapStateToProps)(NotesScreen);

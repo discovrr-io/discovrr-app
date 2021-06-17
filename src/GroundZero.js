@@ -6,10 +6,10 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  TouchableOpacity,
   View,
 } from 'react-native';
 
-import FastImage from 'react-native-fast-image';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 
@@ -21,27 +21,20 @@ import { IconButton, Portal } from 'react-native-paper';
 
 import { connect } from 'react-redux';
 
-import HomeScreen from './HomeScreen';
-import BoardsScreen from './BoardsScreen';
-// import PostsScreen from './PostsScreen';
-import PostCreationScreen from './PostCreationScreen';
-import ProfileScreen from './ProfileScreen';
-import ProfileEditScreen from './ProfileEditScreen';
-import AccountSettingsScreen from './AccountSettingsScreen';
-import PostDetailScreen from './PostDetailScreen';
-import NoteDetailScreen from './NoteDetailScreen';
-import FollowerScreen from './FollowerScreen';
-import ChatMessageScreen from './ChatMessageScreen';
+import HomeScreen from './screens/feed/HomeScreen';
+import NotesScreen from './screens/notes/NotesScreen';
+import NoteDetailScreen from './screens/notes/NoteDetailScreen';
+import PostCreationScreen from './screens/post/PostCreationScreen';
+import PostDetailScreen from './screens/post/PostDetailScreen';
+import ProfileScreen from './screens/profile/ProfileScreen';
+import ProfileEditScreen from './screens/profile/ProfileEditScreen';
+import FollowerScreen from './screens/profile/FollowerScreen';
+import AccountSettingsScreen from './screens/settings/AccountSettingsScreen';
 import BottomSheetPanel from './components/BottomSheetPanel';
 
 import { isAndroid, windowWidth } from './utilities/Constants';
-import { Button } from './components';
 import { colors, typography, values } from './constants';
-import { TouchableOpacity } from 'react-native-gesture-handler';
-
-const imagePlaceholder = require('../resources/images/imagePlaceholder.png');
-
-const isDevMode = process.env.NODE_ENV === 'development';
+import { Button } from './components';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -197,11 +190,11 @@ const HomeStack = () => (
   </Stack.Navigator>
 );
 
-const BoardsStack = () => (
+const NotesStack = () => (
   <Stack.Navigator>
     <Stack.Screen
-      name="BoardsScreen"
-      component={BoardsScreen}
+      name="NotesScreen"
+      component={NotesScreen}
       options={{
         title: 'Your Notes',
       }}
@@ -284,14 +277,13 @@ const HomeTabs = () => (
         inactiveTintColor: 'gray',
       }}>
       <Tab.Screen name="Home" component={HomeStack} />
-      <Tab.Screen name="Notes" component={BoardsStack} />
+      <Tab.Screen name="Notes" component={NotesStack} />
       <Tab.Screen
         name="Create"
         component={CreateScreen}
         listeners={({ navigation }) => ({
           tabPress: (event) => {
             event.preventDefault();
-
             navigation.navigate('PostCreationScreen');
           },
         })}
@@ -466,28 +458,6 @@ const GroundZero = ({ navigation, insets }) => {
             // headerBackground: () => (
             //   <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(255, 255, 255, 0.8)' }]} />
             // ),
-          }}
-          cardStyle={{
-            backgroundColor: 'white',
-          }}
-        />
-
-        <Stack.Screen
-          name="ChatMessageScreen"
-          component={ChatMessageScreen}
-          options={{
-            headerBackTitleVisible: false,
-            headerTintColor: 'black',
-            title: 'Direct Message',
-            headerTransparent: true,
-            headerBackground: () => (
-              <View
-                style={[
-                  StyleSheet.absoluteFill,
-                  { backgroundColor: 'rgba(255, 255, 255, 0.8)' },
-                ]}
-              />
-            ),
           }}
           cardStyle={{
             backgroundColor: 'white',

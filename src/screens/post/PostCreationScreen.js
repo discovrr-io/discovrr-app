@@ -28,15 +28,15 @@ import ProgressCircle from 'react-native-progress/Circle';
 import RNPopoverMenu from 'react-native-popover-menu';
 import storage from '@react-native-firebase/storage';
 
-import { isAndroid, windowWidth } from './utilities/Constants';
-import { requestPermissionConfig } from './utilities/Permissions';
-import { updateNotes } from './utilities/Actions';
-import ModalActivityIndicatorAlt from './components/ModalActivityIndicatorAlt';
+import { isAndroid, windowWidth } from '../../utilities/Constants';
+import { requestPermissionConfig } from '../../utilities/Permissions';
+import { updateNotes } from '../../utilities/Actions';
+import ModalActivityIndicatorAlt from '../../components/ModalActivityIndicatorAlt';
 
 const Parse = require('parse/react-native');
 const isEqual = require('lodash/isEqual');
 
-const imagePlaceholder = require('../resources/images/imagePlaceholder.png');
+const imagePlaceholder = require('../../../resources/images/imagePlaceholder.png');
 
 const cameraIcon = <MaterialIcon name="camera-alt" color="#000000" size={24} />;
 const photosIcon = (

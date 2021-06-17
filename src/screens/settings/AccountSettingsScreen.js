@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput } from 'react-native';
 
-import { colors, typography, values } from './constants';
+import { colors, typography, values } from '../../constants';
 
 const Parse = require('parse/react-native');
 

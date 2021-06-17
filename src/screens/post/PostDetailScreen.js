@@ -25,7 +25,7 @@ import OneSignal from 'react-native-onesignal';
 import * as Animatable from 'react-native-animatable';
 
 import { connect, useDispatch } from 'react-redux';
-import * as reduxActions from './utilities/Actions';
+import * as reduxActions from '../../utilities/Actions';
 
 import {
   Button,
@@ -33,12 +33,12 @@ import {
   ErrorTabView,
   LoadingTabView,
   PostItemKind,
-} from './components';
-import { PostItemFooter } from './components/PostItem';
-import { colors, messages, values, typography } from './constants';
+} from '../../components';
+import { PostItemFooter } from '../../components/PostItem';
+import { colors, messages, values, typography } from '../../constants';
 
-const imagePlaceholder = require('../resources/images/imagePlaceholder.png');
-const defaultAvatar = require('../resources/images/defaultAvatar.jpeg');
+const imagePlaceholder = require('../../../resources/images/imagePlaceholder.png');
+const defaultAvatar = require('../../../resources/images/defaultAvatar.jpeg');
 
 const Parse = require('parse/react-native');
 

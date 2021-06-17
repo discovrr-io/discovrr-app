@@ -14,10 +14,10 @@ import { connect } from 'react-redux';
 import FastImage from 'react-native-fast-image';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 
-import { EmptyTabView, ErrorTabView, LoadingTabView } from './components';
-import { colors, typography, values } from './constants';
+import { EmptyTabView, ErrorTabView, LoadingTabView } from '../../components';
+import { colors, typography, values } from '../../constants';
 
-const defaultAvatar = require('../resources/images/defaultAvatar.jpeg');
+const defaultAvatar = require('../../../resources/images/defaultAvatar.jpeg');
 const Parse = require('parse/react-native');
 
 async function fetchData(userProfile, selector) {

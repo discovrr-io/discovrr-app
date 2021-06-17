@@ -10,8 +10,10 @@ import {
   LoadingTabView,
   PostItem,
   PostItemKind,
-} from './components';
-import { colors, values } from './constants';
+} from '../../components';
+import { colors, values } from '../../constants';
+
+const imagePlaceholder = require('../../../resources/images/imagePlaceholder.png');
 
 const Parse = require('parse/react-native');
 

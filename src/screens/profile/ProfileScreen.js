@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
   Alert,
   RefreshControl,
-  SafeAreaView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -30,11 +29,11 @@ import {
   PostItem,
   PostItemKind,
   ToggleButton,
-} from './components';
-import { colors, typography, values } from './constants';
+} from '../../components';
+import { colors, typography, values } from '../../constants';
 
-const imagePlaceholder = require('../resources/images/imagePlaceholder.png');
-const defaultAvatar = require('../resources/images/defaultAvatar.jpeg');
+const imagePlaceholder = require('../../../resources/images/imagePlaceholder.png');
+const defaultAvatar = require('../../../resources/images/defaultAvatar.jpeg');
 
 const Parse = require('parse/react-native');
 

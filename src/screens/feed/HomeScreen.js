@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import MasonryList from 'react-native-masonry-list';
 
 import { connect, useDispatch } from 'react-redux';
-import * as actions from './utilities/Actions';
+import * as actions from '../../utilities/Actions';
 
 import {
   EmptyTabView,
@@ -13,11 +13,11 @@ import {
   LoadingTabView,
   PostItem,
   PostItemKind,
-} from './components';
-import { colors, values } from './constants';
+} from '../../components';
+import { colors, values } from '../../constants';
 
 const isDevMode = process.env.NODE_ENV === 'development';
-const imagePlaceholder = require('../resources/images/imagePlaceholder.png');
+const imagePlaceholder = require('../../../resources/images/imagePlaceholder.png');
 
 const Parse = require('parse/react-native');
 
