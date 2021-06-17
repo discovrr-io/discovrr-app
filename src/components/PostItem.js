@@ -68,15 +68,11 @@ async function getCurrentUserName() {
 }
 
 /**
- * @param {{
- *   post: import('../features/posts/postsSlice').Post,
- *   options?: {
- *     largeIcons?: boolean,
- *     showActions?: boolean,
- *     showShareIcon?: boolean
- *   },
- * }} param0
- * @returns
+ * @typedef {import('../features/posts/postsSlice').Post} Post
+ * @typedef {{ largeIcons?: boolean, showActions?: boolean, showShareIcon?: boolean }} FooterOptions
+ * @typedef {{ post: Post, options?: FooterOptions }} PostItemFooterProps
+ *
+ * @param {PostItemFooterProps & import('react-native').ViewProps} param0
  */
 export const PostItemFooter = ({
   post,
@@ -289,7 +285,8 @@ const postItemFooterStyles = StyleSheet.create({
     alignItems: 'center',
   },
   authorName: {
-    flex: 1,
+    flexGrow: 1,
+    flexShrink: 1,
     marginLeft: values.spacing.sm * 1.5,
     color: colors.black,
   },
@@ -307,6 +304,21 @@ const postItemFooterStyles = StyleSheet.create({
   },
 });
 
+/**
+ * @typedef {import('../features/posts/postsSlice').PostId} PostId
+ * @typedef {import('../features/posts/postsSlice').PostType} PostType
+ * @typedef {{
+ *   postId: PostId,
+ *   type: PostType,
+ *   column?: number,
+ *   imagePreview?: Object,
+ *   imagePreviewDimensions?: { height: number, width: number },
+ *   displayFooter?: boolean,
+ *   footerOptions: FooterOptions
+ * }} PostItemProps
+ *
+ * @param {PostItemProps & import('react-native').ViewProps} param0
+ */
 const PostItem = ({
   postId,
   type = 'text',
@@ -323,17 +335,12 @@ const PostItem = ({
 }) => {
   /** @type {import('../features/posts/postsSlice').Post | undefined} */
   const post = useSelector((state) => selectPostById(state, postId));
-  const text = post.caption;
-
-  if (!post) {
-    console.warn('Cannot find post with id:', postId);
-    return null;
-  }
+  const caption = post.caption;
 
   const onPressPost = () => {};
 
   const PostItemContent = ({ onPressPost, ...props }) => {
-    const PostItemContentCaption = ({ text, maxWidth }) => {
+    const PostItemContentCaption = ({ caption, maxWidth }) => {
       return (
         <Text
           style={{
@@ -341,12 +348,12 @@ const PostItem = ({
             fontWeight: '600',
             fontSize: typography.size.xs,
             marginTop: values.spacing.sm,
-            marginHorizontal: values.spacing.xs * 0.5,
+            marginHorizontal: values.spacing.sm,
             color: colors.gray700,
           }}
           numberOfLines={2}
           ellipsizeMode="tail">
-          {text}
+          {caption}
         </Text>
       );
     };
@@ -369,14 +376,13 @@ const PostItem = ({
               numberOfLines={6}
               ellipsizeMode="tail"
               style={postItemStyles.dialogBoxText}>
-              {text.trim()}
+              {caption}
             </Text>
           </View>
         );
       case 'video' /* FALLTHROUGH */:
         console.warn(
-          '`PostItemKind.VIDEO` has been deprecated.',
-          'Defaulting to `PostItemKind.MEDIA`...',
+          `Unimplemented: 'video' post item. Defaulting to 'images'...`,
         );
       case 'images':
         const { width, height } = imagePreviewDimensions;
@@ -392,10 +398,10 @@ const PostItem = ({
                 borderRadius: values.radius.md,
                 borderWidth: 1,
                 borderColor: colors.gray300,
-                backgroundColor: colors.gray100,
+                // backgroundColor: colors.gray100,
               }}
             />
-            <PostItemContentCaption maxWidth={width} text={text} />
+            <PostItemContentCaption maxWidth={width} caption={caption} />
           </View>
         );
       default:
@@ -409,6 +415,7 @@ const PostItem = ({
         {
           maxWidth: imagePreviewDimensions.width,
           marginBottom: values.spacing.lg,
+          marginHorizontal: values.spacing.xs,
         },
         props.style,
       ]}>

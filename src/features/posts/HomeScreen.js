@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { RefreshControl, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, RefreshControl, Text, View } from 'react-native';
 
 import MasonryList from 'react-native-masonry-list';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
@@ -101,6 +101,7 @@ function DiscoverTab() {
           column={data.column}
           imagePreview={data.source}
           imagePreviewDimensions={data.masonryDimensions}
+          footerOptions={{ showActions: true }}
         />
       )}
     />
@@ -125,7 +126,8 @@ function FollowingTab() {
 
 export default function HomeScreen() {
   return (
-    <FeedTab.Navigator>
+    <FeedTab.Navigator
+      tabBarOptions={{ labelStyle: { textTransform: 'none' } }}>
       <FeedTab.Screen name="Discover" component={DiscoverTab} />
       <FeedTab.Screen
         name="NearMe"
