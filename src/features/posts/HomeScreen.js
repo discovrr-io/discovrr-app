@@ -9,6 +9,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { PostItem } from '../../components';
 import { colors, values } from '../../constants';
 import { fetchPosts, selectAllPosts } from './postsSlice';
+import { fetchProfiles, selectAllProfiles } from '../profile/profilesSlice';
+
+const imagePlaceholder = require('../../../resources/images/imagePlaceholder.png');
 
 const FeedTab = createMaterialTopTabNavigator();
 
@@ -29,6 +32,7 @@ function DiscoverTab() {
     const fetchData = async () => {
       setIsProcessing(true);
       await dispatch(fetchPosts(isInitialRender.current || shouldRefresh));
+      // await dispatch(fetchProfiles());
       setIsProcessing(false);
       if (shouldRefresh) setShouldRefresh(false);
     };
@@ -55,8 +59,8 @@ function DiscoverTab() {
     return (
       <View
         style={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <ActivityIndicator size="large" color={color.gray} />
-        <Text style={[font.small, { marginTop: layout.spacing.md }]}>
+        <ActivityIndicator size="large" color={colors.gray} />
+        <Text style={[font.small, { marginTop: values.spacing.md }]}>
           Loading your personalised feed...
         </Text>
       </View>
@@ -65,7 +69,7 @@ function DiscoverTab() {
     return (
       <View
         style={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <Text style={[font.smallBold, { color: color.red500 }]}>
+        <Text style={[{ color: 'red' }]}>
           Failed to fetch posts: {JSON.stringify(fetchError)}
         </Text>
       </View>
@@ -77,12 +81,32 @@ function DiscoverTab() {
       sorted
       rerender
       columns={2}
-      images={posts.map((post) => ({
-        id: post.id,
-        type: post.type,
-        source: post.postPreview.source,
-        dimensions: post.postPreview.dimensions,
-      }))}
+      images={posts.map((post) => {
+        let imagePreviewSource, imagePreviewDimensions;
+        if (!post.media) {
+          imagePreviewSource = imagePlaceholder;
+        } else if (Array.isArray(post.media)) {
+          const firstImage = post.media[0];
+          imagePreviewSource = firstImage ?? imagePlaceholder;
+          imagePreviewDimensions = {
+            width: firstImage?.width ?? 800,
+            height: firstImage?.height ?? 600,
+          };
+        } else {
+          imagePreviewSource = post.media;
+          imagePreviewDimensions = {
+            width: post.media.width ?? 800,
+            height: post.media.height ?? 600,
+          };
+        }
+
+        return {
+          id: post.id,
+          type: post.type,
+          source: imagePreviewSource,
+          dimensions: imagePreviewDimensions,
+        };
+      })}
       listContainerStyle={{ paddingTop: values.spacing.sm }}
       masonryFlatListColProps={{
         refreshControl: (

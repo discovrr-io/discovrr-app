@@ -19,30 +19,16 @@ import { useSelector } from 'react-redux';
 
 import { colors, messages, typography, values } from '../constants';
 import { selectPostById } from '../features/posts/postsSlice';
+import { selectProfileById } from '../features/profile/profilesSlice';
+
+const Parse = require('parse/react-native');
 
 // const imagePlaceholder = require('../../resources/images/imagePlaceholder.png');
 const defaultAvatar = require('../../resources/images/defaultAvatar.jpeg');
 
-const DEFAULT_ACTIVE_OPACITY = 0.6;
-
-const Parse = require('parse/react-native');
-
-const AuthorPropTypes = PropTypes.shape({
-  avatar: PropTypes.oneOfType([
-    PropTypes.shape({ url: PropTypes.string.isRequired }),
-    PropTypes.number,
-  ]),
-  name: PropTypes.string.isRequired,
-});
-
-const MetricsPropTypes = PropTypes.shape({
-  likesCount: PropTypes.number.isRequired,
-  hasLiked: PropTypes.bool.isRequired,
-  hasSaved: PropTypes.bool.isRequired,
-});
-
 const SMALL_ICON = 24;
 const LARGE_ICON = 32;
+const DEFAULT_ACTIVE_OPACITY = 0.6;
 
 const iconSize = {
   small: {
@@ -55,17 +41,17 @@ const iconSize = {
   },
 };
 
-async function getCurrentUserName() {
-  const currentUser = await Parse.User.currentAsync();
-  const profileQuery = new Parse.Query(Parse.Object.extend('Profile'));
-  profileQuery.equalTo('owner', currentUser);
+// async function getCurrentUserName() {
+//   const currentUser = await Parse.User.currentAsync();
+//   const profileQuery = new Parse.Query(Parse.Object.extend('Profile'));
+//   profileQuery.equalTo('owner', currentUser);
 
-  const result = await profileQuery.first();
-  const name = result.get('name');
-  const displayName = result.get('displayName');
+//   const result = await profileQuery.first();
+//   const name = result.get('name');
+//   const displayName = result.get('displayName');
 
-  return (name || displayName) ?? 'Someone';
-}
+//   return (name || displayName) ?? 'Someone';
+// }
 
 /**
  * @typedef {import('../features/posts/postsSlice').Post} Post
@@ -83,10 +69,9 @@ export const PostItemFooter = ({
   const author = { name: 'John Smith' };
   const { metrics } = post;
 
-  // const avatarSource = author.avatar
-  //   ? { uri: author.avatar.url }
-  //   : defaultAvatar;
-  const avatarSource = defaultAvatar;
+  const { avatar, fullName } = useSelector((state) =>
+    selectProfileById(state, post.profileId),
+  );
 
   const [isProcessingLike, setIsProcessingLike] = React.useState(false);
   const [isProcessingSave, setIsProcessingSave] = React.useState(false);
@@ -197,7 +182,7 @@ export const PostItemFooter = ({
               height: avatarIconSize,
               borderRadius: avatarIconSize / 2,
             }}
-            source={avatarSource}
+            source={avatar}
           />
           <Text
             numberOfLines={1}
@@ -206,9 +191,7 @@ export const PostItemFooter = ({
               postItemFooterStyles.authorName,
               { fontSize: authorFontSize },
             ]}>
-            {author.name && !(author.name.length < 0)
-              ? author.name
-              : 'Anonymous'}
+            {fullName || 'Anonymous'}
           </Text>
         </View>
       </TouchableOpacity>

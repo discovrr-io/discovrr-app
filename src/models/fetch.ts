@@ -2,7 +2,7 @@ import { SerializedError } from '@reduxjs/toolkit';
 
 export type FetchLoadingStatus = 'idle' | 'pending' | 'fulfilled' | 'rejected';
 
-export type FetchStatus = {
+export default interface FetchStatus {
   status: FetchLoadingStatus;
   error?: SerializedError;
-};
+}

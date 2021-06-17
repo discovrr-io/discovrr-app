@@ -31,7 +31,7 @@ const persistor = persistStore(store);
 
 export function App() {
   const onBeforeLift = async () => {
-    const storeVersion = '3';
+    const storeVersion = '4';
     try {
       const [[_, previousStoreVersion]] = await AsyncStorage.multiGet([
         'storeVersion',
@@ -51,8 +51,6 @@ export function App() {
         '[App.onBeforeLift] Failed to configure persistor:',
         error,
       ]);
-      AsyncStorage.setItem('storeVersion', storeVersion);
-      persistor.purge().catch(() => {});
     }
   };
 

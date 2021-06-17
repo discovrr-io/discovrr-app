@@ -18,10 +18,12 @@ import {
 
 import authReducer from './features/authentication/authSlice';
 import postsReducer from './features/posts/postsSlice';
+import profilesReducer from './features/profile/profilesSlice';
 
 const reducers = combineReducers({
   auth: authReducer,
   posts: postsReducer,
+  profiles: profilesReducer,
 });
 
 const persistConfig = {

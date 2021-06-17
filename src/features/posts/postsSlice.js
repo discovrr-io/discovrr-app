@@ -6,26 +6,21 @@ import {
 
 import AsyncStorage from '@react-native-community/async-storage';
 
-const imagePlaceholder = require('../../../resources/images/imagePlaceholder.png');
-
 const Parse = require('parse/react-native');
 const EARLIEST_DATE = new Date('2020-10-30');
 
+/**
+ * @typedef {import('../../models').Post} Post
+ * @type {import('@reduxjs/toolkit').EntityAdapter<Post>}
+ */
 const postsAdapter = createEntityAdapter({
   // Sort by newest post (this probably shouldn't be needed)
-  /** @param {Post} a, @param {Post} b */
   sortComparer: (a, b) => b.createdAt.localeCompare(a.createdAt),
 });
 
 /**
- * @typedef {import('@reduxjs/toolkit').EntityId} PostId
- * @typedef {import('../authentication/authSlice').ProfileId} ProfileId
- * @typedef {'text'|'images'|'video'} PostType
- * @typedef {{ didSave: boolean, didLike: boolean, totalLikes: number }} PostMetrics
- * @typedef {{ id: PostId, profileId: ProfileId, type: PostType, caption: string, createdAt: string, postPreview?: { source: any, dimensions: { height: number, width: number } }, metrics: PostMetrics }} Post
- *
+ * @typedef {import('../../models').FetchStatus} FetchStatus
  * @typedef {import('@reduxjs/toolkit').EntityState<Post>} PostEntityState
- * @typedef {import('../../constants/api').FetchStatus} FetchStatus
  * @type {PostEntityState & FetchStatus}
  */
 const initialState = postsAdapter.getInitialState({
@@ -41,11 +36,11 @@ export const fetchPosts = createAsyncThunk(
   async (refresh, _) => {
     try {
       console.log('[fetchAllPosts] Fetching posts...');
-      const cachedPosts = await AsyncStorage.getItem('cachedPosts');
 
-      if (!refresh && cachedPosts) {
-        return JSON.parse(cachedPosts);
-      }
+      // const cachedPosts = await AsyncStorage.getItem('cachedPosts');
+      // if (!refresh && cachedPosts) {
+      //   return JSON.parse(cachedPosts);
+      // }
 
       const currentUser = await Parse.User.currentAsync();
       const profileQuery = new Parse.Query(Parse.Object.extend('Profile'));
@@ -72,32 +67,22 @@ export const fetchPosts = createAsyncThunk(
           return !!post.get('profile')?.id;
         })
         .map((post) => {
-          /** @type {PostType} */
+          /** @type {import('../../models/post').PostType} */
           let postType;
-          /** @type {any|null} */
-          let postPreviewSource;
-          /** @type {{ height: number, width: number }} */
-          let postPreviewDimensions;
+          /** @type {import('../../models/post').PostMedia} */
+          let postMedia = [];
 
-          /** @type {any[]} */
+          /** @type {{ width: number, height: number, url: string }[]} */
           const media = post.get('media') ?? [];
 
           if (media.length === 0) {
             postType = 'text';
-            postPreviewSource = imagePlaceholder;
-            postPreviewDimensions = { height: 600, width: 800 };
           } else if (media.length === 1 && media[0].type !== 'image') {
             postType = 'video';
-            postPreviewSource = imagePlaceholder;
-            postPreviewDimensions = { height: 600, width: 800 };
+            postMedia = [{ ...media[0], uri: media[0].url }];
           } else {
-            const imagePreview = media[0];
             postType = 'images';
-            postPreviewSource = imagePreview;
-            postPreviewDimensions = {
-              width: imagePreview.width ?? 800,
-              height: imagePreview.height ?? 600,
-            };
+            postMedia = media.map((it) => ({ ...it, uri: it.url }));
           }
 
           const likersArray = post.get('likersArray') ?? [];
@@ -109,19 +94,17 @@ export const fetchPosts = createAsyncThunk(
           return {
             id: post.id,
             profileId: post.get('profile')?.id,
+            createdAt: post.createdAt.toJSON(),
             type: postType,
             caption: post.get('caption') ?? '',
-            createdAt: post.createdAt.toJSON(),
-            postPreview: {
-              source: postPreviewSource,
-              dimensions: postPreviewDimensions,
-            },
+            media: postMedia,
+            location: post.get('location'),
             metrics: { didSave: false, didLike, totalLikes },
           };
         });
 
+      // await AsyncStorage.setItem('cachedPosts', JSON.stringify(posts));
       console.log('[fetchAllPosts] Finished fetching posts');
-      await AsyncStorage.setItem('cachedPosts', JSON.stringify(posts));
       return posts;
     } catch (error) {
       console.error('[fetchAllPosts] Failed to fetch posts:', error);
@@ -135,9 +118,11 @@ const postsSlice = createSlice({
   initialState,
   reducers: {
     /**
-     * @param {import('@reduxjs/toolkit').PayloadAction<{ postId: PostId, didLike: boolean }>} action
+     * @typedef {import('../../models').PostId} PostId
+     * @typedef {{ postId: PostId, didLike: boolean }} Payload
+     * @param {import('@reduxjs/toolkit').PayloadAction<Payload>} action
      */
-    postLiked: (state, action) => {
+    postLikeStatusChanged: (state, action) => {
       const { postId, didLike } = action.payload;
       const existingPost = state.entities[postId];
       if (existingPost && existingPost.metrics) {
@@ -163,7 +148,7 @@ const postsSlice = createSlice({
   },
 });
 
-export const { postLiked } = postsSlice.actions;
+export const { postLikeStatusChanged } = postsSlice.actions;
 
 // Generated selectors with new names
 export const {

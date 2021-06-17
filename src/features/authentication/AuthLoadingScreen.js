@@ -33,23 +33,23 @@ async function setUpOneSignal() {
 
 function setUpOneSignalHandlers() {
   OneSignal.promptForPushNotificationsWithUserResponse((response) => {
-    console.log('[OneSignal]: Permission to push notifications:', response);
+    console.log('[OneSignal] Permission to push notifications:', response);
   });
 
   OneSignal.setNotificationWillShowInForegroundHandler((event) => {
-    console.log('[OneSignal]: Notification will show in foreground:', event);
+    console.log('[OneSignal] Notification will show in foreground:', event);
   });
 
   OneSignal.setNotificationOpenedHandler((notification) => {
-    console.log('[OneSignal]: Notification opened:', notification);
+    console.log('[OneSignal] Notification opened:', notification);
   });
 
   OneSignal.setInAppMessageClickHandler((event) => {
-    console.log('[OneSignal]: In-app message clicked:', event);
+    console.log('[OneSignal] In-app message clicked:', event);
   });
 
   OneSignal.addPermissionObserver((event) => {
-    console.log('[OneSignal]: Permission changed:', event);
+    console.log('[OneSignal] Permission changed:', event);
   });
 }
 
@@ -105,7 +105,7 @@ function sendOneSignalTags(user) {
     });
 
     OneSignal.setExternalUserId(userId, (results) => {
-      console.log('[OneSignal]: Result of setting external id:', results);
+      console.log('[OneSignal] Result of setting external id:', results);
     });
   } else {
     console.warn('One of the following required fields is not defined:', {
