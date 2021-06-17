@@ -17,7 +17,7 @@ import { rootReducer } from './utilities/Reducers';
 import AuthLoadingScreen from './screens/auth/AuthLoadingScreen';
 import debugAppLogger from './utilities/DebugAppLogger';
 
-Bugsnag.start({});
+Bugsnag.start();
 
 global.debugAppLogger = () => {};
 const disableDebugAppLogger = false;

@@ -21,15 +21,15 @@ import { IconButton, Portal } from 'react-native-paper';
 
 import { connect } from 'react-redux';
 
-import HomeScreen from './screens/feed/HomeScreen';
-import NotesScreen from './screens/notes/NotesScreen';
-import NoteDetailScreen from './screens/notes/NoteDetailScreen';
-import PostCreationScreen from './screens/post/PostCreationScreen';
-import PostDetailScreen from './screens/post/PostDetailScreen';
-import ProfileScreen from './screens/profile/ProfileScreen';
-import ProfileEditScreen from './screens/profile/ProfileEditScreen';
-import FollowerScreen from './screens/profile/FollowerScreen';
-import AccountSettingsScreen from './screens/settings/AccountSettingsScreen';
+import HomeScreen from './features/feed/HomeScreen';
+import NotesScreen from './features/notes/NotesScreen';
+import NoteDetailScreen from './features/notes/NoteDetailScreen';
+import PostCreationScreen from './features/post/PostCreationScreen';
+import PostDetailScreen from './features/post/PostDetailScreen';
+import ProfileScreen from './features/profile/ProfileScreen';
+import ProfileEditScreen from './features/profile/ProfileEditScreen';
+import FollowerScreen from './features/profile/FollowerScreen';
+import AccountSettingsScreen from './features/settings/AccountSettingsScreen';
 import BottomSheetPanel from './components/BottomSheetPanel';
 
 import { isAndroid, windowWidth } from './utilities/Constants';
