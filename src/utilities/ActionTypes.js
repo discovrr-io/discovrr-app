@@ -1,5 +1,3 @@
-
-
 export const LOG_IN_SUCCEEDED = 'LOG_IN_SUCCEEDED';
 export const LOG_OUT = 'LOG_OUT';
 

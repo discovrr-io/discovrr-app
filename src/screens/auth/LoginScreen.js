@@ -13,7 +13,6 @@ import {
   TouchableWithoutFeedback,
   View,
   ScrollView,
-  Platform,
 } from 'react-native';
 
 import { connect, useDispatch } from 'react-redux';
@@ -221,7 +220,7 @@ async function loginFirebaseUser(dispatcher, firebaseUser) {
     query.equalTo('owner', currentUser);
 
     const profile = await query.first();
-    console.log('[LoginScreen] Found Parse profile:', profile);
+    console.log('[LoginScreen] Found Parse profile:', profile.id);
 
     let syncProfile = false;
 

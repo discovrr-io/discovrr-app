@@ -314,13 +314,7 @@ class AppDrawer extends Component {
                     <MaterialIcon name="settings" size={size} color="black" />
                   )}
                   label="Account Settings"
-                  // onPress={this.goToScreen('AccountSettingsScreen')}
-                  onPress={() =>
-                    Alert.alert(
-                      'Feature Unavailable',
-                      "Sorry, this feature isn't available at the moment.",
-                    )
-                  }
+                  onPress={this.goToScreen('AccountSettingsScreen')}
                 />
               </Drawer.Section>
 

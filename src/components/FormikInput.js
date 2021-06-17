@@ -69,8 +69,4 @@ const formikInputStyles = StyleSheet.create({
   textInputContainer: {
     marginBottom: layout.spacing.lg,
   },
-  noAccountText: {
-    marginTop: layout.spacing.lg,
-    textAlign: 'center',
-  },
 });
