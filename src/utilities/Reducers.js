@@ -1,6 +1,4 @@
-import {
-  combineReducers,
-} from 'redux';
+import { combineReducers } from 'redux';
 
 import * as ActionTypes from './ActionTypes';
 
@@ -181,7 +179,11 @@ const localization = (state = initialLocalization, action) => {
     case ActionTypes.CHANGE_LANGUAGE:
       return { ...state, selectedLanguage: action.newData };
     case ActionTypes.UPDATE_LOCALIZATION:
-      return { ...state, languages: action.languages, translations: action.translations };
+      return {
+        ...state,
+        languages: action.languages,
+        translations: action.translations,
+      };
     default:
       return state;
   }

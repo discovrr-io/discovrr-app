@@ -59,7 +59,7 @@ import Slider from '@react-native-community/slider';
 import storage from '@react-native-firebase/storage';
 
 import ModalActivityIndicatorAlt from './ModalActivityIndicatorAlt';
-import PostCreationScreen from '../screens/post/PostCreationScreen';
+import PostCreationScreen from '../features/posts/PostCreationScreen';
 import { requestPermissionConfig } from '../utilities/Permissions';
 import { saveLocationPreference } from '../utilities/Actions';
 import { showOnMap } from '../utilities/LinkingActions';

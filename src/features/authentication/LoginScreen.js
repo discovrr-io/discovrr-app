@@ -36,6 +36,7 @@ import { Button, FormikInput } from '../../components';
 import { colors, typography, values } from '../../constants';
 import * as buttonStyles from '../../components/buttons/styles';
 import * as actions from '../../utilities/Actions';
+import { signInWithEmailAndPassword } from './authSlice';
 
 const Parse = require('parse/react-native');
 
@@ -317,18 +318,16 @@ function LoginForm({ setFormType }) {
 
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleLoginWithEmailAndPassword = async ({ email, password }) => {
+  /**
+   *
+   * @param {{ email: string, password: string }} loginValues
+   */
+  const handleLoginWithEmailAndPassword = async (loginValues) => {
     try {
       console.log('[LoginForm] Starting login process...');
       setIsProcessing(true);
-
-      const { user: firebaseUser } = await auth().signInWithEmailAndPassword(
-        email,
-        password,
-      );
-
-      console.log('[LoginForm] Signed in Firebase user:', firebaseUser);
-      await loginFirebaseUser(dispatch, firebaseUser);
+      await dispatch(signInWithEmailAndPassword(loginValues));
+      console.log('[LoginForm] Successfully signed in with email and password');
     } catch (error) {
       console.error(`[LoginForm] Login error (${error.code}):`, error.message);
       const { title, message } = authErrorMessage(error);
@@ -756,13 +755,8 @@ function LoginScreen({}) {
         <View
           style={{
             position: 'absolute',
-            bottom: values.spacing.lg,
-            // minWidth: screenWidth * 0.9,
-            // maxWidth: screenWidth,
+            bottom: values.spacing.xxl * 1.5,
             flexDirection: 'row',
-            // alignContent: 'center',
-            // alignSelf: 'center',
-            // justifyContent: 'space-evenly',
           }}>
           {appleAuth.isSupported && (
             <AppleButton
@@ -773,7 +767,6 @@ function LoginScreen({}) {
             />
           )}
           <GoogleSigninButton
-            // disabled={isProcessing}
             size={GoogleSigninButton.Size.Wide}
             style={{ width: 192, height: 48 }}
             onPress={!isProcessing ? handleSignInWithGoogle : () => {}}
@@ -840,4 +833,4 @@ const loginScreenStyles = StyleSheet.create({
   },
 });
 
-export default connect()(LoginScreen);
+export default LoginScreen;

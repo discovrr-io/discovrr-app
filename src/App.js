@@ -2,20 +2,17 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
 
+import AsyncStorage from '@react-native-community/async-storage';
 import Bugsnag from '@bugsnag/react-native';
 import codePush from 'react-native-code-push';
 
-import autoMergeLevel2 from 'redux-persist/lib/stateReconciler/autoMergeLevel2';
-import AsyncStorage from '@react-native-community/async-storage';
-import { PersistGate } from 'redux-persist/integration/react';
-import { persistReducer, persistStore } from 'redux-persist';
-
 import { Provider } from 'react-redux';
-import { createStore } from 'redux';
+import { PersistGate } from 'redux-persist/integration/react';
+import { persistStore } from 'redux-persist';
 
-import { rootReducer } from './utilities/Reducers';
-import AuthLoadingScreen from './screens/auth/AuthLoadingScreen';
+import AuthLoadingScreen from './features/authentication/AuthLoadingScreen';
 import debugAppLogger from './utilities/DebugAppLogger';
+import store from './store';
 
 Bugsnag.start();
 
@@ -26,22 +23,11 @@ if (process.env.NODE_ENV === 'development') {
   if (!disableDebugAppLogger) global.debugAppLogger = debugAppLogger;
 }
 
-const persistedReducer = persistReducer(
-  {
-    storage: AsyncStorage,
-    key: 'root',
-    stateReconciler: autoMergeLevel2,
-    blacklist: ['appContext', 'networkState'],
-  },
-  rootReducer,
-);
-
-export const store = createStore(persistedReducer);
-const persistor = persistStore(store);
-
 const theme = {
   ...DefaultTheme,
 };
+
+const persistor = persistStore(store);
 
 export function App() {
   const onBeforeLift = async () => {
@@ -51,10 +37,10 @@ export function App() {
         'storeVersion',
       ]);
 
-      console.log('[App.onBeforeLift] [storeVersion, previousStoreVersion]:', [
+      console.log(
+        '[App.onBeforeLift] previousStoreVersion:',
         previousStoreVersion,
-        storeVersion,
-      ]);
+      );
 
       if (previousStoreVersion !== storeVersion) {
         AsyncStorage.setItem('storeVersion', storeVersion);

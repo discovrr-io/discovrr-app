@@ -1,9 +1,9 @@
 import React, { useEffect, useRef } from 'react';
-import { StatusBar } from 'react-native';
+import { StatusBar, View, Text } from 'react-native';
 
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createStackNavigator } from '@react-navigation/stack';
-import { connect } from 'react-redux';
+import { connect, useSelector } from 'react-redux';
 
 import AsyncStorage from '@react-native-community/async-storage';
 import OneSignal from 'react-native-onesignal';
@@ -53,12 +53,19 @@ function setUpOneSignalHandlers() {
   });
 }
 
-async function setUpOneSignalUserDetails(userDetails) {
+/**
+ * @param {import('./authSlice').User} user
+ */
+async function setUpOneSignalUserDetails(user) {
   const { userId: currentPlayerId } = await OneSignal.getDeviceState();
-  await setOneSignalPlayerId(currentPlayerId, userDetails.profileId);
-  sendOneSignalTags(userDetails);
+  await setOneSignalPlayerId(currentPlayerId, user.profile.id);
+  sendOneSignalTags(user);
 }
 
+/**
+ * @param {string} currentPlayerId
+ * @param {string} profileId
+ */
 async function setOneSignalPlayerId(currentPlayerId, profileId) {
   try {
     const Profile = Parse.Object.extend('Profile');
@@ -82,8 +89,11 @@ async function setOneSignalPlayerId(currentPlayerId, profileId) {
   }
 }
 
-function sendOneSignalTags(userDetails) {
-  const { userId, profileId, email, name, locationPreference } = userDetails;
+/**
+ * @param {import('./authSlice').User} user
+ */
+function sendOneSignalTags(user) {
+  const { id: profileId, userId, email, fullName } = user.profile;
 
   if (userId && profileId && email) {
     // We'll send both userId and profileId for convenience
@@ -91,8 +101,7 @@ function sendOneSignalTags(userDetails) {
       userId,
       profileId,
       email,
-      name,
-      locationPreference,
+      fullName,
     });
 
     OneSignal.setExternalUserId(userId, (results) => {
@@ -107,7 +116,11 @@ function sendOneSignalTags(userDetails) {
   }
 }
 
-function AuthLoadingScreen({ isAuthenticated, userDetails }) {
+export default function AuthLoadingScreen() {
+  /** @type {import('./authSlice').AuthState} */
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
+  console.log('[AuthLoadingScreen] isAuthenticated?', isAuthenticated);
+
   const didSetUpOneSignal = useRef(false);
 
   useEffect(() => {
@@ -120,7 +133,7 @@ function AuthLoadingScreen({ isAuthenticated, userDetails }) {
 
     if (isAuthenticated) {
       console.log('[AuthLoadingScreen] Will set up OneSignal user details...');
-      setUpOneSignalUserDetails(userDetails);
+      setUpOneSignalUserDetails(user);
     }
   }, []);
 
@@ -137,16 +150,3 @@ function AuthLoadingScreen({ isAuthenticated, userDetails }) {
     </AuthStack.Navigator>
   );
 }
-
-const mapStateToProps = (state) => {
-  const { userState } = state;
-
-  // console.warn('USER_STATE:', userState);
-
-  return {
-    userDetails: userState.userDetails,
-    isAuthenticated: userState.isLoggedIn === 'signedIn',
-  };
-};
-
-export default connect(mapStateToProps)(AuthLoadingScreen);

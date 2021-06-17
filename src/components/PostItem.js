@@ -15,10 +15,10 @@ import OneSignal from 'react-native-onesignal';
 import * as Animatable from 'react-native-animatable';
 
 import { useNavigation } from '@react-navigation/native';
-import { useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 import { colors, messages, typography, values } from '../constants';
-import * as actions from '../utilities/Actions';
+import { selectPostById } from '../features/posts/postsSlice';
 
 // const imagePlaceholder = require('../../resources/images/imagePlaceholder.png');
 const defaultAvatar = require('../../resources/images/defaultAvatar.jpeg');
@@ -26,12 +26,6 @@ const defaultAvatar = require('../../resources/images/defaultAvatar.jpeg');
 const DEFAULT_ACTIVE_OPACITY = 0.6;
 
 const Parse = require('parse/react-native');
-
-export const PostItemKind = {
-  TEXT: 'TEXT',
-  MEDIA: 'MEDIA',
-  VIDEO: 'VIDEO', // TODO: Remove
-};
 
 const AuthorPropTypes = PropTypes.shape({
   avatar: PropTypes.oneOfType([
@@ -73,31 +67,41 @@ async function getCurrentUserName() {
   return (name || displayName) ?? 'Someone';
 }
 
+/**
+ * @param {{
+ *   post: import('../features/posts/postsSlice').Post,
+ *   options?: {
+ *     largeIcons?: boolean,
+ *     showActions?: boolean,
+ *     showShareIcon?: boolean
+ *   },
+ * }} param0
+ * @returns
+ */
 export const PostItemFooter = ({
-  id,
-  author,
-  metrics,
+  post,
   options = { largeIcons: false, showActions: true, showShareIcon: false },
-  onPressSave = async () => {},
   ...props
 }) => {
-  // const dispatch = useDispatch();
   const navigation = useNavigation();
+  const author = { name: 'John Smith' };
+  const { metrics } = post;
 
-  const avatarSource = author.avatar
-    ? { uri: author.avatar.url }
-    : defaultAvatar;
+  // const avatarSource = author.avatar
+  //   ? { uri: author.avatar.url }
+  //   : defaultAvatar;
+  const avatarSource = defaultAvatar;
 
   const [isProcessingLike, setIsProcessingLike] = React.useState(false);
   const [isProcessingSave, setIsProcessingSave] = React.useState(false);
 
-  const [hasSaved, setHasSaved] = React.useState(metrics.hasLiked);
-  const [hasLiked, setHasLiked] = React.useState(metrics.hasLiked);
-  const [likesCount, setLikesCount] = React.useState(metrics.likesCount);
+  const [hasSaved, setHasSaved] = React.useState(metrics.didLike);
+  const [hasLiked, setHasLiked] = React.useState(metrics.didLike);
+  const [likesCount, setLikesCount] = React.useState(metrics.totalLikes);
 
   const handlePressAvatar = () => {
     navigation.push('UserProfileScreen', {
-      userProfile: author,
+      // userProfile: author,
       metrics: metrics,
     });
   };
@@ -108,79 +112,68 @@ export const PostItemFooter = ({
   };
 
   const handlePressLike = async () => {
-    const oldHasLiked = hasLiked;
-    const oldLikesCount = likesCount;
-    setIsProcessingLike(true);
+    console.warn('Unimplemented: handlePressLike');
 
-    try {
-      setHasLiked(!oldHasLiked);
-      setLikesCount((prev) => Math.max(0, prev + (!oldHasLiked ? 1 : -1)));
-
-      await Parse.Cloud.run('likeOrUnlikePost', {
-        postId: id,
-        like: !oldHasLiked,
-      });
-
-      if (!oldHasLiked && author.id) {
-        const Profile = Parse.Object.extend('Profile');
-        const profilePointer = new Profile();
-        profilePointer.id = author.id;
-
-        const oneSignalPlayerIds = profilePointer.get('oneSignalPlayerIds');
-        const currentUserName = await getCurrentUserName();
-
-        if (oneSignalPlayerIds) {
-          const { headings, contents } = messages.someoneLikedPost({
-            person: currentUserName,
-          });
-
-          console.log('Sending liked post notification...');
-          OneSignal.postNotification(
-            JSON.stringify({
-              include_player_ids: oneSignalPlayerIds,
-              headings,
-              contents,
-            }),
-            (success) => {
-              console.log('[OneSignal]: Successfully sent message:', success);
-            },
-            (error) => {
-              console.error('[OneSignal]: Failed to send message:', error);
-            },
-          );
-        }
-      }
-
-      // dispatch(actions.updateLikedPosts(???));
-      console.log(`Successfully ${!oldHasLiked ? 'liked' : 'unliked'} post`);
-    } catch (error) {
-      setHasLiked(oldHasLiked);
-      setLikesCount(oldLikesCount);
-
-      Alert.alert('Sorry, something went wrong. Please try again later.');
-      console.error(
-        `Failed to ${!oldHasLiked ? 'like' : 'unlike'} post: ${error}`,
-      );
-    }
-
-    setIsProcessingLike(false);
+    // const oldHasLiked = hasLiked;
+    // const oldLikesCount = likesCount;
+    // setIsProcessingLike(true);
+    //
+    // try {
+    //   setHasLiked(!oldHasLiked);
+    //   setLikesCount((prev) => Math.max(0, prev + (!oldHasLiked ? 1 : -1)));
+    //
+    //   await Parse.Cloud.run('likeOrUnlikePost', {
+    //     postId: post.id,
+    //     like: !oldHasLiked,
+    //   });
+    //
+    //   if (!oldHasLiked && author.id) {
+    //     const Profile = Parse.Object.extend('Profile');
+    //     const profilePointer = new Profile();
+    //     profilePointer.id = author.id;
+    //
+    //     const oneSignalPlayerIds = profilePointer.get('oneSignalPlayerIds');
+    //     const currentUserName = await getCurrentUserName();
+    //
+    //     if (oneSignalPlayerIds) {
+    //       const { headings, contents } = messages.someoneLikedPost({
+    //         person: currentUserName,
+    //       });
+    //
+    //       console.log('Sending liked post notification...');
+    //       OneSignal.postNotification(
+    //         JSON.stringify({
+    //           include_player_ids: oneSignalPlayerIds,
+    //           headings,
+    //           contents,
+    //         }),
+    //         (success) => {
+    //           console.log('[OneSignal]: Successfully sent message:', success);
+    //         },
+    //         (error) => {
+    //           console.error('[OneSignal]: Failed to send message:', error);
+    //         },
+    //       );
+    //     }
+    //   }
+    //
+    //   // dispatch(actions.updateLikedPosts(???));
+    //   console.log(`Successfully ${!oldHasLiked ? 'liked' : 'unliked'} post`);
+    // } catch (error) {
+    //   setHasLiked(oldHasLiked);
+    //   setLikesCount(oldLikesCount);
+    //
+    //   Alert.alert('Sorry, something went wrong. Please try again later.');
+    //   console.error(
+    //     `Failed to ${!oldHasLiked ? 'like' : 'unlike'} post: ${error}`,
+    //   );
+    // }
+    //
+    // setIsProcessingLike(false);
   };
 
   const handlePressSave = async () => {
-    const oldHasSaved = hasSaved;
-    setIsProcessingSave(true);
-
-    try {
-      await onPressSave(!oldHasSaved, setHasSaved);
-    } catch (error) {
-      setHasSaved(oldHasSaved);
-      Alert.alert('Sorry, something went wrong. Please try again later.');
-      console.error(
-        `Failed to ${!oldHasSaved ? 'save' : 'unsave'} post: ${error}`,
-      );
-    }
-
-    setIsProcessingSave(false);
+    console.warn('Unimplemented: handlePressSave');
   };
 
   const avatarIconSize = options.largeIcons
@@ -217,7 +210,9 @@ export const PostItemFooter = ({
               postItemFooterStyles.authorName,
               { fontSize: authorFontSize },
             ]}>
-            {author.name && !(author.length < 0) ? author.name : 'Anonymous'}
+            {author.name && !(author.name.length < 0)
+              ? author.name
+              : 'Anonymous'}
           </Text>
         </View>
       </TouchableOpacity>
@@ -278,9 +273,7 @@ const PostItemFooterOptions = PropTypes.shape({
 });
 
 PostItemFooter.propTypes = {
-  id: PropTypes.any.isRequired,
-  author: AuthorPropTypes.isRequired,
-  metrics: MetricsPropTypes,
+  post: PropTypes.object.isRequired,
   options: PostItemFooterOptions,
 };
 
@@ -315,16 +308,11 @@ const postItemFooterStyles = StyleSheet.create({
 });
 
 const PostItem = ({
-  id,
-  kind,
-  text,
-  author,
-  metrics = { likesCount: 0, isLiked: false, isSaved: false },
+  postId,
+  type = 'text',
   column = 0,
   imagePreview = {},
   imagePreviewDimensions = { width: 1, height: 1 },
-  onPressPost = () => {},
-  onPressSave = () => {},
   displayFooter = true,
   footerOptions = {
     largeIcons: false,
@@ -333,6 +321,17 @@ const PostItem = ({
   },
   ...props
 }) => {
+  /** @type {import('../features/posts/postsSlice').Post | undefined} */
+  const post = useSelector((state) => selectPostById(state, postId));
+  const text = post.caption;
+
+  if (!post) {
+    console.warn('Cannot find post with id:', postId);
+    return null;
+  }
+
+  const onPressPost = () => {};
+
   const PostItemContent = ({ onPressPost, ...props }) => {
     const PostItemContentCaption = ({ text, maxWidth }) => {
       return (
@@ -357,8 +356,8 @@ const PostItem = ({
       if (loadEvent) setIsImageLoaded(true);
     };
 
-    switch (kind) {
-      case PostItemKind.TEXT:
+    switch (post.type) {
+      case 'text':
         return (
           <View
             style={[
@@ -374,12 +373,12 @@ const PostItem = ({
             </Text>
           </View>
         );
-      case PostItemKind.VIDEO /* FALLTHROUGH */:
+      case 'video' /* FALLTHROUGH */:
         console.warn(
           '`PostItemKind.VIDEO` has been deprecated.',
           'Defaulting to `PostItemKind.MEDIA`...',
         );
-      case PostItemKind.MEDIA:
+      case 'images':
         const { width, height } = imagePreviewDimensions;
         return (
           <View style={[props.style]}>
@@ -418,32 +417,20 @@ const PostItem = ({
         onPress={onPressPost}>
         <PostItemContent onPressPost={onPressPost} />
       </TouchableOpacity>
-      {displayFooter && (
-        <PostItemFooter
-          id={id}
-          author={author}
-          metrics={metrics}
-          options={footerOptions}
-          onPressSave={onPressSave}
-        />
-      )}
+      {displayFooter && <PostItemFooter post={post} options={footerOptions} />}
     </View>
   );
 };
 
 PostItem.propTypes = {
-  id: PropTypes.any.isRequired,
-  kind: PropTypes.oneOf(Object.values(PostItemKind)).isRequired,
-  text: PropTypes.string.isRequired, // All posts require some form of text
-  author: AuthorPropTypes.isRequired,
-  metrics: MetricsPropTypes,
+  postId: PropTypes.string.isRequired,
+  type: PropTypes.oneOf(['text', 'images', 'video']),
   column: PropTypes.number,
   imagePreview: PropTypes.oneOfType([PropTypes.object, PropTypes.number]),
   imagePreviewDimensions: PropTypes.shape({
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
   }),
-  onPressPost: PropTypes.func,
   displayFooter: PropTypes.bool,
   footerOptions: PostItemFooterOptions,
 };

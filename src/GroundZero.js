@@ -21,11 +21,11 @@ import { IconButton, Portal } from 'react-native-paper';
 
 import { connect } from 'react-redux';
 
-import HomeScreen from './features/feed/HomeScreen';
+import HomeScreen from './features/posts/HomeScreen';
 import NotesScreen from './features/notes/NotesScreen';
 import NoteDetailScreen from './features/notes/NoteDetailScreen';
-import PostCreationScreen from './features/post/PostCreationScreen';
-import PostDetailScreen from './features/post/PostDetailScreen';
+import PostCreationScreen from './features/posts/PostCreationScreen';
+import PostDetailScreen from './features/posts/PostDetailScreen';
 import ProfileScreen from './features/profile/ProfileScreen';
 import ProfileEditScreen from './features/profile/ProfileEditScreen';
 import FollowerScreen from './features/profile/FollowerScreen';
@@ -64,53 +64,53 @@ const NotificationsScreen = () => (
   </View>
 );
 
-const HomeTopTabs = () => (
-  <TopTab.Navigator
-    lazy
-    allowFontScaling={false}
-    initialRouteName="Discover"
-    // lazyPlaceholder=
-    tabBarOptions={{
-      // activeTintColor: 'red',
-      indicatorStyle: {
-        backgroundColor: '#00D8C6',
-      },
-      labelStyle: {
-        fontSize: 12,
-        textTransform: 'none',
-      },
-    }}>
-    <Tab.Screen
-      name="Discover"
-      component={HomeScreen}
-      initialParams={{
-        postTypes: 'posts',
-      }}
-    />
+// const HomeTopTabs = () => (
+//   <TopTab.Navigator
+//     lazy
+//     allowFontScaling={false}
+//     initialRouteName="Discover"
+//     // lazyPlaceholder=
+//     tabBarOptions={{
+//       // activeTintColor: 'red',
+//       indicatorStyle: {
+//         backgroundColor: '#00D8C6',
+//       },
+//       labelStyle: {
+//         fontSize: 12,
+//         textTransform: 'none',
+//       },
+//     }}>
+//     <Tab.Screen
+//       name="Discover"
+//       component={HomeScreen}
+//       initialParams={{
+//         postTypes: 'posts',
+//       }}
+//     />
 
-    <Tab.Screen
-      name="Near Me"
-      component={HomeScreen}
-      initialParams={{
-        postTypes: 'nearMePosts',
-      }}
-    />
+//     <Tab.Screen
+//       name="Near Me"
+//       component={HomeScreen}
+//       initialParams={{
+//         postTypes: 'nearMePosts',
+//       }}
+//     />
 
-    <Tab.Screen
-      name="Following"
-      component={HomeScreen}
-      initialParams={{
-        postTypes: 'followingPosts',
-      }}
-    />
-  </TopTab.Navigator>
-);
+//     <Tab.Screen
+//       name="Following"
+//       component={HomeScreen}
+//       initialParams={{
+//         postTypes: 'followingPosts',
+//       }}
+//     />
+//   </TopTab.Navigator>
+// );
 
 const HomeStack = () => (
   <Stack.Navigator>
     <Stack.Screen
       name="HomeScreen"
-      component={HomeTopTabs}
+      component={HomeScreen}
       options={({ navigation }) => ({
         headerStyle: {
           elevation: 0,
@@ -140,7 +140,6 @@ const HomeStack = () => (
                   marginLeft: isAndroid ? 0 : undefined,
                 }}
                 onPress={() => navigation.toggleDrawer()}
-                // onPress={() => this.props.navigation.dangerouslyGetParent().dispatch(DrawerActions.toggleDrawer())}
               />
 
               <View
@@ -305,52 +304,56 @@ const GroundZero = ({ navigation, insets }) => {
   const [isModalVisible, setIsModalVisible] = React.useState(true);
   const { width: screenWidth } = useWindowDimensions();
 
+  const InfoModal = () => (
+    <Modal
+      transparent
+      animationType="slide"
+      visible={isModalVisible}
+      onRequestClose={() => setIsModalVisible(false)}>
+      <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.3)' }}>
+        <SafeAreaView
+          style={{
+            flex: 1,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+          <View
+            style={[
+              modalStyles.container,
+              { width: Math.min(screenWidth * 0.85, 360) },
+            ]}>
+            <View style={modalStyles.textContainer}>
+              <Text style={modalStyles.title}>Hi there 👋</Text>
+              <Text style={modalStyles.message}>
+                Cheers for downloading our app!
+              </Text>
+              <Text style={modalStyles.message}>
+                You're one of the first to use Discovrr! We're still working on
+                this app, so please excuse any hiccups you may encounter. In the
+                meantime, don't shy away from creating as many posts and
+                comments as you like! 😀
+              </Text>
+              <Text style={modalStyles.message}>
+                The Discovrr team is here if you have any feedback to provide.
+                Feel free to contact us via email at discovrrapp@gmail.com. We
+                value all feedback you can share!
+              </Text>
+            </View>
+            <Button
+              primary
+              title="Alright that's cool"
+              style={modalStyles.button}
+              onPress={() => setIsModalVisible(false)}
+            />
+          </View>
+        </SafeAreaView>
+      </View>
+    </Modal>
+  );
+
   return (
     <>
-      <Modal
-        transparent
-        animationType="slide"
-        visible={isModalVisible}
-        onRequestClose={() => setIsModalVisible(false)}>
-        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.3)' }}>
-          <SafeAreaView
-            style={{
-              flex: 1,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}>
-            <View
-              style={[
-                modalStyles.container,
-                { width: Math.min(screenWidth * 0.85, 360) },
-              ]}>
-              <View style={modalStyles.textContainer}>
-                <Text style={modalStyles.title}>Hi there 👋</Text>
-                <Text style={modalStyles.message}>
-                  Cheers for downloading our app!
-                </Text>
-                <Text style={modalStyles.message}>
-                  You're one of the first to use Discovrr! We're still working
-                  on this app, so please excuse any hiccups you may encounter.
-                  In the meantime, don't shy away from creating as many posts
-                  and comments as you like! 😀
-                </Text>
-                <Text style={modalStyles.message}>
-                  The Discovrr team is here if you have any feedback to provide.
-                  Feel free to contact us via email at discovrrapp@gmail.com. We
-                  value all feedback you can share!
-                </Text>
-              </View>
-              <Button
-                primary
-                title="Alright that's cool"
-                style={modalStyles.button}
-                onPress={() => setIsModalVisible(false)}
-              />
-            </View>
-          </SafeAreaView>
-        </View>
-      </Modal>
+      {/* <InfoModal /> */}
 
       <Stack.Navigator>
         <Stack.Screen
