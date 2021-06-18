@@ -13,6 +13,7 @@ import { persistStore } from 'redux-persist';
 import AuthLoadingScreen from './features/authentication/AuthLoadingScreen';
 import debugAppLogger from './utilities/DebugAppLogger';
 import store from './store';
+import { createStackNavigator } from '@react-navigation/stack';
 
 Bugsnag.start();
 
@@ -28,6 +29,8 @@ const theme = {
 };
 
 const persistor = persistStore(store);
+
+const Stack = createStackNavigator();
 
 export function App() {
   const onBeforeLift = async () => {
@@ -62,8 +65,18 @@ export function App() {
     ],
     config: {
       screens: {
-        PostDetailScreen: 'post/:id',
-        UserProfileScreen: 'profile/:id',
+        initialRouteName: 'GroundZero',
+        GroundZero: {
+          initialRouteName: 'HomeTabs',
+          screens: {
+            HomeTabs: {
+              screens: {
+                Home: 'home',
+              },
+            },
+            PostDetailScreen: 'post/:postId',
+          },
+        },
       },
     },
   };
