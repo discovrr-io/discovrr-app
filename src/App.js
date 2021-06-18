@@ -71,10 +71,11 @@ export function App() {
           screens: {
             HomeTabs: {
               screens: {
-                Home: 'home',
+                Home: '',
               },
             },
             PostDetailScreen: 'post/:postId',
+            UserProfileScreen: 'profile/:profileId',
           },
         },
       },

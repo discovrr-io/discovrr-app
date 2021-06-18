@@ -15,6 +15,8 @@ import { selectProfileById } from './profilesSlice';
 import { colors, typography, values } from '../../constants';
 import { selectPostsByProfile } from '../posts/postsSlice';
 
+const imagePlaceholder = require('../../../resources/images/imagePlaceholder.png');
+
 const HEADER_MAX_HEIGHT = 320;
 const HEADER_MIN_HEIGHT = 60;
 const AVATAR_IMAGE_RADIUS = 80;
@@ -59,8 +61,6 @@ const metricStyles = StyleSheet.create({
  * @param {ProfileScreenHeaderProps & ViewProps} param0
  */
 function ProfileScreenHeader({ profile, ...props }) {
-  const navigation = useNavigation();
-
   const { fullName, avatar, coverPhoto } = profile;
   const description = profile.description || 'No description';
 
@@ -183,8 +183,8 @@ function ProfilePostsTab({ profileId }) {
         } else {
           imagePreviewSource = post.media[0];
           imagePreviewDimensions = {
-            width: imagePreviewSource.width ?? 800,
-            height: imagePreviewSource.height ?? 600,
+            width: imagePreviewSource?.width ?? 800,
+            height: imagePreviewSource?.height ?? 600,
           };
         }
 

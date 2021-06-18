@@ -470,6 +470,7 @@ const GroundZero = ({ navigation, insets }) => {
         <Stack.Screen
           name="UserProfileScreen"
           component={ProfileScreen}
+          initialParams={{ profileId: 'pElo1qbeeR' }}
           options={{
             headerShown: false,
             headerBackTitleVisible: false,

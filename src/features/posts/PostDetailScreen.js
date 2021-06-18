@@ -175,8 +175,9 @@ const postDetailContentStyles = StyleSheet.create({
     borderTopRightRadius: values.radius.md,
     borderBottomRightRadius: values.radius.md,
     borderWidth: values.border.thin,
-    padding: values.spacing.md * 1.5,
+    padding: values.spacing.md * 1.25,
     marginHorizontal: values.spacing.md,
+    marginBottom: values.spacing.md,
   },
   dialogBoxText: {
     color: colors.black,

@@ -8,6 +8,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer';
 
 import { colors, typography, values } from '../constants';
+import { useNavigation } from '@react-navigation/native';
 
 const AVATAR_DIAMETER = 100;
 const DEFAULT_ACTIVE_OPACITY = 0.8;
@@ -22,7 +23,7 @@ const Divider = () => (
   />
 );
 
-export default function AppDrawer({ ...props }) {
+export default function AppDrawer({ navigation, ...props }) {
   /** @type {import('../features/authentication/authSlice').AuthState} */
   const authState = useSelector((state) => state.auth);
   if (!authState.user) {
@@ -37,7 +38,9 @@ export default function AppDrawer({ ...props }) {
       <View style={{ padding: values.spacing.lg }}>
         <TouchableOpacity
           activeOpacity={DEFAULT_ACTIVE_OPACITY}
-          onPress={() => {}}>
+          onPress={() => {
+            navigation.navigate('UserProfileScreen', { profileId: profile.id });
+          }}>
           <View style={{ alignItems: 'center' }}>
             <FastImage
               source={profile.avatar}
@@ -79,7 +82,7 @@ export default function AppDrawer({ ...props }) {
       <DrawerItem
         label="Profile Settings"
         icon={({ color, size }) => (
-          <Icon name="settings" size={size} color={color} />
+          <Icon name="person" size={size} color={color} />
         )}
         onPress={() => {}}
       />
@@ -93,7 +96,7 @@ export default function AppDrawer({ ...props }) {
       <DrawerItem
         label="Account Settings"
         icon={({ color, size }) => (
-          <Icon name="person" size={size} color={color} />
+          <Icon name="settings" size={size} color={color} />
         )}
         onPress={() => {}}
       />
