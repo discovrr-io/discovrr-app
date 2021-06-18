@@ -1,13 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  Alert,
-  Image,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
@@ -292,8 +285,8 @@ const postItemFooterStyles = StyleSheet.create({
 });
 
 /**
- * @typedef {import('../features/posts/postsSlice').PostId} PostId
- * @typedef {import('../features/posts/postsSlice').PostType} PostType
+ * @typedef {import('../models').PostId} PostId
+ * @typedef {import('../models/post').PostType} PostType
  * @typedef {{
  *   postId: PostId,
  *   type: PostType,

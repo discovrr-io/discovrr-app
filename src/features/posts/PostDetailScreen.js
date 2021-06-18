@@ -1,7 +1,9 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   useWindowDimensions,
+  FlatList,
   KeyboardAvoidingView,
+  LogBox,
   RefreshControl,
   SafeAreaView,
   ScrollView,
@@ -18,18 +20,50 @@ import { useRoute } from '@react-navigation/core';
 import { useNavigation } from '@react-navigation/native';
 import { useSelector } from 'react-redux';
 
-import { Button } from '../../components';
+import {
+  Button,
+  EmptyTabView,
+  ErrorTabView,
+  LoadingTabView,
+  PostComment,
+} from '../../components';
 import { PostItemFooter } from '../../components/PostItem';
 import { colors, typography, values } from '../../constants';
 import { selectPostById } from './postsSlice';
 
-// const imagePlaceholder = require('../../../resources/images/imagePlaceholder.png');
-// const defaultAvatar = require('../../../resources/images/defaultAvatar.jpeg');
+const Parse = require('parse/react-native');
 
-const POST_DETAIL_ICON_SIZE = 32;
-const AVATAR_DIAMETER = POST_DETAIL_ICON_SIZE;
 const TEXT_INPUT_HEIGHT = 35;
-const DEFAULT_ACTIVE_OPACITY = 0.6;
+
+/**
+ * @typedef {import('../../models').Comment} Comment
+ * @param {string} postId
+ * @returns {Promise<Comment[]>}
+ */
+async function fetchCommentsForPost(postId) {
+  const postPointer = {
+    __type: 'Pointer',
+    className: 'Post',
+    objectId: postId,
+  };
+
+  const query = new Parse.Query(Parse.Object.extend('PostComment'));
+  query.equalTo('post', postPointer);
+  query.include('profile');
+
+  const results = await query.find();
+  const comments = results.map((comment) => {
+    return {
+      id: comment.id,
+      postId: comment.get('post').id,
+      profileId: comment.get('profile').id,
+      createdAt: comment.createdAt,
+      message: comment.get('message') ?? '',
+    };
+  });
+
+  return comments;
+}
 
 /**
  * @typedef {import('../../models/common').ImageSource} ImageSource
@@ -156,13 +190,58 @@ const postDetailContentStyles = StyleSheet.create({
 });
 
 /**
- * @typedef {{ post: Post }} PostDetailCommentsProps
+ * @typedef {import('../../models').PostId} PostId
+ * @typedef {{ postId: PostId }} PostDetailCommentsProps
  * @param {PostDetailCommentsProps & ViewProps} param0
  */
-function PostDetailComments({ post, ...props }) {
+function PostDetailComments({ postId, ...props }) {
+  // Ignore warning that FlatList is nested in ScrollView for now
+  LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
+
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = React.useState(null);
+  const [comments, setComments] = useState([]);
+
+  useEffect(() => {
+    const fetchComments = async () => {
+      try {
+        const comments = await fetchCommentsForPost(String(postId));
+        setComments(comments);
+      } catch (error) {
+        console.error('Failed to fetch comments for post:', error);
+        setError(error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (isLoading) fetchComments();
+  }, [isLoading]);
+
   return (
     <View style={[postDetailCommentsStyles.container, props.style]}>
-      <Text>{JSON.stringify(post)}</Text>
+      {isLoading ? (
+        <LoadingTabView
+          message="Loading comments..."
+          style={postDetailCommentsStyles.tabViewContainer}
+        />
+      ) : error ? (
+        <ErrorTabView
+          error={error}
+          style={postDetailCommentsStyles.tabViewContainer}
+        />
+      ) : (
+        <FlatList
+          data={comments}
+          renderItem={({ item: comment }) => <PostComment comment={comment} />}
+          ListEmptyComponent={
+            <EmptyTabView
+              message="No comments. Be the first one!"
+              style={postDetailCommentsStyles.tabViewContainer}
+            />
+          }
+        />
+      )}
     </View>
   );
 }
@@ -233,7 +312,7 @@ export default function PostDetailScreen() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.white }}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'position' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 120 : -100}
@@ -261,7 +340,7 @@ export default function PostDetailScreen() {
               }}
               style={{ marginHorizontal: values.spacing.md }}
             />
-            <PostDetailComments post={post} />
+            <PostDetailComments postId={post.id} />
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

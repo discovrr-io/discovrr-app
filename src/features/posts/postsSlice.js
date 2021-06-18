@@ -1,6 +1,7 @@
 import {
   createAsyncThunk,
   createEntityAdapter,
+  createSelector,
   createSlice,
 } from '@reduxjs/toolkit';
 
@@ -35,7 +36,7 @@ export const fetchPosts = createAsyncThunk(
    */
   async (_refresh, _) => {
     try {
-      console.log('[fetchAllPosts] Fetching posts...');
+      console.log('[fetchPosts] Fetching posts...');
 
       // const cachedPosts = await AsyncStorage.getItem('cachedPosts');
       // if (!refresh && cachedPosts) {
@@ -47,7 +48,7 @@ export const fetchPosts = createAsyncThunk(
       profileQuery.equalTo('owner', currentUser);
 
       const profile = await profileQuery.first();
-      console.log('[fetchAllPosts] Found Parse profile:', profile?.id);
+      console.log('[fetchPosts] Found Parse profile:', profile?.id);
 
       const query = new Parse.Query('Post');
       // query.limit(<LIMIT>);
@@ -104,10 +105,10 @@ export const fetchPosts = createAsyncThunk(
         });
 
       // await AsyncStorage.setItem('cachedPosts', JSON.stringify(posts));
-      console.log('[fetchAllPosts] Finished fetching posts');
+      console.log('[fetchPosts] Finished fetching posts');
       return posts;
     } catch (error) {
-      console.error('[fetchAllPosts] Failed to fetch posts:', error);
+      console.error('[fetchPosts] Failed to fetch posts:', error);
       throw error;
     }
   },
@@ -156,5 +157,11 @@ export const {
   selectById: selectPostById,
   selectIds: selectPostIds,
 } = postsAdapter.getSelectors((state) => state.posts);
+
+// Memoized: selectPostsByProfile(state, profileId)
+export const selectPostsByProfile = createSelector(
+  [selectAllPosts, (_state, profileId) => profileId],
+  (posts, profileId) => posts.filter((post) => post.profileId === profileId),
+);
 
 export default postsSlice.reducer;

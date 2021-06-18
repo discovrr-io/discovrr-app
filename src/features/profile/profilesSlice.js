@@ -29,7 +29,7 @@ export const fetchProfiles = createAsyncThunk(
    */
   async () => {
     try {
-      console.log('[fetchAllProfiles] Fetching profiles...');
+      console.log('[fetchProfiles] Fetching profiles...');
       const query = new Parse.Query('Profile');
       const results = await query.findAll();
       const profiles = results.map((profile) => {
@@ -50,10 +50,10 @@ export const fetchProfiles = createAsyncThunk(
         };
       });
 
-      console.log('[fetchAllProfiles] Finished fetching profiles');
+      console.log('[fetchProfiles] Finished fetching profiles');
       return profiles;
     } catch (error) {
-      console.error('[fetchAllProfiles] Failed to fetch profiles:', error);
+      console.error('[fetchProfiles] Failed to fetch profiles:', error);
       throw error;
     }
   },
