@@ -2,18 +2,13 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 
 const Parse = require('parse/react-native');
+const defaultAvatar = require('../../../resources/images/defaultAvatar.jpeg');
 
 /**
- * @typedef {import('../../constants/api').FetchStatus} FetchStatus
- *
- * @typedef {import('@reduxjs/toolkit').EntityId} ProfileId
- * @typedef {{ type: string, url: string, with: number, height: number }} ProfileAvatar
- * @typedef {{ id: ProfileId, userId: string, fullName: string, username: string, email: string, phone?: string, avatar?: ProfileAvatar, description?: string }} Profile
- * @typedef {{ locationRadius?: number }} UserSettings
- * @typedef {{ provider: string, profile: Profile, settings?: UserSettings }} User
- *
- * @typedef {FetchStatus & { isAuthenticated: boolean; user?: User }} AuthState
- * @type {AuthState}
+ * @typedef {import('../../models').User} User
+ * @typedef {import('../../models').FetchStatus} FetchStatus
+ * @typedef {{ isAuthenticated: boolean, user?: User }} AuthState
+ * @type {AuthState & FetchStatus}
  */
 const initialState = {
   status: 'idle',
@@ -25,23 +20,27 @@ const initialState = {
  * @param {FirebaseAuthTypes.User} firebaseUser
  * @returns {User}
  */
-const constructUser = (profile, firebaseUser) => ({
-  provider: firebaseUser.providerId,
-  profile: {
-    id: profile.id,
-    userId: profile.get('owner').id,
-    fullName:
-      profile.get('fullName') ??
-      profile.get('name') ??
-      profile.get('displayName') ??
-      firebaseUser.displayName,
-    username: profile.get('username'),
-    email: profile.get('email') ?? firebaseUser.email,
-    phone: profile.get('phone'),
-    avatar: profile.get('avatar'),
-    description: profile.get('description'),
-  },
-});
+const constructUser = (profile, firebaseUser) => {
+  const avatar = profile.get('avatar');
+  return {
+    provider: firebaseUser.providerId,
+    profile: {
+      id: profile.id,
+      userId: profile.get('owner').id,
+      fullName:
+        profile.get('fullName') ??
+        profile.get('name') ??
+        profile.get('displayName') ??
+        firebaseUser.displayName,
+      username: profile.get('username'),
+      email: profile.get('email') ?? firebaseUser.email,
+      phone: profile.get('phone'),
+      avatar: avatar ? { ...avatar, uri: avatar.url } : defaultAvatar,
+      description: profile.get('description'),
+      oneSignalPlayerIds: profile.get('oneSignalPlayerIds'),
+    },
+  };
+};
 
 /**
  * @param {Parse.Object<Parse.Attributes>} profile

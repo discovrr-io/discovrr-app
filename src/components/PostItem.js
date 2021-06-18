@@ -15,11 +15,14 @@ import OneSignal from 'react-native-onesignal';
 import * as Animatable from 'react-native-animatable';
 
 import { useNavigation } from '@react-navigation/native';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
-import { colors, messages, typography, values } from '../constants';
-import { selectPostById } from '../features/posts/postsSlice';
+import {
+  selectPostById,
+  postLikeStatusChanged,
+} from '../features/posts/postsSlice';
 import { selectProfileById } from '../features/profile/profilesSlice';
+import { colors, typography, values } from '../constants';
 
 const Parse = require('parse/react-native');
 
@@ -41,18 +44,6 @@ const iconSize = {
   },
 };
 
-// async function getCurrentUserName() {
-//   const currentUser = await Parse.User.currentAsync();
-//   const profileQuery = new Parse.Query(Parse.Object.extend('Profile'));
-//   profileQuery.equalTo('owner', currentUser);
-
-//   const result = await profileQuery.first();
-//   const name = result.get('name');
-//   const displayName = result.get('displayName');
-
-//   return (name || displayName) ?? 'Someone';
-// }
-
 /**
  * @typedef {import('../features/posts/postsSlice').Post} Post
  * @typedef {{ largeIcons?: boolean, showActions?: boolean, showShareIcon?: boolean }} FooterOptions
@@ -65,12 +56,21 @@ export const PostItemFooter = ({
   options = { largeIcons: false, showActions: true, showShareIcon: false },
   ...props
 }) => {
-  const navigation = useNavigation();
+  const dispatch = useDispatch();
 
-  /** @type {import('../features/authentication/authSlice').Profile | undefined} */
+  /** @type {import('../models').Profile | undefined} */
   const profile = useSelector((state) =>
     selectProfileById(state, post.profileId),
   );
+
+  /** @type {import('../features/authentication/authSlice').AuthState} */
+  const { isAuthenticated, user: currentUser } = useSelector(
+    (state) => state.auth,
+  );
+
+  if (!isAuthenticated) {
+    console.warn('[PostItemFooter] Current user is not authenticated');
+  }
 
   /**
    * @typedef {import('../features/authentication/authSlice').ProfileAvatar} ProfileAvatar
@@ -79,83 +79,82 @@ export const PostItemFooter = ({
   const { avatar = defaultAvatar, fullName = 'Anonymous' } = profile || {};
 
   const [isProcessingLike, setIsProcessingLike] = React.useState(false);
-  const [isProcessingSave, setIsProcessingSave] = React.useState(false);
+  const [isProcessingSave, _setIsProcessingSave] = React.useState(false);
 
-  const [hasSaved, setHasSaved] = React.useState(post.metrics.didLike);
-  const [hasLiked, setHasLiked] = React.useState(post.metrics.didLike);
-  const [likesCount, setLikesCount] = React.useState(post.metrics.totalLikes);
+  const didLike = post.metrics.didLike;
+  const didSave = post.metrics.didSave;
+  const totalLikes = post.metrics.totalLikes;
 
-  const handlePressAvatar = () => {
-    navigation.push('UserProfileScreen', {
-      // userProfile: author,
-      metrics: post.metrics,
-    });
-  };
-
-  const handlePressShare = async () => {
-    // console.warn('Unimplemented: handlePressShare');
-    await onPressSave();
-  };
+  const handlePressAvatar = () => {};
+  const handlePressShare = () => {};
 
   const handlePressLike = async () => {
-    console.warn('Unimplemented: handlePressLike');
+    try {
+      const newDidLike = !didLike;
+      console.log(
+        `[PostItemFooter.handlePressLike] Will ${
+          newDidLike ? 'like' : 'unlike'
+        } post...`,
+      );
 
-    // const oldHasLiked = hasLiked;
-    // const oldLikesCount = likesCount;
-    // setIsProcessingLike(true);
-    //
-    // try {
-    //   setHasLiked(!oldHasLiked);
-    //   setLikesCount((prev) => Math.max(0, prev + (!oldHasLiked ? 1 : -1)));
-    //
-    //   await Parse.Cloud.run('likeOrUnlikePost', {
-    //     postId: post.id,
-    //     like: !oldHasLiked,
-    //   });
-    //
-    //   if (!oldHasLiked && author.id) {
-    //     const Profile = Parse.Object.extend('Profile');
-    //     const profilePointer = new Profile();
-    //     profilePointer.id = author.id;
-    //
-    //     const oneSignalPlayerIds = profilePointer.get('oneSignalPlayerIds');
-    //     const currentUserName = await getCurrentUserName();
-    //
-    //     if (oneSignalPlayerIds) {
-    //       const { headings, contents } = messages.someoneLikedPost({
-    //         person: currentUserName,
-    //       });
-    //
-    //       console.log('Sending liked post notification...');
-    //       OneSignal.postNotification(
-    //         JSON.stringify({
-    //           include_player_ids: oneSignalPlayerIds,
-    //           headings,
-    //           contents,
-    //         }),
-    //         (success) => {
-    //           console.log('[OneSignal]: Successfully sent message:', success);
-    //         },
-    //         (error) => {
-    //           console.error('[OneSignal]: Failed to send message:', error);
-    //         },
-    //       );
-    //     }
-    //   }
-    //
-    //   // dispatch(actions.updateLikedPosts(???));
-    //   console.log(`Successfully ${!oldHasLiked ? 'liked' : 'unliked'} post`);
-    // } catch (error) {
-    //   setHasLiked(oldHasLiked);
-    //   setLikesCount(oldLikesCount);
-    //
-    //   Alert.alert('Sorry, something went wrong. Please try again later.');
-    //   console.error(
-    //     `Failed to ${!oldHasLiked ? 'like' : 'unlike'} post: ${error}`,
-    //   );
-    // }
-    //
-    // setIsProcessingLike(false);
+      setIsProcessingLike(true);
+      dispatch(postLikeStatusChanged({ postId: post.id, didLike: newDidLike }));
+
+      await Parse.Cloud.run('likeOrUnlikePost', {
+        postId: post.id,
+        like: newDidLike,
+      });
+      console.log(
+        `[PostItemFooter.handlePressLike] Successfully ${
+          newDidLike ? 'liked' : 'unliked'
+        } post`,
+      );
+
+      // Only send notification if current user liked the post
+      if (newDidLike && isAuthenticated && currentUser) {
+        const { fullName } = currentUser.profile;
+        const recipientPlayerIds = profile.oneSignalPlayerIds;
+
+        if (recipientPlayerIds && recipientPlayerIds.length > 0) {
+          const notificationParams = JSON.stringify({
+            include_player_ids: recipientPlayerIds,
+            headings: { en: `${fullName} liked your post` },
+            contents: { en: `Looks like you're getting popular! 😎` },
+          });
+
+          console.log(
+            'Will send notification with params:',
+            notificationParams,
+          );
+
+          OneSignal.postNotification(
+            notificationParams,
+            (success) => {
+              console.log(
+                '[OneSignal] Successfully posted notification:',
+                success,
+              );
+            },
+            (error) => {
+              console.log('[OneSignal] Failed to posted notification:', error);
+            },
+          );
+        }
+      }
+    } catch (error) {
+      console.error(
+        '[PostItemFooter.handlePressLike] Failed to like post:',
+        error,
+      );
+      Alert.alert(
+        'Something went wrong',
+        `We weren't able to complete your request. Please try again later.`,
+        [{ text: 'Dismiss' }],
+      );
+      dispatch(postLikeStatusChanged({ postId: post.id, didLike }));
+    } finally {
+      setIsProcessingLike(false);
+    }
   };
 
   const handlePressSave = async () => {
@@ -221,8 +220,8 @@ export const PostItemFooter = ({
             onPress={handlePressSave}>
             <MaterialIcon
               style={postItemFooterStyles.actionButton}
-              name={hasSaved ? 'bookmark' : 'bookmark-outline'}
-              color={hasSaved ? colors.black : colors.gray}
+              name={didSave ? 'bookmark' : 'bookmark-outline'}
+              color={didSave ? colors.black : colors.gray}
               size={actionIconSize}
             />
           </TouchableOpacity>
@@ -230,19 +229,19 @@ export const PostItemFooter = ({
             disabled={isProcessingLike}
             activeOpacity={DEFAULT_ACTIVE_OPACITY}
             onPress={handlePressLike}>
-            <Animatable.View key={hasLiked.toString()} animation="bounceIn">
+            <Animatable.View key={didLike.toString()} animation="bounceIn">
               <MaterialIcon
                 style={postItemFooterStyles.actionButton}
-                name={hasLiked ? 'favorite' : 'favorite-border'}
-                color={hasLiked ? 'red' : colors.gray}
+                name={didLike ? 'favorite' : 'favorite-border'}
+                color={didLike ? 'red' : colors.gray}
                 size={actionIconSize}
               />
             </Animatable.View>
           </TouchableOpacity>
           <Text style={postItemFooterStyles.likesCount}>
-            {likesCount > 999
-              ? `${(likesCount / 1000).toFixed(1)}k`
-              : likesCount}
+            {totalLikes > 999
+              ? `${(totalLikes / 1000).toFixed(1)}k`
+              : totalLikes}
           </Text>
         </View>
       )}
@@ -321,11 +320,15 @@ const PostItem = ({
   },
   ...props
 }) => {
+  const navigation = useNavigation();
+
   /** @type {import('../features/posts/postsSlice').Post | undefined} */
   const post = useSelector((state) => selectPostById(state, postId));
   const caption = post.caption;
 
-  const onPressPost = () => {};
+  const onPressPost = () => {
+    navigation.navigate('PostDetailScreen', { postId });
+  };
 
   const PostItemContent = ({ onPressPost, ...props }) => {
     const PostItemContentCaption = ({ caption, maxWidth }) => {
@@ -376,7 +379,7 @@ const PostItem = ({
         const { width, height } = imagePreviewDimensions;
         return (
           <View style={[props.style]}>
-            <Image
+            <FastImage
               onLoad={onImageLoad}
               source={imagePreview}
               style={{
@@ -386,7 +389,7 @@ const PostItem = ({
                 borderRadius: values.radius.md,
                 borderWidth: 1,
                 borderColor: colors.gray300,
-                // backgroundColor: colors.gray100,
+                backgroundColor: colors.gray100,
               }}
             />
             <PostItemContentCaption maxWidth={width} caption={caption} />

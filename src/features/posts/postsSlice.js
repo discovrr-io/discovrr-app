@@ -4,7 +4,7 @@ import {
   createSlice,
 } from '@reduxjs/toolkit';
 
-import AsyncStorage from '@react-native-community/async-storage';
+// import AsyncStorage from '@react-native-community/async-storage';
 
 const Parse = require('parse/react-native');
 const EARLIEST_DATE = new Date('2020-10-30');
@@ -30,10 +30,10 @@ const initialState = postsAdapter.getInitialState({
 export const fetchPosts = createAsyncThunk(
   'posts/fetchPosts',
   /**
-   * @param {boolean} refresh
+   * @param {boolean} _refresh
    * @returns {Promise<Post[]>}
    */
-  async (refresh, _) => {
+  async (_refresh, _) => {
     try {
       console.log('[fetchAllPosts] Fetching posts...');
 

@@ -64,7 +64,7 @@ function DiscoverTab() {
       <View
         style={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center' }}>
         <ActivityIndicator size="large" color={colors.gray} />
-        <Text style={[font.small, { marginTop: values.spacing.md }]}>
+        <Text style={[/* font.small, */ { marginTop: values.spacing.md }]}>
           Loading your personalised feed...
         </Text>
       </View>

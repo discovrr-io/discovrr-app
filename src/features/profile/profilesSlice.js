@@ -45,6 +45,8 @@ export const fetchProfiles = createAsyncThunk(
           username: profile.get('username') ?? '',
           isVendor: false,
           avatar: avatar ? { ...avatar, uri: avatar.url } : defaultAvatar,
+          description: profile.get('description'),
+          oneSignalPlayerIds: profile.get('oneSignalPlayerIds'),
         };
       });
 

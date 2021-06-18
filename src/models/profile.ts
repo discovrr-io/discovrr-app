@@ -21,4 +21,6 @@ export default interface Profile {
   username: string;
   isVendor: boolean;
   avatar?: ProfileAvatarSource;
+  description?: string;
+  oneSignalPlayerIds?: string[];
 }
