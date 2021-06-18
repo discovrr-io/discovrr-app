@@ -20,7 +20,7 @@ import authReducer from './features/authentication/authSlice';
 import postsReducer from './features/posts/postsSlice';
 import profilesReducer from './features/profile/profilesSlice';
 
-const reducers = combineReducers({
+const rootReducer = combineReducers({
   auth: authReducer,
   posts: postsReducer,
   profiles: profilesReducer,
@@ -32,7 +32,7 @@ const persistConfig = {
   stateReconciler: autoMergeLevel2,
 };
 
-const persistedReducer = persistReducer(persistConfig, reducers);
+const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 const store = configureStore({
   reducer: persistedReducer,

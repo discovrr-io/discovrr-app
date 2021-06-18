@@ -15,14 +15,20 @@ const imagePlaceholder = require('../../../resources/images/imagePlaceholder.png
 
 const FeedTab = createMaterialTopTabNavigator();
 
+const fetchPostsAndProfiles = (shouldRefresh) => async (dispatch) => {
+  await dispatch(fetchPosts(shouldRefresh));
+  await dispatch(fetchProfiles());
+};
+
 function DiscoverTab() {
   const dispatch = useDispatch();
   const posts = useSelector(selectAllPosts);
 
-  /** @type {import('../../constants/api').FetchStatus} */
-  const { status: fetchStatus, error: fetchError } = useSelector(
-    (state) => state.posts,
-  );
+  /** @type {import('../../models/fetch').FetchLoadingStatus} */
+  const fetchStatus = useSelector((state) => state.posts.status);
+
+  /** @type {import('@reduxjs/toolkit').SerializedError | undefined} */
+  const fetchError = useSelector((state) => state.posts.error);
 
   const isInitialRender = useRef(true);
   const [shouldRefresh, setShouldRefresh] = useState(false);
@@ -31,8 +37,10 @@ function DiscoverTab() {
   useEffect(() => {
     const fetchData = async () => {
       setIsProcessing(true);
-      await dispatch(fetchPosts(isInitialRender.current || shouldRefresh));
+      // await dispatch(fetchPosts(isInitialRender.current || shouldRefresh));
       // await dispatch(fetchProfiles());
+      const refresh = isInitialRender.current || shouldRefresh;
+      await dispatch(fetchPostsAndProfiles(refresh));
       setIsProcessing(false);
       if (shouldRefresh) setShouldRefresh(false);
     };
@@ -50,10 +58,6 @@ function DiscoverTab() {
   const handleRefresh = () => {
     if (!shouldRefresh) setShouldRefresh(true);
   };
-
-  // const handlePressPost = (postData) => {
-  //   navigation.push('PostDetailScreen', postData);
-  // };
 
   if (posts.length === 0 && fetchStatus === 'pending') {
     return (

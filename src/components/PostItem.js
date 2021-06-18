@@ -66,24 +66,29 @@ export const PostItemFooter = ({
   ...props
 }) => {
   const navigation = useNavigation();
-  const author = { name: 'John Smith' };
-  const { metrics } = post;
 
-  const { avatar, fullName } = useSelector((state) =>
+  /** @type {import('../features/authentication/authSlice').Profile | undefined} */
+  const profile = useSelector((state) =>
     selectProfileById(state, post.profileId),
   );
+
+  /**
+   * @typedef {import('../features/authentication/authSlice').ProfileAvatar} ProfileAvatar
+   * @type {{ avatar: ProfileAvatar, fullName: string }}
+   */
+  const { avatar = defaultAvatar, fullName = 'Anonymous' } = profile || {};
 
   const [isProcessingLike, setIsProcessingLike] = React.useState(false);
   const [isProcessingSave, setIsProcessingSave] = React.useState(false);
 
-  const [hasSaved, setHasSaved] = React.useState(metrics.didLike);
-  const [hasLiked, setHasLiked] = React.useState(metrics.didLike);
-  const [likesCount, setLikesCount] = React.useState(metrics.totalLikes);
+  const [hasSaved, setHasSaved] = React.useState(post.metrics.didLike);
+  const [hasLiked, setHasLiked] = React.useState(post.metrics.didLike);
+  const [likesCount, setLikesCount] = React.useState(post.metrics.totalLikes);
 
   const handlePressAvatar = () => {
     navigation.push('UserProfileScreen', {
       // userProfile: author,
-      metrics: metrics,
+      metrics: post.metrics,
     });
   };
 
