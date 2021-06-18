@@ -1,3 +1,3 @@
 export type ImageSource =
   | number
-  | { uri?: string; width?: number; height?: number };
+  | { type?: string; uri: string; width: number; height: number };
