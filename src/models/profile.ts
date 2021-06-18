@@ -7,11 +7,6 @@ import { ImageSource } from './common';
 export type ProfileId = EntityId;
 
 /**
- * Representation of the source of an avatar image file.
- */
-export type ProfileAvatarSource = ImageSource;
-
-/**
  * An interface describing the structure of a profile object.
  */
 export default interface Profile {
@@ -20,7 +15,8 @@ export default interface Profile {
   fullName: string;
   username: string;
   isVendor: boolean;
-  avatar?: ProfileAvatarSource;
+  avatar?: ImageSource;
+  coverPhoto?: ImageSource;
   description?: string;
   oneSignalPlayerIds?: string[];
 }

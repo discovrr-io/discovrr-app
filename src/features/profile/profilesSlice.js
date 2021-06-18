@@ -5,6 +5,8 @@ import {
 } from '@reduxjs/toolkit';
 
 const Parse = require('parse/react-native');
+
+const imagePlaceholder = require('../../../resources/images/imagePlaceholder.png');
 const defaultAvatar = require('../../../resources/images/defaultAvatar.jpeg');
 
 /**
@@ -34,6 +36,8 @@ export const fetchProfiles = createAsyncThunk(
       const results = await query.findAll();
       const profiles = results.map((profile) => {
         const avatar = profile.get('avatar');
+        const coverPhoto = profile.get('coverPhoto');
+
         return {
           id: profile.id,
           email: profile.get('email') ?? '',
@@ -41,10 +45,13 @@ export const fetchProfiles = createAsyncThunk(
             profile.get('fullName') ||
             profile.get('name') ||
             profile.get('displayName') ||
-            '',
+            'Anonymous',
           username: profile.get('username') ?? '',
           isVendor: false,
           avatar: avatar ? { ...avatar, uri: avatar.url } : defaultAvatar,
+          coverPhoto: coverPhoto
+            ? { ...coverPhoto, uri: coverPhoto.url }
+            : imagePlaceholder,
           description: profile.get('description'),
           oneSignalPlayerIds: profile.get('oneSignalPlayerIds'),
         };

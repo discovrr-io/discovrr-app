@@ -50,6 +50,7 @@ export const PostItemFooter = ({
   ...props
 }) => {
   const dispatch = useDispatch();
+  const navigation = useNavigation();
 
   /** @type {import('../models').Profile | undefined} */
   const profile = useSelector((state) =>
@@ -78,8 +79,13 @@ export const PostItemFooter = ({
   const didSave = post.metrics.didSave;
   const totalLikes = post.metrics.totalLikes;
 
-  const handlePressAvatar = () => {};
-  const handlePressShare = () => {};
+  const handlePressAvatar = () => {
+    navigation.push('UserProfileScreen', { profileId: profile.id });
+  };
+
+  const handlePressShare = () => {
+    console.warn('[PostItem.handlePressShare] Unimplemented action');
+  };
 
   const handlePressLike = async () => {
     try {
@@ -320,7 +326,7 @@ const PostItem = ({
   const caption = post.caption;
 
   const onPressPost = () => {
-    navigation.navigate('PostDetailScreen', { postId });
+    navigation.push('PostDetailScreen', { postId });
   };
 
   const PostItemContent = ({ onPressPost, ...props }) => {
@@ -340,11 +346,6 @@ const PostItem = ({
           {caption}
         </Text>
       );
-    };
-
-    const [isImageLoaded, setIsImageLoaded] = React.useState(false);
-    const onImageLoad = (loadEvent) => {
-      if (loadEvent) setIsImageLoaded(true);
     };
 
     switch (post.type) {
@@ -373,7 +374,6 @@ const PostItem = ({
         return (
           <View style={[props.style]}>
             <FastImage
-              onLoad={onImageLoad}
               source={imagePreview}
               style={{
                 width,

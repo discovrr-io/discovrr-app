@@ -24,6 +24,7 @@ import {
   Button,
   EmptyTabView,
   ErrorTabView,
+  RouteError,
   LoadingTabView,
   PostComment,
 } from '../../components';
@@ -184,7 +185,7 @@ const postDetailContentStyles = StyleSheet.create({
   },
   caption: {
     fontSize: typography.size.md,
-    marginTop: values.spacing.md * 1.5,
+    marginVertical: values.spacing.md * 1.5,
     marginHorizontal: values.spacing.md,
   },
 });
@@ -282,8 +283,8 @@ export default function PostDetailScreen() {
   /** @type {{ postId?: string }} */
   const { postId = null } = useRoute().params || {};
   if (!postId) {
-    console.warn('[PostDetailScreen] No post id given');
-    return null;
+    console.error('[PostDetailScreen] No post ID given');
+    return <RouteError />;
   }
 
   /** @type {import('../../models').Post | undefined} */
@@ -291,23 +292,7 @@ export default function PostDetailScreen() {
 
   if (!post) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: colors.white }}>
-        <View style={[errorStyles.container]}>
-          <Text style={[errorStyles.emoji]}>😓</Text>
-          <Text style={[errorStyles.heading]}>Oops!</Text>
-          <Text style={[errorStyles.caption]}>
-            We couldn't load this page because the link you gave us doesn't seem
-            to be right.
-          </Text>
-          <Button
-            primary
-            size="small"
-            title="Take Me Back"
-            onPress={() => navigation.navigate('HomeScreen')}
-            style={[errorStyles.button]}
-          />
-        </View>
-      </SafeAreaView>
+      <RouteError caption="We weren't able to load this post. Please try again later." />
     );
   }
 
@@ -347,36 +332,3 @@ export default function PostDetailScreen() {
     </SafeAreaView>
   );
 }
-
-const commonErrorStyles = {
-  textAlign: 'center',
-};
-
-const errorStyles = StyleSheet.create({
-  container: {
-    flexGrow: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: values.spacing.xxl,
-  },
-  emoji: {
-    ...commonErrorStyles,
-    fontSize: typography.size.h2 * 1.5,
-    textAlign: 'center',
-  },
-  heading: {
-    ...commonErrorStyles,
-    fontSize: typography.size.h4,
-    fontWeight: '600',
-    marginTop: values.spacing.sm,
-    marginBottom: values.spacing.md,
-  },
-  caption: {
-    ...commonErrorStyles,
-    fontSize: typography.size.md,
-  },
-  button: {
-    marginTop: values.spacing.md * 1.5,
-    width: '50%',
-  },
-});
