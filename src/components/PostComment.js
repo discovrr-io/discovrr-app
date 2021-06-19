@@ -47,10 +47,14 @@ export default function PostComment({ comment, ...props }) {
       </TouchableOpacity>
       <View style={postCommentStyles.dialogBox}>
         <Text
-          style={
-            (postCommentStyles.dialogBoxText,
-            { fontWeight: '600', marginBottom: values.spacing.sm })
-          }>
+          style={[
+            postCommentStyles.dialogBoxText,
+            {
+              fontWeight: '700',
+              color: colors.gray700,
+              marginBottom: values.spacing.sm,
+            },
+          ]}>
           {fullName}
         </Text>
         <Text style={postCommentStyles.dialogBoxText}>{comment.message}</Text>

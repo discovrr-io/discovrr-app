@@ -3,22 +3,18 @@ import { ActivityIndicator, RefreshControl, Text, View } from 'react-native';
 
 import MasonryList from 'react-native-masonry-list';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-
 import { useDispatch, useSelector } from 'react-redux';
 
-import { PostItem } from '../../components';
+import { PostItem, ErrorTabView } from '../../components';
 import { colors, values } from '../../constants';
-import { fetchPosts, selectAllPosts } from './postsSlice';
-import { fetchProfiles, selectAllProfiles } from '../profile/profilesSlice';
 
+import { fetchProfiles } from '../profile/profilesSlice';
+import { fetchAllPosts, selectAllPosts } from './postsSlice';
+
+const PAGINATION_LIMIT = 10;
 const imagePlaceholder = require('../../../resources/images/imagePlaceholder.png');
 
 const FeedTab = createMaterialTopTabNavigator();
-
-const fetchPostsAndProfiles = (shouldRefresh) => async (dispatch) => {
-  await dispatch(fetchPosts(shouldRefresh));
-  await dispatch(fetchProfiles());
-};
 
 function DiscoverTab() {
   const dispatch = useDispatch();
@@ -34,13 +30,18 @@ function DiscoverTab() {
   const [shouldRefresh, setShouldRefresh] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
+  const currentPage = useRef(0);
+
   useEffect(() => {
     const fetchData = async () => {
       setIsProcessing(true);
-      // await dispatch(fetchPosts(isInitialRender.current || shouldRefresh));
-      // await dispatch(fetchProfiles());
-      const refresh = isInitialRender.current || shouldRefresh;
-      await dispatch(fetchPostsAndProfiles(refresh));
+      await dispatch(
+        fetchAllPosts({
+          limit: PAGINATION_LIMIT,
+          currentPage: currentPage.current,
+        }),
+      );
+      await dispatch(fetchProfiles());
       setIsProcessing(false);
       if (shouldRefresh) setShouldRefresh(false);
     };
@@ -53,7 +54,7 @@ function DiscoverTab() {
     }
 
     if (isInitialRender.current) isInitialRender.current = false;
-  }, [fetchStatus, shouldRefresh, dispatch]);
+  }, [/* fetchStatus, */ shouldRefresh, dispatch]);
 
   const handleRefresh = () => {
     if (!shouldRefresh) setShouldRefresh(true);
@@ -71,47 +72,59 @@ function DiscoverTab() {
     );
   } else if (fetchStatus === 'rejected') {
     return (
-      <View
-        style={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <Text style={[{ color: 'red' }]}>
-          Failed to fetch posts: {JSON.stringify(fetchError)}
-        </Text>
-      </View>
+      <ErrorTabView
+        refreshControl={
+          <RefreshControl
+            refreshing={shouldRefresh}
+            onRefresh={handleRefresh}
+            colors={[colors.gray500]}
+            tintColor={colors.gray500}
+          />
+        }
+        error={fetchError}
+      />
     );
   }
+
+  const masonryPosts = posts.map((post) => {
+    /** @type {import('../../models/common').ImageSource} */
+    let imagePreviewSource;
+    /** @type {{ width: number, height: number }} */
+    let imagePreviewDimensions;
+
+    if (!post.media) {
+      imagePreviewSource = imagePlaceholder;
+    } else if (Array.isArray(post.media)) {
+      const firstImage = post.media[0];
+      imagePreviewSource = firstImage ?? imagePlaceholder;
+      imagePreviewDimensions = {
+        width: firstImage?.width ?? 800,
+        height: firstImage?.height ?? 600,
+      };
+    } else {
+      imagePreviewSource = post.media;
+      imagePreviewDimensions = {
+        width: post.media.width ?? 800,
+        height: post.media.height ?? 600,
+      };
+    }
+
+    return {
+      id: post.id,
+      type: post.type,
+      source: imagePreviewSource,
+      dimensions: imagePreviewDimensions,
+    };
+  });
 
   return (
     <MasonryList
       sorted
       rerender
       columns={2}
-      images={posts.map((post) => {
-        let imagePreviewSource, imagePreviewDimensions;
-        if (!post.media) {
-          imagePreviewSource = imagePlaceholder;
-        } else if (Array.isArray(post.media)) {
-          const firstImage = post.media[0];
-          imagePreviewSource = firstImage ?? imagePlaceholder;
-          imagePreviewDimensions = {
-            width: firstImage?.width ?? 800,
-            height: firstImage?.height ?? 600,
-          };
-        } else {
-          imagePreviewSource = post.media;
-          imagePreviewDimensions = {
-            width: post.media.width ?? 800,
-            height: post.media.height ?? 600,
-          };
-        }
-
-        return {
-          id: post.id,
-          type: post.type,
-          source: imagePreviewSource,
-          dimensions: imagePreviewDimensions,
-        };
-      })}
+      images={masonryPosts}
       listContainerStyle={{ paddingTop: values.spacing.sm }}
+      onEndReachedThreshold={0.0}
       masonryFlatListColProps={{
         refreshControl: (
           <RefreshControl

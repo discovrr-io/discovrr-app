@@ -145,27 +145,38 @@ export const signInWithEmailAndPassword = createAsyncThunk(
   },
 );
 
-export const signInWithApple = createAsyncThunk(
-  'auth/signInWithEmailAndPassword',
-  /**
-   * @param {FirebaseAuthTypes.AuthCredential} credential
-   * @returns {Promise<User>}
-   */
-  async (credential) => {
-    const { user: firebaseUser } = await auth().signInWithCredential(
-      credential,
-    );
+// export const signInWithApple = createAsyncThunk(
+//   'auth/signInWithEmailAndPassword',
+//   /**
+//    * @param {FirebaseAuthTypes.AuthCredential} credential
+//    * @returns {Promise<User>}
+//    */
+//   async (credential) => {
+//     const { user: firebaseUser } = await auth().signInWithCredential(
+//       credential,
+//     );
+//
+//     return await getUserFromParse(firebaseUser);
+//   },
+// );
 
-    return await getUserFromParse(firebaseUser);
-  },
-);
+// export const signOut = createAsyncThunk('auth/signOut', async () => {
+//   await Parse.User.logOut();
+//   await auth().signOut();
+// });
 
 const authSlice = createSlice({
   name: 'auth',
   initialState,
-  reducers: {},
+  reducers: {
+    signOut: (state, _) => {
+      // Reset to initial state
+      state = initialState;
+    },
+  },
   extraReducers: (builder) => {
     builder
+      // signInWithEmailAndPassword
       .addCase(signInWithEmailAndPassword.pending, (state, _) => {
         state.status = 'pending';
       })
@@ -179,9 +190,14 @@ const authSlice = createSlice({
         state.error = action.error;
         state.user = undefined;
       });
+    // // signOut
+    // .addCase(signOut.fulfilled, (state, _) => {
+    //   // Reset to initial state
+    //   state = initialState;
+    // });
   },
 });
 
-export const {} = authSlice.actions;
+export const { signOut } = authSlice.actions;
 
 export default authSlice.reducer;

@@ -1,5 +1,6 @@
 import React from 'react';
 import { SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 import { Button } from './buttons/Button';
 import { colors, typography, values } from '../constants';
@@ -14,6 +15,10 @@ export default function RouteError({
   heading = 'Oops!',
   caption = "The link you provided doesn't seem to be valid.",
 }) {
+  console.log({ emoji, heading, caption });
+
+  const navigation = useNavigation();
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.white }}>
       <View style={[errorStyles.container]}>

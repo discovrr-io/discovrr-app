@@ -17,11 +17,9 @@ import Carousel, { Pagination } from 'react-native-snap-carousel';
 import FastImage from 'react-native-fast-image';
 import Video from 'react-native-video';
 import { useRoute } from '@react-navigation/core';
-import { useNavigation } from '@react-navigation/native';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import {
-  Button,
   EmptyTabView,
   ErrorTabView,
   RouteError,
@@ -30,7 +28,7 @@ import {
 } from '../../components';
 import { PostItemFooter } from '../../components/PostItem';
 import { colors, typography, values } from '../../constants';
-import { selectPostById } from './postsSlice';
+import { fetchPostById, selectPostById } from './postsSlice';
 
 const Parse = require('parse/react-native');
 
@@ -100,12 +98,19 @@ function SliderImage({ item: source }) {
 }
 
 /**
- * @typedef {import('../../models').Post} Post
- * @typedef {{ post: Post }} PostDetailContentProps
+ * @typedef {import('../../models').PostId} PostId
+ * @typedef {{ postId: PostId }} PostDetailContentProps
  * @typedef {import('react-native').ViewProps} ViewProps
  * @param {PostDetailContentProps & ViewProps} param0
  */
-function PostDetailContent({ post, ...props }) {
+function PostDetailContent({ postId, ...props }) {
+  /** @type {import('../../models').Post} */
+  const post = useSelector((state) => selectPostById(state, postId));
+  if (!post) {
+    console.error('[PostDetailContent] Failed to find post with id:', postId);
+    return null;
+  }
+
   const carouselRef = useRef(null);
   const { width: screenWidth } = useWindowDimensions();
 
@@ -200,24 +205,31 @@ function PostDetailComments({ postId, ...props }) {
   // Ignore warning that FlatList is nested in ScrollView for now
   LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = React.useState(null);
   const [comments, setComments] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Determines if the component is mounted (and thus if the useEffect hook
+  // can continue setting the state).
+  // TODO: Consider creating a custom useAsync hook to handle this for you
+  const isSubscribed = useRef(true);
 
   useEffect(() => {
     const fetchComments = async () => {
       try {
         const comments = await fetchCommentsForPost(String(postId));
-        setComments(comments);
+        isSubscribed.current && setComments(comments);
       } catch (error) {
         console.error('Failed to fetch comments for post:', error);
-        setError(error);
+        isSubscribed.current && setError(error);
       } finally {
-        setIsLoading(false);
+        isSubscribed.current && setIsLoading(false);
       }
     };
 
     if (isLoading) fetchComments();
+
+    return () => (isSubscribed.current = false);
   }, [isLoading]);
 
   return (
@@ -279,23 +291,30 @@ const postDetailCommentsStyles = StyleSheet.create({
 });
 
 export default function PostDetailScreen() {
-  const navigation = useNavigation();
+  const dispatch = useDispatch();
 
   /** @type {{ postId?: string }} */
-  const { postId = null } = useRoute().params || {};
+  const { postId = undefined } = useRoute().params || {};
   if (!postId) {
     console.error('[PostDetailScreen] No post ID given');
     return <RouteError />;
   }
 
-  /** @type {import('../../models').Post | undefined} */
-  const post = useSelector((state) => selectPostById(state, postId));
+  // We'll request the latest changes as we open the post
+  const [shouldRefresh, setShouldRefresh] = useState(true);
 
-  if (!post) {
-    return (
-      <RouteError caption="We weren't able to load this post. Please try again later." />
-    );
-  }
+  useEffect(() => {
+    async function fetchPost() {
+      await dispatch(fetchPostById(postId));
+      setShouldRefresh(false);
+    }
+
+    if (shouldRefresh) fetchPost();
+  }, [shouldRefresh, dispatch]);
+
+  const handleRefresh = () => {
+    if (!shouldRefresh) setShouldRefresh(true);
+  };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.white }}>
@@ -307,18 +326,19 @@ export default function PostDetailScreen() {
           contentContainerStyle={{ flexGrow: 1 }}
           refreshControl={
             <RefreshControl
-              refreshing={false}
+              refreshing={shouldRefresh}
+              onRefresh={handleRefresh}
               colors={[colors.gray500]}
               tintColor={colors.gray500}
             />
           }>
           <View style={{ flexGrow: 1 }}>
             <PostDetailContent
-              post={post}
+              postId={postId}
               style={{ marginTop: values.spacing.md }}
             />
             <PostItemFooter
-              post={post}
+              postId={postId}
               options={{
                 largeIcons: true,
                 showActions: true,
@@ -326,7 +346,7 @@ export default function PostDetailScreen() {
               }}
               style={{ marginHorizontal: values.spacing.md }}
             />
-            <PostDetailComments postId={post.id} />
+            <PostDetailComments postId={postId} />
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

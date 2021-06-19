@@ -125,6 +125,7 @@ export default function AuthLoadingScreen() {
 
   useEffect(() => {
     RNBootSplash.hide({ duration: 250 });
+
     if (!didSetUpOneSignal.current) {
       console.log('[AuthLoadingScreen] Will set up OneSignal...');
       didSetUpOneSignal.current = true;

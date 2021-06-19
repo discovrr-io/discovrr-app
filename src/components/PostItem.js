@@ -1,6 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  Alert,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 import FastImage from 'react-native-fast-image';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
@@ -38,19 +45,26 @@ const iconSize = {
 };
 
 /**
- * @typedef {import('../features/posts/postsSlice').Post} Post
+ * @typedef {import('../models').PostId} PostId
  * @typedef {{ largeIcons?: boolean, showActions?: boolean, showShareIcon?: boolean }} FooterOptions
- * @typedef {{ post: Post, options?: FooterOptions }} PostItemFooterProps
+ * @typedef {{ postId: PostId, options?: FooterOptions }} PostItemFooterProps
  *
  * @param {PostItemFooterProps & import('react-native').ViewProps} param0
  */
 export const PostItemFooter = ({
-  post,
+  postId,
   options = { largeIcons: false, showActions: true, showShareIcon: false },
   ...props
 }) => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
+
+  /** @type {import('../models').Post | undefined} */
+  const post = useSelector((state) => selectPostById(state, postId));
+  if (!post) {
+    console.warn('[PostItemFooter] Failed to find post with id:', postId);
+    return null;
+  }
 
   /** @type {import('../models').Profile | undefined} */
   const profile = useSelector((state) =>
@@ -255,7 +269,7 @@ const PostItemFooterOptions = PropTypes.shape({
 });
 
 PostItemFooter.propTypes = {
-  post: PropTypes.object.isRequired,
+  postId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
   options: PostItemFooterOptions,
 };
 
@@ -408,7 +422,9 @@ const PostItem = ({
         onPress={onPressPost}>
         <PostItemContent onPressPost={onPressPost} />
       </TouchableOpacity>
-      {displayFooter && <PostItemFooter post={post} options={footerOptions} />}
+      {displayFooter && (
+        <PostItemFooter postId={postId} options={footerOptions} />
+      )}
     </View>
   );
 };
