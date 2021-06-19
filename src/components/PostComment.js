@@ -67,12 +67,11 @@ const postCommentStyles = StyleSheet.create({
   container: {
     maxWidth: '100%',
     flexDirection: 'row',
-    paddingVertical: values.spacing.md,
+    paddingVertical: values.spacing.sm,
   },
   dialogBox: {
     flexGrow: 1,
     flexShrink: 1,
-    // marginTop: AVATAR_DIAMETER * 0.25,
     padding: values.spacing.sm * 1.5,
     backgroundColor: colors.gray100,
     borderColor: colors.gray,

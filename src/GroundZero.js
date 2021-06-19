@@ -206,12 +206,9 @@ const ProfileStack = () => (
     <Stack.Screen
       name="ProfileScreen"
       component={ProfileScreen}
+      initialParams={{ isMyProfile: true }}
       options={{
         headerTransparent: true,
-        // headerStyle: {
-        //   backgroundColor: 'rgba(255, 255, 255, 0.9)',
-        //   opacity: 0.5,
-        // },
         title: '',
         headerBackground: () => (
           <View

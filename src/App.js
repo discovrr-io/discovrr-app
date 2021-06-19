@@ -57,6 +57,7 @@ export function App() {
     }
   };
 
+  /** @type {import('@react-navigation/native').LinkingOptions} */
   const linking = {
     prefixes: [
       'https://discovrrio.com',
@@ -65,11 +66,11 @@ export function App() {
     ],
     config: {
       screens: {
-        initialRouteName: 'GroundZero',
         GroundZero: {
           initialRouteName: 'HomeTabs',
           screens: {
             HomeTabs: {
+              initialRouteName: 'Home',
               screens: {
                 Home: '',
               },

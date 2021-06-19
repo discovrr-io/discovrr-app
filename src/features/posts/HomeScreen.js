@@ -5,7 +5,7 @@ import MasonryList from 'react-native-masonry-list';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { PostItem, ErrorTabView } from '../../components';
+import { PostItem, EmptyTabView, ErrorTabView } from '../../components';
 import { colors, values } from '../../constants';
 
 import { fetchProfiles } from '../profile/profilesSlice';
@@ -125,6 +125,7 @@ function DiscoverTab() {
       images={masonryPosts}
       listContainerStyle={{ paddingTop: values.spacing.sm }}
       onEndReachedThreshold={0.0}
+      emptyView={<EmptyTabView />}
       masonryFlatListColProps={{
         refreshControl: (
           <RefreshControl
@@ -150,25 +151,20 @@ function DiscoverTab() {
 }
 
 function NearMeTab() {
-  return (
-    <View>
-      <Text>Near Me Tab</Text>
-    </View>
-  );
+  return <EmptyTabView />;
 }
 
 function FollowingTab() {
-  return (
-    <View>
-      <Text>Following Tab</Text>
-    </View>
-  );
+  return <EmptyTabView />;
 }
 
 export default function HomeScreen() {
   return (
     <FeedTab.Navigator
-      tabBarOptions={{ labelStyle: { textTransform: 'none' } }}>
+      tabBarOptions={{
+        labelStyle: { textTransform: 'none' },
+        indicatorStyle: { backgroundColor: colors.accent },
+      }}>
       <FeedTab.Screen name="Discover" component={DiscoverTab} />
       <FeedTab.Screen
         name="NearMe"

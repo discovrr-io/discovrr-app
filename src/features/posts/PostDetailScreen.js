@@ -98,19 +98,12 @@ function SliderImage({ item: source }) {
 }
 
 /**
- * @typedef {import('../../models').PostId} PostId
- * @typedef {{ postId: PostId }} PostDetailContentProps
+ * @typedef {import('../../models').Post} Post
+ * @typedef {{ post: Post }} PostDetailContentProps
  * @typedef {import('react-native').ViewProps} ViewProps
  * @param {PostDetailContentProps & ViewProps} param0
  */
-function PostDetailContent({ postId, ...props }) {
-  /** @type {import('../../models').Post} */
-  const post = useSelector((state) => selectPostById(state, postId));
-  if (!post) {
-    console.error('[PostDetailContent] Failed to find post with id:', postId);
-    return null;
-  }
-
+function PostDetailContent({ post, ...props }) {
   const carouselRef = useRef(null);
   const { width: screenWidth } = useWindowDimensions();
 
@@ -182,7 +175,6 @@ const postDetailContentStyles = StyleSheet.create({
     borderWidth: values.border.thin,
     padding: values.spacing.md * 1.25,
     marginHorizontal: values.spacing.md,
-    marginBottom: values.spacing.md,
   },
   dialogBoxText: {
     color: colors.black,
@@ -191,102 +183,9 @@ const postDetailContentStyles = StyleSheet.create({
   },
   caption: {
     fontSize: typography.size.md,
-    marginVertical: values.spacing.md * 1.5,
-    marginHorizontal: values.spacing.md,
-  },
-});
-
-/**
- * @typedef {import('../../models').PostId} PostId
- * @typedef {{ postId: PostId }} PostDetailCommentsProps
- * @param {PostDetailCommentsProps & ViewProps} param0
- */
-function PostDetailComments({ postId, ...props }) {
-  // Ignore warning that FlatList is nested in ScrollView for now
-  LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
-
-  const [comments, setComments] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  // Determines if the component is mounted (and thus if the useEffect hook
-  // can continue setting the state).
-  // TODO: Consider creating a custom useAsync hook to handle this for you
-  const isSubscribed = useRef(true);
-
-  useEffect(() => {
-    const fetchComments = async () => {
-      try {
-        const comments = await fetchCommentsForPost(String(postId));
-        isSubscribed.current && setComments(comments);
-      } catch (error) {
-        console.error('Failed to fetch comments for post:', error);
-        isSubscribed.current && setError(error);
-      } finally {
-        isSubscribed.current && setIsLoading(false);
-      }
-    };
-
-    if (isLoading) fetchComments();
-
-    return () => (isSubscribed.current = false);
-  }, [isLoading]);
-
-  return (
-    <View style={[postDetailCommentsStyles.container, props.style]}>
-      {isLoading ? (
-        <LoadingTabView
-          message="Loading comments..."
-          style={postDetailCommentsStyles.tabViewContainer}
-        />
-      ) : error ? (
-        <ErrorTabView
-          error={error}
-          style={postDetailCommentsStyles.tabViewContainer}
-        />
-      ) : (
-        <FlatList
-          data={comments}
-          renderItem={({ item: comment }) => <PostComment comment={comment} />}
-          ListEmptyComponent={
-            <EmptyTabView
-              message="No comments. Be the first one!"
-              style={postDetailCommentsStyles.tabViewContainer}
-            />
-          }
-        />
-      )}
-    </View>
-  );
-}
-
-const postDetailCommentsStyles = StyleSheet.create({
-  container: {
-    marginHorizontal: values.spacing.md,
-    marginTop: values.spacing.md,
-  },
-  tabViewContainer: {
-    paddingTop: values.spacing.lg,
-    paddingBottom: values.spacing.lg,
-  },
-  textInputContainer: {
-    flexDirection: 'row',
-    marginVertical: values.spacing.md,
-    alignItems: 'flex-end',
-  },
-  commentTextInput: {
-    flexGrow: 1,
-    flexShrink: 1,
-    minHeight: TEXT_INPUT_HEIGHT,
-    borderColor: colors.gray700,
-    borderWidth: values.border.thin,
-    borderRadius: values.radius.md,
-    padding: values.spacing.md,
-  },
-  postButton: {
-    height: TEXT_INPUT_HEIGHT,
-    width: 50,
-    marginLeft: values.spacing.md,
+    marginTop: values.spacing.lg,
+    marginBottom: values.spacing.md,
+    marginHorizontal: values.spacing.md * 1.5,
   },
 });
 
@@ -300,56 +199,103 @@ export default function PostDetailScreen() {
     return <RouteError />;
   }
 
-  // We'll request the latest changes as we open the post
-  const [shouldRefresh, setShouldRefresh] = useState(true);
+  const post = useSelector((state) => selectPostById(state, postId));
+  if (!post) {
+    console.error('[PostDetailScreen] Failed to select post with id:', postId);
+    return <RouteError />;
+  }
+
+  const [shouldRefresh, setShouldRefresh] = useState(false);
+
+  const [comments, setComments] = useState([]);
+  const [shouldLoadComments, setShouldLoadComments] = useState(true);
+  const [commentsError, setCommentsError] = useState(null);
+
+  // Determines if the component is mounted (and thus if the useEffect hook
+  // can continue setting the state).
+  // TODO: Consider creating a custom useAsync hook to handle this for you
+  // const isSubscribed = useRef(true);
 
   useEffect(() => {
     async function fetchPost() {
       await dispatch(fetchPostById(postId));
-      setShouldRefresh(false);
+      /* isSubscribed.current && */ setShouldRefresh(false);
     }
 
+    const fetchComments = async () => {
+      try {
+        const comments = await fetchCommentsForPost(String(postId));
+        /* isSubscribed.current && */ setComments(comments);
+      } catch (error) {
+        console.error('Failed to fetch comments for post:', error);
+        /* isSubscribed.current && */ setCommentsError(error);
+      } finally {
+        /* isSubscribed.current && */ setShouldLoadComments(false);
+      }
+    };
+
     if (shouldRefresh) fetchPost();
-  }, [shouldRefresh, dispatch]);
+    if (shouldLoadComments) fetchComments();
+    // return () => (isSubscribed.current = false);
+  }, [shouldRefresh, shouldLoadComments, dispatch]);
 
   const handleRefresh = () => {
-    if (!shouldRefresh) setShouldRefresh(true);
+    if (!shouldRefresh) {
+      setShouldRefresh(true);
+      setShouldLoadComments(true);
+    }
   };
 
+  const postContent = (
+    <View style={{ marginTop: values.spacing.md }}>
+      <PostDetailContent post={post} />
+      <PostItemFooter
+        post={post}
+        options={{
+          largeIcons: true,
+          showActions: true,
+          showShareIcon: true,
+        }}
+        style={{ margin: values.spacing.md }}
+      />
+    </View>
+  );
+
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.white }}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'position' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 120 : -100}
-        style={{ flexGrow: 1 }}>
-        <ScrollView
-          contentContainerStyle={{ flexGrow: 1 }}
-          refreshControl={
-            <RefreshControl
-              refreshing={shouldRefresh}
-              onRefresh={handleRefresh}
-              colors={[colors.gray500]}
-              tintColor={colors.gray500}
+    <SafeAreaView style={{ flexGrow: 1, backgroundColor: colors.white }}>
+      <FlatList
+        data={comments}
+        renderItem={({ item: comment }) => (
+          <PostComment
+            comment={comment}
+            style={{ padding: values.spacing.md }}
+          />
+        )}
+        contentContainerStyle={{
+          flexGrow: 1,
+        }}
+        refreshControl={
+          <RefreshControl
+            refreshing={shouldRefresh}
+            onRefresh={handleRefresh}
+            colors={[colors.gray500]}
+            tintColor={colors.gray500}
+          />
+        }
+        ListHeaderComponent={postContent}
+        ListEmptyComponent={
+          shouldLoadComments ? (
+            <LoadingTabView message="Loading comments..." />
+          ) : commentsError ? (
+            <ErrorTabView
+              caption="We couldn't load the comments for this post."
+              error={commentsError}
             />
-          }>
-          <View style={{ flexGrow: 1 }}>
-            <PostDetailContent
-              postId={postId}
-              style={{ marginTop: values.spacing.md }}
-            />
-            <PostItemFooter
-              postId={postId}
-              options={{
-                largeIcons: true,
-                showActions: true,
-                showShareIcon: true,
-              }}
-              style={{ marginHorizontal: values.spacing.md }}
-            />
-            <PostDetailComments postId={postId} />
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+          ) : (
+            <EmptyTabView message="No comments. Be the first one!" />
+          )
+        }
+      />
     </SafeAreaView>
   );
 }

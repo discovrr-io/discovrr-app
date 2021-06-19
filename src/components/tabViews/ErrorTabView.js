@@ -7,12 +7,13 @@ import { colors, typography, values } from '../../constants';
 
 /**
  * @typedef {import('react-native').ViewProps} ViewProps
- * @typedef {{ title?: string, message?: string, error?: any, refreshControl?: any }} ErrorTabViewProps
+ * @typedef {{ title?: string, message?: string, caption?: string, error?: any, refreshControl?: any }} ErrorTabViewProps
  * @param {ErrorTabViewProps & ViewProps} param0
  */
 const ErrorTabView = ({
   title = '😓',
   message = 'Oops, something went wrong.',
+  caption = 'Please try again later.',
   error = undefined,
   refreshControl = undefined,
   ...props
@@ -27,7 +28,7 @@ const ErrorTabView = ({
       <View>
         <Text style={styles.title}>{title}</Text>
         <Text style={styles.message}>{message}</Text>
-        <Text style={styles.error}>Please try again later.</Text>
+        <Text style={styles.error}>{caption}</Text>
         {/* Only show error in development mode */}
         {isDevMode && (
           <View
@@ -35,12 +36,10 @@ const ErrorTabView = ({
               marginTop: values.spacing.md,
               paddingHorizontal: values.spacing.md,
             }}>
-            <Text style={[styles.error, { marginBottom: values.spacing.md }]}>
+            <Text style={[styles.error, { marginBottom: values.spacing.sm }]}>
               The following message is only shown in development mode:
             </Text>
-            <Text style={[styles.error, { textAlign: 'auto' }]}>
-              {JSON.stringify(error)}
-            </Text>
+            <Text style={[styles.error]}>{error.message ?? error}</Text>
           </View>
         )}
       </View>

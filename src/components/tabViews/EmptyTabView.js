@@ -11,10 +11,8 @@ const EmptyTabView = ({
 }) => {
   return (
     <View style={[{ paddingTop: values.spacing.huge }, props.style]}>
-      <View>
-        <Text style={styles.title}>{title}</Text>
-        <Text style={styles.message}>{message}</Text>
-      </View>
+      <Text style={styles.title}>{title}</Text>
+      <Text style={styles.message}>{message}</Text>
     </View>
   );
 };

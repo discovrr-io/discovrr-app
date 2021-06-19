@@ -45,26 +45,19 @@ const iconSize = {
 };
 
 /**
- * @typedef {import('../models').PostId} PostId
+ * @typedef {import('../models').Post} Post
  * @typedef {{ largeIcons?: boolean, showActions?: boolean, showShareIcon?: boolean }} FooterOptions
- * @typedef {{ postId: PostId, options?: FooterOptions }} PostItemFooterProps
+ * @typedef {{ post: Post, options?: FooterOptions }} PostItemFooterProps
  *
  * @param {PostItemFooterProps & import('react-native').ViewProps} param0
  */
 export const PostItemFooter = ({
-  postId,
+  post,
   options = { largeIcons: false, showActions: true, showShareIcon: false },
   ...props
 }) => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
-
-  /** @type {import('../models').Post | undefined} */
-  const post = useSelector((state) => selectPostById(state, postId));
-  if (!post) {
-    console.warn('[PostItemFooter] Failed to find post with id:', postId);
-    return null;
-  }
 
   /** @type {import('../models').Profile | undefined} */
   const profile = useSelector((state) =>
@@ -269,7 +262,7 @@ const PostItemFooterOptions = PropTypes.shape({
 });
 
 PostItemFooter.propTypes = {
-  postId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  post: PropTypes.object.isRequired,
   options: PostItemFooterOptions,
 };
 
@@ -277,8 +270,6 @@ const postItemFooterStyles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: values.spacing.xs,
-    marginTop: values.spacing.sm,
   },
   authorContainer: {
     flexDirection: 'row',
@@ -351,8 +342,7 @@ const PostItem = ({
             maxWidth,
             fontWeight: '600',
             fontSize: typography.size.xs,
-            marginTop: values.spacing.sm,
-            marginHorizontal: values.spacing.sm,
+            margin: values.spacing.sm,
             color: colors.gray700,
           }}
           numberOfLines={2}
@@ -423,7 +413,11 @@ const PostItem = ({
         <PostItemContent onPressPost={onPressPost} />
       </TouchableOpacity>
       {displayFooter && (
-        <PostItemFooter postId={postId} options={footerOptions} />
+        <PostItemFooter
+          post={post}
+          options={footerOptions}
+          style={{ marginHorizontal: values.spacing.sm }}
+        />
       )}
     </View>
   );

@@ -7,7 +7,6 @@ import { Tabs } from 'react-native-collapsible-tab-view';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useRoute } from '@react-navigation/core';
-import { useNavigation } from '@react-navigation/native';
 import { useSelector } from 'react-redux';
 
 import { Button, PostItem, RouteError, ToggleButton } from '../../components';
@@ -209,14 +208,24 @@ function ProfilePostsTab({ profileId }) {
   );
 }
 
-export default function ProfileScreen() {
+export default function ProfileScreen({ route }) {
   const { top: topInset } = useSafeAreaInsets();
 
-  /** @type {{ profileId?: string }} */
-  const { profileId = null } = useRoute().params || {};
+  /** @type {import('../authentication/authSlice').AuthState} */
+  const authState = useSelector((state) => state.auth);
+
+  /** @type {string|null} */
+  let profileId;
+  if (route.params.isMyProfile) {
+    profileId = authState.user?.profile.id;
+  } else {
+    profileId = route.params.profileId;
+  }
+
   if (!profileId) {
-    console.error('[ProfileScreen] No profile ID given');
+    console.warn('[ProfileScreen] No profile ID given');
     return <RouteError />;
+    // return null;
   }
 
   const profile = useSelector((state) => selectProfileById(state, profileId));
