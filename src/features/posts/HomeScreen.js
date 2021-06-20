@@ -1,11 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
   useWindowDimensions,
-  ActivityIndicator,
   FlatList,
   RefreshControl,
-  Text,
-  View,
   Alert,
 } from 'react-native';
 
@@ -15,6 +12,7 @@ import { createMaterialTopTabNavigator } from '@react-navigation/material-top-ta
 import { unwrapResult } from '@reduxjs/toolkit';
 import { useDispatch, useSelector } from 'react-redux';
 
+import MerchantItem from '../merchant/MerchantItem';
 import { PostItem, EmptyTabView, ErrorTabView } from '../../components';
 import { colors, values } from '../../constants';
 
@@ -26,7 +24,7 @@ import {
 } from './postsSlice';
 
 const PAGINATION_LIMIT = 10;
-const DEFAULT_SEARCH_RADIUS = 3;
+const DEFAULT_SEARCH_RADIUS = 5;
 
 const Parse = require('parse/react-native');
 const imagePlaceholder = require('../../../resources/images/imagePlaceholder.png');
@@ -170,7 +168,7 @@ function DiscoverTab() {
 function NearMeTab() {
   const { width: screenWidth } = useWindowDimensions();
 
-  const [nearMeItems, setNewMeItems] = useState([]);
+  const [nearMeItems, setNearMeItems] = useState([]);
   const [isRefreshing, setIsRefreshing] = useState(true);
   const [error, setError] = useState(null);
 
@@ -216,9 +214,31 @@ function NearMeTab() {
         }
 
         const results = await query.findAll();
-        console.log(
-          results.map((item) => item.get('shortName') ?? '<UNKNOWN>'),
-        );
+        const nearMeItems = results.map((item) => {
+          const imagePreviewArray = item.get('media');
+          const imagePreview = imagePreviewArray
+            ? { uri: imagePreviewArray[0].url }
+            : imagePlaceholder;
+
+          let imagePreviewDimensions;
+          if (typeof imagePreview === 'number') {
+            imagePreviewDimensions = { width: 600, height: 400 };
+          } else {
+            imagePreviewDimensions = {
+              width: imagePreview.width,
+              height: imagePreview.height,
+            };
+          }
+
+          return {
+            id: item.id,
+            shortName: item.get('shortName'),
+            profileId: item.get('profile'),
+            source: imagePreview,
+            dimensions: imagePreviewDimensions,
+          };
+        });
+        setNearMeItems(nearMeItems);
       } catch (error) {
         console.error('[NearMeTab] Failed to fetch near me items:', error);
         setError(error);
@@ -255,12 +275,12 @@ function NearMeTab() {
         ),
       }}
       completeCustomComponent={({ data }) => (
-        <PostItem
-          postId={data.id}
-          column={data.column}
-          imagePreview={data.source}
-          imagePreviewDimensions={data.masonryDimensions}
-          footerOptions={{ showActions: true }}
+        <MerchantItem
+          merchantId={data.id}
+          shortName={data.shortName}
+          coverPhoto={data.source}
+          coverPhotoDimensions={data.masonryDimensions}
+          style={{ marginLeft: values.spacing.sm * 0.75 }}
         />
       )}
     />

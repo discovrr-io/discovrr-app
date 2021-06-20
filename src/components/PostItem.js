@@ -336,6 +336,7 @@ const PostItem = ({
     const PostItemContentCaption = ({ caption, maxWidth }) => {
       return (
         <Text
+          numberOfLines={2}
           style={{
             maxWidth,
             fontWeight: '600',
@@ -347,9 +348,7 @@ const PostItem = ({
               : values.spacing.sm,
             marginHorizontal: values.spacing.sm,
             color: colors.gray700,
-          }}
-          numberOfLines={2}
-          ellipsizeMode="tail">
+          }}>
           {caption}
         </Text>
       );
@@ -382,12 +381,12 @@ const PostItem = ({
           <View style={[props.style]}>
             <FastImage
               source={imagePreview}
+              resizeMode="cover"
               style={{
                 width,
                 height,
-                resizeMode: 'cover',
-                borderRadius: values.radius.md,
                 borderWidth: 1,
+                borderRadius: values.radius.md,
                 borderColor: colors.gray300,
                 backgroundColor: colors.gray100,
               }}
