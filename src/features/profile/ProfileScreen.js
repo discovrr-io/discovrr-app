@@ -69,6 +69,9 @@ function ProfileScreenHeader({ profile, ...props }) {
   );
   const isMyProfile = currentUserProfile.id === profile.id;
 
+  const followersCount = profile.followers?.length ?? 0;
+  const followingCount = profile.following?.length ?? 0;
+
   return (
     <View pointerEvents="box-none" style={[props.style]}>
       <FastImage
@@ -82,9 +85,9 @@ function ProfileScreenHeader({ profile, ...props }) {
             style={{ flex: 1, justifyContent: 'center', alignSelf: 'center' }}>
             <View
               style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              <Metric label="Followers" value={0} />
-              <Metric label="Following" value={0} />
-              <Metric label="Likes" value={0} />
+              <Metric label="Followers" value={followersCount} />
+              <Metric label="Following" value={followingCount} />
+              <Metric label="Likes" value={-1} />
             </View>
             <View
               style={{ flexDirection: 'row', marginTop: values.spacing.md }}>

@@ -300,7 +300,6 @@ const postItemFooterStyles = StyleSheet.create({
  * @typedef {import('../models/post').PostType} PostType
  * @typedef {{
  *   postId: PostId,
- *   type: PostType,
  *   column?: number,
  *   imagePreview?: Object,
  *   imagePreviewDimensions?: { height: number, width: number },
@@ -312,7 +311,6 @@ const postItemFooterStyles = StyleSheet.create({
  */
 const PostItem = ({
   postId,
-  type = 'text',
   column = 0,
   imagePreview = {},
   imagePreviewDimensions = { width: 1, height: 1 },
@@ -341,8 +339,13 @@ const PostItem = ({
           style={{
             maxWidth,
             fontWeight: '600',
-            fontSize: typography.size.xs,
-            margin: values.spacing.sm,
+            fontSize: footerOptions.largeIcons
+              ? typography.size.sm
+              : typography.size.xs,
+            marginVertical: footerOptions.largeIcons
+              ? values.spacing.md
+              : values.spacing.sm,
+            marginHorizontal: values.spacing.sm,
             color: colors.gray700,
           }}
           numberOfLines={2}
@@ -370,9 +373,9 @@ const PostItem = ({
           </View>
         );
       case 'video' /* FALLTHROUGH */:
-        console.warn(
-          `Unimplemented: 'video' post item. Defaulting to 'images'...`,
-        );
+      // console.warn(
+      //   `Unimplemented: 'video' post item. Defaulting to 'images'...`,
+      // );
       case 'images':
         const { width, height } = imagePreviewDimensions;
         return (
@@ -425,7 +428,6 @@ const PostItem = ({
 
 PostItem.propTypes = {
   postId: PropTypes.string.isRequired,
-  type: PropTypes.oneOf(['text', 'images', 'video']),
   column: PropTypes.number,
   imagePreview: PropTypes.oneOfType([PropTypes.object, PropTypes.number]),
   imagePreviewDimensions: PropTypes.shape({

@@ -1,16 +1,25 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { typography, values } from '../../constants';
 
+/**
+ * @typedef {{ title?: string, message?: string, refreshControl?: any }} EmptyTabViewProps
+ * @typedef {import('react-native').ViewProps} ViewProps
+ * @param {EmptyTabViewProps & ViewProps} param0
+ * @returns
+ */
 const EmptyTabView = ({
   title = '🤔',
   message = "It's quiet here",
+  refreshControl = undefined,
   ...props
 }) => {
   return (
-    <View style={[{ paddingTop: values.spacing.huge }, props.style]}>
+    <View
+      // refreshControl={refreshControl}
+      style={[{ paddingTop: values.spacing.huge }, props.style]}>
       <Text style={styles.title}>{title}</Text>
       <Text style={styles.message}>{message}</Text>
     </View>

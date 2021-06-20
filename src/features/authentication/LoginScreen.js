@@ -313,6 +313,11 @@ function dispatchLoginAction(dispatcher, firebaseUser, currentUser, profile) {
   );
 }
 
+/**
+ * @typedef {'login' | 'register' | 'forgot-password'} FormType
+ * @param {{ setFormType: (formType: FormType) => void }} param0
+ * @returns
+ */
 function LoginForm({ setFormType }) {
   const dispatch = useDispatch();
 
@@ -383,6 +388,10 @@ function LoginForm({ setFormType }) {
   );
 }
 
+/**
+ * @param {{ setFormType: (formType: FormType) => void }} param0
+ * @returns
+ */
 function RegisterForm({ setFormType }) {
   const dispatch = useDispatch();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -521,6 +530,10 @@ function RegisterForm({ setFormType }) {
   );
 }
 
+/**
+ * @param {{ setFormType: (formType: FormType) => void }} param0
+ * @returns
+ */
 function ForgotPasswordForm({ setFormType }) {
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -586,7 +599,7 @@ function ForgotPasswordForm({ setFormType }) {
   );
 }
 
-function LoginScreen({}) {
+export default function LoginScreen() {
   const dispatch = useDispatch();
   const { width: screenWidth } = useWindowDimensions();
 
@@ -832,5 +845,3 @@ const loginScreenStyles = StyleSheet.create({
     alignSelf: 'center',
   },
 });
-
-export default LoginScreen;

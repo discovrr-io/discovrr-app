@@ -176,6 +176,7 @@ const postDetailContentStyles = StyleSheet.create({
     fontSize: typography.size.md,
   },
   caption: {
+    fontWeight: '600',
     fontSize: typography.size.md,
     marginTop: values.spacing.lg,
     marginBottom: values.spacing.md,
@@ -186,7 +187,7 @@ const postDetailContentStyles = StyleSheet.create({
 export default function PostDetailScreen() {
   const dispatch = useDispatch();
 
-  /** @type {{ postId?: string }} */
+  /** @type {{ postId: string | undefined }} */
   const { postId = undefined } = useRoute().params || {};
   if (!postId) {
     console.error('[PostDetailScreen] No post ID given');

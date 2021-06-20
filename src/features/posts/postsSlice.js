@@ -96,6 +96,32 @@ export const fetchAllPosts = createAsyncThunk(
   },
 );
 
+export const fetchFollowingPosts = createAsyncThunk(
+  'posts/fetchFollowingPosts',
+  /**
+   * @param {{ pagination?: Pagination }} param0
+   * @returns {Promise<Post[]>}
+   */
+  async ({ pagination = undefined }, _) => {
+    try {
+      return new Promise((resolve, _) => {
+        setTimeout(() => {
+          console.log(
+            '[fetchFollowingPosts] Finished fetching following posts',
+          );
+          resolve([]);
+        }, 4000);
+      });
+    } catch (error) {
+      console.error(
+        '[fetchFollowingPosts] Failed to fetch following posts:',
+        error,
+      );
+      throw error;
+    }
+  },
+);
+
 export const fetchPostById = createAsyncThunk(
   'posts/fetchPostById',
   /**
@@ -178,9 +204,24 @@ const postsSlice = createSlice({
       })
       .addCase(fetchAllPosts.fulfilled, (state, action) => {
         state.status = 'fulfilled';
+        state.error = null;
         postsAdapter.upsertMany(state, action.payload);
       })
       .addCase(fetchAllPosts.rejected, (state, action) => {
+        state.status = 'rejected';
+        state.error = action.error;
+        postsAdapter.setAll(state, []); // Should we reset the post list?
+      })
+      // -- fetchFollowingPosts --
+      .addCase(fetchFollowingPosts.pending, (state, _) => {
+        state.status = 'pending';
+      })
+      .addCase(fetchFollowingPosts.fulfilled, (state, action) => {
+        state.status = 'fulfilled';
+        state.error = null;
+        postsAdapter.upsertMany(state, action.payload);
+      })
+      .addCase(fetchFollowingPosts.rejected, (state, action) => {
         state.status = 'rejected';
         state.error = action.error;
         postsAdapter.setAll(state, []); // Should we reset the post list?
@@ -191,6 +232,7 @@ const postsSlice = createSlice({
       })
       .addCase(fetchPostById.fulfilled, (state, action) => {
         state.status = 'fulfilled';
+        state.error = null;
         postsAdapter.upsertOne(state, action.payload);
       })
       .addCase(fetchPostById.rejected, (state, action) => {

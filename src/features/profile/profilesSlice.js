@@ -54,6 +54,8 @@ export const fetchProfiles = createAsyncThunk(
             : imagePlaceholder,
           description: profile.get('description'),
           oneSignalPlayerIds: profile.get('oneSignalPlayerIds'),
+          followers: profile.get('followersArray'),
+          following: profile.get('followingArray'),
         };
       });
 

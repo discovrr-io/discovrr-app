@@ -19,4 +19,6 @@ export default interface Profile {
   coverPhoto?: ImageSource;
   description?: string;
   oneSignalPlayerIds?: string[];
+  followers?: ProfileId[]; // TODO: Parse encodes this as Relation<Profile>. Maybe see if that can be taken advantage of?
+  following?: ProfileId[];
 }
