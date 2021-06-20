@@ -2,15 +2,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
   useWindowDimensions,
   FlatList,
-  KeyboardAvoidingView,
-  LogBox,
   RefreshControl,
   SafeAreaView,
-  ScrollView,
   StyleSheet,
   Text,
   View,
-  Platform,
 } from 'react-native';
 
 import Carousel, { Pagination } from 'react-native-snap-carousel';
@@ -31,8 +27,6 @@ import { colors, typography, values } from '../../constants';
 import { fetchPostById, selectPostById } from './postsSlice';
 
 const Parse = require('parse/react-native');
-
-const TEXT_INPUT_HEIGHT = 35;
 
 /**
  * @typedef {import('../../models').Comment} Comment
@@ -247,7 +241,7 @@ export default function PostDetailScreen() {
   };
 
   const postContent = (
-    <View style={{ marginTop: values.spacing.md }}>
+    <View>
       <PostDetailContent post={post} />
       <PostItemFooter
         post={post}
@@ -257,6 +251,14 @@ export default function PostDetailScreen() {
           showShareIcon: true,
         }}
         style={{ margin: values.spacing.md }}
+      />
+      <View
+        style={{
+          borderBottomWidth: 1,
+          borderColor: colors.gray300,
+          marginVertical: values.spacing.md,
+          marginHorizontal: values.spacing.md,
+        }}
       />
     </View>
   );
@@ -273,6 +275,7 @@ export default function PostDetailScreen() {
         )}
         contentContainerStyle={{
           flexGrow: 1,
+          paddingVertical: values.spacing.lg,
         }}
         refreshControl={
           <RefreshControl
@@ -285,17 +288,31 @@ export default function PostDetailScreen() {
         ListHeaderComponent={postContent}
         ListEmptyComponent={
           shouldLoadComments ? (
-            <LoadingTabView message="Loading comments..." />
+            <LoadingTabView
+              message="Loading comments..."
+              style={postDetailScreenStyles.tabView}
+            />
           ) : commentsError ? (
             <ErrorTabView
               caption="We couldn't load the comments for this post."
               error={commentsError}
+              style={postDetailScreenStyles.tabView}
             />
           ) : (
-            <EmptyTabView message="No comments. Be the first one!" />
+            <EmptyTabView
+              message="No comments. Be the first one!"
+              style={postDetailScreenStyles.tabView}
+            />
           )
         }
       />
     </SafeAreaView>
   );
 }
+
+const postDetailScreenStyles = StyleSheet.create({
+  tabView: {
+    flexGrow: 1,
+    paddingTop: values.spacing.md,
+  },
+});
