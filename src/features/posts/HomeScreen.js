@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
   useWindowDimensions,
+  Alert,
   FlatList,
   RefreshControl,
-  Alert,
 } from 'react-native';
 
 import MasonryList from 'react-native-masonry-list';
@@ -14,7 +14,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import MerchantItem from '../merchant/MerchantItem';
 import { PostItem, EmptyTabView, ErrorTabView } from '../../components';
-import { colors, values } from '../../constants';
+import { colors, typography, values } from '../../constants';
 
 import { fetchProfiles } from '../profile/profilesSlice';
 import {
@@ -23,8 +23,8 @@ import {
   selectAllPosts,
 } from './postsSlice';
 
-const PAGINATION_LIMIT = 10;
-const DEFAULT_SEARCH_RADIUS = 5;
+const PAGINATION_LIMIT = 26;
+const DEFAULT_SEARCH_RADIUS = 3;
 
 const Parse = require('parse/react-native');
 const imagePlaceholder = require('../../../resources/images/imagePlaceholder.png');
@@ -39,57 +39,77 @@ const tabViewStyles = {
 
 function DiscoverTab() {
   const dispatch = useDispatch();
+  // const isInitialRender = useRef(true);
   const { width: screenWidth } = useWindowDimensions();
 
-  const isInitialRender = useRef(true);
-  const currentPage = useRef(0);
-
   const posts = useSelector(selectAllPosts);
-  // const [posts, setPosts] = useState(useSelector(selectAllPosts));
 
   /** @type {import('./postsSlice').FetchStatus} */
-  const { status: fetchStatus, error: fetchError } = useSelector(
-    (state) => state.posts,
-  );
+  const { error: fetchError } = useSelector((state) => state.posts);
 
-  // Maybe refactor this to a state of the current page
-  const [fetchMorePosts, setFetchMorePosts] = useState(true);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [isFetchingMore, setIsFetchingMore] = useState(false);
+  const [shouldRefresh, setShouldRefresh] = useState(true);
+
+  const handleRefresh = () => {
+    if (!shouldRefresh) setShouldRefresh(true);
+  };
 
   const handleFetchMorePosts = () => {
-    if (!fetchMorePosts) setFetchMorePosts(true);
+    if (!shouldRefresh) setCurrentPage((prev) => prev + 1);
   };
 
   useEffect(() => {
-    const fetchData = async () => {
+    const refreshPosts = async () => {
       try {
-        const pagination = {
-          limit: PAGINATION_LIMIT,
-          currentPage: currentPage.current,
-        };
-
-        /** @type {import('../../models').Post[]} */
-        const newPosts = await dispatch(fetchAllPosts({ pagination })).then(
-          unwrapResult,
-        );
-
+        console.log('Refreshing posts and profiles...');
+        await dispatch(fetchAllPosts());
         await dispatch(fetchProfiles());
-
-        if (newPosts.length == 0) {
-          console.warn(`You've reached the end!`);
-          Alert.alert(`You've reached the end!`);
-        } else {
-          currentPage.current += 1;
-        }
       } catch (error) {
-        console.error('Failed to get more posts:', error);
+        console.error('[HomeScreen] Failed to refresh posts:', error);
+        Alert.alert(
+          'Something wrong happened',
+          "We couldn't refresh your posts for you",
+        );
       } finally {
-        setFetchMorePosts(false);
+        setShouldRefresh(false);
       }
     };
 
-    if (fetchMorePosts) fetchData();
-    if (isInitialRender.current) isInitialRender.current = false;
-  }, [fetchMorePosts, dispatch]);
+    if (shouldRefresh) refreshPosts();
+  }, [shouldRefresh, dispatch]);
+
+  useEffect(() => {
+    const fetchMorePosts = async () => {
+      try {
+        setIsFetchingMore(true);
+        /** @type {import('../../models').Post[]} */
+        const posts = await dispatch(
+          fetchAllPosts({ limit: PAGINATION_LIMIT, currentPage }),
+        ).then(unwrapResult);
+
+        if (posts.length === 0) {
+          Alert.alert(
+            "You're all caught up!",
+            "Looks like you've reached the end",
+          );
+        } else {
+          await dispatch(fetchProfiles());
+          setCurrentPage((prev) => prev + 1);
+        }
+      } catch (error) {
+        console.error('[HomeScreen] Failed to fetch more posts:', error);
+        Alert.alert(
+          'Something wrong happened',
+          "We couldn't fetch more posts for you",
+        );
+      } finally {
+        setIsFetchingMore(false);
+      }
+    };
+
+    if (!shouldRefresh && !isFetchingMore) fetchMorePosts();
+  }, [currentPage, dispatch]);
 
   const masonryPosts = posts.map((post) => {
     /** @type {import('../../models/common').ImageSource} */
@@ -130,7 +150,7 @@ function DiscoverTab() {
       images={masonryPosts}
       containerWidth={screenWidth}
       listContainerStyle={{ ...tabViewStyles, paddingTop: values.spacing.sm }}
-      onEndReachedThreshold={0.0}
+      onEndReachedThreshold={0.5}
       onEndReached={handleFetchMorePosts}
       masonryFlatListColProps={{
         ListEmptyComponent: fetchError ? (
@@ -138,17 +158,25 @@ function DiscoverTab() {
         ) : (
           <EmptyTabView style={tabViewStyles} />
         ),
+        // ListFooterComponent: (
+        //   <View style={{ paddingVertical: values.spacing.xxl }}>
+        //     <Text
+        //       style={{
+        //         textAlign: 'center',
+        //         fontSize: typography.size.lg,
+        //         fontWeight: '700',
+        //       }}>
+        //       You're all caught up!
+        //     </Text>
+        //   </View>
+        // ),
         refreshControl: (
           <RefreshControl
-            refreshing={fetchStatus === 'pending' || fetchMorePosts}
-            onRefresh={handleFetchMorePosts}
+            refreshing={shouldRefresh}
+            onRefresh={handleRefresh}
             colors={[colors.gray500]}
             tintColor={colors.gray500}
-            title={
-              isInitialRender.current
-                ? 'Loading your personalised feed...'
-                : undefined
-            }
+            title="Loading your personalised feed..."
           />
         ),
       }}

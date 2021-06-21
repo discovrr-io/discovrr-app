@@ -293,11 +293,11 @@ class PostCreationScreen extends Component {
   updateInputValue =
     (input) =>
     (value = '') => {
-      debugAppLogger({
-        info: 'ProfileEditScreen updateInputValue',
-        input,
-        value,
-      });
+      // debugAppLogger({
+      //   info: 'ProfileEditScreen updateInputValue',
+      //   input,
+      //   value,
+      // });
 
       const { [`${input}Error`]: errorValue } = this.state;
 

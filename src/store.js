@@ -26,13 +26,21 @@ const rootReducer = combineReducers({
   profiles: profilesReducer,
 });
 
-const persistConfig = {
-  storage: AsyncStorage,
-  key: 'root',
-  stateReconciler: autoMergeLevel2,
-};
+// const persistConfig = {
+//   storage: AsyncStorage,
+//   key: 'root',
+//   stateReconciler: autoMergeLevel2,
+// };
 
-const persistedReducer = persistReducer(persistConfig, rootReducer);
+const persistedReducer = persistReducer(
+  {
+    storage: AsyncStorage,
+    key: 'root',
+    stateReconciler: autoMergeLevel2,
+    blacklist: ['posts', 'profiles'],
+  },
+  rootReducer,
+);
 
 const store = configureStore({
   reducer: persistedReducer,

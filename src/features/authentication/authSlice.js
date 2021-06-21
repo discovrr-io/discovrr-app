@@ -13,6 +13,7 @@ const defaultAvatar = require('../../../resources/images/defaultAvatar.jpeg');
 const initialState = {
   status: 'idle',
   isAuthenticated: false,
+  user: undefined,
 };
 
 /**

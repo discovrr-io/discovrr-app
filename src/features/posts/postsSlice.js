@@ -54,10 +54,10 @@ export const fetchAllPosts = createAsyncThunk(
   'posts/fetchPosts',
   /**
    * @typedef {{ limit: number, currentPage?: number }} Pagination
-   * @param {{ pagination?: Pagination }=} param0
+   * @param {Pagination=} pagination
    * @returns {Promise<Post[]>}
    */
-  async ({ pagination = undefined }, _) => {
+  async (pagination = undefined, _) => {
     try {
       console.log('[fetchPosts] Fetching posts...');
 
@@ -166,7 +166,7 @@ export const fetchPostById = createAsyncThunk(
  */
 const postsAdapter = createEntityAdapter({
   // Sort by newest post (this probably shouldn't be needed)
-  sortComparer: (a, b) => b.createdAt.localeCompare(a.createdAt),
+  // sortComparer: (a, b) => b.createdAt.localeCompare(a.createdAt),
 });
 
 /**
@@ -205,12 +205,13 @@ const postsSlice = createSlice({
       .addCase(fetchAllPosts.fulfilled, (state, action) => {
         state.status = 'fulfilled';
         state.error = null;
-        postsAdapter.upsertMany(state, action.payload);
+        // postsAdapter.upsertMany(state, action.payload);
+        postsAdapter.setAll(state, action.payload);
       })
       .addCase(fetchAllPosts.rejected, (state, action) => {
         state.status = 'rejected';
         state.error = action.error;
-        postsAdapter.setAll(state, []); // Should we reset the post list?
+        // postsAdapter.setAll(state, []); // Should we reset the post list?
       })
       // -- fetchFollowingPosts --
       .addCase(fetchFollowingPosts.pending, (state, _) => {
@@ -224,7 +225,7 @@ const postsSlice = createSlice({
       .addCase(fetchFollowingPosts.rejected, (state, action) => {
         state.status = 'rejected';
         state.error = action.error;
-        postsAdapter.setAll(state, []); // Should we reset the post list?
+        // postsAdapter.setAll(state, []); // Should we reset the post list?
       })
       // -- fetchPostById --
       .addCase(fetchPostById.pending, (state, _) => {
