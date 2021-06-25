@@ -1,6 +1,6 @@
 import Button from './buttons/Button';
 import FormikInput from './FormikInput';
-import MasonryList from './MasonryList';
+import MasonryList from './masonry/MasonryList';
 import RouteError from './RouteError';
 import ToggleButton from './buttons/ToggleButton';
 import { EmptyTabView, ErrorTabView, LoadingTabView } from './tabViews';

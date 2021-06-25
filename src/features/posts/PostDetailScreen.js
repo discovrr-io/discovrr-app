@@ -149,7 +149,13 @@ function PostDetailContent({ post, ...props }) {
       case 'text': /* FALLTHROUGH */
       default:
         return (
-          <View style={postDetailContentStyles.dialogBox}>
+          <View
+            style={[
+              postDetailContentStyles.dialogBox,
+              post.location && {
+                marginBottom: values.spacing.md,
+              },
+            ]}>
             <Text style={postDetailContentStyles.dialogBoxText}>
               {post.content.text}
             </Text>
@@ -189,7 +195,7 @@ const postDetailContentStyles = StyleSheet.create({
   },
   dialogBoxText: {
     color: colors.black,
-    fontWeight: '700',
+    fontWeight: '600',
     fontSize: typography.size.md,
   },
   caption: {

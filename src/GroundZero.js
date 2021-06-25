@@ -226,6 +226,10 @@ const ProfileStack = () => (
 const HomeTabs = () => (
   <>
     <Tab.Navigator
+      initialRouteName="Home"
+      tabBarOptions={{
+        showLabel: false,
+      }}
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, size, color: tintColor }) => {
           let iconName = 'help';
@@ -255,15 +259,11 @@ const HomeTabs = () => (
           return isCommunityIcon ? (
             <MaterialCommunityIcon
               name={iconName}
-              size={focused ? 28 : 24}
+              size={24}
               color={tintColor}
             />
           ) : (
-            <MaterialIcon
-              name={iconName}
-              size={focused ? 28 : 24}
-              color={tintColor}
-            />
+            <MaterialIcon name={iconName} size={24} color={tintColor} />
           );
         },
       })}

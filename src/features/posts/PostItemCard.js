@@ -427,7 +427,7 @@ const postItemStyles = StyleSheet.create({
   },
   dialogBoxText: {
     color: colors.black,
-    fontWeight: '700',
+    fontWeight: '600',
   },
 });
 

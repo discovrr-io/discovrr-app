@@ -11,7 +11,8 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { EmptyTabView, ErrorTabView, MasonryList } from '../../components';
+import NoteMasonryList from '../../components/masonry/NoteMasonryList';
+import { EmptyTabView, ErrorTabView } from '../../components';
 import {
   colors,
   typography,
@@ -19,7 +20,6 @@ import {
   DEFAULT_ACTIVE_OPACITY,
 } from '../../constants';
 
-import NoteItemCard from './NoteItemCard';
 import { fetchNotesForCurrentUser, selectNoteIds } from './notesSlice';
 
 function CreateNewNoteButton() {
@@ -82,11 +82,43 @@ export default function NotesScreen() {
     if (!shouldRefresh) setShouldRefresh(true);
   };
 
-  const TILE_SPACING = values.spacing.sm * 1.25;
+  // const TILE_SPACING = values.spacing.sm * 1.25;
+  //
+  // return (
+  //   <MasonryList
+  //     data={noteIds}
+  //     ListHeaderComponent={<CreateNewNoteButton />}
+  //     ListEmptyComponent={
+  //       fetchError ? (
+  //         <ErrorTabView error={fetchError} />
+  //       ) : (
+  //         <EmptyTabView message="Looks like you don't have any notes yet" />
+  //       )
+  //     }
+  //     refreshControl={
+  //       <RefreshControl
+  //         tintColor={colors.gray500}
+  //         refreshing={shouldRefresh}
+  //         onRefresh={handleRefresh}
+  //       />
+  //     }
+  //     renderItem={({ item: noteId, index }) => (
+  //       <NoteItemCard
+  //         noteId={noteId}
+  //         style={{
+  //           marginTop: TILE_SPACING,
+  //           marginLeft: index % 2 === 0 ? TILE_SPACING : TILE_SPACING / 2,
+  //           marginRight: index % 2 !== 0 ? TILE_SPACING : TILE_SPACING / 2,
+  //           marginBottom: values.spacing.sm,
+  //         }}
+  //       />
+  //     )}
+  //   />
+  // );
 
   return (
-    <MasonryList
-      data={noteIds}
+    <NoteMasonryList
+      noteIds={noteIds}
       ListHeaderComponent={<CreateNewNoteButton />}
       ListEmptyComponent={
         fetchError ? (
@@ -102,17 +134,6 @@ export default function NotesScreen() {
           onRefresh={handleRefresh}
         />
       }
-      renderItem={({ item: noteId, index }) => (
-        <NoteItemCard
-          noteId={noteId}
-          style={{
-            marginTop: TILE_SPACING,
-            marginLeft: index % 2 === 0 ? TILE_SPACING : TILE_SPACING / 2,
-            marginRight: index % 2 !== 0 ? TILE_SPACING : TILE_SPACING / 2,
-            marginBottom: values.spacing.sm,
-          }}
-        />
-      )}
     />
   );
 }

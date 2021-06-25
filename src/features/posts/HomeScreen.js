@@ -24,6 +24,7 @@ import {
   fetchFollowingPosts,
   selectPostIds,
 } from './postsSlice';
+import PostMasonryList from '../../components/masonry/PostMasonryList';
 
 const PAGINATION_LIMIT = 26;
 const DEFAULT_SEARCH_RADIUS = 3;
@@ -114,11 +115,10 @@ function DiscoverTab() {
     if (!shouldRefresh && !isFetchingMore) fetchMorePosts();
   }, [currentPage, dispatch]);
 
-  const TILE_SPACING = values.spacing.sm * 1.25;
-
   return (
-    <MasonryList
-      data={postIds}
+    <PostMasonryList
+      smallContent
+      postIds={postIds}
       refreshControl={
         <RefreshControl
           tintColor={colors.gray500}
@@ -126,18 +126,6 @@ function DiscoverTab() {
           onRefresh={handleRefresh}
         />
       }
-      renderItem={({ item: postId, index }) => (
-        <PostItemCard
-          smallContent
-          postId={postId}
-          style={{
-            marginTop: TILE_SPACING,
-            marginLeft: index % 2 === 0 ? TILE_SPACING : TILE_SPACING / 2,
-            marginRight: index % 2 !== 0 ? TILE_SPACING : TILE_SPACING / 2,
-            marginBottom: values.spacing.sm,
-          }}
-        />
-      )}
     />
   );
 }
