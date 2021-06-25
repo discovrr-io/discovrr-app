@@ -34,7 +34,7 @@ const Stack = createStackNavigator();
 
 export function App() {
   const onBeforeLift = async () => {
-    const storeVersion = '5';
+    const storeVersion = '6';
     try {
       const [[_, previousStoreVersion]] = await AsyncStorage.multiGet([
         'storeVersion',

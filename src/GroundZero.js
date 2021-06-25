@@ -368,7 +368,7 @@ const GroundZero = ({ navigation, insets }) => {
           name="NoteDetailScreen"
           component={NoteDetailScreen}
           options={({ route }) => ({
-            title: route.params?.noteDetails?.title ?? 'Note Details',
+            title: route.params?.noteTitle ?? 'Note Details',
             headerBackTitleVisible: false,
             headerTintColor: 'black',
           })}

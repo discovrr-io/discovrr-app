@@ -1,5 +1,5 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+// import PropTypes from 'prop-types';
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
@@ -11,17 +11,21 @@ import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 
 import {
-  selectPostById,
-  postLikeStatusChanged,
-} from '../features/posts/postsSlice';
-import { selectProfileById } from '../features/profiles/profilesSlice';
-import { colors, typography, values } from '../constants';
-import { DEFAULT_AVATAR, DEFAULT_IMAGE_DIMENSIONS } from '../constants/media';
-import { PostApi } from '../api';
+  colors,
+  typography,
+  values,
+  DEFAULT_ACTIVE_OPACITY,
+} from '../../constants';
+import {
+  DEFAULT_AVATAR,
+  DEFAULT_IMAGE_DIMENSIONS,
+} from '../../constants/media';
+import { PostApi } from '../../api';
+import { selectProfileById } from '../profiles/profilesSlice';
+import { selectPostById, postLikeStatusChanged } from './postsSlice';
 
 const SMALL_ICON = 24;
 const LARGE_ICON = 32;
-const DEFAULT_ACTIVE_OPACITY = 0.6;
 
 const iconSize = {
   small: {
@@ -41,7 +45,7 @@ const iconSize = {
  *
  * @param {PostItemFooterProps & import('react-native').ViewProps} param0
  */
-export const PostItemFooter = ({
+export const PostItemCardFooter = ({
   post,
   smallContent = false,
   showShareIcon = false,
@@ -91,7 +95,7 @@ export const PostItemFooter = ({
   };
 
   const handlePressShare = () => {
-    console.warn('[PostItem.handlePressShare] Unimplemented action');
+    console.warn('[PostItemCard.handlePressShare] Unimplemented action');
   };
 
   const handlePressLike = async () => {
@@ -239,16 +243,10 @@ export const PostItemFooter = ({
   );
 };
 
-const PostItemFooterOptions = PropTypes.shape({
-  largeIcons: PropTypes.bool,
-  showActions: PropTypes.bool,
-  showShareIcon: PropTypes.bool,
-});
-
-PostItemFooter.propTypes = {
-  post: PropTypes.object.isRequired,
-  options: PostItemFooterOptions,
-};
+// PostItemCardFooter.propTypes = {
+//   post: PropTypes.object.isRequired,
+//   options: PostItemFooterOptions,
+// };
 
 const postItemFooterStyles = StyleSheet.create({
   container: {
@@ -286,11 +284,11 @@ const postItemFooterStyles = StyleSheet.create({
  *   postId: PostId,
  *   showFooter?: boolean,
  *   smallContent?: boolean,
- * }} PostItemProps
+ * }} PostItemCardProps
  *
- * @param {PostItemProps & import('react-native').ViewProps} param0
+ * @param {PostItemCardProps & import('react-native').ViewProps} param0
  */
-const PostItem = ({
+const PostItemCard = ({
   postId,
   showFooter = true,
   smallContent = false,
@@ -301,7 +299,7 @@ const PostItem = ({
   /** @type {import('../models').Post | undefined} */
   const post = useSelector((state) => selectPostById(state, postId));
   if (!post) {
-    console.warn('[PostItem] Failed to select post with id:', postId);
+    console.warn('[PostItemCard] Failed to select post with id:', postId);
     return null;
   }
 
@@ -309,7 +307,7 @@ const PostItem = ({
     navigation.navigate('PostDetailScreen', { postId });
   };
 
-  const PostItemCaption = ({ caption }) => {
+  const PostItemCardCaption = ({ caption }) => {
     return (
       <View style={postItemStyles.captionContainer}>
         <Text
@@ -348,7 +346,7 @@ const PostItem = ({
               borderRadius: values.radius.md,
             }}
           />
-          <PostItemCaption caption={post.content.caption} />
+          <PostItemCardCaption caption={post.content.caption} />
         </View>
       );
       break;
@@ -356,7 +354,7 @@ const PostItem = ({
       cardContent = (
         <View>
           <Text>VIDEO</Text>
-          <PostItemCaption caption={post.content.caption} />
+          <PostItemCardCaption caption={post.content.caption} />
         </View>
       );
       break;
@@ -389,7 +387,7 @@ const PostItem = ({
         {cardContent}
       </TouchableOpacity>
       {showFooter && (
-        <PostItemFooter
+        <PostItemCardFooter
           post={post}
           smallContent={smallContent}
           style={{ marginHorizontal: values.spacing.sm }}
@@ -399,17 +397,17 @@ const PostItem = ({
   );
 };
 
-PostItem.propTypes = {
-  postId: PropTypes.string.isRequired,
-  column: PropTypes.number,
-  imagePreview: PropTypes.oneOfType([PropTypes.object, PropTypes.number]),
-  imagePreviewDimensions: PropTypes.shape({
-    width: PropTypes.number.isRequired,
-    height: PropTypes.number.isRequired,
-  }),
-  displayFooter: PropTypes.bool,
-  footerOptions: PostItemFooterOptions,
-};
+// PostItemCard.propTypes = {
+//   postId: PropTypes.string.isRequired,
+//   column: PropTypes.number,
+//   imagePreview: PropTypes.oneOfType([PropTypes.object, PropTypes.number]),
+//   imagePreviewDimensions: PropTypes.shape({
+//     width: PropTypes.number.isRequired,
+//     height: PropTypes.number.isRequired,
+//   }),
+//   displayFooter: PropTypes.bool,
+//   footerOptions: PostItemFooterOptions,
+// };
 
 const postItemStyles = StyleSheet.create({
   captionContainer: {
@@ -433,4 +431,4 @@ const postItemStyles = StyleSheet.create({
   },
 });
 
-export default PostItem;
+export default PostItemCard;

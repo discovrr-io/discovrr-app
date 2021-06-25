@@ -27,7 +27,7 @@ import {
   LoadingTabView,
 } from '../../components';
 import PostComment from '../comments/PostComment';
-import { PostItemFooter } from '../../components/PostItem';
+import { PostItemCardFooter } from './PostItemCard';
 import { colors, typography, values } from '../../constants';
 import {
   addCommentForPost,
@@ -295,7 +295,7 @@ export default function PostDetailScreen() {
   const postContent = (
     <View>
       <PostDetailContent post={post} />
-      <PostItemFooter
+      <PostItemCardFooter
         post={post}
         showShareIcon
         style={{ margin: values.spacing.md }}

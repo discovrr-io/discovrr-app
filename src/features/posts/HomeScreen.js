@@ -5,18 +5,18 @@ import {
   FlatList,
   RefreshControl,
   Text,
+  View,
 } from 'react-native';
 
-// import MasonryList from 'react-native-masonry-list';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
 import { unwrapResult } from '@reduxjs/toolkit';
 import { useDispatch, useSelector } from 'react-redux';
 
-import MasonryList from '../../components/MasonryList';
+import PostItemCard from './PostItemCard';
 import MerchantItem from '../merchants/MerchantItem';
-import { PostItem, EmptyTabView, ErrorTabView } from '../../components';
-import { colors, typography, values } from '../../constants';
+import { MasonryList, EmptyTabView, ErrorTabView } from '../../components';
+import { colors, values } from '../../constants';
 
 import { fetchAllProfiles } from '../profiles/profilesSlice';
 import {
@@ -44,7 +44,7 @@ function DiscoverTab() {
 
   const postIds = useSelector(selectPostIds);
 
-  /** @type {import('./postsSlice').FetchStatus} */
+  /** @type {import('../../api').ApiFetchStatus} */
   const { error: fetchError } = useSelector((state) => state.posts);
 
   const [currentPage, setCurrentPage] = useState(0);
@@ -127,7 +127,7 @@ function DiscoverTab() {
         />
       }
       renderItem={({ item: postId, index }) => (
-        <PostItem
+        <PostItemCard
           smallContent
           postId={postId}
           style={{
@@ -143,125 +143,133 @@ function DiscoverTab() {
 }
 
 function NearMeTab() {
-  const { width: screenWidth } = useWindowDimensions();
-
-  const [nearMeItems, setNearMeItems] = useState([]);
-  const [isRefreshing, setIsRefreshing] = useState(true);
-  const [error, setError] = useState(null);
-
-  const handleRefresh = () => {
-    if (!isRefreshing) setIsRefreshing(true);
-  };
-
-  /** @type {import('../authentication/authSlice').AuthState} */
-  const { isAuthenticated, user } = useSelector((state) => state.auth);
-  if (!isAuthenticated || !user) {
-    console.error('[NearMeTab] User is not authenticated:', user);
-    return null;
-  }
-
-  useEffect(() => {
-    const fetchNearMeItems = async () => {
-      try {
-        console.log('[NearMeTab] Fetching near me items...');
-        const query = new Parse.Query(Parse.Object.extend('Vendor'));
-
-        console.log('user location settings:', user.settings);
-
-        let pointOfInterest;
-        const geoPointKey = 'geopoint';
-
-        if (user.settings) {
-          const { searchRadius, currentLocation } =
-            user.settings.locationPreference;
-          const { latitude, longitude } = currentLocation;
-          pointOfInterest = new Parse.GeoPoint(latitude, longitude);
-          query.withinKilometers(geoPointKey, pointOfInterest, searchRadius);
-        } else {
-          pointOfInterest = new Parse.GeoPoint(
-            -33.92313968574856,
-            151.0861961540703,
-          );
-          query.withinKilometers(
-            geoPointKey,
-            pointOfInterest,
-            DEFAULT_SEARCH_RADIUS,
-          );
-        }
-
-        const results = await query.findAll();
-        const nearMeItems = results.map((item) => {
-          const imagePreviewArray = item.get('media');
-          const imagePreview = imagePreviewArray
-            ? { uri: imagePreviewArray[0].url }
-            : imagePlaceholder;
-
-          let imagePreviewDimensions;
-          if (typeof imagePreview === 'number') {
-            imagePreviewDimensions = { width: 600, height: 400 };
-          } else {
-            imagePreviewDimensions = {
-              width: imagePreview.width,
-              height: imagePreview.height,
-            };
-          }
-
-          return {
-            id: item.id,
-            shortName: item.get('shortName'),
-            profileId: item.get('profile'),
-            source: imagePreview,
-            dimensions: imagePreviewDimensions,
-          };
-        });
-        setNearMeItems(nearMeItems);
-      } catch (error) {
-        console.error('[NearMeTab] Failed to fetch near me items:', error);
-        setError(error);
-      } finally {
-        setIsRefreshing(false);
-      }
-    };
-
-    if (isRefreshing) fetchNearMeItems();
-  }, [isRefreshing]);
-
   return (
-    <MasonryList
-      sorted
-      rerender
-      columns={2}
-      images={nearMeItems}
-      containerWidth={screenWidth}
-      listContainerStyle={{ ...tabViewStyles, paddingTop: values.spacing.sm }}
-      masonryFlatListColProps={{
-        ListEmptyComponent: error ? (
-          <ErrorTabView error={error} style={tabViewStyles} />
-        ) : (
-          <EmptyTabView style={tabViewStyles} />
-        ),
-        refreshControl: (
-          <RefreshControl
-            refreshing={isRefreshing}
-            onRefresh={handleRefresh}
-            colors={[colors.gray500]}
-            tintColor={colors.gray500}
-            title="Getting posts and products near you..."
-          />
-        ),
-      }}
-      completeCustomComponent={({ data }) => (
-        <MerchantItem
-          merchantId={data.id}
-          shortName={data.shortName}
-          coverPhoto={data.source}
-          coverPhotoDimensions={data.masonryDimensions}
-          style={{ marginLeft: values.spacing.sm * 0.75 }}
-        />
-      )}
-    />
+    <View>
+      <Text>NearMeTab</Text>
+    </View>
   );
 }
+
+// function NearMeTab() {
+//   const { width: screenWidth } = useWindowDimensions();
+//
+//   const [nearMeItems, setNearMeItems] = useState([]);
+//   const [isRefreshing, setIsRefreshing] = useState(true);
+//   const [error, setError] = useState(null);
+//
+//   const handleRefresh = () => {
+//     if (!isRefreshing) setIsRefreshing(true);
+//   };
+//
+//   /** @type {import('../authentication/authSlice').AuthState} */
+//   const { isAuthenticated, user } = useSelector((state) => state.auth);
+//   if (!isAuthenticated || !user) {
+//     console.error('[NearMeTab] User is not authenticated:', user);
+//     return null;
+//   }
+//
+//   useEffect(() => {
+//     const fetchNearMeItems = async () => {
+//       try {
+//         console.log('[NearMeTab] Fetching near me items...');
+//         const query = new Parse.Query(Parse.Object.extend('Vendor'));
+//
+//         console.log('user location settings:', user.settings);
+//
+//         let pointOfInterest;
+//         const geoPointKey = 'geopoint';
+//
+//         if (user.settings) {
+//           const { searchRadius, currentLocation } =
+//             user.settings.locationPreference;
+//           const { latitude, longitude } = currentLocation;
+//           pointOfInterest = new Parse.GeoPoint(latitude, longitude);
+//           query.withinKilometers(geoPointKey, pointOfInterest, searchRadius);
+//         } else {
+//           pointOfInterest = new Parse.GeoPoint(
+//             -33.92313968574856,
+//             151.0861961540703,
+//           );
+//           query.withinKilometers(
+//             geoPointKey,
+//             pointOfInterest,
+//             DEFAULT_SEARCH_RADIUS,
+//           );
+//         }
+//
+//         const results = await query.findAll();
+//         const nearMeItems = results.map((item) => {
+//           const imagePreviewArray = item.get('media');
+//           const imagePreview = imagePreviewArray
+//             ? { uri: imagePreviewArray[0].url }
+//             : imagePlaceholder;
+//
+//           let imagePreviewDimensions;
+//           if (typeof imagePreview === 'number') {
+//             imagePreviewDimensions = { width: 600, height: 400 };
+//           } else {
+//             imagePreviewDimensions = {
+//               width: imagePreview.width,
+//               height: imagePreview.height,
+//             };
+//           }
+//
+//           return {
+//             id: item.id,
+//             shortName: item.get('shortName'),
+//             profileId: item.get('profile'),
+//             source: imagePreview,
+//             dimensions: imagePreviewDimensions,
+//           };
+//         });
+//         setNearMeItems(nearMeItems);
+//       } catch (error) {
+//         console.error('[NearMeTab] Failed to fetch near me items:', error);
+//         setError(error);
+//       } finally {
+//         setIsRefreshing(false);
+//       }
+//     };
+//
+//     if (isRefreshing) fetchNearMeItems();
+//   }, [isRefreshing]);
+//
+//   return (
+//     <MasonryList
+//       sorted
+//       rerender
+//       columns={2}
+//       images={nearMeItems}
+//       containerWidth={screenWidth}
+//       listContainerStyle={{ ...tabViewStyles, paddingTop: values.spacing.sm }}
+//       masonryFlatListColProps={{
+//         ListEmptyComponent: error ? (
+//           <ErrorTabView error={error} style={tabViewStyles} />
+//         ) : (
+//           <EmptyTabView style={tabViewStyles} />
+//         ),
+//         refreshControl: (
+//           <RefreshControl
+//             refreshing={isRefreshing}
+//             onRefresh={handleRefresh}
+//             colors={[colors.gray500]}
+//             tintColor={colors.gray500}
+//             title="Getting posts and products near you..."
+//           />
+//         ),
+//       }}
+//       completeCustomComponent={({ data }) => (
+//         <MerchantItem
+//           merchantId={data.id}
+//           shortName={data.shortName}
+//           coverPhoto={data.source}
+//           coverPhotoDimensions={data.masonryDimensions}
+//           style={{ marginLeft: values.spacing.sm * 0.75 }}
+//         />
+//       )}
+//     />
+//   );
+// }
 
 function FollowingTab() {
   const dispatch = useDispatch();
@@ -336,7 +344,7 @@ function FollowingTab() {
         const newImageHeight = imageHeight * aspectRatio;
 
         return (
-          <PostItem
+          <PostItemCard
             postId={post.id}
             imagePreview={post.media[0]}
             imagePreviewDimensions={{

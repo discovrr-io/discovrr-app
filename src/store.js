@@ -18,12 +18,14 @@ import {
 
 import authReducer from './features/authentication/authSlice';
 import commentsReducer from './features/comments/commentsSlice';
+import notesReducer from './features/notes/notesSlice';
 import postsReducer from './features/posts/postsSlice';
 import profilesReducer from './features/profiles/profilesSlice';
 
 const rootReducer = combineReducers({
   auth: authReducer,
   comments: commentsReducer,
+  notes: notesReducer,
   posts: postsReducer,
   profiles: profilesReducer,
 });

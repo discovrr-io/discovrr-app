@@ -9,7 +9,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRoute } from '@react-navigation/core';
 import { useSelector } from 'react-redux';
 
-import { Button, PostItem, RouteError, ToggleButton } from '../../components';
+import { Button, RouteError, ToggleButton } from '../../components';
+import PostItemCard from '../posts/PostItemCard';
 import { selectProfileById } from './profilesSlice';
 import { colors, typography, values } from '../../constants';
 import { selectPostsByProfile } from '../posts/postsSlice';
@@ -197,16 +198,7 @@ function ProfilePostsTab({ profileId }) {
           dimensions: imagePreviewDimensions,
         };
       })}
-      completeCustomComponent={({ data }) => (
-        <PostItem
-          postId={data.id}
-          type={data.type}
-          column={data.column}
-          imagePreview={data.source}
-          imagePreviewDimensions={data.masonryDimensions}
-          displayFooter={false}
-        />
-      )}
+      completeCustomComponent={({ data }) => <PostItemCard postId={data.id} />}
     />
   );
 }
