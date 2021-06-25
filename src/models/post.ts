@@ -21,7 +21,18 @@ export type PostType = 'text' | 'images' | 'video';
  * A given post may contain any number of media with its source as an explicit
  * URI or a number (returned by `require`) as its location.
  */
-export type PostMedia = ImageSource[];
+export type PostSource = ImageSource;
+
+/**
+ * The main body of a given post.
+ *
+ * The contents of a post differs depending on whether it is a text post, an
+ * image gallery post or a video post.
+ */
+export type PostContent =
+  | { type: 'text'; text: string }
+  | { type: 'image-gallery'; sources: PostSource[]; caption: string }
+  | { type: 'video'; source: PostSource; caption: string };
 
 /**
  * The location of a given post.
@@ -34,11 +45,10 @@ export type PostLocation = {
   text: string;
 };
 
-export type PostMetrics = {
+export type PostStatistics = {
   didSave: boolean;
   didLike: boolean;
   totalLikes: number;
-  // likers: ProfileId[];
 };
 
 /**
@@ -47,10 +57,8 @@ export type PostMetrics = {
 export default interface Post {
   id: PostId;
   profileId: ProfileId;
+  content: PostContent;
   createdAt: string;
-  type: PostType;
-  caption: string;
-  media?: PostMedia;
   location?: PostLocation;
-  metrics?: PostMetrics;
+  statistics?: PostStatistics;
 }

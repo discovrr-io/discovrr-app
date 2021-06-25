@@ -14,8 +14,9 @@ import {
   selectPostById,
   postLikeStatusChanged,
 } from '../features/posts/postsSlice';
-import { selectProfileById } from '../features/profile/profilesSlice';
+import { selectProfileById } from '../features/profiles/profilesSlice';
 import { colors, typography, values } from '../constants';
+import { DEFAULT_AVATAR, DEFAULT_IMAGE_DIMENSIONS } from '../constants/media';
 
 const Parse = require('parse/react-native');
 
@@ -40,22 +41,18 @@ const iconSize = {
 /**
  * @typedef {import('../models').Post} Post
  * @typedef {{ largeIcons?: boolean, showActions?: boolean, showShareIcon?: boolean }} FooterOptions
- * @typedef {{ post: Post, options?: FooterOptions }} PostItemFooterProps
+ * @typedef {{ post: Post, smallContent?: boolean, showShareIcon?: boolean }} PostItemFooterProps
  *
  * @param {PostItemFooterProps & import('react-native').ViewProps} param0
  */
 export const PostItemFooter = ({
   post,
-  options = { largeIcons: false, showActions: true, showShareIcon: false },
+  smallContent = false,
+  showShareIcon = false,
   ...props
 }) => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
-
-  /** @type {import('../models').Profile | undefined} */
-  const profile = useSelector((state) =>
-    selectProfileById(state, post.profileId),
-  );
 
   /** @type {import('../features/authentication/authSlice').AuthState} */
   const { isAuthenticated, user: currentUser } = useSelector(
@@ -63,21 +60,35 @@ export const PostItemFooter = ({
   );
 
   if (!isAuthenticated) {
-    console.warn('[PostItemFooter] Current user is not authenticated');
+    console.warn(
+      '[PostItemFooter]',
+      'Current user is not authenticated, which is unexpected',
+    );
   }
 
-  /**
-   * @typedef {import('../features/authentication/authSlice').ProfileAvatar} ProfileAvatar
-   * @type {{ avatar: ProfileAvatar, fullName: string }}
-   */
-  const { avatar = defaultAvatar, fullName = 'Anonymous' } = profile || {};
+  /** @type {import('../models').Profile | undefined} */
+  const profile = useSelector((state) =>
+    selectProfileById(state, post.profileId),
+  );
+
+  const profileName =
+    (profile?.fullName ?? '').length > 1 ? profile?.fullName : 'Anonymous';
+
+  let profileAvatar;
+  if (profile && profile.avatar) {
+    profileAvatar = profile.avatar;
+  } else {
+    profileAvatar = DEFAULT_AVATAR;
+  }
+
+  const { didSave, didLike, totalLikes } = post.statistics ?? {
+    didSave: false,
+    didLike: false,
+    totalLikes: 0,
+  };
 
   const [isProcessingLike, setIsProcessingLike] = React.useState(false);
   const [isProcessingSave, _setIsProcessingSave] = React.useState(false);
-
-  const didLike = post.metrics.didLike;
-  const didSave = post.metrics.didSave;
-  const totalLikes = post.metrics.totalLikes;
 
   const handlePressAvatar = () => {
     navigation.push('UserProfileScreen', { profileId: profile.id });
@@ -160,17 +171,15 @@ export const PostItemFooter = ({
     console.warn('Unimplemented: handlePressSave');
   };
 
-  const avatarIconSize = options.largeIcons
-    ? iconSize.large.avatar
-    : iconSize.small.avatar;
+  const avatarIconSize = smallContent
+    ? iconSize.small.avatar
+    : iconSize.large.avatar;
 
-  const actionIconSize = options.largeIcons
-    ? iconSize.large.action
-    : iconSize.small.action;
+  const actionIconSize = smallContent
+    ? iconSize.small.action
+    : iconSize.large.action;
 
-  const authorFontSize = options.largeIcons
-    ? typography.size.md
-    : typography.size.xs;
+  const authorFontSize = smallContent ? typography.size.xs : typography.size.md;
 
   return (
     <View style={[postItemFooterStyles.container, props.style]}>
@@ -185,7 +194,7 @@ export const PostItemFooter = ({
               height: avatarIconSize,
               borderRadius: avatarIconSize / 2,
             }}
-            source={avatar}
+            source={profileAvatar}
           />
           <Text
             numberOfLines={1}
@@ -194,56 +203,53 @@ export const PostItemFooter = ({
               postItemFooterStyles.authorName,
               { fontSize: authorFontSize },
             ]}>
-            {fullName || 'Anonymous'}
+            {profileName}
           </Text>
         </View>
       </TouchableOpacity>
-      {options.showActions && (
-        <View style={postItemFooterStyles.actionsContainer}>
-          {options.showShareIcon && (
-            <TouchableOpacity
-              disabled={false}
-              activeOpacity={DEFAULT_ACTIVE_OPACITY}
-              onPress={handlePressShare}>
-              <MaterialIcon
-                style={postItemFooterStyles.actionButton}
-                name="share"
-                color={colors.gray}
-                size={actionIconSize}
-              />
-            </TouchableOpacity>
-          )}
+
+      <View style={postItemFooterStyles.actionsContainer}>
+        {showShareIcon && (
           <TouchableOpacity
-            disabled={isProcessingSave}
+            disabled={false}
             activeOpacity={DEFAULT_ACTIVE_OPACITY}
-            onPress={handlePressSave}>
+            onPress={handlePressShare}>
             <MaterialIcon
               style={postItemFooterStyles.actionButton}
-              name={didSave ? 'bookmark' : 'bookmark-outline'}
-              color={didSave ? colors.black : colors.gray}
+              name="share"
+              color={colors.gray}
               size={actionIconSize}
             />
           </TouchableOpacity>
-          <TouchableOpacity
-            disabled={isProcessingLike}
-            activeOpacity={DEFAULT_ACTIVE_OPACITY}
-            onPress={handlePressLike}>
-            <Animatable.View key={didLike.toString()} animation="bounceIn">
-              <MaterialIcon
-                style={postItemFooterStyles.actionButton}
-                name={didLike ? 'favorite' : 'favorite-border'}
-                color={didLike ? 'red' : colors.gray}
-                size={actionIconSize}
-              />
-            </Animatable.View>
-          </TouchableOpacity>
-          <Text style={postItemFooterStyles.likesCount}>
-            {totalLikes > 999
-              ? `${(totalLikes / 1000).toFixed(1)}k`
-              : totalLikes}
-          </Text>
-        </View>
-      )}
+        )}
+        <TouchableOpacity
+          disabled={isProcessingSave}
+          activeOpacity={DEFAULT_ACTIVE_OPACITY}
+          onPress={handlePressSave}>
+          <MaterialIcon
+            style={postItemFooterStyles.actionButton}
+            name={didSave ? 'bookmark' : 'bookmark-outline'}
+            color={didSave ? colors.black : colors.gray}
+            size={actionIconSize}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity
+          disabled={isProcessingLike}
+          activeOpacity={DEFAULT_ACTIVE_OPACITY}
+          onPress={handlePressLike}>
+          <Animatable.View key={didLike.toString()} animation="bounceIn">
+            <MaterialIcon
+              style={postItemFooterStyles.actionButton}
+              name={didLike ? 'favorite' : 'favorite-border'}
+              color={didLike ? 'red' : colors.gray}
+              size={actionIconSize}
+            />
+          </Animatable.View>
+        </TouchableOpacity>
+        <Text style={postItemFooterStyles.likesCount}>
+          {totalLikes > 999 ? `${(totalLikes / 1000).toFixed(1)}k` : totalLikes}
+        </Text>
+      </View>
     </View>
   );
 };
@@ -293,124 +299,114 @@ const postItemFooterStyles = StyleSheet.create({
  * @typedef {import('../models/post').PostType} PostType
  * @typedef {{
  *   postId: PostId,
- *   column?: number,
- *   imagePreview?: Object,
- *   imagePreviewDimensions?: { height: number, width: number },
- *   displayFooter?: boolean,
- *   footerOptions: FooterOptions
+ *   showFooter?: boolean,
+ *   smallContent?: boolean,
  * }} PostItemProps
  *
  * @param {PostItemProps & import('react-native').ViewProps} param0
  */
 const PostItem = ({
   postId,
-  column = 0,
-  imagePreview = {},
-  imagePreviewDimensions = { width: 1, height: 1 },
-  displayFooter = true,
-  footerOptions = {
-    largeIcons: false,
-    showActions: true,
-    showShareIcon: false,
-  },
+  showFooter = true,
+  smallContent = false,
   ...props
 }) => {
   const navigation = useNavigation();
 
-  /** @type {import('../features/posts/postsSlice').Post | undefined} */
+  /** @type {import('../models').Post | undefined} */
   const post = useSelector((state) => selectPostById(state, postId));
-  const caption = post.caption;
+  if (!post) {
+    console.warn('[PostItem] Failed to select post with id:', postId);
+    return null;
+  }
 
-  const onPressPost = () => {
-    navigation.push('PostDetailScreen', { postId });
+  const handlePostPress = () => {
+    navigation.navigate('PostDetailScreen', { postId });
   };
 
-  const PostItemContent = ({ onPressPost, ...props }) => {
-    const PostItemContentCaption = ({ caption, maxWidth }) => {
-      return (
+  const PostItemCaption = ({ caption }) => {
+    return (
+      <View style={postItemStyles.captionContainer}>
         <Text
           numberOfLines={2}
           style={{
-            maxWidth,
-            fontWeight: '600',
-            fontSize: footerOptions.largeIcons
-              ? typography.size.sm
-              : typography.size.xs,
-            marginVertical: footerOptions.largeIcons
-              ? values.spacing.md
-              : values.spacing.sm,
-            marginHorizontal: values.spacing.sm,
-            color: colors.gray700,
+            fontSize: smallContent ? typography.size.sm : typography.size.md,
           }}>
           {caption}
         </Text>
-      );
-    };
-
-    switch (post.type) {
-      case 'text':
-        return (
-          <View
-            style={[
-              postItemStyles.dialogBox,
-              { maxWidth: imagePreviewDimensions.width },
-              props.style,
-            ]}>
-            <Text
-              numberOfLines={6}
-              ellipsizeMode="tail"
-              style={postItemStyles.dialogBoxText}>
-              {caption}
-            </Text>
-          </View>
-        );
-      case 'video' /* FALLTHROUGH */:
-      // console.warn(
-      //   `Unimplemented: 'video' post item. Defaulting to 'images'...`,
-      // );
-      case 'images':
-        const { width, height } = imagePreviewDimensions;
-        return (
-          <View style={[props.style]}>
-            <FastImage
-              source={imagePreview}
-              resizeMode="cover"
-              style={{
-                width,
-                height,
-                borderWidth: 1,
-                borderRadius: values.radius.md,
-                borderColor: colors.gray300,
-                backgroundColor: colors.gray100,
-              }}
-            />
-            <PostItemContentCaption maxWidth={width} caption={caption} />
-          </View>
-        );
-      default:
-        return null;
-    }
+      </View>
+    );
   };
 
+  let cardContent;
+  switch (post.content.type) {
+    case 'image-gallery':
+      const imagePreviewSource = post.content.sources[0];
+      let imagePreviewWidth, imagePreviewHeight;
+
+      if (typeof imagePreviewSource === 'number') {
+        imagePreviewWidth = DEFAULT_IMAGE_DIMENSIONS.width;
+        imagePreviewHeight = DEFAULT_IMAGE_DIMENSIONS.height;
+      } else {
+        imagePreviewWidth = imagePreviewSource.width;
+        imagePreviewHeight = imagePreviewSource.height;
+      }
+
+      cardContent = (
+        <View>
+          <FastImage
+            source={post.content.sources[0]}
+            resizeMode="contain"
+            style={{
+              aspectRatio: imagePreviewWidth / imagePreviewHeight,
+              backgroundColor: colors.gray100,
+              borderRadius: values.radius.md,
+            }}
+          />
+          <PostItemCaption caption={post.content.caption} />
+        </View>
+      );
+      break;
+    case 'video':
+      cardContent = (
+        <View>
+          <Text>VIDEO</Text>
+          <PostItemCaption caption={post.content.caption} />
+        </View>
+      );
+      break;
+    case 'text': /* FALLTHROUGH */
+    default:
+      cardContent = (
+        <View style={postItemStyles.dialogBox}>
+          <Text
+            numberOfLines={smallContent ? 5 : 15}
+            style={[
+              postItemStyles.dialogBoxText,
+              {
+                fontSize: smallContent
+                  ? typography.size.md
+                  : typography.size.lg,
+              },
+            ]}>
+            {post.content.text}
+          </Text>
+        </View>
+      );
+      break;
+  }
+
   return (
-    <View
-      style={[
-        {
-          maxWidth: imagePreviewDimensions.width,
-          marginBottom: values.spacing.lg,
-          marginHorizontal: values.spacing.xs,
-        },
-        props.style,
-      ]}>
+    <View style={[props.style]}>
       <TouchableOpacity
         activeOpacity={DEFAULT_ACTIVE_OPACITY}
-        onPress={onPressPost}>
-        <PostItemContent onPressPost={onPressPost} />
+        onPress={handlePostPress}>
+        {cardContent}
       </TouchableOpacity>
-      {displayFooter && (
+      {showFooter && (
         <PostItemFooter
           post={post}
-          options={footerOptions}
+          smallContent={smallContent}
           style={{ marginHorizontal: values.spacing.sm }}
         />
       )}
@@ -431,6 +427,10 @@ PostItem.propTypes = {
 };
 
 const postItemStyles = StyleSheet.create({
+  captionContainer: {
+    paddingVertical: values.spacing.sm,
+    paddingHorizontal: values.spacing.sm,
+  },
   dialogBox: {
     flex: 1,
     backgroundColor: colors.gray100,

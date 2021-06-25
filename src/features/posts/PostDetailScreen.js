@@ -1,11 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  useWindowDimensions,
+  Alert,
   FlatList,
+  KeyboardAvoidingView,
+  Platform,
   RefreshControl,
   SafeAreaView,
   StyleSheet,
   Text,
+  TextInput,
+  useWindowDimensions,
   View,
 } from 'react-native';
 
@@ -13,6 +17,7 @@ import Carousel, { Pagination } from 'react-native-snap-carousel';
 import FastImage from 'react-native-fast-image';
 import Video from 'react-native-video';
 import { useRoute } from '@react-navigation/core';
+import { createSelector } from '@reduxjs/toolkit';
 import { useDispatch, useSelector } from 'react-redux';
 
 import {
@@ -20,13 +25,36 @@ import {
   ErrorTabView,
   RouteError,
   LoadingTabView,
-  PostComment,
 } from '../../components';
+import PostComment from '../comments/PostComment';
 import { PostItemFooter } from '../../components/PostItem';
 import { colors, typography, values } from '../../constants';
+import {
+  addCommentForPost,
+  selectAllComments,
+} from '../comments/commentsSlice';
 import { fetchPostById, selectPostById } from './postsSlice';
 
 const Parse = require('parse/react-native');
+
+const COMMENT_TEXT_INPUT_HEIGHT = 50;
+const COMMENT_POST_BUTTON_WIDTH = 70;
+
+const getCommentsForPost = createSelector(
+  [selectPostById, selectAllComments],
+  /**
+   * @returns {import('../../models').CommentId[]}
+   */
+  (post, allComments) => {
+    if (post) {
+      return allComments
+        .filter((comment) => comment.postId === post.id)
+        .map((comment) => comment.id);
+    } else {
+      return [];
+    }
+  },
+);
 
 /**
  * @typedef {import('../../models').Comment} Comment
@@ -200,44 +228,78 @@ export default function PostDetailScreen() {
     return <RouteError />;
   }
 
-  const [shouldRefresh, setShouldRefresh] = useState(false);
+  const commentIds = useSelector((state) => getCommentsForPost(state, postId));
 
-  const [comments, setComments] = useState([]);
-  const [shouldLoadComments, setShouldLoadComments] = useState(true);
+  const isMounted = useRef(true);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [shouldRefresh, setShouldRefresh] = useState(false);
   const [commentsError, setCommentsError] = useState(null);
 
-  // Determines if the component is mounted (and thus if the useEffect hook
-  // can continue setting the state).
-  // TODO: Consider creating a custom useAsync hook to handle this for you
-  // const isSubscribed = useRef(true);
+  const [commentTextInput, setCommentTextInput] = useState('');
+  const [isProcessingComment, setIsProcessingComment] = useState(false);
 
   useEffect(() => {
-    async function fetchPost() {
-      await dispatch(fetchPostById(postId));
-      /* isSubscribed.current && */ setShouldRefresh(false);
-    }
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
+  useEffect(() => {
     const fetchComments = async () => {
       try {
-        const comments = await fetchCommentsForPost(String(postId));
-        /* isSubscribed.current && */ setComments(comments);
+        await Promise.all([
+          dispatch(fetchPostById(String(postId))).unwrap(),
+          dispatch(fetchCommentsForPost(String(postId))).unwrap(),
+        ]);
       } catch (error) {
-        console.error('Failed to fetch comments for post:', error);
-        /* isSubscribed.current && */ setCommentsError(error);
+        console.error(
+          '[PostDetailsScreen] Failed to fetch comments for post:',
+          error,
+        );
+        setCommentsError(error);
       } finally {
-        /* isSubscribed.current && */ setShouldLoadComments(false);
+        setIsInitialLoad(false);
       }
     };
 
-    if (shouldRefresh) fetchPost();
-    if (shouldLoadComments) fetchComments();
-    // return () => (isSubscribed.current = false);
-  }, [shouldRefresh, shouldLoadComments, dispatch]);
+    if (isInitialLoad) fetchComments();
+  }, [isInitialLoad]);
+
+  useEffect(() => {
+    const refreshData = async () => {
+      try {
+        await Promise.all([
+          dispatch(fetchPostById(postId)).unwrap(),
+          dispatch(fetchCommentsForPost(postId)).unwrap(),
+        ]);
+      } catch (error) {}
+    };
+
+    if (shouldRefresh) refreshData();
+  }, [shouldRefresh]);
 
   const handleRefresh = () => {
-    if (!shouldRefresh) {
-      setShouldRefresh(true);
-      setShouldLoadComments(true);
+    if (!shouldRefresh) setShouldRefresh(true);
+  };
+
+  const handlePostComment = async () => {
+    try {
+      setIsProcessingComment(true);
+      await dispatch(
+        addCommentForPost({
+          postId,
+          message: commentTextInput,
+        }),
+      );
+    } catch (error) {
+      console.error('Failed to post comment:', error);
+      Alert.alert(
+        'Something went wrong',
+        "Sorry, we weren't able to post your comment. Please try again later.",
+      );
+    } finally {
+      setIsProcessingComment(false);
+      setCommentTextInput('');
     }
   };
 
@@ -266,47 +328,83 @@ export default function PostDetailScreen() {
 
   return (
     <SafeAreaView style={{ flexGrow: 1, backgroundColor: colors.white }}>
-      <FlatList
-        data={comments}
-        renderItem={({ item: comment }) => (
-          <PostComment
-            comment={comment}
-            style={{ padding: values.spacing.md }}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : -120}
+        style={{ flex: 1 }}>
+        <FlatList
+          data={commentIds}
+          contentContainerStyle={{
+            flexGrow: 1,
+            paddingVertical: values.spacing.lg,
+          }}
+          ListHeaderComponent={postContent}
+          ListEmptyComponent={
+            isInitialLoad ? (
+              <LoadingTabView
+                message="Loading comments..."
+                style={postDetailScreenStyles.tabView}
+              />
+            ) : commentsError ? (
+              <ErrorTabView
+                caption="We couldn't load the comments for this post."
+                error={commentsError}
+                style={postDetailScreenStyles.tabView}
+              />
+            ) : (
+              <EmptyTabView
+                message="No comments. Be the first one!"
+                style={postDetailScreenStyles.tabView}
+              />
+            )
+          }
+          refreshControl={
+            <RefreshControl
+              refreshing={shouldRefresh}
+              onRefresh={handleRefresh}
+              colors={[colors.gray500]}
+              tintColor={colors.gray500}
+            />
+          }
+          renderItem={({ item: commentId }) => (
+            <PostComment
+              commentId={commentId}
+              style={{ padding: values.spacing.md }}
+            />
+          )}
+        />
+        <View
+          style={{
+            minHeight: COMMENT_TEXT_INPUT_HEIGHT,
+            flexDirection: 'row',
+            alignItems: 'flex-end',
+            backgroundColor: colors.white,
+            borderColor: colors.gray100,
+            borderTopWidth: values.border.thin,
+          }}>
+          <TextInput
+            multiline
+            maxLength={300}
+            value={commentTextInput}
+            onChangeText={setCommentTextInput}
+            editable={!isProcessingComment}
+            placeholder="Add your comment..."
+            style={{
+              flexGrow: 1,
+              flexShrink: 1,
+              paddingLeft: values.spacing.md * 1.5,
+              ...(Platform.OS === 'ios'
+                ? {
+                    paddingTop: values.spacing.lg,
+                    paddingBottom: values.spacing.lg,
+                    paddingRight: values.spacing.md * 1.5,
+                    minHeight: COMMENT_TEXT_INPUT_HEIGHT,
+                  }
+                : {}),
+            }}
           />
-        )}
-        contentContainerStyle={{
-          flexGrow: 1,
-          paddingVertical: values.spacing.lg,
-        }}
-        refreshControl={
-          <RefreshControl
-            refreshing={shouldRefresh}
-            onRefresh={handleRefresh}
-            colors={[colors.gray500]}
-            tintColor={colors.gray500}
-          />
-        }
-        ListHeaderComponent={postContent}
-        ListEmptyComponent={
-          shouldLoadComments ? (
-            <LoadingTabView
-              message="Loading comments..."
-              style={postDetailScreenStyles.tabView}
-            />
-          ) : commentsError ? (
-            <ErrorTabView
-              caption="We couldn't load the comments for this post."
-              error={commentsError}
-              style={postDetailScreenStyles.tabView}
-            />
-          ) : (
-            <EmptyTabView
-              message="No comments. Be the first one!"
-              style={postDetailScreenStyles.tabView}
-            />
-          )
-        }
-      />
+        </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }

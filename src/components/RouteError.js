@@ -12,7 +12,7 @@ import { colors, typography, values } from '../constants';
  */
 export default function RouteError({
   emoji = '😓',
-  heading = `Something wrong happened`,
+  heading = `Something went wrong`,
   caption = "The link you provided doesn't seem to be valid.",
 }) {
   const navigation = useNavigation();

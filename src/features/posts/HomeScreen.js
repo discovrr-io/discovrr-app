@@ -4,23 +4,25 @@ import {
   Alert,
   FlatList,
   RefreshControl,
+  Text,
 } from 'react-native';
 
-import MasonryList from 'react-native-masonry-list';
+// import MasonryList from 'react-native-masonry-list';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
 import { unwrapResult } from '@reduxjs/toolkit';
 import { useDispatch, useSelector } from 'react-redux';
 
-import MerchantItem from '../merchant/MerchantItem';
+import MasonryList from '../../components/MasonryList';
+import MerchantItem from '../merchants/MerchantItem';
 import { PostItem, EmptyTabView, ErrorTabView } from '../../components';
 import { colors, typography, values } from '../../constants';
 
-import { fetchProfiles } from '../profile/profilesSlice';
+import { fetchAllProfiles } from '../profiles/profilesSlice';
 import {
   fetchAllPosts,
   fetchFollowingPosts,
-  selectAllPosts,
+  selectPostIds,
 } from './postsSlice';
 
 const PAGINATION_LIMIT = 26;
@@ -34,15 +36,13 @@ const FeedTab = createMaterialTopTabNavigator();
 /** @type {import('react-native').ViewStyle} */
 const tabViewStyles = {
   flexGrow: 1,
-  backgroundColor: colors.white,
+  // backgroundColor: colors.white,
 };
 
 function DiscoverTab() {
   const dispatch = useDispatch();
-  // const isInitialRender = useRef(true);
-  const { width: screenWidth } = useWindowDimensions();
 
-  const posts = useSelector(selectAllPosts);
+  const postIds = useSelector(selectPostIds);
 
   /** @type {import('./postsSlice').FetchStatus} */
   const { error: fetchError } = useSelector((state) => state.posts);
@@ -55,20 +55,22 @@ function DiscoverTab() {
     if (!shouldRefresh) setShouldRefresh(true);
   };
 
-  const handleFetchMorePosts = () => {
-    if (!shouldRefresh) setCurrentPage((prev) => prev + 1);
-  };
+  // const handleFetchMorePosts = () => {
+  //   if (!shouldRefresh) setCurrentPage((prev) => prev + 1);
+  // };
 
   useEffect(() => {
     const refreshPosts = async () => {
       try {
         console.log('Refreshing posts and profiles...');
-        await dispatch(fetchAllPosts());
-        await dispatch(fetchProfiles());
+        await Promise.all([
+          dispatch(fetchAllPosts()).unwrap(),
+          dispatch(fetchAllProfiles()).unwrap(),
+        ]);
       } catch (error) {
         console.error('[HomeScreen] Failed to refresh posts:', error);
         Alert.alert(
-          'Something wrong happened',
+          'Something went wrong',
           "We couldn't refresh your posts for you",
         );
       } finally {
@@ -81,112 +83,59 @@ function DiscoverTab() {
 
   useEffect(() => {
     const fetchMorePosts = async () => {
-      try {
-        setIsFetchingMore(true);
-        /** @type {import('../../models').Post[]} */
-        const posts = await dispatch(
-          fetchAllPosts({ limit: PAGINATION_LIMIT, currentPage }),
-        ).then(unwrapResult);
-
-        if (posts.length === 0) {
-          Alert.alert(
-            "You're all caught up!",
-            "Looks like you've reached the end",
-          );
-        } else {
-          await dispatch(fetchProfiles());
-          setCurrentPage((prev) => prev + 1);
-        }
-      } catch (error) {
-        console.error('[HomeScreen] Failed to fetch more posts:', error);
-        Alert.alert(
-          'Something wrong happened',
-          "We couldn't fetch more posts for you",
-        );
-      } finally {
-        setIsFetchingMore(false);
-      }
+      console.warn('Unimplemented: HomeScreen.fetchMorePosts');
+      // try {
+      //   setIsFetchingMore(true);
+      //   /** @type {import('../../models').Post[]} */
+      //   const posts = await dispatch(
+      //     fetchAllPosts({ limit: PAGINATION_LIMIT, currentPage }),
+      //   ).then(unwrapResult);
+      //
+      //   if (posts.length === 0) {
+      //     Alert.alert(
+      //       "You're all caught up!",
+      //       "Looks like you've reached the end",
+      //     );
+      //   } else {
+      //     await dispatch(fetchAllProfiles()).unwrap();
+      //     setCurrentPage((prev) => prev + 1);
+      //   }
+      // } catch (error) {
+      //   console.error('[HomeScreen] Failed to fetch more posts:', error);
+      //   Alert.alert(
+      //     'Something went wrong',
+      //     "We couldn't fetch more posts for you",
+      //   );
+      // } finally {
+      //   setIsFetchingMore(false);
+      // }
     };
 
     if (!shouldRefresh && !isFetchingMore) fetchMorePosts();
   }, [currentPage, dispatch]);
 
-  const masonryPosts = posts.map((post) => {
-    /** @type {import('../../models/common').ImageSource} */
-    let imagePreviewSource;
-    /** @type {{ width: number, height: number }} */
-    let imagePreviewDimensions;
-
-    if (!post.media) {
-      imagePreviewSource = imagePlaceholder;
-    } else if (Array.isArray(post.media)) {
-      const firstImage = post.media[0];
-      imagePreviewSource = firstImage ?? imagePlaceholder;
-      imagePreviewDimensions = {
-        width: firstImage?.width ?? 800,
-        height: firstImage?.height ?? 600,
-      };
-    } else {
-      imagePreviewSource = post.media;
-      imagePreviewDimensions = {
-        width: post.media.width ?? 800,
-        height: post.media.height ?? 600,
-      };
-    }
-
-    return {
-      id: post.id,
-      type: post.type,
-      source: imagePreviewSource,
-      dimensions: imagePreviewDimensions,
-    };
-  });
+  const TILE_SPACING = values.spacing.sm * 1.25;
 
   return (
     <MasonryList
-      sorted
-      rerender
-      columns={2}
-      images={masonryPosts}
-      containerWidth={screenWidth}
-      listContainerStyle={{ ...tabViewStyles, paddingTop: values.spacing.sm }}
-      onEndReachedThreshold={0.5}
-      onEndReached={handleFetchMorePosts}
-      masonryFlatListColProps={{
-        ListEmptyComponent: fetchError ? (
-          <ErrorTabView error={fetchError} style={tabViewStyles} />
-        ) : (
-          <EmptyTabView style={tabViewStyles} />
-        ),
-        // ListFooterComponent: (
-        //   <View style={{ paddingVertical: values.spacing.xxl }}>
-        //     <Text
-        //       style={{
-        //         textAlign: 'center',
-        //         fontSize: typography.size.lg,
-        //         fontWeight: '700',
-        //       }}>
-        //       You're all caught up!
-        //     </Text>
-        //   </View>
-        // ),
-        refreshControl: (
-          <RefreshControl
-            refreshing={shouldRefresh}
-            onRefresh={handleRefresh}
-            colors={[colors.gray500]}
-            tintColor={colors.gray500}
-            title="Loading your personalised feed..."
-          />
-        ),
-      }}
-      completeCustomComponent={({ data }) => (
+      data={postIds}
+      refreshControl={
+        <RefreshControl
+          tintColor={colors.gray500}
+          refreshing={shouldRefresh}
+          onRefresh={handleRefresh}
+        />
+      }
+      renderItem={({ item: postId, index }) => (
         <PostItem
-          postId={data.id}
-          column={data.column}
-          imagePreview={data.source}
-          imagePreviewDimensions={data.masonryDimensions}
-          footerOptions={{ showActions: true }}
+          smallContent
+          postId={postId}
+          style={{
+            marginTop: TILE_SPACING,
+            marginLeft: index % 2 === 0 ? TILE_SPACING : TILE_SPACING / 2,
+            marginRight: index % 2 !== 0 ? TILE_SPACING : TILE_SPACING / 2,
+            marginBottom: values.spacing.sm,
+          }}
         />
       )}
     />
@@ -216,7 +165,6 @@ function NearMeTab() {
       try {
         console.log('[NearMeTab] Fetching near me items...');
         const query = new Parse.Query(Parse.Object.extend('Vendor'));
-        // query.equalTo('editedDelete', true);
 
         console.log('user location settings:', user.settings);
 

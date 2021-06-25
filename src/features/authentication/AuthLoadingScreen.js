@@ -54,7 +54,7 @@ function setUpOneSignalHandlers() {
 }
 
 /**
- * @param {import('./authSlice').User} user
+ * @param {import('../../models').User} user
  */
 async function setUpOneSignalUserDetails(user) {
   const { userId: currentPlayerId } = await OneSignal.getDeviceState();
@@ -90,26 +90,24 @@ async function setOneSignalPlayerId(currentPlayerId, profileId) {
 }
 
 /**
- * @param {import('./authSlice').User} user
+ * @param {import('../../models').User} user
  */
 function sendOneSignalTags(user) {
-  const { id: profileId, userId, email, fullName } = user.profile;
+  const { id: profileId, email, fullName } = user.profile;
 
-  if (userId && profileId && email) {
+  if (profileId && email) {
     // We'll send both userId and profileId for convenience
     OneSignal.sendTags({
-      userId,
       profileId,
       email,
       fullName,
     });
 
-    OneSignal.setExternalUserId(userId, (results) => {
+    OneSignal.setExternalUserId(profileId, (results) => {
       console.log('[OneSignal] Result of setting external id:', results);
     });
   } else {
     console.warn('One of the following required fields is not defined:', {
-      userId: userId,
       profileId: profileId,
       email: email,
     });

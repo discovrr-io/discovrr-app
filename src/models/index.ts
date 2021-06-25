@@ -1,17 +1,6 @@
-import Comment, { CommentId } from './comment';
-import FetchStatus, { FetchLoadingStatus } from './fetch';
-import Post, { PostId } from './post';
-import Profile, { ProfileId } from './profile';
-import User from './user';
-
-export type {
-  Comment,
-  CommentId,
-  FetchStatus,
-  FetchLoadingStatus,
-  Post,
-  PostId,
-  Profile,
-  ProfileId,
-  User,
-};
+export type { default as Comment, CommentId } from './comment';
+export type { default as Merchant, MerchantId } from './merchant';
+export type { default as Note, NoteId } from './note';
+export type { default as Post, PostId } from './post';
+export type { default as Profile, ProfileId } from './profile';
+export type { default as User, UserSettings } from './user';

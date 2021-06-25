@@ -233,10 +233,10 @@ export default function ProfileScreen({ route }) {
 
   const profile = useSelector((state) => selectProfileById(state, profileId));
   if (!profile) {
+    // TODO: Try to load the profile again just in case all the profiles haven't
+    // been loaded and the user clicks the 'Profile' tab
     console.error('[ProfileScreen] Failed to select profile by id:', profileId);
-    return (
-      <RouteError caption="We weren't able to load this profile. Please try again later." />
-    );
+    return <RouteError caption="We weren't able to load this profile." />;
   }
 
   return (

@@ -26,9 +26,9 @@ import NotesScreen from './features/notes/NotesScreen';
 import NoteDetailScreen from './features/notes/NoteDetailScreen';
 import PostCreationScreen from './features/posts/PostCreationScreen';
 import PostDetailScreen from './features/posts/PostDetailScreen';
-import ProfileScreen from './features/profile/ProfileScreen';
-import ProfileEditScreen from './features/profile/ProfileEditScreen';
-import FollowerScreen from './features/profile/FollowerScreen';
+import ProfileScreen from './features/profiles/ProfileScreen';
+import ProfileEditScreen from './features/profiles/ProfileEditScreen';
+import FollowerScreen from './features/profiles/FollowerScreen';
 import AccountSettingsScreen from './features/settings/AccountSettingsScreen';
 import BottomSheetPanel from './components/BottomSheetPanel';
 

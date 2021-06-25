@@ -5,20 +5,27 @@ import FastImage from 'react-native-fast-image';
 import { useNavigation } from '@react-navigation/native';
 import { useSelector } from 'react-redux';
 
-import { colors, typography, values } from '../constants';
-import { selectProfileById } from '../features/profile/profilesSlice';
+import { colors, typography, values } from '../../constants';
+import { selectProfileById } from '../profiles/profilesSlice';
+import { selectCommentById } from './commentsSlice';
 
 const AVATAR_DIAMETER = 32;
 const DEFAULT_ACTIVE_OPACITY = 0.6;
 
 /**
- * @typedef {import('../models').Comment} Comment
+ * @typedef {import('../../models').CommentId} CommentId
  * @typedef {import('react-native').ViewProps} ViewProps
- * @typedef {{ comment: Comment }} PostCommentProps
+ * @typedef {{ commentId: CommentId }} PostCommentProps
  * @param {PostCommentProps & ViewProps} param0
  */
-export default function PostComment({ comment, ...props }) {
+export default function PostComment({ commentId, ...props }) {
   const navigation = useNavigation();
+
+  const comment = useSelector((state) => selectCommentById(state, commentId));
+  if (!comment) {
+    console.warn('[Comment] Failed to select comment with id:', commentId);
+    return null;
+  }
 
   const { avatar, fullName } = useSelector((state) =>
     selectProfileById(state, comment.profileId),

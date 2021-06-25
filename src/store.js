@@ -17,27 +17,24 @@ import {
 } from 'redux-persist';
 
 import authReducer from './features/authentication/authSlice';
+import commentsReducer from './features/comments/commentsSlice';
 import postsReducer from './features/posts/postsSlice';
-import profilesReducer from './features/profile/profilesSlice';
+import profilesReducer from './features/profiles/profilesSlice';
 
 const rootReducer = combineReducers({
   auth: authReducer,
+  comments: commentsReducer,
   posts: postsReducer,
   profiles: profilesReducer,
 });
-
-// const persistConfig = {
-//   storage: AsyncStorage,
-//   key: 'root',
-//   stateReconciler: autoMergeLevel2,
-// };
 
 const persistedReducer = persistReducer(
   {
     storage: AsyncStorage,
     key: 'root',
     stateReconciler: autoMergeLevel2,
-    blacklist: ['posts', 'profiles'],
+    // blacklist: ['posts', 'profiles'],
+    blacklist: ['comments'],
   },
   rootReducer,
 );

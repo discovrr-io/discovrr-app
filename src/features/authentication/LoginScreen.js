@@ -15,7 +15,7 @@ import {
   ScrollView,
 } from 'react-native';
 
-import { connect, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import Video from 'react-native-video';
 import auth from '@react-native-firebase/auth';
 
@@ -331,13 +331,13 @@ function LoginForm({ setFormType }) {
     try {
       console.log('[LoginForm] Starting login process...');
       setIsProcessing(true);
-      await dispatch(signInWithEmailAndPassword(loginValues));
-      console.log('[LoginForm] Successfully signed in with email and password');
+      await dispatch(signInWithEmailAndPassword(loginValues)).unwrap();
     } catch (error) {
       console.error(`[LoginForm] Login error (${error.code}):`, error.message);
       const { title, message } = authErrorMessage(error);
       Alert.alert(title, message);
     } finally {
+      console.log('[LoginForm] Successfully signed in with email and password');
       setIsProcessing(false);
     }
   };
@@ -768,7 +768,7 @@ export default function LoginScreen() {
         <View
           style={{
             position: 'absolute',
-            bottom: values.spacing.xxl * 1.5,
+            bottom: values.spacing.lg,
             flexDirection: 'row',
           }}>
           {appleAuth.isSupported && (
