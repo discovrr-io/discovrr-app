@@ -1,10 +1,5 @@
 import React, { useState } from 'react';
-import {
-  StyleSheet,
-  TextInput as RNTextInput,
-  TouchableWithoutFeedback,
-  View,
-} from 'react-native';
+import { StyleSheet, TextInput as RNTextInput } from 'react-native';
 
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 
@@ -27,10 +22,11 @@ export default function TextInput({
     <>
       <RNTextInput
         editable={editable}
+        placeholderTextColor={color.gray500}
         secureTextEntry={hidePassword && secureTextEntry}
         {...props}
         style={[
-          textInputStyles.container,
+          textInputStyles.textInput,
           size === 'small'
             ? textInputStyles.smallContainer
             : textInputStyles.largeContainer,
@@ -60,7 +56,8 @@ export default function TextInput({
 }
 
 const textInputStyles = StyleSheet.create({
-  container: {
+  textInput: {
+    color: color.black,
     width: '100%',
     backgroundColor: color.white,
     borderRadius: layout.radius.lg,

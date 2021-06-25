@@ -20,25 +20,21 @@ export const fetchPostById = createAsyncThunk(
 export const fetchFollowingPosts = createAsyncThunk(
   'posts/fetchFollowingPosts',
   /**
-   * @param {{ pagination?: Pagination }} param0
+   * @typedef {{ limit: number, skip?: number }} Pagination
+   * @param {Pagination=} pagination
    * @returns {Promise<Post[]>}
    */
-  async ({ pagination = undefined }, _) => {
+  async (pagination = undefined, _) => {
     try {
-      return new Promise((resolve, _) => {
-        setTimeout(() => {
-          console.log(
-            '[fetchFollowingPosts] Finished fetching following posts',
-          );
-          resolve([]);
-        }, 4000);
-      });
+      // const query = new Parse.Query(Parse.Object.extend('Post'))
     } catch (error) {
       console.error(
         '[fetchFollowingPosts] Failed to fetch following posts:',
         error,
       );
       throw error;
+    } finally {
+      console.log('[fetchFollowingPosts] Finished fetching following posts');
     }
   },
 );
@@ -73,9 +69,9 @@ const postsSlice = createSlice({
     postLikeStatusChanged: (state, action) => {
       const { postId, didLike } = action.payload;
       const existingPost = state.entities[postId];
-      if (existingPost && existingPost.metrics) {
-        existingPost.metrics.didLike = didLike;
-        existingPost.metrics.totalLikes += didLike ? 1 : -1;
+      if (existingPost && existingPost.statistics) {
+        existingPost.statistics.didLike = didLike;
+        existingPost.statistics.totalLikes += didLike ? 1 : -1;
       }
     },
   },

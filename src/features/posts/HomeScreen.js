@@ -276,16 +276,23 @@ function FollowingTab() {
         limit: PAGINATION_LIMIT,
       };
 
-      dispatch(fetchFollowingPosts({ pagination }))
-        .then(unwrapResult)
-        .then((followingPosts) => {
-          setFollowingPosts(followingPosts);
-          setIsRefreshing(false);
-        })
-        .catch((error) => {
-          console.error(error);
-          setIsRefreshing(false);
-        });
+      // dispatch(fetchFollowingPosts({ pagination }))
+      //   .then(unwrapResult)
+      //   .then((followingPosts) => {
+      //     setFollowingPosts(followingPosts);
+      //     setIsRefreshing(false);
+      //   })
+      //   .catch((error) => {
+      //     console.error(error);
+      //     setIsRefreshing(false);
+      //   });
+
+      try {
+        /** @type {import('../../models').Post[]} */
+        const following = await dispatch(
+          fetchFollowingPosts(pagination),
+        ).unwrap();
+      } catch (error) {}
     };
 
     if (isRefreshing) fetchData();

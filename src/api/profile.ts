@@ -47,6 +47,7 @@ export namespace ProfileApi {
       username: result.get('username') ?? '',
       avatar: profileAvatar,
       coverPhoto: profileCoverPhoto,
+      description: result.get('description') ?? '',
       isVendor: false, // TODO: Determine if profile is vendor
       followers: result.get('followersArray') ?? [],
       following: result.get('followingArray') ?? [],

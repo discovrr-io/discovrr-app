@@ -136,6 +136,47 @@ function authErrorMessage(authError) {
   }
 }
 
+function LoadingOverlay({ message }) {
+  return (
+    <View
+      style={{
+        position: 'absolute',
+        width: '100%',
+        height: '100%',
+        backgroundColor: 'rgba(0, 0, 0, 0.55)',
+        alignContent: 'center',
+        justifyContent: 'center',
+      }}>
+      <View style={{ alignContent: 'center' }}>
+        <ActivityIndicator
+          size="large"
+          color={colors.white}
+          style={{ transform: [{ scale: 1.5 }] }}
+        />
+        <Text
+          style={{
+            color: colors.white,
+            fontSize: typography.size.lg,
+            fontWeight: '700',
+            textAlign: 'center',
+            marginTop: values.spacing.md * 1.5,
+          }}>
+          {message}
+        </Text>
+        <Text
+          style={{
+            color: colors.white,
+            fontSize: typography.size.md,
+            textAlign: 'center',
+            marginTop: values.spacing.sm,
+          }}>
+          This may take a while
+        </Text>
+      </View>
+    </View>
+  );
+}
+
 function OutlineButton({ title, disabled, onPress, ...props }) {
   return (
     <TouchableHighlight
@@ -320,18 +361,23 @@ function dispatchLoginAction(dispatcher, firebaseUser, currentUser, profile) {
  */
 function LoginForm({ setFormType }) {
   const dispatch = useDispatch();
-
   const [isProcessing, setIsProcessing] = useState(false);
 
   /**
-   *
-   * @param {{ email: string, password: string }} loginValues
+   * @param {{ email: string, password: string }} param0
    */
-  const handleLoginWithEmailAndPassword = async (loginValues) => {
+  const handleLoginWithEmailAndPassword = async ({ email, password }) => {
     try {
       console.log('[LoginForm] Starting login process...');
       setIsProcessing(true);
-      await dispatch(signInWithEmailAndPassword(loginValues)).unwrap();
+
+      const trimmedEmail = email.trim();
+      const signInAction = signInWithEmailAndPassword({
+        email: trimmedEmail,
+        password,
+      });
+
+      await dispatch(signInAction).unwrap();
     } catch (error) {
       console.error(`[LoginForm] Login error (${error.code}):`, error.message);
       const { title, message } = authErrorMessage(error);
@@ -786,44 +832,7 @@ export default function LoginScreen() {
           />
         </View>
       </ScrollView>
-      {isProcessing && (
-        <View
-          style={{
-            position: 'absolute',
-            width: '100%',
-            height: '100%',
-            backgroundColor: 'rgba(0, 0, 0, 0.55)',
-            alignContent: 'center',
-            justifyContent: 'center',
-          }}>
-          <View style={{ alignContent: 'center' }}>
-            <ActivityIndicator
-              size="large"
-              color={colors.white}
-              style={{ transform: [{ scale: 1.5 }] }}
-            />
-            <Text
-              style={{
-                color: colors.white,
-                fontSize: typography.size.lg,
-                fontWeight: '700',
-                textAlign: 'center',
-                marginTop: values.spacing.md * 1.5,
-              }}>
-              Signing you in...
-            </Text>
-            <Text
-              style={{
-                color: colors.white,
-                fontSize: typography.size.md,
-                textAlign: 'center',
-                marginTop: values.spacing.sm,
-              }}>
-              This may take a while
-            </Text>
-          </View>
-        </View>
-      )}
+      {isProcessing && <LoadingOverlay message="Signing you in..." />}
     </View>
   );
 }

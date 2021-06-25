@@ -194,9 +194,18 @@ const NotesStack = () => (
     <Stack.Screen
       name="NotesScreen"
       component={NotesScreen}
-      options={{
-        title: 'Your Notes',
-      }}
+      options={({ navigation }) => ({
+        title: 'My Notes',
+        headerLeft: () => (
+          <MaterialIcon
+            name="menu"
+            size={24}
+            color={colors.black}
+            onPress={() => navigation.openDrawer()}
+          />
+        ),
+        headerLeftContainerStyle: { marginLeft: values.spacing.md },
+      })}
     />
   </Stack.Navigator>
 );
@@ -207,18 +216,18 @@ const ProfileStack = () => (
       name="ProfileScreen"
       component={ProfileScreen}
       initialParams={{ isMyProfile: true }}
-      options={{
-        headerTransparent: true,
-        title: '',
-        headerBackground: () => (
-          <View
-            style={[
-              StyleSheet.absoluteFill,
-              { backgroundColor: 'transparent' },
-            ]}
+      options={({ navigation }) => ({
+        title: 'My Profile',
+        headerLeft: () => (
+          <MaterialIcon
+            name="menu"
+            size={24}
+            color={colors.black}
+            onPress={() => navigation.openDrawer()}
           />
         ),
-      }}
+        headerLeftContainerStyle: { marginLeft: values.spacing.md },
+      })}
     />
   </Stack.Navigator>
 );
@@ -284,15 +293,7 @@ const HomeTabs = () => (
           },
         })}
       />
-      <Tab.Screen
-        name="Profile"
-        component={ProfileStack}
-        listeners={() => ({
-          tabPress: (event) => {
-            // if (!isDevMode) event.preventDefault();
-          },
-        })}
-      />
+      <Tab.Screen name="Profile" component={ProfileStack} />
     </Tab.Navigator>
   </>
 );
@@ -468,24 +469,12 @@ const GroundZero = ({ navigation, insets }) => {
           name="UserProfileScreen"
           component={ProfileScreen}
           initialParams={{ isMyProfile: true }}
-          options={{
-            headerShown: false,
+          // options={{ headerShown: false }}
+          options={({ route }) => ({
+            title: route.params?.profileName || 'Profile',
+            headerTintColor: colors.black,
             headerBackTitleVisible: false,
-            headerTintColor: 'white',
-            title: '',
-            headerTransparent: true,
-            headerBackground: () => (
-              <View
-                style={[
-                  StyleSheet.absoluteFill,
-                  { backgroundColor: 'rgba(255, 255, 255, 0.05)' },
-                ]}
-              />
-            ),
-            cardStyle: {
-              backgroundColor: 'white',
-            },
-          }}
+          })}
         />
 
         <Stack.Screen

@@ -35,6 +35,8 @@ import {
   selectAllComments,
 } from '../comments/commentsSlice';
 import { fetchPostById, selectPostById } from './postsSlice';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import { ActivityIndicator } from 'react-native-paper';
 
 const Parse = require('parse/react-native');
 
@@ -298,6 +300,8 @@ export default function PostDetailScreen() {
     }
   };
 
+  const canPostComment = commentTextInput.trim().length > 3;
+
   const postContent = (
     <View>
       <PostDetailContent post={post} />
@@ -320,8 +324,8 @@ export default function PostDetailScreen() {
   return (
     <SafeAreaView style={{ flexGrow: 1, backgroundColor: colors.white }}>
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 94 : -150}
+        behavior="padding"
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 65 : -200}
         style={{ flex: 1 }}>
         <FlatList
           data={commentIds}
@@ -396,6 +400,28 @@ export default function PostDetailScreen() {
                 : {}),
             }}
           />
+          <TouchableOpacity
+            disabled={!canPostComment}
+            style={{
+              justifyContent: 'center',
+              height: COMMENT_TEXT_INPUT_HEIGHT,
+              width: COMMENT_POST_BUTTON_WIDTH,
+            }}>
+            {isProcessingComment ? (
+              <ActivityIndicator size="small" color={colors.gray500} />
+            ) : (
+              <Text
+                style={{
+                  textAlign: 'center',
+                  color: !canPostComment
+                    ? colors.accentDisabled
+                    : colors.accent,
+                  fontSize: typography.size.md,
+                }}>
+                Post
+              </Text>
+            )}
+          </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>

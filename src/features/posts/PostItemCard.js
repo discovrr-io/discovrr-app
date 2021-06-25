@@ -39,7 +39,7 @@ const iconSize = {
 };
 
 /**
- * @typedef {import('../models').Post} Post
+ * @typedef {import('../../models').Post} Post
  * @typedef {{ largeIcons?: boolean, showActions?: boolean, showShareIcon?: boolean }} FooterOptions
  * @typedef {{ post: Post, smallContent?: boolean, showShareIcon?: boolean }} PostItemFooterProps
  *
@@ -91,7 +91,10 @@ export const PostItemCardFooter = ({
   const [isProcessingSave, _setIsProcessingSave] = React.useState(false);
 
   const handlePressAvatar = () => {
-    navigation.push('UserProfileScreen', { profileId: profile.id });
+    navigation.push('UserProfileScreen', {
+      profileId: profile.id,
+      profileName,
+    });
   };
 
   const handlePressShare = () => {
@@ -100,6 +103,8 @@ export const PostItemCardFooter = ({
 
   const handlePressLike = async () => {
     try {
+      setIsProcessingLike(true);
+
       const newDidLike = !didLike;
       console.log(
         `[PostItemFooter.handlePressLike] Will ${
@@ -107,8 +112,6 @@ export const PostItemCardFooter = ({
         } post...`,
       );
 
-      // FIXME: Like button not updating instantly
-      setIsProcessingLike(true);
       dispatch(postLikeStatusChanged({ postId: post.id, didLike: newDidLike }));
       await PostApi.setLikeStatus(post.id, newDidLike);
 
@@ -168,6 +171,10 @@ export const PostItemCardFooter = ({
     ? iconSize.small.action
     : iconSize.large.action;
 
+  const actionIconMarginRight = smallContent
+    ? values.spacing.sm * 1.25
+    : values.spacing.md * 1.5;
+
   const authorFontSize = smallContent ? typography.size.xs : typography.size.md;
 
   return (
@@ -204,10 +211,10 @@ export const PostItemCardFooter = ({
             activeOpacity={DEFAULT_ACTIVE_OPACITY}
             onPress={handlePressShare}>
             <MaterialIcon
-              style={postItemFooterStyles.actionButton}
               name="share"
               color={colors.gray}
               size={actionIconSize}
+              style={{ marginRight: actionIconMarginRight }}
             />
           </TouchableOpacity>
         )}
@@ -216,10 +223,10 @@ export const PostItemCardFooter = ({
           activeOpacity={DEFAULT_ACTIVE_OPACITY}
           onPress={handlePressSave}>
           <MaterialIcon
-            style={postItemFooterStyles.actionButton}
             name={didSave ? 'bookmark' : 'bookmark-outline'}
             color={didSave ? colors.black : colors.gray}
             size={actionIconSize}
+            style={{ marginRight: actionIconMarginRight }}
           />
         </TouchableOpacity>
         <TouchableOpacity
@@ -228,14 +235,19 @@ export const PostItemCardFooter = ({
           onPress={handlePressLike}>
           <Animatable.View key={didLike.toString()} animation="bounceIn">
             <MaterialIcon
-              style={postItemFooterStyles.actionButton}
               name={didLike ? 'favorite' : 'favorite-border'}
-              color={didLike ? 'red' : colors.gray}
+              color={didLike ? colors.red500 : colors.gray}
               size={actionIconSize}
             />
           </Animatable.View>
         </TouchableOpacity>
-        <Text style={postItemFooterStyles.likesCount}>
+        <Text
+          style={[
+            postItemFooterStyles.likesCount,
+            {
+              fontSize: smallContent ? typography.size.xs : typography.size.sm,
+            },
+          ]}>
           {totalLikes > 999 ? `${(totalLikes / 1000).toFixed(1)}k` : totalLikes}
         </Text>
       </View>
@@ -267,12 +279,8 @@ const postItemFooterStyles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  actionButton: {
-    marginLeft: values.spacing.sm,
-  },
   likesCount: {
     marginLeft: values.spacing.zero,
-    fontSize: typography.size.xs,
     alignSelf: 'flex-end',
   },
 });
@@ -304,7 +312,7 @@ const PostItemCard = ({
   }
 
   const handlePostPress = () => {
-    navigation.navigate('PostDetailScreen', { postId });
+    navigation.push('PostDetailScreen', { postId });
   };
 
   const PostItemCardCaption = ({ caption }) => {
@@ -411,7 +419,7 @@ const PostItemCard = ({
 
 const postItemStyles = StyleSheet.create({
   captionContainer: {
-    paddingVertical: values.spacing.sm,
+    paddingVertical: values.spacing.xs,
     paddingHorizontal: values.spacing.sm,
   },
   dialogBox: {

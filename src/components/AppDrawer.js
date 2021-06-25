@@ -1,8 +1,8 @@
 import React from 'react';
-import { Alert, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
-// import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import { DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -69,83 +69,104 @@ export default function AppDrawer({ navigation, ...props }) {
     );
   };
 
+  // TODO: Add version code
   return (
-    <DrawerContentScrollView {...props}>
-      <View style={{ padding: values.spacing.lg }}>
-        <TouchableOpacity
-          activeOpacity={DEFAULT_ACTIVE_OPACITY}
-          onPress={() => {
-            navigation.navigate('Profile', { profileId: profile.id });
-          }}>
-          <View style={{ alignItems: 'center' }}>
-            <FastImage
-              source={profile.avatar}
-              resizeMode="cover"
-              style={{
-                width: AVATAR_DIAMETER,
-                height: AVATAR_DIAMETER,
-                borderRadius: AVATAR_DIAMETER / 2,
-              }}
-            />
-            <Text
-              numberOfLines={1}
-              style={[
-                typography.extraLargeBold,
-                {
-                  paddingTop: values.spacing.lg,
+    <View style={{ flex: 1 }}>
+      <DrawerContentScrollView {...props}>
+        <View style={{ padding: values.spacing.lg }}>
+          <TouchableOpacity
+            activeOpacity={DEFAULT_ACTIVE_OPACITY}
+            onPress={() => {
+              navigation.navigate('Profile', { profileId: profile.id });
+            }}>
+            <View style={{ alignItems: 'center' }}>
+              <FastImage
+                source={profile.avatar}
+                resizeMode="cover"
+                style={{
+                  width: AVATAR_DIAMETER,
+                  height: AVATAR_DIAMETER,
+                  borderRadius: AVATAR_DIAMETER / 2,
+                }}
+              />
+              <Text
+                numberOfLines={1}
+                style={{
+                  fontSize: typography.size.h4,
+                  fontWeight: '700',
                   textAlign: 'center',
-                },
-              ]}>
-              {profile.fullName}
-            </Text>
-          </View>
-        </TouchableOpacity>
+                  paddingTop: values.spacing.lg,
+                }}>
+                {profile.fullName}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+        <Divider />
+        <DrawerItem
+          label="Search Location"
+          icon={({ color, size }) => (
+            <Icon name="location-pin" size={size} color={color} />
+          )}
+          onPress={() => {}}
+          style={appDrawerStyles.drawerItem}
+        />
+        <DrawerItem
+          label="Notifications"
+          icon={({ color, size }) => (
+            <Icon name="notifications" size={size} color={color} />
+          )}
+          onPress={() => {}}
+          style={appDrawerStyles.drawerItem}
+        />
+        <DrawerItem
+          label="Profile Settings"
+          icon={({ color, size }) => (
+            <Icon name="person" size={size} color={color} />
+          )}
+          onPress={() => {}}
+          style={appDrawerStyles.drawerItem}
+        />
+        <DrawerItem
+          label="My Shopping"
+          icon={({ color, size }) => (
+            <Icon name="shopping-bag" size={size} color={color} />
+          )}
+          onPress={() => {}}
+          style={appDrawerStyles.drawerItem}
+        />
+        <DrawerItem
+          label="Account Settings"
+          icon={({ color, size }) => (
+            <Icon name="settings" size={size} color={color} />
+          )}
+          onPress={() => {}}
+          style={appDrawerStyles.drawerItem}
+        />
+        <Divider />
+        <DrawerItem
+          label="Log Out"
+          icon={({ color, size }) => (
+            <Icon name="logout" size={size} color={color} />
+          )}
+          onPress={handleLogOut}
+          style={appDrawerStyles.drawerItem}
+        />
+        <Divider />
+      </DrawerContentScrollView>
+      <View
+        style={{
+          paddingHorizontal: values.spacing.lg,
+          paddingBottom: values.spacing.lg,
+        }}>
+        <Text style={{ color: 'red' }}>INTERNAL BETA RELEASE</Text>
       </View>
-      <Divider />
-      {/* <DrawerItem
-        label="Search Location"
-        icon={({ color, size }) => (
-          <Icon name="location-pin" size={size} color={color} />
-        )}
-        onPress={() => {}}
-      />
-      <DrawerItem
-        label="Notifications"
-        icon={({ color, size }) => (
-          <Icon name="notifications" size={size} color={color} />
-        )}
-        onPress={() => {}}
-      />
-      <DrawerItem
-        label="Profile Settings"
-        icon={({ color, size }) => (
-          <Icon name="person" size={size} color={color} />
-        )}
-        onPress={() => {}}
-      />
-      <DrawerItem
-        label="My Shopping"
-        icon={({ color, size }) => (
-          <Icon name="shopping-bag" size={size} color={color} />
-        )}
-        onPress={() => {}}
-      />
-      <DrawerItem
-        label="Account Settings"
-        icon={({ color, size }) => (
-          <Icon name="settings" size={size} color={color} />
-        )}
-        onPress={() => {}}
-      />
-      <Divider />
-      <DrawerItem
-        label="Log Out"
-        icon={({ color, size }) => (
-          <Icon name="logout" size={size} color={color} />
-        )}
-        onPress={handleLogOut}
-      />
-      <Divider /> */}
-    </DrawerContentScrollView>
+    </View>
   );
 }
+
+const appDrawerStyles = StyleSheet.create({
+  drawerItem: {
+    paddingLeft: values.spacing.lg,
+  },
+});
