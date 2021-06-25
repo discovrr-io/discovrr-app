@@ -77,7 +77,7 @@ export default function AppDrawer({ navigation, ...props }) {
           <TouchableOpacity
             activeOpacity={DEFAULT_ACTIVE_OPACITY}
             onPress={() => {
-              navigation.navigate('Profile', { profileId: profile.id });
+              navigation.push('Profile', { profileId: profile.id });
             }}>
             <View style={{ alignItems: 'center' }}>
               <FastImage

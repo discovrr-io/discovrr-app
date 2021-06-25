@@ -34,6 +34,7 @@ export default function PostComment({ commentId, ...props }) {
   const handlePressAvatar = () => {
     navigation.push('UserProfileScreen', {
       profileId: String(comment.profileId),
+      profileName: fullName,
     });
   };
 

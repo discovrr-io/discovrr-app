@@ -1,35 +1,83 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
 import { useRoute } from '@react-navigation/core';
 import { Tabs } from 'react-native-collapsible-tab-view';
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
 
-import { ErrorTabView } from '../../components';
-import { selectProfileById } from './profilesSlice';
-import { colors, typography, values } from '../../constants';
+import { Button, ErrorTabView, ToggleButton } from '../../components';
 import PostMasonryList from '../../components/masonry/PostMasonryList';
+import { selectProfileById } from './profilesSlice';
 import { selectAllPosts } from '../posts/postsSlice';
+
+import {
+  colors,
+  DEFAULT_ACTIVE_OPACITY,
+  typography,
+  values,
+} from '../../constants';
+import { useNavigation } from '@react-navigation/native';
 
 const HEADER_MAX_HEIGHT = 280;
 const HEADER_MIN_HEIGHT = 80;
 const AVATAR_IMAGE_RADIUS = 80;
 
 /**
+ * @typedef {{ label: string, value: number, onPress?: () => void }} StatisticProps
+ * @param {StatisticProps} param0
+ */
+function Statistic({ label, value, onPress = undefined }) {
+  return (
+    <TouchableOpacity
+      activeOpacity={DEFAULT_ACTIVE_OPACITY}
+      style={statisticStyles.container}>
+      <Text style={statisticStyles.label}>{label}</Text>
+      <Text style={statisticStyles.value}>
+        {value > 999 ? `${(value / 1000).toFixed(1)}k` : value}
+      </Text>
+    </TouchableOpacity>
+  );
+}
+
+const statisticStyles = StyleSheet.create({
+  container: {
+    width: 85,
+  },
+  label: {
+    color: colors.white,
+    fontSize: typography.size.x,
+    paddingBottom: values.spacing.sm,
+    textAlign: 'center',
+  },
+  value: {
+    color: colors.white,
+    fontWeight: '600',
+    fontSize: typography.size.h4,
+    textAlign: 'center',
+  },
+});
+
+/**
  * @typedef {import('../../models').Profile} Profile
  * @param {{ profile: Profile }} param0
  */
 function ProfileScreenHeaderContent({ profile }) {
+  const navigation = useNavigation();
+
   const { avatar, fullName, description = 'No description' } = profile;
+  const followersCount = profile.followers?.length ?? 0;
+  const followingCount = profile.following?.length ?? 0;
+
+  /** @type {Profile | undefined} */
+  const currentUserProfile = useSelector((state) => state.auth.user?.profile);
+  const isMyProfile =
+    currentUserProfile && currentUserProfile.id === profile.id;
 
   return (
     <View style={profileScreenHeaderContentStyles.container}>
-      <View style={{ flexDirection: 'row' }}>
+      <View style={{ flexDirection: 'row', marginBottom: values.spacing.md }}>
         <FastImage
           source={avatar}
           style={{
@@ -38,11 +86,62 @@ function ProfileScreenHeaderContent({ profile }) {
             borderRadius: AVATAR_IMAGE_RADIUS / 2,
           }}
         />
+        <View
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignSelf: 'center',
+            marginLeft: values.spacing.md,
+            // backgroundColor: 'red',
+          }}>
+          <View
+            style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            <Statistic label="Followers" value={followersCount} />
+            <Statistic label="Following" value={followingCount} />
+            <Statistic label="Likes" value={-1} />
+          </View>
+          <View
+            style={{
+              flexDirection: 'row',
+              marginTop: values.spacing.md,
+              // backgroundColor: 'blue',
+            }}>
+            {isMyProfile ? (
+              <Button
+                transparent
+                size="small"
+                title="Edit Profile"
+                onPress={() => navigation.navigate('ProfileEditScreen')}
+                style={{ flex: 1 }}
+              />
+            ) : (
+              <>
+                <ToggleButton
+                  transparent
+                  size="small"
+                  titles={{ on: 'Following', off: 'Follow' }}
+                  style={{ flex: 1, marginRight: values.spacing.xs * 1.5 }}
+                />
+                <Button
+                  transparent
+                  size="small"
+                  title="Message"
+                  onPress={() => {}}
+                  style={{ flex: 1, marginLeft: values.spacing.xs * 1.5 }}
+                />
+              </>
+            )}
+          </View>
+        </View>
       </View>
-      <Text style={{ fontSize: typography.size.h4, color: colors.white }}>
+      <Text
+        style={[
+          profileScreenHeaderContentStyles.textContainer,
+          profileScreenHeaderContentStyles.profileFullName,
+        ]}>
         {fullName}
       </Text>
-      <Text style={{ fontSize: typography.size.md, color: colors.white }}>
+      <Text style={profileScreenHeaderContentStyles.textContainer}>
         {description}
       </Text>
     </View>
@@ -56,6 +155,14 @@ const profileScreenHeaderContentStyles = StyleSheet.create({
     bottom: 0,
     padding: values.spacing.md * 1.5,
     backgroundColor: 'rgba(82, 82, 82, 0.8)',
+  },
+  textContainer: {
+    fontSize: typography.size.sm,
+    color: colors.white,
+  },
+  profileFullName: {
+    fontSize: typography.size.h4,
+    marginBottom: values.spacing.sm,
   },
 });
 

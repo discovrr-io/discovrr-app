@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
+  useWindowDimensions,
+  ActivityIndicator,
   Alert,
   FlatList,
   KeyboardAvoidingView,
@@ -9,7 +11,6 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  useWindowDimensions,
   View,
 } from 'react-native';
 
@@ -36,7 +37,6 @@ import {
 } from '../comments/commentsSlice';
 import { fetchPostById, selectPostById } from './postsSlice';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { ActivityIndicator } from 'react-native-paper';
 
 const Parse = require('parse/react-native');
 
@@ -287,7 +287,7 @@ export default function PostDetailScreen() {
           postId,
           message: commentTextInput,
         }),
-      );
+      ).unwrap();
     } catch (error) {
       console.error('Failed to post comment:', error);
       Alert.alert(
@@ -300,7 +300,8 @@ export default function PostDetailScreen() {
     }
   };
 
-  const canPostComment = commentTextInput.trim().length > 3;
+  const canPostComment =
+    !isProcessingComment && commentTextInput.trim().length > 3;
 
   const postContent = (
     <View>
@@ -402,6 +403,7 @@ export default function PostDetailScreen() {
           />
           <TouchableOpacity
             disabled={!canPostComment}
+            onPress={handlePostComment}
             style={{
               justifyContent: 'center',
               height: COMMENT_TEXT_INPUT_HEIGHT,
