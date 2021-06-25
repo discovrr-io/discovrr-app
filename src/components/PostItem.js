@@ -17,11 +17,7 @@ import {
 import { selectProfileById } from '../features/profiles/profilesSlice';
 import { colors, typography, values } from '../constants';
 import { DEFAULT_AVATAR, DEFAULT_IMAGE_DIMENSIONS } from '../constants/media';
-
-const Parse = require('parse/react-native');
-
-// const imagePlaceholder = require('../../resources/images/imagePlaceholder.png');
-const defaultAvatar = require('../../resources/images/defaultAvatar.jpeg');
+import { PostApi } from '../api';
 
 const SMALL_ICON = 24;
 const LARGE_ICON = 32;
@@ -107,18 +103,10 @@ export const PostItemFooter = ({
         } post...`,
       );
 
+      // FIXME: Like button not updating instantly
       setIsProcessingLike(true);
       dispatch(postLikeStatusChanged({ postId: post.id, didLike: newDidLike }));
-
-      await Parse.Cloud.run('likeOrUnlikePost', {
-        postId: post.id,
-        like: newDidLike,
-      });
-      console.log(
-        `[PostItemFooter.handlePressLike] Successfully ${
-          newDidLike ? 'liked' : 'unliked'
-        } post`,
-      );
+      await PostApi.setLikeStatus(post.id, newDidLike);
 
       // Only send notification if current user liked the post
       if (newDidLike && isAuthenticated && currentUser) {
@@ -152,10 +140,7 @@ export const PostItemFooter = ({
         }
       }
     } catch (error) {
-      console.error(
-        '[PostItemFooter.handlePressLike] Failed to like post:',
-        error,
-      );
+      console.error(error);
       Alert.alert(
         'Something went wrong',
         `We weren't able to complete your request. Please try again later.`,

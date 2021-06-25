@@ -31,6 +31,7 @@ import { PostItemFooter } from '../../components/PostItem';
 import { colors, typography, values } from '../../constants';
 import {
   addCommentForPost,
+  fetchCommentsForPost,
   selectAllComments,
 } from '../comments/commentsSlice';
 import { fetchPostById, selectPostById } from './postsSlice';
@@ -55,36 +56,6 @@ const getCommentsForPost = createSelector(
     }
   },
 );
-
-/**
- * @typedef {import('../../models').Comment} Comment
- * @param {string} postId
- * @returns {Promise<Comment[]>}
- */
-async function fetchCommentsForPost(postId) {
-  const postPointer = {
-    __type: 'Pointer',
-    className: 'Post',
-    objectId: postId,
-  };
-
-  const query = new Parse.Query(Parse.Object.extend('PostComment'));
-  query.equalTo('post', postPointer);
-  query.include('profile');
-
-  const results = await query.find();
-  const comments = results.map((comment) => {
-    return {
-      id: comment.id,
-      postId: comment.get('post').id,
-      profileId: comment.get('profile').id,
-      createdAt: comment.createdAt,
-      message: comment.get('message') ?? '',
-    };
-  });
-
-  return comments;
-}
 
 /**
  * @typedef {import('../../models/common').ImageSource} ImageSource
@@ -131,58 +102,76 @@ function PostDetailContent({ post, ...props }) {
 
   const [activeMediaIndex, setActiveMediaIndex] = useState(0);
 
+  const postContent = () => {
+    switch (post.content.type) {
+      case 'image-gallery':
+        return (
+          <View>
+            <Carousel
+              useScrollView
+              contentContainerCustomStyle={{ alignItems: 'center' }}
+              ref={(c) => (carouselRef.current = c)}
+              data={post.content.sources}
+              sliderWidth={screenWidth}
+              itemWidth={screenWidth * 0.85}
+              renderItem={({ item }) => <SliderImage item={item} />}
+              onSnapToItem={(index) => setActiveMediaIndex(index)}
+            />
+            <Pagination
+              dotsLength={post.content.sources.length}
+              activeDotIndex={activeMediaIndex}
+              dotStyle={{
+                width: 10,
+                height: 10,
+                borderRadius: 5,
+                marginHorizontal: values.spacing.sm,
+                backgroundColor: colors.gray700,
+              }}
+              containerStyle={{
+                paddingTop: values.spacing.lg,
+                paddingBottom: 0,
+              }}
+              inactiveDotStyle={{ backgroundColor: colors.gray300 }}
+              inactiveDotOpacity={0.4}
+              inactiveDotScale={0.6}
+            />
+            <Text
+              style={[
+                postDetailContentStyles.caption,
+                post.location && { marginBottom: 0 },
+              ]}>
+              {post.content.caption}
+            </Text>
+          </View>
+        );
+      case 'video':
+        return <Text>(VIDEO)</Text>;
+      case 'text': /* FALLTHROUGH */
+      default:
+        return (
+          <View style={postDetailContentStyles.dialogBox}>
+            <Text style={postDetailContentStyles.dialogBoxText}>
+              {post.content.text}
+            </Text>
+          </View>
+        );
+    }
+  };
   return (
     <View style={[props.style]}>
-      {(() => {
-        switch (post.type) {
-          // case 'video':
-          case 'images':
-            return (
-              <View>
-                <Carousel
-                  useScrollView
-                  contentContainerCustomStyle={{ alignItems: 'center' }}
-                  ref={(c) => (carouselRef.current = c)}
-                  data={post.media}
-                  sliderWidth={screenWidth}
-                  itemWidth={screenWidth * 0.85}
-                  renderItem={({ item }) => <SliderImage item={item} />}
-                  onSnapToItem={(index) => setActiveMediaIndex(index)}
-                />
-                <Pagination
-                  containerStyle={{
-                    paddingTop: values.spacing.lg,
-                    paddingBottom: 0,
-                  }}
-                  dotsLength={post.media.length ?? 0}
-                  activeDotIndex={activeMediaIndex}
-                  dotStyle={{
-                    width: 10,
-                    height: 10,
-                    borderRadius: 5,
-                    marginHorizontal: values.spacing.sm,
-                    backgroundColor: colors.gray700,
-                  }}
-                  inactiveDotStyle={{ backgroundColor: colors.gray300 }}
-                  inactiveDotOpacity={0.4}
-                  inactiveDotScale={0.6}
-                />
-                <Text style={postDetailContentStyles.caption}>
-                  {post.caption ?? ''}
-                </Text>
-              </View>
-            );
-          case 'text': /* FALLTHROUGH */
-          default:
-            return (
-              <View style={postDetailContentStyles.dialogBox}>
-                <Text style={postDetailContentStyles.dialogBoxText}>
-                  {post.caption ?? ''}
-                </Text>
-              </View>
-            );
-        }
-      })()}
+      {postContent()}
+      {post.location && (
+        <Text
+          style={{
+            fontSize: typography.size.sm,
+            color: colors.gray500,
+            marginHorizontal: values.spacing.md,
+            marginTop: values.spacing.xs * 1.5,
+            marginBottom: values.spacing.md,
+          }}>
+          {post.location.text}
+        </Text>
+      )}
     </View>
   );
 }
@@ -204,18 +193,18 @@ const postDetailContentStyles = StyleSheet.create({
     fontSize: typography.size.md,
   },
   caption: {
-    fontWeight: '600',
+    fontWeight: '500',
     fontSize: typography.size.md,
     marginTop: values.spacing.lg,
     marginBottom: values.spacing.md,
-    marginHorizontal: values.spacing.md * 1.5,
+    marginHorizontal: values.spacing.md,
   },
 });
 
 export default function PostDetailScreen() {
   const dispatch = useDispatch();
 
-  /** @type {{ postId: string | undefined }} */
+  /** @type {{ postId: import('../../models').PostId | undefined }} */
   const { postId = undefined } = useRoute().params || {};
   if (!postId) {
     console.error('[PostDetailScreen] No post ID given');
@@ -269,8 +258,8 @@ export default function PostDetailScreen() {
     const refreshData = async () => {
       try {
         await Promise.all([
-          dispatch(fetchPostById(postId)).unwrap(),
-          dispatch(fetchCommentsForPost(postId)).unwrap(),
+          dispatch(fetchPostById(String(postId))).unwrap(),
+          dispatch(fetchCommentsForPost(String(postId))).unwrap(),
         ]);
       } catch (error) {}
     };
@@ -308,11 +297,7 @@ export default function PostDetailScreen() {
       <PostDetailContent post={post} />
       <PostItemFooter
         post={post}
-        options={{
-          largeIcons: true,
-          showActions: true,
-          showShareIcon: true,
-        }}
+        showShareIcon
         style={{ margin: values.spacing.md }}
       />
       <View
@@ -330,10 +315,11 @@ export default function PostDetailScreen() {
     <SafeAreaView style={{ flexGrow: 1, backgroundColor: colors.white }}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : -120}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 94 : -150}
         style={{ flex: 1 }}>
         <FlatList
           data={commentIds}
+          keyExtractor={(comment) => String(comment)}
           contentContainerStyle={{
             flexGrow: 1,
             paddingVertical: values.spacing.lg,
@@ -379,7 +365,7 @@ export default function PostDetailScreen() {
             flexDirection: 'row',
             alignItems: 'flex-end',
             backgroundColor: colors.white,
-            borderColor: colors.gray100,
+            borderColor: colors.gray200,
             borderTopWidth: values.border.thin,
           }}>
           <TextInput
@@ -389,6 +375,7 @@ export default function PostDetailScreen() {
             onChangeText={setCommentTextInput}
             editable={!isProcessingComment}
             placeholder="Add your comment..."
+            placeholderTextColor={colors.gray500}
             style={{
               flexGrow: 1,
               flexShrink: 1,
