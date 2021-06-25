@@ -2,7 +2,12 @@ import Parse from 'parse/react-native';
 
 import Profile from '../models/profile';
 import { ImageSource } from '../models/common';
-import { DEFAULT_AVATAR, DEFAULT_AVATAR_DIMENSIONS } from '../constants/media';
+import {
+  DEFAULT_AVATAR,
+  DEFAULT_AVATAR_DIMENSIONS,
+  DEFAULT_IMAGE,
+  DEFAULT_IMAGE_DIMENSIONS,
+} from '../constants/media';
 import { MediaSource } from '.';
 
 export namespace ProfileApi {
@@ -19,6 +24,18 @@ export namespace ProfileApi {
       profileAvatar = DEFAULT_AVATAR;
     }
 
+    const coverPhoto: MediaSource | undefined = result.get('coverPhoto');
+    let profileCoverPhoto: ImageSource;
+    if (coverPhoto) {
+      profileCoverPhoto = {
+        uri: coverPhoto.url,
+        width: coverPhoto.width ?? DEFAULT_IMAGE_DIMENSIONS.width,
+        height: coverPhoto.height ?? DEFAULT_IMAGE_DIMENSIONS.height,
+      };
+    } else {
+      profileCoverPhoto = DEFAULT_IMAGE;
+    }
+
     return {
       id: result.id,
       email: result.get('email') ?? '',
@@ -29,6 +46,7 @@ export namespace ProfileApi {
         '',
       username: result.get('username') ?? '',
       avatar: profileAvatar,
+      coverPhoto: profileCoverPhoto,
       isVendor: false, // TODO: Determine if profile is vendor
       followers: result.get('followersArray') ?? [],
       following: result.get('followingArray') ?? [],

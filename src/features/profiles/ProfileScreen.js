@@ -1,149 +1,44 @@
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
-import MasonryList from 'react-native-masonry-list';
+import { useRoute } from '@react-navigation/core';
 import { Tabs } from 'react-native-collapsible-tab-view';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
-import { useRoute } from '@react-navigation/core';
 import { useSelector } from 'react-redux';
 
-import { Button, RouteError, ToggleButton } from '../../components';
-import PostItemCard from '../posts/PostItemCard';
+import { ErrorTabView } from '../../components';
 import { selectProfileById } from './profilesSlice';
-import { colors, typography, values } from '../../constants';
-import { selectPostsByProfile } from '../posts/postsSlice';
-
-const imagePlaceholder = require('../../../resources/images/imagePlaceholder.png');
+import { colors, values } from '../../constants';
+import PostMasonryList from '../../components/masonry/PostMasonryList';
+import { selectAllPosts } from '../posts/postsSlice';
 
 const HEADER_MAX_HEIGHT = 320;
-const HEADER_MIN_HEIGHT = 60;
+const HEADER_MIN_HEIGHT = 80;
 const AVATAR_IMAGE_RADIUS = 80;
 
 /**
- * @typedef {{ label: string, value: number, onPress?: () => void }} MetricProps
- * @param {MetricProps} param0
- */
-function Metric({ label, value, onPress = () => {} }) {
-  return (
-    <TouchableOpacity onPress={onPress} style={metricStyles.container}>
-      <Text style={metricStyles.label}>{label}</Text>
-      <Text style={metricStyles.value}>
-        {value > 999 ? `${(value / 1000).toFixed(1)}k` : value}
-      </Text>
-    </TouchableOpacity>
-  );
-}
-
-const metricStyles = StyleSheet.create({
-  container: {
-    width: 85,
-  },
-  label: {
-    color: colors.white,
-    fontSize: typography.size.x,
-    paddingBottom: values.spacing.sm,
-    textAlign: 'center',
-  },
-  value: {
-    color: colors.white,
-    fontWeight: '600',
-    fontSize: typography.size.h4,
-    textAlign: 'center',
-  },
-});
-
-/**
  * @typedef {import('../../models').Profile} Profile
- * @typedef {{ profile: Profile }} ProfileScreenHeaderProps
- * @typedef {import('react-native').ViewProps} ViewProps
- * @param {ProfileScreenHeaderProps & ViewProps} param0
+ * @param {{ profile: Profile }} param0
  */
-function ProfileScreenHeader({ profile, ...props }) {
-  const { fullName, avatar, coverPhoto } = profile;
-  const description = profile.description || 'No description';
-
-  /** @type {import('../../models').User} */
-  const { profile: currentUserProfile } = useSelector(
-    (state) => state.auth.user,
-  );
-  const isMyProfile = currentUserProfile.id === profile.id;
-
-  const followersCount = profile.followers?.length ?? 0;
-  const followingCount = profile.following?.length ?? 0;
+function ProfileScreenHeaderContent({ profile }) {
+  const { avatar } = profile;
 
   return (
-    <View pointerEvents="box-none" style={[props.style]}>
+    <View style={profileScreenHeaderContentStyles.container}>
       <FastImage
-        source={coverPhoto}
-        style={profileScreenHeaderStyles.coverPhoto}
+        source={avatar}
+        style={{
+          width: AVATAR_IMAGE_RADIUS,
+          height: AVATAR_IMAGE_RADIUS,
+          borderRadius: AVATAR_IMAGE_RADIUS / 2,
+        }}
       />
-      <View style={profileScreenHeaderStyles.container}>
-        <View style={{ flexDirection: 'row', marginBottom: values.spacing.md }}>
-          <FastImage source={avatar} style={profileScreenHeaderStyles.avatar} />
-          <View
-            style={{ flex: 1, justifyContent: 'center', alignSelf: 'center' }}>
-            <View
-              style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              <Metric label="Followers" value={followersCount} />
-              <Metric label="Following" value={followingCount} />
-              <Metric label="Likes" value={-1} />
-            </View>
-            <View
-              style={{ flexDirection: 'row', marginTop: values.spacing.md }}>
-              {isMyProfile ? (
-                <Button
-                  transparent
-                  size="small"
-                  title="Edit Profile"
-                  style={profileScreenHeaderStyles.actionButton}
-                />
-              ) : (
-                <>
-                  <ToggleButton
-                    transparent
-                    size="small"
-                    titles={{ on: 'Following', off: 'Follow' }}
-                    style={profileScreenHeaderStyles.actionButton}
-                  />
-                  <Button
-                    transparent
-                    size="small"
-                    title="Message"
-                    style={profileScreenHeaderStyles.actionButton}
-                  />
-                </>
-              )}
-            </View>
-          </View>
-        </View>
-        <Text
-          style={[
-            profileScreenHeaderStyles.containerText,
-            profileScreenHeaderStyles.profileFullName,
-          ]}>
-          {fullName}
-        </Text>
-        <Text style={profileScreenHeaderStyles.containerText}>
-          {description}
-        </Text>
-      </View>
     </View>
   );
 }
 
-const profileScreenHeaderStyles = StyleSheet.create({
-  coverPhoto: {
-    height: HEADER_MAX_HEIGHT,
-    width: '100%',
-  },
-  avatar: {
-    borderRadius: AVATAR_IMAGE_RADIUS / 2,
-    width: AVATAR_IMAGE_RADIUS,
-    height: AVATAR_IMAGE_RADIUS,
-    marginRight: values.spacing.lg,
-  },
+const profileScreenHeaderContentStyles = StyleSheet.create({
   container: {
     position: 'absolute',
     width: '100%',
@@ -152,100 +47,84 @@ const profileScreenHeaderStyles = StyleSheet.create({
     paddingHorizontal: values.spacing.md * 1.5,
     backgroundColor: 'rgba(82, 82, 82, 0.8)',
   },
-  containerText: {
-    fontSize: typography.size.sm,
-    color: colors.white,
-  },
-  profileFullName: {
-    fontSize: typography.size.h4,
-    marginBottom: values.spacing.sm,
-  },
-  actionButton: {
-    flex: 1,
-    marginRight: values.spacing.md,
-  },
 });
 
-function ProfilePostsTab({ profileId }) {
-  const posts = useSelector((state) => selectPostsByProfile(state, profileId));
+/**
+ * @typedef {import('../../models').ProfileId} ProfileId
+ * @param {{ profileId: ProfileId }} param0
+ */
+function ProfileScreenHeader({ profileId }) {
+  const profile = useSelector((state) => selectProfileById(state, profileId));
+  if (!profile) {
+    console.error(
+      '[ProfileScreenHeader] Failed to select profile with id:',
+      profileId,
+    );
+    return null;
+  }
 
   return (
-    <MasonryList
-      sorted
-      rerender
-      columns={2}
-      listContainerStyle={{ paddingTop: values.spacing.sm }}
-      images={posts.map((post) => {
-        let imagePreviewSource, imagePreviewDimensions;
-        if (!post.media) {
-          imagePreviewSource = imagePlaceholder;
-          imagePreviewDimensions = {
-            width: 800,
-            height: 600,
-          };
-        } else {
-          imagePreviewSource = post.media[0];
-          imagePreviewDimensions = {
-            width: imagePreviewSource?.width ?? 800,
-            height: imagePreviewSource?.height ?? 600,
-          };
-        }
-
-        return {
-          id: post.id,
-          type: post.type,
-          source: imagePreviewSource,
-          dimensions: imagePreviewDimensions,
-        };
-      })}
-      completeCustomComponent={({ data }) => <PostItemCard postId={data.id} />}
-    />
+    <View pointerEvents="box-none">
+      <FastImage
+        source={profile.coverPhoto}
+        style={{
+          height: HEADER_MAX_HEIGHT,
+          width: '100%',
+          backgroundColor: colors.gray100,
+        }}
+      />
+      <ProfileScreenHeaderContent profile={profile} />
+    </View>
   );
 }
 
-export default function ProfileScreen({ route }) {
+export default function ProfileScreen() {
   const { top: topInset } = useSafeAreaInsets();
+  const { profileId, isMyProfile } = useRoute().params ?? {};
+
+  /** @type {ProfileId | undefined} */
+  let resolvedProfileId = profileId;
 
   /** @type {import('../authentication/authSlice').AuthState} */
-  const authState = useSelector((state) => state.auth);
+  const { user } = useSelector((state) => state.auth);
+  const currentUserProfileId = user?.profile.id;
 
-  /** @type {string|null} */
-  let profileId;
-  if (route.params.isMyProfile) {
-    profileId = authState.user?.profile.id;
-  } else {
-    profileId = route.params.profileId;
+  if (!resolvedProfileId && isMyProfile) {
+    if (user) resolvedProfileId = currentUserProfileId;
   }
 
-  if (!profileId) {
-    console.warn('[ProfileScreen] No profile ID given');
-    return <RouteError />;
-    // return null;
+  if (!resolvedProfileId && !isMyProfile) {
+    console.error('[ProfileScreen] No profileId was provided');
+    return <ErrorTabView error="No profile ID was provided" />;
   }
 
-  const profile = useSelector((state) => selectProfileById(state, profileId));
-  if (!profile) {
-    // TODO: Try to load the profile again just in case all the profiles haven't
-    // been loaded and the user clicks the 'Profile' tab
-    console.error('[ProfileScreen] Failed to select profile by id:', profileId);
-    return <RouteError caption="We weren't able to load this profile." />;
-  }
+  const postIds = useSelector((state) => {
+    /** @type {import('../../models').Post[]} */
+    const allPosts = selectAllPosts(state);
+    return allPosts
+      .filter((post) => post.profileId === resolvedProfileId)
+      .map((post) => post.id);
+  });
 
   return (
     <Tabs.Container
       lazy
       minHeaderHeight={topInset + HEADER_MIN_HEIGHT}
       snapThreshold={0.25}
-      HeaderComponent={() => <ProfileScreenHeader profile={profile} />}>
+      HeaderComponent={() => (
+        <ProfileScreenHeader profileId={resolvedProfileId} />
+      )}>
       <Tabs.Tab name="posts" label="Posts">
         <Tabs.ScrollView>
-          <ProfilePostsTab profileId={profile.id} />
+          <PostMasonryList
+            smallContent
+            showFooter={profileId !== currentUserProfileId}
+            postIds={postIds}
+          />
         </Tabs.ScrollView>
       </Tabs.Tab>
       <Tabs.Tab name="notes" label="Notes">
-        <Tabs.ScrollView>
-          <Text>Notes</Text>
-        </Tabs.ScrollView>
+        <Tabs.ScrollView></Tabs.ScrollView>
       </Tabs.Tab>
     </Tabs.Container>
   );

@@ -66,7 +66,7 @@ export const PostItemCardFooter = ({
     );
   }
 
-  /** @type {import('../models').Profile | undefined} */
+  /** @type {import('../../models').Profile | undefined} */
   const profile = useSelector((state) =>
     selectProfileById(state, post.profileId),
   );

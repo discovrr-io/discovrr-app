@@ -467,7 +467,7 @@ const GroundZero = ({ navigation, insets }) => {
         <Stack.Screen
           name="UserProfileScreen"
           component={ProfileScreen}
-          initialParams={{ profileId: 'pElo1qbeeR' }}
+          initialParams={{ isMyProfile: true }}
           options={{
             headerShown: false,
             headerBackTitleVisible: false,

@@ -40,7 +40,7 @@ const ErrorTabView = ({
           <Text style={[styles.error, { marginBottom: values.spacing.sm }]}>
             The following message is only shown in development mode:
           </Text>
-          <Text style={[styles.error]}>{error.message ?? error}</Text>
+          <Text style={[styles.error]}>{error?.message ?? error}</Text>
         </View>
       )}
     </View>

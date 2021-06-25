@@ -9,7 +9,7 @@ import { values } from '../../constants';
  * @typedef {Omit<MasonryListProps, 'data' | 'renderItem'>} RestProps
  *
  * @typedef {import('../../models').PostId} PostId
- * @typedef {{ postIds: PostId[], tileSpacing?: number, smallContent?: boolean }} PostMasonryListProps
+ * @typedef {{ postIds: PostId[], tileSpacing?: number, smallContent?: boolean, showFooter?: boolean }} PostMasonryListProps
  *
  * @param {PostMasonryListProps & RestProps} param0
  * @returns
@@ -18,6 +18,7 @@ export default function PostMasonryList({
   postIds,
   tileSpacing = values.spacing.sm * 1.25,
   smallContent,
+  showFooter,
   ...props
 }) {
   return (
@@ -26,8 +27,9 @@ export default function PostMasonryList({
       data={postIds}
       renderItem={({ item: postId, index }) => (
         <PostItemCard
-          smallContent={smallContent}
           postId={postId}
+          smallContent={smallContent}
+          showFooter={showFooter}
           style={{
             marginTop: tileSpacing,
             marginLeft: index % 2 === 0 ? tileSpacing : tileSpacing / 2,
