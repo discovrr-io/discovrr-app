@@ -61,6 +61,8 @@ export default function NoteItemCard({ noteId, ...props }) {
           aspectRatio: coverPhotoWidth / coverPhotoHeight,
           backgroundColor: colors.gray100,
           borderRadius: values.radius.md,
+          borderWidth: values.border.thin,
+          borderColor: colors.gray300,
         }}
       />
       <Text

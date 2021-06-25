@@ -347,11 +347,13 @@ const PostItemCard = ({
         <View>
           <FastImage
             source={post.content.sources[0]}
-            resizeMode="contain"
+            resizeMode="cover"
             style={{
               aspectRatio: imagePreviewWidth / imagePreviewHeight,
               backgroundColor: colors.gray100,
               borderRadius: values.radius.md,
+              borderWidth: values.border.thin,
+              borderColor: colors.gray300,
             }}
           />
           <PostItemCardCaption caption={post.content.caption} />
@@ -376,8 +378,11 @@ const PostItemCard = ({
               postItemStyles.dialogBoxText,
               {
                 fontSize: smallContent
-                  ? typography.size.md
-                  : typography.size.lg,
+                  ? typography.size.sm
+                  : typography.size.md,
+                padding: smallContent
+                  ? values.spacing.md
+                  : values.spacing.md * 1.25,
               },
             ]}>
             {post.content.text}
@@ -423,19 +428,17 @@ const postItemStyles = StyleSheet.create({
     paddingHorizontal: values.spacing.sm,
   },
   dialogBox: {
-    flex: 1,
     backgroundColor: colors.gray100,
     borderWidth: values.border.thin,
-    borderColor: colors.gray500,
+    borderColor: colors.gray300,
     borderTopLeftRadius: values.radius.md,
     borderTopRightRadius: values.radius.md,
     borderBottomRightRadius: values.radius.md,
-    padding: values.spacing.md,
     marginBottom: values.spacing.sm,
   },
   dialogBoxText: {
     color: colors.black,
-    fontWeight: '600',
+    fontWeight: '500',
   },
 });
 

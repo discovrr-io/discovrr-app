@@ -1,15 +1,26 @@
-import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useState } from 'react';
+import {
+  RefreshControl,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 import FastImage from 'react-native-fast-image';
 import { useRoute } from '@react-navigation/core';
 import { Tabs } from 'react-native-collapsible-tab-view';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { Button, ErrorTabView, ToggleButton } from '../../components';
 import PostMasonryList from '../../components/masonry/PostMasonryList';
-import { selectProfileById } from './profilesSlice';
+import {
+  changeProfileFollowStatus,
+  fetchProfileById,
+  getIsFollowingProfile,
+  selectProfileById,
+} from './profilesSlice';
 import { selectAllPosts } from '../posts/postsSlice';
 
 import {
@@ -19,6 +30,7 @@ import {
   values,
 } from '../../constants';
 import { useNavigation } from '@react-navigation/native';
+import { ProfileApi } from '../../api';
 
 const HEADER_MAX_HEIGHT = 280;
 const HEADER_MIN_HEIGHT = 80;
@@ -64,16 +76,45 @@ const statisticStyles = StyleSheet.create({
  * @param {{ profile: Profile }} param0
  */
 function ProfileScreenHeaderContent({ profile }) {
+  const dispatch = useDispatch();
   const navigation = useNavigation();
 
-  const { avatar, fullName, description = 'No description' } = profile;
-  const followersCount = profile.followers?.length ?? 0;
+  const {
+    avatar,
+    fullName,
+    description = 'No description',
+    followers = [],
+  } = profile;
+  const followersCount = followers.length ?? 0;
   const followingCount = profile.following?.length ?? 0;
 
   /** @type {Profile | undefined} */
   const currentUserProfile = useSelector((state) => state.auth.user?.profile);
   const isMyProfile =
     currentUserProfile && currentUserProfile.id === profile.id;
+
+  const isFollowingProfile = followers.includes(currentUserProfile.id);
+  const [isProcessingFollow, setIsProcessingFollow] = useState(false);
+
+  const handleFollowButtonPress = async (didFollow) => {
+    try {
+      setIsProcessingFollow(true);
+
+      // await dispatch(
+      //   changeProfileFollowStatus({
+      //     profileId: profile.id,
+      //     isFollowing: didFollow,
+      //   }),
+      // ).unwrap();
+
+      await ProfileApi.changeProfileFollowStatus(profile.id, didFollow);
+      await dispatch(fetchProfileById(String(profile.id))).unwrap();
+    } catch (error) {
+      console.error('Failed to change follow status:', error);
+    } finally {
+      setIsProcessingFollow(false);
+    }
+  };
 
   return (
     <View style={profileScreenHeaderContentStyles.container}>
@@ -92,10 +133,13 @@ function ProfileScreenHeaderContent({ profile }) {
             justifyContent: 'center',
             alignSelf: 'center',
             marginLeft: values.spacing.md,
-            // backgroundColor: 'red',
           }}>
           <View
-            style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              marginHorizontal: values.spacing.md * 1.5,
+            }}>
             <Statistic label="Followers" value={followersCount} />
             <Statistic label="Following" value={followingCount} />
             <Statistic label="Likes" value={-1} />
@@ -104,7 +148,6 @@ function ProfileScreenHeaderContent({ profile }) {
             style={{
               flexDirection: 'row',
               marginTop: values.spacing.md,
-              // backgroundColor: 'blue',
             }}>
             {isMyProfile ? (
               <Button
@@ -119,7 +162,10 @@ function ProfileScreenHeaderContent({ profile }) {
                 <ToggleButton
                   transparent
                   size="small"
+                  initialState={isFollowingProfile}
                   titles={{ on: 'Following', off: 'Follow' }}
+                  isLoading={isProcessingFollow}
+                  onPress={handleFollowButtonPress}
                   style={{ flex: 1, marginRight: values.spacing.xs * 1.5 }}
                 />
                 <Button
@@ -139,10 +185,10 @@ function ProfileScreenHeaderContent({ profile }) {
           profileScreenHeaderContentStyles.textContainer,
           profileScreenHeaderContentStyles.profileFullName,
         ]}>
-        {fullName}
+        {fullName || 'Anonymous'}
       </Text>
       <Text style={profileScreenHeaderContentStyles.textContainer}>
-        {description}
+        {description || 'No description'}
       </Text>
     </View>
   );
@@ -222,6 +268,25 @@ export default function ProfileScreen() {
       .map((post) => post.id);
   });
 
+  const [isRefreshingPosts, setIsRefreshingPosts] = useState(false);
+  const [isRefreshingNotes, setIsRefreshingNotes] = useState(false);
+
+  const handleRefreshPosts = async () => {
+    await new Promise((resolve, _) => {
+      setTimeout(() => {
+        resolve([]);
+      }, 3000);
+    });
+  };
+
+  const handleRefreshNotes = async () => {
+    await new Promise((resolve, _) => {
+      setTimeout(() => {
+        resolve([]);
+      }, 3000);
+    });
+  };
+
   return (
     <Tabs.Container
       lazy
@@ -231,12 +296,24 @@ export default function ProfileScreen() {
         <ProfileScreenHeader profileId={resolvedProfileId} />
       )}>
       <Tabs.Tab name="posts" label="Posts">
-        <Tabs.ScrollView>
+        <Tabs.ScrollView
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefreshingPosts}
+              onRefresh={handleRefreshPosts}
+            />
+          }>
           <PostMasonryList smallContent showFooter={false} postIds={postIds} />
         </Tabs.ScrollView>
       </Tabs.Tab>
       <Tabs.Tab name="notes" label="Notes">
-        <Tabs.ScrollView></Tabs.ScrollView>
+        <Tabs.ScrollView
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefreshingNotes}
+              onRefresh={handleRefreshNotes}
+            />
+          }></Tabs.ScrollView>
       </Tabs.Tab>
     </Tabs.Container>
   );

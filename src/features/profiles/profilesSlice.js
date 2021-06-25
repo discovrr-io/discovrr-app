@@ -1,6 +1,7 @@
 import {
   createAsyncThunk,
   createEntityAdapter,
+  createSelector,
   createSlice,
 } from '@reduxjs/toolkit';
 
@@ -10,6 +11,20 @@ export const fetchAllProfiles = createAsyncThunk(
   'profiles/fetchAllProfiles',
   ProfileApi.fetchAllProfiles,
 );
+
+export const fetchProfileById = createAsyncThunk(
+  'profiles/fetchProfileById',
+  ProfileApi.fetchProfileById,
+);
+
+// export const changeProfileFollowStatus = createAsyncThunk(
+//   'profiles/changeProfileFollowStatus',
+//   /**
+//    * @param {{ profileId: string, isFollowing: boolean }} param0
+//    */
+//   async ({ profileId, isFollowing }) =>
+//     ProfileApi.changeProfileFollowStatus(profileId, isFollowing),
+// );
 
 /**
  * @typedef {import('../../models').Profile} Profile
@@ -29,9 +44,12 @@ const initialState = profilesAdapter.getInitialState({
 const profilesSlice = createSlice({
   name: 'profiles',
   initialState,
-  reducers: {},
+  reducers: {
+    updateProfile: profilesAdapter.updateOne,
+  },
   extraReducers: (builder) => {
     builder
+      // -- fetchAllProfiles --
       .addCase(fetchAllProfiles.pending, (state) => {
         state.status = 'pending';
       })
@@ -42,17 +60,45 @@ const profilesSlice = createSlice({
       .addCase(fetchAllProfiles.rejected, (state, action) => {
         state.status = 'rejected';
         state.error = action.error;
-        profilesAdapter.setAll(state, []); // Should we reset the post list?
+        // profilesAdapter.setAll(state, []); // Should we reset the post list?
+      })
+      // -- fetchProfileById --
+      .addCase(fetchProfileById.pending, (state) => {
+        state.status = 'pending';
+      })
+      .addCase(fetchProfileById.fulfilled, (state, action) => {
+        state.status = 'fulfilled';
+        profilesAdapter.upsertOne(state, action.payload);
+      })
+      .addCase(fetchProfileById.rejected, (state, action) => {
+        state.status = 'rejected';
+        state.error = action.error;
       });
+    // // -- changeProfileFollowStatus --
+    // .addCase(changeProfileFollowStatus.pending, (state) => {
+    //   state.status = 'pending';
+    // })
+    // .addCase(changeProfileFollowStatus.fulfilled, (state, action) => {
+    //   state.status = 'fulfilled';
+    // })
+    // .addCase(changeProfileFollowStatus.rejected, (state, action) => {
+    //   state.status = 'rejected';
+    //   state.error = action.error;
+    // });
   },
 });
 
-export const {} = profilesSlice.actions;
+export const { updateProfile } = profilesSlice.actions;
 
 export const {
   selectAll: selectAllProfiles,
   selectById: selectProfileById,
   selectIds: selectProfileIds,
 } = profilesAdapter.getSelectors((state) => state.profiles);
+
+export const getIsFollowingProfile = createSelector(
+  [selectProfileById, (_state, userProfileId) => userProfileId],
+  (profile, userProfileId) => (profile.followers ?? []).includes(userProfileId),
+);
 
 export default profilesSlice.reducer;

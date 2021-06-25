@@ -187,7 +187,7 @@ function PostDetailContent({ post, ...props }) {
 const postDetailContentStyles = StyleSheet.create({
   dialogBox: {
     backgroundColor: colors.gray100,
-    borderColor: colors.gray,
+    borderColor: colors.gray300,
     borderTopLeftRadius: values.radius.md,
     borderTopRightRadius: values.radius.md,
     borderBottomRightRadius: values.radius.md,
@@ -196,9 +196,9 @@ const postDetailContentStyles = StyleSheet.create({
     marginHorizontal: values.spacing.md,
   },
   dialogBoxText: {
+    fontWeight: '500',
+    fontSize: typography.size.lg,
     color: colors.black,
-    fontWeight: '600',
-    fontSize: typography.size.md,
   },
   caption: {
     fontWeight: '500',
