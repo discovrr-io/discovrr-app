@@ -20,21 +20,42 @@ export const fetchPostById = createAsyncThunk(
 export const fetchFollowingPosts = createAsyncThunk(
   'posts/fetchFollowingPosts',
   /**
-   * @typedef {{ limit: number, skip?: number }} Pagination
-   * @param {Pagination=} pagination
+   * @param {PostApi.Pagination=} pagination
    * @returns {Promise<Post[]>}
    */
-  async (pagination = undefined, _) => {
+  async (pagination, { getState }) => {
     try {
-      // const query = new Parse.Query(Parse.Object.extend('Post'))
+      /** @type {{ user: import('../../models').User }} */
+      const { user } = getState().auth;
+      if (!user) {
+        console.warn(
+          '[PostApi.fetchFollowingPosts]',
+          'Current user is undefined. Is the user authenticated?',
+        );
+        return [];
+      }
+
+      const followingArray = user.profile.followers;
+      if (!followingArray || followingArray.length < 1) {
+        console.info(
+          '[PostApi.fetchFollowingPosts]',
+          'Current user is not following anyone. Returning early...',
+        );
+        return [];
+      }
+
+      // TODO: We could probably use a memoized selector instead
+      return await PostApi.fetchFollowingPosts(
+        user.profile.id,
+        followingArray,
+        pagination,
+      );
     } catch (error) {
       console.error(
-        '[fetchFollowingPosts] Failed to fetch following posts:',
+        '[PostApi.fetchFollowingPosts] Failed to fetch following posts:',
         error,
       );
       throw error;
-    } finally {
-      console.log('[fetchFollowingPosts] Finished fetching following posts');
     }
   },
 );

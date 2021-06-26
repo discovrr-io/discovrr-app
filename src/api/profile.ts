@@ -49,9 +49,9 @@ export namespace ProfileApi {
       coverPhoto: profileCoverPhoto,
       description: result.get('description') ?? '',
       isVendor: false, // TODO: Determine if profile is vendor
-      followers: result.get('followersArray') ?? [],
-      following: result.get('followingArray') ?? [],
-      oneSignalPlayerIds: result.get('oneSignalPlayerIds') ?? [],
+      followers: result.get('followersArray'),
+      following: result.get('followingArray'),
+      oneSignalPlayerIds: result.get('oneSignalPlayerIds'),
     } as Profile;
   }
 

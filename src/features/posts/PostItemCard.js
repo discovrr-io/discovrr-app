@@ -41,7 +41,7 @@ const iconSize = {
 const alertUnimplementedFeature = () =>
   Alert.alert(
     'Feature Not Available',
-    "We're working on this feature at the moment.",
+    "Sorry, we're working on this feature at the moment.",
   );
 
 /**

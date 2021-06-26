@@ -37,7 +37,7 @@ const FeedTab = createMaterialTopTabNavigator();
 /** @type {import('react-native').ViewStyle} */
 const tabViewStyles = {
   flexGrow: 1,
-  // backgroundColor: colors.white,
+  paddingHorizontal: values.spacing.lg,
 };
 
 function DiscoverTab() {
@@ -119,6 +119,9 @@ function DiscoverTab() {
     <PostMasonryList
       smallContent
       postIds={postIds}
+      ListEmptyComponent={
+        <EmptyTabView message="Looks like no one has posted anything yet" />
+      }
       refreshControl={
         <RefreshControl
           tintColor={colors.gray500}
@@ -131,133 +134,8 @@ function DiscoverTab() {
 }
 
 function NearMeTab() {
-  return (
-    <View>
-      <Text>NearMeTab</Text>
-    </View>
-  );
+  return <EmptyTabView />;
 }
-
-// function NearMeTab() {
-//   const { width: screenWidth } = useWindowDimensions();
-//
-//   const [nearMeItems, setNearMeItems] = useState([]);
-//   const [isRefreshing, setIsRefreshing] = useState(true);
-//   const [error, setError] = useState(null);
-//
-//   const handleRefresh = () => {
-//     if (!isRefreshing) setIsRefreshing(true);
-//   };
-//
-//   /** @type {import('../authentication/authSlice').AuthState} */
-//   const { isAuthenticated, user } = useSelector((state) => state.auth);
-//   if (!isAuthenticated || !user) {
-//     console.error('[NearMeTab] User is not authenticated:', user);
-//     return null;
-//   }
-//
-//   useEffect(() => {
-//     const fetchNearMeItems = async () => {
-//       try {
-//         console.log('[NearMeTab] Fetching near me items...');
-//         const query = new Parse.Query(Parse.Object.extend('Vendor'));
-//
-//         console.log('user location settings:', user.settings);
-//
-//         let pointOfInterest;
-//         const geoPointKey = 'geopoint';
-//
-//         if (user.settings) {
-//           const { searchRadius, currentLocation } =
-//             user.settings.locationPreference;
-//           const { latitude, longitude } = currentLocation;
-//           pointOfInterest = new Parse.GeoPoint(latitude, longitude);
-//           query.withinKilometers(geoPointKey, pointOfInterest, searchRadius);
-//         } else {
-//           pointOfInterest = new Parse.GeoPoint(
-//             -33.92313968574856,
-//             151.0861961540703,
-//           );
-//           query.withinKilometers(
-//             geoPointKey,
-//             pointOfInterest,
-//             DEFAULT_SEARCH_RADIUS,
-//           );
-//         }
-//
-//         const results = await query.findAll();
-//         const nearMeItems = results.map((item) => {
-//           const imagePreviewArray = item.get('media');
-//           const imagePreview = imagePreviewArray
-//             ? { uri: imagePreviewArray[0].url }
-//             : imagePlaceholder;
-//
-//           let imagePreviewDimensions;
-//           if (typeof imagePreview === 'number') {
-//             imagePreviewDimensions = { width: 600, height: 400 };
-//           } else {
-//             imagePreviewDimensions = {
-//               width: imagePreview.width,
-//               height: imagePreview.height,
-//             };
-//           }
-//
-//           return {
-//             id: item.id,
-//             shortName: item.get('shortName'),
-//             profileId: item.get('profile'),
-//             source: imagePreview,
-//             dimensions: imagePreviewDimensions,
-//           };
-//         });
-//         setNearMeItems(nearMeItems);
-//       } catch (error) {
-//         console.error('[NearMeTab] Failed to fetch near me items:', error);
-//         setError(error);
-//       } finally {
-//         setIsRefreshing(false);
-//       }
-//     };
-//
-//     if (isRefreshing) fetchNearMeItems();
-//   }, [isRefreshing]);
-//
-//   return (
-//     <MasonryList
-//       sorted
-//       rerender
-//       columns={2}
-//       images={nearMeItems}
-//       containerWidth={screenWidth}
-//       listContainerStyle={{ ...tabViewStyles, paddingTop: values.spacing.sm }}
-//       masonryFlatListColProps={{
-//         ListEmptyComponent: error ? (
-//           <ErrorTabView error={error} style={tabViewStyles} />
-//         ) : (
-//           <EmptyTabView style={tabViewStyles} />
-//         ),
-//         refreshControl: (
-//           <RefreshControl
-//             refreshing={isRefreshing}
-//             onRefresh={handleRefresh}
-//             colors={[colors.gray500]}
-//             tintColor={colors.gray500}
-//             title="Getting posts and products near you..."
-//           />
-//         ),
-//       }}
-//       completeCustomComponent={({ data }) => (
-//         <MerchantItem
-//           merchantId={data.id}
-//           shortName={data.shortName}
-//           coverPhoto={data.source}
-//           coverPhotoDimensions={data.masonryDimensions}
-//           style={{ marginLeft: values.spacing.sm * 0.75 }}
-//         />
-//       )}
-//     />
-//   );
-// }
 
 function FollowingTab() {
   const dispatch = useDispatch();
@@ -272,27 +150,24 @@ function FollowingTab() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const pagination = {
-        limit: PAGINATION_LIMIT,
-      };
-
-      // dispatch(fetchFollowingPosts({ pagination }))
-      //   .then(unwrapResult)
-      //   .then((followingPosts) => {
-      //     setFollowingPosts(followingPosts);
-      //     setIsRefreshing(false);
-      //   })
-      //   .catch((error) => {
-      //     console.error(error);
-      //     setIsRefreshing(false);
-      //   });
-
       try {
+        console.log('Fetching following posts...');
         /** @type {import('../../models').Post[]} */
         const following = await dispatch(
-          fetchFollowingPosts(pagination),
+          fetchFollowingPosts({ limit: PAGINATION_LIMIT }),
         ).unwrap();
-      } catch (error) {}
+
+        console.log('Following posts:', following);
+        setFollowingPosts(following);
+      } catch (error) {
+        console.error('Failed to fetch following posts:', error);
+        Alert.alert(
+          'Something went wrong',
+          "We weren't able to get posts from people you follow. Please try again later.",
+        );
+      } finally {
+        setIsRefreshing(false);
+      }
     };
 
     if (isRefreshing) fetchData();
@@ -312,7 +187,12 @@ function FollowingTab() {
           title="Getting posts from people you follow..."
         />
       }
-      ListEmptyComponent={<EmptyTabView style={tabViewStyles} />}
+      ListEmptyComponent={
+        <EmptyTabView
+          message="You're not following anyone! Why not follow someone to see their posts here?"
+          style={tabViewStyles}
+        />
+      }
       renderItem={({ item: post }) => {
         /** @type {import('../../models/common').ImageSource} */
         const imagePreview = post.media[0] ?? imagePlaceholder;

@@ -13,7 +13,6 @@ import { persistStore } from 'redux-persist';
 import AuthLoadingScreen from './features/authentication/AuthLoadingScreen';
 import debugAppLogger from './utilities/DebugAppLogger';
 import store from './store';
-import { createStackNavigator } from '@react-navigation/stack';
 
 Bugsnag.start();
 
@@ -32,7 +31,7 @@ const persistor = persistStore(store);
 
 export function App() {
   const onBeforeLift = async () => {
-    const storeVersion = '2.1.0';
+    const storeVersion = '2.1.1';
     try {
       const [[_, previousStoreVersion]] = await AsyncStorage.multiGet([
         'storeVersion',

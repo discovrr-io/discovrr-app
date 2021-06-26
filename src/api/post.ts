@@ -185,4 +185,23 @@ export namespace PostApi {
       console.groupEnd();
     }
   }
+
+  export type Pagination = { limit: number; skip?: number };
+
+  export async function fetchFollowingPosts(
+    profileId: string,
+    followingArray: string[],
+    pagination?: Pagination,
+  ): Promise<Post[]> {
+    console.log({ profileId, followingArray, pagination });
+
+    const query = new Parse.Query(Parse.Object.extend('Post'));
+    // query.containedIn('profile', followingArray);
+    query.greaterThanOrEqualTo('createdAt', new Date('2020-10-30'));
+    query.descending('createdAt');
+    query.limit(10);
+
+    const results = await query.find();
+    return results.map((post) => mapResultToPost(profileId, post));
+  }
 }

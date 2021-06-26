@@ -76,6 +76,13 @@ export default function AppDrawer({ navigation, ...props }) {
     );
   };
 
+  const alertUnavailableFeature = () => {
+    Alert.alert(
+      'Unavailable Feature',
+      "Sorry, we're working on this feature at the moment.",
+    );
+  };
+
   // TODO: Add version code
   return (
     <View style={{ flex: 1 }}>
@@ -84,7 +91,7 @@ export default function AppDrawer({ navigation, ...props }) {
           <TouchableOpacity
             activeOpacity={DEFAULT_ACTIVE_OPACITY}
             onPress={() => {
-              navigation.navigate('ProfileEditScreen', {
+              navigation.navigate('ProfileScreen', {
                 profileId: profile.id,
               });
             }}>
@@ -112,20 +119,20 @@ export default function AppDrawer({ navigation, ...props }) {
           </TouchableOpacity>
         </View>
         <Divider />
-        <DrawerItem
+        {/* <DrawerItem
           label="Search Location"
           icon={({ color, size }) => (
             <Icon name="location-pin" size={size} color={color} />
           )}
           onPress={() => {}}
           style={appDrawerStyles.drawerItem}
-        />
+        /> */}
         <DrawerItem
           label="Notifications"
           icon={({ color, size }) => (
             <Icon name="notifications" size={size} color={color} />
           )}
-          onPress={() => {}}
+          onPress={alertUnavailableFeature}
           style={appDrawerStyles.drawerItem}
         />
         <DrawerItem
@@ -133,7 +140,11 @@ export default function AppDrawer({ navigation, ...props }) {
           icon={({ color, size }) => (
             <Icon name="person" size={size} color={color} />
           )}
-          onPress={() => {}}
+          onPress={() => {
+            navigation.navigate('ProfileEditScreen', {
+              profileId: profile.id,
+            });
+          }}
           style={appDrawerStyles.drawerItem}
         />
         <DrawerItem
@@ -141,7 +152,7 @@ export default function AppDrawer({ navigation, ...props }) {
           icon={({ color, size }) => (
             <Icon name="shopping-bag" size={size} color={color} />
           )}
-          onPress={() => {}}
+          onPress={alertUnavailableFeature}
           style={appDrawerStyles.drawerItem}
         />
         <DrawerItem
@@ -165,7 +176,7 @@ export default function AppDrawer({ navigation, ...props }) {
       </DrawerContentScrollView>
       <View style={{ padding: values.spacing.lg }}>
         <Text style={{ color: colors.gray700, textAlign: 'center' }}>
-          Discovrr v{DeviceInfo.getVersion()}-rc
+          Discovrr v{DeviceInfo.getVersion()} (Build 2021.06.27)
         </Text>
       </View>
     </View>
