@@ -68,18 +68,22 @@ async function setUpOneSignalUserDetails(user) {
  */
 async function setOneSignalPlayerId(currentPlayerId, profileId) {
   try {
-    const Profile = Parse.Object.extend('Profile');
-    const profilePointer = new Profile();
-    profilePointer.id = profileId;
+    const query = new Parse.Query(Parse.Object.extend('Profile'));
+    query.equalTo('objectId', profileId);
 
-    const oneSignalPlayerIds = profilePointer.get('oneSignalPlayerIds') ?? [];
+    const profile = await query.first();
+    if (!profile) {
+      console.warn('No profile found with id:', profileId);
+      return;
+    }
 
+    const oneSignalPlayerIds = profile.get('oneSignalPlayerIds');
     if (!oneSignalPlayerIds.includes(currentPlayerId)) {
-      profilePointer.set('oneSignalPlayerIds', [
+      profile.set('oneSignalPlayerIds', [
         ...oneSignalPlayerIds,
         currentPlayerId,
       ]);
-      await profilePointer.save();
+      await profile.save();
     }
   } catch (error) {
     console.error(
@@ -96,7 +100,7 @@ function sendOneSignalTags(user) {
   const { id: profileId, email, fullName } = user.profile;
 
   if (profileId && email) {
-    // We'll send both userId and profileId for convenience
+    // We'll send the profileId for convenience
     OneSignal.sendTags({
       profileId,
       email,
