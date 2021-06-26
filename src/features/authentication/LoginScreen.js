@@ -17,7 +17,7 @@ import {
 
 import { useDispatch } from 'react-redux';
 import Video from 'react-native-video';
-import auth from '@react-native-firebase/auth';
+import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 
 import { Formik } from 'formik';
 import * as yup from 'yup';
@@ -225,6 +225,9 @@ function TextButton({ title, disabled, onPress, ...props }) {
   );
 }
 
+/**
+ * @param {FirebaseAuthTypes.User} firebaseUser
+ */
 async function loginFirebaseUser(dispatcher, firebaseUser) {
   console.log('[LoginScreen] Will log in Firebase user...');
   let currentUser = await Parse.User.currentAsync();
@@ -366,7 +369,7 @@ function LoginForm({ setFormType }) {
   /**
    * @param {{ email: string, password: string }} param0
    */
-  const handleLoginWithEmailAndPassword = async ({ email, password }) => {
+  const handleSignInWithEmailAndPassword = async ({ email, password }) => {
     try {
       console.log('[LoginForm] Starting login process...');
       setIsProcessing(true);
@@ -392,7 +395,7 @@ function LoginForm({ setFormType }) {
     <Formik
       validationSchema={loginFormSchema}
       initialValues={{ email: '', password: '' }}
-      onSubmit={handleLoginWithEmailAndPassword}>
+      onSubmit={handleSignInWithEmailAndPassword}>
       {(props) => (
         <>
           <FormikInput
@@ -687,7 +690,7 @@ export default function LoginScreen() {
         appleCredential,
       );
 
-      loginFirebaseUser(dispatch, firebaseUser);
+      await loginFirebaseUser(dispatch, firebaseUser);
     } catch (error) {
       setIsProcessing(false);
 
@@ -710,12 +713,12 @@ export default function LoginScreen() {
     if (isProcessing /* || isAuthenticating */) return;
 
     try {
+      console.log('Will sign in with Google...');
       setIsProcessing(true);
 
       const { idToken } = await GoogleSignin.signIn();
       const { accessToken } = await GoogleSignin.getTokens();
-
-      const googleCredential = auth.GithubAuthProvider.credential(
+      const googleCredential = auth.GoogleAuthProvider.credential(
         idToken,
         accessToken,
       );
@@ -725,7 +728,7 @@ export default function LoginScreen() {
         googleCredential,
       );
 
-      loginFirebaseUser(firebaseUser);
+      await loginFirebaseUser(dispatch, firebaseUser);
     } catch (error) {
       console.error(
         `[LoginScreen] Google sign-in error (${error.code}):`,

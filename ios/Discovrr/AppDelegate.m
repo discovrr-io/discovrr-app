@@ -1,12 +1,13 @@
 #import "AppDelegate.h"
 
+#import <Firebase.h>
+
 #import <React/RCTBridge.h>
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTRootView.h>
 #import <React/RCTLinkingManager.h>
 
 #import <Bugsnag/Bugsnag.h>
-#import <Firebase/Firebase.h>
 
 #ifdef FB_SONARKIT_ENABLED
 #import <FlipperKit/FlipperClient.h>
@@ -29,8 +30,7 @@ static void InitializeFlipper(UIApplication *application) {
 
 @implementation AppDelegate
 
-- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
-{
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     if ([FIRApp defaultApp] == nil) {
         [FIRApp configure];
     }
@@ -55,8 +55,7 @@ static void InitializeFlipper(UIApplication *application) {
     return YES;
 }
 
-- (NSURL *)sourceURLForBridge:(RCTBridge *)bridge
-{
+- (NSURL *)sourceURLForBridge:(RCTBridge *)bridge {
 #if DEBUG
     return [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index" fallbackResource:nil];
 #else

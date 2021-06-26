@@ -143,7 +143,7 @@ export default function AppDrawer({ navigation, ...props }) {
           icon={({ color, size }) => (
             <Icon name="settings" size={size} color={color} />
           )}
-          onPress={() => {}}
+          onPress={() => navigation.navigate('AccountSettingsScreen')}
           style={appDrawerStyles.drawerItem}
         />
         <Divider />

@@ -99,9 +99,7 @@ export function App() {
 
 const codePushOptions = {
   checkFrequency: codePush.CheckFrequency.ON_APP_RESUME,
-  // installMode: codePush.InstallMode.ON_NEXT_RESUME,
-  installMode: codePush.InstallMode.IMMEDIATE,
-  // installMode: CodePush.InstallMode.ON_NEXT_SUSPEND,
+  installMode: codePush.InstallMode.ON_NEXT_RESUME,
 };
 
 export default codePush(codePushOptions)(App);
