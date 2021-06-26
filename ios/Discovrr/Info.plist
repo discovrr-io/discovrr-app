@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>Discovrr</string>
+	<string>Discovrr Debug</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -103,13 +103,13 @@
 		</dict>
 	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>To capture images and video for posts you share and to customize your profile avatar</string>
+	<string>To capture images and video for posts you share and to customise your profile avatar</string>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>To show points of interest near you and to geotag posts you share</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>To show points of interest near you and to geotag posts you share</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>To select images and video for posts you share and to customize your profile avatar</string>
+	<string>To select images and video for posts you share and to customise your profile avatar</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Ionicons.ttf</string>

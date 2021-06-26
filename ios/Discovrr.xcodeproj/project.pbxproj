@@ -13,6 +13,7 @@
 		03DC1AE2262DDCF900A0D5C5 /* Discovrr.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03DC1AE1262DDCF900A0D5C5 /* Discovrr.swift */; };
 		03DC1B05262DE70600A0D5C5 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03DC1B04262DE70600A0D5C5 /* NotificationService.swift */; };
 		03DC1B09262DE70600A0D5C5 /* OneSignalNotificationServiceExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 03DC1B02262DE70600A0D5C5 /* OneSignalNotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		03ED367C26876304007B77D4 /* Info-staging.plist in Resources */ = {isa = PBXBuildFile; fileRef = 03ED367B26876304007B77D4 /* Info-staging.plist */; };
 		03FF2CAC26871DAF009DEEB0 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 03FF2CAB26871DAF009DEEB0 /* GoogleService-Info.plist */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
@@ -82,6 +83,8 @@
 		03DC1B02262DE70600A0D5C5 /* OneSignalNotificationServiceExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = OneSignalNotificationServiceExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		03DC1B04262DE70600A0D5C5 /* NotificationService.swift */ = {isa = PBXFileReference; indentWidth = 4; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; tabWidth = 4; };
 		03DC1B06262DE70600A0D5C5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		03ED367B26876304007B77D4 /* Info-staging.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "Info-staging.plist"; path = "Discovrr/Info-staging.plist"; sourceTree = "<group>"; };
+		03ED368F26876716007B77D4 /* OneSignalNotificationServiceExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = OneSignalNotificationServiceExtension.entitlements; sourceTree = "<group>"; };
 		03FF2CAB26871DAF009DEEB0 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* Discovrr.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Discovrr.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = Discovrr/AppDelegate.h; sourceTree = "<group>"; tabWidth = 4; };
@@ -177,6 +180,7 @@
 		03DC1B03262DE70600A0D5C5 /* OneSignalNotificationServiceExtension */ = {
 			isa = PBXGroup;
 			children = (
+				03ED368F26876716007B77D4 /* OneSignalNotificationServiceExtension.entitlements */,
 				03DC1B04262DE70600A0D5C5 /* NotificationService.swift */,
 				03DC1B06262DE70600A0D5C5 /* Info.plist */,
 			);
@@ -190,6 +194,7 @@
 				13B07FB01A68108700A75B9A /* AppDelegate.m */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
+				03ED367B26876304007B77D4 /* Info-staging.plist */,
 				03D0FE0B2665B9BE00AD22DE /* Info-release.plist */,
 				03FF2CAB26871DAF009DEEB0 /* GoogleService-Info.plist */,
 				038584352665EA38005DECD2 /* Discovrr.entitlements */,
@@ -399,6 +404,7 @@
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				03FF2CAC26871DAF009DEEB0 /* GoogleService-Info.plist in Resources */,
 				039EAA60262DCEE80088184B /* LaunchScreen.storyboard in Resources */,
+				03ED367C26876304007B77D4 /* Info-staging.plist in Resources */,
 				03D0FE0C2665B9BE00AD22DE /* Info-release.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -820,7 +826,7 @@
 					"\"$(inherited)\"",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
-				Multi_Deployment_Config = "$(BUILD_DIR)/Release$(EFFECTIVE_PLATFORM_NAME)";
+				MULTI_DEPLOYMENT_CONFIG = "$(BUILD_DIR)/Release$(EFFECTIVE_PLATFORM_NAME)";
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
@@ -839,7 +845,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = K9APN5C6Z2;
-				INFOPLIST_FILE = "Discovrr/Info-release.plist";
+				INFOPLIST_FILE = "Discovrr/Info-staging.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MARKETING_VERSION = 2.1.0;
@@ -890,6 +896,7 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
@@ -921,6 +928,7 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
@@ -953,6 +961,7 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
@@ -980,7 +989,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CODEPUSH_KEY = _JCHhgZ_hiHd4FkHB4t0nO5q8S0IWxF6nBh1k;
+				CODEPUSH_KEY = "";
 				CODE_SIGN_ENTITLEMENTS = Discovrr/Discovrr.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
@@ -1093,7 +1102,7 @@
 					"\"$(inherited)\"",
 				);
 				MTL_ENABLE_DEBUG_INFO = YES;
-				Multi_Deployment_Config = "";
+				MULTI_DEPLOYMENT_CONFIG = "";
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 			};
@@ -1149,7 +1158,7 @@
 					"\"$(inherited)\"",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
-				Multi_Deployment_Config = "$(BUILD_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
+				MULTI_DEPLOYMENT_CONFIG = "$(BUILD_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
