@@ -1,6 +1,7 @@
 import React from 'react';
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
+import DeviceInfo from 'react-native-device-info';
 import FastImage from 'react-native-fast-image';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer';
@@ -77,7 +78,9 @@ export default function AppDrawer({ navigation, ...props }) {
           <TouchableOpacity
             activeOpacity={DEFAULT_ACTIVE_OPACITY}
             onPress={() => {
-              navigation.push('Profile', { profileId: profile.id });
+              navigation.navigate('ProfileEditScreen', {
+                profileId: profile.id,
+              });
             }}>
             <View style={{ alignItems: 'center' }}>
               <FastImage
@@ -154,12 +157,10 @@ export default function AppDrawer({ navigation, ...props }) {
         />
         <Divider />
       </DrawerContentScrollView>
-      <View
-        style={{
-          paddingHorizontal: values.spacing.lg,
-          paddingBottom: values.spacing.lg,
-        }}>
-        <Text style={{ color: 'red' }}>INTERNAL BETA RELEASE</Text>
+      <View style={{ padding: values.spacing.lg }}>
+        <Text style={{ color: colors.gray700, textAlign: 'center' }}>
+          Discovrr v{DeviceInfo.getVersion()}-rc
+        </Text>
       </View>
     </View>
   );

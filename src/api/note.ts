@@ -34,7 +34,7 @@ export namespace NoteApi {
           title: note.get('title') ?? 'Untitled',
           isPrivate: note.get('isPrivate') ?? true,
           coverPhoto,
-          profile: note.get('profile').id,
+          profileId: note.get('profile').id,
           posts: note.get('postsArray') ?? [],
         } as Note;
       });

@@ -46,6 +46,7 @@ export default function NoteItemCard({ noteId, ...props }) {
 
   const handlePressNote = () => {
     navigation.push('NoteDetailScreen', {
+      noteId: note.id,
       noteTitle: title || 'Note Details',
     });
   };

@@ -38,7 +38,7 @@ const notesSlice = createSlice({
       })
       .addCase(fetchNotesForCurrentUser.fulfilled, (state, action) => {
         state.status = 'fulfilled';
-        notesAdapter.upsertMany(state, action.payload);
+        notesAdapter.setAll(state, action.payload);
       })
       .addCase(fetchNotesForCurrentUser.rejected, (state, action) => {
         state.status = 'rejected';

@@ -20,7 +20,7 @@ import {
   DEFAULT_AVATAR,
   DEFAULT_IMAGE_DIMENSIONS,
 } from '../../constants/media';
-import { PostApi } from '../../api';
+import { PostApi, ProfileApi } from '../../api';
 import { selectProfileById } from '../profiles/profilesSlice';
 import { selectPostById, postLikeStatusChanged } from './postsSlice';
 
@@ -38,6 +38,12 @@ const iconSize = {
   },
 };
 
+const alertUnimplementedFeature = () =>
+  Alert.alert(
+    'Feature Not Available',
+    "We're working on this feature at the moment.",
+  );
+
 /**
  * @typedef {import('../../models').Post} Post
  * @typedef {{ largeIcons?: boolean, showActions?: boolean, showShareIcon?: boolean }} FooterOptions
@@ -54,7 +60,7 @@ export const PostItemCardFooter = ({
   const dispatch = useDispatch();
   const navigation = useNavigation();
 
-  /** @type {import('../features/authentication/authSlice').AuthState} */
+  /** @type {import('../authentication/authSlice').AuthState} */
   const { isAuthenticated, user: currentUser } = useSelector(
     (state) => state.auth,
   );
@@ -97,10 +103,6 @@ export const PostItemCardFooter = ({
     });
   };
 
-  const handlePressShare = () => {
-    console.warn('[PostItemCard.handlePressShare] Unimplemented action');
-  };
-
   const handlePressLike = async () => {
     try {
       setIsProcessingLike(true);
@@ -112,15 +114,36 @@ export const PostItemCardFooter = ({
         } post...`,
       );
 
+      // FIXME: Waiting for like status to change takes too long
       dispatch(postLikeStatusChanged({ postId: post.id, didLike: newDidLike }));
       await PostApi.setLikeStatus(post.id, newDidLike);
 
       // Only send notification if current user liked the post
-      if (newDidLike && isAuthenticated && currentUser) {
-        const { fullName } = currentUser.profile;
-        const recipientPlayerIds = profile.oneSignalPlayerIds;
+      console.log(
+        'Will send notification:',
+        newDidLike && isAuthenticated && !!currentUser,
+      );
 
-        if (recipientPlayerIds && recipientPlayerIds.length > 0) {
+      if (newDidLike && isAuthenticated && !!currentUser) {
+        console.log('1');
+        const { fullName } = currentUser.profile;
+
+        /** @type {string[]} */
+        let recipientPlayerIds;
+        if (
+          profile.oneSignalPlayerIds &&
+          profile.oneSignalPlayerIds.length > 0
+        ) {
+          recipientPlayerIds = profile.oneSignalPlayerIds;
+        } else {
+          recipientPlayerIds = await ProfileApi.getOneSignalPlayerIdsForProfile(
+            profile.id,
+          );
+        }
+
+        console.log('2');
+        if (recipientPlayerIds.length > 0) {
+          console.log('3');
           const notificationParams = JSON.stringify({
             include_player_ids: recipientPlayerIds,
             headings: { en: `${fullName} liked your post` },
@@ -145,7 +168,11 @@ export const PostItemCardFooter = ({
             },
           );
         }
+      } else {
+        console.log('4');
       }
+
+      console.log('5');
     } catch (error) {
       console.error(error);
       Alert.alert(
@@ -157,10 +184,6 @@ export const PostItemCardFooter = ({
     } finally {
       setIsProcessingLike(false);
     }
-  };
-
-  const handlePressSave = async () => {
-    console.warn('Unimplemented: handlePressSave');
   };
 
   const avatarIconSize = smallContent
@@ -209,7 +232,7 @@ export const PostItemCardFooter = ({
           <TouchableOpacity
             disabled={false}
             activeOpacity={DEFAULT_ACTIVE_OPACITY}
-            onPress={handlePressShare}>
+            onPress={alertUnimplementedFeature}>
             <MaterialIcon
               name="share"
               color={colors.gray}
@@ -221,7 +244,7 @@ export const PostItemCardFooter = ({
         <TouchableOpacity
           disabled={isProcessingSave}
           activeOpacity={DEFAULT_ACTIVE_OPACITY}
-          onPress={handlePressSave}>
+          onPress={alertUnimplementedFeature}>
           <MaterialIcon
             name={didSave ? 'bookmark' : 'bookmark-outline'}
             color={didSave ? colors.black : colors.gray}

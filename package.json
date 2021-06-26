@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "android": "react-native run-android --appIdSuffix 'debug'",
+    "android:staging": "react-native run-android --variant releaseStaging --appId com.discovrr.discovrr_app.releaseStaging",
+    "android:release": "react-native run-android --variant release",
     "ios": "react-native run-ios",
     "start": "react-native start",
     "test": "jest",

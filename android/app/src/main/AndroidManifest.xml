@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.discovrr.discovrr_app">
 
@@ -31,10 +32,10 @@
             android:launchMode="singleTask"
             android:screenOrientation="sensorPortrait"
             android:windowSoftInputMode="adjustPan">
-            <!-- <intent-filter>-->
-            <!--     <action android:name="android.intent.action.MAIN" />-->
-            <!--     <category android:name="android.intent.category.LAUNCHER" />-->
-            <!-- </intent-filter> -->
+            <!-- <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter> -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -79,12 +80,12 @@
         <meta-data
             android:name="com.google.android.gms.wallet.api.enabled"
             android:value="true" />
-        <!-- <meta-data-->
-        <!--     android:name="com.google.firebase.messaging.default_notification_icon"-->
-        <!--     android:resource="@mipmap/ic_notification" />-->
-        <!-- <meta-data-->
-        <!--     android:name="com.google.firebase.messaging.default_notification_color"-->
-        <!--     android:resource="@color/petrol" />-->
+        <!-- <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@mipmap/ic_notification" /> -->
+        <!-- <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/petrol" /> -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="default"

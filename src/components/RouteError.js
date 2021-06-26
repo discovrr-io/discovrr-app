@@ -27,7 +27,7 @@ export default function RouteError({
           primary
           size="small"
           title="Take Me Back"
-          onPress={() => navigation.navigate('HomeScreen')}
+          onPress={() => navigation.goBack()}
           style={[errorStyles.button]}
         />
       </View>

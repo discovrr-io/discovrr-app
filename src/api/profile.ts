@@ -51,6 +51,7 @@ export namespace ProfileApi {
       isVendor: false, // TODO: Determine if profile is vendor
       followers: result.get('followersArray') ?? [],
       following: result.get('followingArray') ?? [],
+      oneSignalPlayerIds: result.get('oneSignalPlayerIds') ?? [],
     } as Profile;
   }
 
@@ -104,6 +105,31 @@ export namespace ProfileApi {
       console.error(
         `Failed to ${isFollowing ? 'follow' : 'unfollow'} profile with id:`,
         error,
+      );
+      throw error;
+    } finally {
+      console.groupEnd();
+    }
+  }
+
+  export async function getOneSignalPlayerIdsForProfile(
+    profileId: string,
+  ): Promise<string[]> {
+    try {
+      console.group('ProfileApi.getOneSignalPlayerIdsForProfile');
+      const profileQuery = new Parse.Query(Parse.Object.extend('Profile'));
+      profileQuery.equalTo('objectId', profileId);
+
+      const result = await profileQuery.first();
+      if (result) {
+        return result.get('oneSignalPlayerIds') ?? [];
+      } else {
+        return [];
+      }
+    } catch (error) {
+      console.error(
+        'Failed to get OneSignal player IDs for profile:',
+        profileId,
       );
       throw error;
     } finally {

@@ -78,6 +78,117 @@
           ]
         }
       }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:930461821085:android:9dcd5a2a742353f4678c74",
+        "android_client_info": {
+          "package_name": "com.discovrr.discovrr_app.releaseStaging"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "930461821085-pmo91isqq9jlvvhsteeoosm1n26ef3i4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDarS3x-3izreKF10YPGj9FC-NJRjYyOEg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "930461821085-pmo91isqq9jlvvhsteeoosm1n26ef3i4.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "930461821085-9oi5tufovr4ertfgiac4ducje18kbqmo.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.discovrr",
+                "app_store_id": "1541137819"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:930461821085:android:4f901d5696bd05f4678c74",
+        "android_client_info": {
+          "package_name": "com.discovrr.discovrr_plus"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "930461821085-pmo91isqq9jlvvhsteeoosm1n26ef3i4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDarS3x-3izreKF10YPGj9FC-NJRjYyOEg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "930461821085-pmo91isqq9jlvvhsteeoosm1n26ef3i4.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "930461821085-9oi5tufovr4ertfgiac4ducje18kbqmo.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.discovrr",
+                "app_store_id": "1541137819"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:930461821085:android:e08b6ab85d0511dd678c74",
+        "android_client_info": {
+          "package_name": "com.discovrr.discovrr_plus.debug"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "930461821085-pmo91isqq9jlvvhsteeoosm1n26ef3i4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDarS3x-3izreKF10YPGj9FC-NJRjYyOEg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "930461821085-pmo91isqq9jlvvhsteeoosm1n26ef3i4.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "930461821085-9oi5tufovr4ertfgiac4ducje18kbqmo.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.discovrr",
+                "app_store_id": "1541137819"
+              }
+            }
+          ]
+        }
+      }
     }
   ],
   "configuration_version": "1"

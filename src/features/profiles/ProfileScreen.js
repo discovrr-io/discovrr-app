@@ -14,14 +14,17 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { Button, ErrorTabView, ToggleButton } from '../../components';
+import NoteMasonryList from '../../components/masonry/NoteMasonryList';
 import PostMasonryList from '../../components/masonry/PostMasonryList';
+
+import { selectAllNotes } from '../notes/notesSlice';
+import { selectAllPosts } from '../posts/postsSlice';
 import {
   changeProfileFollowStatus,
   fetchProfileById,
   getIsFollowingProfile,
   selectProfileById,
 } from './profilesSlice';
-import { selectAllPosts } from '../posts/postsSlice';
 
 import {
   colors,
@@ -261,11 +264,17 @@ export default function ProfileScreen() {
   }
 
   const postIds = useSelector((state) => {
-    /** @type {import('../../models').Post[]} */
     const allPosts = selectAllPosts(state);
     return allPosts
       .filter((post) => post.profileId === resolvedProfileId)
       .map((post) => post.id);
+  });
+
+  const noteIds = useSelector((state) => {
+    const allNotes = selectAllNotes(state);
+    return allNotes
+      .filter((note) => note.profileId === resolvedProfileId)
+      .map((note) => note.id);
   });
 
   const [isRefreshingPosts, setIsRefreshingPosts] = useState(false);
@@ -313,7 +322,9 @@ export default function ProfileScreen() {
               refreshing={isRefreshingNotes}
               onRefresh={handleRefreshNotes}
             />
-          }></Tabs.ScrollView>
+          }>
+          <NoteMasonryList smallContent noteIds={noteIds} />
+        </Tabs.ScrollView>
       </Tabs.Tab>
     </Tabs.Container>
   );

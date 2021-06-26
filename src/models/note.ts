@@ -11,6 +11,6 @@ export default interface Note {
   title: string;
   isPrivate: boolean;
   coverPhoto: ImageSource;
-  profile: ProfileId;
+  profileId: ProfileId;
   posts: PostId[];
 }

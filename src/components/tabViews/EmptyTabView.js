@@ -17,9 +17,7 @@ const EmptyTabView = ({
   ...props
 }) => {
   return (
-    <View
-      // refreshControl={refreshControl}
-      style={[{ paddingTop: values.spacing.huge }, props.style]}>
+    <View style={[{ paddingTop: values.spacing.huge }, props.style]}>
       <Text style={styles.title}>{title}</Text>
       <Text style={styles.message}>{message}</Text>
     </View>

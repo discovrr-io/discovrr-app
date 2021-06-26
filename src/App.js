@@ -30,11 +30,9 @@ const theme = {
 
 const persistor = persistStore(store);
 
-const Stack = createStackNavigator();
-
 export function App() {
   const onBeforeLift = async () => {
-    const storeVersion = '6';
+    const storeVersion = '2.1.0';
     try {
       const [[_, previousStoreVersion]] = await AsyncStorage.multiGet([
         'storeVersion',

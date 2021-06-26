@@ -65,7 +65,7 @@ export default function NotesScreen() {
         console.log('Refreshing notes...');
         await dispatch(fetchNotesForCurrentUser()).unwrap();
       } catch (error) {
-        console.error('[MyNotesScreen] Failed to refresh notes:', error);
+        console.error('[NotesScreen] Failed to refresh notes:', error);
         Alert.alert(
           'Something wrong happened',
           "We couldn't refresh your notes for you",
@@ -81,40 +81,6 @@ export default function NotesScreen() {
   const handleRefresh = () => {
     if (!shouldRefresh) setShouldRefresh(true);
   };
-
-  // const TILE_SPACING = values.spacing.sm * 1.25;
-  //
-  // return (
-  //   <MasonryList
-  //     data={noteIds}
-  //     ListHeaderComponent={<CreateNewNoteButton />}
-  //     ListEmptyComponent={
-  //       fetchError ? (
-  //         <ErrorTabView error={fetchError} />
-  //       ) : (
-  //         <EmptyTabView message="Looks like you don't have any notes yet" />
-  //       )
-  //     }
-  //     refreshControl={
-  //       <RefreshControl
-  //         tintColor={colors.gray500}
-  //         refreshing={shouldRefresh}
-  //         onRefresh={handleRefresh}
-  //       />
-  //     }
-  //     renderItem={({ item: noteId, index }) => (
-  //       <NoteItemCard
-  //         noteId={noteId}
-  //         style={{
-  //           marginTop: TILE_SPACING,
-  //           marginLeft: index % 2 === 0 ? TILE_SPACING : TILE_SPACING / 2,
-  //           marginRight: index % 2 !== 0 ? TILE_SPACING : TILE_SPACING / 2,
-  //           marginBottom: values.spacing.sm,
-  //         }}
-  //       />
-  //     )}
-  //   />
-  // );
 
   return (
     <NoteMasonryList

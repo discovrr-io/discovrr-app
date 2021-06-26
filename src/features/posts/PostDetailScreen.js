@@ -215,7 +215,7 @@ export default function PostDetailScreen() {
   /** @type {{ postId: import('../../models').PostId | undefined }} */
   const { postId = undefined } = useRoute().params || {};
   if (!postId) {
-    console.error('[PostDetailScreen] No post ID given');
+    console.error('[PostDetailScreen] No post ID was given');
     return <RouteError />;
   }
 
@@ -269,7 +269,15 @@ export default function PostDetailScreen() {
           dispatch(fetchPostById(String(postId))).unwrap(),
           dispatch(fetchCommentsForPost(String(postId))).unwrap(),
         ]);
-      } catch (error) {}
+      } catch (error) {
+        console.error('Failed to refresh post:', error);
+        Alert.alert(
+          'Something went wrong',
+          "We weren't able to refresh this post for you. Please try again later.",
+        );
+      } finally {
+        setShouldRefresh(false);
+      }
     };
 
     if (shouldRefresh) refreshData();

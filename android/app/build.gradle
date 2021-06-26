@@ -179,23 +179,27 @@ android {
         debug {
             applicationIdSuffix ".debug"
             signingConfig signingConfigs.debug
-            // resValue "string", "CodePushDeploymentKey", '""'
+            resValue "string", "CodePushDeploymentKey", '""'
             // resValue "string", "fbProviderId", "com.facebook.app.FacebookContentProvider759877634893854"
         }
-        // staging {
-        //     applicationIdSuffix ".staging"
-        //     // resValue "string", "CodePushDeploymentKey", '"SgI5BxrXPLuqHbbMqUxgRRJr2mARpovisHdU-"'
-        //     resValue "string", "fbProviderId", "com.facebook.app.FacebookContentProvider{**enjaga**}"
-        //     minifyEnabled enableProguardInReleaseBuilds
-        //     proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
-        //     matchingFallbacks = ['release']
-        // }
+        // This should be named "releaseStaging" as that naming convention is significant for CodePush
+        releaseStaging {
+            applicationIdSuffix ".releaseStaging"
+            signingConfig signingConfigs.release
+            resValue "string", "CodePushDeploymentKey", '"SgI5BxrXPLuqHbbMqUxgRRJr2mARpovisHdU-"'
+            // resValue "string", "fbProviderId", "com.facebook.app.FacebookContentProvider{**enjaga**}"
+
+            minifyEnabled enableProguardInReleaseBuilds
+            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+            matchingFallbacks = ['release']
+        }
         release {
             // Caution! In production, you need to generate your own keystore file.
             // see https://reactnative.dev/docs/signed-apk-android.
-            // signingConfig signingConfigs.debug
-            // resValue "string", "CodePushDeploymentKey", '"OadHGBPtsVP88ju21JVgJw5A7dfTSgRLCDaWj"'
+            signingConfig signingConfigs.release
+            resValue "string", "CodePushDeploymentKey", '"OadHGBPtsVP88ju21JVgJw5A7dfTSgRLCDaWj"'
             // resValue "string", "fbProviderId", "com.facebook.app.FacebookContentProvider691371558227281"
+
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
             signingConfig signingConfigs.release
@@ -242,6 +246,7 @@ dependencies {
         def hermesPath = "../../node_modules/hermes-engine/android/";
         debugImplementation files(hermesPath + "hermes-debug.aar")
         releaseImplementation files(hermesPath + "hermes-release.aar")
+        releaseStagingImplementation files(hermesPath + "hermes-release.aar")
     } else {
         implementation jscFlavor
     }
