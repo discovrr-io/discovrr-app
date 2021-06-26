@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   useWindowDimensions,
   Alert,
@@ -17,7 +17,7 @@ import {
 
 import { useDispatch } from 'react-redux';
 import Video from 'react-native-video';
-import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
+import auth from '@react-native-firebase/auth';
 
 import { Formik } from 'formik';
 import * as yup from 'yup';
@@ -32,20 +32,27 @@ import {
   statusCodes,
 } from '@react-native-google-signin/google-signin';
 
+import { AuthApi } from '../../api';
 import { Button, FormikInput } from '../../components';
 import { colors, typography, values } from '../../constants';
 import * as buttonStyles from '../../components/buttons/styles';
-import * as actions from '../../utilities/Actions';
-import { signInWithEmailAndPassword } from './authSlice';
+import {
+  registerNewAccount,
+  signInWithCredential,
+  signInWithEmailAndPassword,
+} from './authSlice';
 
-const Parse = require('parse/react-native');
+const DISCOVRR_LOGO = require('../../../resources/images/discovrrLogoHorizontal.png');
 
-const discovrrLogo = require('../../../resources/images/discovrrLogoHorizontal.png');
-const videoSource =
+const VIDEO_SOURCE =
   'https://firebasestorage.googleapis.com/v0/b/discovrrapp-88c28.appspot.com/o/sys%2FloginBackgroundVideo.mp4?alt=media&token=ee3959f1-71ae-4f7b-94d9-05a3979112bc';
-const videoPosterSource = Image.resolveAssetSource(
+const VIDEO_POSTER_SOURCE = Image.resolveAssetSource(
   require('../../../resources/images/videoPoster.png'),
 );
+
+const DEFAULT_AUTH_ERROR_TITLE = 'Something went wrong';
+const DEFAULT_AUTH_ERROR_MESSAGE =
+  "We weren't able to sign you in at this time. Please try again later.";
 
 const loginFormSchema = yup.object({
   email: yup
@@ -94,47 +101,6 @@ const resetPasswordFormSchema = yup.object({
 });
 
 GoogleSignin.configure();
-
-function authErrorMessage(authError) {
-  switch (authError.code) {
-    case 'auth/wrong-password':
-      return {
-        title: 'Incorrect details',
-        message:
-          'The provided email or password is incorrect. Please try again.',
-      };
-    case 'auth/user-not-found':
-      return {
-        title: 'Invalid email address',
-        message:
-          'The email address you provided is not registered with Discovrr.',
-      };
-    case 'auth/email-already-in-use':
-      return {
-        title: 'Email already taken',
-        message:
-          'The email address you provided is already registered with Discovrr. Did you mean to sign in?',
-      };
-    case 'auth/username-taken':
-      return {
-        title: 'Username already taken',
-        message:
-          'The username you provided is already taken by someone else. Please choose another username.',
-      };
-    case 'apple/missing-identity-token':
-      return {
-        title: 'Authentication Failed',
-        message: `We weren't able to sign you in with Apple. Please try again later.`,
-      };
-    default:
-      console.error('Unhandled error:', authError);
-      return {
-        title: 'We encountered an error',
-        message:
-          "We weren't able to log you in at this time. Please try again later.",
-      };
-  }
-}
 
 function LoadingOverlay({ message }) {
   return (
@@ -226,141 +192,8 @@ function TextButton({ title, disabled, onPress, ...props }) {
 }
 
 /**
- * @param {FirebaseAuthTypes.User} firebaseUser
- */
-async function loginFirebaseUser(dispatcher, firebaseUser) {
-  console.log('[LoginScreen] Will log in Firebase user...');
-  let currentUser = await Parse.User.currentAsync();
-
-  if (currentUser) {
-    const query = new Parse.Query(Parse.Object.extend('Profile'));
-    query.equalTo('owner', currentUser);
-
-    const profile = await query.first();
-    console.log('[LoginScreen] Query profile result:', profile);
-
-    if (profile && profile.id) {
-      dispatchLoginAction(dispatcher, firebaseUser, currentUser, profile);
-    } else {
-      console.error(
-        `[LoginScreen] Parse couldn't profile with owner:`,
-        currentUser.id,
-      );
-    }
-  } else {
-    const authData = {
-      access_token: await firebaseUser.getIdToken(),
-      id: firebaseUser.uid,
-    };
-
-    console.log('[LoginScreen] Firebase authData:', authData);
-
-    currentUser = await Parse.User.logInWith('firebase', { authData });
-    console.log(
-      '[LoginScreen] Successfully logged in with Firebase:',
-      currentUser,
-    );
-
-    const query = new Parse.Query(Parse.Object.extend('Profile'));
-    query.equalTo('owner', currentUser);
-
-    const profile = await query.first();
-    console.log('[LoginScreen] Found Parse profile:', profile.id);
-
-    let syncProfile = false;
-
-    let fullName =
-      profile.get('fullName') ||
-      profile.get('name') ||
-      profile.get('displayName');
-    if (!fullName && firebaseUser.displayName) {
-      profile.set('fullName', firebaseUser.displayName ?? '');
-      syncProfile = true;
-    } else if (fullName /* && !firebaseUser.displayName */) {
-      console.log('[LoginScreen] Updating Firebase display name...');
-      await firebaseUser.updateProfile({ displayName: fullName });
-    }
-
-    let phone = profile.get('phone');
-    if (!phone && firebaseUser.phoneNumber) {
-      profile.set('phone', firebaseUser.phoneNumber);
-      syncProfile = true;
-    }
-
-    // May be undefined if anonymous
-    let email = profile.get('email');
-    if (!email && firebaseUser.email) {
-      profile.set('email', firebaseUser.email);
-      syncProfile = true;
-    }
-
-    let avatar = profile.get('avatar');
-    if (!avatar && firebaseUser.photoURL) {
-      avatar = {
-        mime: 'image/jpeg',
-        type: 'image',
-        url: firebaseUser.photoURL,
-      };
-
-      profile.set('avatar', avatar);
-      syncProfile = true;
-    }
-
-    if (syncProfile) await profile.save();
-    dispatchLoginAction(dispatcher, firebaseUser, currentUser, profile);
-  }
-}
-
-function dispatchLoginAction(dispatcher, firebaseUser, currentUser, profile) {
-  console.log('[LoginScreen] Dispatching login action...');
-  dispatcher(
-    actions.login({
-      provider: firebaseUser.providerId,
-      isAnonymous: firebaseUser.isAnonymous,
-      userId: currentUser.id,
-      profileId: profile.id,
-      fullName:
-        profile.get('fullName') ??
-        profile.get('name') ??
-        profile.get('displayName') ??
-        firebaseUser.displayName,
-      username: profile.get('username'),
-      email:
-        // Email may be undefined if the user is anonymous
-        profile.get('email') ?? firebaseUser.email,
-      phone: profile.get('phone'),
-      avatar: profile.get('avatar'),
-      description: profile.get('description'),
-      // --- Extra details ---
-      gender: profile.get('gender'),
-      ageRange: profile.get('ageRange'),
-      hometown: profile.get('hometown'),
-      // posts: profile.get('posts'),
-      // postsCount: profile.get('postsCount'),
-      // likedPostsArray: profile.get('likedPostsArray'),
-      // followingArray: profile.get('followingArray'),
-      // blockedProfiles: profile.get('blockedProfiles'),
-      // --- Deprecated fields ---
-      get id() {
-        console.warn('Deprecated field "id", use "userId" instead');
-        return this.userId;
-      },
-      get name() {
-        console.warn('Deprecated field "name", use "fullName" instead');
-        return this.fullName;
-      },
-      get displayName() {
-        console.warn('Deprecated field "displayName", use "fullName" instead');
-        return this.fullName;
-      },
-    }),
-  );
-}
-
-/**
  * @typedef {'login' | 'register' | 'forgot-password'} FormType
  * @param {{ setFormType: (formType: FormType) => void }} param0
- * @returns
  */
 function LoginForm({ setFormType }) {
   const dispatch = useDispatch();
@@ -371,7 +204,7 @@ function LoginForm({ setFormType }) {
    */
   const handleSignInWithEmailAndPassword = async ({ email, password }) => {
     try {
-      console.log('[LoginForm] Starting login process...');
+      console.info('[LoginForm] Starting login process...');
       setIsProcessing(true);
 
       const trimmedEmail = email.trim();
@@ -382,8 +215,32 @@ function LoginForm({ setFormType }) {
 
       await dispatch(signInAction).unwrap();
     } catch (error) {
-      console.error(`[LoginForm] Login error (${error.code}):`, error.message);
-      const { title, message } = authErrorMessage(error);
+      console.error(
+        '[LoginForm] Failed to sign in with email and password:',
+        error.message,
+      );
+
+      /** @type {string} */
+      let title, message;
+
+      switch (error.code) {
+        case 'auth/wrong-password':
+          title = 'Incorrect details';
+          message =
+            'The email address or password you gave is incorrect. Please try again.';
+          break;
+        case 'auth/user-not-found':
+          title = 'Invalid email address';
+          message =
+            'The email address you provided is not registered with Discovrr.';
+          break;
+        default:
+          console.warn('Unhandled error:', error);
+          title = DEFAULT_AUTH_ERROR_TITLE;
+          message = DEFAULT_AUTH_ERROR_MESSAGE;
+          break;
+      }
+
       Alert.alert(title, message);
     } finally {
       console.log('[LoginForm] Successfully signed in with email and password');
@@ -429,7 +286,7 @@ function LoginForm({ setFormType }) {
           <TextButton
             title="Forgot your password?"
             disabled={isProcessing}
-            onPress={() => setFormType('forgotPassword')}
+            onPress={() => setFormType('forgot-password')}
           />
         </>
       )}
@@ -445,68 +302,36 @@ function RegisterForm({ setFormType }) {
   const dispatch = useDispatch();
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const checkUsernameAvailable = async (username) => {
-    const query = new Parse.Query(Parse.Object.extend('Profile'));
-    query.equalTo('username', username);
-    return (await query.findAll()).length === 0;
-  };
-
-  const handleRegisterAccount = async ({
-    fullName,
-    username,
-    email,
-    password,
-  }) => {
+  const handleRegisterAccount = async (registerFormDetails) => {
     try {
-      console.log('[RegisterForm] Starting registration process...');
+      console.info('[RegisterForm] Starting registration process...');
       setIsProcessing(true);
 
-      if (!(await checkUsernameAvailable(username))) {
-        throw { code: 'auth/username-taken', message: 'Username taken' };
+      await dispatch(registerNewAccount(registerFormDetails)).unwrap();
+    } catch (error) {
+      /** @type {string} */
+      let title, message;
+
+      switch (error.code) {
+        case AuthApi.AuthApiError.USERNAME_ALREADY_TAKEN:
+          title = 'Username Taken';
+          message =
+            'The username you provided is already taken by someone else. Please choose another username.';
+          break;
+        case 'auth/email-already-in-use':
+          title = 'Email Already In Use';
+          message =
+            'The email address you provided is already registered to an account at Discovrr. Did you mean to sign in?';
+          break;
+
+        default:
+          console.warn('Unhandled error:', error);
+          title = DEFAULT_AUTH_ERROR_TITLE;
+          message = DEFAULT_AUTH_ERROR_MESSAGE;
+
+          break;
       }
 
-      const { user: firebaseUser } =
-        await auth().createUserWithEmailAndPassword(email, password);
-      console.log('[RegisterForm] Registered Firebase user:', firebaseUser);
-
-      await firebaseUser.updateProfile({ displayName: fullName });
-
-      const authData = {
-        access_token: await firebaseUser.getIdToken(),
-        id: firebaseUser.uid,
-      };
-
-      const currentUser = await Parse.User.logInWith('firebase', { authData });
-      console.log(
-        '[RegisterForm] Successfully logged in with Firebase:',
-        currentUser,
-      );
-
-      const Profile = Parse.Object.extend('Profile');
-      const profile = new Profile();
-      console.log(
-        '[RegisterForm] Creating new profile with owner:',
-        currentUser.id,
-      );
-
-      profile.set('owner', currentUser);
-      profile.set('fullName', fullName);
-      profile.set('username', username);
-      profile.set('email', email);
-
-      const newProfile = await profile.save();
-      console.log(
-        '[RegisterForm] Successfully created new profile with objectId:',
-        newProfile.id,
-      );
-
-      dispatchLoginAction(dispatch, firebaseUser, currentUser, profile);
-    } catch (error) {
-      console.error(
-        `[RegisterForm] Register error (${error.code}):`,
-        error.message,
-      );
-      const { title, message } = authErrorMessage(error);
       Alert.alert(title, message);
     } finally {
       setIsProcessing(false);
@@ -588,21 +413,25 @@ function ForgotPasswordForm({ setFormType }) {
 
   const handleResetPassword = async ({ email }) => {
     try {
-      console.log('[ForgotPasswordForm] Sending reset link...');
+      console.info('[ForgotPasswordForm] Sending reset link...');
       setIsProcessing(true);
       await auth().sendPasswordResetEmail(email);
       Alert.alert(
         'Reset Link Sent',
         "We've sent you an email with instructions on how to reset your password.",
-        [{ text: 'I understand', onPress: () => setFormType('login') }],
+        [{ text: 'Okay', onPress: () => setFormType('login') }],
       );
     } catch (error) {
-      console.error(
-        `[ForgotPasswordForm] Reset error (${error.code}):`,
-        error.message,
-      );
-      const { title, message } = authErrorMessage(error);
-      Alert.alert(title, message);
+      console.error('[ForgotPasswordForm] Failed to send reset email:', error);
+      if (error === 'auth/user-not-found') {
+        Alert.alert(
+          'Invalid Email Address',
+          'The email address you provided is not registered with us. Did you type it in correctly?',
+        );
+      } else {
+        console.warn('Unhandled error:', error);
+        Alert.alert(DEFAULT_AUTH_ERROR_TITLE, DEFAULT_AUTH_ERROR_MESSAGE);
+      }
     } finally {
       setIsProcessing(false);
     }
@@ -656,10 +485,12 @@ export default function LoginScreen() {
   const [formType, setFormType] = useState('login');
 
   const handleSignInWithApple = async () => {
-    if (isProcessing /* || isAuthenticating */) return;
+    if (isProcessing) return;
 
     try {
-      console.log('[LoginScreen] Starting Apple authentication...');
+      console.info('[LoginScreen] Starting Apple authentication...');
+      setIsProcessing(true);
+
       const appleAuthRequestResponse = await appleAuth.performRequest({
         requestedOperation: appleAuth.Operation.LOGIN,
         requestedScopes: [appleAuth.Scope.FULL_NAME, appleAuth.Scope.EMAIL],
@@ -671,11 +502,10 @@ export default function LoginScreen() {
       );
 
       if (!appleAuthRequestResponse.identityToken) {
-        console.warn(`[LoginScreen] "identityToken" is not defined`);
-        throw {
-          code: 'apple/missing-identity-token',
-          message: 'No identity token found in Apple authentication response',
-        };
+        console.error(`[LoginScreen] Apple identity token is undefined`);
+        throw new Error(
+          'No identity token found in Apple authentication response',
+        );
       }
 
       const { identityToken, nonce } = appleAuthRequestResponse;
@@ -684,36 +514,26 @@ export default function LoginScreen() {
         nonce,
       );
 
-      setIsProcessing(true);
-      console.log('[LoginScreen] Signing into Firebase with Apple...');
-      const { user: firebaseUser } = await auth().signInWithCredential(
-        appleCredential,
-      );
-
-      await loginFirebaseUser(dispatch, firebaseUser);
+      console.log("[LoginScreen] Dispatching 'auth/signInWithCredential'...");
+      await dispatch(signInWithCredential(appleCredential)).unwrap();
     } catch (error) {
-      setIsProcessing(false);
-
       if (error.code === appleAuth.Error.CANCELED) {
-        // We'll just return here
         console.info('[LoginScreen] Apple authentication cancelled');
         return;
       }
 
-      console.error(
-        `[LoginScreen] Apple sign-in error (${error.code}):`,
-        error.message,
-      );
-      const { title, message } = authErrorMessage(error);
-      Alert.alert(title, message);
+      console.error('[LoginScreen] Failed to sign in with Apple:', error);
+      Alert.alert(DEFAULT_AUTH_ERROR_TITLE, DEFAULT_AUTH_ERROR_MESSAGE);
+    } finally {
+      setIsProcessing(false);
     }
   };
 
   const handleSignInWithGoogle = async () => {
-    if (isProcessing /* || isAuthenticating */) return;
+    if (isProcessing) return;
 
     try {
-      console.log('Will sign in with Google...');
+      console.info('[LoginScreen] Will sign in with Google...');
       setIsProcessing(true);
 
       const { idToken } = await GoogleSignin.signIn();
@@ -723,28 +543,31 @@ export default function LoginScreen() {
         accessToken,
       );
 
-      console.log('[LoginScreen] Signing into Firebase with Google...');
-      const { user: firebaseUser } = await auth().signInWithCredential(
-        googleCredential,
-      );
-
-      await loginFirebaseUser(dispatch, firebaseUser);
+      console.log("[LoginScreen] Dispatching 'auth/signInWithCredential'...");
+      await dispatch(signInWithCredential(googleCredential)).unwrap();
     } catch (error) {
-      console.error(
-        `[LoginScreen] Google sign-in error (${error.code}):`,
-        error.message,
-      );
-
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-        // We'll just return here
         console.info('[LoginScreen] Google authentication cancelled');
         return;
       }
 
-      const { title, message } = authErrorMessage(error);
-      Alert.alert(title, message);
+      console.error('[LoginScreen] Failed to sign in with Google:', error);
+      Alert.alert(DEFAULT_AUTH_ERROR_TITLE, DEFAULT_AUTH_ERROR_MESSAGE);
     } finally {
       setIsProcessing(false);
+    }
+  };
+
+  const renderCurrentForm = () => {
+    switch (formType) {
+      case 'login':
+        return <LoginForm setFormType={setFormType} />;
+      case 'register':
+        return <RegisterForm setFormType={setFormType} />;
+      case 'forgot-password':
+        return <ForgotPasswordForm setFormType={setFormType} />;
+      default:
+        return <LoginForm setFormType={setFormType} />;
     }
   };
 
@@ -761,8 +584,8 @@ export default function LoginScreen() {
         preventsDisplaySleepDuringVideoPlayback={false}
         resizeMode="cover"
         posterResizeMode="cover"
-        poster={videoPosterSource.uri}
-        source={{ uri: videoSource }}
+        poster={VIDEO_POSTER_SOURCE.uri}
+        source={{ uri: VIDEO_SOURCE }}
         style={loginScreenStyles.backgroundVideo}
       />
       <ScrollView
@@ -788,7 +611,7 @@ export default function LoginScreen() {
                 borderRadius: values.radius.lg * 1.25,
               }}>
               <Image
-                source={discovrrLogo}
+                source={DISCOVRR_LOGO}
                 style={[
                   loginScreenStyles.discovrrLogo,
                   {
@@ -799,18 +622,7 @@ export default function LoginScreen() {
                   },
                 ]}
               />
-              {(() => {
-                switch (formType) {
-                  case 'login':
-                    return <LoginForm setFormType={setFormType} />;
-                  case 'register':
-                    return <RegisterForm setFormType={setFormType} />;
-                  case 'forgotPassword':
-                    return <ForgotPasswordForm setFormType={setFormType} />;
-                  default:
-                    return <LoginForm setFormType={setFormType} />;
-                }
-              })()}
+              {renderCurrentForm()}
             </View>
           </KeyboardAvoidingView>
         </TouchableWithoutFeedback>
@@ -843,8 +655,6 @@ export default function LoginScreen() {
 const loginScreenStyles = StyleSheet.create({
   container: {
     flex: 1,
-    // alignItems: 'center',
-    // justifyContent: 'center',
   },
   backgroundVideo: {
     position: 'absolute',

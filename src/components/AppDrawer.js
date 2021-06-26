@@ -7,7 +7,6 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { AuthApi } from '../api';
 import { signOut } from '../features/authentication/authSlice';
 import {
   DEFAULT_ACTIVE_OPACITY,
@@ -44,7 +43,7 @@ export default function AppDrawer({ navigation, ...props }) {
 
     const signOutUser = async () => {
       try {
-        AuthApi.signOut();
+        await dispatch(signOut()).unwrap();
       } catch (error) {
         console.error('[AppDrawer] Failed to log out user:', error);
         throw error;
@@ -60,10 +59,17 @@ export default function AppDrawer({ navigation, ...props }) {
           text: 'Log Out',
           style: 'destructive',
           onPress: () => {
-            signOutUser().then(() => {
-              console.log('[AppDrawer] Dispatching `auth/signOut` action...');
-              dispatch(signOut());
-            });
+            signOutUser()
+              .then(() => {
+                console.log('[AppDrawer] Dispatching `auth/signOut` action...');
+                dispatch(signOut());
+              })
+              .catch((_) =>
+                Alert.alert(
+                  'Something went wrong',
+                  "We weren't able to sign you out right now. Please try again later.",
+                ),
+              );
           },
         },
       ],
