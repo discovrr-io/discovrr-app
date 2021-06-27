@@ -140,12 +140,12 @@ function ProfileScreenHeaderContent({ profile }) {
           <View
             style={{
               flexDirection: 'row',
-              justifyContent: 'space-between',
+              justifyContent: 'space-around',
               marginHorizontal: values.spacing.md * 1.5,
             }}>
             <Statistic label="Followers" value={followersCount} />
             <Statistic label="Following" value={followingCount} />
-            <Statistic label="Likes" value={-1} />
+            {/* <Statistic label="Likes" value={0} /> */}
           </View>
           <View
             style={{

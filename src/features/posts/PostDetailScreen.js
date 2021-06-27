@@ -423,9 +423,7 @@ export default function PostDetailScreen() {
               <Text
                 style={{
                   textAlign: 'center',
-                  color: !canPostComment
-                    ? colors.accentDisabled
-                    : colors.accent,
+                  color: !canPostComment ? colors.gray500 : colors.accent,
                   fontSize: typography.size.md,
                 }}>
                 Post

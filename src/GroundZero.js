@@ -323,18 +323,14 @@ const GroundZero = ({ navigation, insets }) => {
             <View style={modalStyles.textContainer}>
               <Text style={modalStyles.title}>Hi there 👋</Text>
               <Text style={modalStyles.message}>
-                Cheers for downloading our app!
+                Welcome! Discovrr is a place where you can explore and see
+                what’s happening in your community based on a default 3km
+                radius. Start off by making a post on your favourite local
+                place!
               </Text>
               <Text style={modalStyles.message}>
-                You're one of the first to use Discovrr! We're still working on
-                this app, so please excuse any hiccups you may encounter. In the
-                meantime, don't shy away from creating as many posts and
-                comments as you like! 😀
-              </Text>
-              <Text style={modalStyles.message}>
-                The Discovrr team is here if you have any feedback to provide.
-                Feel free to contact us via email at discovrrapp@gmail.com. We
-                value all feedback you can share!
+                This is Discovrr v2.1 Beta. Please report any bugs or give us
+                your feedback at discovrr.io@gmail.com
               </Text>
             </View>
             <Button
@@ -351,7 +347,7 @@ const GroundZero = ({ navigation, insets }) => {
 
   return (
     <>
-      {/* <InfoModal /> */}
+      <InfoModal />
 
       <Stack.Navigator>
         <Stack.Screen

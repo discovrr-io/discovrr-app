@@ -17,6 +17,9 @@ import {
 
 const AVATAR_DIAMETER = 125;
 
+const DRAWER_ITEM_ICON_COLOR = colors.black;
+const DRAWER_ITEM_TEXT_COLOR = colors.black;
+
 const Divider = () => (
   <View
     style={{
@@ -27,9 +30,21 @@ const Divider = () => (
   />
 );
 
+const AppDrawerItem = ({ label, iconName, onPress }) => (
+  <DrawerItem
+    label={() => <Text style={{ color: DRAWER_ITEM_TEXT_COLOR }}>{label}</Text>}
+    icon={({ size }) => (
+      <Icon name={iconName} size={size} color={DRAWER_ITEM_TEXT_COLOR} />
+    )}
+    onPress={onPress}
+    style={appDrawerStyles.drawerItem}
+  />
+);
+
 export default function AppDrawer({ navigation, ...props }) {
   const dispatch = useDispatch();
 
+  /**@type {import('../features/authentication/authSlice').AuthState} */
   const authState = useSelector((state) => state.auth);
   if (!authState.user) {
     console.error('[AppDrawer] No user found in store');
@@ -78,7 +93,7 @@ export default function AppDrawer({ navigation, ...props }) {
 
   const alertUnavailableFeature = () => {
     Alert.alert(
-      'Unavailable Feature',
+      'Feature Not Available',
       "Sorry, we're working on this feature at the moment.",
     );
   };
@@ -91,7 +106,7 @@ export default function AppDrawer({ navigation, ...props }) {
           <TouchableOpacity
             activeOpacity={DEFAULT_ACTIVE_OPACITY}
             onPress={() => {
-              navigation.navigate('ProfileScreen', {
+              navigation.navigate('UserProfileScreen', {
                 profileId: profile.id,
               });
             }}>
@@ -118,65 +133,45 @@ export default function AppDrawer({ navigation, ...props }) {
             </View>
           </TouchableOpacity>
         </View>
+
         <Divider />
-        {/* <DrawerItem
-          label="Search Location"
-          icon={({ color, size }) => (
-            <Icon name="location-pin" size={size} color={color} />
-          )}
-          onPress={() => {}}
-          style={appDrawerStyles.drawerItem}
-        /> */}
-        <DrawerItem
+
+        <AppDrawerItem
           label="Notifications"
-          icon={({ color, size }) => (
-            <Icon name="notifications" size={size} color={color} />
-          )}
+          iconName="notifications"
           onPress={alertUnavailableFeature}
-          style={appDrawerStyles.drawerItem}
         />
-        <DrawerItem
+        <AppDrawerItem
           label="Profile Settings"
-          icon={({ color, size }) => (
-            <Icon name="person" size={size} color={color} />
-          )}
+          iconName="person"
           onPress={() => {
-            navigation.navigate('ProfileEditScreen', {
-              profileId: profile.id,
-            });
+            navigation.navigate('ProfileEditScreen', { profile: profile.id });
           }}
-          style={appDrawerStyles.drawerItem}
         />
-        <DrawerItem
+        <AppDrawerItem
           label="My Shopping"
-          icon={({ color, size }) => (
-            <Icon name="shopping-bag" size={size} color={color} />
-          )}
+          iconName="shopping-bag"
           onPress={alertUnavailableFeature}
-          style={appDrawerStyles.drawerItem}
         />
-        <DrawerItem
+        <AppDrawerItem
           label="Account Settings"
-          icon={({ color, size }) => (
-            <Icon name="settings" size={size} color={color} />
-          )}
+          iconName="settings"
           onPress={() => navigation.navigate('AccountSettingsScreen')}
-          style={appDrawerStyles.drawerItem}
         />
+
         <Divider />
-        <DrawerItem
+
+        <AppDrawerItem
           label="Log Out"
-          icon={({ color, size }) => (
-            <Icon name="logout" size={size} color={color} />
-          )}
+          iconName="logout"
           onPress={handleLogOut}
-          style={appDrawerStyles.drawerItem}
         />
+
         <Divider />
       </DrawerContentScrollView>
       <View style={{ padding: values.spacing.lg }}>
         <Text style={{ color: colors.gray700, textAlign: 'center' }}>
-          Discovrr v{DeviceInfo.getVersion()} (Build 2021.06.27)
+          Discovrr v{DeviceInfo.getVersion()} (Build 2021.06.27-b)
         </Text>
       </View>
     </View>
