@@ -317,6 +317,7 @@ export default function PostDetailScreen() {
       <PostItemCardFooter
         post={post}
         showShareIcon
+        showMenuIcon
         style={{ margin: values.spacing.md }}
       />
       <View

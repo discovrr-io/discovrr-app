@@ -1,9 +1,17 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 // import PropTypes from 'prop-types';
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  Alert,
+  NativeEventEmitter,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 import FastImage from 'react-native-fast-image';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
+import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import OneSignal from 'react-native-onesignal';
 import * as Animatable from 'react-native-animatable';
 
@@ -38,16 +46,17 @@ const iconSize = {
   },
 };
 
-const alertUnimplementedFeature = () =>
+const alertUnimplementedFeature = () => {
   Alert.alert(
     'Feature Not Available',
     "Sorry, we're working on this feature at the moment.",
   );
+};
 
 /**
  * @typedef {import('../../models').Post} Post
  * @typedef {{ largeIcons?: boolean, showActions?: boolean, showShareIcon?: boolean }} FooterOptions
- * @typedef {{ post: Post, smallContent?: boolean, showShareIcon?: boolean }} PostItemFooterProps
+ * @typedef {{ post: Post, smallContent?: boolean, showShareIcon?: boolean, showMenuIcon?: boolean }} PostItemFooterProps
  *
  * @param {PostItemFooterProps & import('react-native').ViewProps} param0
  */
@@ -55,10 +64,13 @@ export const PostItemCardFooter = ({
   post,
   smallContent = false,
   showShareIcon = false,
+  showMenuIcon = false,
   ...props
 }) => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
+
+  const bottomSheetEmitter = new NativeEventEmitter('showPanel');
 
   /** @type {import('../authentication/authSlice').AuthState} */
   const { isAuthenticated, user: currentUser } = useSelector(
@@ -93,8 +105,10 @@ export const PostItemCardFooter = ({
     totalLikes: 0,
   };
 
-  const [isProcessingLike, setIsProcessingLike] = React.useState(false);
-  const [isProcessingSave, _setIsProcessingSave] = React.useState(false);
+  const bottomSheetRef = useRef(null);
+
+  const [isProcessingLike, setIsProcessingLike] = useState(false);
+  const [isProcessingSave, _setIsProcessingSave] = useState(false);
 
   const handlePressAvatar = () => {
     navigation.push('UserProfileScreen', {
@@ -228,6 +242,24 @@ export const PostItemCardFooter = ({
       </TouchableOpacity>
 
       <View style={postItemFooterStyles.actionsContainer}>
+        {showMenuIcon && (
+          <TouchableOpacity
+            disabled={false}
+            activeOpacity={DEFAULT_ACTIVE_OPACITY}
+            onPress={() =>
+              bottomSheetEmitter.emit('showPanel', {
+                contentSelector: 'reportPost',
+              })
+            }>
+            <MaterialCommunityIcon
+              // name="dots-vertical"
+              name="flag-outline"
+              color={colors.gray}
+              size={actionIconSize}
+              style={{ marginRight: actionIconMarginRight * 0.75 }}
+            />
+          </TouchableOpacity>
+        )}
         {showShareIcon && (
           <TouchableOpacity
             disabled={false}
@@ -236,7 +268,7 @@ export const PostItemCardFooter = ({
             <MaterialIcon
               name="share"
               color={colors.gray}
-              size={actionIconSize}
+              size={actionIconSize * 0.9}
               style={{ marginRight: actionIconMarginRight }}
             />
           </TouchableOpacity>

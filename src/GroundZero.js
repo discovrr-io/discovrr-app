@@ -8,6 +8,7 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  Linking,
 } from 'react-native';
 
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
@@ -33,7 +34,12 @@ import AccountSettingsScreen from './features/settings/AccountSettingsScreen';
 import BottomSheetPanel from './components/BottomSheetPanel';
 
 import { isAndroid, windowWidth } from './utilities/Constants';
-import { colors, typography, values } from './constants';
+import {
+  colors,
+  DEFAULT_ACTIVE_OPACITY,
+  typography,
+  values,
+} from './constants';
 import { Button } from './components';
 
 const Stack = createStackNavigator();
@@ -302,6 +308,17 @@ const GroundZero = ({ navigation, insets }) => {
   const [isModalVisible, setIsModalVisible] = React.useState(true);
   const { width: screenWidth } = useWindowDimensions();
 
+  const handleEmailPress = async () => {
+    const emailLink = 'mailto:discovrr.io@gmail.com';
+    const isSupported = Linking.canOpenURL(emailLink);
+
+    if (isSupported) {
+      await Linking.openURL(emailLink);
+    } else {
+      console.warn('Platform cannot open mail with link:', emailLink);
+    }
+  };
+
   const InfoModal = () => (
     <Modal
       transparent
@@ -322,16 +339,30 @@ const GroundZero = ({ navigation, insets }) => {
             ]}>
             <View style={modalStyles.textContainer}>
               <Text style={modalStyles.title}>Hi there 👋</Text>
-              <Text style={modalStyles.message}>
+              <Text
+                style={[
+                  modalStyles.message,
+                  { marginBottom: values.spacing.md },
+                ]}>
                 Welcome! Discovrr is a place where you can explore and see
                 what’s happening in your community based on a default 3km
                 radius. Start off by making a post on your favourite local
                 place!
               </Text>
-              <Text style={modalStyles.message}>
-                This is Discovrr v2.1 Beta. Please report any bugs or give us
-                your feedback at discovrr.io@gmail.com
-              </Text>
+              <View style={modalStyles.messageContainer}>
+                <Text style={modalStyles.message}>
+                  This is Discovrr v2.1 Beta. Please report any bugs or give
+                  your feedback at{' '}
+                  <Text
+                    onPress={handleEmailPress}
+                    style={[
+                      modalStyles.message,
+                      { color: colors.accent, textDecorationLine: 'underline' },
+                    ]}>
+                    discovrr.io@gmail.com
+                  </Text>
+                </Text>
+              </View>
             </View>
             <Button
               primary
@@ -517,9 +548,14 @@ const modalStyles = StyleSheet.create({
     fontWeight: '700',
     marginBottom: values.spacing.md,
   },
+  messageContainer: {
+    // flexDirection: 'row',
+    // justifyContent: 'center',
+    // alignItems: 'center',
+    // marginBottom: values.spacing.md,
+  },
   message: {
     fontSize: typography.size.md,
-    marginBottom: values.spacing.md,
   },
   button: {},
 });

@@ -1,5 +1,4 @@
 import React, { Component, useState, useRef, useEffect } from 'react';
-
 import {
   ActivityIndicator,
   Alert,
@@ -8,6 +7,7 @@ import {
   DeviceEventEmitter,
   Keyboard,
   NativeEventEmitter,
+  SafeAreaView,
   StyleSheet,
   Text,
   TextInput as EnjagaTextInput,
@@ -70,6 +70,9 @@ import {
   windowWidth,
   windowHeight,
 } from '../utilities/Constants';
+
+import Button from '../components/buttons/Button';
+import { colors, values } from '../constants';
 
 const Parse = require('parse/react-native');
 
@@ -1736,11 +1739,11 @@ class BottomSheetPanel extends Component {
   renderReportSheet = () => {
     const { extraData, selectedRadioButton, isProcessing } = this.state;
 
-    let shareTitle = 'Report';
-    if (extraData && extraData.title) shareTitle = `Report ${extraData.title}`;
+    let shareTitle = 'Report Post';
+    // if (extraData && extraData.title) shareTitle = `Report ${extraData.title}`;
 
     return (
-      <View style={styles.bottomSheetSurface}>
+      <SafeAreaView style={styles.bottomSheetSurface}>
         <View
           style={{
             justifyContent: 'center',
@@ -1764,99 +1767,93 @@ class BottomSheetPanel extends Component {
         <Text
           allowFontScaling={false}
           style={{
-            fontWeight: '600',
+            textAlign: 'center',
+            fontWeight: '700',
             color: '#333333',
+            marginBottom: 12,
           }}>
           Why are you reporting this post?
         </Text>
 
-        <View>
+        <View style={{ flexGrow: 1 }}>
           <RadioButton.Group
             onValueChange={(newValue) =>
               this.setState({ selectedRadioButton: newValue })
             }
             value={selectedRadioButton}>
-            <View
-            // style={{
-            //   flexDirection: 'row',
-            //   alignItems: 'center',
-            // }}
-            >
-              {/* <MaterialCommunityIcon
-                name="lens-black"
-                size={18}
-                color="#777777"
-                // onPress={() => this.toggleDrawer()}
-                // onPress={this.postComment}
-              /> */}
+            <RadioButton.Item
+              label="It is suspicious, spam, or misleading"
+              value="spam"
+              style={{ paddingLeft: 10 }}
+            />
 
-              <RadioButton.Item
-                label="- It is suspicious, spam, or misleading"
-                value="spam"
-                style={{
-                  // width: '95%',
-                  paddingLeft: 10,
-                }}
-              />
-            </View>
+            <RadioButton.Item
+              label="It contains violent or repulsive material"
+              value="violent"
+              style={{ paddingLeft: 10 }}
+            />
 
-            <View>
-              <RadioButton.Item
-                label="- It is violent or repulsive"
-                value="violent"
-                style={{
-                  // width: '95%',
-                  paddingLeft: 10,
-                }}
-              />
-            </View>
+            <RadioButton.Item
+              label="It is abusive or hateful to someone"
+              value="abusive"
+              style={{ paddingLeft: 10 }}
+            />
 
-            <View>
-              <RadioButton.Item
-                label="- It is abusive or hateful"
-                value="abusive"
-                style={{
-                  // width: '95%',
-                  paddingLeft: 10,
-                }}
-              />
-            </View>
+            {/*
+            <RadioButton.Item
+              label="It is abusive or harmful"
+              value="harmful"
+              size={10}
+              style={{paddingLeft: 10,}}
+            />
+            */}
 
-            <View>
-              <RadioButton.Item
-                label="- It is harmful or dangerous"
-                value="harmful"
-                size={10}
-                style={{
-                  // width: '95%',
-                  size: 10,
-                  paddingLeft: 10,
-                }}
-              />
-            </View>
-
-            <View>
-              <RadioButton.Item
-                label="- It is sexual content"
-                value="sexual"
-                style={{
-                  // width: '95%',
-                  paddingLeft: 10,
-                }}
-              />
-            </View>
+            <RadioButton.Item
+              label="It contains sexually explicit material"
+              value="sexual"
+              style={{ paddingLeft: 10 }}
+            />
           </RadioButton.Group>
         </View>
 
-        <TouchableOpacity
+        <Button
+          primary
+          title="Report"
+          disabled={!selectedRadioButton || isProcessing}
+          isLoading={isProcessing}
+          onPress={async () => {
+            this.setState({ isProcessing: true });
+
+            await new Promise((resolve) => {
+              setTimeout(() => {
+                this.setState(
+                  {
+                    isProcessing: false,
+                    snackbarMessage: 'Successfully reported',
+                    showSnackbar: true,
+                  },
+                  () => {
+                    this.hideBottomSheetPanel();
+                  },
+                );
+
+                resolve('food');
+              }, 2500);
+            });
+          }}
+          style={{ marginBottom: values.spacing.xl }}
+        />
+
+        {/* <TouchableOpacity
           activeOpacity={0.9}
-          disabled={isProcessing}
-          style={styles.actionButton}
+          disabled={!selectedRadioButton || isProcessing}
+          style={[styles.actionButton, { backgroundColor:  }]}
           onPress={async () => {
             this.setState({
               isProcessing: true,
             });
 
+            // TODO: We'll need to actually send a report some time lol
             await new Promise((resolve) => {
               setTimeout(() => {
                 this.setState(
@@ -1867,7 +1864,7 @@ class BottomSheetPanel extends Component {
                     resolve('food');
                   },
                 );
-              }, 1500);
+              }, 2500);
             });
 
             this.setState(
@@ -1939,8 +1936,8 @@ class BottomSheetPanel extends Component {
               />
             </View>
           )}
-        </TouchableOpacity>
-      </View>
+        </TouchableOpacity> */}
+      </SafeAreaView>
     );
   };
 
@@ -3668,7 +3665,7 @@ const styles = StyleSheet.create({
     flex: 1,
     // justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'white',
+    backgroundColor: colors.white,
   },
   bottomSheetSurface: {
     // position: 'absolute',
@@ -3676,16 +3673,16 @@ const styles = StyleSheet.create({
     // left: '10%',
     // padding: 7,
     // borderRadius: 15,
-    // backgroundColor: 'rgba(255, 255, 255, 0.4)',
-    backgroundColor: 'white',
+    backgroundColor: colors.white,
     paddingHorizontal: 20,
+    paddingBottom: 20,
     height: windowHeight * 0.72,
     // paddingBottom: windowHeight * 0.2,
     // elevation: 4,
   },
   panelHeader: {
     paddingTop: 15,
-    backgroundColor: 'white',
+    backgroundColor: colors.white,
     alignItems: 'center',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
@@ -3719,7 +3716,7 @@ const styles = StyleSheet.create({
   },
   divider: {
     marginTop: 10,
-    marginBottom: 10,
+    marginBottom: 20,
     // marginHorizontal: 20,
     borderBottomWidth: 1,
     borderBottomColor: '#CCCCCC',
@@ -3740,7 +3737,6 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
     // maxWidth: 200,
     marginTop: 50,
-    backgroundColor: '#00D8C6',
   },
   userInfoSection: {
     paddingLeft: 20,
