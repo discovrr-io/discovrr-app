@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
+  Alert,
   RefreshControl,
+  SafeAreaView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -10,15 +12,20 @@ import {
 import FastImage from 'react-native-fast-image';
 import { useRoute } from '@react-navigation/core';
 import { Tabs } from 'react-native-collapsible-tab-view';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { Button, ErrorTabView, ToggleButton } from '../../components';
+import {
+  Button,
+  EmptyTabView,
+  ErrorTabView,
+  RouteError,
+  ToggleButton,
+} from '../../components';
 import NoteMasonryList from '../../components/masonry/NoteMasonryList';
 import PostMasonryList from '../../components/masonry/PostMasonryList';
 
 import { selectAllNotes } from '../notes/notesSlice';
-import { selectAllPosts } from '../posts/postsSlice';
+import { selectAllPosts, selectPostsByProfile } from '../posts/postsSlice';
 import {
   changeProfileFollowStatus,
   fetchProfileById,
@@ -34,6 +41,7 @@ import {
 } from '../../constants';
 import { useNavigation } from '@react-navigation/native';
 import { ProfileApi } from '../../api';
+import { DEFAULT_AVATAR, DEFAULT_IMAGE } from '../../constants/media';
 
 const HEADER_MAX_HEIGHT = 280;
 const HEADER_MIN_HEIGHT = 80;
@@ -76,20 +84,22 @@ const statisticStyles = StyleSheet.create({
 
 /**
  * @typedef {import('../../models').Profile} Profile
- * @param {{ profile: Profile }} param0
+ * @param {{ profile: Profile | undefined }} param0
  */
 function ProfileScreenHeaderContent({ profile }) {
   const dispatch = useDispatch();
   const navigation = useNavigation();
 
   const {
-    avatar,
-    fullName,
+    avatar = DEFAULT_AVATAR,
+    fullName = 'Anonymous',
     description = 'No description',
     followers = [],
-  } = profile;
+    following = [],
+  } = profile ?? {};
+
   const followersCount = followers.length ?? 0;
-  const followingCount = profile.following?.length ?? 0;
+  const followingCount = following.length ?? 0;
 
   /** @type {Profile | undefined} */
   const currentUserProfile = useSelector((state) => state.auth.user?.profile);
@@ -216,23 +226,14 @@ const profileScreenHeaderContentStyles = StyleSheet.create({
 });
 
 /**
- * @typedef {import('../../models').ProfileId} ProfileId
- * @param {{ profileId: ProfileId }} param0
+ * @typedef {import('../../models').Profile} Profile
+ * @param {{ profile: Profile | undefined }} param0
  */
-function ProfileScreenHeader({ profileId }) {
-  const profile = useSelector((state) => selectProfileById(state, profileId));
-  if (!profile) {
-    console.error(
-      '[ProfileScreenHeader] Failed to select profile with id:',
-      profileId,
-    );
-    return null;
-  }
-
+function ProfileScreenHeader({ profile }) {
   return (
     <View pointerEvents="box-none">
       <FastImage
-        source={profile.coverPhoto}
+        source={profile?.coverPhoto ?? DEFAULT_IMAGE}
         style={{
           height: HEADER_MAX_HEIGHT,
           width: '100%',
@@ -245,30 +246,49 @@ function ProfileScreenHeader({ profileId }) {
 }
 
 export default function ProfileScreen() {
-  const { top: topInset } = useSafeAreaInsets();
-  const { profileId, isMyProfile } = useRoute().params ?? {};
+  const dispatch = useDispatch();
+  const { profileId } = useRoute().params ?? {};
+
+  const [shouldRefresh, setShouldRefresh] = useState(false);
+  const [isRefreshingPosts, setIsRefreshingPosts] = useState(false);
+  const [isRefreshingNotes, setIsRefreshingNotes] = useState(false);
 
   /** @type {ProfileId | undefined} */
   let resolvedProfileId = profileId;
+  let isMyProfile = false;
 
-  if (!resolvedProfileId && isMyProfile) {
+  // If no profile id was given, we'll assume the "My Profile" tab was pressed
+  if (!resolvedProfileId) {
+    console.info(
+      '[ProfileScreen] No profile id was given. Falling back to current user profile...',
+    );
+
     /** @type {import('../authentication/authSlice').AuthState} */
     const { user } = useSelector((state) => state.auth);
     const currentUserProfileId = user?.profile.id;
-    if (user) resolvedProfileId = currentUserProfileId;
+
+    if (currentUserProfileId) {
+      console.log(
+        '[ProfileScreen] Found current user profile id:',
+        currentUserProfileId,
+      );
+      resolvedProfileId = currentUserProfileId;
+      isMyProfile = true;
+    } else {
+      console.error(
+        '[ProfileScreen] No profile id was given and/or the user was undefined',
+      );
+      return <RouteError />;
+    }
   }
 
-  if (!resolvedProfileId && !isMyProfile) {
-    console.error('[ProfileScreen] No profileId was provided');
-    return <ErrorTabView error="No profile ID was provided" />;
-  }
+  const profile = useSelector((state) =>
+    selectProfileById(state, resolvedProfileId),
+  );
 
-  const postIds = useSelector((state) => {
-    const allPosts = selectAllPosts(state);
-    return allPosts
-      .filter((post) => post.profileId === resolvedProfileId)
-      .map((post) => post.id);
-  });
+  const postIds = useSelector((state) =>
+    selectPostsByProfile(state, profileId).map((post) => post.id),
+  );
 
   const noteIds = useSelector((state) => {
     const allNotes = selectAllNotes(state);
@@ -277,12 +297,28 @@ export default function ProfileScreen() {
       .map((note) => note.id);
   });
 
-  const [isRefreshingPosts, setIsRefreshingPosts] = useState(false);
-  const [isRefreshingNotes, setIsRefreshingNotes] = useState(false);
+  useEffect(() => {
+    if (shouldRefresh)
+      (async () => {
+        try {
+          console.log('[ProfileScreen] Will fetch profile...');
+          await dispatch(fetchProfileById(profileId)).unwrap();
+        } catch (error) {
+          console.error('[ProfileScreen] Failed to refresh profile:', error);
+          Alert.alert(
+            'Something went wrong',
+            "We weren't able to refresh this profile. Please try again later.",
+          );
+        } finally {
+          setShouldRefresh(false);
+        }
+      })();
+  }, [shouldRefresh]);
 
   const handleRefreshPosts = async () => {
     await new Promise((resolve, _) => {
       setTimeout(() => {
+        setIsRefreshingPosts(false);
         resolve([]);
       }, 3000);
     });
@@ -291,41 +327,57 @@ export default function ProfileScreen() {
   const handleRefreshNotes = async () => {
     await new Promise((resolve, _) => {
       setTimeout(() => {
+        setIsRefreshingNotes(false);
         resolve([]);
       }, 3000);
     });
   };
 
   return (
-    <Tabs.Container
-      lazy
-      // minHeaderHeight={topInset + HEADER_MIN_HEIGHT}
-      snapThreshold={0.25}
-      HeaderComponent={() => (
-        <ProfileScreenHeader profileId={resolvedProfileId} />
-      )}>
-      <Tabs.Tab name="posts" label="Posts">
-        <Tabs.ScrollView
-          refreshControl={
-            <RefreshControl
-              refreshing={isRefreshingPosts}
-              onRefresh={handleRefreshPosts}
+    <SafeAreaView style={{ flex: 1 }}>
+      <Tabs.Container
+        lazy
+        // minHeaderHeight={topInset + HEADER_MIN_HEIGHT}
+        snapThreshold={0.25}
+        HeaderComponent={() => <ProfileScreenHeader profile={profile} />}>
+        <Tabs.Tab name="posts" label="Posts">
+          <Tabs.ScrollView
+            refreshControl={
+              <RefreshControl
+                refreshing={isRefreshingPosts}
+                onRefresh={handleRefreshPosts}
+              />
+            }>
+            <PostMasonryList
+              smallContent
+              showFooter={false}
+              postIds={postIds}
+              ListEmptyComponent={
+                <EmptyTabView
+                  message={
+                    isMyProfile
+                      ? "Looks like you haven't posted anything"
+                      : `Looks like ${
+                          profile.fullName || 'this user'
+                        } hasn't posted anything yet`
+                  }
+                />
+              }
             />
-          }>
-          <PostMasonryList smallContent showFooter={false} postIds={postIds} />
-        </Tabs.ScrollView>
-      </Tabs.Tab>
-      <Tabs.Tab name="notes" label="Notes">
-        <Tabs.ScrollView
-          refreshControl={
-            <RefreshControl
-              refreshing={isRefreshingNotes}
-              onRefresh={handleRefreshNotes}
-            />
-          }>
-          <NoteMasonryList smallContent noteIds={noteIds} />
-        </Tabs.ScrollView>
-      </Tabs.Tab>
-    </Tabs.Container>
+          </Tabs.ScrollView>
+        </Tabs.Tab>
+        <Tabs.Tab name="notes" label="Notes">
+          <Tabs.ScrollView
+            refreshControl={
+              <RefreshControl
+                refreshing={isRefreshingNotes}
+                onRefresh={handleRefreshNotes}
+              />
+            }>
+            <NoteMasonryList smallContent noteIds={noteIds} />
+          </Tabs.ScrollView>
+        </Tabs.Tab>
+      </Tabs.Container>
+    </SafeAreaView>
   );
 }

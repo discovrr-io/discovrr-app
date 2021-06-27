@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   useWindowDimensions,
   Modal,
@@ -21,7 +21,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { IconButton, Portal } from 'react-native-paper';
 
-import { connect } from 'react-redux';
+import { connect, useDispatch, useSelector } from 'react-redux';
 
 import HomeScreen from './features/posts/HomeScreen';
 import NotesScreen from './features/notes/NotesScreen';
@@ -41,7 +41,9 @@ import {
   typography,
   values,
 } from './constants';
-import { Button } from './components';
+
+import { Button, LoadingOverlay } from './components';
+import { didDismissInfoModal } from './features/authentication/authSlice';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -243,9 +245,6 @@ const HomeTabs = () => (
   <>
     <Tab.Navigator
       initialRouteName="Home"
-      tabBarOptions={{
-        showLabel: false,
-      }}
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, size, color: tintColor }) => {
           let iconName = 'help';
@@ -305,8 +304,7 @@ const HomeTabs = () => (
   </>
 );
 
-const GroundZero = ({ navigation, insets }) => {
-  const [isModalVisible, setIsModalVisible] = React.useState(true);
+const InfoModal = ({ visible, onRequestClose }) => {
   const { width: screenWidth } = useWindowDimensions();
 
   const handleEmailPress = async () => {
@@ -320,12 +318,12 @@ const GroundZero = ({ navigation, insets }) => {
     }
   };
 
-  const InfoModal = () => (
+  return (
     <Modal
       transparent
+      visible={visible}
       animationType="slide"
-      visible={isModalVisible}
-      onRequestClose={() => setIsModalVisible(false)}>
+      onRequestClose={onRequestClose}>
       <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.3)' }}>
         <SafeAreaView
           style={{
@@ -393,17 +391,60 @@ const GroundZero = ({ navigation, insets }) => {
               primary
               title="Alright that's cool"
               style={modalStyles.button}
-              onPress={() => setIsModalVisible(false)}
+              onPress={onRequestClose}
             />
           </View>
         </SafeAreaView>
       </View>
     </Modal>
   );
+};
+
+const modalStyles = StyleSheet.create({
+  container: {
+    backgroundColor: colors.white,
+    borderRadius: values.radius.lg,
+    padding: values.spacing.lg + values.spacing.sm,
+  },
+  textContainer: {
+    paddingHorizontal: values.spacing.sm,
+    marginBottom: values.spacing.lg,
+  },
+  title: {
+    fontSize: typography.size.h2,
+    fontWeight: '700',
+    marginBottom: values.spacing.md,
+  },
+  messageContainer: {
+    // flexDirection: 'row',
+    // justifyContent: 'center',
+    // alignItems: 'center',
+    // marginBottom: values.spacing.md,
+  },
+  message: {
+    fontSize: typography.size.md,
+  },
+  button: {},
+});
+
+const GroundZero = ({ navigation, insets }) => {
+  const dispatch = useDispatch();
+
+  /** @type {import('./features/authentication/authSlice').AuthState} */
+  const { isSigningOut, isFirstLogin } = useSelector((state) => state.auth);
+  console.log({ isSigningOut, isFirstLogin });
 
   return (
     <>
-      <InfoModal />
+      {isSigningOut && <LoadingOverlay message="Signing you out..." />}
+
+      <InfoModal
+        visible={isFirstLogin}
+        onRequestClose={() => {
+          console.log('[GroundZero] Dismissing modal...');
+          dispatch(didDismissInfoModal());
+        }}
+      />
 
       <Stack.Navigator>
         <Stack.Screen
@@ -520,8 +561,6 @@ const GroundZero = ({ navigation, insets }) => {
         <Stack.Screen
           name="UserProfileScreen"
           component={ProfileScreen}
-          initialParams={{ isMyProfile: true }}
-          // options={{ headerShown: false }}
           options={({ route }) => ({
             title: route.params?.profileName || 'Profile',
             headerTintColor: colors.black,
@@ -557,32 +596,5 @@ const GroundZero = ({ navigation, insets }) => {
     </>
   );
 };
-
-const modalStyles = StyleSheet.create({
-  container: {
-    backgroundColor: colors.white,
-    borderRadius: values.radius.lg,
-    padding: values.spacing.lg + values.spacing.sm,
-  },
-  textContainer: {
-    paddingHorizontal: values.spacing.sm,
-    marginBottom: values.spacing.lg,
-  },
-  title: {
-    fontSize: typography.size.h2,
-    fontWeight: '700',
-    marginBottom: values.spacing.md,
-  },
-  messageContainer: {
-    // flexDirection: 'row',
-    // justifyContent: 'center',
-    // alignItems: 'center',
-    // marginBottom: values.spacing.md,
-  },
-  message: {
-    fontSize: typography.size.md,
-  },
-  button: {},
-});
 
 export default connect()(withSafeAreaInsets(GroundZero));

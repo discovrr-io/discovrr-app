@@ -1,5 +1,12 @@
 import React from 'react';
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  Alert,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 import DeviceInfo from 'react-native-device-info';
 import FastImage from 'react-native-fast-image';
@@ -108,6 +115,7 @@ export default function AppDrawer({ navigation, ...props }) {
             onPress={() => {
               navigation.navigate('UserProfileScreen', {
                 profileId: profile.id,
+                profileName: 'My Profile',
               });
             }}>
             <View style={{ alignItems: 'center' }}>
@@ -169,11 +177,17 @@ export default function AppDrawer({ navigation, ...props }) {
 
         <Divider />
       </DrawerContentScrollView>
-      <View style={{ padding: values.spacing.lg }}>
-        <Text style={{ color: colors.gray700, textAlign: 'center' }}>
-          Discovrr v{DeviceInfo.getVersion()} (Build 2021.06.27-b)
+      {/* Avoids the iOS bottom edge */}
+      <SafeAreaView>
+        <Text
+          style={{
+            color: colors.gray700,
+            textAlign: 'center',
+            padding: values.spacing.lg,
+          }}>
+          Discovrr v{DeviceInfo.getVersion()} (Build 20210628-a)
         </Text>
-      </View>
+      </SafeAreaView>
     </View>
   );
 }

@@ -27,6 +27,7 @@ export default function NoteMasonryList({
       renderItem={({ item: noteId, index }) => (
         <NoteItemCard
           noteId={noteId}
+          key={noteId}
           style={{
             marginTop: tileSpacing,
             marginLeft: index % 2 === 0 ? tileSpacing : tileSpacing / 2,

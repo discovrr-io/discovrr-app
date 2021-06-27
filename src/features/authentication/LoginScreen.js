@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import {
   useWindowDimensions,
   Alert,
-  ActivityIndicator,
   Image,
   Keyboard,
   KeyboardAvoidingView,
@@ -33,8 +32,8 @@ import {
 } from '@react-native-google-signin/google-signin';
 
 import { AuthApi } from '../../api';
-import { Button, FormikInput } from '../../components';
-import { colors, typography, values } from '../../constants';
+import { Button, FormikInput, LoadingOverlay } from '../../components';
+import { colors, values } from '../../constants';
 import * as buttonStyles from '../../components/buttons/styles';
 import {
   registerNewAccount,
@@ -101,47 +100,6 @@ const resetPasswordFormSchema = yup.object({
 });
 
 GoogleSignin.configure();
-
-function LoadingOverlay({ message }) {
-  return (
-    <View
-      style={{
-        position: 'absolute',
-        width: '100%',
-        height: '100%',
-        backgroundColor: 'rgba(0, 0, 0, 0.55)',
-        alignContent: 'center',
-        justifyContent: 'center',
-      }}>
-      <View style={{ alignContent: 'center' }}>
-        <ActivityIndicator
-          size="large"
-          color={colors.white}
-          style={{ transform: [{ scale: 1.5 }] }}
-        />
-        <Text
-          style={{
-            color: colors.white,
-            fontSize: typography.size.lg,
-            fontWeight: '700',
-            textAlign: 'center',
-            marginTop: values.spacing.md * 1.5,
-          }}>
-          {message}
-        </Text>
-        <Text
-          style={{
-            color: colors.white,
-            fontSize: typography.size.md,
-            textAlign: 'center',
-            marginTop: values.spacing.sm,
-          }}>
-          This may take a while
-        </Text>
-      </View>
-    </View>
-  );
-}
 
 function OutlineButton({ title, disabled, onPress, ...props }) {
   return (
@@ -495,11 +453,6 @@ export default function LoginScreen() {
         requestedOperation: appleAuth.Operation.LOGIN,
         requestedScopes: [appleAuth.Scope.FULL_NAME, appleAuth.Scope.EMAIL],
       });
-
-      console.log(
-        '[LoginScreen] Apple Authentication response:',
-        appleAuthRequestResponse,
-      );
 
       if (!appleAuthRequestResponse.identityToken) {
         console.error(`[LoginScreen] Apple identity token is undefined`);

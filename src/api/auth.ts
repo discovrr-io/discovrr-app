@@ -151,6 +151,8 @@ export namespace AuthApi {
       const { user } = await auth().signInWithEmailAndPassword(email, password);
       return await signInWithParse(user);
     } catch (error) {
+      console.warn('Aborting authentication. Signing out...');
+      await signOut();
       console.error('Failed to sign in with email and password:', error);
       throw error;
     } finally {
@@ -166,6 +168,8 @@ export namespace AuthApi {
       const { user } = await auth().signInWithCredential(credential);
       return await signInWithParse(user);
     } catch (error) {
+      console.warn('Aborting authentication. Signing out...');
+      await signOut();
       console.error('Failed to sign in with credential:', error);
       throw error;
     } finally {
@@ -230,6 +234,8 @@ export namespace AuthApi {
       // profile anyway
       return await syncAndConstructUser(newProfile, firebaseUser);
     } catch (error) {
+      console.warn('Aborting authentication. Signing out...');
+      await signOut();
       console.error('Failed to register account:', error);
       throw error;
     } finally {

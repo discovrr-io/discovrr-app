@@ -28,6 +28,7 @@ export default function PostMasonryList({
       renderItem={({ item: postId, index }) => (
         <PostItemCard
           postId={postId}
+          key={postId}
           smallContent={smallContent}
           showFooter={showFooter}
           style={{

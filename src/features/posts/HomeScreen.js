@@ -9,13 +9,12 @@ import {
 } from 'react-native';
 
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-
-import { unwrapResult } from '@reduxjs/toolkit';
 import { useDispatch, useSelector } from 'react-redux';
 
 import PostItemCard from './PostItemCard';
 import MerchantItem from '../merchants/MerchantItem';
-import { MasonryList, EmptyTabView, ErrorTabView } from '../../components';
+import { EmptyTabView, ErrorTabView } from '../../components';
+import PostMasonryList from '../../components/masonry/PostMasonryList';
 import { colors, values } from '../../constants';
 
 import { fetchAllProfiles } from '../profiles/profilesSlice';
@@ -25,7 +24,6 @@ import {
   selectFollowingPosts,
   selectPostIds,
 } from './postsSlice';
-import PostMasonryList from '../../components/masonry/PostMasonryList';
 
 const PAGINATION_LIMIT = 26;
 const DEFAULT_SEARCH_RADIUS = 3;
@@ -121,13 +119,18 @@ function DiscoverTab() {
       smallContent
       postIds={postIds}
       ListEmptyComponent={
-        <EmptyTabView message="Looks like no one has posted anything yet" />
+        fetchError ? (
+          <ErrorTabView error={fetchError} />
+        ) : (
+          <EmptyTabView message="Looks like no one has posted anything yet" />
+        )
       }
       refreshControl={
         <RefreshControl
           tintColor={colors.gray500}
           refreshing={shouldRefresh}
           onRefresh={handleRefresh}
+          title="Loading your personalised feed..."
         />
       }
     />
