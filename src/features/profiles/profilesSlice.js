@@ -46,6 +46,24 @@ const profilesSlice = createSlice({
   initialState,
   reducers: {
     updateProfile: profilesAdapter.updateOne,
+    didChangeFollowStatus: (state, action) => {
+      const { didFollow, followeeId, followerId } = action.payload;
+      const followee = state.entities[followeeId];
+      const follower = state.entities[followerId];
+
+      if (didFollow) {
+        followee.followers.push(followerId);
+        follower.following.push(followeeId);
+      } else {
+        // Remove from follower's list
+        const followerIndex = followee.followers.indexOf(followerId);
+        if (followerIndex > -1) followee.followers.splice(followerIndex, 1);
+
+        // Remove from followee's list
+        const followeeIndex = follower.following.indexOf(followeeId);
+        if (followeeIndex > -1) follower.following.splice(followeeIndex, 1);
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -88,7 +106,7 @@ const profilesSlice = createSlice({
   },
 });
 
-export const { updateProfile } = profilesSlice.actions;
+export const { updateProfile, didChangeFollowStatus } = profilesSlice.actions;
 
 export const {
   selectAll: selectAllProfiles,

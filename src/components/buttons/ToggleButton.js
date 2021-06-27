@@ -35,7 +35,8 @@ const ToggleButton = ({
       underlayColor={toggleState ? colors.accentFocused : colors.gray300}
       onPress={() => {
         setToggleState(!toggleState);
-        onPress(!toggleState);
+        const value = onPress(!toggleState);
+        if (typeof value === 'boolean') setToggleState(value);
       }}
       style={[currentStyle, sizeStyle, props.style]}>
       {isLoading ? (

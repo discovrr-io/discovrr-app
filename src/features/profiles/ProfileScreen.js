@@ -28,9 +28,11 @@ import { selectAllNotes } from '../notes/notesSlice';
 import { selectAllPosts, selectPostsByProfile } from '../posts/postsSlice';
 import {
   changeProfileFollowStatus,
+  didChangeFollowStatus,
   fetchProfileById,
   getIsFollowingProfile,
   selectProfileById,
+  updateProfile,
 } from './profilesSlice';
 
 import {
@@ -104,28 +106,42 @@ function ProfileScreenHeaderContent({ profile }) {
   const followingCount = following.length ?? 0;
 
   /** @type {Profile | undefined} */
-  const currentUserProfile = useSelector((state) => state.auth.user?.profile);
-  const isMyProfile =
-    currentUserProfile && currentUserProfile.id === profile.id;
+  const currentProfile = useSelector((state) => state.auth.user?.profile);
+  const isMyProfile = currentProfile && currentProfile.id === profile.id;
 
-  const isFollowingProfile = followers.includes(currentUserProfile.id);
+  const isFollowingProfile = followers.includes(currentProfile.id);
   const [isProcessingFollow, setIsProcessingFollow] = useState(false);
 
+  /**
+   * @param {boolean} didFollow
+   * @returns A boolean with the new value (or the previous value if it failed)
+   */
   const handleFollowButtonPress = async (didFollow) => {
     try {
       setIsProcessingFollow(true);
+      const changeFollowStatusAction = didChangeFollowStatus({
+        didFollow,
+        followeeId: profile.id,
+        followerId: currentProfile.id,
+      });
 
-      // await dispatch(
-      //   changeProfileFollowStatus({
-      //     profileId: profile.id,
-      //     isFollowing: didFollow,
-      //   }),
-      // ).unwrap();
-
+      dispatch(changeFollowStatusAction);
       await ProfileApi.changeProfileFollowStatus(profile.id, didFollow);
-      await dispatch(fetchProfileById(String(profile.id))).unwrap();
     } catch (error) {
       console.error('Failed to change follow status:', error);
+      Alert.alert(
+        'Something went wrong',
+        `Sorry, we weren't able to complete your request. Please try again later.`,
+      );
+
+      const revertChangeFollowStatusAction = didChangeFollowStatus({
+        didFollow: !didFollow,
+        followeeId: profile.id,
+        followerId: currentProfile.id,
+      });
+
+      // Revert the action by simply toggling it back to its previous value
+      dispatch(revertChangeFollowStatusAction);
     } finally {
       setIsProcessingFollow(false);
     }
@@ -194,6 +210,7 @@ function ProfileScreenHeaderContent({ profile }) {
               />
             ) : (
               <>
+                {/* TODO: This doesn't toggle back if following failed */}
                 <ToggleButton
                   transparent
                   size="small"

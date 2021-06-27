@@ -93,13 +93,13 @@ export namespace ProfileApi {
   }
 
   export async function changeProfileFollowStatus(
-    profileId: string,
+    followerProfileId: string,
     isFollowing: boolean,
   ) {
     try {
       console.group('ProfileApi.followProfile');
       await Parse.Cloud.run('followOrUnfollowProfile', {
-        profileId,
+        profileId: followerProfileId,
         follow: isFollowing,
       });
     } catch (error) {
