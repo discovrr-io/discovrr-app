@@ -34,7 +34,7 @@ const AppDrawerItem = ({ label, iconName, onPress }) => (
   <DrawerItem
     label={() => <Text style={{ color: DRAWER_ITEM_TEXT_COLOR }}>{label}</Text>}
     icon={({ size }) => (
-      <Icon name={iconName} size={size} color={DRAWER_ITEM_TEXT_COLOR} />
+      <Icon name={iconName} size={size} color={DRAWER_ITEM_ICON_COLOR} />
     )}
     onPress={onPress}
     style={appDrawerStyles.drawerItem}
