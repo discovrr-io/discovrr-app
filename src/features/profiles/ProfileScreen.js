@@ -42,6 +42,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { ProfileApi } from '../../api';
 import { DEFAULT_AVATAR, DEFAULT_IMAGE } from '../../constants/media';
+import { FEATURE_UNAVAILABLE } from '../../constants/strings';
 
 const HEADER_MAX_HEIGHT = 280;
 const HEADER_MIN_HEIGHT = 80;
@@ -55,6 +56,7 @@ function Statistic({ label, value, onPress = undefined }) {
   return (
     <TouchableOpacity
       activeOpacity={DEFAULT_ACTIVE_OPACITY}
+      onPress={onPress}
       style={statisticStyles.container}>
       <Text style={statisticStyles.label}>{label}</Text>
       <Text style={statisticStyles.value}>
@@ -153,9 +155,29 @@ function ProfileScreenHeaderContent({ profile }) {
               justifyContent: 'space-around',
               marginHorizontal: values.spacing.md * 1.5,
             }}>
-            <Statistic label="Followers" value={followersCount} />
-            <Statistic label="Following" value={followingCount} />
-            {/* <Statistic label="Likes" value={0} /> */}
+            <Statistic
+              label="Followers"
+              value={followersCount}
+              onPress={() =>
+                navigation.push('FollowerScreen', {
+                  profileId: profile.id,
+                  profileName: profile.fullName,
+                  selector: 'followers',
+                })
+              }
+            />
+            <Statistic
+              label="Following"
+              value={followingCount}
+              onPress={() =>
+                navigation.push('FollowerScreen', {
+                  profileId: profile.id,
+                  profileName: profile.fullName,
+                  selector: 'following',
+                })
+              }
+            />
+            <Statistic label="Likes" value={0} />
           </View>
           <View
             style={{
@@ -185,7 +207,12 @@ function ProfileScreenHeaderContent({ profile }) {
                   transparent
                   size="small"
                   title="Message"
-                  onPress={() => {}}
+                  onPress={() =>
+                    Alert.alert(
+                      FEATURE_UNAVAILABLE.title,
+                      FEATURE_UNAVAILABLE.message,
+                    )
+                  }
                   style={{ flex: 1, marginLeft: values.spacing.xs * 1.5 }}
                 />
               </>

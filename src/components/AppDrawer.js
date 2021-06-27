@@ -15,6 +15,7 @@ import { DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { signOut } from '../features/authentication/authSlice';
+import { FEATURE_UNAVAILABLE } from '../constants/strings';
 import {
   DEFAULT_ACTIVE_OPACITY,
   colors,
@@ -99,10 +100,7 @@ export default function AppDrawer({ navigation, ...props }) {
   };
 
   const alertUnavailableFeature = () => {
-    Alert.alert(
-      'Feature Not Available',
-      "Sorry, we're working on this feature at the moment.",
-    );
+    Alert.alert(FEATURE_UNAVAILABLE.title, FEATURE_UNAVAILABLE.message);
   };
 
   // TODO: Add version code

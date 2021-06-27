@@ -18,19 +18,22 @@ import * as Animatable from 'react-native-animatable';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 
+import { PostApi, ProfileApi } from '../../api';
+import { FEATURE_UNAVAILABLE } from '../../constants/strings';
+import { selectProfileById } from '../profiles/profilesSlice';
+import { selectPostById, postLikeStatusChanged } from './postsSlice';
+
 import {
   colors,
   typography,
   values,
   DEFAULT_ACTIVE_OPACITY,
 } from '../../constants';
+
 import {
   DEFAULT_AVATAR,
   DEFAULT_IMAGE_DIMENSIONS,
 } from '../../constants/media';
-import { PostApi, ProfileApi } from '../../api';
-import { selectProfileById } from '../profiles/profilesSlice';
-import { selectPostById, postLikeStatusChanged } from './postsSlice';
 
 const SMALL_ICON = 24;
 const LARGE_ICON = 32;
@@ -47,10 +50,7 @@ const iconSize = {
 };
 
 const alertUnimplementedFeature = () => {
-  Alert.alert(
-    'Feature Not Available',
-    "Sorry, we're working on this feature at the moment.",
-  );
+  Alert.alert(FEATURE_UNAVAILABLE.title, FEATURE_UNAVAILABLE.message);
 };
 
 /**

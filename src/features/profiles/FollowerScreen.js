@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   FlatList,
-  RefreshControl,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -9,91 +8,69 @@ import {
   View,
 } from 'react-native';
 
-import { useNavigation } from '@react-navigation/native';
-import { connect } from 'react-redux';
 import FastImage from 'react-native-fast-image';
-import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { useSelector } from 'react-redux';
 
-import { EmptyTabView, ErrorTabView, LoadingTabView } from '../../components';
+import { EmptyTabView, RouteError } from '../../components';
+import { selectProfileById } from './profilesSlice';
 import { colors, typography, values } from '../../constants';
-
-const defaultAvatar = require('../../../resources/images/defaultAvatar.jpeg');
-const Parse = require('parse/react-native');
-
-async function fetchData(userProfile, selector) {
-  const Profile = Parse.Object.extend('Profile');
-  const profilePointer = new Profile();
-  profilePointer.id = userProfile.id;
-
-  const type = selector === 'Followers' ? 'followers' : 'following';
-  const userRelation = profilePointer.relation(type);
-  const query = userRelation.query();
-  const results = await query.find();
-
-  if (!Array.isArray(results)) {
-    throw new Error(`The type of results is not Array.`);
-  }
-
-  const items = results.map((item) => {
-    return {
-      id: item.id,
-      avatar: item.get('avatar'),
-      name: item.get('name'),
-      description: item.get('description') ?? 'No description',
-      coverPhoto: item.get('coverPhoto'),
-    };
-  });
-
-  return items;
-}
+import { DEFAULT_AVATAR } from '../../constants/media';
 
 const AVATAR_IMAGE_RADIUS = 45;
 
-const UserListItem = ({ item }) => {
-  const [isAvatarLoaded, setIsAvatarLoaded] = useState(false);
-
+function UserListItem({ profileId }) {
   const navigation = useNavigation();
-  const avatar = item.avatar ? { uri: item.avatar.url } : defaultAvatar;
-  const name = (item.name ?? '').length === 0 ? 'Anonymous' : item.name;
+
+  const profile = useSelector((state) => selectProfileById(state, profileId));
+  if (!profile) {
+    console.error(
+      '[UserListItem] Failed to select profile with id:',
+      profileId,
+    );
+    return null;
+  }
+
+  const { avatar, fullName, description } = profile;
+
+  const [isAvatarLoaded, setIsAvatarLoaded] = useState(false);
 
   const onLoadAvatar = (loadEvent) => {
     if (loadEvent) setIsAvatarLoaded(true);
   };
 
-  const handleGoToProfile = () => {
-    navigation.push('UserProfileScreen', {
-      userProfile: item,
-      fetchUser: true,
-    });
+  const handlePressProfile = () => {
+    navigation.push('UserProfileScreen', { profileId, profileName: fullName });
   };
 
   return (
     <TouchableHighlight
       underlayColor={colors.gray200}
-      onPress={handleGoToProfile}>
+      onPress={handlePressProfile}>
       <View style={userListItemStyles.container}>
         <FastImage
           onLoad={onLoadAvatar}
-          source={isAvatarLoaded ? avatar : defaultAvatar}
+          source={isAvatarLoaded ? avatar : DEFAULT_AVATAR}
           width={AVATAR_IMAGE_RADIUS}
           height={AVATAR_IMAGE_RADIUS}
           style={userListItemStyles.avatar}
-          resizeMode={FastImage.resizeMode.cover}
+          resizeMode="cover"
         />
         <View style={userListItemStyles.textContainer}>
-          <Text style={userListItemStyles.name}>{name}</Text>
+          <Text style={userListItemStyles.name}>{fullName || 'Anonymous'}</Text>
           <Text
             style={userListItemStyles.description}
             numberOfLines={1}
             ellipsizeMode="tail">
-            {item.description}
+            {description || 'No description'}
           </Text>
         </View>
-        <MaterialIcon name="chevron-right" size={AVATAR_IMAGE_RADIUS * 0.75} />
+        <Icon name="chevron-right" size={AVATAR_IMAGE_RADIUS * 0.75} />
       </View>
     </TouchableHighlight>
   );
-};
+}
 
 const userListItemStyles = StyleSheet.create({
   container: {
@@ -125,60 +102,33 @@ const userListItemStyles = StyleSheet.create({
   },
 });
 
-const FollowerScreen = ({ route }) => {
-  const {
-    params: { userProfile, selector },
-  } = route;
+export default function FollowerScreen() {
+  /**
+   * @typedef {import('../../models').ProfileId} ProfileId
+   * @typedef {'followers' | 'following'} Selector
+   * @type {{ profileId: ProfileId, selector: Selector }} */
+  const { profileId, selector } = useRoute().params ?? {};
 
-  const [items, setItems] = useState([]);
-
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const _fetchData = async () => {
-      try {
-        const items = await fetchData(userProfile, selector);
-        setItems(items);
-      } catch (error) {
-        setItems([]);
-        setError(error);
-        console.error(`${error.message ?? error}`);
-      }
-
-      setIsLoading(false);
-      setIsRefreshing(false);
-    };
-
-    if (isLoading || isRefreshing) _fetchData();
-  }, [isRefreshing]); // This will run whenever `isRefreshing` changes
-
-  const handleRefresh = () => {
-    if (!isRefreshing) setIsRefreshing(true);
-  };
-
-  if (isLoading) {
-    return <LoadingTabView message="Loading..." />;
+  const profile = useSelector((state) => selectProfileById(state, profileId));
+  if (!profile) {
+    console.error(
+      '[FollowerScreen] Failed to select profile with id:',
+      profileId,
+    );
+    return <RouteError />;
   }
 
-  if (error) {
-    return <ErrorTabView error={error} />;
-  }
+  const profileIds =
+    selector === 'following' ? profile.following : profile.followers;
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.white }}>
       <FlatList
-        data={items}
-        renderItem={({ item }) => <UserListItem item={item} />}
-        refreshControl={
-          <RefreshControl
-            refreshing={isRefreshing}
-            onRefresh={handleRefresh}
-            colors={[colors.black]}
-            tintColor={colors.black}
-          />
-        }
+        data={profileIds ?? []}
+        keyExtractor={(item) => String(item)}
+        renderItem={({ item: profileId }) => (
+          <UserListItem profileId={profileId} />
+        )}
         ItemSeparatorComponent={() => (
           <View
             style={{
@@ -188,28 +138,16 @@ const FollowerScreen = ({ route }) => {
             }}
           />
         )}
-        ListEmptyComponent={() => (
+        ListEmptyComponent={
           <EmptyTabView
             message={
-              selector === 'Followers'
+              selector === 'followers'
                 ? "This user doesn't have any followers"
                 : "This user isn't following anyone"
             }
           />
-        )}
+        }
       />
     </SafeAreaView>
   );
-};
-
-const mapStateToProps = (state) => {
-  const followingArray = state?.userState?.userDetails?.followingArray ?? [];
-  const profileId = state?.userState?.userDetails?.profileId ?? null;
-
-  return {
-    followingArray,
-    profileId,
-  };
-};
-
-export default connect(mapStateToProps)(FollowerScreen);
+}

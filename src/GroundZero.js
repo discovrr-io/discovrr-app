@@ -572,17 +572,16 @@ const GroundZero = ({ navigation, insets }) => {
           name="FollowerScreen"
           component={FollowerScreen}
           options={({ route }) => {
-            const {
-              params: { userProfile, selector },
-            } = route;
+            const { profileName, selector = 'followers' } = route.params ?? {};
 
-            const name =
-              (userProfile?.name ?? '').length > 0
-                ? userProfile.name
-                : 'Anonymous';
+            const selectorTitle =
+              selector === 'followers' ? 'Followers' : 'Following';
 
             return {
-              title: `${name} – ${selector}` ?? selector,
+              title:
+                profileName.length > 0
+                  ? `${profileName} – ${selectorTitle}`
+                  : selectorTitle,
               headerBackTitleVisible: false,
               headerTintColor: 'black',
             };
