@@ -1,12 +1,8 @@
 import Profile from './profile';
-
-export type UserLocationPreference = {
-  searchRadius: number;
-  currentLocation: { latitude: number; longitude: number };
-};
+import { LocationQueryPreferences } from './common';
 
 export type UserSettings = {
-  locationPreference: UserLocationPreference;
+  locationPreference: LocationQueryPreferences;
 };
 
 export default interface User {

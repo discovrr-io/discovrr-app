@@ -13,7 +13,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import PostItemCard from './PostItemCard';
 import MerchantItem from '../merchants/MerchantItem';
-import { EmptyTabView, ErrorTabView } from '../../components';
+import { EmptyTabView, ErrorTabView, MasonryList } from '../../components';
 import PostMasonryList from '../../components/masonry/PostMasonryList';
 import { colors, values } from '../../constants';
 
@@ -24,6 +24,7 @@ import {
   selectFollowingPosts,
   selectPostIds,
 } from './postsSlice';
+import { MerchantApi } from '../../api';
 
 const PAGINATION_LIMIT = 26;
 const DEFAULT_SEARCH_RADIUS = 3;
@@ -138,12 +139,74 @@ function DiscoverTab() {
 }
 
 function NearMeTab() {
-  return <EmptyTabView />;
+  const [shouldFetch, setShouldFetch] = useState(true);
+
+  /**
+   * NOTE: For now, we'll just fetch merchants
+   * @typedef {import('../../models').Merchant[]} MerchantsGetter
+   * @typedef {(merchant: Merchant) => void} MerchantsSetter
+   * @type {[MerchantsGetter, MerchantsSetter]}
+   */
+  const [nearMeItems, setNearMeItems] = useState([]);
+  const [fetchError, setFetchError] = useState(null);
+
+  useEffect(() => {
+    if (shouldFetch)
+      (async () => {
+        try {
+          console.log('[NearMeTab] Fetching near me items...');
+          const items = await MerchantApi.fetchMerchantsNearMe();
+          setNearMeItems(items);
+        } catch (error) {
+          console.error('[NearMeTab] Failed to fetch near me items:', error);
+          setFetchError(error);
+        } finally {
+          setShouldFetch(false);
+        }
+      })();
+  }, [shouldFetch]);
+
+  const handleRefresh = () => {
+    if (!shouldFetch) setShouldFetch(true);
+  };
+
+  const tileSpacing = values.spacing.sm * 1.25;
+
+  return (
+    <MasonryList
+      data={nearMeItems}
+      renderItem={({ item: merchant, index }) => (
+        <MerchantItem
+          merchant={merchant}
+          style={{
+            marginTop: tileSpacing,
+            marginLeft: index % 2 === 0 ? tileSpacing : tileSpacing / 2,
+            marginRight: index % 2 !== 0 ? tileSpacing : tileSpacing / 2,
+            marginBottom: values.spacing.sm,
+          }}
+        />
+      )}
+      ListEmptyComponent={
+        fetchError ? (
+          <ErrorTabView error={fetchError} />
+        ) : (
+          <EmptyTabView message="Looks like there isn't any activity near you" />
+        )
+      }
+      refreshControl={
+        <RefreshControl
+          tintColor={colors.gray500}
+          refreshing={shouldFetch}
+          onRefresh={handleRefresh}
+          title="Fetching activity near you..."
+        />
+      }
+    />
+  );
 }
 
 function FollowingTab() {
-  const dispatch = useDispatch();
-  const { width: screenWidth } = useWindowDimensions();
+  // const dispatch = useDispatch();
 
   // const [followingPosts, setFollowingPosts] = useState([]);
   // const [isRefreshing, setIsRefreshing] = useState(true);
@@ -188,7 +251,6 @@ function FollowingTab() {
         selectFollowingPosts(state, user.profile.id).map((post) => post.id),
       )
     : [];
-  console.log({ followingPostsIds });
 
   const isRefreshing = false;
   const handleRefresh = () => {};

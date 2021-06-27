@@ -432,7 +432,6 @@ const GroundZero = ({ navigation, insets }) => {
 
   /** @type {import('./features/authentication/authSlice').AuthState} */
   const { isSigningOut, isFirstLogin } = useSelector((state) => state.auth);
-  console.log({ isSigningOut, isFirstLogin });
 
   return (
     <>

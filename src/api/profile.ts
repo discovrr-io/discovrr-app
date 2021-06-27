@@ -1,14 +1,15 @@
 import Parse from 'parse/react-native';
 
-import Profile from '../models/profile';
+import { Profile } from '../models';
 import { ImageSource } from '../models/common';
+import { MediaSource } from '.';
+
 import {
   DEFAULT_AVATAR,
   DEFAULT_AVATAR_DIMENSIONS,
   DEFAULT_IMAGE,
   DEFAULT_IMAGE_DIMENSIONS,
 } from '../constants/media';
-import { MediaSource } from '.';
 
 export namespace ProfileApi {
   function mapResultToProfile(result: Parse.Object<Parse.Attributes>): Profile {

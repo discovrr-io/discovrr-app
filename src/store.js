@@ -18,6 +18,7 @@ import {
 
 import authReducer from './features/authentication/authSlice';
 import commentsReducer from './features/comments/commentsSlice';
+import nearMeReducer from './features/nearMe/nearMeSlice';
 import notesReducer from './features/notes/notesSlice';
 import postsReducer from './features/posts/postsSlice';
 import profilesReducer from './features/profiles/profilesSlice';
@@ -25,6 +26,7 @@ import profilesReducer from './features/profiles/profilesSlice';
 const rootReducer = combineReducers({
   auth: authReducer,
   comments: commentsReducer,
+  nearMe: nearMeReducer,
   notes: notesReducer,
   posts: postsReducer,
   profiles: profilesReducer,

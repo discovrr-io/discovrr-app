@@ -27,6 +27,7 @@ export type MediaSource = {
 
 export { AuthApi } from './auth';
 export { CommentApi } from './comment';
+export { MerchantApi } from './merchant';
 export { NoteApi } from './note';
 export { PostApi } from './post';
 export { ProfileApi } from './profile';
