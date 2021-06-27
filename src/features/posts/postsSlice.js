@@ -6,6 +6,7 @@ import {
 } from '@reduxjs/toolkit';
 
 import { PostApi } from '../../api';
+import { selectProfileById } from '../profiles/profilesSlice';
 
 export const fetchAllPosts = createAsyncThunk(
   'posts/fetchPosts',
@@ -156,6 +157,16 @@ export const {
 export const selectPostsByProfile = createSelector(
   [selectAllPosts, (_state, profileId) => profileId],
   (posts, profileId) => posts.filter((post) => post.profileId === profileId),
+);
+
+export const selectFollowingPosts = createSelector(
+  [selectAllPosts, selectProfileById],
+  (posts, profile) => {
+    const followingProfiles = profile.followers ?? [];
+    if (followingProfiles.length < 1) return [];
+
+    return posts.filter((post) => followingProfiles.includes(post.profileId));
+  },
 );
 
 export default postsSlice.reducer;

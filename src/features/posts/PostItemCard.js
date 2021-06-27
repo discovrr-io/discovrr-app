@@ -377,6 +377,9 @@ const PostItemCard = ({
           numberOfLines={2}
           style={{
             fontSize: smallContent ? typography.size.sm : typography.size.md,
+            paddingVertical: smallContent
+              ? values.spacing.xs
+              : values.spacing.sm,
           }}>
           {caption}
         </Text>
@@ -489,7 +492,7 @@ const postItemStyles = StyleSheet.create({
     borderTopLeftRadius: values.radius.md,
     borderTopRightRadius: values.radius.md,
     borderBottomRightRadius: values.radius.md,
-    marginBottom: values.spacing.sm,
+    marginBottom: values.spacing.md,
   },
   dialogBoxText: {
     color: colors.black,

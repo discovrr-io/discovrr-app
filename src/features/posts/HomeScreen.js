@@ -21,7 +21,8 @@ import { colors, values } from '../../constants';
 import { fetchAllProfiles } from '../profiles/profilesSlice';
 import {
   fetchAllPosts,
-  fetchFollowingPosts,
+  // fetchFollowingPosts,
+  selectFollowingPosts,
   selectPostIds,
 } from './postsSlice';
 import PostMasonryList from '../../components/masonry/PostMasonryList';
@@ -141,43 +142,64 @@ function FollowingTab() {
   const dispatch = useDispatch();
   const { width: screenWidth } = useWindowDimensions();
 
-  const [followingPosts, setFollowingPosts] = useState([]);
-  const [isRefreshing, setIsRefreshing] = useState(true);
+  // const [followingPosts, setFollowingPosts] = useState([]);
+  // const [isRefreshing, setIsRefreshing] = useState(true);
 
-  const handleRefresh = () => {
-    if (!isRefreshing) setIsRefreshing(true);
-  };
+  // const handleRefresh = () => {
+  //   if (!isRefreshing) setIsRefreshing(true);
+  // };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        console.log('Fetching following posts...');
-        /** @type {import('../../models').Post[]} */
-        const following = await dispatch(
-          fetchFollowingPosts({ limit: PAGINATION_LIMIT }),
-        ).unwrap();
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       console.log('Fetching following posts...');
+  //       /** @type {import('../../models').Post[]} */
+  //       const following = await dispatch(
+  //         fetchFollowingPosts({ limit: PAGINATION_LIMIT }),
+  //       ).unwrap();
 
-        console.log('Following posts:', following);
-        setFollowingPosts(following);
-      } catch (error) {
-        console.error('Failed to fetch following posts:', error);
-        Alert.alert(
-          'Something went wrong',
-          "We weren't able to get posts from people you follow. Please try again later.",
-        );
-      } finally {
-        setIsRefreshing(false);
-      }
-    };
+  //       console.log('Following posts:', following);
+  //       setFollowingPosts(following);
+  //     } catch (error) {
+  //       console.error('Failed to fetch following posts:', error);
+  //       Alert.alert(
+  //         'Something went wrong',
+  //         "We weren't able to get posts from people you follow. Please try again later.",
+  //       );
+  //     } finally {
+  //       setIsRefreshing(false);
+  //     }
+  //   };
 
-    if (isRefreshing) fetchData();
-  }, [isRefreshing, dispatch]);
+  //   if (isRefreshing) fetchData();
+  // }, [isRefreshing, dispatch]);
+
+  /** @type {import('../authentication/authSlice').AuthState} */
+  const { user } = useSelector((state) => state.auth);
+  if (!user) {
+    console.warn('User not signed in');
+  }
+
+  const followingPostsIds = user
+    ? useSelector((state) =>
+        selectFollowingPosts(state, user.profile.id).map((post) => post.id),
+      )
+    : [];
+  console.log({ followingPostsIds });
+
+  const isRefreshing = false;
+  const handleRefresh = () => {};
 
   return (
     <FlatList
-      data={followingPosts}
+      data={followingPostsIds}
+      keyExtractor={(postId) => String(postId)}
       style={{ backgroundColor: colors.white }}
-      contentContainerStyle={{ ...tabViewStyles, padding: values.spacing.md }}
+      contentContainerStyle={{
+        ...tabViewStyles,
+        paddingVertical: values.spacing.md,
+        paddingHorizontal: values.spacing.md,
+      }}
       refreshControl={
         <RefreshControl
           refreshing={isRefreshing}
@@ -193,43 +215,12 @@ function FollowingTab() {
           style={tabViewStyles}
         />
       }
-      renderItem={({ item: post }) => {
-        /** @type {import('../../models/common').ImageSource} */
-        const imagePreview = post.media[0] ?? imagePlaceholder;
-
-        /** @type {{ width: number, height: number }} */
-        let imagePreviewDimensions;
-
-        if (typeof imagePreview === 'number') {
-          imagePreviewDimensions = { width: 600, height: 400 };
-        } else {
-          imagePreviewDimensions = {
-            width: imagePreview.width,
-            height: imagePreview.height,
-          };
-        }
-
-        const screenHorizontalMargin = values.spacing.md;
-        const { width: imageWidth, height: imageHeight } =
-          imagePreviewDimensions;
-
-        // Maybe consider refactoring to prevent this being recomputed
-        const newImageWidth = screenWidth - screenHorizontalMargin * 2;
-        const aspectRatio = newImageWidth / imageWidth;
-        const newImageHeight = imageHeight * aspectRatio;
-
-        return (
-          <PostItemCard
-            postId={post.id}
-            imagePreview={post.media[0]}
-            imagePreviewDimensions={{
-              width: newImageWidth,
-              height: newImageHeight,
-            }}
-            footerOptions={{ largeIcons: true, showActions: true }}
-          />
-        );
-      }}
+      renderItem={({ item: postId }) => (
+        <PostItemCard
+          postId={postId}
+          style={{ marginBottom: values.spacing.md * 1 }}
+        />
+      )}
     />
   );
 }

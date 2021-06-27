@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   View,
   Linking,
+  Platform,
 } from 'react-native';
 
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
@@ -350,18 +351,42 @@ const GroundZero = ({ navigation, insets }) => {
                 place!
               </Text>
               <View style={modalStyles.messageContainer}>
-                <Text style={modalStyles.message}>
-                  This is Discovrr v2.1 Beta. Please report any bugs or give
-                  your feedback at{' '}
-                  <Text
-                    onPress={handleEmailPress}
-                    style={[
-                      modalStyles.message,
-                      { color: colors.accent, textDecorationLine: 'underline' },
-                    ]}>
-                    discovrr.io@gmail.com
+                {/* The Apple App Store is very strict about using language
+                 * suggesting "beta" releases. */}
+                {Platform.OS === 'ios' ? (
+                  <Text style={modalStyles.message}>
+                    If you have any feedback, please contact us at{' '}
+                    <Text
+                      onPress={handleEmailPress}
+                      style={[
+                        modalStyles.message,
+                        {
+                          color: colors.accent,
+                          textDecorationLine: 'underline',
+                        },
+                      ]}>
+                      discovrr.io@gmail.com
+                    </Text>
+                    {'.'}
                   </Text>
-                </Text>
+                ) : (
+                  <Text style={modalStyles.message}>
+                    This is Discovrr v2.1 Beta. Please report any bugs or give
+                    your feedback at{' '}
+                    <Text
+                      onPress={handleEmailPress}
+                      style={[
+                        modalStyles.message,
+                        {
+                          color: colors.accent,
+                          textDecorationLine: 'underline',
+                        },
+                      ]}>
+                      discovrr.io@gmail.com
+                    </Text>
+                    {'.'}
+                  </Text>
+                )}
               </View>
             </View>
             <Button

@@ -31,19 +31,24 @@ const persistor = persistStore(store);
 
 export function App() {
   const onBeforeLift = async () => {
-    const storeVersion = '2.1.1';
+    // TODO: Maybe check with Regex? (/^\d+\.\d{1,2}\.\d{1,2}$/g)
+    const [major, minor, patch] = [2, 1, 0];
+    const currStoreVersion = `${major * 10000 + minor * 100 + patch}`;
+    console.log('[App.onBeforeLift] current store version:', currStoreVersion);
+
     try {
-      const [[_, previousStoreVersion]] = await AsyncStorage.multiGet([
+      const [[_, prevStoreVersion]] = await AsyncStorage.multiGet([
         'storeVersion',
       ]);
 
       console.log(
-        '[App.onBeforeLift] previousStoreVersion:',
-        previousStoreVersion,
+        '[App.onBeforeLift] previous store version:',
+        prevStoreVersion,
       );
 
-      if (previousStoreVersion !== storeVersion) {
-        AsyncStorage.setItem('storeVersion', storeVersion);
+      if (prevStoreVersion !== currStoreVersion) {
+        AsyncStorage.setItem('storeVersion', currStoreVersion);
+        console.log('[App.onBeforeLift] Purging store...');
         persistor.purge();
       }
     } catch (error) {
