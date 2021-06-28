@@ -1,5 +1,5 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+// import PropTypes from 'prop-types';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { typography, values } from '../../constants';
@@ -17,22 +17,26 @@ const EmptyTabView = ({
   ...props
 }) => {
   return (
-    <View style={[{ paddingTop: values.spacing.huge }, props.style]}>
+    <View style={[styles.container, props.style]}>
       <Text style={styles.title}>{title}</Text>
       <Text style={styles.message}>{message}</Text>
     </View>
   );
 };
 
-EmptyTabView.propTypes = {
-  message: PropTypes.string,
-};
+// EmptyTabView.propTypes = {
+//   message: PropTypes.string,
+// };
 
 const commonTextStyles = {
   textAlign: 'center',
 };
 
 const styles = StyleSheet.create({
+  container: {
+    paddingTop: values.spacing.huge,
+    paddingHorizontal: values.spacing.xl,
+  },
   title: {
     ...commonTextStyles,
     fontSize: 30,

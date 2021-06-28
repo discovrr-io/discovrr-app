@@ -10,8 +10,8 @@ import {
 } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
-import { useRoute } from '@react-navigation/core';
 import { Tabs } from 'react-native-collapsible-tab-view';
+import { useRoute } from '@react-navigation/core';
 import { useDispatch, useSelector } from 'react-redux';
 
 import {
@@ -303,6 +303,7 @@ export function ProfileScreenHeader({ profileDetails }) {
     <View pointerEvents="box-none">
       <FastImage
         source={coverPhoto}
+        resizeMode="cover"
         style={{
           height: HEADER_MAX_HEIGHT,
           width: '100%',
@@ -370,7 +371,7 @@ export default function ProfileScreen() {
         if (isMyProfile) {
           return note.profileId === resolvedProfileId;
         } else {
-          return note.profileId === resolvedProfileId && note.isPublic;
+          return note.isPublic && note.profileId === resolvedProfileId;
         }
       })
       .map((note) => note.id);
@@ -419,7 +420,7 @@ export default function ProfileScreen() {
         // minHeaderHeight={topInset + HEADER_MIN_HEIGHT}
         snapThreshold={0.25}
         HeaderComponent={() => (
-          <ProfileScreenHeader profileDetails={{ profile, isMyProfile }} />
+          <ProfileScreenHeader profileDetails={{ ...profile, isMyProfile }} />
         )}>
         <Tabs.Tab name="posts" label="Posts">
           <Tabs.ScrollView
@@ -465,7 +466,7 @@ export default function ProfileScreen() {
                       ? "Looks like you haven't shared any public notes"
                       : `Looks like ${
                           profile.fullName || 'this user'
-                        } hasn't shared any public notes`
+                        } hasn't shared any public notes yet`
                   }
                 />
               }

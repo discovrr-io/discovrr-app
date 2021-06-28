@@ -46,14 +46,15 @@ export default function MerchantItem({ merchant, ...props }) {
         onPress={() =>
           navigation.navigate('MerchantProfileScreen', {
             merchant,
+            merchantShortName: merchant.shortName,
           })
         }>
         <View
           style={{
             position: 'absolute',
             zIndex: 1,
-            top: values.spacing.sm,
-            right: values.spacing.sm,
+            top: values.spacing.sm * 1.25,
+            right: values.spacing.sm * 1.25,
             backgroundColor: 'rgba(0, 0, 0, 0.55)',
             padding: values.spacing.sm,
             borderRadius: 20,

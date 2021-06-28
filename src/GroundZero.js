@@ -572,7 +572,7 @@ const GroundZero = ({ navigation, insets }) => {
           name="MerchantProfileScreen"
           component={MerchantProfileScreen}
           options={({ route }) => ({
-            title: route.params?.shortName || 'Profile',
+            title: route.params?.merchantShortName || 'Profile',
             headerTintColor: colors.black,
             headerBackTitleVisible: false,
           })}
