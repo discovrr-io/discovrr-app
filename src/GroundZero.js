@@ -30,6 +30,7 @@ import PostCreationScreen from './features/posts/PostCreationScreen';
 import PostDetailScreen from './features/posts/PostDetailScreen';
 import ProfileScreen from './features/profiles/ProfileScreen';
 import ProfileEditScreen from './features/profiles/ProfileEditScreen';
+import MerchantProfileScreen from './features/merchants/MerchantProfileScreen';
 import FollowerScreen from './features/profiles/FollowerScreen';
 import AccountSettingsScreen from './features/settings/AccountSettingsScreen';
 import BottomSheetPanel from './components/BottomSheetPanel';
@@ -562,6 +563,16 @@ const GroundZero = ({ navigation, insets }) => {
           component={ProfileScreen}
           options={({ route }) => ({
             title: route.params?.profileName || 'Profile',
+            headerTintColor: colors.black,
+            headerBackTitleVisible: false,
+          })}
+        />
+
+        <Stack.Screen
+          name="MerchantProfileScreen"
+          component={MerchantProfileScreen}
+          options={({ route }) => ({
+            title: route.params?.shortName || 'Profile',
             headerTintColor: colors.black,
             headerBackTitleVisible: false,
           })}

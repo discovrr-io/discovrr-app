@@ -36,10 +36,13 @@ export namespace MerchantApi {
 
     const results = await query.find();
     return results.map((merchant) => {
+      let hasCompleteProfile = false;
+
       // Either a Firebase URL or nothing
       let merchantAvatar: ImageSource;
       const avatar: string | undefined = merchant.get('avatarUrl');
       if (avatar) {
+        hasCompleteProfile = true;
         merchantAvatar = { uri: avatar, ...DEFAULT_AVATAR_DIMENSIONS };
       } else {
         merchantAvatar = DEFAULT_AVATAR;
@@ -54,6 +57,7 @@ export namespace MerchantApi {
           uri: coverPhotoUrl,
           ...DEFAULT_IMAGE_DIMENSIONS,
         };
+        hasCompleteProfile = true;
       } else if (media && media.length > 0) {
         const firstPhoto = media[0];
         merchantCoverPhoto = {
@@ -72,7 +76,8 @@ export namespace MerchantApi {
         profileId: merchant.get('profileId'),
         avatar: merchantAvatar,
         coverPhoto: merchantCoverPhoto,
-      };
+        __hasCompleteProfile: hasCompleteProfile,
+      } as Merchant;
     });
   }
 }

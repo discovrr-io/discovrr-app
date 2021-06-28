@@ -102,11 +102,16 @@ const userListItemStyles = StyleSheet.create({
   },
 });
 
+/**
+ *
+ * @typedef {'followers' | 'following'} FollowerScreenSelector
+
+ */
+
 export default function FollowerScreen() {
   /**
    * @typedef {import('../../models').ProfileId} ProfileId
-   * @typedef {'followers' | 'following'} Selector
-   * @type {{ profileId: ProfileId, selector: Selector }} */
+   * @type {{ profileId: ProfileId, selector: FollowerScreenSelector }} */
   const { profileId, selector } = useRoute().params ?? {};
 
   const profile = useSelector((state) => selectProfileById(state, profileId));

@@ -23,4 +23,9 @@ export default interface Merchant {
   avatar?: ImageSource;
   coverPhoto?: ImageSource;
   address?: MerchantAddress;
+  /**
+   * An internal tag used to check if this particular merchant is a recent,
+   * partnered merchant of Discovrr.
+   */
+  __hasCompleteProfile?: boolean;
 }

@@ -9,7 +9,7 @@ export type NoteId = EntityId;
 export default interface Note {
   id: NoteId;
   title: string;
-  isPrivate: boolean;
+  isPublic: boolean;
   coverPhoto: ImageSource;
   profileId: ProfileId;
   posts: PostId[];

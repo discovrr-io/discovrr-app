@@ -146,13 +146,19 @@ export namespace AuthApi {
     email: string,
     password: string,
   ): Promise<User> {
+    let didLoginViaFirebase = false;
+    let didLoginViaParse = false;
+
     try {
       console.group('AuthApi.signInWithEmailAndPassword');
       const { user } = await auth().signInWithEmailAndPassword(email, password);
-      return await signInWithParse(user);
+      didLoginViaFirebase = true;
+      const authenticatedUser = await signInWithParse(user);
+      didLoginViaParse = true;
+      return authenticatedUser;
     } catch (error) {
       console.warn('Aborting authentication. Signing out...');
-      await signOut();
+      await signOut(didLoginViaParse, didLoginViaFirebase);
       console.error('Failed to sign in with email and password:', error);
       throw error;
     } finally {
@@ -163,13 +169,19 @@ export namespace AuthApi {
   export async function signInWithCredential(
     credential: FirebaseAuthTypes.AuthCredential,
   ) {
+    let didLoginViaFirebase = false;
+    let didLoginViaParse = false;
+
     try {
       console.group('AuthApi.signInWithCredential');
       const { user } = await auth().signInWithCredential(credential);
-      return await signInWithParse(user);
+      didLoginViaFirebase = true;
+      const authenticatedUser = await signInWithParse(user);
+      didLoginViaParse = true;
+      return authenticatedUser;
     } catch (error) {
       console.warn('Aborting authentication. Signing out...');
-      await signOut();
+      await signOut(didLoginViaParse, didLoginViaFirebase);
       console.error('Failed to sign in with credential:', error);
       throw error;
     } finally {
@@ -183,6 +195,9 @@ export namespace AuthApi {
     email: string,
     password: string,
   ): Promise<User> {
+    let didLoginViaFirebase = false;
+    let didLoginViaParse = false;
+
     try {
       console.group('AuthApi.registerNewAccount');
 
@@ -203,6 +218,7 @@ export namespace AuthApi {
       console.log('Creating new user via Firebase...');
       const { user: firebaseUser } =
         await auth().createUserWithEmailAndPassword(email, password);
+      didLoginViaFirebase = true;
 
       console.log('Updating Firebase profile...');
       await firebaseUser.updateProfile({ displayName: fullName });
@@ -214,6 +230,7 @@ export namespace AuthApi {
 
       const currentUser = await Parse.User.logInWith('firebase', { authData });
       console.log('Successfully logged in with Firebase:', currentUser);
+      didLoginViaParse = true;
 
       const Profile = Parse.Object.extend('Profile');
       const profile: Parse.Object<Parse.Attributes> = new Profile();
@@ -235,7 +252,7 @@ export namespace AuthApi {
       return await syncAndConstructUser(newProfile, firebaseUser);
     } catch (error) {
       console.warn('Aborting authentication. Signing out...');
-      await signOut();
+      await signOut(didLoginViaParse, didLoginViaFirebase);
       console.error('Failed to register account:', error);
       throw error;
     } finally {
@@ -243,15 +260,19 @@ export namespace AuthApi {
     }
   }
 
-  export async function signOut() {
+  export async function signOut(logoutParse = true, logoutFirebase = true) {
     try {
       console.group('AuthApi.signOut');
 
-      console.log('Signing out via Parse...');
-      await Parse.User.logOut();
+      if (logoutParse) {
+        console.log('Signing out via Parse...');
+        await Parse.User.logOut();
+      }
 
-      console.log('Signing out via Firebase...');
-      await auth().signOut();
+      if (logoutFirebase) {
+        console.log('Signing out via Firebase...');
+        await auth().signOut();
+      }
     } finally {
       console.groupEnd();
     }

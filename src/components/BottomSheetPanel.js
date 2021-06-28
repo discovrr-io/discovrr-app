@@ -2063,7 +2063,7 @@ class BottomSheetPanel extends Component {
               fontSize: 16,
               color: '#777777',
             }}>
-            Your Travel Notes
+            Notes
           </Text>
         </View>
 

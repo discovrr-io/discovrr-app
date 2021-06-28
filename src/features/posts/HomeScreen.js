@@ -198,7 +198,7 @@ function NearMeTab() {
           tintColor={colors.gray500}
           refreshing={shouldFetch}
           onRefresh={handleRefresh}
-          title="Fetching activity near you..."
+          title="Loading activity near you..."
         />
       }
     />

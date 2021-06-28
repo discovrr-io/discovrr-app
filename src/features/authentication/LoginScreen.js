@@ -183,14 +183,14 @@ function LoginForm({ setFormType }) {
 
       switch (error.code) {
         case 'auth/wrong-password':
-          title = 'Incorrect details';
+          title = 'Incorrect Details';
           message =
-            'The email address or password you gave is incorrect. Please try again.';
+            'The email or password you provided is incorrect. Please try again.';
           break;
         case 'auth/user-not-found':
-          title = 'Invalid email address';
+          title = 'Invalid Email Address';
           message =
-            'The email address you provided is not registered with Discovrr.';
+            "We don't have an account registered with the email you provided. Did you type it in correctly?";
           break;
         default:
           console.warn('Unhandled error:', error);
@@ -260,11 +260,13 @@ function RegisterForm({ setFormType }) {
   const dispatch = useDispatch();
   const [isProcessing, setIsProcessing] = useState(false);
 
+  /**
+   * @param {import('./authSlice').RegisterFormDetails} registerFormDetails
+   */
   const handleRegisterAccount = async (registerFormDetails) => {
     try {
       console.info('[RegisterForm] Starting registration process...');
       setIsProcessing(true);
-
       await dispatch(registerNewAccount(registerFormDetails)).unwrap();
     } catch (error) {
       /** @type {string} */

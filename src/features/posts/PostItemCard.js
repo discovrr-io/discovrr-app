@@ -335,7 +335,7 @@ const postItemFooterStyles = StyleSheet.create({
     alignItems: 'center',
   },
   likesCount: {
-    marginLeft: values.spacing.zero,
+    marginLeft: values.spacing.xxs,
     alignSelf: 'flex-end',
   },
 });

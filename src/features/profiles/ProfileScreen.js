@@ -86,11 +86,21 @@ const statisticStyles = StyleSheet.create({
   },
 });
 
+const alertUnavailableFeature = () =>
+  Alert.alert(FEATURE_UNAVAILABLE.title, FEATURE_UNAVAILABLE.message);
+
+const alertRequestFailure = () =>
+  Alert.alert(
+    'Something went wrong',
+    `Sorry, we weren't able to complete your request. Please try again later.`,
+  );
+
 /**
  * @typedef {import('../../models').Profile} Profile
- * @param {{ profile: Profile | undefined }} param0
+ * @typedef {Omit<Profile, 'id' | 'email' | 'oneSignalPlayerIds'> & { id?: string, isMyProfile?: boolean }} ProfileDetails
+ * @param {{ profileDetails: ProfileDetails | undefined }} param0
  */
-function ProfileScreenHeaderContent({ profile }) {
+function ProfileScreenHeaderContent({ profileDetails }) {
   const dispatch = useDispatch();
   const navigation = useNavigation();
 
@@ -100,14 +110,13 @@ function ProfileScreenHeaderContent({ profile }) {
     description = 'No description',
     followers = [],
     following = [],
-  } = profile ?? {};
+  } = profileDetails ?? {};
 
   const followersCount = followers.length ?? 0;
   const followingCount = following.length ?? 0;
 
   /** @type {Profile | undefined} */
   const currentProfile = useSelector((state) => state.auth.user?.profile);
-  const isMyProfile = currentProfile && currentProfile.id === profile.id;
 
   const isFollowingProfile = followers.includes(currentProfile.id);
   const [isProcessingFollow, setIsProcessingFollow] = useState(false);
@@ -117,33 +126,56 @@ function ProfileScreenHeaderContent({ profile }) {
    * @returns A boolean with the new value (or the previous value if it failed)
    */
   const handleFollowButtonPress = async (didFollow) => {
+    if (profileDetails.isVendor) {
+      alertUnavailableFeature();
+      return !didFollow;
+    } else if (!profileDetails.id) {
+      alertRequestFailure();
+      return !didFollow;
+    }
+
+    const followeeId = profileDetails.id;
+
     try {
       setIsProcessingFollow(true);
+
       const changeFollowStatusAction = didChangeFollowStatus({
         didFollow,
-        followeeId: profile.id,
+        followeeId,
         followerId: currentProfile.id,
       });
 
       dispatch(changeFollowStatusAction);
-      await ProfileApi.changeProfileFollowStatus(profile.id, didFollow);
+      await ProfileApi.changeProfileFollowStatus(followeeId, didFollow);
     } catch (error) {
       console.error('Failed to change follow status:', error);
-      Alert.alert(
-        'Something went wrong',
-        `Sorry, we weren't able to complete your request. Please try again later.`,
-      );
+      alertRequestFailure();
 
+      // Revert the action by simply toggling it back to its previous value
       const revertChangeFollowStatusAction = didChangeFollowStatus({
         didFollow: !didFollow,
-        followeeId: profile.id,
+        followeeId,
         followerId: currentProfile.id,
       });
 
-      // Revert the action by simply toggling it back to its previous value
       dispatch(revertChangeFollowStatusAction);
     } finally {
       setIsProcessingFollow(false);
+    }
+  };
+
+  /**
+   * @param {import('./FollowerScreen').FollowerScreenSelector} selector
+   */
+  const handleGoToFollowerScreen = (selector) => {
+    if (profileDetails.isVendor) {
+      alertUnavailableFeature();
+    } else {
+      navigation.push('FollowerScreen', {
+        profileId: profileDetails.id,
+        profileName: profileDetails.fullName,
+        selector,
+      });
     }
   };
 
@@ -156,6 +188,7 @@ function ProfileScreenHeaderContent({ profile }) {
             width: AVATAR_IMAGE_RADIUS,
             height: AVATAR_IMAGE_RADIUS,
             borderRadius: AVATAR_IMAGE_RADIUS / 2,
+            backgroundColor: colors.gray100,
           }}
         />
         <View
@@ -174,24 +207,12 @@ function ProfileScreenHeaderContent({ profile }) {
             <Statistic
               label="Followers"
               value={followersCount}
-              onPress={() =>
-                navigation.push('FollowerScreen', {
-                  profileId: profile.id,
-                  profileName: profile.fullName,
-                  selector: 'followers',
-                })
-              }
+              onPress={() => handleGoToFollowerScreen('followers')}
             />
             <Statistic
               label="Following"
               value={followingCount}
-              onPress={() =>
-                navigation.push('FollowerScreen', {
-                  profileId: profile.id,
-                  profileName: profile.fullName,
-                  selector: 'following',
-                })
-              }
+              onPress={() => handleGoToFollowerScreen('following')}
             />
             <Statistic label="Likes" value={0} />
           </View>
@@ -200,7 +221,7 @@ function ProfileScreenHeaderContent({ profile }) {
               flexDirection: 'row',
               marginTop: values.spacing.md,
             }}>
-            {isMyProfile ? (
+            {profileDetails.isMyProfile ? (
               <Button
                 transparent
                 size="small"
@@ -270,34 +291,42 @@ const profileScreenHeaderContentStyles = StyleSheet.create({
 });
 
 /**
- * @typedef {import('../../models').Profile} Profile
- * @param {{ profile: Profile | undefined }} param0
+ * @param {{ profileDetails: ProfileDetails }} param0
  */
-function ProfileScreenHeader({ profile }) {
+export function ProfileScreenHeader({ profileDetails }) {
+  const coverPhoto =
+    typeof profileDetails.coverPhoto === 'number'
+      ? undefined
+      : profileDetails.coverPhoto;
+
   return (
     <View pointerEvents="box-none">
       <FastImage
-        source={profile?.coverPhoto ?? DEFAULT_IMAGE}
+        source={coverPhoto}
         style={{
           height: HEADER_MAX_HEIGHT,
           width: '100%',
           backgroundColor: colors.gray100,
         }}
       />
-      <ProfileScreenHeaderContent profile={profile} />
+      <ProfileScreenHeaderContent profileDetails={profileDetails} />
     </View>
   );
 }
 
 export default function ProfileScreen() {
   const dispatch = useDispatch();
+
+  /**
+   * @typedef {import('../../models').ProfileId} ProfileId
+   * @type {{ profileId: ProfileId | undefined }}
+   */
   const { profileId } = useRoute().params ?? {};
 
   const [shouldRefresh, setShouldRefresh] = useState(false);
   const [isRefreshingPosts, setIsRefreshingPosts] = useState(false);
   const [isRefreshingNotes, setIsRefreshingNotes] = useState(false);
 
-  /** @type {ProfileId | undefined} */
   let resolvedProfileId = profileId;
   let isMyProfile = false;
 
@@ -337,7 +366,13 @@ export default function ProfileScreen() {
   const noteIds = useSelector((state) => {
     const allNotes = selectAllNotes(state);
     return allNotes
-      .filter((note) => note.profileId === resolvedProfileId)
+      .filter((note) => {
+        if (isMyProfile) {
+          return note.profileId === resolvedProfileId;
+        } else {
+          return note.profileId === resolvedProfileId && note.isPublic;
+        }
+      })
       .map((note) => note.id);
   });
 
@@ -383,7 +418,9 @@ export default function ProfileScreen() {
         lazy
         // minHeaderHeight={topInset + HEADER_MIN_HEIGHT}
         snapThreshold={0.25}
-        HeaderComponent={() => <ProfileScreenHeader profile={profile} />}>
+        HeaderComponent={() => (
+          <ProfileScreenHeader profileDetails={{ profile, isMyProfile }} />
+        )}>
         <Tabs.Tab name="posts" label="Posts">
           <Tabs.ScrollView
             refreshControl={
@@ -418,7 +455,21 @@ export default function ProfileScreen() {
                 onRefresh={handleRefreshNotes}
               />
             }>
-            <NoteMasonryList smallContent noteIds={noteIds} />
+            <NoteMasonryList
+              smallContent
+              noteIds={noteIds}
+              ListEmptyComponent={
+                <EmptyTabView
+                  message={
+                    isMyProfile
+                      ? "Looks like you haven't shared any public notes"
+                      : `Looks like ${
+                          profile.fullName || 'this user'
+                        } hasn't shared any public notes`
+                  }
+                />
+              }
+            />
           </Tabs.ScrollView>
         </Tabs.Tab>
       </Tabs.Container>

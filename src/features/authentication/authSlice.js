@@ -16,7 +16,8 @@ export const signInWithCredential = createAsyncThunk(
 export const registerNewAccount = createAsyncThunk(
   'auth/registerNewAccount',
   /**
-   * @param {{ fullName: string, username: string, email: string, password: string }} param0
+   * @typedef {{fullName: string;username: string;email: string;password: string;}} RegisterFormDetails
+   * @param {RegisterFormDetails} param0
    */
   async ({ fullName, username, email, password }) =>
     AuthApi.registerNewAccount(fullName, username, email, password),

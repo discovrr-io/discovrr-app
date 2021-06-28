@@ -67,8 +67,11 @@ export default function NoteItemCard({ noteId, ...props }) {
         }}
       />
       <Text
+        numberOfLines={2}
         style={{
-          fontSize: typography.size.md,
+          color: colors.gray700,
+          fontWeight: '600',
+          fontSize: typography.size.sm,
           paddingVertical: values.spacing.sm,
           paddingHorizontal: values.spacing.sm,
         }}>

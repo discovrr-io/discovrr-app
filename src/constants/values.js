@@ -6,7 +6,7 @@ export const spacing = {
   md: 8,
   sm: 4,
   xs: 2,
-  zero: 0,
+  xxs: 0,
 };
 
 export const border = {
