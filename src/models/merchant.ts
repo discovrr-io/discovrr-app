@@ -22,6 +22,7 @@ export default interface Merchant {
   profileId?: ProfileId;
   avatar?: ImageSource;
   coverPhoto?: ImageSource;
+  description?: string;
   address?: MerchantAddress;
   /**
    * An internal tag used to check if this particular merchant is a recent,

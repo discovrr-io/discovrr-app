@@ -76,6 +76,7 @@ export namespace MerchantApi {
         profileId: merchant.get('profileId'),
         avatar: merchantAvatar,
         coverPhoto: merchantCoverPhoto,
+        description: merchant.get('about'),
         __hasCompleteProfile: hasCompleteProfile,
       } as Merchant;
     });

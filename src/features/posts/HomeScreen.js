@@ -1,12 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import {
-  useWindowDimensions,
-  Alert,
-  FlatList,
-  RefreshControl,
-  Text,
-  View,
-} from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Alert, FlatList, RefreshControl, View } from 'react-native';
 
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { useDispatch, useSelector } from 'react-redux';
@@ -136,6 +129,10 @@ function DiscoverTab() {
       }
     />
   );
+}
+
+function NearMeTab__NEW() {
+  return <View></View>;
 }
 
 function NearMeTab() {
