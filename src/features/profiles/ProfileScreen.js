@@ -97,7 +97,7 @@ const alertRequestFailure = () =>
 
 /**
  * @typedef {import('../../models').Profile} Profile
- * @typedef {Omit<Profile, 'id' | 'email' | 'oneSignalPlayerIds'> & { id?: string, isMyProfile?: boolean }} ProfileDetails
+ * @typedef {Omit<Profile, 'id' | 'email'> & { id?: string, isMyProfile?: boolean }} ProfileDetails
  * @param {{ profileDetails: ProfileDetails | undefined }} param0
  */
 function ProfileScreenHeaderContent({ profileDetails }) {

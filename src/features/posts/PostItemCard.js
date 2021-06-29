@@ -12,13 +12,12 @@ import {
 import FastImage from 'react-native-fast-image';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
-import OneSignal from 'react-native-onesignal';
 import * as Animatable from 'react-native-animatable';
 
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { PostApi, ProfileApi } from '../../api';
+import { PostApi } from '../../api';
 import { FEATURE_UNAVAILABLE } from '../../constants/strings';
 import { selectProfileById } from '../profiles/profilesSlice';
 import { selectPostById, postLikeStatusChanged } from './postsSlice';
@@ -34,6 +33,7 @@ import {
   DEFAULT_AVATAR,
   DEFAULT_IMAGE_DIMENSIONS,
 } from '../../constants/media';
+import { NotificationApi } from '../../api/notification';
 
 const SMALL_ICON = 24;
 const LARGE_ICON = 32;
@@ -105,8 +105,6 @@ export const PostItemCardFooter = ({
     totalLikes: 0,
   };
 
-  const bottomSheetRef = useRef(null);
-
   const [isProcessingLike, setIsProcessingLike] = useState(false);
   const [isProcessingSave, _setIsProcessingSave] = useState(false);
 
@@ -123,72 +121,31 @@ export const PostItemCardFooter = ({
 
       const newDidLike = !didLike;
       console.log(
-        `[PostItemFooter.handlePressLike] Will ${
-          newDidLike ? 'like' : 'unlike'
-        } post...`,
+        `[PostItemFooter] Will ${newDidLike ? 'like' : 'unlike'} post...`,
       );
 
-      // FIXME: Waiting for like status to change takes too long
+      // FIXME: Waiting for like status to change sometimes takes too long
       dispatch(postLikeStatusChanged({ postId: post.id, didLike: newDidLike }));
       await PostApi.setLikeStatus(post.id, newDidLike);
 
-      // Only send notification if current user liked the post
-      console.log(
-        'Will send notification:',
-        newDidLike && isAuthenticated && !!currentUser,
-      );
-
+      // Only send notification if the current user liked the post
       if (newDidLike && isAuthenticated && !!currentUser) {
-        console.log('1');
         const { fullName } = currentUser.profile;
-
-        /** @type {string[]} */
-        let recipientPlayerIds;
-        if (
-          profile.oneSignalPlayerIds &&
-          profile.oneSignalPlayerIds.length > 0
-        ) {
-          recipientPlayerIds = profile.oneSignalPlayerIds;
-        } else {
-          recipientPlayerIds = await ProfileApi.getOneSignalPlayerIdsForProfile(
-            profile.id,
+        try {
+          await NotificationApi.sendNotificationToProfileIds(
+            [String(profile.id)],
+            { en: `${fullName} liked your post` },
+            { en: "Looks like you're getting popular 😎" },
           );
+        } catch (error) {
+          console.error('[PostItemFooter] Failed to send notification:', error);
         }
-
-        console.log('2');
-        if (recipientPlayerIds.length > 0) {
-          console.log('3');
-          const notificationParams = JSON.stringify({
-            include_player_ids: recipientPlayerIds,
-            headings: { en: `${fullName} liked your post` },
-            contents: { en: `Looks like you're getting popular! 😎` },
-          });
-
-          console.log(
-            'Will send notification with params:',
-            notificationParams,
-          );
-
-          OneSignal.postNotification(
-            notificationParams,
-            (success) => {
-              console.log(
-                '[OneSignal] Successfully posted notification:',
-                success,
-              );
-            },
-            (error) => {
-              console.log('[OneSignal] Failed to posted notification:', error);
-            },
-          );
-        }
-      } else {
-        console.log('4');
       }
-
-      console.log('5');
     } catch (error) {
-      console.error(error);
+      console.error(
+        '[PostItemFooter] Failed to change post like status:',
+        error,
+      );
       Alert.alert(
         'Something went wrong',
         `We weren't able to complete your request. Please try again later.`,

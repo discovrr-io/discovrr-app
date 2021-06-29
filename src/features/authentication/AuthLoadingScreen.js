@@ -1,9 +1,9 @@
-import React, { useEffect, useRef } from 'react';
-import { StatusBar, View, Text } from 'react-native';
+import React, { useEffect } from 'react';
+import { StatusBar } from 'react-native';
 
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createStackNavigator } from '@react-navigation/stack';
-import { connect, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 import AsyncStorage from '@react-native-community/async-storage';
 import OneSignal from 'react-native-onesignal';
@@ -56,57 +56,18 @@ function setUpOneSignalHandlers() {
 /**
  * @param {import('../../models').User} user
  */
-async function setUpOneSignalUserDetails(user) {
-  const { userId: currentPlayerId } = await OneSignal.getDeviceState();
-  await setOneSignalPlayerId(currentPlayerId, user.profile.id);
-  sendOneSignalTags(user);
-}
-
-/**
- * @param {string} currentPlayerId
- * @param {string} profileId
- */
-async function setOneSignalPlayerId(currentPlayerId, profileId) {
-  try {
-    const query = new Parse.Query(Parse.Object.extend('Profile'));
-    query.equalTo('objectId', profileId);
-
-    const profile = await query.first();
-    if (!profile) {
-      console.warn('No profile found with id:', profileId);
-      return;
-    }
-
-    const oneSignalPlayerIds = profile.get('oneSignalPlayerIds');
-    if (!oneSignalPlayerIds.includes(currentPlayerId)) {
-      profile.set('oneSignalPlayerIds', [
-        ...oneSignalPlayerIds,
-        currentPlayerId,
-      ]);
-      await profile.save();
-    }
-  } catch (error) {
-    console.error(
-      `Failed to set oneSignalPlayerIds for profile '${profileId}':`,
-      error,
-    );
-  }
-}
-
-/**
- * @param {import('../../models').User} user
- */
 function sendOneSignalTags(user) {
-  const { id: profileId, email, fullName } = user.profile;
+  const { id: profileId, email, fullName, isVendor } = user.profile;
 
   if (profileId && email) {
-    // We'll send the profileId for convenience
+    console.log('[OneSignal] Sending OneSignal tags...');
     OneSignal.sendTags({
-      profileId,
       email,
       fullName,
+      isVendor,
     });
 
+    console.log('[OneSignal] Setting external user id...');
     OneSignal.setExternalUserId(profileId, (results) => {
       console.log('[OneSignal] Result of setting external id:', results);
     });
@@ -120,25 +81,24 @@ function sendOneSignalTags(user) {
 
 export default function AuthLoadingScreen() {
   /** @type {import('./authSlice').AuthState} */
-  const { isAuthenticated, user } = useSelector((state) => state.auth);
-  console.log('[AuthLoadingScreen] isAuthenticated?', isAuthenticated);
+  const { isAuthenticated, isFirstLogin, user } = useSelector(
+    (state) => state.auth,
+  );
 
-  const didSetUpOneSignal = useRef(false);
+  console.log('[AuthLoadingScreen] isAuthenticated?', isAuthenticated);
 
   useEffect(() => {
     RNBootSplash.hide({ duration: 250 });
-
-    if (!didSetUpOneSignal.current) {
-      console.log('[AuthLoadingScreen] Will set up OneSignal...');
-      didSetUpOneSignal.current = true;
-      setUpOneSignal();
-    }
-
-    if (isAuthenticated) {
-      console.log('[AuthLoadingScreen] Will set up OneSignal user details...');
-      setUpOneSignalUserDetails(user);
-    }
+    console.log('[AuthLoadingScreen] Will set up OneSignal...');
+    setUpOneSignal();
   }, []);
+
+  useEffect(() => {
+    if (isFirstLogin && !!user) {
+      console.log('[AuthLoadingScreen] Will send OneSignal tags...');
+      sendOneSignalTags(user);
+    }
+  }, [isFirstLogin]);
 
   return isAuthenticated ? (
     <>

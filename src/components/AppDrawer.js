@@ -11,6 +11,7 @@ import {
 import DeviceInfo from 'react-native-device-info';
 import FastImage from 'react-native-fast-image';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import OneSignal from 'react-native-onesignal';
 import { DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -67,6 +68,13 @@ export default function AppDrawer({ navigation, ...props }) {
     const signOutUser = async () => {
       try {
         await dispatch(signOut()).unwrap();
+        console.log('[AppDrawer] Removing OneSignal external user ID...');
+        OneSignal.removeExternalUserId((results) => {
+          console.log(
+            '[AppDrawer] Successfully removed external user id:',
+            results,
+          );
+        });
       } catch (error) {
         console.error('[AppDrawer] Failed to log out user:', error);
         throw error;
@@ -83,16 +91,14 @@ export default function AppDrawer({ navigation, ...props }) {
           style: 'destructive',
           onPress: () => {
             signOutUser()
-              .then(() => {
-                console.log('[AppDrawer] Dispatching `auth/signOut` action...');
-                dispatch(signOut());
-              })
-              .catch((_) =>
+              .then(() => console.info('[AppDrawer] Successfully logged out'))
+              .catch((error) => {
+                console.error('[AppDrawer] Failed to sign out:', error);
                 Alert.alert(
                   'Something went wrong',
                   "We weren't able to sign you out right now. Please try again later.",
-                ),
-              );
+                );
+              });
           },
         },
       ],

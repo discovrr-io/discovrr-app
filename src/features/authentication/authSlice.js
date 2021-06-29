@@ -63,6 +63,7 @@ const authSlice = createSlice({
         state.status = 'rejected';
         state.error = action.error;
         state.user = undefined;
+        state.isFirstLogin = false;
       })
       // signInWithCredential
       .addCase(signInWithCredential.pending, (state) => {
@@ -78,6 +79,7 @@ const authSlice = createSlice({
         state.status = 'rejected';
         state.error = action.error;
         state.user = undefined;
+        state.isFirstLogin = false;
       })
       // registerNewAccount
       .addCase(registerNewAccount.pending, (state) => {
@@ -87,11 +89,13 @@ const authSlice = createSlice({
         state.status = 'fulfilled';
         state.isAuthenticated = true;
         state.user = action.payload;
+        state.isFirstLogin = true;
       })
       .addCase(registerNewAccount.rejected, (state, action) => {
         state.status = 'rejected';
         state.error = action.error;
         state.user = undefined;
+        state.isFirstLogin = false;
       })
       // signOut
       .addCase(signOut.pending, (state) => {
@@ -111,6 +115,7 @@ const authSlice = createSlice({
         state.status = 'rejected';
         state.error = action.error;
         state.isSigningOut = false;
+        state.isFirstLogin = false;
       });
   },
 });

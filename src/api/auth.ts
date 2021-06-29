@@ -99,7 +99,6 @@ export namespace AuthApi {
         coverPhoto,
         isVendor: false,
         description: profile.get('description'),
-        oneSignalPlayerIds: profile.get('oneSignalPlayerIds'),
       },
     };
   }

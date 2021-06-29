@@ -52,7 +52,6 @@ export namespace ProfileApi {
       isVendor: false, // TODO: Determine if profile is vendor
       followers: result.get('followersArray'),
       following: result.get('followingArray'),
-      oneSignalPlayerIds: result.get('oneSignalPlayerIds'),
     } as Profile;
   }
 
@@ -113,6 +112,9 @@ export namespace ProfileApi {
     }
   }
 
+  /**
+   * @deprecated The `oneSignalPlayerIds` column will be deleted soon
+   */
   export async function getOneSignalPlayerIdsForProfile(
     profileId: string,
   ): Promise<string[]> {
