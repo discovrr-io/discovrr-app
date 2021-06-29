@@ -25,7 +25,7 @@ export namespace MerchantApi {
     preferences?: LocationQueryPreferences,
   ): Promise<Merchant[]> {
     const {
-      searchRadius,
+      searchRadius = DEFAULT_SEARCH_RADIUS,
       coordinates: { latitude, longitude },
     } = preferences ?? DEFAULT_LOCATION_PREFS;
 

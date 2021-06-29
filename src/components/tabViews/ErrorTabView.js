@@ -19,19 +19,12 @@ const ErrorTabView = ({
   ...props
 }) => {
   return (
-    <View
-      style={[
-        {
-          flexGrow: 1,
-          paddingVertical: values.spacing.huge,
-        },
-        props.style,
-      ]}>
+    <View style={[styles.container, props.style]}>
       <Text style={styles.title}>{title}</Text>
       <Text style={styles.message}>{message}</Text>
       <Text style={styles.error}>{caption}</Text>
       {/* Only show error in development mode */}
-      {isDevMode && (
+      {false && isDevMode && (
         <View
           style={{
             marginTop: values.spacing.md,
@@ -40,7 +33,9 @@ const ErrorTabView = ({
           <Text style={[styles.error, { marginBottom: values.spacing.sm }]}>
             The following message is only shown in development mode:
           </Text>
-          <Text style={[styles.error]}>{error?.message ?? error}</Text>
+          <Text style={[styles.error]}>
+            {error?.message ?? JSON.stringify(error)}
+          </Text>
         </View>
       )}
     </View>
@@ -59,6 +54,11 @@ const commonTextStyles = {
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flexGrow: 1,
+    paddingVertical: values.spacing.huge,
+    marginHorizontal: values.spacing.xl,
+  },
   title: {
     ...commonTextStyles,
     fontSize: 30,

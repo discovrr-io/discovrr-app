@@ -8119,6 +8119,11 @@ react-native-parsed-text@0.0.22:
   dependencies:
     prop-types "^15.7.x"
 
+react-native-permissions@^3.0.4:
+  version "3.0.4"
+  resolved "https://registry.yarnpkg.com/react-native-permissions/-/react-native-permissions-3.0.4.tgz#7771d28899d7d2b75fd2a70cd3f86d44c90397ec"
+  integrity sha512-GMd0l0TA/qupidGFfKAVNaboewQkJSW+l3ndwv1cu+tBGI+TRfJdMjg8Q714wn9roZlXsZ3z407qT2xPdQmGdg==
+
 react-native-popover-menu@^2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/react-native-popover-menu/-/react-native-popover-menu-2.0.1.tgz#887da3a63466102117bf0946372df2d4fe2b7ea5"

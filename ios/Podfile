@@ -13,8 +13,11 @@ target 'Discovrr' do
     :hermes_enabled => false
   )
 
-  # pod 'GoogleSignIn', '~> 5.0.2'
   pod 'Stripe', '~> 19.4.0'
+
+  permission_path = '../node_modules/react-native-permissions/ios'
+  pod 'Permission-LocationAlways', :path => "#{permission_path}/LocationAlways"
+  pod 'Permission-LocationWhenInUse', :path => "#{permission_path}/LocationWhenInUse"
 
   target 'DiscovrrTests' do
     inherit! :complete

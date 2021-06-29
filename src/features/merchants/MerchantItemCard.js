@@ -1,12 +1,11 @@
 import React from 'react';
-import { Alert, Text, TouchableOpacity, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
 
 import { DEFAULT_IMAGE, DEFAULT_IMAGE_DIMENSIONS } from '../../constants/media';
-import { FEATURE_UNAVAILABLE } from '../../constants/strings';
 
 import {
   colors,
@@ -17,11 +16,11 @@ import {
 
 /**
  * @typedef {import('../../models').Merchant} Merchant
- * @typedef {{ merchant: Merchant }} MerchantItemProps
+ * @typedef {{ merchant: Merchant }} MerchantItemCardProps
  * @typedef {import('react-native').ViewProps} ViewProps
- * @param {MerchantItemProps & ViewProps} param0
+ * @param {MerchantItemCardProps & ViewProps} param0
  */
-export default function MerchantItem({ merchant, ...props }) {
+export default function MerchantItemCard({ merchant, ...props }) {
   const navigation = useNavigation();
 
   const { shortName } = merchant;

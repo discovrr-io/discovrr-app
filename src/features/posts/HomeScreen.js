@@ -1,29 +1,41 @@
-import React, { useEffect, useState } from 'react';
-import { Alert, FlatList, RefreshControl, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import {
+  Alert,
+  FlatList,
+  Platform,
+  RefreshControl,
+  Text,
+  View,
+} from 'react-native';
 
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { useDispatch, useSelector } from 'react-redux';
 
-import PostItemCard from './PostItemCard';
-import MerchantItem from '../merchants/MerchantItem';
-import { EmptyTabView, ErrorTabView, MasonryList } from '../../components';
-import PostMasonryList from '../../components/masonry/PostMasonryList';
+import GeoLocation from 'react-native-geolocation-service';
+import {
+  check as checkPermission,
+  request as requestPermission,
+  PERMISSIONS,
+  RESULTS,
+} from 'react-native-permissions';
+
+import { MerchantApi } from '../../api';
 import { colors, values } from '../../constants';
+
+import PostItemCard from './PostItemCard';
+import MerchantItemCard from '../merchants/MerchantItemCard';
+import PostMasonryList from '../../components/masonry/PostMasonryList';
+import { EmptyTabView, ErrorTabView, MasonryList } from '../../components';
 
 import { fetchAllProfiles } from '../profiles/profilesSlice';
 import {
   fetchAllPosts,
-  // fetchFollowingPosts,
   selectFollowingPosts,
   selectPostIds,
 } from './postsSlice';
-import { MerchantApi } from '../../api';
 
 const PAGINATION_LIMIT = 26;
 const DEFAULT_SEARCH_RADIUS = 3;
-
-const Parse = require('parse/react-native');
-const imagePlaceholder = require('../../../resources/images/imagePlaceholder.png');
 
 const FeedTab = createMaterialTopTabNavigator();
 
@@ -121,50 +133,107 @@ function DiscoverTab() {
       }
       refreshControl={
         <RefreshControl
+          title="Loading your personalised feed..."
           tintColor={colors.gray500}
           refreshing={shouldRefresh}
           onRefresh={handleRefresh}
-          title="Loading your personalised feed..."
         />
       }
     />
   );
 }
 
-function NearMeTab__NEW() {
-  return <View></View>;
+/**
+ * @typedef {"unavailable" | "blocked" | "denied" | "granted" | "limited"} PermissionResult
+ * @type {PermissionResult}
+ */
+
+/**
+ * @template T, E
+ * @typedef {{ type: 'success', payload: T } | { type: 'failure', payload: E }} Result
+ */
+
+async function canRequestLocation_iOS() {
+  const result = await checkPermission(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
+  console.log('Permission result:', result);
+  return ['granted', 'limited', 'denied'].includes(result);
 }
 
 function NearMeTab() {
-  const [shouldFetch, setShouldFetch] = useState(true);
-
   /**
    * NOTE: For now, we'll just fetch merchants
-   * @typedef {import('../../models').Merchant[]} MerchantsGetter
-   * @typedef {(merchant: Merchant) => void} MerchantsSetter
-   * @type {[MerchantsGetter, MerchantsSetter]}
+   * @typedef {import('../../models').Merchant} Merchant
+   * @type {[Merchant[], (value: Merchant) => void]}
    */
   const [nearMeItems, setNearMeItems] = useState([]);
+
+  /**
+   * @typedef {{ latitude: number, longitude: number }} CurrentLocation
+   * @type {[CurrentLocation, (value: CurrentLocation) => void]}
+   */
+  const [currentLocation, setCurrentLocation] = useState(null);
+  const [isGrantedPermission, setIsGrantedPermission] = useState(false);
+
+  const [shouldFetch, setShouldFetch] = useState(false);
   const [fetchError, setFetchError] = useState(null);
 
   useEffect(() => {
-    if (shouldFetch)
-      (async () => {
-        try {
-          console.log('[NearMeTab] Fetching near me items...');
-          const items = await MerchantApi.fetchMerchantsNearMe();
-          setNearMeItems(items);
-        } catch (error) {
-          console.error('[NearMeTab] Failed to fetch near me items:', error);
+    const getCurrentLocation_iOS = async () => {
+      const granted = await canRequestLocation_iOS();
+      console.log('Is current location granted?', granted);
+      if (!granted) {
+        setCurrentLocation(null);
+        setFetchError('Location permission not granted');
+        return;
+      }
+
+      GeoLocation.getCurrentPosition(
+        (position) => {
+          console.log('Successfully got current position:', position);
+          setCurrentLocation(position.coords);
+          setIsGrantedPermission(true);
+        },
+        (error) => {
+          console.error('Failed to get current position:', error);
           setFetchError(error);
-        } finally {
-          setShouldFetch(false);
-        }
-      })();
-  }, [shouldFetch]);
+        },
+        { timeout: 15_000, maximumAge: 10_000 },
+      );
+    };
+
+    if (Platform.OS === 'ios') {
+      getCurrentLocation_iOS();
+    } else if (Platform.OS === 'android') {
+      console.warn('[NearMeTab] Unimplemented: Android GeoLocation');
+    } else {
+      console.warn('[NearMeTab] Unsupported platform:', Platform.OS);
+    }
+  }, []);
+
+  useEffect(() => {
+    const fetchNearMeItems = async () => {
+      try {
+        console.log('[NearMeTab] Fetching near me items...');
+        const items = await MerchantApi.fetchMerchantsNearMe({
+          coordinates: currentLocation,
+        });
+        setNearMeItems(items);
+      } catch (error) {
+        console.error(
+          '[NearMeTab] Failed to fetch near me items:',
+          JSON.stringify(error),
+        );
+        setFetchError(error);
+      } finally {
+        setShouldFetch(false);
+      }
+    };
+
+    if (shouldFetch && isGrantedPermission) fetchNearMeItems();
+  }, [shouldFetch, isGrantedPermission, currentLocation]);
 
   const handleRefresh = () => {
-    if (!shouldFetch) setShouldFetch(true);
+    if (!shouldFetch && isGrantedPermission) setShouldFetch(true);
   };
 
   const tileSpacing = values.spacing.sm * 1.25;
@@ -172,8 +241,34 @@ function NearMeTab() {
   return (
     <MasonryList
       data={nearMeItems}
+      ListEmptyComponent={
+        fetchError ? (
+          <ErrorTabView
+            message={
+              !isGrantedPermission
+                ? "We don't know where you are!"
+                : "We couldn't get your current location"
+            }
+            caption={
+              !isGrantedPermission &&
+              'Please allow Discovrr to use your location to view merchants and products near you.'
+            }
+            error={fetchError}
+          />
+        ) : (
+          <EmptyTabView message="Looks like there isn't any activity near you" />
+        )
+      }
+      refreshControl={
+        <RefreshControl
+          title="Loading activity near you..."
+          tintColor={colors.gray500}
+          refreshing={shouldFetch}
+          onRefresh={handleRefresh}
+        />
+      }
       renderItem={({ item: merchant, index }) => (
-        <MerchantItem
+        <MerchantItemCard
           merchant={merchant}
           style={{
             marginTop: tileSpacing,
@@ -183,24 +278,76 @@ function NearMeTab() {
           }}
         />
       )}
-      ListEmptyComponent={
-        fetchError ? (
-          <ErrorTabView error={fetchError} />
-        ) : (
-          <EmptyTabView message="Looks like there isn't any activity near you" />
-        )
-      }
-      refreshControl={
-        <RefreshControl
-          tintColor={colors.gray500}
-          refreshing={shouldFetch}
-          onRefresh={handleRefresh}
-          title="Loading activity near you..."
-        />
-      }
     />
   );
 }
+
+// function NearMeTab() {
+//   const [shouldFetch, setShouldFetch] = useState(true);
+
+//   /**
+//    * NOTE: For now, we'll just fetch merchants
+//    * @typedef {import('../../models').Merchant[]} MerchantsGetter
+//    * @typedef {(merchant: Merchant) => void} MerchantsSetter
+//    * @type {[MerchantsGetter, MerchantsSetter]}
+//    */
+//   const [nearMeItems, setNearMeItems] = useState([]);
+//   const [fetchError, setFetchError] = useState(null);
+
+//   useEffect(() => {
+//     if (shouldFetch)
+//       (async () => {
+//         try {
+//           console.log('[NearMeTab] Fetching near me items...');
+//           const items = await MerchantApi.fetchMerchantsNearMe();
+//           setNearMeItems(items);
+//         } catch (error) {
+//           console.error('[NearMeTab] Failed to fetch near me items:', error);
+//           setFetchError(error);
+//         } finally {
+//           setShouldFetch(false);
+//         }
+//       })();
+//   }, [shouldFetch]);
+
+//   const handleRefresh = () => {
+//     if (!shouldFetch) setShouldFetch(true);
+//   };
+
+//   const tileSpacing = values.spacing.sm * 1.25;
+
+//   return (
+//     <MasonryList
+//       data={nearMeItems}
+//       renderItem={({ item: merchant, index }) => (
+//         <MerchantItem
+//           merchant={merchant}
+//           style={{
+//             marginTop: tileSpacing,
+//             marginLeft: index % 2 === 0 ? tileSpacing : tileSpacing / 2,
+//             marginRight: index % 2 !== 0 ? tileSpacing : tileSpacing / 2,
+//             marginBottom: values.spacing.sm,
+//           }}
+//         />
+//       )}
+//       ListEmptyComponent={
+//         fetchError ? (
+//           <ErrorTabView error={fetchError} />
+//         ) : (
+//           <EmptyTabView message="Looks like there isn't any activity near you" />
+//         )
+//       }
+//       refreshControl={
+//         <RefreshControl
+//           tintColor={colors.gray500}
+//           refreshing={shouldFetch}
+//           onRefresh={handleRefresh}
+//           title="Loading activity near you..."
+//         />
+//       }
+//     />
+//   );
+// }
 
 function FollowingTab() {
   // const dispatch = useDispatch();
@@ -264,11 +411,11 @@ function FollowingTab() {
       }}
       refreshControl={
         <RefreshControl
+          title="Getting posts from people you follow..."
           refreshing={isRefreshing}
           onRefresh={handleRefresh}
           colors={[colors.gray500]}
           tintColor={colors.gray500}
-          title="Getting posts from people you follow..."
         />
       }
       ListEmptyComponent={

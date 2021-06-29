@@ -134,7 +134,7 @@ def getCurrentVersion() {
     def major = 2 // Can be more than 2 digits
     def minor = 1 // Must be between 0 and 99
     def patch = 1 // Must be between 0 and 99
-    def build = 2 // Must be between 0 and 99
+    def build = 3 // Must be between 0 and 99
     return major * 10**6 + minor * 10**4 + patch * 10**2 + build
 }
 

@@ -55,6 +55,7 @@
     "react-native-masonry-list": "^2.16.1",
     "react-native-onesignal": "^4.0.4",
     "react-native-paper": "^4.2.0",
+    "react-native-permissions": "^3.0.4",
     "react-native-popover-menu": "^2.0.1",
     "react-native-progress": "^4.1.2",
     "react-native-reanimated": "^2.0.0",
