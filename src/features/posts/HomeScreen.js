@@ -12,20 +12,20 @@ import { createMaterialTopTabNavigator } from '@react-navigation/material-top-ta
 import { useDispatch, useSelector } from 'react-redux';
 
 import GeoLocation from 'react-native-geolocation-service';
-import {
-  check as checkPermission,
-  request as requestPermission,
-  PERMISSIONS,
-  RESULTS,
-} from 'react-native-permissions';
+import { openSettings } from 'react-native-permissions';
 
 import { MerchantApi } from '../../api';
-import { colors, values } from '../../constants';
+import { colors, typography, values } from '../../constants';
 
 import PostItemCard from './PostItemCard';
 import MerchantItemCard from '../merchants/MerchantItemCard';
 import PostMasonryList from '../../components/masonry/PostMasonryList';
-import { EmptyTabView, ErrorTabView, MasonryList } from '../../components';
+import {
+  Button,
+  EmptyTabView,
+  ErrorTabView,
+  MasonryList,
+} from '../../components';
 
 import { fetchAllProfiles } from '../profiles/profilesSlice';
 import {
@@ -143,21 +143,148 @@ function DiscoverTab() {
   );
 }
 
-/**
- * @typedef {"unavailable" | "blocked" | "denied" | "granted" | "limited"} PermissionResult
- * @type {PermissionResult}
- */
-
-/**
- * @template T, E
- * @typedef {{ type: 'success', payload: T } | { type: 'failure', payload: E }} Result
- */
-
-async function canRequestLocation_iOS() {
-  const result = await checkPermission(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
-  console.log('Permission result:', result);
-  return ['granted', 'limited', 'denied'].includes(result);
-}
+// function NearMeTab() {
+//   /**
+//    * NOTE: For now, we'll just fetch merchants
+//    * @typedef {import('../../models').Merchant} Merchant
+//    * @type {[Merchant[], (value: Merchant) => void]}
+//    */
+//   const [nearMeItems, setNearMeItems] = useState([]);
+//
+//   /**
+//    * @typedef {{ latitude: number, longitude: number }} CurrentLocation
+//    * @type {[CurrentLocation, (value: CurrentLocation) => void]}
+//    */
+//   const [currentLocation, setCurrentLocation] = useState(null);
+//   const [isGrantedPermission, setIsGrantedPermission] = useState(false);
+//
+//   const [shouldFetch, setShouldFetch] = useState(true);
+//   const [fetchError, setFetchError] = useState(null);
+//
+//   useEffect(() => {
+//     const requestAuthorization = async () => {
+//       console.log('HERE3');
+//       const result = await GeoLocation.requestAuthorization('whenInUse');
+//       console.log('Got result:', result);
+//       setIsGrantedPermission(['granted', 'restricted'].includes(result));
+//     };
+//
+//     requestAuthorization();
+//   }, [shouldFetch]);
+//
+//   useEffect(() => {
+//     if (isGrantedPermission) {
+//       console.log('HERE5');
+//       GeoLocation.getCurrentPosition(
+//         (position) => {
+//           console.log('HERE6');
+//           console.log('Successfully got current position:', position);
+//           setCurrentLocation(position.coords);
+//         },
+//         (error) => {
+//           console.log('HERE7');
+//           console.error('Failed to get current position:', error);
+//           setFetchError(error);
+//         },
+//         { timeout: 15000, maximumAge: 10000 },
+//       );
+//     }
+//   }, [isGrantedPermission]);
+//
+//   useEffect(() => {
+//     const fetchNearMeItems = async () => {
+//       try {
+//         console.log('HERE11');
+//         console.log('[NearMeTab] Fetching near me items...');
+//         const items = await MerchantApi.fetchMerchantsNearMe({
+//           searchRadius: 8,
+//           coordinates: currentLocation,
+//         });
+//         setNearMeItems(items);
+//       } catch (error) {
+//         console.log('HERE12');
+//         console.error(
+//           '[NearMeTab] Failed to fetch near me items:',
+//           JSON.stringify(error),
+//         );
+//         setFetchError(error);
+//       } finally {
+//         setShouldFetch(false);
+//       }
+//     };
+//
+//     console.log('HERE9');
+//     if (shouldFetch && isGrantedPermission) {
+//       console.log('HERE10');
+//       fetchNearMeItems();
+//     } else {
+//       setShouldFetch(false);
+//     }
+//   }, [shouldFetch, isGrantedPermission, currentLocation]);
+//
+//   const handleRefresh = () => {
+//     if (!shouldFetch) setShouldFetch(true);
+//   };
+//
+//   const handleOpenSettings = async () => {
+//     try {
+//       await openSettings();
+//     } catch (error) {
+//       console.error('[NearMeTab] Failed to open settings:', error);
+//     }
+//   };
+//
+//   const tileSpacing = values.spacing.sm * 1.25;
+//
+//   return (
+//     <MasonryList
+//       data={nearMeItems}
+//       ListEmptyComponent={
+//         !isGrantedPermission ? (
+//           <>
+//             <ErrorTabView
+//               message="We don't know where you are!"
+//               caption="Please allow Discovrr to use your location to view merchants and products near you."
+//             />
+//             <Button
+//               primary
+//               size="small"
+//               title="Open Settings"
+//               onPress={handleOpenSettings}
+//               style={{ width: 200, alignSelf: 'center' }}
+//             />
+//           </>
+//         ) : fetchError ? (
+//           <ErrorTabView
+//             message="We couldn't get your current location"
+//             error={fetchError}
+//           />
+//         ) : (
+//           <EmptyTabView message="Looks like there isn't any activity near you" />
+//         )
+//       }
+//       refreshControl={
+//         <RefreshControl
+//           title="Loading activity near you..."
+//           tintColor={colors.gray500}
+//           refreshing={shouldFetch}
+//           onRefresh={handleRefresh}
+//         />
+//       }
+//       renderItem={({ item: merchant, index }) => (
+//         <MerchantItemCard
+//           merchant={merchant}
+//           style={{
+//             marginTop: tileSpacing,
+//             marginLeft: index % 2 === 0 ? tileSpacing : tileSpacing / 2,
+//             marginRight: index % 2 !== 0 ? tileSpacing : tileSpacing / 2,
+//             marginBottom: values.spacing.sm,
+//           }}
+//         />
+//       )}
+//     />
+//   );
+// }
 
 function NearMeTab() {
   /**
@@ -166,74 +293,30 @@ function NearMeTab() {
    * @type {[Merchant[], (value: Merchant) => void]}
    */
   const [nearMeItems, setNearMeItems] = useState([]);
-
-  /**
-   * @typedef {{ latitude: number, longitude: number }} CurrentLocation
-   * @type {[CurrentLocation, (value: CurrentLocation) => void]}
-   */
-  const [currentLocation, setCurrentLocation] = useState(null);
-  const [isGrantedPermission, setIsGrantedPermission] = useState(false);
-
-  const [shouldFetch, setShouldFetch] = useState(false);
+  const [shouldFetch, setShouldFetch] = useState(true);
   const [fetchError, setFetchError] = useState(null);
-
-  useEffect(() => {
-    const getCurrentLocation_iOS = async () => {
-      const granted = await canRequestLocation_iOS();
-      console.log('Is current location granted?', granted);
-      if (!granted) {
-        setCurrentLocation(null);
-        setFetchError('Location permission not granted');
-        return;
-      }
-
-      GeoLocation.getCurrentPosition(
-        (position) => {
-          console.log('Successfully got current position:', position);
-          setCurrentLocation(position.coords);
-          setIsGrantedPermission(true);
-        },
-        (error) => {
-          console.error('Failed to get current position:', error);
-          setFetchError(error);
-        },
-        { timeout: 15_000, maximumAge: 10_000 },
-      );
-    };
-
-    if (Platform.OS === 'ios') {
-      getCurrentLocation_iOS();
-    } else if (Platform.OS === 'android') {
-      console.warn('[NearMeTab] Unimplemented: Android GeoLocation');
-    } else {
-      console.warn('[NearMeTab] Unsupported platform:', Platform.OS);
-    }
-  }, []);
 
   useEffect(() => {
     const fetchNearMeItems = async () => {
       try {
         console.log('[NearMeTab] Fetching near me items...');
-        const items = await MerchantApi.fetchMerchantsNearMe({
-          coordinates: currentLocation,
-        });
+        const items = await MerchantApi.fetchMerchantsNearMe();
         setNearMeItems(items);
       } catch (error) {
-        console.error(
-          '[NearMeTab] Failed to fetch near me items:',
-          JSON.stringify(error),
-        );
+        console.error('[NearMeTab] Failed to fetch near me items:', error);
         setFetchError(error);
       } finally {
         setShouldFetch(false);
       }
     };
 
-    if (shouldFetch && isGrantedPermission) fetchNearMeItems();
-  }, [shouldFetch, isGrantedPermission, currentLocation]);
+    if (shouldFetch) {
+      fetchNearMeItems();
+    }
+  }, [shouldFetch]);
 
   const handleRefresh = () => {
-    if (!shouldFetch && isGrantedPermission) setShouldFetch(true);
+    if (!shouldFetch) setShouldFetch(true);
   };
 
   const tileSpacing = values.spacing.sm * 1.25;
@@ -244,15 +327,7 @@ function NearMeTab() {
       ListEmptyComponent={
         fetchError ? (
           <ErrorTabView
-            message={
-              !isGrantedPermission
-                ? "We don't know where you are!"
-                : "We couldn't get your current location"
-            }
-            caption={
-              !isGrantedPermission &&
-              'Please allow Discovrr to use your location to view merchants and products near you.'
-            }
+            message="We couldn't get your current location"
             error={fetchError}
           />
         ) : (
@@ -282,108 +357,7 @@ function NearMeTab() {
   );
 }
 
-// function NearMeTab() {
-//   const [shouldFetch, setShouldFetch] = useState(true);
-
-//   /**
-//    * NOTE: For now, we'll just fetch merchants
-//    * @typedef {import('../../models').Merchant[]} MerchantsGetter
-//    * @typedef {(merchant: Merchant) => void} MerchantsSetter
-//    * @type {[MerchantsGetter, MerchantsSetter]}
-//    */
-//   const [nearMeItems, setNearMeItems] = useState([]);
-//   const [fetchError, setFetchError] = useState(null);
-
-//   useEffect(() => {
-//     if (shouldFetch)
-//       (async () => {
-//         try {
-//           console.log('[NearMeTab] Fetching near me items...');
-//           const items = await MerchantApi.fetchMerchantsNearMe();
-//           setNearMeItems(items);
-//         } catch (error) {
-//           console.error('[NearMeTab] Failed to fetch near me items:', error);
-//           setFetchError(error);
-//         } finally {
-//           setShouldFetch(false);
-//         }
-//       })();
-//   }, [shouldFetch]);
-
-//   const handleRefresh = () => {
-//     if (!shouldFetch) setShouldFetch(true);
-//   };
-
-//   const tileSpacing = values.spacing.sm * 1.25;
-
-//   return (
-//     <MasonryList
-//       data={nearMeItems}
-//       renderItem={({ item: merchant, index }) => (
-//         <MerchantItem
-//           merchant={merchant}
-//           style={{
-//             marginTop: tileSpacing,
-//             marginLeft: index % 2 === 0 ? tileSpacing : tileSpacing / 2,
-//             marginRight: index % 2 !== 0 ? tileSpacing : tileSpacing / 2,
-//             marginBottom: values.spacing.sm,
-//           }}
-//         />
-//       )}
-//       ListEmptyComponent={
-//         fetchError ? (
-//           <ErrorTabView error={fetchError} />
-//         ) : (
-//           <EmptyTabView message="Looks like there isn't any activity near you" />
-//         )
-//       }
-//       refreshControl={
-//         <RefreshControl
-//           tintColor={colors.gray500}
-//           refreshing={shouldFetch}
-//           onRefresh={handleRefresh}
-//           title="Loading activity near you..."
-//         />
-//       }
-//     />
-//   );
-// }
-
 function FollowingTab() {
-  // const dispatch = useDispatch();
-
-  // const [followingPosts, setFollowingPosts] = useState([]);
-  // const [isRefreshing, setIsRefreshing] = useState(true);
-
-  // const handleRefresh = () => {
-  //   if (!isRefreshing) setIsRefreshing(true);
-  // };
-
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       console.log('Fetching following posts...');
-  //       /** @type {import('../../models').Post[]} */
-  //       const following = await dispatch(
-  //         fetchFollowingPosts({ limit: PAGINATION_LIMIT }),
-  //       ).unwrap();
-
-  //       console.log('Following posts:', following);
-  //       setFollowingPosts(following);
-  //     } catch (error) {
-  //       console.error('Failed to fetch following posts:', error);
-  //       Alert.alert(
-  //         'Something went wrong',
-  //         "We weren't able to get posts from people you follow. Please try again later.",
-  //       );
-  //     } finally {
-  //       setIsRefreshing(false);
-  //     }
-  //   };
-
-  //   if (isRefreshing) fetchData();
-  // }, [isRefreshing, dispatch]);
-
   /** @type {import('../authentication/authSlice').AuthState} */
   const { user } = useSelector((state) => state.auth);
   if (!user) {

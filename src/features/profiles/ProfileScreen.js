@@ -244,7 +244,7 @@ function ProfileScreenHeaderContent({ profileDetails }) {
                 <Button
                   transparent
                   size="small"
-                  title="Message"
+                  title="Block"
                   onPress={() =>
                     Alert.alert(
                       FEATURE_UNAVAILABLE.title,
@@ -259,13 +259,16 @@ function ProfileScreenHeaderContent({ profileDetails }) {
         </View>
       </View>
       <Text
+        numberOfLines={1}
         style={[
           profileScreenHeaderContentStyles.textContainer,
           profileScreenHeaderContentStyles.profileFullName,
         ]}>
         {fullName || 'Anonymous'}
       </Text>
-      <Text style={profileScreenHeaderContentStyles.textContainer}>
+      <Text
+        numberOfLines={4}
+        style={profileScreenHeaderContentStyles.textContainer}>
         {description || 'No description'}
       </Text>
     </View>

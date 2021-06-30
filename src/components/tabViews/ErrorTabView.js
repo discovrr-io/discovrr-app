@@ -30,12 +30,16 @@ const ErrorTabView = ({
             marginTop: values.spacing.md,
             paddingHorizontal: values.spacing.md,
           }}>
-          <Text style={[styles.error, { marginBottom: values.spacing.sm }]}>
-            The following message is only shown in development mode:
-          </Text>
-          <Text style={[styles.error]}>
-            {error?.message ?? JSON.stringify(error)}
-          </Text>
+          {error && (
+            <>
+              <Text style={[styles.error, { marginBottom: values.spacing.sm }]}>
+                The following message is only shown in development mode:
+              </Text>
+              <Text style={[styles.error]}>
+                {error?.message ?? JSON.stringify(error)}
+              </Text>
+            </>
+          )}
         </View>
       )}
     </View>

@@ -85,7 +85,11 @@ export default function MerchantProfileScreen() {
         </Tabs.Tab>
         <Tabs.Tab name="products" label="Products">
           <Tabs.ScrollView>
-            <Text>Products</Text>
+            <EmptyTabView
+              message={`Looks like ${
+                merchant.shortName || 'this profile'
+              } doesn't have any products yet`}
+            />
           </Tabs.ScrollView>
         </Tabs.Tab>
       </Tabs.Container>
