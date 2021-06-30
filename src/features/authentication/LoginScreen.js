@@ -172,11 +172,17 @@ function LoginForm({ setFormType }) {
       });
 
       await dispatch(signInAction).unwrap();
+      console.log('[LoginForm] Successfully signed in with email and password');
     } catch (error) {
       console.error(
         '[LoginForm] Failed to sign in with email and password:',
-        error.message,
+        error,
       );
+
+      if (!error.code) {
+        Alert.alert(DEFAULT_AUTH_ERROR_TITLE, DEFAULT_AUTH_ERROR_MESSAGE);
+        return;
+      }
 
       /** @type {string} */
       let title, message;
@@ -196,12 +202,21 @@ function LoginForm({ setFormType }) {
           console.warn('Unhandled error:', error);
           title = DEFAULT_AUTH_ERROR_TITLE;
           message = DEFAULT_AUTH_ERROR_MESSAGE;
+
+          const REPORT_MESSAGE =
+            'Please report the following error to the Discovrr development team';
+
+          if (error.message) {
+            message += `\n\n${REPORT_MESSAGE}: ${error.message}`;
+          } else {
+            message += `\n\n${REPORT_MESSAGE}: ${error.code}`;
+          }
+
           break;
       }
 
       Alert.alert(title, message);
     } finally {
-      console.log('[LoginForm] Successfully signed in with email and password');
       setIsProcessing(false);
     }
   };
