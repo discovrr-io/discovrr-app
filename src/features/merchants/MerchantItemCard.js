@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Image, Text, TouchableOpacity, View } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -27,9 +27,9 @@ export default function MerchantItemCard({ merchant, ...props }) {
 
   /** @type {import('../../models/common').ImageSource} */
   const coverPhoto = merchant.coverPhoto ?? DEFAULT_IMAGE;
+
   /** @type {number} */
   let coverPhotoWidth, coverPhotoHeight;
-
   if (typeof coverPhoto === 'number') {
     coverPhotoWidth = DEFAULT_IMAGE_DIMENSIONS.width;
     coverPhotoHeight = DEFAULT_IMAGE_DIMENSIONS.height;

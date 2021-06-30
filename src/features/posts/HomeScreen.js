@@ -50,6 +50,22 @@ const tabViewStyles = {
   paddingHorizontal: values.spacing.lg,
 };
 
+function MasonryListFooter({ message = "You're all caught up! 😎" }) {
+  return (
+    <View style={{ paddingVertical: values.spacing.xl }}>
+      <Text
+        style={{
+          color: colors.black,
+          textAlign: 'center',
+          fontWeight: '600',
+          fontSize: typography.size.lg,
+        }}>
+        {message}
+      </Text>
+    </View>
+  );
+}
+
 function DiscoverTab() {
   const dispatch = useDispatch();
 
@@ -136,6 +152,7 @@ function DiscoverTab() {
           <EmptyTabView message="Looks like no one has posted anything yet" />
         )
       }
+      ListFooterComponent={<MasonryListFooter />}
       refreshControl={
         <RefreshControl
           title="Loading your personalised feed..."
@@ -298,6 +315,7 @@ function NearMeTab() {
           <EmptyTabView message="Looks like there isn't any activity near you" />
         )
       }
+      ListFooterComponent={<MasonryListFooter />}
       refreshControl={
         <RefreshControl
           title="Loading activity near you..."
@@ -434,10 +452,11 @@ function FollowingTab() {
           style={tabViewStyles}
         />
       }
+      ListFooterComponent={<MasonryListFooter />}
       renderItem={({ item: postId }) => (
         <PostItemCard
           postId={postId}
-          style={{ marginBottom: values.spacing.md * 1 }}
+          style={{ marginBottom: values.spacing.md * 1.25 }}
         />
       )}
     />

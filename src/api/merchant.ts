@@ -1,3 +1,5 @@
+import { Image } from 'react-native';
+
 import Parse from 'parse/react-native';
 import { MediaSource } from '.';
 import {
@@ -32,7 +34,7 @@ export namespace MerchantApi {
     const query = new Parse.Query(Parse.Object.extend('Vendor'));
     const pointOfInterest = new Parse.GeoPoint(latitude, longitude);
     query.withinKilometers('geopoint', pointOfInterest, searchRadius);
-    query.limit(30);
+    query.limit(50);
 
     const results = await query.find();
     return results.map((merchant) => {
@@ -52,19 +54,21 @@ export namespace MerchantApi {
       let merchantCoverPhoto: ImageSource;
       const coverPhotoUrl: string | undefined = merchant.get('coverPhotoUrl');
       const media: MediaSource[] | undefined = merchant.get('media');
-      if (coverPhotoUrl) {
-        merchantCoverPhoto = {
-          uri: coverPhotoUrl,
-          ...DEFAULT_IMAGE_DIMENSIONS,
-        };
-        hasCompleteProfile = true;
-      } else if (media && media.length > 0) {
+      if (media && media.length > 0) {
         const firstPhoto = media[0];
         merchantCoverPhoto = {
           uri: firstPhoto.url,
           width: firstPhoto.width ?? DEFAULT_IMAGE_DIMENSIONS.width,
           height: firstPhoto.height ?? DEFAULT_IMAGE_DIMENSIONS.height,
         };
+      } else if (coverPhotoUrl) {
+        const resolvedSource = Image.resolveAssetSource({ uri: coverPhotoUrl });
+        merchantCoverPhoto = {
+          uri: resolvedSource.uri,
+          width: resolvedSource.width ?? DEFAULT_IMAGE_DIMENSIONS.width,
+          height: resolvedSource.height ?? DEFAULT_IMAGE_DIMENSIONS.height,
+        };
+        hasCompleteProfile = true;
       } else {
         merchantCoverPhoto = DEFAULT_IMAGE;
       }
