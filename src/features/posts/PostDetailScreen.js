@@ -242,45 +242,43 @@ export default function PostDetailScreen() {
   }, []);
 
   useEffect(() => {
-    const fetchComments = async () => {
-      try {
-        await Promise.all([
-          dispatch(fetchPostById(String(postId))).unwrap(),
-          dispatch(fetchCommentsForPost(String(postId))).unwrap(),
-        ]);
-      } catch (error) {
-        console.error(
-          '[PostDetailsScreen] Failed to fetch comments for post:',
-          error,
-        );
-        setCommentsError(error);
-      } finally {
-        setIsInitialLoad(false);
-      }
-    };
-
-    if (isInitialLoad) fetchComments();
+    if (isInitialLoad)
+      (async () => {
+        try {
+          await Promise.all([
+            dispatch(fetchPostById(String(postId))).unwrap(),
+            dispatch(fetchCommentsForPost(String(postId))).unwrap(),
+          ]);
+        } catch (error) {
+          console.error(
+            '[PostDetailsScreen] Failed to fetch comments for post:',
+            error,
+          );
+          setCommentsError(error);
+        } finally {
+          setIsInitialLoad(false);
+        }
+      })();
   }, [isInitialLoad]);
 
   useEffect(() => {
-    const refreshData = async () => {
-      try {
-        await Promise.all([
-          dispatch(fetchPostById(String(postId))).unwrap(),
-          dispatch(fetchCommentsForPost(String(postId))).unwrap(),
-        ]);
-      } catch (error) {
-        console.error('Failed to refresh post:', error);
-        Alert.alert(
-          'Something went wrong',
-          "We weren't able to refresh this post for you. Please try again later.",
-        );
-      } finally {
-        setShouldRefresh(false);
-      }
-    };
-
-    if (shouldRefresh) refreshData();
+    if (shouldRefresh)
+      (async () => {
+        try {
+          await Promise.all([
+            dispatch(fetchPostById(String(postId))).unwrap(),
+            dispatch(fetchCommentsForPost(String(postId))).unwrap(),
+          ]);
+        } catch (error) {
+          console.error('Failed to refresh post:', error);
+          Alert.alert(
+            'Something went wrong',
+            "We weren't able to refresh this post for you. Please try again later.",
+          );
+        } finally {
+          setShouldRefresh(false);
+        }
+      })();
   }, [shouldRefresh]);
 
   const handleRefresh = () => {
@@ -290,12 +288,13 @@ export default function PostDetailScreen() {
   const handlePostComment = async () => {
     try {
       setIsProcessingComment(true);
-      await dispatch(
-        addCommentForPost({
-          postId,
-          message: commentTextInput,
-        }),
-      ).unwrap();
+      const addCommentAction = addCommentForPost({
+        postId,
+        message: commentTextInput,
+      });
+
+      await dispatch(addCommentAction).unwrap();
+      // TODO: Send notification when user posts a comment
     } catch (error) {
       console.error('Failed to post comment:', error);
       Alert.alert(

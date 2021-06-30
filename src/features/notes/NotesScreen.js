@@ -70,8 +70,8 @@ export default function NotesScreen() {
       } catch (error) {
         console.error('[NotesScreen] Failed to refresh notes:', error);
         Alert.alert(
-          'Something wrong happened',
-          "We couldn't refresh your notes for you",
+          'Something went wrong',
+          "We couldn't refresh your notes for you at the moment.",
         );
       } finally {
         setShouldRefresh(false);

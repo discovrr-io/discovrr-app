@@ -7,6 +7,7 @@ import { useSelector } from 'react-redux';
 
 import { colors, typography, values } from '../../constants';
 import { selectProfileById } from '../profiles/profilesSlice';
+import { selectCurrentUser } from '../authentication/authSlice';
 import { selectCommentById } from './commentsSlice';
 
 const AVATAR_DIAMETER = 32;
@@ -30,6 +31,10 @@ export default function PostComment({ commentId, ...props }) {
   const { avatar, fullName } = useSelector((state) =>
     selectProfileById(state, comment.profileId),
   );
+
+  const currentUser = useSelector(selectCurrentUser);
+  const isMyComment =
+    currentUser && comment.profileId === currentUser.profile.id;
 
   const handlePressAvatar = () => {
     navigation.push('UserProfileScreen', {
@@ -62,8 +67,9 @@ export default function PostComment({ commentId, ...props }) {
               color: colors.gray700,
               marginBottom: values.spacing.sm,
             },
+            isMyComment && { color: colors.accent },
           ]}>
-          {fullName}
+          {isMyComment ? 'You' : fullName}
         </Text>
         <Text style={postCommentStyles.dialogBoxText}>{comment.message}</Text>
       </View>

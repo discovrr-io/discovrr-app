@@ -25,6 +25,7 @@ import {
   appleAuth,
   AppleButton,
 } from '@invertase/react-native-apple-authentication';
+
 import {
   GoogleSignin,
   GoogleSigninButton,
@@ -35,6 +36,7 @@ import { AuthApi } from '../../api';
 import { Button, FormikInput, LoadingOverlay } from '../../components';
 import { colors, values } from '../../constants';
 import * as buttonStyles from '../../components/buttons/styles';
+
 import {
   registerNewAccount,
   signInWithCredential,
@@ -45,6 +47,7 @@ const DISCOVRR_LOGO = require('../../../resources/images/discovrrLogoHorizontal.
 
 const VIDEO_SOURCE =
   'https://firebasestorage.googleapis.com/v0/b/discovrrapp-88c28.appspot.com/o/sys%2FloginBackgroundVideo.mp4?alt=media&token=ee3959f1-71ae-4f7b-94d9-05a3979112bc';
+
 const VIDEO_POSTER_SOURCE = Image.resolveAssetSource(
   require('../../../resources/images/videoPoster.png'),
 );
@@ -198,6 +201,11 @@ function LoginForm({ setFormType }) {
           message =
             "We don't have an account registered with the email you provided. Did you type it in correctly?";
           break;
+        case 'auth/network-request-failed':
+          title = DEFAULT_AUTH_ERROR_TITLE;
+          message =
+            "We couldn't sign you in due to a network issue. Are you connected to the internet?";
+          break;
         default:
           console.warn('Unhandled error:', error);
           title = DEFAULT_AUTH_ERROR_TITLE;
@@ -207,9 +215,9 @@ function LoginForm({ setFormType }) {
             'Please report the following error to the Discovrr development team';
 
           if (error.message) {
-            message += `\n\n${REPORT_MESSAGE}: ${error.message}`;
+            message += `\n\n${REPORT_MESSAGE}:\n\n${error.message}`;
           } else {
-            message += `\n\n${REPORT_MESSAGE}: ${error.code}`;
+            message += `\n\n${REPORT_MESSAGE}:\n\n${error.code}`;
           }
 
           break;
@@ -298,11 +306,24 @@ function RegisterForm({ setFormType }) {
           message =
             'The email address you provided is already registered to an account at Discovrr. Did you mean to sign in?';
           break;
-
+        case 'auth/network-request-failed':
+          title = DEFAULT_AUTH_ERROR_TITLE;
+          message =
+            "We couldn't create your account due to a network issue. Are you connected to the internet?";
+          break;
         default:
           console.warn('Unhandled error:', error);
           title = DEFAULT_AUTH_ERROR_TITLE;
           message = DEFAULT_AUTH_ERROR_MESSAGE;
+
+          const REPORT_MESSAGE =
+            'Please report the following error to the Discovrr development team';
+
+          if (error.message) {
+            message += `\n\n${REPORT_MESSAGE}:\n\n${error.message}`;
+          } else {
+            message += `\n\n${REPORT_MESSAGE}:\n\n${error.code}`;
+          }
 
           break;
       }
@@ -405,7 +426,18 @@ function ForgotPasswordForm({ setFormType }) {
         );
       } else {
         console.warn('Unhandled error:', error);
-        Alert.alert(DEFAULT_AUTH_ERROR_TITLE, DEFAULT_AUTH_ERROR_MESSAGE);
+        let message = DEFAULT_AUTH_ERROR_MESSAGE;
+
+        const REPORT_MESSAGE =
+          'Please report the following error to the Discovrr development team';
+
+        if (error.message) {
+          message += `\n\n${REPORT_MESSAGE}:\n\n${error.message}`;
+        } else {
+          message += `\n\n${REPORT_MESSAGE}:\n\n${error.code}`;
+        }
+
+        Alert.alert(DEFAULT_AUTH_ERROR_TITLE, message);
       }
     } finally {
       setIsProcessing(false);

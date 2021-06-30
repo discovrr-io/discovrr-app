@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
+  Alert,
   FlatList,
+  RefreshControl,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -11,10 +13,10 @@ import {
 import FastImage from 'react-native-fast-image';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { EmptyTabView, RouteError } from '../../components';
-import { selectProfileById } from './profilesSlice';
+import { fetchProfileById, selectProfileById } from './profilesSlice';
 import { colors, typography, values } from '../../constants';
 import { DEFAULT_AVATAR } from '../../constants/media';
 
@@ -109,6 +111,8 @@ const userListItemStyles = StyleSheet.create({
  */
 
 export default function FollowerScreen() {
+  const dispatch = useDispatch();
+
   /**
    * @typedef {import('../../models').ProfileId} ProfileId
    * @type {{ profileId: ProfileId, selector: FollowerScreenSelector }} */
@@ -126,11 +130,43 @@ export default function FollowerScreen() {
   const profileIds =
     selector === 'following' ? profile.following : profile.followers;
 
+  const [shouldRefresh, setShouldRefresh] = useState(false);
+
+  useEffect(() => {
+    if (shouldRefresh)
+      (async () => {
+        try {
+          await dispatch(fetchProfileById(profile.id)).unwrap();
+        } catch (error) {
+          console.error(`Failed to refresh ${selector} list:`, error);
+          Alert.alert(
+            'Something went wrong',
+            `We weren't able to refresh ${
+              profile?.fullName || 'this user'
+            }'s ${selector} list`,
+          );
+        } finally {
+          setShouldRefresh(false);
+        }
+      })();
+  }, [shouldRefresh]);
+
+  const handleRefresh = () => {
+    if (!shouldRefresh) setShouldRefresh(true);
+  };
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.white }}>
       <FlatList
         data={profileIds ?? []}
         keyExtractor={(item) => String(item)}
+        refreshControl={
+          <RefreshControl
+            tintColor={colors.gray500}
+            refreshing={shouldRefresh}
+            onRefresh={handleRefresh}
+          />
+        }
         renderItem={({ item: profileId }) => (
           <UserListItem profileId={profileId} />
         )}

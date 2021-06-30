@@ -1,12 +1,13 @@
 const ONE_SIGNAL_URL = 'https://onesignal.com/api/v1/notifications';
 
 export namespace NotificationApi {
-  type Strings = { en: string; [key: string]: string };
+  type LocalizedStrings = { en: string; [key: string]: string };
 
   export async function sendNotificationToProfileIds(
     profileIds: string[],
-    headings: Strings,
-    contents: Strings,
+    headings: LocalizedStrings,
+    contents: LocalizedStrings,
+    url?: string,
   ) {
     console.log(
       '[NotificationApi.sendNotificationToProfileIds]',
@@ -19,6 +20,7 @@ export namespace NotificationApi {
       channel_for_external_user_ids: 'push',
       headings,
       contents,
+      app_url: url,
     });
 
     const fetchResponse = await fetch(ONE_SIGNAL_URL, {

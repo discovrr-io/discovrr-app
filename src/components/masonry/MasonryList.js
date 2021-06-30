@@ -82,7 +82,9 @@ export default function MasonryList(props) {
         <View style={{ flex: 1, flexDirection: 'row' }}>
           {Array.from(Array(numOfColumns), (_, colIndex) => {
             return (
-              <View style={{ flex: 1 / numOfColumns }}>
+              <View
+                key={`masonry-column-${colIndex}`}
+                style={{ flex: 1 / numOfColumns }}>
                 {data
                   .map((item, index) => {
                     if (index % numOfColumns === colIndex)

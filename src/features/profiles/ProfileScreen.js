@@ -19,9 +19,9 @@ import NoteMasonryList from '../../components/masonry/NoteMasonryList';
 import PostMasonryList from '../../components/masonry/PostMasonryList';
 import { DEFAULT_AVATAR } from '../../constants/media';
 import { FEATURE_UNAVAILABLE } from '../../constants/strings';
-import { ProfileApi } from '../../api';
+import { NotificationApi, ProfileApi } from '../../api';
 import { selectAllNotes } from '../notes/notesSlice';
-import { selectAllPosts, selectPostsByProfile } from '../posts/postsSlice';
+import { selectPostsByProfile } from '../posts/postsSlice';
 
 import {
   Button,
@@ -94,7 +94,7 @@ const alertRequestFailure = () =>
 
 /**
  * @typedef {import('../../models').Profile} Profile
- * @typedef {Omit<Profile, 'id' | 'email'> & { id?: string, isMyProfile?: boolean, totalLikes?: number }} ProfileDetails
+ * @typedef {Omit<Profile, 'id' | 'email'> & { id?: string, totalLikes?: number }} ProfileDetails
  * @param {{ profileDetails: ProfileDetails | undefined }} param0
  */
 function ProfileScreenHeaderContent({ profileDetails }) {
@@ -114,9 +114,13 @@ function ProfileScreenHeaderContent({ profileDetails }) {
   const followingCount = following.length ?? 0;
 
   /** @type {Profile | undefined} */
-  const currentProfile = useSelector((state) => state.auth.user?.profile);
+  const currentUserProfile = useSelector((state) => state.auth.user?.profile);
+  const isMyProfile =
+    currentUserProfile?.id &&
+    profileDetails.id &&
+    currentUserProfile.id === profileDetails.id;
 
-  const isFollowingProfile = followers.includes(currentProfile.id);
+  const isFollowingProfile = followers.includes(currentUserProfile.id);
   const [isProcessingFollow, setIsProcessingFollow] = useState(false);
 
   /**
@@ -140,11 +144,28 @@ function ProfileScreenHeaderContent({ profileDetails }) {
       const changeFollowStatusAction = didChangeFollowStatus({
         didFollow,
         followeeId,
-        followerId: currentProfile.id,
+        followerId: currentUserProfile.id,
       });
 
       dispatch(changeFollowStatusAction);
       await ProfileApi.changeProfileFollowStatus(followeeId, didFollow);
+
+      if (didFollow && profileDetails.id && !isMyProfile) {
+        try {
+          const { fullName = 'Someone' } = currentUserProfile;
+          await NotificationApi.sendNotificationToProfileIds(
+            [profileDetails.id],
+            { en: `${fullName} followed you!` },
+            { en: 'Why not follow them back? 😃' },
+            `discovrr://profile/${currentUserProfile.id}`,
+          );
+        } catch (error) {
+          console.error(
+            '[ProfileScreenHeaderContent] Failed to send notification:',
+            error,
+          );
+        }
+      }
     } catch (error) {
       console.error('Failed to change follow status:', error);
       alertRequestFailure();
@@ -153,7 +174,7 @@ function ProfileScreenHeaderContent({ profileDetails }) {
       const revertChangeFollowStatusAction = didChangeFollowStatus({
         didFollow: !didFollow,
         followeeId,
-        followerId: currentProfile.id,
+        followerId: currentUserProfile.id,
       });
 
       dispatch(revertChangeFollowStatusAction);
@@ -219,7 +240,7 @@ function ProfileScreenHeaderContent({ profileDetails }) {
               flexDirection: 'row',
               marginTop: values.spacing.md,
             }}>
-            {profileDetails.isMyProfile ? (
+            {isMyProfile ? (
               <Button
                 transparent
                 size="small"

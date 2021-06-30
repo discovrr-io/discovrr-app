@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 // import PropTypes from 'prop-types';
 import {
   Alert,
@@ -17,7 +17,7 @@ import * as Animatable from 'react-native-animatable';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { PostApi } from '../../api';
+import { NotificationApi, PostApi } from '../../api';
 import { FEATURE_UNAVAILABLE } from '../../constants/strings';
 import { selectProfileById } from '../profiles/profilesSlice';
 import { selectPostById, postLikeStatusChanged } from './postsSlice';
@@ -33,7 +33,6 @@ import {
   DEFAULT_AVATAR,
   DEFAULT_IMAGE_DIMENSIONS,
 } from '../../constants/media';
-import { NotificationApi } from '../../api/notification';
 
 const SMALL_ICON = 24;
 const LARGE_ICON = 32;
@@ -128,14 +127,20 @@ export const PostItemCardFooter = ({
       dispatch(postLikeStatusChanged({ postId: post.id, didLike: newDidLike }));
       await PostApi.setLikeStatus(post.id, newDidLike);
 
-      // Only send notification if the current user liked the post
-      if (newDidLike && isAuthenticated && !!currentUser) {
-        const { fullName } = currentUser.profile;
+      // Only send notification if the current user liked the post and it's not
+      // their own post
+      if (
+        newDidLike &&
+        !!currentUser &&
+        currentUser.profile.id !== post.profileId
+      ) {
         try {
+          const { fullName = 'Someone' } = currentUser.profile ?? {};
           await NotificationApi.sendNotificationToProfileIds(
             [String(profile.id)],
-            { en: `${fullName} liked your post` },
+            { en: `${fullName} liked your post!` },
             { en: "Looks like you're getting popular 😎" },
+            `discovrr://post/${post.id}`,
           );
         } catch (error) {
           console.error('[PostItemFooter] Failed to send notification:', error);

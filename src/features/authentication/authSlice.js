@@ -1,4 +1,8 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import {
+  createAsyncThunk,
+  createSelector,
+  createSlice,
+} from '@reduxjs/toolkit';
 
 import { AuthApi } from '../../api';
 
@@ -121,5 +125,8 @@ const authSlice = createSlice({
 });
 
 export const { didDismissInfoModal } = authSlice.actions;
+
+/** @type {(state: any) => User | undefined} */
+export const selectCurrentUser = (state) => state.auth.user;
 
 export default authSlice.reducer;
