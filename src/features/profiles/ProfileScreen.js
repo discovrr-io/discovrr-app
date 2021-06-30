@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Alert,
   RefreshControl,
@@ -11,43 +11,40 @@ import {
 
 import FastImage from 'react-native-fast-image';
 import { Tabs } from 'react-native-collapsible-tab-view';
+import { useNavigation } from '@react-navigation/native';
 import { useRoute } from '@react-navigation/core';
 import { useDispatch, useSelector } from 'react-redux';
+
+import NoteMasonryList from '../../components/masonry/NoteMasonryList';
+import PostMasonryList from '../../components/masonry/PostMasonryList';
+import { DEFAULT_AVATAR } from '../../constants/media';
+import { FEATURE_UNAVAILABLE } from '../../constants/strings';
+import { ProfileApi } from '../../api';
+import { selectAllNotes } from '../notes/notesSlice';
+import { selectAllPosts, selectPostsByProfile } from '../posts/postsSlice';
 
 import {
   Button,
   EmptyTabView,
-  ErrorTabView,
   RouteError,
   ToggleButton,
 } from '../../components';
-import NoteMasonryList from '../../components/masonry/NoteMasonryList';
-import PostMasonryList from '../../components/masonry/PostMasonryList';
-
-import { selectAllNotes } from '../notes/notesSlice';
-import { selectAllPosts, selectPostsByProfile } from '../posts/postsSlice';
-import {
-  changeProfileFollowStatus,
-  didChangeFollowStatus,
-  fetchProfileById,
-  getIsFollowingProfile,
-  selectProfileById,
-  updateProfile,
-} from './profilesSlice';
 
 import {
-  colors,
   DEFAULT_ACTIVE_OPACITY,
+  colors,
   typography,
   values,
 } from '../../constants';
-import { useNavigation } from '@react-navigation/native';
-import { ProfileApi } from '../../api';
-import { DEFAULT_AVATAR, DEFAULT_IMAGE } from '../../constants/media';
-import { FEATURE_UNAVAILABLE } from '../../constants/strings';
+
+import {
+  didChangeFollowStatus,
+  fetchProfileById,
+  selectProfileById,
+} from './profilesSlice';
 
 const HEADER_MAX_HEIGHT = 280;
-const HEADER_MIN_HEIGHT = 80;
+// const HEADER_MIN_HEIGHT = 80;
 const AVATAR_IMAGE_RADIUS = 80;
 
 /**
@@ -97,7 +94,7 @@ const alertRequestFailure = () =>
 
 /**
  * @typedef {import('../../models').Profile} Profile
- * @typedef {Omit<Profile, 'id' | 'email'> & { id?: string, isMyProfile?: boolean }} ProfileDetails
+ * @typedef {Omit<Profile, 'id' | 'email'> & { id?: string, isMyProfile?: boolean, totalLikes?: number }} ProfileDetails
  * @param {{ profileDetails: ProfileDetails | undefined }} param0
  */
 function ProfileScreenHeaderContent({ profileDetails }) {
@@ -110,6 +107,7 @@ function ProfileScreenHeaderContent({ profileDetails }) {
     description = 'No description',
     followers = [],
     following = [],
+    totalLikes = 0,
   } = profileDetails ?? {};
 
   const followersCount = followers.length ?? 0;
@@ -214,7 +212,7 @@ function ProfileScreenHeaderContent({ profileDetails }) {
               value={followingCount}
               onPress={() => handleGoToFollowerScreen('following')}
             />
-            <Statistic label="Likes" value={0} />
+            <Statistic label="Likes" value={totalLikes} />
           </View>
           <View
             style={{
@@ -339,10 +337,6 @@ export default function ProfileScreen() {
   let isMyProfile =
     !!resolvedProfileId && currentUserProfileId === resolvedProfileId;
 
-  console.log('resolvedProfileId:', resolvedProfileId);
-  console.log('currentUserProfileId:', user?.profile.id);
-  console.log('isMyProfile:', isMyProfile);
-
   // If no profile id was given, we'll assume the "My Profile" tab was pressed
   if (!resolvedProfileId) {
     if (currentUserProfileId) {
@@ -365,9 +359,12 @@ export default function ProfileScreen() {
     selectProfileById(state, resolvedProfileId),
   );
 
-  const postIds = useSelector((state) =>
-    selectPostsByProfile(state, profileId).map((post) => post.id),
-  );
+  const posts = useSelector((state) => selectPostsByProfile(state, profileId));
+
+  const postIds = posts.map((post) => post.id);
+  const totalLikes = posts
+    .map((post) => post.statistics?.totalLikes ?? 0)
+    .reduce((acc, curr) => acc + curr, 0);
 
   const noteIds = useSelector((state) => {
     const allNotes = selectAllNotes(state);
@@ -425,7 +422,9 @@ export default function ProfileScreen() {
         // minHeaderHeight={topInset + HEADER_MIN_HEIGHT}
         snapThreshold={0.25}
         HeaderComponent={() => (
-          <ProfileScreenHeader profileDetails={{ ...profile, isMyProfile }} />
+          <ProfileScreenHeader
+            profileDetails={{ ...profile, isMyProfile, totalLikes }}
+          />
         )}>
         <Tabs.Tab name="posts" label="Posts">
           <Tabs.ScrollView

@@ -13,6 +13,9 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import NoteMasonryList from '../../components/masonry/NoteMasonryList';
 import { EmptyTabView, ErrorTabView } from '../../components';
+import { FEATURE_UNAVAILABLE } from '../../constants/strings';
+import { fetchNotesForCurrentUser, selectNoteIds } from './notesSlice';
+
 import {
   colors,
   typography,
@@ -20,12 +23,12 @@ import {
   DEFAULT_ACTIVE_OPACITY,
 } from '../../constants';
 
-import { fetchNotesForCurrentUser, selectNoteIds } from './notesSlice';
-
 function CreateNewNoteButton() {
   return (
     <TouchableOpacity
-      onPress={() => {}}
+      onPress={() => {
+        Alert.alert(FEATURE_UNAVAILABLE.title, FEATURE_UNAVAILABLE.message);
+      }}
       activeOpacity={DEFAULT_ACTIVE_OPACITY}
       style={{ padding: values.spacing.md, paddingBottom: values.spacing.sm }}>
       <View

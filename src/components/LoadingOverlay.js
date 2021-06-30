@@ -17,6 +17,7 @@ export default function LoadingOverlay({ message }) {
         alignContent: 'center',
         justifyContent: 'center',
         zIndex: 1,
+        elevation: 1,
       }}>
       <View style={{ alignContent: 'center' }}>
         <ActivityIndicator
