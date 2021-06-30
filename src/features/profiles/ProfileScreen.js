@@ -331,22 +331,24 @@ export default function ProfileScreen() {
   const [isRefreshingPosts, setIsRefreshingPosts] = useState(false);
   const [isRefreshingNotes, setIsRefreshingNotes] = useState(false);
 
+  /** @type {import('../authentication/authSlice').AuthState} */
+  const { user } = useSelector((state) => state.auth);
+  const currentUserProfileId = user?.profile.id;
+
   let resolvedProfileId = profileId;
-  let isMyProfile = false;
+  let isMyProfile =
+    !!resolvedProfileId && currentUserProfileId === resolvedProfileId;
+
+  console.log('resolvedProfileId:', resolvedProfileId);
+  console.log('currentUserProfileId:', user?.profile.id);
+  console.log('isMyProfile:', isMyProfile);
 
   // If no profile id was given, we'll assume the "My Profile" tab was pressed
   if (!resolvedProfileId) {
-    console.info(
-      '[ProfileScreen] No profile id was given. Falling back to current user profile...',
-    );
-
-    /** @type {import('../authentication/authSlice').AuthState} */
-    const { user } = useSelector((state) => state.auth);
-    const currentUserProfileId = user?.profile.id;
-
     if (currentUserProfileId) {
-      console.log(
-        '[ProfileScreen] Found current user profile id:',
+      console.info(
+        '[ProfileScreen]',
+        'No profile id was given. Falling back to current user profile:',
         currentUserProfileId,
       );
       resolvedProfileId = currentUserProfileId;
