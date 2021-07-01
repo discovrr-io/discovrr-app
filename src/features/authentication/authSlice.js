@@ -32,13 +32,16 @@ export const signOut = createAsyncThunk('auth/signOut', AuthApi.signOut);
 /**
  * @typedef {import('../../models').User} User
  * @typedef {import('../../api').ApiFetchStatus} ApiFetchStatus
- * @typedef {{ isAuthenticated: boolean, isSigningOut?: boolean, isFirstLogin?: boolean, user?: User }} AuthState
- * @type {AuthState & ApiFetchStatus}
+ *
+ * @typedef {'idle' | 'signing-in' | 'registering' | 'signing-out' | 'fulfilled' | 'rejected'} AuthLoadingStatus
+ * @typedef {Pick<ApiFetchStatus, 'error'> & { status: AuthLoadingStatus }} CurrentAuthStatus
+ *
+ * @typedef {{ isAuthenticated: boolean, isFirstLogin?: boolean, user?: User }} AuthState
+ * @type {AuthState & CurrentAuthStatus}
  */
 const initialState = {
   status: 'idle',
   isAuthenticated: false,
-  isSigningOut: false,
   isFirstLogin: false,
   user: undefined,
 };
@@ -55,7 +58,7 @@ const authSlice = createSlice({
     builder
       // signInWithEmailAndPassword
       .addCase(signInWithEmailAndPassword.pending, (state) => {
-        state.status = 'pending';
+        state.status = 'signing-in';
       })
       .addCase(signInWithEmailAndPassword.fulfilled, (state, action) => {
         state.status = 'fulfilled';
@@ -71,7 +74,7 @@ const authSlice = createSlice({
       })
       // signInWithCredential
       .addCase(signInWithCredential.pending, (state) => {
-        state.status = 'pending';
+        state.status = 'signing-in';
       })
       .addCase(signInWithCredential.fulfilled, (state, action) => {
         state.status = 'fulfilled';
@@ -87,7 +90,7 @@ const authSlice = createSlice({
       })
       // registerNewAccount
       .addCase(registerNewAccount.pending, (state) => {
-        state.status = 'pending';
+        state.status = 'registering';
       })
       .addCase(registerNewAccount.fulfilled, (state, action) => {
         state.status = 'fulfilled';
@@ -103,7 +106,7 @@ const authSlice = createSlice({
       })
       // signOut
       .addCase(signOut.pending, (state) => {
-        state.status = 'pending';
+        state.status = 'signing-out';
         state.isSigningOut = true;
       })
       .addCase(signOut.fulfilled, (state, action) => {

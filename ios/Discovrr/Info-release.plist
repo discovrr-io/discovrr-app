@@ -98,6 +98,8 @@
 	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>To capture images and video for posts you share and to customise your profile avatar</string>
+	<key>LSApplicationCategoryType</key>
+	<string></string>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>To show points of interest near you and to geotag posts you share</string>
 	<key>NSLocationWhenInUseUsageDescription</key>

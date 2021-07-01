@@ -432,11 +432,12 @@ const GroundZero = ({ navigation, insets }) => {
   const dispatch = useDispatch();
 
   /** @type {import('./features/authentication/authSlice').AuthState} */
-  const { isSigningOut, isFirstLogin } = useSelector((state) => state.auth);
+  const { status, isFirstLogin } = useSelector((state) => state.auth);
+console.log({status});
 
   return (
     <>
-      {isSigningOut && <LoadingOverlay message="Signing you out..." />}
+      {status === 'signing-out' && <LoadingOverlay message="Signing you out..." />}
 
       <InfoModal
         visible={isFirstLogin}

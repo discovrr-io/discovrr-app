@@ -10,7 +10,11 @@ export default function TermsAndConditions() {
     <>
       <StatusBar animated barStyle="dark-content" />
       <SafeAreaView style={{ flex: 1 }}>
-        <WebView source={TERMS_AND_CONDITIONS} style={{ width: '100%' }} />
+        <WebView
+          originWhitelist={['file://']}
+          source={TERMS_AND_CONDITIONS}
+          style={{ width: '100%' }}
+        />
       </SafeAreaView>
     </>
   );

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   useWindowDimensions,
   Alert,
@@ -17,7 +17,7 @@ import {
 
 import auth from '@react-native-firebase/auth';
 import Video from 'react-native-video';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 
 import { Formik } from 'formik';
@@ -43,6 +43,7 @@ import {
   registerNewAccount,
   signInWithCredential,
   signInWithEmailAndPassword,
+  signOut,
 } from './authSlice';
 
 const DISCOVRR_LOGO = require('../../../resources/images/discovrrLogoHorizontal.png');
@@ -256,7 +257,7 @@ function LoginForm({ setFormType }) {
           <Button
             primary
             title="Sign In"
-            isLoading={isProcessing}
+            // isLoading={isProcessing}
             disabled={isProcessing}
             onPress={props.handleSubmit}
             style={{ marginTop: values.spacing.md }}
@@ -415,7 +416,9 @@ function RegisterForm({ setFormType }) {
               }}>
               By signing up, you agree to our
             </Text>
-            <TouchableOpacity onPress={handleOpenTermsAndConditions}>
+            <TouchableOpacity
+              disabled={isProcessing}
+              onPress={handleOpenTermsAndConditions}>
               <Text
                 style={{
                   color: colors.accent,
@@ -519,6 +522,9 @@ function ForgotPasswordForm({ setFormType }) {
 export default function LoginScreen() {
   const dispatch = useDispatch();
   const { width: screenWidth } = useWindowDimensions();
+
+  const { status } = useSelector((state) => state.auth);
+  console.log({ status });
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [formType, setFormType] = useState('login');
@@ -686,7 +692,9 @@ export default function LoginScreen() {
             </View>
           )}
         </ScrollView>
-        {isProcessing && <LoadingOverlay message="Signing you in..." />}
+        {status === 'signing-in' && (
+          <LoadingOverlay message="Signing you in..." />
+        )}
       </View>
     </>
   );
