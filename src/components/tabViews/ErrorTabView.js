@@ -59,8 +59,7 @@ const commonTextStyles = {
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
-    paddingVertical: values.spacing.huge,
+    paddingTop: values.spacing.huge,
     marginHorizontal: values.spacing.xl,
   },
   title: {

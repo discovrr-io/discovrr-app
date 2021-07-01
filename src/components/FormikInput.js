@@ -3,7 +3,11 @@ import PropTypes from 'prop-types';
 import { StyleSheet, Text, View } from 'react-native';
 
 import TextInput from './TextInput';
-import { typography as font, values as layout } from '../constants';
+import {
+  colors as color,
+  typography as font,
+  values as layout,
+} from '../constants';
 
 export default function FormikInput({
   formikProps,
@@ -63,7 +67,7 @@ const formikInputStyles = StyleSheet.create({
   },
   textInputMessage: {
     fontSize: font.size.sm,
-    color: 'red',
+    color: color.red500,
     marginHorizontal: layout.spacing.md,
   },
   textInputContainer: {

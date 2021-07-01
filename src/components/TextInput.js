@@ -31,7 +31,7 @@ export default function TextInput({
             ? textInputStyles.smallContainer
             : textInputStyles.largeContainer,
           secureTextEntry && { paddingRight: 42 },
-          error && { borderColor: 'red' },
+          error && { borderColor: color.red500 },
           !editable && { borderColor: color.gray500, color: color.gray500 },
           props.style,
         ]}

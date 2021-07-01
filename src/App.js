@@ -10,6 +10,8 @@ import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import { persistStore } from 'redux-persist';
 
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+
 import AuthLoadingScreen from './features/authentication/AuthLoadingScreen';
 import debugAppLogger from './utilities/DebugAppLogger';
 import store from './store';
@@ -92,9 +94,11 @@ export function App() {
         persistor={persistor}
         onBeforeLift={onBeforeLift}>
         <PaperProvider theme={theme}>
-          <NavigationContainer linking={linking}>
-            <AuthLoadingScreen />
-          </NavigationContainer>
+          <BottomSheetModalProvider>
+            <NavigationContainer linking={linking}>
+              <AuthLoadingScreen />
+            </NavigationContainer>
+          </BottomSheetModalProvider>
         </PaperProvider>
       </PersistGate>
     </Provider>

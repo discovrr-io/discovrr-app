@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   useWindowDimensions,
   Modal,
@@ -33,7 +33,7 @@ import ProfileEditScreen from './features/profiles/ProfileEditScreen';
 import MerchantProfileScreen from './features/merchants/MerchantProfileScreen';
 import FollowerScreen from './features/profiles/FollowerScreen';
 import AccountSettingsScreen from './features/settings/AccountSettingsScreen';
-import BottomSheetPanel from './components/BottomSheetPanel';
+// import BottomSheetPanel from './components/BottomSheetPanel';
 
 import { isAndroid, windowWidth } from './utilities/Constants';
 import {
@@ -598,10 +598,6 @@ const GroundZero = ({ navigation, insets }) => {
           }}
         />
       </Stack.Navigator>
-
-      <Portal>
-        <BottomSheetPanel insets={insets} navigation={navigation} />
-      </Portal>
     </>
   );
 };
