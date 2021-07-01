@@ -1,22 +1,24 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   useWindowDimensions,
   Alert,
   Image,
   Keyboard,
   KeyboardAvoidingView,
+  ScrollView,
+  StatusBar,
   StyleSheet,
   Text,
   TouchableHighlight,
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
-  ScrollView,
 } from 'react-native';
 
-import { useDispatch } from 'react-redux';
-import Video from 'react-native-video';
 import auth from '@react-native-firebase/auth';
+import Video from 'react-native-video';
+import { useDispatch } from 'react-redux';
+import { useNavigation } from '@react-navigation/native';
 
 import { Formik } from 'formik';
 import * as yup from 'yup';
@@ -34,7 +36,7 @@ import {
 
 import { AuthApi } from '../../api';
 import { Button, FormikInput, LoadingOverlay } from '../../components';
-import { colors, values } from '../../constants';
+import { colors, typography, values } from '../../constants';
 import * as buttonStyles from '../../components/buttons/styles';
 
 import {
@@ -281,6 +283,8 @@ function LoginForm({ setFormType }) {
  */
 function RegisterForm({ setFormType }) {
   const dispatch = useDispatch();
+  const navigation = useNavigation();
+
   const [isProcessing, setIsProcessing] = useState(false);
 
   /**
@@ -332,6 +336,10 @@ function RegisterForm({ setFormType }) {
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  const handleOpenTermsAndConditions = () => {
+    navigation.navigate('TermsAndConditions');
   };
 
   return (
@@ -394,6 +402,30 @@ function RegisterForm({ setFormType }) {
             disabled={isProcessing}
             onPress={() => setFormType('login')}
           />
+          <View
+            style={{
+              alignItems: 'center',
+              marginTop: values.spacing.lg,
+            }}>
+            <Text
+              style={{
+                color: colors.gray700,
+                fontSize: typography.size.sm,
+                fontWeight: '500',
+              }}>
+              By signing up, you agree to our
+            </Text>
+            <TouchableOpacity onPress={handleOpenTermsAndConditions}>
+              <Text
+                style={{
+                  color: colors.accent,
+                  fontSize: typography.size.sm,
+                  textDecorationLine: 'underline',
+                }}>
+                Terms &amp; Privacy Policy
+              </Text>
+            </TouchableOpacity>
+          </View>
         </>
       )}
     </Formik>
@@ -574,83 +606,89 @@ export default function LoginScreen() {
   };
 
   return (
-    <View style={loginScreenStyles.container}>
-      <Video
-        muted
-        repeat
-        disableFocus
-        playWhenInactive
-        paused={false}
-        controls={false}
-        allowsExternalPlayback={false}
-        preventsDisplaySleepDuringVideoPlayback={false}
-        resizeMode="cover"
-        posterResizeMode="cover"
-        poster={VIDEO_POSTER_SOURCE.uri}
-        source={{ uri: VIDEO_SOURCE }}
-        style={loginScreenStyles.backgroundVideo}
-      />
-      <ScrollView
-        contentContainerStyle={{
-          justifyContent: 'center',
-          flexGrow: 1,
-          alignItems: 'center',
-        }}>
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <KeyboardAvoidingView
-            behavior="position"
-            keyboardVerticalOffset={-135}
-            style={{
-              flexGrow: 1,
-              justifyContent: 'center',
-            }}>
+    <>
+      <StatusBar animated barStyle="light-content" />
+      <View style={loginScreenStyles.container}>
+        <Video
+          muted
+          repeat
+          disableFocus
+          playWhenInactive
+          paused={false}
+          controls={false}
+          allowsExternalPlayback={false}
+          preventsDisplaySleepDuringVideoPlayback={false}
+          resizeMode="cover"
+          posterResizeMode="cover"
+          poster={VIDEO_POSTER_SOURCE.uri}
+          source={{ uri: VIDEO_SOURCE }}
+          style={loginScreenStyles.backgroundVideo}
+        />
+        <ScrollView
+          contentContainerStyle={{
+            justifyContent: 'center',
+            flexGrow: 1,
+            alignItems: 'center',
+          }}>
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <KeyboardAvoidingView
+              behavior="position"
+              keyboardVerticalOffset={-135}
+              style={{
+                flexGrow: 1,
+                justifyContent: 'center',
+              }}>
+              <View
+                style={{
+                  width: screenWidth * 0.9,
+                  backgroundColor: 'rgba(255, 255, 255, 0.85)',
+                  paddingVertical: values.spacing.lg * 1.5,
+                  paddingHorizontal: values.spacing.lg * 1.25,
+                  borderRadius: values.radius.lg * 1.25,
+                }}>
+                <Image
+                  source={DISCOVRR_LOGO}
+                  style={[
+                    loginScreenStyles.discovrrLogo,
+                    {
+                      width: screenWidth * 0.62,
+                      height: undefined,
+                      aspectRatio: 5105 / 1397,
+                      marginBottom: values.spacing.xl,
+                    },
+                  ]}
+                />
+                {renderCurrentForm()}
+              </View>
+            </KeyboardAvoidingView>
+          </TouchableWithoutFeedback>
+          {formType === 'login' && (
             <View
               style={{
-                width: screenWidth * 0.9,
-                backgroundColor: 'rgba(255, 255, 255, 0.85)',
-                paddingVertical: values.spacing.lg * 1.5,
-                paddingHorizontal: values.spacing.lg * 1.25,
-                borderRadius: values.radius.lg * 1.25,
+                position: 'absolute',
+                bottom: values.spacing.lg,
+                alignItems: 'center',
               }}>
-              <Image
-                source={DISCOVRR_LOGO}
-                style={[
-                  loginScreenStyles.discovrrLogo,
-                  {
-                    width: screenWidth * 0.62,
-                    height: undefined,
-                    aspectRatio: 5105 / 1397,
-                    marginBottom: values.spacing.xl,
-                  },
-                ]}
+              {appleAuth.isSupported && (
+                <AppleButton
+                  cornerRadius={values.radius.md}
+                  buttonStyle={AppleButton.Style.WHITE}
+                  buttonType={AppleButton.Type.SIGN_IN}
+                  style={{ width: 195, height: 41, marginTop: 3 }}
+                  onPress={!isProcessing ? handleSignInWithApple : null}
+                />
+              )}
+              <GoogleSigninButton
+                size={GoogleSigninButton.Size.Wide}
+                style={{ width: 202, height: 48 }}
+                onPress={!isProcessing ? handleSignInWithGoogle : () => {}}
               />
-              {renderCurrentForm()}
             </View>
-          </KeyboardAvoidingView>
-        </TouchableWithoutFeedback>
-        <View
-          style={{
-            position: 'absolute',
-            bottom: values.spacing.lg,
-            flexDirection: 'row',
-          }}>
-          {appleAuth.isSupported && (
-            <AppleButton
-              buttonStyle={AppleButton.Style.WHITE}
-              buttonType={AppleButton.Type.SIGN_IN}
-              style={{ width: 192, height: 41, marginTop: 3 }}
-              onPress={!isProcessing ? handleSignInWithApple : null}
-            />
           )}
-          <GoogleSigninButton
-            size={GoogleSigninButton.Size.Wide}
-            style={{ width: 192, height: 48 }}
-            onPress={!isProcessing ? handleSignInWithGoogle : () => {}}
-          />
-        </View>
-      </ScrollView>
-      {isProcessing && <LoadingOverlay message="Signing you in..." />}
-    </View>
+        </ScrollView>
+        {isProcessing && <LoadingOverlay message="Signing you in..." />}
+      </View>
+    </>
   );
 }
 

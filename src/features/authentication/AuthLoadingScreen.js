@@ -9,9 +9,12 @@ import AsyncStorage from '@react-native-community/async-storage';
 import OneSignal from 'react-native-onesignal';
 import RNBootSplash from 'react-native-bootsplash';
 
-import LoginScreen from './LoginScreen';
-import GroundZero from '../../GroundZero';
 import AppDrawer from '../../components/AppDrawer';
+import GroundZero from '../../GroundZero';
+import { colors } from '../../constants';
+
+import LoginScreen from './LoginScreen';
+import TermsAndConditions from './TermsAndConditions';
 
 const Parse = require('parse/react-native');
 
@@ -110,11 +113,21 @@ export default function AuthLoadingScreen() {
       </MainDrawer.Navigator>
     </>
   ) : (
-    <>
-      <StatusBar animated barStyle="light-content" />
-      <AuthStack.Navigator headerMode="none">
-        <AuthStack.Screen name="Login" component={LoginScreen} />
-      </AuthStack.Navigator>
-    </>
+    <AuthStack.Navigator>
+      <AuthStack.Screen
+        name="Login"
+        component={LoginScreen}
+        options={{ headerShown: false }}
+      />
+      <AuthStack.Screen
+        name="TermsAndConditions"
+        component={TermsAndConditions}
+        options={{
+          title: 'Terms & Privacy Policy',
+          headerBackTitleVisible: false,
+          headerTintColor: colors.black,
+        }}
+      />
+    </AuthStack.Navigator>
   );
 }
