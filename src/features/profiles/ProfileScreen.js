@@ -123,6 +123,9 @@ function ProfileScreenHeaderContent({ profileDetails }) {
   const isFollowingProfile = followers.includes(currentUserProfile.id);
   const [isProcessingFollow, setIsProcessingFollow] = useState(false);
 
+  const [isBlocked, setIsBlocked] = useState(false);
+  const [isProcessingBlock, setIsProcessingBlock] = useState(false);
+
   /**
    * @param {boolean} didFollow
    * @returns A boolean with the new value (or the previous value if it failed)
@@ -263,13 +266,24 @@ function ProfileScreenHeaderContent({ profileDetails }) {
                 <Button
                   transparent
                   size="small"
-                  title="Block"
-                  onPress={() =>
-                    Alert.alert(
-                      FEATURE_UNAVAILABLE.title,
-                      FEATURE_UNAVAILABLE.message,
-                    )
-                  }
+                  title={isBlocked ? 'Unblock' : 'Block'}
+                  isLoading={isProcessingBlock}
+                  onPress={() => {
+                    if (isBlocked) {
+                      setIsBlocked(false);
+                      return;
+                    }
+
+                    setIsProcessingBlock(true);
+                    setTimeout(() => {
+                      Alert.alert(
+                        'Report Successfully Sent',
+                        'Your report will be reviewed by one of our moderators.',
+                      );
+                      setIsBlocked(true);
+                      setIsProcessingBlock(false);
+                    }, 2000);
+                  }}
                   style={{ flex: 1, marginLeft: values.spacing.xs * 1.5 }}
                 />
               </>

@@ -7,6 +7,7 @@ export type UserSettings = {
 
 export default interface User {
   provider?: string;
+  // TODO: Refactor this to just the profile ID
   profile: Profile;
   settings?: UserSettings;
 }

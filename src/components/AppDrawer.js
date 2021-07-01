@@ -189,7 +189,7 @@ export default function AppDrawer({ navigation, ...props }) {
             textAlign: 'center',
             padding: values.spacing.lg,
           }}>
-          Discovrr v{DeviceInfo.getVersion()} (Build 4)
+          Discovrr v{DeviceInfo.getVersion()} (Build 5)
         </Text>
       </SafeAreaView>
     </View>
