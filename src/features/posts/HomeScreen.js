@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Alert,
   FlatList,
@@ -25,6 +25,7 @@ import { colors, typography, values } from '../../constants';
 import PostItemCard from './PostItemCard';
 import MerchantItemCard from '../merchants/MerchantItemCard';
 import PostMasonryList from '../../components/masonry/PostMasonryList';
+
 import {
   Button,
   EmptyTabView,
@@ -152,7 +153,7 @@ function DiscoverTab() {
           <EmptyTabView message="Looks like no one has posted anything yet" />
         )
       }
-      ListFooterComponent={<MasonryListFooter />}
+      ListFooterComponent={postIds.length > 0 && <MasonryListFooter />}
       refreshControl={
         <RefreshControl
           title="Loading your personalised feed..."
@@ -396,7 +397,7 @@ function NearMeTab() {
           <EmptyTabView message="Looks like there isn't any activity near you" />
         )
       }
-      ListFooterComponent={<MasonryListFooter />}
+      ListFooterComponent={nearMeItems.length > 0 && <MasonryListFooter />}
       renderItem={({ item: merchant, index }) => (
         <MerchantItemCard
           merchant={merchant}
@@ -453,7 +454,9 @@ function FollowingTab() {
           style={tabViewStyles}
         />
       }
-      ListFooterComponent={<MasonryListFooter />}
+      ListFooterComponent={
+        followingPostsIds.length > 0 && <MasonryListFooter />
+      }
       renderItem={({ item: postId }) => (
         <PostItemCard
           postId={postId}

@@ -32,7 +32,7 @@ const persistor = persistStore(store);
 export function App() {
   const onBeforeLift = async () => {
     // TODO: Maybe check with Regex? (/^\d+\.\d{1,2}\.\d{1,2}$/g)
-    const [major, minor, patch] = [2, 1, 1];
+    const [major, minor, patch] = [2, 1, 3];
     const currStoreVersion = `${major * 10000 + minor * 100 + patch}`;
     console.log('[App.onBeforeLift] current store version:', currStoreVersion);
 
