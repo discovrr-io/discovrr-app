@@ -22,6 +22,7 @@ import nearMeReducer from './features/nearMe/nearMeSlice';
 import notesReducer from './features/notes/notesSlice';
 import postsReducer from './features/posts/postsSlice';
 import profilesReducer from './features/profiles/profilesSlice';
+import settingsReducer from './features/settings/settingsSlice';
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -30,6 +31,7 @@ const rootReducer = combineReducers({
   notes: notesReducer,
   posts: postsReducer,
   profiles: profilesReducer,
+  settings: settingsReducer,
 });
 
 const persistedReducer = persistReducer(

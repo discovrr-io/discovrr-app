@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useRef } from 'react';
 import {
   Alert,
   SafeAreaView,
@@ -15,8 +15,10 @@ import OneSignal from 'react-native-onesignal';
 import { DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { signOut } from '../features/authentication/authSlice';
+import SearchLocationModal from './bottomSheets/SearchLocationModal';
 import { FEATURE_UNAVAILABLE } from '../constants/strings';
+import { signOut } from '../features/authentication/authSlice';
+
 import {
   DEFAULT_ACTIVE_OPACITY,
   colors,
@@ -53,6 +55,11 @@ const AppDrawerItem = ({ label, iconName, onPress }) => (
 export default function AppDrawer({ navigation, ...props }) {
   const dispatch = useDispatch();
 
+  /**
+   * @typedef {import('@gorhom/bottom-sheet').BottomSheetModal} BottomSheetModal
+   * @type {React.MutableRefObject<BottomSheetModal | null>} */
+  const bottomSheetModalRef = useRef(null);
+
   /**@type {import('../features/authentication/authSlice').AuthState} */
   const authState = useSelector((state) => state.auth);
   if (!authState.user) {
@@ -61,6 +68,10 @@ export default function AppDrawer({ navigation, ...props }) {
   }
 
   const { profile } = authState.user;
+
+  const handleShowModal = useCallback(() => {
+    bottomSheetModalRef.current?.present();
+  }, []);
 
   const handleLogOut = () => {
     navigation.closeDrawer();
@@ -149,6 +160,11 @@ export default function AppDrawer({ navigation, ...props }) {
         <Divider />
 
         <AppDrawerItem
+          label="Search Location"
+          iconName="location-pin"
+          onPress={handleShowModal}
+        />
+        <AppDrawerItem
           label="Notifications"
           iconName="notifications"
           onPress={alertUnavailableFeature}
@@ -189,9 +205,11 @@ export default function AppDrawer({ navigation, ...props }) {
             textAlign: 'center',
             padding: values.spacing.lg,
           }}>
-          Discovrr v{DeviceInfo.getVersion()} (Build 2.2)
+          Discovrr v{DeviceInfo.getVersion()} (Build 2.3)
         </Text>
       </SafeAreaView>
+
+      <SearchLocationModal ref={bottomSheetModalRef} />
     </View>
   );
 }

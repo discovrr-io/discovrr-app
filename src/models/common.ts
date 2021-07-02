@@ -12,8 +12,16 @@ export type GeoPoint = [number, number];
 
 export type LocationQueryPreferences = {
   searchRadius?: number;
-  coordinates: {
+  coordinates?: {
     latitude: number;
     longitude: number;
   };
+};
+
+export const DEFAULT_SEARCH_RADIUS = 3;
+
+// Redfern Coordinates
+export const DEFAULT_COORDINATES = {
+  latitude: -33.89296377479401,
+  longitude: 151.20546154794323,
 };

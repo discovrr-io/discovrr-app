@@ -10,26 +10,21 @@ import {
 } from '../constants/media';
 
 import { Merchant } from '../models';
-import { ImageSource, LocationQueryPreferences } from '../models/common';
+import {
+  ImageSource,
+  LocationQueryPreferences,
+  DEFAULT_SEARCH_RADIUS,
+  DEFAULT_COORDINATES,
+} from '../models/common';
 
 export namespace MerchantApi {
-  const DEFAULT_SEARCH_RADIUS = 3;
-  const DEFAULT_LOCATION_PREFS = {
-    searchRadius: DEFAULT_SEARCH_RADIUS,
-    coordinates: {
-      // Redfern Coordinates
-      latitude: -33.89296377479401,
-      longitude: 151.20546154794323,
-    },
-  };
-
   export async function fetchMerchantsNearMe(
     preferences?: LocationQueryPreferences,
   ): Promise<Merchant[]> {
     const {
       searchRadius = DEFAULT_SEARCH_RADIUS,
-      coordinates: { latitude, longitude },
-    } = preferences ?? DEFAULT_LOCATION_PREFS;
+      coordinates: { latitude, longitude } = DEFAULT_COORDINATES,
+    } = preferences ?? {};
 
     const query = new Parse.Query(Parse.Object.extend('Vendor'));
     const pointOfInterest = new Parse.GeoPoint(latitude, longitude);

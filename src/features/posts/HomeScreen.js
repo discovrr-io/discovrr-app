@@ -29,12 +29,7 @@ import MerchantItemCard from '../merchants/MerchantItemCard';
 import PostMasonryList from '../../components/masonry/PostMasonryList';
 import SearchLocationModal from '../../components/bottomSheets/SearchLocationModal';
 
-import {
-  colors,
-  DEFAULT_ACTIVE_OPACITY,
-  typography,
-  values,
-} from '../../constants';
+import { colors, typography, values } from '../../constants';
 
 import {
   Button,
@@ -49,8 +44,8 @@ import {
   selectPostIds,
 } from './postsSlice';
 
-const PAGINATION_LIMIT = 26;
-const DEFAULT_SEARCH_RADIUS = 3;
+// const PAGINATION_LIMIT = 26;
+// const DEFAULT_SEARCH_RADIUS = 3;
 
 const FeedTab = createMaterialTopTabNavigator();
 
@@ -60,9 +55,13 @@ const tabViewStyles = {
   paddingHorizontal: values.spacing.lg,
 };
 
-function MasonryListFooter({ message = "You're all caught up! 😎" }) {
+/**
+ * @typedef {import('react-native').ViewProps} ViewProps
+ * @param {{ message?: string } & ViewProps} param0
+ */
+function MasonryListFooter({ message = "You're all caught up! 😎", ...props }) {
   return (
-    <View style={{ paddingVertical: values.spacing.xl }}>
+    <View style={[{ paddingVertical: values.spacing.xl }, props.style]}>
       <Text
         style={{
           color: colors.black,
@@ -177,6 +176,13 @@ function DiscoverTab() {
 
 function NearMeTab() {
   /**
+   * @typedef {import('../settings/settingsSlice').AppSettings} AppSettings
+   * @type {AppSettings}
+   */
+  const { locationSettings } = useSelector((state) => state.settings);
+  console.log({ locationSettings });
+
+  /**
    * NOTE: For now, we'll just fetch merchants
    * @typedef {import('../../models').Merchant} Merchant
    * @type {[Merchant[], (value: Merchant) => void]}
@@ -243,6 +249,7 @@ function NearMeTab() {
         (error) => {
           console.error('Failed to get current position:', error);
           setCurrentLocation(null);
+          setShouldFetch(false);
           setFetchError(error);
         },
         { timeout: 15000, maximumAge: 10000 },
@@ -258,7 +265,7 @@ function NearMeTab() {
       try {
         console.log('[NearMeTab] Fetching near me items...');
         const items = await MerchantApi.fetchMerchantsNearMe({
-          searchRadius: 5,
+          searchRadius: locationSettings?.searchRadius,
           coordinates: currentLocation,
         });
         setNearMeItems(items);
@@ -276,7 +283,7 @@ function NearMeTab() {
       setShouldFetch(false);
       setNearMeItems([]);
     }
-  }, [/* shouldFetch,*/ isGrantedPermission, currentLocation]);
+  }, [/* isGrantedPermission, */ currentLocation]);
 
   const handleShowModal = useCallback(() => {
     bottomSheetModalRef.current?.present();
@@ -346,7 +353,7 @@ function NearMeTab() {
               <Button
                 primary
                 size="small"
-                title="Change Search Radius"
+                title="Change Search Location"
                 onPress={handleShowModal}
                 style={{
                   width: 200,
@@ -357,7 +364,28 @@ function NearMeTab() {
             </View>
           )
         }
-        ListFooterComponent={nearMeItems.length > 0 && <MasonryListFooter />}
+        ListFooterComponent={
+          nearMeItems.length > 0 && (
+            <>
+              <MasonryListFooter
+                message="Not what you're looking for?"
+                style={{ paddingBottom: 0 }}
+              />
+              <Button
+                primary
+                size="small"
+                title="Change Search Location"
+                onPress={handleShowModal}
+                style={{
+                  width: 200,
+                  alignSelf: 'center',
+                  marginTop: values.spacing.md,
+                  marginBottom: values.spacing.xl,
+                }}
+              />
+            </>
+          )
+        }
         renderItem={({ item: merchant, index }) => (
           <MerchantItemCard
             merchant={merchant}

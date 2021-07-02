@@ -3,6 +3,7 @@ import FormikInput from './FormikInput';
 import LoadingOverlay from './LoadingOverlay';
 import MasonryList from './masonry/MasonryList';
 import RouteError from './RouteError';
+import TextInput from './TextInput';
 import ToggleButton from './buttons/ToggleButton';
 import { EmptyTabView, ErrorTabView, LoadingTabView } from './tabViews';
 
@@ -15,5 +16,6 @@ export {
   LoadingTabView,
   MasonryList,
   RouteError,
+  TextInput,
   ToggleButton,
 };
