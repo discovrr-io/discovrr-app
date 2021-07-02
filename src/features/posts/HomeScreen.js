@@ -1,11 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
-
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Alert,
   FlatList,
@@ -15,7 +8,6 @@ import {
   View,
 } from 'react-native';
 
-import Slider from '@react-native-community/slider';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -28,13 +20,6 @@ import {
   PERMISSIONS,
 } from 'react-native-permissions';
 
-import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import Animated, {
-  Extrapolate,
-  interpolate,
-  useAnimatedStyle,
-} from 'react-native-reanimated';
-
 import { MerchantApi } from '../../api';
 import { SOMETHING_WENT_WRONG } from '../../constants/strings';
 import { fetchAllProfiles } from '../profiles/profilesSlice';
@@ -42,6 +27,7 @@ import { fetchAllProfiles } from '../profiles/profilesSlice';
 import PostItemCard from './PostItemCard';
 import MerchantItemCard from '../merchants/MerchantItemCard';
 import PostMasonryList from '../../components/masonry/PostMasonryList';
+import SearchLocationModal from '../../components/bottomSheets/SearchLocationModal';
 
 import {
   colors,
@@ -189,91 +175,6 @@ function DiscoverTab() {
   );
 }
 
-/**
- * @typedef {import('@gorhom/bottom-sheet').BottomSheetBackdropProps} BottomSheetBackdropProps
- * @param {BottomSheetBackdropProps} param0
- */
-function NearMeTabModalBackdrop({ animatedIndex, style }) {
-  const containerAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(
-      animatedIndex.value,
-      [0, 0.8],
-      [0, 0.8],
-      Extrapolate.CLAMP,
-    ),
-  }));
-
-  const containerStyle = useMemo(
-    () => [style, { backgroundColor: colors.black }, containerAnimatedStyle],
-    [style, containerAnimatedStyle],
-  );
-
-  return <Animated.View style={containerStyle} />;
-}
-
-const NearMeTabModal = React.forwardRef(
-  /**
-   * @typedef {import('@gorhom/bottom-sheet').BottomSheetProps} BottomSheetProps
-   * @param {Omit<BottomSheetProps, 'snapPoints' | 'backdropComponent'>} props
-   * @param {React.ForwardedRef<BottomSheetModal} ref
-   */
-  (props, ref) => {
-    const snapPoints = useMemo(() => ['75%'], []);
-
-    return (
-      <BottomSheetModal
-        ref={ref}
-        {...props}
-        snapPoints={snapPoints}
-        backdropComponent={NearMeTabModalBackdrop}>
-        <View
-          style={{
-            flex: 1,
-            padding: values.spacing.xl,
-            justifyContent: 'space-between',
-          }}>
-          <View>
-            <Text
-              style={{
-                fontSize: typography.size.lg,
-                fontWeight: '600',
-                textAlign: 'center',
-              }}>
-              Search Location
-            </Text>
-            <View
-              style={{
-                height: 320,
-                backgroundColor: colors.gray100,
-                marginVertical: values.spacing.lg,
-              }}
-            />
-            <View>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                }}>
-                <Text>3km</Text>
-                <Text>25km</Text>
-              </View>
-              <Slider minimumValue={3} maximumValue={25} />
-            </View>
-          </View>
-          <View style={{ flexDirection: 'row' }}>
-            <Button
-              title="Reset"
-              onPress={() => ref.current.dismiss()}
-              style={{ flexGrow: 1, marginRight: values.spacing.md }}
-            />
-            <Button primary title="Apply" style={{ flexGrow: 1 }} />
-          </View>
-        </View>
-      </BottomSheetModal>
-    );
-  },
-);
-
 function NearMeTab() {
   /**
    * NOTE: For now, we'll just fetch merchants
@@ -292,7 +193,9 @@ function NearMeTab() {
   const [shouldFetch, setShouldFetch] = useState(true);
   const [fetchError, setFetchError] = useState(null);
 
-  /** @type {React.MutableRefObject<BottomSheetModal | null>} */
+  /**
+   * @typedef {import('@gorhom/bottom-sheet').BottomSheetModal} BottomSheetModal
+   * @type {React.MutableRefObject<BottomSheetModal | null>} */
   const bottomSheetModalRef = useRef(null);
 
   useEffect(() => {
@@ -469,7 +372,7 @@ function NearMeTab() {
         )}
       />
 
-      <NearMeTabModal ref={bottomSheetModalRef} />
+      <SearchLocationModal ref={bottomSheetModalRef} />
     </View>
   );
 }
