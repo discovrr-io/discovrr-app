@@ -173,7 +173,7 @@ function DiscoverTab() {
         fetchError ? (
           <ErrorTabView error={fetchError} />
         ) : (
-          <EmptyTabView message="Looks like no one has posted anything yet" />
+          <EmptyTabView message="Looks like no one has posted yet" />
         )
       }
       ListFooterComponent={postIds.length > 0 && <MasonryListFooter />}

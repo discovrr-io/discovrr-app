@@ -181,7 +181,7 @@ export default function AppDrawer({ navigation, ...props }) {
 
         <Divider />
       </DrawerContentScrollView>
-      {/* Avoids the iOS bottom edge */}
+      {/* Avoids the bottom edge on newer iOS devices */}
       <SafeAreaView>
         <Text
           style={{
@@ -189,7 +189,7 @@ export default function AppDrawer({ navigation, ...props }) {
             textAlign: 'center',
             padding: values.spacing.lg,
           }}>
-          Discovrr v{DeviceInfo.getVersion()} (Build 6)
+          Discovrr v{DeviceInfo.getVersion()} (Build 2.1)
         </Text>
       </SafeAreaView>
     </View>
