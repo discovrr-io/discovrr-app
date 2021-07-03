@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Platform, StyleSheet, Text, View } from 'react-native';
+import { Alert, Platform, StyleSheet, Text, View } from 'react-native';
 
 import Slider from '@react-native-community/slider';
 import MapView from 'react-native-maps';
@@ -14,8 +14,18 @@ import Animated, {
 
 import { Button, TextInput } from '../../components';
 import { colors, typography, values } from '../../constants';
-import { didUpdateLocationQueryPreferences } from '../../features/settings/settingsSlice';
-import { DEFAULT_COORDINATES } from '../../models/common';
+
+import {
+  didUpdateLocationQueryPreferences,
+  didUpdateSearchRadius,
+} from '../../features/settings/settingsSlice';
+
+import {
+  DEFAULT_SEARCH_RADIUS,
+  DEFAULT_COORDINATES,
+  MIN_SEARCH_RADIUS,
+  MAX_SEARCH_RADIUS,
+} from '../../models/common';
 
 /**
  * @typedef {import('@gorhom/bottom-sheet').BottomSheetBackdropProps} BottomSheetBackdropProps
@@ -53,7 +63,7 @@ const SearchLocationModal = React.forwardRef(
 
     const snapPoints = useMemo(() => ['80%'], []);
     const [searchRadiusValue, setSearchRadiusValue] = useState(
-      locationSettings?.searchRadius ?? 0,
+      locationSettings?.searchRadius ?? MIN_SEARCH_RADIUS,
     );
 
     const handleApplyChanges = () => {
@@ -63,6 +73,28 @@ const SearchLocationModal = React.forwardRef(
 
       dispatch(updateAction);
       ref.current?.dismiss();
+    };
+
+    const handleResetChanges = () => {
+      const resetLocationQuery = () => {
+        // const resetAction = didUpdateLocationQueryPreferences({
+        //   searchRadius: DEFAULT_SEARCH_RADIUS,
+        //   coordinates: DEFAULT_COORDINATES,
+        // });
+
+        const resetAction = didUpdateSearchRadius(DEFAULT_SEARCH_RADIUS);
+        dispatch(resetAction);
+        ref.current?.dismiss();
+      };
+
+      Alert.alert(
+        'Reset Search Location?',
+        'Are you sure you want to reset the search location and radius?',
+        [
+          { text: 'Reset', style: 'destructive', onPress: resetLocationQuery },
+          { text: 'Cancel', style: 'cancel' },
+        ],
+      );
     };
 
     return (
@@ -119,7 +151,7 @@ const SearchLocationModal = React.forwardRef(
                   justifyContent: 'space-between',
                 }}>
                 <Text style={searchLocationModalStyles.sliderTextIndicator}>
-                  3km
+                  {MIN_SEARCH_RADIUS}km
                 </Text>
                 <Text
                   style={[
@@ -132,13 +164,13 @@ const SearchLocationModal = React.forwardRef(
                   {searchRadiusValue}km
                 </Text>
                 <Text style={searchLocationModalStyles.sliderTextIndicator}>
-                  25km
+                  {MAX_SEARCH_RADIUS}km
                 </Text>
               </View>
               <Slider
                 step={1}
-                minimumValue={3}
-                maximumValue={25}
+                minimumValue={MIN_SEARCH_RADIUS}
+                maximumValue={MAX_SEARCH_RADIUS}
                 minimumTrackTintColor={colors.accent}
                 maximumTrackTintColor={colors.gray200}
                 value={searchRadiusValue}
@@ -165,7 +197,7 @@ const SearchLocationModal = React.forwardRef(
             }}>
             <Button
               title="Reset"
-              onPress={() => ref.current?.dismiss()}
+              onPress={handleResetChanges}
               style={{ flexGrow: 1, marginRight: values.spacing.md }}
             />
             <Button

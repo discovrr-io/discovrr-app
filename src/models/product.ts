@@ -6,8 +6,9 @@ export type ProductId = EntityId;
 
 export default interface Product {
   id: ProductId;
-  merchant: MerchantId;
+  merchantId: MerchantId;
   name: string;
+  description: string;
   price: number;
   squareSpaceUrl: string;
   imageUrl: string;

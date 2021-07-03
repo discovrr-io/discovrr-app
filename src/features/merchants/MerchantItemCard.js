@@ -58,14 +58,22 @@ export default function MerchantItemCard({ merchant, ...props }) {
             padding: values.spacing.sm,
             borderRadius: 20,
           }}>
-          <Icon name="storefront" color={colors.white} size={20} />
+          <Icon
+            name="storefront"
+            color={
+              __DEV__ && merchant.__hasCompleteProfile
+                ? colors.yellow500
+                : colors.white
+            }
+            size={20}
+          />
         </View>
         <FastImage
           source={coverPhoto}
           resizeMode="cover"
           style={{
             aspectRatio: coverPhotoWidth / coverPhotoHeight,
-            borderWidth: 1,
+            borderWidth: values.border.thin,
             borderRadius: values.radius.md,
             borderColor: colors.gray300,
             backgroundColor: colors.gray100,

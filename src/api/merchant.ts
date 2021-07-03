@@ -29,7 +29,7 @@ export namespace MerchantApi {
     const query = new Parse.Query(Parse.Object.extend('Vendor'));
     const pointOfInterest = new Parse.GeoPoint(latitude, longitude);
     query.withinKilometers('geopoint', pointOfInterest, searchRadius);
-    query.limit(50);
+    query.limit(100);
 
     const results = await query.find();
     return results.map((merchant) => {

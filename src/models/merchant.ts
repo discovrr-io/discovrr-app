@@ -25,8 +25,8 @@ export default interface Merchant {
   description?: string;
   address?: MerchantAddress;
   /**
-   * An internal tag used to check if this particular merchant is a recent,
-   * partnered merchant of Discovrr.
+   * An internal tag used to check if this particular merchant is a partnered
+   * merchant of Discovrr.
    */
   __hasCompleteProfile?: boolean;
 }

@@ -120,7 +120,8 @@ function ProfileScreenHeaderContent({ profileDetails }) {
     profileDetails.id &&
     currentUserProfile.id === profileDetails.id;
 
-  const isFollowingProfile = followers.includes(currentUserProfile.id);
+  const isFollowing = followers.includes(currentUserProfile.id);
+  const isFollowee = following.includes(currentUserProfile.id);
   const [isProcessingFollow, setIsProcessingFollow] = useState(false);
 
   const [isBlocked, setIsBlocked] = useState(false);
@@ -257,8 +258,11 @@ function ProfileScreenHeaderContent({ profileDetails }) {
                 <ToggleButton
                   transparent
                   size="small"
-                  initialState={isFollowingProfile}
-                  titles={{ on: 'Following', off: 'Follow' }}
+                  initialState={isFollowing}
+                  titles={{
+                    on: 'Following',
+                    off: isFollowee ? 'Follow Back' : 'Follow',
+                  }}
                   isLoading={isProcessingFollow}
                   onPress={handleFollowButtonPress}
                   style={{ flex: 1, marginRight: values.spacing.xs * 1.5 }}
@@ -300,7 +304,7 @@ function ProfileScreenHeaderContent({ profileDetails }) {
         {fullName || 'Anonymous'}
       </Text>
       <Text
-        numberOfLines={4}
+        numberOfLines={3}
         style={profileScreenHeaderContentStyles.textContainer}>
         {description || 'No description'}
       </Text>

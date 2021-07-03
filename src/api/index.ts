@@ -31,4 +31,5 @@ export { MerchantApi } from './merchant';
 export { NoteApi } from './note';
 export { NotificationApi } from './notification';
 export { PostApi } from './post';
+export { ProductApi } from './product';
 export { ProfileApi } from './profile';

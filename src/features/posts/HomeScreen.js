@@ -174,308 +174,308 @@ function DiscoverTab() {
   );
 }
 
-function NearMeTab() {
-  /**
-   * @typedef {import('../settings/settingsSlice').AppSettings} AppSettings
-   * @type {AppSettings}
-   */
-  const { locationSettings } = useSelector((state) => state.settings);
-  console.log({ locationSettings });
-
-  /**
-   * NOTE: For now, we'll just fetch merchants
-   * @typedef {import('../../models').Merchant} Merchant
-   * @type {[Merchant[], (value: Merchant) => void]}
-   */
-  const [nearMeItems, setNearMeItems] = useState([]);
-
-  /**
-   * @typedef {{ latitude: number, longitude: number }} CurrentLocation
-   * @type {[CurrentLocation, (value: CurrentLocation) => void]}
-   */
-  const [currentLocation, setCurrentLocation] = useState(null);
-  const [isGrantedPermission, setIsGrantedPermission] = useState(false);
-
-  const [shouldFetch, setShouldFetch] = useState(true);
-  const [fetchError, setFetchError] = useState(null);
-
-  /**
-   * @typedef {import('@gorhom/bottom-sheet').BottomSheetModal} BottomSheetModal
-   * @type {React.MutableRefObject<BottomSheetModal | null>} */
-  const bottomSheetModalRef = useRef(null);
-
-  useEffect(() => {
-    const requestAuthorization_iOS = async () => {
-      const result = await GeoLocation.requestAuthorization('whenInUse');
-      console.log('[NearMeTab] iOS location authorization result:', result);
-      setIsGrantedPermission(['granted', 'restricted'].includes(result));
-    };
-
-    const requestAuthorization_Android = async () => {
-      const checkResult = await checkPermission(
-        PERMISSIONS.ANDROID.ACCESS_COARSE_LOCATION,
-      );
-
-      console.log('[NearMeTab] Android check permission:', checkResult);
-      if (['granted', 'limited'].includes(checkResult)) {
-        setIsGrantedPermission(true);
-      }
-
-      const requestResult = await requestPermission(
-        PERMISSIONS.ANDROID.ACCESS_COARSE_LOCATION,
-      );
-
-      console.log('[NearMeTab] Android request permission:', requestResult);
-      setIsGrantedPermission(['granted', 'limited'].includes(requestResult));
-    };
-
-    if (Platform.OS === 'ios') {
-      requestAuthorization_iOS();
-    } else if (Platform.OS === 'android') {
-      requestAuthorization_Android();
-    } else {
-      console.warn('[NearMeTab] Unsupported platform:', Platform.OS);
-      setIsGrantedPermission(false);
-    }
-  }, [shouldFetch]);
-
-  useEffect(() => {
-    if (isGrantedPermission) {
-      GeoLocation.getCurrentPosition(
-        (position) => {
-          console.log('Successfully got current position:', position);
-          setCurrentLocation(position.coords);
-        },
-        (error) => {
-          console.error('Failed to get current position:', error);
-          setCurrentLocation(null);
-          setShouldFetch(false);
-          setFetchError(error);
-        },
-        { timeout: 15000, maximumAge: 10000 },
-      );
-    } else {
-      setCurrentLocation(null);
-      console.warn('Not granted permission');
-    }
-  }, [isGrantedPermission]);
-
-  useEffect(() => {
-    const fetchNearMeItems = async () => {
-      try {
-        console.log('[NearMeTab] Fetching near me items...');
-        const items = await MerchantApi.fetchMerchantsNearMe({
-          searchRadius: locationSettings?.searchRadius,
-          coordinates: currentLocation,
-        });
-        setNearMeItems(items);
-      } catch (error) {
-        console.error('[NearMeTab] Failed to fetch near me items:', error);
-        setFetchError(error);
-      } finally {
-        setShouldFetch(false);
-      }
-    };
-
-    if (isGrantedPermission && currentLocation) {
-      fetchNearMeItems();
-    } else {
-      setShouldFetch(false);
-      setNearMeItems([]);
-    }
-  }, [/* isGrantedPermission, */ currentLocation]);
-
-  const handleShowModal = useCallback(() => {
-    bottomSheetModalRef.current?.present();
-  }, []);
-
-  const handleRefresh = () => {
-    if (!shouldFetch) setShouldFetch(true);
-  };
-
-  const handleOpenSettings = async () => {
-    try {
-      await openSettings();
-    } catch (error) {
-      console.error('[NearMeTab] Failed to open settings:', error);
-      Alert.alert(
-        SOMETHING_WENT_WRONG.title,
-        "We weren't able to open the Settings app for you.",
-      );
-    }
-  };
-
-  const tileSpacing = values.spacing.sm * 1.25;
-
-  return (
-    <View style={{ flexGrow: 1 }}>
-      <MasonryList
-        data={nearMeItems}
-        refreshControl={
-          <RefreshControl
-            title="Loading activity near you..."
-            tintColor={colors.gray500}
-            refreshing={shouldFetch}
-            onRefresh={handleRefresh}
-          />
-        }
-        ListEmptyComponent={
-          !isGrantedPermission ? (
-            <>
-              <ErrorTabView
-                message="We don't know where you are!"
-                caption="Please allow Discovrr to use your location to view merchants and products near you."
-              />
-              <Button
-                primary
-                size="small"
-                title="Open Settings"
-                onPress={handleOpenSettings}
-                style={{
-                  width: 200,
-                  alignSelf: 'center',
-                  marginTop: values.spacing.lg,
-                }}
-              />
-            </>
-          ) : fetchError ? (
-            <ErrorTabView
-              message="We couldn't get your current location"
-              error={fetchError}
-            />
-          ) : (
-            <View
-              style={{
-                flexGrow: 1,
-                justifyContent: 'center',
-              }}>
-              <EmptyTabView message="Looks like there isn't any activity near you" />
-              <Button
-                primary
-                size="small"
-                title="Change Search Location"
-                onPress={handleShowModal}
-                style={{
-                  width: 200,
-                  alignSelf: 'center',
-                  marginTop: values.spacing.sm,
-                }}
-              />
-            </View>
-          )
-        }
-        ListFooterComponent={
-          nearMeItems.length > 0 && (
-            <>
-              <MasonryListFooter
-                message="Not what you're looking for?"
-                style={{ paddingBottom: 0 }}
-              />
-              <Button
-                primary
-                size="small"
-                title="Change Search Location"
-                onPress={handleShowModal}
-                style={{
-                  width: 200,
-                  alignSelf: 'center',
-                  marginTop: values.spacing.md,
-                  marginBottom: values.spacing.xl,
-                }}
-              />
-            </>
-          )
-        }
-        renderItem={({ item: merchant, index }) => (
-          <MerchantItemCard
-            merchant={merchant}
-            key={merchant.id}
-            style={{
-              marginTop: tileSpacing,
-              marginLeft: index % 2 === 0 ? tileSpacing : tileSpacing / 2,
-              marginRight: index % 2 !== 0 ? tileSpacing : tileSpacing / 2,
-              marginBottom: values.spacing.sm,
-            }}
-          />
-        )}
-      />
-
-      <SearchLocationModal ref={bottomSheetModalRef} />
-    </View>
-  );
-}
-
 // function NearMeTab() {
+//   /**
+//    * @typedef {import('../settings/settingsSlice').AppSettings} AppSettings
+//    * @type {AppSettings}
+//    */
+//   const { locationSettings } = useSelector((state) => state.settings);
+//   console.log({ locationSettings });
+
 //   /**
 //    * NOTE: For now, we'll just fetch merchants
 //    * @typedef {import('../../models').Merchant} Merchant
 //    * @type {[Merchant[], (value: Merchant) => void]}
 //    */
 //   const [nearMeItems, setNearMeItems] = useState([]);
+
+//   /**
+//    * @typedef {{ latitude: number, longitude: number }} CurrentLocation
+//    * @type {[CurrentLocation, (value: CurrentLocation) => void]}
+//    */
+//   const [currentLocation, setCurrentLocation] = useState(null);
+//   const [isGrantedPermission, setIsGrantedPermission] = useState(false);
+
 //   const [shouldFetch, setShouldFetch] = useState(true);
 //   const [fetchError, setFetchError] = useState(null);
-//
+
+//   /**
+//    * @typedef {import('@gorhom/bottom-sheet').BottomSheetModal} BottomSheetModal
+//    * @type {React.MutableRefObject<BottomSheetModal | null>} */
+//   const bottomSheetModalRef = useRef(null);
+
 //   useEffect(() => {
-//     if (shouldFetch) {
-//       (async () => {
-//         try {
-//           console.log('[NearMeTab] Fetching near me items...');
-//           // Fetch items in default location - Redfern
-//           const items = await MerchantApi.fetchMerchantsNearMe();
-//           setNearMeItems(items);
-//         } catch (error) {
-//           console.error('[NearMeTab] Failed to fetch near me items:', error);
-//           setFetchError(error);
-//         } finally {
-//           setShouldFetch(false);
-//         }
-//       })();
+//     const requestAuthorization_iOS = async () => {
+//       const result = await GeoLocation.requestAuthorization('whenInUse');
+//       console.log('[NearMeTab] iOS location authorization result:', result);
+//       setIsGrantedPermission(['granted', 'restricted'].includes(result));
+//     };
+
+//     const requestAuthorization_Android = async () => {
+//       const checkResult = await checkPermission(
+//         PERMISSIONS.ANDROID.ACCESS_COARSE_LOCATION,
+//       );
+
+//       console.log('[NearMeTab] Android check permission:', checkResult);
+//       if (['granted', 'limited'].includes(checkResult)) {
+//         setIsGrantedPermission(true);
+//       }
+
+//       const requestResult = await requestPermission(
+//         PERMISSIONS.ANDROID.ACCESS_COARSE_LOCATION,
+//       );
+
+//       console.log('[NearMeTab] Android request permission:', requestResult);
+//       setIsGrantedPermission(['granted', 'limited'].includes(requestResult));
+//     };
+
+//     if (Platform.OS === 'ios') {
+//       requestAuthorization_iOS();
+//     } else if (Platform.OS === 'android') {
+//       requestAuthorization_Android();
+//     } else {
+//       console.warn('[NearMeTab] Unsupported platform:', Platform.OS);
+//       setIsGrantedPermission(false);
 //     }
 //   }, [shouldFetch]);
-//
+
+//   useEffect(() => {
+//     if (isGrantedPermission) {
+//       GeoLocation.getCurrentPosition(
+//         (position) => {
+//           console.log('Successfully got current position:', position);
+//           setCurrentLocation(position.coords);
+//         },
+//         (error) => {
+//           console.error('Failed to get current position:', error);
+//           setCurrentLocation(null);
+//           setShouldFetch(false);
+//           setFetchError(error);
+//         },
+//         { timeout: 15000, maximumAge: 10000 },
+//       );
+//     } else {
+//       setCurrentLocation(null);
+//       console.warn('Not granted permission');
+//     }
+//   }, [isGrantedPermission]);
+
+//   useEffect(() => {
+//     const fetchNearMeItems = async () => {
+//       try {
+//         console.log('[NearMeTab] Fetching near me items...');
+//         const items = await MerchantApi.fetchMerchantsNearMe({
+//           searchRadius: locationSettings?.searchRadius,
+//           coordinates: currentLocation,
+//         });
+//         setNearMeItems(items);
+//       } catch (error) {
+//         console.error('[NearMeTab] Failed to fetch near me items:', error);
+//         setFetchError(error);
+//       } finally {
+//         setShouldFetch(false);
+//       }
+//     };
+
+//     if (isGrantedPermission && currentLocation) {
+//       fetchNearMeItems();
+//     } else {
+//       setShouldFetch(false);
+//       setNearMeItems([]);
+//     }
+//   }, [isGrantedPermission, currentLocation]);
+
+//   const handleShowModal = useCallback(() => {
+//     bottomSheetModalRef.current?.present();
+//   }, []);
+
 //   const handleRefresh = () => {
 //     if (!shouldFetch) setShouldFetch(true);
 //   };
-//
+
+//   const handleOpenSettings = async () => {
+//     try {
+//       await openSettings();
+//     } catch (error) {
+//       console.error('[NearMeTab] Failed to open settings:', error);
+//       Alert.alert(
+//         SOMETHING_WENT_WRONG.title,
+//         "We weren't able to open the Settings app for you.",
+//       );
+//     }
+//   };
+
 //   const tileSpacing = values.spacing.sm * 1.25;
-//
+
 //   return (
-//     <MasonryList
-//       data={nearMeItems}
-//       refreshControl={
-//         <RefreshControl
-//           title="Loading activity near you..."
-//           tintColor={colors.gray500}
-//           refreshing={shouldFetch}
-//           onRefresh={handleRefresh}
-//         />
-//       }
-//       ListEmptyComponent={
-//         fetchError ? (
-//           <ErrorTabView
-//             message="We couldn't get your current location"
-//             error={fetchError}
+//     <View style={{ flexGrow: 1 }}>
+//       <MasonryList
+//         data={nearMeItems}
+//         refreshControl={
+//           <RefreshControl
+//             title="Loading activity near you..."
+//             tintColor={colors.gray500}
+//             refreshing={shouldFetch}
+//             onRefresh={handleRefresh}
 //           />
-//         ) : (
-//           <EmptyTabView message="Looks like there isn't any activity near you" />
-//         )
-//       }
-//       ListFooterComponent={nearMeItems.length > 0 && <MasonryListFooter />}
-//       renderItem={({ item: merchant, index }) => (
-//         <MerchantItemCard
-//           merchant={merchant}
-//           key={merchant.id}
-//           style={{
-//             marginTop: tileSpacing,
-//             marginLeft: index % 2 === 0 ? tileSpacing : tileSpacing / 2,
-//             marginRight: index % 2 !== 0 ? tileSpacing : tileSpacing / 2,
-//             marginBottom: values.spacing.sm,
-//           }}
-//         />
-//       )}
-//     />
+//         }
+//         ListEmptyComponent={
+//           !isGrantedPermission ? (
+//             <>
+//               <ErrorTabView
+//                 message="We don't know where you are!"
+//                 caption="Please allow Discovrr to use your location to view merchants and products near you."
+//               />
+//               <Button
+//                 primary
+//                 size="small"
+//                 title="Open Settings"
+//                 onPress={handleOpenSettings}
+//                 style={{
+//                   width: 200,
+//                   alignSelf: 'center',
+//                   marginTop: values.spacing.lg,
+//                 }}
+//               />
+//             </>
+//           ) : fetchError ? (
+//             <ErrorTabView
+//               message="We couldn't get your current location"
+//               error={fetchError}
+//             />
+//           ) : (
+//             <View
+//               style={{
+//                 flexGrow: 1,
+//                 justifyContent: 'center',
+//               }}>
+//               <EmptyTabView message="Looks like there isn't any activity near you" />
+//               <Button
+//                 primary
+//                 size="small"
+//                 title="Adjust Search Location"
+//                 onPress={handleShowModal}
+//                 style={{
+//                   width: 200,
+//                   alignSelf: 'center',
+//                   marginTop: values.spacing.sm,
+//                 }}
+//               />
+//             </View>
+//           )
+//         }
+//         ListFooterComponent={
+//           nearMeItems.length > 0 && (
+//             <>
+//               <MasonryListFooter
+//                 message="Not what you're looking for?"
+//                 style={{ paddingBottom: 0 }}
+//               />
+//               <Button
+//                 primary
+//                 size="small"
+//                 title="Adjust Search Location"
+//                 onPress={handleShowModal}
+//                 style={{
+//                   width: 200,
+//                   alignSelf: 'center',
+//                   marginTop: values.spacing.md,
+//                   marginBottom: values.spacing.xl,
+//                 }}
+//               />
+//             </>
+//           )
+//         }
+//         renderItem={({ item: merchant, index }) => (
+//           <MerchantItemCard
+//             merchant={merchant}
+//             key={merchant.id}
+//             style={{
+//               marginTop: tileSpacing,
+//               marginLeft: index % 2 === 0 ? tileSpacing : tileSpacing / 2,
+//               marginRight: index % 2 !== 0 ? tileSpacing : tileSpacing / 2,
+//               marginBottom: values.spacing.sm,
+//             }}
+//           />
+//         )}
+//       />
+
+//       <SearchLocationModal ref={bottomSheetModalRef} />
+//     </View>
 //   );
 // }
+
+function NearMeTab() {
+  /**
+   * NOTE: For now, we'll just fetch merchants
+   * @typedef {import('../../models').Merchant} Merchant
+   * @type {[Merchant[], (value: Merchant) => void]}
+   */
+  const [nearMeItems, setNearMeItems] = useState([]);
+  const [shouldFetch, setShouldFetch] = useState(true);
+  const [fetchError, setFetchError] = useState(null);
+
+  useEffect(() => {
+    if (shouldFetch) {
+      (async () => {
+        try {
+          console.log('[NearMeTab] Fetching near me items...');
+          // Fetch items in default location - Redfern
+          const items = await MerchantApi.fetchMerchantsNearMe();
+          setNearMeItems(items);
+        } catch (error) {
+          console.error('[NearMeTab] Failed to fetch near me items:', error);
+          setFetchError(error);
+        } finally {
+          setShouldFetch(false);
+        }
+      })();
+    }
+  }, [shouldFetch]);
+
+  const handleRefresh = () => {
+    if (!shouldFetch) setShouldFetch(true);
+  };
+
+  const tileSpacing = values.spacing.sm * 1.25;
+
+  return (
+    <MasonryList
+      data={nearMeItems}
+      refreshControl={
+        <RefreshControl
+          title="Loading activity near you..."
+          tintColor={colors.gray500}
+          refreshing={shouldFetch}
+          onRefresh={handleRefresh}
+        />
+      }
+      ListEmptyComponent={
+        fetchError ? (
+          <ErrorTabView
+            message="We couldn't get your current location"
+            error={fetchError}
+          />
+        ) : (
+          <EmptyTabView message="Looks like there isn't any activity near you" />
+        )
+      }
+      ListFooterComponent={nearMeItems.length > 0 && <MasonryListFooter />}
+      renderItem={({ item: merchant, index }) => (
+        <MerchantItemCard
+          merchant={merchant}
+          key={merchant.id}
+          style={{
+            marginTop: tileSpacing,
+            marginLeft: index % 2 === 0 ? tileSpacing : tileSpacing / 2,
+            marginRight: index % 2 !== 0 ? tileSpacing : tileSpacing / 2,
+            marginBottom: values.spacing.sm,
+          }}
+        />
+      )}
+    />
+  );
+}
 
 function FollowingTab() {
   /** @type {import('../authentication/authSlice').AuthState} */

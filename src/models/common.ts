@@ -18,7 +18,10 @@ export type LocationQueryPreferences = {
   };
 };
 
-export const DEFAULT_SEARCH_RADIUS = 3;
+export const MIN_SEARCH_RADIUS = 3;
+export const MAX_SEARCH_RADIUS = 25;
+
+export const DEFAULT_SEARCH_RADIUS = MIN_SEARCH_RADIUS;
 
 // Redfern Coordinates
 export const DEFAULT_COORDINATES = {

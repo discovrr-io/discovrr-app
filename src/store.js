@@ -21,6 +21,7 @@ import commentsReducer from './features/comments/commentsSlice';
 import nearMeReducer from './features/nearMe/nearMeSlice';
 import notesReducer from './features/notes/notesSlice';
 import postsReducer from './features/posts/postsSlice';
+import productsReducer from './features/products/productsSlice';
 import profilesReducer from './features/profiles/profilesSlice';
 import settingsReducer from './features/settings/settingsSlice';
 
@@ -30,6 +31,7 @@ const rootReducer = combineReducers({
   nearMe: nearMeReducer,
   notes: notesReducer,
   posts: postsReducer,
+  products: productsReducer,
   profiles: profilesReducer,
   settings: settingsReducer,
 });
