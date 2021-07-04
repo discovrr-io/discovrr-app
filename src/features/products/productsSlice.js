@@ -1,6 +1,7 @@
 import {
   createAsyncThunk,
   createEntityAdapter,
+  createSelector,
   createSlice,
 } from '@reduxjs/toolkit';
 
@@ -54,5 +55,12 @@ export const {
   selectById: selectProductById,
   selectIds: selectProductIds,
 } = productsAdapter.getSelectors((state) => state.products);
+
+export const selectProductsForMerchant = createSelector(
+  [selectAllProducts, (_state, merchantId) => merchantId],
+  (products, merchantId) => {
+    return products.filter((product) => product.merchantId === merchantId);
+  },
+);
 
 export default productsSlice.reducer;

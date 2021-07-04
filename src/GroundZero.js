@@ -345,12 +345,11 @@ const InfoModal = ({ visible, onRequestClose }) => {
                 ]}>
                 Welcome! Discovrr is a place where you can explore and see
                 what’s happening in your community based on a default 3km
-                radius. Start off by making a post on your favourite local
-                place!
+                radius. Start off by making a post on your favourite local place
+                or commenting on someone's post!
               </Text>
               <View style={modalStyles.messageContainer}>
-                {/* The Apple App Store is very strict about using language
-                 * suggesting "beta" releases. */}
+                {/* The Apple App Store is very strict about using language suggesting "beta" releases. */}
                 {Platform.OS === 'ios' ? (
                   <Text style={modalStyles.message}>
                     If you have any feedback, please contact us at{' '}
