@@ -426,7 +426,7 @@ function RegisterForm({ setFormType }) {
                   fontSize: typography.size.sm,
                   textDecorationLine: 'underline',
                 }}>
-                Terms &amp; Privacy Policy
+                Terms &amp; Conditions
               </Text>
             </TouchableOpacity>
           </View>

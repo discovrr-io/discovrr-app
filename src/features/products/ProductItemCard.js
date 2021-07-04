@@ -1,11 +1,17 @@
 import React from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useNavigation } from '@react-navigation/native';
 import { useSelector } from 'react-redux';
-import { colors, typography, values } from '../../constants';
 
+import {
+  colors,
+  typography,
+  values,
+  DEFAULT_ACTIVE_OPACITY,
+} from '../../constants';
 import { selectProductById } from './productsSlice';
 
 /**
@@ -15,10 +21,29 @@ import { selectProductById } from './productsSlice';
  * @param {ProductItemCardProps & ViewProps} param0
  */
 export default function ProductItemCard({ productId, ...props }) {
+  const navigation = useNavigation();
   const product = useSelector((state) => selectProductById(state, productId));
 
+  if (!product) {
+    console.warn(
+      '[ProductItemCard] Failed to select product with id:',
+      productId,
+    );
+    return null;
+  }
+
+  const handlePressProduct = () => {
+    navigation.push('ProductCheckoutScreen', {
+      productName: product.name,
+      squareSpaceUrl: product.squareSpaceUrl,
+    });
+  };
+
   return (
-    <View style={[props.style]}>
+    <TouchableOpacity
+      activeOpacity={DEFAULT_ACTIVE_OPACITY}
+      onPress={handlePressProduct}
+      style={props.style}>
       <View
         style={{
           position: 'absolute',
@@ -45,7 +70,7 @@ export default function ProductItemCard({ productId, ...props }) {
         <Text style={productItemCardStyles.productName}>{product.name}</Text>
         <Text style={productItemCardStyles.productPrice}>${product.price}</Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }
 

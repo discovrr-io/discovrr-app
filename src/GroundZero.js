@@ -24,24 +24,23 @@ import { IconButton, Portal } from 'react-native-paper';
 import { connect, useDispatch, useSelector } from 'react-redux';
 
 import HomeScreen from './features/posts/HomeScreen';
+import AccountSettingsScreen from './features/settings/AccountSettingsScreen';
+
 import NotesScreen from './features/notes/NotesScreen';
 import NoteDetailScreen from './features/notes/NoteDetailScreen';
+
 import PostCreationScreen from './features/posts/PostCreationScreen';
 import PostDetailScreen from './features/posts/PostDetailScreen';
+
 import ProfileScreen from './features/profiles/ProfileScreen';
 import ProfileEditScreen from './features/profiles/ProfileEditScreen';
-import MerchantProfileScreen from './features/merchants/MerchantProfileScreen';
 import FollowerScreen from './features/profiles/FollowerScreen';
-import AccountSettingsScreen from './features/settings/AccountSettingsScreen';
-// import BottomSheetPanel from './components/BottomSheetPanel';
+
+import MerchantProfileScreen from './features/merchants/MerchantProfileScreen';
+import ProductCheckoutScreen from './features/products/ProductCheckoutScreen';
 
 import { isAndroid, windowWidth } from './utilities/Constants';
-import {
-  colors,
-  DEFAULT_ACTIVE_OPACITY,
-  typography,
-  values,
-} from './constants';
+import { colors, typography, values } from './constants';
 
 import { Button, LoadingOverlay } from './components';
 import { didDismissInfoModal } from './features/authentication/authSlice';
@@ -433,11 +432,13 @@ const GroundZero = ({ navigation, insets }) => {
 
   /** @type {import('./features/authentication/authSlice').AuthState} */
   const { status, isFirstLogin } = useSelector((state) => state.auth);
-console.log({status});
+  console.log({ status });
 
   return (
     <>
-      {status === 'signing-out' && <LoadingOverlay message="Signing you out..." />}
+      {status === 'signing-out' && (
+        <LoadingOverlay message="Signing you out..." />
+      )}
 
       <InfoModal
         visible={isFirstLogin}
@@ -597,6 +598,16 @@ console.log({status});
               headerTintColor: 'black',
             };
           }}
+        />
+
+        <Stack.Screen
+          name="ProductCheckoutScreen"
+          component={ProductCheckoutScreen}
+          options={({ route }) => ({
+            title: route.params?.productName || 'Product',
+            headerTintColor: colors.black,
+            headerBackTitleVisible: false,
+          })}
         />
       </Stack.Navigator>
     </>
