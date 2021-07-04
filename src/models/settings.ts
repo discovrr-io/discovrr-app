@@ -1,5 +1,6 @@
 import { LocationQueryPreferences } from './common';
 
 export default interface AppSettings {
-  locationSettings?: LocationQueryPreferences;
+  locationQueryPrefs?: LocationQueryPreferences;
+  // notificationPrefs?: NotificationPreferences;
 }

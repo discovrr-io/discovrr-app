@@ -38,10 +38,9 @@ const rootReducer = combineReducers({
 
 const persistedReducer = persistReducer(
   {
-    storage: AsyncStorage,
     key: 'root',
+    storage: AsyncStorage,
     stateReconciler: autoMergeLevel2,
-    // blacklist: ['posts', 'profiles'],
     blacklist: ['comments'],
   },
   rootReducer,

@@ -5,6 +5,7 @@ import {
   Image,
   Keyboard,
   KeyboardAvoidingView,
+  SafeAreaView,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -669,10 +670,10 @@ export default function LoginScreen() {
             </KeyboardAvoidingView>
           </TouchableWithoutFeedback>
           {formType === 'login' && (
-            <View
+            <SafeAreaView
               style={{
                 position: 'absolute',
-                bottom: values.spacing.lg,
+                bottom: values.spacing.xl,
                 alignItems: 'center',
               }}>
               {appleAuth.isSupported && (
@@ -689,7 +690,7 @@ export default function LoginScreen() {
                 style={{ width: 202, height: 48 }}
                 onPress={!isProcessing ? handleSignInWithGoogle : () => {}}
               />
-            </View>
+            </SafeAreaView>
           )}
         </ScrollView>
         {status === 'signing-in' && (

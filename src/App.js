@@ -1,4 +1,5 @@
 import React from 'react';
+import { Text } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
 
@@ -92,7 +93,7 @@ export function App() {
   return (
     <Provider store={store}>
       <PersistGate
-        loading={null}
+        loading={__DEV__ ? <Text>Loading...</Text> : null}
         persistor={persistor}
         onBeforeLift={onBeforeLift}>
         <PaperProvider theme={theme}>

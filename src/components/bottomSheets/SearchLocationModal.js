@@ -16,7 +16,7 @@ import { Button, TextInput } from '../../components';
 import { colors, typography, values } from '../../constants';
 
 import {
-  didUpdateLocationQueryPreferences,
+  didUpdateLocationQueryPrefs,
   didUpdateSearchRadius,
 } from '../../features/settings/settingsSlice';
 
@@ -59,15 +59,15 @@ const SearchLocationModal = React.forwardRef(
     const dispatch = useDispatch();
 
     /** @type {import('../../models').AppSettings} */
-    const { locationSettings } = useSelector((state) => state.settings);
+    const { locationQueryPrefs } = useSelector((state) => state.settings);
 
     const snapPoints = useMemo(() => ['80%'], []);
     const [searchRadiusValue, setSearchRadiusValue] = useState(
-      locationSettings?.searchRadius ?? MIN_SEARCH_RADIUS,
+      locationQueryPrefs?.searchRadius ?? MIN_SEARCH_RADIUS,
     );
 
     const handleApplyChanges = () => {
-      const updateAction = didUpdateLocationQueryPreferences({
+      const updateAction = didUpdateLocationQueryPrefs({
         searchRadius: searchRadiusValue,
       });
 
@@ -77,7 +77,7 @@ const SearchLocationModal = React.forwardRef(
 
     const handleResetChanges = () => {
       const resetLocationQuery = () => {
-        // const resetAction = didUpdateLocationQueryPreferences({
+        // const resetAction = didUpdateLocationQueryPrefs({
         //   searchRadius: DEFAULT_SEARCH_RADIUS,
         //   coordinates: DEFAULT_COORDINATES,
         // });

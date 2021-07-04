@@ -96,25 +96,24 @@ function DiscoverTab() {
   // };
 
   useEffect(() => {
-    const refreshPosts = async () => {
-      try {
-        console.log('Refreshing posts and profiles...');
-        await Promise.all([
-          dispatch(fetchAllPosts()).unwrap(),
-          dispatch(fetchAllProfiles()).unwrap(),
-        ]);
-      } catch (error) {
-        console.error('[HomeScreen] Failed to refresh posts:', error);
-        Alert.alert(
-          'Something went wrong',
-          "We couldn't refresh your posts for you at the moment.",
-        );
-      } finally {
-        setShouldRefresh(false);
-      }
-    };
-
-    if (shouldRefresh) refreshPosts();
+    if (shouldRefresh)
+      (async () => {
+        try {
+          console.log('[DiscoverTab] Refreshing posts and profiles...');
+          await Promise.all([
+            dispatch(fetchAllPosts()).unwrap(),
+            dispatch(fetchAllProfiles()).unwrap(),
+          ]);
+        } catch (error) {
+          console.error('[DiscoverTab] Failed to refresh posts:', error);
+          Alert.alert(
+            'Something went wrong',
+            "We couldn't refresh your posts for you at the moment.",
+          );
+        } finally {
+          setShouldRefresh(false);
+        }
+      })();
   }, [shouldRefresh, dispatch]);
 
   useEffect(() => {
@@ -179,56 +178,56 @@ function DiscoverTab() {
 //    * @typedef {import('../settings/settingsSlice').AppSettings} AppSettings
 //    * @type {AppSettings}
 //    */
-//   const { locationSettings } = useSelector((state) => state.settings);
-//   console.log({ locationSettings });
-
+//   const { locationQueryPrefs } = useSelector((state) => state.settings);
+//   console.log({ locationQueryPrefs });
+//
 //   /**
 //    * NOTE: For now, we'll just fetch merchants
 //    * @typedef {import('../../models').Merchant} Merchant
 //    * @type {[Merchant[], (value: Merchant) => void]}
 //    */
 //   const [nearMeItems, setNearMeItems] = useState([]);
-
+//
 //   /**
 //    * @typedef {{ latitude: number, longitude: number }} CurrentLocation
 //    * @type {[CurrentLocation, (value: CurrentLocation) => void]}
 //    */
 //   const [currentLocation, setCurrentLocation] = useState(null);
 //   const [isGrantedPermission, setIsGrantedPermission] = useState(false);
-
+//
 //   const [shouldFetch, setShouldFetch] = useState(true);
 //   const [fetchError, setFetchError] = useState(null);
-
+//
 //   /**
 //    * @typedef {import('@gorhom/bottom-sheet').BottomSheetModal} BottomSheetModal
 //    * @type {React.MutableRefObject<BottomSheetModal | null>} */
 //   const bottomSheetModalRef = useRef(null);
-
+//
 //   useEffect(() => {
 //     const requestAuthorization_iOS = async () => {
 //       const result = await GeoLocation.requestAuthorization('whenInUse');
 //       console.log('[NearMeTab] iOS location authorization result:', result);
 //       setIsGrantedPermission(['granted', 'restricted'].includes(result));
 //     };
-
+//
 //     const requestAuthorization_Android = async () => {
 //       const checkResult = await checkPermission(
 //         PERMISSIONS.ANDROID.ACCESS_COARSE_LOCATION,
 //       );
-
+//
 //       console.log('[NearMeTab] Android check permission:', checkResult);
 //       if (['granted', 'limited'].includes(checkResult)) {
 //         setIsGrantedPermission(true);
 //       }
-
+//
 //       const requestResult = await requestPermission(
 //         PERMISSIONS.ANDROID.ACCESS_COARSE_LOCATION,
 //       );
-
+//
 //       console.log('[NearMeTab] Android request permission:', requestResult);
 //       setIsGrantedPermission(['granted', 'limited'].includes(requestResult));
 //     };
-
+//
 //     if (Platform.OS === 'ios') {
 //       requestAuthorization_iOS();
 //     } else if (Platform.OS === 'android') {
@@ -238,7 +237,7 @@ function DiscoverTab() {
 //       setIsGrantedPermission(false);
 //     }
 //   }, [shouldFetch]);
-
+//
 //   useEffect(() => {
 //     if (isGrantedPermission) {
 //       GeoLocation.getCurrentPosition(
@@ -259,13 +258,13 @@ function DiscoverTab() {
 //       console.warn('Not granted permission');
 //     }
 //   }, [isGrantedPermission]);
-
+//
 //   useEffect(() => {
 //     const fetchNearMeItems = async () => {
 //       try {
 //         console.log('[NearMeTab] Fetching near me items...');
 //         const items = await MerchantApi.fetchMerchantsNearMe({
-//           searchRadius: locationSettings?.searchRadius,
+//           searchRadius: locationQueryPrefs?.searchRadius,
 //           coordinates: currentLocation,
 //         });
 //         setNearMeItems(items);
@@ -276,7 +275,7 @@ function DiscoverTab() {
 //         setShouldFetch(false);
 //       }
 //     };
-
+//
 //     if (isGrantedPermission && currentLocation) {
 //       fetchNearMeItems();
 //     } else {
@@ -284,15 +283,15 @@ function DiscoverTab() {
 //       setNearMeItems([]);
 //     }
 //   }, [isGrantedPermission, currentLocation]);
-
+//
 //   const handleShowModal = useCallback(() => {
 //     bottomSheetModalRef.current?.present();
 //   }, []);
-
+//
 //   const handleRefresh = () => {
 //     if (!shouldFetch) setShouldFetch(true);
 //   };
-
+//
 //   const handleOpenSettings = async () => {
 //     try {
 //       await openSettings();
@@ -304,9 +303,9 @@ function DiscoverTab() {
 //       );
 //     }
 //   };
-
+//
 //   const tileSpacing = values.spacing.sm * 1.25;
-
+//
 //   return (
 //     <View style={{ flexGrow: 1 }}>
 //       <MasonryList
@@ -399,7 +398,7 @@ function DiscoverTab() {
 //           />
 //         )}
 //       />
-
+//
 //       <SearchLocationModal ref={bottomSheetModalRef} />
 //     </View>
 //   );
@@ -478,6 +477,8 @@ function NearMeTab() {
 }
 
 function FollowingTab() {
+  const dispatch = useDispatch();
+
   /** @type {import('../authentication/authSlice').AuthState} */
   const { user } = useSelector((state) => state.auth);
   if (!user) {
@@ -490,8 +491,35 @@ function FollowingTab() {
       )
     : [];
 
-  const isRefreshing = false;
-  const handleRefresh = () => {};
+  const [shouldRefresh, setShouldRefresh] = useState(false);
+
+  useEffect(() => {
+    if (shouldRefresh)
+      (async () => {
+        try {
+          console.log('[FollowingTab] Refreshing following posts...');
+          await Promise.all([
+            dispatch(fetchAllPosts()).unwrap(),
+            dispatch(fetchAllProfiles()).unwrap(),
+          ]);
+        } catch (error) {
+          console.error(
+            '[FollowingTab] Failed to refresh following posts:',
+            error,
+          );
+          Alert.alert(
+            'Something went wrong',
+            "We couldn't refresh your following posts for you at the moment.",
+          );
+        } finally {
+          setShouldRefresh(false);
+        }
+      })();
+  }, [shouldRefresh]);
+
+  const handleRefresh = () => {
+    if (!shouldRefresh) setShouldRefresh(true);
+  };
 
   return (
     <FlatList
@@ -506,7 +534,7 @@ function FollowingTab() {
       refreshControl={
         <RefreshControl
           title="Getting posts from people you follow..."
-          refreshing={isRefreshing}
+          refreshing={shouldRefresh}
           onRefresh={handleRefresh}
           colors={[colors.gray500]}
           tintColor={colors.gray500}
@@ -514,7 +542,7 @@ function FollowingTab() {
       }
       ListEmptyComponent={
         <EmptyTabView
-          message="You're not following anyone! Why not follow someone to see their posts here?"
+          message="You're not following anyone! Follow someone to see their posts here."
           style={tabViewStyles}
         />
       }

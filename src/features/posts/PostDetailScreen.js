@@ -334,7 +334,7 @@ export default function PostDetailScreen() {
     <SafeAreaView style={{ flexGrow: 1, backgroundColor: colors.white }}>
       <KeyboardAvoidingView
         behavior="padding"
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 65 : -200}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : -200}
         style={{ flex: 1 }}>
         <FlatList
           data={commentIds}

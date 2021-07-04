@@ -162,7 +162,7 @@ export const selectPostsByProfile = createSelector(
 export const selectFollowingPosts = createSelector(
   [selectAllPosts, selectProfileById],
   (posts, profile) => {
-    const followingProfiles = profile.following ?? [];
+    const followingProfiles = profile?.following ?? [];
     if (followingProfiles.length < 1) return [];
     return posts.filter((post) => followingProfiles.includes(post.profileId));
   },

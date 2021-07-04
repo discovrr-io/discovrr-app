@@ -1,5 +1,5 @@
 import Profile from './profile';
-import { LocationQueryPreferences } from './common';
+// import { LocationQueryPreferences } from './common';
 
 // export type UserSettings = {
 //   locationPreference: LocationQueryPreferences;

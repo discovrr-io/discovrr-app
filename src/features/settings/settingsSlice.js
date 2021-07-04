@@ -1,11 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 /**
- * @typedef {import('../../models').AppSettings} [AppSettings
+ * @typedef {import('../../models').AppSettings} AppSettings
  * @type {AppSettings}
  */
 const initialState = {
-  locationSettings: {},
+  locationQueryPrefs: undefined,
 };
 
 const settingsSlice = createSlice({
@@ -20,13 +20,13 @@ const settingsSlice = createSlice({
        */
       (state, action) => {
         const searchRadius = action.payload;
-        if (state.locationSettings) {
-          state.locationSettings.searchRadius = searchRadius;
+        if (state.locationQueryPrefs) {
+          state.locationQueryPrefs.searchRadius = searchRadius;
         } else {
-          state.locationSettings = { searchRadius };
+          state.locationQueryPrefs = { searchRadius };
         }
       },
-    didUpdateLocationQueryPreferences:
+    didUpdateLocationQueryPrefs:
       /**
        * @typedef {import('../../models/common').LocationQueryPreferences} LocationQueryPreferences
        * @typedef {import('@reduxjs/toolkit').PayloadAction<LocationQueryPreferences>} LocationQueryPreferencesPayloadAction
@@ -35,35 +35,46 @@ const settingsSlice = createSlice({
        */
       (state, action) => {
         const newSettings = action.payload;
-        // const locationSettings = state.locationSettings;
-        if (state.locationSettings) {
-          state.locationSettings = newSettings;
+        // const locationQueryPrefs = state.locationQueryPrefs;
+        if (state.locationQueryPrefs) {
+          state.locationQueryPrefs = newSettings;
         } else {
-          state.locationSettings = { ...newSettings };
+          state.locationQueryPrefs = { ...newSettings };
         }
       },
     // didUpdateSearchRadius: (state, action) => {
     //   const { searchRadius } = action.payload;
-    //   const locationSettings = state.locationSettings;
-    //   if (locationSettings) {
-    //     locationSettings.searchRadius = searchRadius;
+    //   const locationQueryPrefs = state.locationQueryPrefs;
+    //   if (locationQueryPrefs) {
+    //     locationQueryPrefs.searchRadius = searchRadius;
     //   } else {
-    //     locationSettings = { searchRadius };
+    //     locationQueryPrefs = { searchRadius };
     //   }
     // },
     // didUpdateSearchCoordinates: (state, action) => {
     //   const { coordinates } = action.payload;
-    //   const locationSettings = state.locationSettings;
-    //   if (locationSettings) {
-    //     locationSettings.coordinates = coordinates;
+    //   const locationQueryPrefs = state.locationQueryPrefs;
+    //   if (locationQueryPrefs) {
+    //     locationQueryPrefs.coordinates = coordinates;
     //   } else {
-    //     locationSettings = { coordinates };
+    //     locationQueryPrefs = { coordinates };
     //   }
     // },
   },
 });
 
-export const { didUpdateSearchRadius, didUpdateLocationQueryPreferences } =
+export const { didUpdateSearchRadius, didUpdateLocationQueryPrefs } =
   settingsSlice.actions;
 
-export default settingsSlice.reducer;
+import AsyncStorage from '@react-native-community/async-storage';
+import { persistReducer } from 'redux-persist';
+
+// Don't persist `locationQueryPrefs`
+export default persistReducer(
+  {
+    key: 'settings',
+    storage: AsyncStorage,
+    blacklist: ['locationQueryPrefs'],
+  },
+  settingsSlice.reducer,
+);
