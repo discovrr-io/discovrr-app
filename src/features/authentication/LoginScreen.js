@@ -395,7 +395,7 @@ function RegisterForm({ setFormType }) {
             primary
             title="Register"
             onPress={props.handleSubmit}
-            isLoading={isProcessing}
+            // isLoading={isProcessing}
             disabled={isProcessing}
             style={{ marginTop: values.spacing.md }}
           />
@@ -524,6 +524,7 @@ export default function LoginScreen() {
   const dispatch = useDispatch();
   const { width: screenWidth } = useWindowDimensions();
 
+  /** @type {import('./authSlice').CurrentAuthStatus} */
   const { status } = useSelector((state) => state.auth);
   console.log({ status });
 
@@ -693,9 +694,11 @@ export default function LoginScreen() {
             </SafeAreaView>
           )}
         </ScrollView>
-        {status === 'signing-in' && (
+        {status === 'signing-in' ? (
           <LoadingOverlay message="Signing you in..." />
-        )}
+        ) : status === 'registering' ? (
+          <LoadingOverlay message="Getting things ready..." />
+        ) : null}
       </View>
     </>
   );

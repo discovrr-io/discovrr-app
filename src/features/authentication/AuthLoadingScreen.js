@@ -123,7 +123,7 @@ export default function AuthLoadingScreen() {
         name="TermsAndConditions"
         component={TermsAndConditions}
         options={{
-          title: 'Terms & Privacy Policy',
+          title: 'Terms & Conditions',
           headerBackTitleVisible: false,
           headerTintColor: colors.black,
         }}

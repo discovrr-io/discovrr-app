@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { RefreshControl, SafeAreaView, Text, View } from 'react-native';
+import { RefreshControl, SafeAreaView } from 'react-native';
 
 import { Tabs } from 'react-native-collapsible-tab-view';
 import { useRoute } from '@react-navigation/native';
@@ -8,13 +8,17 @@ import { useDispatch, useSelector } from 'react-redux';
 import NoteMasonryList from '../../components/masonry/NoteMasonryList';
 import PostMasonryList from '../../components/masonry/PostMasonryList';
 import ProductItemCard from '../products/ProductItemCard';
-import { EmptyTabView, LoadingTabView, MasonryList } from '../../components';
+import { EmptyTabView, MasonryList } from '../../components';
 import { ProfileScreenHeader } from '../profiles/ProfileScreen';
 
 import { selectPostsByProfile } from '../posts/postsSlice';
 import { selectAllNotes } from '../notes/notesSlice';
-import { fetchProductsForMerchant } from '../products/productsSlice';
 import { values } from '../../constants';
+
+import {
+  fetchProductsForMerchant,
+  // selectProductsForMerchant,
+} from '../products/productsSlice';
 
 /**
  * @typedef {import('../../models').Merchant} Merchant
@@ -31,6 +35,16 @@ function ProductsTab({ merchant }) {
   const [productIds, setProductIds] = useState([]);
   const [shouldRefresh, setShouldRefresh] = useState(true);
 
+  // const merchantId = String(merchant.id);
+  // const productIds = useSelector((state) =>
+  //   selectProductsForMerchant(state, merchantId),
+  // );
+
+  // /** @type {import('../../api').ApiFetchStatus} */
+  // const { status: fetchStatus, error: fetchError } = useSelector(
+  //   (state) => state.products,
+  // );
+
   useEffect(() => {
     if (shouldRefresh)
       (async () => {
@@ -41,6 +55,7 @@ function ProductsTab({ merchant }) {
             fetchProductsForMerchant(String(merchant.id)),
           ).unwrap();
           setProductIds(products.map((product) => product.id));
+          // await dispatch(fetchProductsForMerchant(merchantId)).unwrap();
         } catch (error) {
           console.error(
             '[ProductsTab] Failed to fetch products for merchant:',
@@ -71,7 +86,7 @@ function ProductsTab({ merchant }) {
       refreshControl={
         <RefreshControl
           title="Loading products..."
-          refreshing={shouldRefresh}
+          refreshing={/* fetchStatus === 'pending' || */ shouldRefresh}
           onRefresh={handleRefresh}
         />
       }
