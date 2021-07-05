@@ -3,7 +3,12 @@ import { SerializedError } from '@reduxjs/toolkit';
 /**
  * The current loading status of an async request to the Parse server.
  */
-export type LoadingStatus = 'idle' | 'pending' | 'fulfilled' | 'rejected';
+export type LoadingStatus =
+  | 'idle'
+  | 'pending'
+  | 'refreshing'
+  | 'fulfilled'
+  | 'rejected';
 
 /**
  * Used by Redux to indicate the current status of an async request to the Parse

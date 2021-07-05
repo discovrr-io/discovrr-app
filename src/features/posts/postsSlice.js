@@ -10,55 +10,17 @@ import { selectProfileById } from '../profiles/profilesSlice';
 
 export const fetchAllPosts = createAsyncThunk(
   'posts/fetchPosts',
-  PostApi.fetchAllPosts,
+  /**
+   * @typedef {import('../../models/common').Pagination} Pagination
+   * @param {{ pagination: Pagination, reload?: boolean }} param0
+   * @returns
+   */
+  async ({ pagination }) => PostApi.fetchAllPosts(pagination),
 );
 
 export const fetchPostById = createAsyncThunk(
   'posts/fetchPostById',
   PostApi.fetchPostById,
-);
-
-export const fetchFollowingPosts = createAsyncThunk(
-  'posts/fetchFollowingPosts',
-  /**
-   * @param {PostApi.Pagination=} pagination
-   * @returns {Promise<Post[]>}
-   */
-  async (pagination, { getState }) => {
-    try {
-      /** @type {{ user: import('../../models').User }} */
-      const { user } = getState().auth;
-      if (!user) {
-        console.warn(
-          '[PostApi.fetchFollowingPosts]',
-          'Current user is undefined. Is the user authenticated?',
-        );
-        return [];
-      }
-
-      const followingArray = user.profile.followers;
-      if (!followingArray || followingArray.length < 1) {
-        console.info(
-          '[PostApi.fetchFollowingPosts]',
-          'Current user is not following anyone. Returning early...',
-        );
-        return [];
-      }
-
-      // TODO: We could probably use a memoized selector instead
-      return await PostApi.fetchFollowingPosts(
-        user.profile.id,
-        followingArray,
-        pagination,
-      );
-    } catch (error) {
-      console.error(
-        '[PostApi.fetchFollowingPosts] Failed to fetch following posts:',
-        error,
-      );
-      throw error;
-    }
-  },
 );
 
 /**
@@ -100,36 +62,27 @@ const postsSlice = createSlice({
   extraReducers: (builder) => {
     builder
       // -- fetchAllPosts --
-      .addCase(fetchAllPosts.pending, (state) => {
-        state.status = 'pending';
+      .addCase(fetchAllPosts.pending, (state, action) => {
+        const { reload } = action.meta.arg;
+        state.status = reload ? 'refreshing' : 'pending';
       })
       .addCase(fetchAllPosts.fulfilled, (state, action) => {
         state.status = 'fulfilled';
         state.error = null;
-        // postsAdapter.upsertMany(state, action.payload);
-        postsAdapter.setAll(state, action.payload);
+        const { reload = false } = action.meta.arg;
+        if (reload) {
+          postsAdapter.setAll(state, action.payload);
+        } else {
+          postsAdapter.upsertMany(state, action.payload);
+        }
       })
       .addCase(fetchAllPosts.rejected, (state, action) => {
         state.status = 'rejected';
         state.error = action.error;
         // postsAdapter.setAll(state, []); // Should we reset the post list?
       })
-      // -- fetchFollowingPosts --
-      .addCase(fetchFollowingPosts.pending, (state, _) => {
-        state.status = 'pending';
-      })
-      .addCase(fetchFollowingPosts.fulfilled, (state, action) => {
-        state.status = 'fulfilled';
-        state.error = null;
-        postsAdapter.upsertMany(state, action.payload);
-      })
-      .addCase(fetchFollowingPosts.rejected, (state, action) => {
-        state.status = 'rejected';
-        state.error = action.error;
-        // postsAdapter.setAll(state, []); // Should we reset the post list?
-      })
       // -- fetchPostById --
-      .addCase(fetchPostById.pending, (state, _) => {
+      .addCase(fetchPostById.pending, (state) => {
         state.status = 'pending';
       })
       .addCase(fetchPostById.fulfilled, (state, action) => {

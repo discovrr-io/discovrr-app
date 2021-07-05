@@ -8,8 +8,6 @@ export type ImageSource =
   | number
   | { uri: string; width: number; height: number };
 
-export type GeoPoint = [number, number];
-
 export type LocationQueryPreferences = {
   searchRadius?: number;
   coordinates?: {
@@ -21,10 +19,15 @@ export type LocationQueryPreferences = {
 export const MIN_SEARCH_RADIUS = 3;
 export const MAX_SEARCH_RADIUS = 25;
 
-export const DEFAULT_SEARCH_RADIUS = MIN_SEARCH_RADIUS;
+export const DEFAULT_SEARCH_RADIUS = 100;
 
 // Redfern Coordinates
 export const DEFAULT_COORDINATES = {
   latitude: -33.89296377479401,
   longitude: 151.20546154794323,
+};
+
+export type Pagination = {
+  limit: number;
+  currentPage: number;
 };

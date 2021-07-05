@@ -1,4 +1,11 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+
 import {
   Alert,
   FlatList,
@@ -44,8 +51,7 @@ import {
   selectPostIds,
 } from './postsSlice';
 
-// const PAGINATION_LIMIT = 26;
-// const DEFAULT_SEARCH_RADIUS = 3;
+const PAGINATION_LIMIT = 26;
 
 const FeedTab = createMaterialTopTabNavigator();
 
@@ -81,27 +87,26 @@ function DiscoverTab() {
   const postIds = useSelector(selectPostIds);
 
   /** @type {import('../../api').ApiFetchStatus} */
-  const { error: fetchError } = useSelector((state) => state.posts);
+  const { status: fetchStatus, error: fetchError } = useSelector(
+    (state) => state.posts,
+  );
 
-  const [currentPage, setCurrentPage] = useState(0);
-  const [isFetchingMore, setIsFetchingMore] = useState(false);
   const [shouldRefresh, setShouldRefresh] = useState(true);
-
-  const handleRefresh = () => {
-    if (!shouldRefresh) setShouldRefresh(true);
-  };
-
-  // const handleFetchMorePosts = () => {
-  //   if (!shouldRefresh) setCurrentPage((prev) => prev + 1);
-  // };
+  const [shouldFetchMore, setShouldFetchMore] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [didReachEnd, setDidReachEnd] = useState(false);
 
   useEffect(() => {
     if (shouldRefresh)
       (async () => {
         try {
-          console.log('[DiscoverTab] Refreshing posts and profiles...');
+          setCurrentPage(0);
+          setDidReachEnd(false);
+
+          /** @type {import('../../models/common').Pagination} */
+          const pagination = { limit: PAGINATION_LIMIT, currentPage: 0 };
           await Promise.all([
-            dispatch(fetchAllPosts()).unwrap(),
+            dispatch(fetchAllPosts({ pagination, reload: true })).unwrap(),
             dispatch(fetchAllProfiles()).unwrap(),
           ]);
         } catch (error) {
@@ -114,45 +119,65 @@ function DiscoverTab() {
           setShouldRefresh(false);
         }
       })();
-  }, [shouldRefresh, dispatch]);
+  }, [shouldRefresh]);
 
   useEffect(() => {
-    const fetchMorePosts = async () => {
-      // console.warn('Unimplemented: HomeScreen.fetchMorePosts');
-      // try {
-      //   setIsFetchingMore(true);
-      //   /** @type {import('../../models').Post[]} */
-      //   const posts = await dispatch(
-      //     fetchAllPosts({ limit: PAGINATION_LIMIT, currentPage }),
-      //   ).then(unwrapResult);
-      //
-      //   if (posts.length === 0) {
-      //     Alert.alert(
-      //       "You're all caught up!",
-      //       "Looks like you've reached the end",
-      //     );
-      //   } else {
-      //     await dispatch(fetchAllProfiles()).unwrap();
-      //     setCurrentPage((prev) => prev + 1);
-      //   }
-      // } catch (error) {
-      //   console.error('[HomeScreen] Failed to fetch more posts:', error);
-      //   Alert.alert(
-      //     'Something went wrong',
-      //     "We couldn't fetch more posts for you",
-      //   );
-      // } finally {
-      //   setIsFetchingMore(false);
-      // }
-    };
+    if (shouldFetchMore)
+      (async () => {
+        try {
+          console.log('[DiscoverTab] Fetching more...');
 
-    if (!shouldRefresh && !isFetchingMore) fetchMorePosts();
-  }, [currentPage, dispatch]);
+          const fetchAction = fetchAllPosts({
+            pagination: {
+              limit: PAGINATION_LIMIT,
+              currentPage: currentPage + 1,
+            },
+          });
+
+          const posts = await dispatch(fetchAction).unwrap();
+          console.log(`[DiscoverTab] Found ${posts.length} more posts`);
+
+          if (posts.length === 0) {
+            setDidReachEnd(true);
+          } else {
+            // TODO: Paginate profiles too
+            await dispatch(fetchAllProfiles()).unwrap();
+            setCurrentPage(currentPage + 1);
+          }
+        } catch (error) {
+          console.error('[DiscoverTab] Failed to fetch more posts:', error);
+          Alert.alert(
+            'Something went wrong',
+            "We couldn't fetch more posts for you",
+          );
+        } finally {
+          setShouldFetchMore(false);
+        }
+      })();
+  }, [shouldFetchMore]);
+
+  const handleRefresh = () => {
+    if (!shouldRefresh) setShouldRefresh(true);
+  };
+
+  const handleFetchMorePosts = () => {
+    if (!shouldRefresh && !shouldFetchMore) setShouldFetchMore(true);
+  };
 
   return (
     <PostMasonryList
       smallContent
       postIds={postIds}
+      onEndReached={handleFetchMorePosts}
+      onEndReachedThreshold={0.85}
+      refreshControl={
+        <RefreshControl
+          title="Loading your personalised feed..."
+          tintColor={colors.gray500}
+          refreshing={fetchStatus === 'refreshing' || shouldRefresh}
+          onRefresh={handleRefresh}
+        />
+      }
       ListEmptyComponent={
         fetchError ? (
           <ErrorTabView error={fetchError} />
@@ -160,14 +185,12 @@ function DiscoverTab() {
           <EmptyTabView message="Looks like no one has posted yet" />
         )
       }
-      ListFooterComponent={postIds.length > 0 && <MasonryListFooter />}
-      refreshControl={
-        <RefreshControl
-          title="Loading your personalised feed..."
-          tintColor={colors.gray500}
-          refreshing={shouldRefresh}
-          onRefresh={handleRefresh}
-        />
+      ListFooterComponent={
+        postIds.length > 0 && (
+          <MasonryListFooter
+            message={!didReachEnd ? 'Loading more posts...' : undefined}
+          />
+        )
       }
     />
   );
@@ -179,7 +202,6 @@ function DiscoverTab() {
 //    * @type {AppSettings}
 //    */
 //   const { locationQueryPrefs } = useSelector((state) => state.settings);
-//   console.log({ locationQueryPrefs });
 //
 //   /**
 //    * NOTE: For now, we'll just fetch merchants
@@ -228,14 +250,16 @@ function DiscoverTab() {
 //       setIsGrantedPermission(['granted', 'limited'].includes(requestResult));
 //     };
 //
-//     if (Platform.OS === 'ios') {
-//       requestAuthorization_iOS();
-//     } else if (Platform.OS === 'android') {
-//       requestAuthorization_Android();
-//     } else {
-//       console.warn('[NearMeTab] Unsupported platform:', Platform.OS);
-//       setIsGrantedPermission(false);
-//     }
+//     (async () => {
+//       if (Platform.OS === 'ios') {
+//         await requestAuthorization_iOS();
+//       } else if (Platform.OS === 'android') {
+//         await requestAuthorization_Android();
+//       } else {
+//         console.warn('[NearMeTab] Unsupported platform:', Platform.OS);
+//         setIsGrantedPermission(false);
+//       }
+//     })();
 //   }, [shouldFetch]);
 //
 //   useEffect(() => {
@@ -404,6 +428,96 @@ function DiscoverTab() {
 //   );
 // }
 
+// function NearMeTab() {
+//   const dispatch = useDispatch();
+//
+//   /**
+//    * @typedef {import('@gorhom/bottom-sheet').BottomSheetModal} BottomSheetModal
+//    * @type {React.MutableRefObject<BottomSheetModal | null>}
+//    */
+//   const bottomSheetModalRef = useRef(null);
+//   const tileSpacing = values.spacing.sm * 1.25;
+//
+//   /** @type {import('../settings/settingsSlice').AppSettings} */
+//   const { locationQueryPrefs } = useSelector((state) => state.settings);
+//
+//   /**
+//    * @typedef {{ latitude: number, longitude: number }} Coordinates
+//    * @type {[Coordinates[], React.Dispatch<React.SetStateAction<Coordinates[]>>]}
+//    */
+//   const [currentLocation, setCurrentLocation] = useState(
+//     locationQueryPrefs?.coordinates,
+//   );
+//
+//   /**
+//    * @typedef {import('../../models').Merchant} NearMeItem
+//    * @type {[NearMeItem[], React.Dispatch<React.SetStateAction<NearMeItem[]>>]}
+//    */
+//   const [nearMeItems, setNearMeItems] = useState([]);
+//   const [shouldFetch, setShouldFetch] = useState(true);
+//   const [fetchError, setFetchError] = useState(null);
+//
+//   useEffect(() => {
+//     /**
+//      * @typedef {import('../../models/common').LocationQueryPreferences} LocationQueryPreferences
+//      * @param {LocationQueryPreferences | undefined} query
+//      */
+//     const fetchNearMeItems = async (query) => {
+//       try {
+//         console.log('[NearMeTab] Fetching near me items...');
+//         const items = await MerchantApi.fetchMerchantsNearMe(query);
+//         setNearMeItems(items);
+//       } catch (error) {
+//         console.error('[NearMeTab] Failed to fetch near me items:', error);
+//         setFetchError(error);
+//       } finally {
+//         setShouldFetch(false);
+//       }
+//     };
+//
+//     if (shouldFetch)
+//       (async () => {
+//         if (locationQueryPrefs) {
+//           await fetchNearMeItems(locationQueryPrefs);
+//         } else {
+//         }
+//       })();
+//   }, [shouldFetch]);
+//
+//   const handleRefresh = () => {
+//     if (!shouldFetch) setShouldFetch(true);
+//   };
+//
+//   return (
+//     <View style={{ flexGrow: 1 }}>
+//       <MasonryList
+//         data={nearMeItems}
+//         refreshControl={
+//           <RefreshControl
+//             title="Loading activity near you..."
+//             tintColor={colors.gray500}
+//             refreshing={shouldFetch}
+//             onRefresh={handleRefresh}
+//           />
+//         }
+//         renderItem={({ item: merchant, index }) => (
+//           <MerchantItemCard
+//             merchant={merchant}
+//             key={merchant.id}
+//             style={{
+//               marginTop: tileSpacing,
+//               marginLeft: index % 2 === 0 ? tileSpacing : tileSpacing / 2,
+//               marginRight: index % 2 !== 0 ? tileSpacing : tileSpacing / 2,
+//               marginBottom: values.spacing.sm,
+//             }}
+//           />
+//         )}
+//       />
+//       <SearchLocationModal ref={bottomSheetModalRef} />
+//     </View>
+//   );
+// }
+
 function NearMeTab() {
   /**
    * NOTE: For now, we'll just fetch merchants
@@ -414,14 +528,16 @@ function NearMeTab() {
   const [shouldFetch, setShouldFetch] = useState(true);
   const [fetchError, setFetchError] = useState(null);
 
+  const tileSpacing = useMemo(() => values.spacing.sm * 1.25, []);
+
   useEffect(() => {
     if (shouldFetch) {
       (async () => {
         try {
           console.log('[NearMeTab] Fetching near me items...');
-          // Fetch items in default location - Redfern
-          const items = await MerchantApi.fetchMerchantsNearMe();
+          const items = await MerchantApi.fetchAllMerchants();
           setNearMeItems(items);
+          // setNearMeItems(items.filter((m) => m.__hasCompleteProfile));
         } catch (error) {
           console.error('[NearMeTab] Failed to fetch near me items:', error);
           setFetchError(error);
@@ -435,8 +551,6 @@ function NearMeTab() {
   const handleRefresh = () => {
     if (!shouldFetch) setShouldFetch(true);
   };
-
-  const tileSpacing = values.spacing.sm * 1.25;
 
   return (
     <MasonryList
@@ -452,7 +566,7 @@ function NearMeTab() {
       ListEmptyComponent={
         fetchError ? (
           <ErrorTabView
-            message="We couldn't get your current location"
+            message="We couldn't get activity near you"
             error={fetchError}
           />
         ) : (

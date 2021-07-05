@@ -2,7 +2,7 @@ import Parse from 'parse/react-native';
 
 import { Comment, Post } from '../models';
 import { PostId, PostContent } from '../models/post';
-import { ImageSource } from '../models/common';
+import { ImageSource, Pagination } from '../models/common';
 
 import { DEFAULT_IMAGE_DIMENSIONS } from '../constants/media';
 import { MediaSource } from '.';
@@ -56,7 +56,9 @@ export namespace PostApi {
   /**
    * Fetches every single post in the database.
    */
-  export async function fetchAllPosts(): Promise<Post[]> {
+  export async function fetchAllPosts(
+    pagination?: Pagination,
+  ): Promise<Post[]> {
     try {
       console.group('PostApi.fetchAllPosts');
       const currentUser = await Parse.User.currentAsync();
@@ -76,18 +78,17 @@ export namespace PostApi {
       postsQuery.greaterThanOrEqualTo('createdAt', EARLIEST_DATE);
       postsQuery.descending('createdAt');
 
-      // TODO: Limit query
-      // query.limit(<LIMIT>);
-      // query.skip(<LIMIT> * <CURRENT_PAGE_INDEX>);
+      if (pagination) {
+        postsQuery.limit(pagination.limit);
+        postsQuery.skip(pagination.limit * pagination.currentPage);
+      }
 
       const results = await postsQuery.find();
       // TODO: Filter out posts from blocked profiles
       const posts: Post[] = results
-        .filter((post) => {
-          // We only want posts that have a 'profile' field (so we know who the
-          // author of that particular post is).
-          return !!post.get('profile')?.id;
-        })
+        // We only want posts that have a 'profile' field (so we know who the
+        // author of that particular post is).
+        .filter((post) => !!post.get('profile')?.id)
         .map((post) => mapResultToPost(profileId, post));
 
       return posts;
@@ -184,24 +185,5 @@ export namespace PostApi {
     } finally {
       console.groupEnd();
     }
-  }
-
-  export type Pagination = { limit: number; skip?: number };
-
-  export async function fetchFollowingPosts(
-    profileId: string,
-    followingArray: string[],
-    pagination?: Pagination,
-  ): Promise<Post[]> {
-    console.log({ profileId, followingArray, pagination });
-
-    const query = new Parse.Query(Parse.Object.extend('Post'));
-    // query.containedIn('profile', followingArray);
-    query.greaterThanOrEqualTo('createdAt', new Date('2020-10-30'));
-    query.descending('createdAt');
-    query.limit(10);
-
-    const results = await query.find();
-    return results.map((post) => mapResultToPost(profileId, post));
   }
 }
