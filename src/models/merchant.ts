@@ -1,6 +1,7 @@
+import Parse from 'parse/react-native';
 import { EntityId } from '@reduxjs/toolkit';
 
-import { GeoPoint, ImageSource } from './common';
+import { ImageSource } from './common';
 import { ProfileId } from './profile';
 
 export type MerchantId = EntityId;
@@ -18,7 +19,7 @@ export type MerchantAddress = {
 export default interface Merchant {
   id: MerchantId;
   shortName: string;
-  geoPoint: GeoPoint;
+  geoPoint: Parse.GeoPoint;
   profileId?: ProfileId;
   avatar?: ImageSource;
   coverPhoto?: ImageSource;

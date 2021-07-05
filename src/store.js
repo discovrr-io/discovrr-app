@@ -41,7 +41,7 @@ const persistedReducer = persistReducer(
     key: 'root',
     storage: AsyncStorage,
     stateReconciler: autoMergeLevel2,
-    blacklist: ['comments'],
+    blacklist: ['comments', 'products'],
   },
   rootReducer,
 );

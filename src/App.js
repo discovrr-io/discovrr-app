@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text } from 'react-native';
+import { ActivityIndicator, Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
 
@@ -32,10 +32,24 @@ const theme = {
 
 const persistor = persistStore(store);
 
+function LoadingScreen() {
+  return (
+    <View
+      style={{
+        flexGrow: 1,
+        alignContent: 'center',
+        justifyContent: 'center',
+      }}>
+      <ActivityIndicator size="large" />
+      <Text style={{ textAlign: 'center' }}>Loading...</Text>
+    </View>
+  );
+}
+
 export function App() {
   const onBeforeLift = async () => {
     // TODO: Maybe check with Regex? (/^\d+\.\d{1,2}\.\d{1,2}$/g)
-    const [major, minor, patch, build] = [2, 1, 2, 0];
+    const [major, minor, patch, build] = [2, 1, 2, 1];
     const versionNumber =
       major * 10 ** 6 + minor * 10 ** 4 + patch * 10 ** 2 + build;
     const currStoreVersion = String(versionNumber);
@@ -54,7 +68,7 @@ export function App() {
       if (prevStoreVersion !== currStoreVersion) {
         AsyncStorage.setItem('storeVersion', currStoreVersion);
         console.log('[App.onBeforeLift] Purging store...');
-        persistor.purge();
+        await persistor.purge();
       }
     } catch (error) {
       console.error([
@@ -93,7 +107,7 @@ export function App() {
   return (
     <Provider store={store}>
       <PersistGate
-        loading={__DEV__ ? <Text>Loading...</Text> : null}
+        loading={__DEV__ ? <LoadingScreen /> : null}
         persistor={persistor}
         onBeforeLift={onBeforeLift}>
         <PaperProvider theme={theme}>

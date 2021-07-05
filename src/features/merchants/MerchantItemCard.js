@@ -1,7 +1,14 @@
-import React from 'react';
-import { Image, Text, TouchableOpacity, View } from 'react-native';
+import React, { useState } from 'react';
+import {
+  ActivityIndicator,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
-import FastImage from 'react-native-fast-image';
+// import FastImage from 'react-native-fast-image';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
 
@@ -38,6 +45,8 @@ export default function MerchantItemCard({ merchant, ...props }) {
     coverPhotoHeight = coverPhoto.height;
   }
 
+  const [isImageLoaded, setIsLoadedImage] = useState(false);
+
   return (
     <View style={[props.style]}>
       <TouchableOpacity
@@ -68,17 +77,36 @@ export default function MerchantItemCard({ merchant, ...props }) {
             size={20}
           />
         </View>
-        <FastImage
-          source={coverPhoto}
-          resizeMode="cover"
-          style={{
-            aspectRatio: coverPhotoWidth / coverPhotoHeight,
-            borderWidth: values.border.thin,
-            borderRadius: values.radius.md,
-            borderColor: colors.gray300,
-            backgroundColor: colors.gray100,
-          }}
-        />
+        <View>
+          <View
+            style={[
+              {
+                position: 'absolute',
+                top: 0,
+                bottom: 0,
+                left: 0,
+                right: 0,
+                justifyContent: 'center',
+              },
+              merchantItemCardStyles.imageContainer,
+            ]}>
+            <ActivityIndicator size="large" />
+          </View>
+          <Image
+            source={coverPhoto}
+            resizeMode="contain"
+            onLoadEnd={() => setIsLoadedImage(true)}
+            style={[
+              {
+                width: undefined,
+                height: undefined,
+                aspectRatio: coverPhotoWidth / coverPhotoHeight,
+                opacity: isImageLoaded ? 1 : 0,
+              },
+              merchantItemCardStyles.imageContainer,
+            ]}
+          />
+        </View>
       </TouchableOpacity>
       <Text
         numberOfLines={2}
@@ -88,10 +116,18 @@ export default function MerchantItemCard({ merchant, ...props }) {
           fontSize: typography.size.sm,
           margin: values.spacing.sm,
           marginBottom: 0,
-          maxWidth: coverPhotoWidth,
         }}>
         {shortName}
       </Text>
     </View>
   );
 }
+
+const merchantItemCardStyles = StyleSheet.create({
+  imageContainer: {
+    borderWidth: values.border.thin,
+    borderRadius: values.radius.md,
+    borderColor: colors.gray300,
+    backgroundColor: colors.gray100,
+  },
+});

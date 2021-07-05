@@ -4,6 +4,7 @@ import { Alert, Platform, StyleSheet, Text, View } from 'react-native';
 import Slider from '@react-native-community/slider';
 import MapView from 'react-native-maps';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
+// import { NativeViewGestureHandler } from 'react-native-gesture-handler';
 import { useDispatch, useSelector } from 'react-redux';
 
 import Animated, {
@@ -58,10 +59,17 @@ const SearchLocationModal = React.forwardRef(
   (props, ref) => {
     const dispatch = useDispatch();
 
+    const snapPoints = useMemo(() => ['80%'], []);
+
     /** @type {import('../../models').AppSettings} */
     const { locationQueryPrefs } = useSelector((state) => state.settings);
 
-    const snapPoints = useMemo(() => ['80%'], []);
+    const [searchRegion, setSearchRegion] = useState({
+      ...(locationQueryPrefs?.coordinates ?? DEFAULT_COORDINATES),
+      latitudeDelta: 1.0,
+      longitudeDelta: 1.0,
+    });
+
     const [searchRadiusValue, setSearchRadiusValue] = useState(
       locationQueryPrefs?.searchRadius ?? MIN_SEARCH_RADIUS,
     );
@@ -69,6 +77,10 @@ const SearchLocationModal = React.forwardRef(
     const handleApplyChanges = () => {
       const updateAction = didUpdateLocationQueryPrefs({
         searchRadius: searchRadiusValue,
+        coordinates: {
+          latitude: searchRegion.latitude,
+          longitude: searchRegion.longitude,
+        },
       });
 
       dispatch(updateAction);
@@ -134,14 +146,14 @@ const SearchLocationModal = React.forwardRef(
                 placeholder="Search a location..."
                 style={{ marginBottom: values.spacing.lg }}
               />
+              {/* <NativeViewGestureHandler> */}
               <MapView
-                initialRegion={{
-                  ...DEFAULT_COORDINATES,
-                  latitudeDelta: 1.0,
-                  longitudeDelta: 1.0,
-                }}
+                initialRegion={searchRegion}
+                // region={searchRegion}
+                onRegionChange={setSearchRegion}
                 style={{ flexGrow: 1 }}
               />
+              {/* </NativeViewGestureHandler> */}
             </View>
             <View>
               <View
@@ -167,6 +179,7 @@ const SearchLocationModal = React.forwardRef(
                   {MAX_SEARCH_RADIUS}km
                 </Text>
               </View>
+              {/* <NativeViewGestureHandler> */}
               <Slider
                 step={1}
                 minimumValue={MIN_SEARCH_RADIUS}
@@ -189,6 +202,7 @@ const SearchLocationModal = React.forwardRef(
                   },
                 ]}
               />
+              {/* </NativeViewGestureHandler> */}
             </View>
           </View>
           <View
