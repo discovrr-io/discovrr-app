@@ -13,7 +13,6 @@ export const fetchAllPosts = createAsyncThunk(
   /**
    * @typedef {import('../../models/common').Pagination} Pagination
    * @param {{ pagination: Pagination, reload?: boolean }} param0
-   * @returns
    */
   async ({ pagination }) => PostApi.fetchAllPosts(pagination),
 );

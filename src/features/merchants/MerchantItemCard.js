@@ -94,7 +94,7 @@ export default function MerchantItemCard({ merchant, ...props }) {
           </View>
           <Image
             source={coverPhoto}
-            resizeMode="contain"
+            resizeMode="cover"
             onLoadEnd={() => setIsLoadedImage(true)}
             style={[
               {

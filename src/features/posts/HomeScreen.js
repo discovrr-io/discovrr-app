@@ -537,7 +537,6 @@ function NearMeTab() {
           console.log('[NearMeTab] Fetching near me items...');
           const items = await MerchantApi.fetchAllMerchants();
           setNearMeItems(items);
-          // setNearMeItems(items.filter((m) => m.__hasCompleteProfile));
         } catch (error) {
           console.error('[NearMeTab] Failed to fetch near me items:', error);
           setFetchError(error);

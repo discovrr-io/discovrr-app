@@ -1,7 +1,7 @@
 import { SerializedError } from '@reduxjs/toolkit';
 
 /**
- * The current loading status of an async request to the Parse server.
+ * The current loading status of an async request.
  */
 export type LoadingStatus =
   | 'idle'

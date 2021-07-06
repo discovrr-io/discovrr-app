@@ -22,7 +22,7 @@ import {
 export namespace MerchantApi {
   function mapResultToMerchant(
     result: Parse.Object<Parse.Attributes>,
-  ): Merchant {
+  ): Merchant | null {
     let hasCompleteProfile = false;
 
     // Either a Firebase URL or nothing
@@ -32,22 +32,37 @@ export namespace MerchantApi {
       hasCompleteProfile = true;
       merchantAvatar = { uri: avatar, ...DEFAULT_AVATAR_DIMENSIONS };
     } else {
-      merchantAvatar = DEFAULT_AVATAR;
+      // merchantAvatar = DEFAULT_AVATAR;
+      return null;
     }
 
     // Either a Firebase URL or a MediaSource
+    // let merchantCoverPhoto: ImageSource;
+    // const coverPhotoUrl: string | undefined =
+    //   result.get('coverPhotoUrl') || undefined;
+    // const media: MediaSource[] | undefined = result.get('media');
+    // if (media && media.length > 0) {
+    //   const firstPhoto = media[0];
+    //   merchantCoverPhoto = {
+    //     uri: firstPhoto.url,
+    //     width: firstPhoto.width ?? DEFAULT_IMAGE_DIMENSIONS.width,
+    //     height: firstPhoto.height ?? DEFAULT_IMAGE_DIMENSIONS.height,
+    //   };
+    // } else if (coverPhotoUrl) {
+    //   const resolvedSource = Image.resolveAssetSource({ uri: coverPhotoUrl });
+    //   merchantCoverPhoto = {
+    //     uri: resolvedSource.uri,
+    //     width: resolvedSource.width ?? DEFAULT_IMAGE_DIMENSIONS.width,
+    //     height: resolvedSource.height ?? DEFAULT_IMAGE_DIMENSIONS.height,
+    //   };
+    // } else {
+    //   merchantCoverPhoto = DEFAULT_IMAGE;
+    // }
+
     let merchantCoverPhoto: ImageSource;
     const coverPhotoUrl: string | undefined =
       result.get('coverPhotoUrl') || undefined;
-    const media: MediaSource[] | undefined = result.get('media');
-    if (media && media.length > 0) {
-      const firstPhoto = media[0];
-      merchantCoverPhoto = {
-        uri: firstPhoto.url,
-        width: firstPhoto.width ?? DEFAULT_IMAGE_DIMENSIONS.width,
-        height: firstPhoto.height ?? DEFAULT_IMAGE_DIMENSIONS.height,
-      };
-    } else if (coverPhotoUrl) {
+    if (coverPhotoUrl) {
       const resolvedSource = Image.resolveAssetSource({ uri: coverPhotoUrl });
       merchantCoverPhoto = {
         uri: resolvedSource.uri,
@@ -55,7 +70,7 @@ export namespace MerchantApi {
         height: resolvedSource.height ?? DEFAULT_IMAGE_DIMENSIONS.height,
       };
     } else {
-      merchantCoverPhoto = DEFAULT_IMAGE;
+      return null;
     }
 
     return {
@@ -74,6 +89,8 @@ export namespace MerchantApi {
     console.log('MerchantApi.fetchAllMerchants');
 
     const query = new Parse.Query(Parse.Object.extend('Vendor'));
+    query.exists('avatarUrl');
+    query.exists('coverPhotoUrl');
 
     if (pagination) {
       query.limit(pagination.limit);
@@ -81,9 +98,8 @@ export namespace MerchantApi {
     }
 
     const results = await query.find();
-    return results
-      .map(mapResultToMerchant)
-      .filter((merchant) => merchant.__hasCompleteProfile);
+    // Filter out all the null values (i.e. merchants not partnered with us)
+    return results.map(mapResultToMerchant).filter(Boolean);
   }
 
   export async function fetchMerchantsNearMe(
