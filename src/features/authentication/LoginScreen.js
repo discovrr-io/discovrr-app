@@ -44,7 +44,6 @@ import {
   registerNewAccount,
   signInWithCredential,
   signInWithEmailAndPassword,
-  signOut,
 } from './authSlice';
 
 const DISCOVRR_LOGO = require('../../../resources/images/discovrrLogoHorizontal.png');
@@ -56,9 +55,37 @@ const VIDEO_POSTER_SOURCE = Image.resolveAssetSource(
   require('../../../resources/images/videoPoster.png'),
 );
 
-const DEFAULT_AUTH_ERROR_TITLE = 'Something went wrong';
-const DEFAULT_AUTH_ERROR_MESSAGE =
-  "We weren't able to sign you in at this time. Please try again later.";
+const DEFAULT_ERROR_TITLE = 'Something went wrong';
+const DEFAULT_AUTH_SIGN_IN_ERROR_MESSAGE =
+  "We weren't able to sign you in at this time.";
+const DEFAULT_AUTH_REGISTER_ERROR_MESSAGE =
+  "We weren't able to create your account at this time.";
+
+/**
+ * @param {any} error
+ * @param {string=} message
+ * @returns {string}
+ */
+function createReportMessage(
+  error,
+  message = DEFAULT_AUTH_SIGN_IN_ERROR_MESSAGE,
+) {
+  /** @type {string} */
+  let errorMessage;
+
+  if (error.message) {
+    errorMessage = error.message;
+  } else if (error.code) {
+    errorMessage = error.code;
+  } else {
+    errorMessage = 'Unknown Error';
+  }
+
+  const REPORT_MESSAGE =
+    'Please report the following error to the Discovrr development team';
+
+  return `${message}\n\n${REPORT_MESSAGE}:\n\n${errorMessage}`;
+}
 
 const loginFormSchema = yup.object({
   email: yup
@@ -186,11 +213,6 @@ function LoginForm({ setFormType }) {
         error,
       );
 
-      if (!error.code) {
-        Alert.alert(DEFAULT_AUTH_ERROR_TITLE, DEFAULT_AUTH_ERROR_MESSAGE);
-        return;
-      }
-
       /** @type {string} */
       let title, message;
 
@@ -206,24 +228,15 @@ function LoginForm({ setFormType }) {
             "We don't have an account registered with the email you provided. Did you type it in correctly?";
           break;
         case 'auth/network-request-failed':
-          title = DEFAULT_AUTH_ERROR_TITLE;
+          title = DEFAULT_ERROR_TITLE;
           message =
             "We couldn't sign you in due to a network issue. Are you connected to the internet?";
           break;
         default:
-          console.warn('Unhandled error:', error);
-          title = DEFAULT_AUTH_ERROR_TITLE;
-          message = DEFAULT_AUTH_ERROR_MESSAGE;
-
-          const REPORT_MESSAGE =
-            'Please report the following error to the Discovrr development team';
-
-          if (error.message) {
-            message += `\n\n${REPORT_MESSAGE}:\n\n${error.message}`;
-          } else {
-            message += `\n\n${REPORT_MESSAGE}:\n\n${error.code}`;
-          }
-
+          /* Also handles the case when error.code is undefined */
+          console.warn('[LoginForm] Unhandled error:', error);
+          title = DEFAULT_ERROR_TITLE;
+          message = createReportMessage(error);
           break;
       }
 
@@ -313,24 +326,18 @@ function RegisterForm({ setFormType }) {
             'The email address you provided is already registered to an account at Discovrr. Did you mean to sign in?';
           break;
         case 'auth/network-request-failed':
-          title = DEFAULT_AUTH_ERROR_TITLE;
+          title = DEFAULT_ERROR_TITLE;
           message =
             "We couldn't create your account due to a network issue. Are you connected to the internet?";
           break;
         default:
-          console.warn('Unhandled error:', error);
-          title = DEFAULT_AUTH_ERROR_TITLE;
-          message = DEFAULT_AUTH_ERROR_MESSAGE;
-
-          const REPORT_MESSAGE =
-            'Please report the following error to the Discovrr development team';
-
-          if (error.message) {
-            message += `\n\n${REPORT_MESSAGE}:\n\n${error.message}`;
-          } else {
-            message += `\n\n${REPORT_MESSAGE}:\n\n${error.code}`;
-          }
-
+          /* Also handles the case when error.code is undefined */
+          console.warn('[RegisterForm] Unhandled error:', error);
+          title = DEFAULT_ERROR_TITLE;
+          message = createReportMessage(
+            error,
+            DEFAULT_AUTH_REGISTER_ERROR_MESSAGE,
+          );
           break;
       }
 
@@ -443,6 +450,9 @@ function RegisterForm({ setFormType }) {
 function ForgotPasswordForm({ setFormType }) {
   const [isProcessing, setIsProcessing] = useState(false);
 
+  /**
+   * @param {{ email: string }} param0
+   */
   const handleResetPassword = async ({ email }) => {
     try {
       console.info('[ForgotPasswordForm] Sending reset link...');
@@ -454,26 +464,25 @@ function ForgotPasswordForm({ setFormType }) {
         [{ text: 'Okay', onPress: () => setFormType('login') }],
       );
     } catch (error) {
-      console.error('[ForgotPasswordForm] Failed to send reset email:', error);
-      if (error === 'auth/user-not-found') {
+      if (error.code === 'auth/user-not-found') {
+        console.warn('[ForgotPasswordForm] Unknown user:', email);
         Alert.alert(
           'Invalid Email Address',
           'The email address you provided is not registered with us. Did you type it in correctly?',
         );
+      } else if (error.code === 'auth/network-request-failed') {
+        console.warn('[ForgotPasswordForm] Network issue:', error);
+        Alert.alert(
+          DEFAULT_ERROR_TITLE,
+          "We couldn't email you a reset link due to a network issue. Are you connected to the internet?",
+        );
       } else {
-        console.warn('Unhandled error:', error);
-        let message = DEFAULT_AUTH_ERROR_MESSAGE;
-
-        const REPORT_MESSAGE =
-          'Please report the following error to the Discovrr development team';
-
-        if (error.message) {
-          message += `\n\n${REPORT_MESSAGE}:\n\n${error.message}`;
-        } else {
-          message += `\n\n${REPORT_MESSAGE}:\n\n${error.code}`;
-        }
-
-        Alert.alert(DEFAULT_AUTH_ERROR_TITLE, message);
+        console.warn('[ForgotPasswordForm] Unhandled error:', error);
+        let message = createReportMessage(
+          error,
+          "We weren't able to email you a reset link at this time.",
+        );
+        Alert.alert(DEFAULT_ERROR_TITLE, message);
       }
     } finally {
       setIsProcessing(false);
@@ -526,7 +535,6 @@ export default function LoginScreen() {
 
   /** @type {import('./authSlice').CurrentAuthStatus} */
   const { status } = useSelector((state) => state.auth);
-  console.log({ status });
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [formType, setFormType] = useState('login');
@@ -565,7 +573,8 @@ export default function LoginScreen() {
       }
 
       console.error('[LoginScreen] Failed to sign in with Apple:', error);
-      Alert.alert(DEFAULT_AUTH_ERROR_TITLE, DEFAULT_AUTH_ERROR_MESSAGE);
+      const message = createReportMessage(error);
+      Alert.alert(DEFAULT_ERROR_TITLE, message);
     } finally {
       setIsProcessing(false);
     }
@@ -594,7 +603,8 @@ export default function LoginScreen() {
       }
 
       console.error('[LoginScreen] Failed to sign in with Google:', error);
-      Alert.alert(DEFAULT_AUTH_ERROR_TITLE, DEFAULT_AUTH_ERROR_MESSAGE);
+      const message = createReportMessage(error);
+      Alert.alert(DEFAULT_ERROR_TITLE, message);
     } finally {
       setIsProcessing(false);
     }
