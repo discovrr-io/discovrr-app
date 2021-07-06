@@ -426,12 +426,12 @@ const modalStyles = StyleSheet.create({
   button: {},
 });
 
-const GroundZero = ({ navigation, insets }) => {
+export default function GroundZero() {
   const dispatch = useDispatch();
 
   /** @type {import('./features/authentication/authSlice').AuthState} */
   const { status, isFirstLogin } = useSelector((state) => state.auth);
-  console.log({ status });
+  // console.log({ status });
 
   return (
     <>
@@ -611,6 +611,4 @@ const GroundZero = ({ navigation, insets }) => {
       </Stack.Navigator>
     </>
   );
-};
-
-export default connect()(withSafeAreaInsets(GroundZero));
+}

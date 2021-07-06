@@ -1,48 +1,39 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
-import {
-  Alert,
-  FlatList,
-  Platform,
-  RefreshControl,
-  Text,
-  View,
-} from 'react-native';
+import { Alert, FlatList, RefreshControl, Text, View } from 'react-native';
 
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { useDispatch, useSelector } from 'react-redux';
 
-import GeoLocation from 'react-native-geolocation-service';
+import MasonryList from 'react-native-masonry-list';
 
-import {
-  check as checkPermission,
-  request as requestPermission,
-  openSettings,
-  PERMISSIONS,
-} from 'react-native-permissions';
+// import GeoLocation from 'react-native-geolocation-service';
+// import {
+//   check as checkPermission,
+//   request as requestPermission,
+//   openSettings,
+//   PERMISSIONS,
+// } from 'react-native-permissions';
 
 import { MerchantApi } from '../../api';
-import { SOMETHING_WENT_WRONG } from '../../constants/strings';
+// import { SOMETHING_WENT_WRONG } from '../../constants/strings';
 import { fetchAllProfiles } from '../profiles/profilesSlice';
 
 import PostItemCard from './PostItemCard';
-import MerchantItemCard from '../merchants/MerchantItemCard';
 import PostMasonryList from '../../components/masonry/PostMasonryList';
-import SearchLocationModal from '../../components/bottomSheets/SearchLocationModal';
+// import SearchLocationModal from '../../components/bottomSheets/SearchLocationModal';
+
+import MerchantItemCard, {
+  MerchantItemCardFooter,
+} from '../merchants/MerchantItemCard';
 
 import { colors, typography, values } from '../../constants';
 
 import {
-  Button,
   EmptyTabView,
   ErrorTabView,
-  MasonryList,
+  LoadingTabView,
+  // MasonryList,
 } from '../../components';
 
 import {
@@ -525,13 +516,22 @@ function NearMeTab() {
    * @type {[Merchant[], (value: Merchant) => void]}
    */
   const [nearMeItems, setNearMeItems] = useState([]);
+
+  const [isInitialRender, setIsInitialRender] = useState(true);
   const [shouldFetch, setShouldFetch] = useState(true);
   const [fetchError, setFetchError] = useState(null);
 
-  const tileSpacing = useMemo(() => values.spacing.sm * 1.25, []);
+  const nearMeItemSources = useMemo(
+    () =>
+      nearMeItems.map((item) => ({
+        merchant: item,
+        source: item.coverPhoto,
+      })),
+    [nearMeItems],
+  );
 
   useEffect(() => {
-    if (shouldFetch) {
+    if (isInitialRender || shouldFetch) {
       (async () => {
         try {
           console.log('[NearMeTab] Fetching near me items...');
@@ -541,28 +541,29 @@ function NearMeTab() {
           console.error('[NearMeTab] Failed to fetch near me items:', error);
           setFetchError(error);
         } finally {
+          if (isInitialRender) setIsInitialRender(false);
           setShouldFetch(false);
         }
       })();
     }
-  }, [shouldFetch]);
+  }, [isInitialRender, shouldFetch]);
 
   const handleRefresh = () => {
     if (!shouldFetch) setShouldFetch(true);
   };
 
+  const tileSpacing = useMemo(() => values.spacing.xs * 1.75, []);
+
+  if (isInitialRender) {
+    return <LoadingTabView />;
+  }
+
   return (
     <MasonryList
-      data={nearMeItems}
-      refreshControl={
-        <RefreshControl
-          title="Loading activity near you..."
-          tintColor={colors.gray500}
-          refreshing={shouldFetch}
-          onRefresh={handleRefresh}
-        />
-      }
-      ListEmptyComponent={
+      images={nearMeItemSources}
+      refreshing={shouldFetch}
+      onRefresh={handleRefresh}
+      emptyView={
         fetchError ? (
           <ErrorTabView
             message="We couldn't get activity near you"
@@ -572,18 +573,29 @@ function NearMeTab() {
           <EmptyTabView message="Looks like there isn't any activity near you" />
         )
       }
-      ListFooterComponent={nearMeItems.length > 0 && <MasonryListFooter />}
-      renderItem={({ item: merchant, index }) => (
+      listContainerStyle={{
+        paddingBottom: tileSpacing,
+      }}
+      completeCustomComponent={({
+        data: {
+          merchant,
+          column,
+          source: imageSource,
+          masonryDimensions: imageDimensions,
+        },
+      }) => (
         <MerchantItemCard
           merchant={merchant}
-          key={merchant.id}
+          imageSource={imageSource}
+          imageDimensions={imageDimensions}
           style={{
             marginTop: tileSpacing,
-            marginLeft: index % 2 === 0 ? tileSpacing : tileSpacing / 2,
-            marginRight: index % 2 !== 0 ? tileSpacing : tileSpacing / 2,
-            marginBottom: values.spacing.sm,
+            marginLeft: column % 2 === 0 ? tileSpacing * 0.75 : tileSpacing,
           }}
         />
+      )}
+      renderIndividualFooter={({ merchant }) => (
+        <MerchantItemCardFooter merchant={merchant} />
       )}
     />
   );

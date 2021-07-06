@@ -88,17 +88,21 @@ export namespace MerchantApi {
   }
 
   export async function fetchAllMerchants(pagination?: Pagination) {
-    console.log('MerchantApi.fetchAllMerchants');
+    console.group('MerchantApi.fetchAllMerchants');
 
     const query = new Parse.Query(Parse.Object.extend('Vendor'));
     query.exists('avatarUrl');
     query.exists('coverPhotoUrl');
+
+    const pointOfInterest = new Parse.GeoPoint(DEFAULT_COORDINATES);
+    query.withinKilometers('geopoint', pointOfInterest, 50);
 
     if (pagination) {
       query.limit(pagination.limit);
       query.skip(pagination.limit * pagination.currentPage);
     }
 
+    console.groupEnd();
     const results = await query.find();
     // Filter out all the null values (i.e. merchants not partnered with us)
     return results.map(mapResultToMerchant).filter(Boolean);
