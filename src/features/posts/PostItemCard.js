@@ -214,8 +214,7 @@ export const PostItemCardFooter = ({
               })
             }>
             <MaterialCommunityIcon
-              // name="dots-vertical"
-              name="flag-outline"
+              name="dots-horizontal"
               color={colors.gray}
               size={actionIconSize}
               style={{ marginRight: actionIconMarginRight * 0.75 }}

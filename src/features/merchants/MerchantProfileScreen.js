@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { RefreshControl, SafeAreaView } from 'react-native';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Alert, RefreshControl, SafeAreaView } from 'react-native';
 
 import { Tabs } from 'react-native-collapsible-tab-view';
 import { useRoute } from '@react-navigation/native';
@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import NoteMasonryList from '../../components/masonry/NoteMasonryList';
 import PostMasonryList from '../../components/masonry/PostMasonryList';
 import ProductItemCard from '../products/ProductItemCard';
-import { EmptyTabView, MasonryList } from '../../components';
+import { EmptyTabView, LoadingTabView, MasonryList } from '../../components';
 import { ProfileScreenHeader } from '../profiles/ProfileScreen';
 
 import { selectPostsByProfile } from '../posts/postsSlice';
@@ -17,8 +17,10 @@ import { values } from '../../constants';
 
 import {
   fetchProductsForMerchant,
-  // selectProductsForMerchant,
+  selectProductsForMerchant,
 } from '../products/productsSlice';
+import { useIsMounted } from '../../hooks';
+import { SOMETHING_WENT_WRONG } from '../../constants/strings';
 
 /**
  * @typedef {import('../../models').Merchant} Merchant
@@ -28,65 +30,108 @@ import {
 function ProductsTab({ merchant }) {
   const dispatch = useDispatch();
 
-  /**
-   * @typedef {import('../../models').ProductId} ProductId
-   * @type {[ProductId, (value: ProductId) => void]}
-   */
-  const [productIds, setProductIds] = useState([]);
-  const [shouldRefresh, setShouldRefresh] = useState(true);
+  // /**
+  //  * @typedef {import('../../models').ProductId} ProductId
+  //  * @type {[ProductId, (value: ProductId) => void]}
+  //  */
+  // const [productIds, setProductIds] = useState([]);
+  // const [shouldRefresh, setShouldRefresh] = useState(true);
 
-  // const merchantId = String(merchant.id);
-  // const productIds = useSelector((state) =>
-  //   selectProductsForMerchant(state, merchantId),
-  // );
+  // useEffect(() => {
+  //   if (shouldRefresh)
+  //     (async () => {
+  //       try {
+  //         console.log('[ProductsTab] Fetching products for merchant...');
+  //         /** @type {import('../../models').Product[]} */
+  //         const products = await dispatch(
+  //           fetchProductsForMerchant(String(merchant.id)),
+  //         ).unwrap();
+  //         setProductIds(products.map((product) => product.id));
+  //         // await dispatch(fetchProductsForMerchant(merchantId)).unwrap();
+  //       } catch (error) {
+  //         console.error(
+  //           '[ProductsTab] Failed to fetch products for merchant:',
+  //           error,
+  //         );
+  //       } finally {
+  //         setShouldRefresh(false);
+  //       }
+  //     })();
+  // }, [shouldRefresh, dispatch]);
 
-  // /** @type {import('../../api').ApiFetchStatus} */
-  // const { status: fetchStatus, error: fetchError } = useSelector(
-  //   (state) => state.products,
-  // );
+  const merchantId = String(merchant.id);
+  const productIds = useSelector((state) =>
+    selectProductsForMerchant(state, merchantId).map((product) => product.id),
+  );
+
+  /** @type {import('../../api').ApiFetchStatus} */
+  const { status: fetchStatus /* error: fetchError */ } = useSelector(
+    (state) => state.products,
+  );
+
+  const isMounted = useIsMounted();
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+
+  const [shouldRefresh, setShouldRefresh] = useState(false);
+  const [fetchError, setFetchError] = useState(null);
 
   useEffect(() => {
-    if (shouldRefresh)
+    if (isInitialLoad || shouldRefresh)
       (async () => {
         try {
-          console.log('[ProductsTab] Fetching products for merchant...');
-          /** @type {import('../../models').Product[]} */
-          const products = await dispatch(
-            fetchProductsForMerchant(String(merchant.id)),
-          ).unwrap();
-          setProductIds(products.map((product) => product.id));
-          // await dispatch(fetchProductsForMerchant(merchantId)).unwrap();
+          await dispatch(fetchProductsForMerchant(merchantId)).unwrap();
         } catch (error) {
           console.error(
-            '[ProductsTab] Failed to fetch products for merchant:',
+            '[MerchantProfileScreen] Failed to fetch products for merchant:',
             error,
           );
+          isMounted.current && setFetchError(error);
+          Alert.alert(
+            SOMETHING_WENT_WRONG.title,
+            "We weren't able to get products for you. Please try again later.",
+          );
         } finally {
-          setShouldRefresh(false);
+          if (isMounted.current) {
+            if (isInitialLoad) setIsInitialLoad(false);
+            if (shouldRefresh) setShouldRefresh(false);
+          }
         }
       })();
-  }, [shouldRefresh, dispatch]);
+  }, [isInitialLoad, shouldRefresh]);
 
   const handleRefresh = () => {
     if (!shouldRefresh) setShouldRefresh(true);
   };
 
-  const tileSpacing = values.spacing.sm * 1.25;
+  const tileSpacing = useMemo(() => values.spacing.sm * 1.25, []);
+
+  if (isInitialLoad) {
+    return <LoadingTabView message="Loading products..." />;
+  }
 
   return (
     <MasonryList
       data={productIds}
       ListEmptyComponent={
-        <EmptyTabView
-          message={`Looks like ${
-            merchant.shortName || 'this profile'
-          } doesn't have any products yet`}
-        />
+        fetchError ? (
+          <ErrorTabView
+            caption={`We weren't able to get products for ${
+              merchant.shortName || 'this merchant'
+            }.`}
+            error={fetchError}
+          />
+        ) : (
+          <EmptyTabView
+            message={`${
+              merchant.shortName || 'this merchant'
+            } doesn't have any products yet`}
+          />
+        )
       }
       refreshControl={
         <RefreshControl
           title="Loading products..."
-          refreshing={/* fetchStatus === 'pending' || */ shouldRefresh}
+          refreshing={fetchStatus === 'refreshing' || shouldRefresh}
           onRefresh={handleRefresh}
         />
       }

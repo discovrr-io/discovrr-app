@@ -37,6 +37,7 @@ import {
 } from '../comments/commentsSlice';
 import { fetchPostById, selectPostById } from './postsSlice';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { useIsMounted } from '../../hooks';
 
 const Parse = require('parse/react-native');
 
@@ -227,8 +228,9 @@ export default function PostDetailScreen() {
 
   const commentIds = useSelector((state) => getCommentsForPost(state, postId));
 
-  const isMounted = useRef(true);
+  const isMounted = useIsMounted();
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+
   const [shouldRefresh, setShouldRefresh] = useState(false);
   const [commentsError, setCommentsError] = useState(null);
 
@@ -236,13 +238,7 @@ export default function PostDetailScreen() {
   const [isProcessingComment, setIsProcessingComment] = useState(false);
 
   useEffect(() => {
-    return () => {
-      isMounted.current = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    if (isInitialLoad)
+    if (isInitialLoad || shouldRefresh)
       (async () => {
         try {
           await Promise.all([
@@ -254,32 +250,15 @@ export default function PostDetailScreen() {
             '[PostDetailsScreen] Failed to fetch comments for post:',
             error,
           );
-          setCommentsError(error);
+          isMounted.current && setCommentsError(error);
         } finally {
-          setIsInitialLoad(false);
+          if (isMounted.current) {
+            if (isInitialLoad) setIsInitialLoad(false);
+            if (shouldRefresh) setShouldRefresh(false);
+          }
         }
       })();
-  }, [isInitialLoad]);
-
-  useEffect(() => {
-    if (shouldRefresh)
-      (async () => {
-        try {
-          await Promise.all([
-            dispatch(fetchPostById(String(postId))).unwrap(),
-            dispatch(fetchCommentsForPost(String(postId))).unwrap(),
-          ]);
-        } catch (error) {
-          console.error('Failed to refresh post:', error);
-          Alert.alert(
-            'Something went wrong',
-            "We weren't able to refresh this post for you. Please try again later.",
-          );
-        } finally {
-          setShouldRefresh(false);
-        }
-      })();
-  }, [shouldRefresh]);
+  }, [isInitialLoad, shouldRefresh]);
 
   const handleRefresh = () => {
     if (!shouldRefresh) setShouldRefresh(true);
@@ -302,8 +281,10 @@ export default function PostDetailScreen() {
         "Sorry, we weren't able to post your comment. Please try again later.",
       );
     } finally {
-      setIsProcessingComment(false);
-      setCommentTextInput('');
+      if (isMounted.current) {
+        setIsProcessingComment(false);
+        setCommentTextInput('');
+      }
     }
   };
 
@@ -352,7 +333,7 @@ export default function PostDetailScreen() {
               />
             ) : commentsError ? (
               <ErrorTabView
-                caption="We couldn't load the comments for this post."
+                caption="We weren't able to get comments for this post."
                 error={commentsError}
                 style={postDetailScreenStyles.tabView}
               />
