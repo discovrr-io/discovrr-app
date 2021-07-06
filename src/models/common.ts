@@ -6,7 +6,7 @@
  */
 export type ImageSource =
   | number
-  | { uri: string; width: number; height: number };
+  | { uri: string; width?: number; height?: number };
 
 export type LocationQueryPreferences = {
   searchRadius?: number;

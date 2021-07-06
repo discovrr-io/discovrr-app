@@ -30,22 +30,12 @@ import {
 export default function MerchantItemCard({ merchant, ...props }) {
   const navigation = useNavigation();
 
-  const { shortName } = merchant;
+  const { shortName, __distanceToDefaultPoint } = merchant;
 
   /** @type {import('../../models/common').ImageSource} */
   const coverPhoto = merchant.coverPhoto ?? DEFAULT_IMAGE;
 
-  /** @type {number} */
-  let coverPhotoWidth, coverPhotoHeight;
-  if (typeof coverPhoto === 'number') {
-    coverPhotoWidth = DEFAULT_IMAGE_DIMENSIONS.width;
-    coverPhotoHeight = DEFAULT_IMAGE_DIMENSIONS.height;
-  } else {
-    coverPhotoWidth = coverPhoto.width;
-    coverPhotoHeight = coverPhoto.height;
-  }
-
-  const [isImageLoaded, setIsLoadedImage] = useState(false);
+  const [imageDimensions, setImageDimensions] = useState(null);
 
   return (
     <View style={[props.style]}>
@@ -95,30 +85,37 @@ export default function MerchantItemCard({ merchant, ...props }) {
           <Image
             source={coverPhoto}
             resizeMode="cover"
-            onLoadEnd={() => setIsLoadedImage(true)}
+            onLoad={(event) => {
+              const { height, width } = event.nativeEvent.source;
+              setImageDimensions({ height, width });
+            }}
             style={[
               {
-                width: undefined,
-                height: undefined,
-                aspectRatio: coverPhotoWidth / coverPhotoHeight,
-                opacity: isImageLoaded ? 1 : 0,
+                aspectRatio: imageDimensions
+                  ? imageDimensions.width / imageDimensions.height
+                  : 1,
+                opacity: imageDimensions ? 1 : 0,
               },
               merchantItemCardStyles.imageContainer,
             ]}
           />
         </View>
       </TouchableOpacity>
-      <Text
-        numberOfLines={2}
+      <View
         style={{
-          color: colors.gray700,
-          fontWeight: '600',
-          fontSize: typography.size.sm,
-          margin: values.spacing.sm,
-          marginBottom: 0,
+          marginTop: values.spacing.sm,
+          marginHorizontal: values.spacing.sm,
         }}>
-        {shortName}
-      </Text>
+        <Text numberOfLines={2} style={merchantItemCardStyles.caption}>
+          {shortName}
+        </Text>
+        {__distanceToDefaultPoint && (
+          <Text
+            style={[merchantItemCardStyles.caption, { fontWeight: 'normal' }]}>
+            {(__distanceToDefaultPoint / 1).toFixed(1)}km away
+          </Text>
+        )}
+      </View>
     </View>
   );
 }
@@ -129,5 +126,10 @@ const merchantItemCardStyles = StyleSheet.create({
     borderRadius: values.radius.md,
     borderColor: colors.gray300,
     backgroundColor: colors.gray100,
+  },
+  caption: {
+    color: colors.gray700,
+    fontWeight: '600',
+    fontSize: typography.size.sm,
   },
 });

@@ -1,12 +1,12 @@
-import { Image } from 'react-native';
-
+// import { Image } from 'react-native';
 import Parse from 'parse/react-native';
-import { MediaSource } from '.';
+
+// import { MediaSource } from '.';
 import {
-  DEFAULT_AVATAR,
+  // DEFAULT_AVATAR,
   DEFAULT_AVATAR_DIMENSIONS,
-  DEFAULT_IMAGE,
-  DEFAULT_IMAGE_DIMENSIONS,
+  // DEFAULT_IMAGE,
+  // DEFAULT_IMAGE_DIMENSIONS,
 } from '../constants/media';
 
 import { Merchant } from '../models';
@@ -63,24 +63,26 @@ export namespace MerchantApi {
     const coverPhotoUrl: string | undefined =
       result.get('coverPhotoUrl') || undefined;
     if (coverPhotoUrl) {
-      const resolvedSource = Image.resolveAssetSource({ uri: coverPhotoUrl });
       merchantCoverPhoto = {
-        uri: resolvedSource.uri,
-        width: resolvedSource.width ?? DEFAULT_IMAGE_DIMENSIONS.width,
-        height: resolvedSource.height ?? DEFAULT_IMAGE_DIMENSIONS.height,
+        uri: coverPhotoUrl,
       };
     } else {
       return null;
     }
 
+    const location: Parse.GeoPoint | undefined = result.get('geopoint');
+
     return {
       id: result.id,
       shortName: result.get('shortName'),
-      geoPoint: result.get('geoPoint'),
+      geoPoint: location,
       profileId: result.get('profileId'),
       avatar: merchantAvatar,
       coverPhoto: merchantCoverPhoto,
       description: result.get('about'),
+      __distanceToDefaultPoint: location?.kilometersTo(
+        new Parse.GeoPoint(DEFAULT_COORDINATES),
+      ),
       __hasCompleteProfile: hasCompleteProfile,
     } as Merchant;
   }

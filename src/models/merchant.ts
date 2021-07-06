@@ -19,12 +19,13 @@ export type MerchantAddress = {
 export default interface Merchant {
   id: MerchantId;
   shortName: string;
-  geoPoint: Parse.GeoPoint;
+  geoPoint?: Parse.GeoPoint;
   profileId?: ProfileId;
   avatar?: ImageSource;
   coverPhoto?: ImageSource;
   description?: string;
   address?: MerchantAddress;
+  __distanceToDefaultPoint?: number;
   /**
    * An internal tag used to check if this particular merchant is a partnered
    * merchant of Discovrr.

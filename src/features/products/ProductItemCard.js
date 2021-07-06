@@ -92,8 +92,10 @@ export default function ProductItemCard({ productId, ...props }) {
           ]}
         />
       </View>
-      <View>
-        <Text style={productItemCardStyles.productName}>{product.name}</Text>
+      <View style={{ margin: values.spacing.sm }}>
+        <Text numberOfLines={2} style={productItemCardStyles.productName}>
+          {product.name}
+        </Text>
         <Text style={productItemCardStyles.productPrice}>${product.price}</Text>
       </View>
     </TouchableOpacity>
