@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Alert,
   RefreshControl,
@@ -94,7 +94,8 @@ const alertRequestFailure = () =>
 
 /**
  * @typedef {import('../../models').Profile} Profile
- * @typedef {Omit<Profile, 'id' | 'email'> & { id?: string, totalLikes?: number }} ProfileDetails
+ * @typedef {import('../../models/merchant').MerchantAddress} MerchantAddress
+ * @typedef {Omit<Profile, 'id' | 'email'> & { id?: string, totalLikes?: number, address?: MerchantAddress }} ProfileDetails
  * @param {{ profileDetails: ProfileDetails | undefined }} param0
  */
 function ProfileScreenHeaderContent({ profileDetails }) {
@@ -108,7 +109,18 @@ function ProfileScreenHeaderContent({ profileDetails }) {
     followers = [],
     following = [],
     totalLikes = 0,
+    address = undefined,
   } = profileDetails ?? {};
+
+  const addressString = useMemo(() => {
+    if (!address) return undefined;
+    const addressLine1 = address.addressLine1;
+    const addressLine2 = address.addressLine2 ? ' ' + address.addressLine2 : '';
+    const street = address.street ? ' ' + address.street : '';
+    const city = address.city ? ', ' + address.city : '';
+    const state = address.state ? ', ' + address.state : '';
+    return `${addressLine1}${addressLine2}${street}${city}${state}`;
+  }, [address]);
 
   const followersCount = followers.length ?? 0;
   const followingCount = following.length ?? 0;
@@ -124,8 +136,8 @@ function ProfileScreenHeaderContent({ profileDetails }) {
   const isFollowee = following.includes(currentUserProfile.id);
   const [isProcessingFollow, setIsProcessingFollow] = useState(false);
 
-  const [isBlocked, setIsBlocked] = useState(false);
-  const [isProcessingBlock, setIsProcessingBlock] = useState(false);
+  // const [isBlocked, setIsBlocked] = useState(false);
+  // const [isProcessingBlock, setIsProcessingBlock] = useState(false);
 
   /**
    * @param {boolean} didFollow
@@ -270,6 +282,13 @@ function ProfileScreenHeaderContent({ profileDetails }) {
                 <Button
                   transparent
                   size="small"
+                  title={'Message'}
+                  onPress={alertUnavailableFeature}
+                  style={{ flex: 1, marginLeft: values.spacing.xs * 1.5 }}
+                />
+                {/* <Button
+                  transparent
+                  size="small"
                   title={isBlocked ? 'Unblock' : 'Block'}
                   isLoading={isProcessingBlock}
                   onPress={() => {
@@ -289,7 +308,7 @@ function ProfileScreenHeaderContent({ profileDetails }) {
                     }, 2000);
                   }}
                   style={{ flex: 1, marginLeft: values.spacing.xs * 1.5 }}
-                />
+                /> */}
               </>
             )}
           </View>
@@ -298,14 +317,21 @@ function ProfileScreenHeaderContent({ profileDetails }) {
       <Text
         numberOfLines={1}
         style={[
-          profileScreenHeaderContentStyles.textContainer,
+          profileScreenHeaderContentStyles.text,
           profileScreenHeaderContentStyles.profileFullName,
         ]}>
         {fullName || 'Anonymous'}
       </Text>
-      <Text
-        numberOfLines={3}
-        style={profileScreenHeaderContentStyles.textContainer}>
+      {profileDetails.isVendor && addressString && (
+        <Text
+          style={[
+            profileScreenHeaderContentStyles.text,
+            { marginBottom: values.spacing.sm },
+          ]}>
+          {addressString}
+        </Text>
+      )}
+      <Text numberOfLines={3} style={profileScreenHeaderContentStyles.text}>
         {description || 'No description'}
       </Text>
     </View>
@@ -320,7 +346,7 @@ const profileScreenHeaderContentStyles = StyleSheet.create({
     padding: values.spacing.md * 1.5,
     backgroundColor: 'rgba(82, 82, 82, 0.8)',
   },
-  textContainer: {
+  text: {
     fontSize: typography.size.sm,
     color: colors.white,
   },

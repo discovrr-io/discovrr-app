@@ -11,16 +11,16 @@ import ProductItemCard from '../products/ProductItemCard';
 import { EmptyTabView, LoadingTabView, MasonryList } from '../../components';
 import { ProfileScreenHeader } from '../profiles/ProfileScreen';
 
-import { selectPostsByProfile } from '../posts/postsSlice';
 import { selectAllNotes } from '../notes/notesSlice';
+import { selectPostsByProfile } from '../posts/postsSlice';
+import { SOMETHING_WENT_WRONG } from '../../constants/strings';
+import { useIsMounted } from '../../hooks';
 import { values } from '../../constants';
 
 import {
   fetchProductsForMerchant,
   selectProductsForMerchant,
 } from '../products/productsSlice';
-import { useIsMounted } from '../../hooks';
-import { SOMETHING_WENT_WRONG } from '../../constants/strings';
 
 /**
  * @typedef {import('../../models').Merchant} Merchant
@@ -187,6 +187,7 @@ export default function MerchantProfileScreen() {
               ...merchant,
               fullName: merchant.shortName,
               isVendor: true,
+              address: merchant.address,
             }}
           />
         )}>

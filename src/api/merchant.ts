@@ -10,6 +10,7 @@ import {
 } from '../constants/media';
 
 import { Merchant } from '../models';
+import { MerchantAddress } from '../models/merchant';
 
 import {
   Coordinates,
@@ -80,6 +81,16 @@ export namespace MerchantApi {
       };
     }
 
+    const merchantAddress: MerchantAddress = {
+      addressLine1: result.get('addressLine1'),
+      addressLine2: result.get('addressLine2'),
+      street: result.get('street'),
+      city: result.get('city'),
+      postCode: result.get('postCode'),
+      state: result.get('state'),
+      country: result.get('country'),
+    };
+
     return {
       id: result.id,
       shortName: result.get('shortName'),
@@ -87,8 +98,8 @@ export namespace MerchantApi {
       avatar: merchantAvatar,
       coverPhoto: merchantCoverPhoto,
       description: result.get('about'),
-      // address: undefined,
       coordinates: merchantCoordinates,
+      address: merchantAddress,
       statistics: {
         didSave: false,
         didLike: false,

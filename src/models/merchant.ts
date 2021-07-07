@@ -23,8 +23,8 @@ export default interface Merchant {
   avatar?: ImageSource;
   coverPhoto?: ImageSource;
   description?: string;
-  address?: MerchantAddress;
   coordinates?: Coordinates;
+  address?: MerchantAddress;
   statistics?: Statistics;
   __distanceToDefaultPoint?: number;
   /**

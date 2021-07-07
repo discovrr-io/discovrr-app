@@ -171,19 +171,25 @@ function MerchantItemCardFooter({ merchant }) {
 
   return (
     <View style={merchantItemCardFooterStyles.container}>
-      <View style={merchantItemCardFooterStyles.merchantContainer}>
-        <FastImage
-          source={avatar ?? DEFAULT_AVATAR}
-          style={{
-            width: SMALL_ICON,
-            height: SMALL_ICON,
-            borderRadius: SMALL_ICON / 2,
-          }}
-        />
-        <Text style={merchantItemCardFooterStyles.merchantName}>
-          {shortName}
-        </Text>
-      </View>
+      <TouchableOpacity
+        activeOpacity={DEFAULT_ACTIVE_OPACITY}
+        style={{ flex: 1 }}>
+        <View style={merchantItemCardFooterStyles.merchantContainer}>
+          <FastImage
+            source={avatar ?? DEFAULT_AVATAR}
+            style={{
+              width: SMALL_ICON,
+              height: SMALL_ICON,
+              borderRadius: SMALL_ICON / 2,
+            }}
+          />
+          <Text
+            numberOfLines={1}
+            style={merchantItemCardFooterStyles.merchantName}>
+            {shortName}
+          </Text>
+        </View>
+      </TouchableOpacity>
       <View style={merchantItemCardFooterStyles.actionsContainer}>
         <TouchableOpacity
           activeOpacity={DEFAULT_ACTIVE_OPACITY}
