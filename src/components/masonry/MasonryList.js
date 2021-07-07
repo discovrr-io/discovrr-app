@@ -23,7 +23,7 @@ const isCloseToBottom = (
 
 /**
  * @template ItemT
- * @typedef {{ item: ItemT, index: number }} RenderItemInfo<ItemT>
+ * @typedef {{ item: ItemT, index: number, column: number }} RenderItemInfo<ItemT>
  */
 
 /**
@@ -88,7 +88,7 @@ export default function MasonryList(props) {
                 {data
                   .map((item, index) => {
                     if (index % numOfColumns === colIndex)
-                      return renderItem({ item, index });
+                      return renderItem({ item, index, column: colIndex });
 
                     return null;
                   })

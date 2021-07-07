@@ -23,24 +23,21 @@ import {
 
 /**
  * @typedef {import('../../models').Merchant} Merchant
- * @typedef {import('../../models/common').ImageSource} ImageSource
- * @typedef {{width: number, height: number }} ImageDimensions
- *
- * @typedef {{ merchant: Merchant, imageSource: ImageSource, imageDimensions: ImageDimensions }} MerchantItemCardProps
+ * @typedef {{ merchant: Merchant }} MerchantItemCardProps
  * @typedef {import('react-native').ViewProps} ViewProps
  *
  * @param {MerchantItemCardProps & ViewProps} param0
  */
-export default function MerchantItemCard({
-  merchant,
-  imageSource,
-  imageDimensions,
-  ...props
-}) {
+export default function MerchantItemCard({ merchant, ...props }) {
   const navigation = useNavigation();
 
+  /** @type {import('../../models/common').ImageSource} */
+  const coverPhoto = merchant.coverPhoto ?? DEFAULT_IMAGE;
+
+  const [imageDimensions, setImageDimensions] = useState(null);
+
   return (
-    <View style={[props.style]}>
+    <View style={props.style}>
       <TouchableOpacity
         activeOpacity={DEFAULT_ACTIVE_OPACITY}
         onPress={() =>
@@ -59,30 +56,43 @@ export default function MerchantItemCard({
             padding: values.spacing.sm,
             borderRadius: 20,
           }}>
-          <Icon
-            name="storefront"
-            color={
-              __DEV__ && merchant.__hasCompleteProfile
-                ? colors.yellow500
-                : colors.white
-            }
-            size={20}
+          <Icon name="storefront" color={colors.white} size={20} />
+        </View>
+        <View>
+          <View
+            style={[
+              {
+                position: 'absolute',
+                top: 0,
+                bottom: 0,
+                left: 0,
+                right: 0,
+                justifyContent: 'center',
+              },
+              merchantItemCardStyles.imageContainer,
+            ]}>
+            <ActivityIndicator size="large" />
+          </View>
+          <Image
+            source={coverPhoto}
+            resizeMode="cover"
+            onLoad={(event) => {
+              const { height, width } = event.nativeEvent.source;
+              setImageDimensions({ height, width });
+            }}
+            style={[
+              {
+                aspectRatio: imageDimensions
+                  ? imageDimensions.width / imageDimensions.height
+                  : 1,
+                opacity: imageDimensions ? 1 : 0,
+              },
+              merchantItemCardStyles.imageContainer,
+            ]}
           />
         </View>
-        <Image
-          source={imageSource}
-          resizeMode="cover"
-          width={imageDimensions.width}
-          height={imageDimensions.height}
-          style={[
-            {
-              width: imageDimensions.width,
-              height: imageDimensions.height,
-            },
-            merchantItemCardStyles.imageContainer,
-          ]}
-        />
       </TouchableOpacity>
+      <MerchantItemCardFooter merchant={merchant} />
     </View>
   );
 }

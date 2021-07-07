@@ -5,8 +5,6 @@ import { Alert, FlatList, RefreshControl, Text, View } from 'react-native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { useDispatch, useSelector } from 'react-redux';
 
-import MasonryList from 'react-native-masonry-list';
-
 // import GeoLocation from 'react-native-geolocation-service';
 // import {
 //   check as checkPermission,
@@ -33,7 +31,7 @@ import {
   EmptyTabView,
   ErrorTabView,
   LoadingTabView,
-  // MasonryList,
+  MasonryList,
 } from '../../components';
 
 import {
@@ -521,14 +519,7 @@ function NearMeTab() {
   const [shouldFetch, setShouldFetch] = useState(true);
   const [fetchError, setFetchError] = useState(null);
 
-  const nearMeItemSources = useMemo(
-    () =>
-      nearMeItems.map((item) => ({
-        merchant: item,
-        source: item.coverPhoto,
-      })),
-    [nearMeItems],
-  );
+  const tileSpacing = useMemo(() => values.spacing.xs * 1.75, []);
 
   useEffect(() => {
     if (isInitialRender || shouldFetch) {
@@ -552,18 +543,18 @@ function NearMeTab() {
     if (!shouldFetch) setShouldFetch(true);
   };
 
-  const tileSpacing = useMemo(() => values.spacing.xs * 1.75, []);
-
-  if (isInitialRender) {
-    return <LoadingTabView />;
-  }
-
   return (
     <MasonryList
-      images={nearMeItemSources}
-      refreshing={shouldFetch}
-      onRefresh={handleRefresh}
-      emptyView={
+      data={nearMeItems}
+      refreshControl={
+        <RefreshControl
+          title="Loading activity near you..."
+          tintColor={colors.gray500}
+          refreshing={shouldFetch}
+          onRefresh={handleRefresh}
+        />
+      }
+      ListEmptyComponent={
         fetchError ? (
           <ErrorTabView
             message="We couldn't get activity near you"
@@ -594,8 +585,16 @@ function NearMeTab() {
           }}
         />
       )}
-      renderIndividualFooter={({ merchant }) => (
-        <MerchantItemCardFooter merchant={merchant} />
+      renderItem={({ item: merchant, column }) => (
+        <MerchantItemCard
+          merchant={merchant}
+          style={{
+            marginTop: tileSpacing,
+            marginLeft: column % 2 === 0 ? tileSpacing : tileSpacing / 2,
+            marginRight: column % 2 !== 0 ? tileSpacing : tileSpacing / 2,
+            marginBottom: values.spacing.sm,
+          }}
+        />
       )}
     />
   );
