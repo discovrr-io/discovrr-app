@@ -49,7 +49,7 @@ export namespace PostApi {
       content: postContent,
       createdAt: result.createdAt.toJSON(),
       location: result.get('location'),
-      statistics: { didSave: false, totalLikes, didLike },
+      statistics: { didSave: false, didLike, totalLikes, totalViews: 0 },
     } as Post;
   }
 

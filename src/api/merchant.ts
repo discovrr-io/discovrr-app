@@ -12,6 +12,7 @@ import {
 import { Merchant } from '../models';
 
 import {
+  Coordinates,
   DEFAULT_COORDINATES,
   DEFAULT_SEARCH_RADIUS,
   ImageSource,
@@ -70,17 +71,31 @@ export namespace MerchantApi {
       return null;
     }
 
-    const location: Parse.GeoPoint | undefined = result.get('geopoint');
+    let merchantCoordinates: Coordinates | undefined;
+    const geoPoint: Parse.GeoPoint | undefined = result.get('geopoint');
+    if (geoPoint) {
+      merchantCoordinates = {
+        latitude: geoPoint.latitude,
+        longitude: geoPoint.longitude,
+      };
+    }
 
     return {
       id: result.id,
       shortName: result.get('shortName'),
-      geoPoint: location,
       profileId: result.get('profileId'),
       avatar: merchantAvatar,
       coverPhoto: merchantCoverPhoto,
       description: result.get('about'),
-      __distanceToDefaultPoint: location?.kilometersTo(
+      // address: undefined,
+      coordinates: merchantCoordinates,
+      statistics: {
+        didSave: false,
+        didLike: false,
+        totalLikes: 0,
+        totalViews: 0,
+      },
+      __distanceToDefaultPoint: geoPoint?.kilometersTo(
         new Parse.GeoPoint(DEFAULT_COORDINATES),
       ),
       __hasCompleteProfile: hasCompleteProfile,

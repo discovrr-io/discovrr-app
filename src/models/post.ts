@@ -1,6 +1,6 @@
 import { EntityId } from '@reduxjs/toolkit';
 
-import { ImageSource } from './common';
+import { ImageSource, Statistics } from './common';
 import { ProfileId } from './profile';
 
 /**
@@ -45,12 +45,6 @@ export type PostLocation = {
   text: string;
 };
 
-export type PostStatistics = {
-  didSave: boolean;
-  didLike: boolean;
-  totalLikes: number;
-};
-
 /**
  * An interface describing the structure of a post item.
  */
@@ -60,5 +54,5 @@ export default interface Post {
   content: PostContent;
   createdAt: string;
   location?: PostLocation;
-  statistics?: PostStatistics;
+  statistics?: Statistics;
 }

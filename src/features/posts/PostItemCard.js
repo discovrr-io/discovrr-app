@@ -9,10 +9,10 @@ import {
   View,
 } from 'react-native';
 
+import * as Animatable from 'react-native-animatable';
 import FastImage from 'react-native-fast-image';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
-import * as Animatable from 'react-native-animatable';
 
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -174,7 +174,7 @@ export const PostItemCardFooter = ({
     ? values.spacing.sm * 1.25
     : values.spacing.md * 1.5;
 
-  const authorFontSize = smallContent ? typography.size.xs : typography.size.md;
+  const authorFontSize = smallContent ? typography.size.sm : typography.size.md;
 
   return (
     <View style={[postItemFooterStyles.container, props.style]}>
@@ -184,12 +184,12 @@ export const PostItemCardFooter = ({
         onPress={handlePressAvatar}>
         <View style={postItemFooterStyles.authorContainer}>
           <FastImage
+            source={profileAvatar}
             style={{
               width: avatarIconSize,
               height: avatarIconSize,
               borderRadius: avatarIconSize / 2,
             }}
-            source={profileAvatar}
           />
           <Text
             numberOfLines={1}

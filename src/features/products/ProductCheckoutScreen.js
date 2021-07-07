@@ -9,7 +9,6 @@ export default function ProductCheckoutScreen() {
   const { squareSpaceUrl = undefined } = useRoute().params ?? {};
 
   const [isLoading, setIsLoading] = useState(true);
-  console.log('isLoading:', isLoading);
 
   if (!squareSpaceUrl) {
     console.error('[ProductCheckoutScreen] squareSpaceUrl is undefined');

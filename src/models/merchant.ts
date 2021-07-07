@@ -1,7 +1,7 @@
 import Parse from 'parse/react-native';
 import { EntityId } from '@reduxjs/toolkit';
 
-import { ImageSource } from './common';
+import { Coordinates, ImageSource, Statistics } from './common';
 import { ProfileId } from './profile';
 
 export type MerchantId = EntityId;
@@ -19,12 +19,13 @@ export type MerchantAddress = {
 export default interface Merchant {
   id: MerchantId;
   shortName: string;
-  geoPoint?: Parse.GeoPoint;
   profileId?: ProfileId;
   avatar?: ImageSource;
   coverPhoto?: ImageSource;
   description?: string;
   address?: MerchantAddress;
+  coordinates?: Coordinates;
+  statistics?: Statistics;
   __distanceToDefaultPoint?: number;
   /**
    * An internal tag used to check if this particular merchant is a partnered

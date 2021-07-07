@@ -78,7 +78,7 @@ export default function ProductItemCard({ productId, ...props }) {
             },
             productItemCardStyles.imageContainer,
           ]}>
-          <ActivityIndicator size="large" />
+          <ActivityIndicator size="large" color={colors.gray500} />
         </View>
         <Image
           source={{ uri: product.imageUrl }}

@@ -31,6 +31,11 @@ import {
   selectFollowingPosts,
   selectPostIds,
 } from './postsSlice';
+import {
+  fetchAllMerchants,
+  selectMerchantIds,
+} from '../merchants/merchantsSlice';
+import { SOMETHING_WENT_WRONG } from '../../constants/strings';
 
 const PAGINATION_LIMIT = 26;
 
@@ -93,7 +98,7 @@ function DiscoverTab() {
         } catch (error) {
           console.error('[DiscoverTab] Failed to refresh posts:', error);
           Alert.alert(
-            'Something went wrong',
+            SOMETHING_WENT_WRONG.title,
             "We couldn't refresh your posts for you at the moment.",
           );
         } finally {
@@ -500,49 +505,65 @@ function DiscoverTab() {
 // }
 
 function NearMeTab() {
-  /**
-   * NOTE: For now, we'll just fetch merchants
-   * @typedef {import('../../models').Merchant} Merchant
-   * @type {[Merchant[], (value: Merchant) => void]}
-   */
-  const [merchants, setMerchants] = useState([]);
+  const dispatch = useDispatch();
 
-  const [isInitialRender, setIsInitialRender] = useState(true);
-  const [shouldFetch, setShouldFetch] = useState(true);
-  const [fetchError, setFetchError] = useState(null);
+  // NOTE: For now, we'll just display merchants
+  const merchantIds = useSelector(selectMerchantIds);
+
+  /** @type {import('../../api').ApiFetchStatus} */
+  const { error: fetchError } = useSelector((state) => state.merchants);
+
+  const [shouldRefresh, setShouldRefresh] = useState(true);
+  const [shouldFetchMore, setShouldFetchMore] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [didReachEnd, setDidReachEnd] = useState(false);
 
   const tileSpacing = useMemo(() => values.spacing.xs * 1.75, []);
 
   useEffect(() => {
-    if (isInitialRender || shouldFetch) {
+    if (shouldRefresh) {
       (async () => {
         try {
           console.log('[NearMeTab] Fetching near me items...');
-          const items = await MerchantApi.fetchAllMerchants();
-          setMerchants(items);
+          // const items = await MerchantApi.fetchAllMerchants();
+          // setMerchants(items);
+
+          /** @type {import('../../models/common').Pagination} */
+          const pagination = { limit: PAGINATION_LIMIT, currentPage: 0 };
+          await dispatch(
+            fetchAllMerchants({ pagination, reload: true }),
+          ).unwrap();
         } catch (error) {
-          console.error('[NearMeTab] Failed to fetch near me items:', error);
-          setFetchError(error);
+          console.error('[NearMeTab] Failed to refresh near me items:', error);
+          Alert.alert(SOMETHING_WENT_WRONG.title, SOMETHING_WENT_WRONG.message);
         } finally {
-          if (isInitialRender) setIsInitialRender(false);
-          setShouldFetch(false);
+          setShouldRefresh(false);
         }
       })();
     }
-  }, [isInitialRender, shouldFetch]);
+  }, [shouldRefresh]);
+
+  useEffect(() => {
+    if (shouldFetchMore)
+      console.warn('UNIMPLEMENTED: Fetch more near me items');
+  }, [shouldFetchMore]);
 
   const handleRefresh = () => {
-    if (!shouldFetch) setShouldFetch(true);
+    if (!shouldRefresh) setShouldRefresh(true);
+  };
+
+  const handleFetchMoreItems = () => {
+    if (!shouldRefresh && !shouldFetchMore) setShouldFetchMore(true);
   };
 
   return (
     <MasonryList
-      data={merchants}
+      data={merchantIds}
       refreshControl={
         <RefreshControl
           title="Loading activity near you..."
           tintColor={colors.gray500}
-          refreshing={shouldFetch}
+          refreshing={shouldRefresh}
           onRefresh={handleRefresh}
         />
       }
@@ -556,10 +577,10 @@ function NearMeTab() {
           <EmptyTabView message="Looks like there isn't any activity near you" />
         )
       }
-      ListFooterComponent={merchants.length > 0 && <MasonryListFooter />}
-      renderItem={({ item: merchant, column }) => (
+      ListFooterComponent={merchantIds.length > 0 && <MasonryListFooter />}
+      renderItem={({ item: merchantId, column }) => (
         <MerchantItemCard
-          merchant={merchant}
+          merchantId={merchantId}
           style={{
             marginTop: tileSpacing,
             marginLeft: column % 2 === 0 ? tileSpacing : tileSpacing / 2,

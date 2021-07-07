@@ -8,12 +8,14 @@ export type ImageSource =
   | number
   | { uri: string; width?: number; height?: number };
 
+export type Coordinates = {
+  latitude: number;
+  longitude: number;
+};
+
 export type LocationQueryPreferences = {
   searchRadius?: number;
-  coordinates?: {
-    latitude: number;
-    longitude: number;
-  };
+  coordinates?: Coordinates;
 };
 
 export const MIN_SEARCH_RADIUS = 3;
@@ -30,4 +32,11 @@ export const DEFAULT_COORDINATES = {
 export type Pagination = {
   limit: number;
   currentPage: number;
+};
+
+export type Statistics = {
+  didSave: boolean;
+  didLike: boolean;
+  totalLikes: number;
+  totalViews: number;
 };
