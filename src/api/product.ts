@@ -3,6 +3,21 @@ import Parse from 'parse/react-native';
 import { Product } from '../models';
 
 export namespace ProductApi {
+  function mapResultToProduct(
+    result: Parse.Object<Parse.Attributes>,
+    merchantId?: string,
+  ): Product {
+    return {
+      id: result.id,
+      merchantId: merchantId ?? result.get('owner').id,
+      name: result.get('productName'),
+      description: result.get('productProduct'),
+      price: result.get('price'),
+      squareSpaceUrl: result.get('squareSpaceUrl'),
+      imageUrl: result.get('imageUrl'),
+    };
+  }
+
   export async function fetchProductsForMerchant(
     merchantId: string,
   ): Promise<Product[]> {
@@ -18,18 +33,7 @@ export namespace ProductApi {
       query.equalTo('owner', vendorPointer);
 
       const results = await query.find();
-      return results.map(
-        (product) =>
-          ({
-            id: product.id,
-            merchantId,
-            name: product.get('productName'),
-            description: product.get('productProduct'),
-            price: product.get('price'),
-            squareSpaceUrl: product.get('squareSpaceUrl'),
-            imageUrl: product.get('imageUrl'),
-          } as Product),
-      );
+      return results.map((result) => mapResultToProduct(result, merchantId));
     } catch (error) {
       console.error(`Failed to fetch products for merchant:`, error);
       throw error;

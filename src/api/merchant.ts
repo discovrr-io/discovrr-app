@@ -104,6 +104,7 @@ export namespace MerchantApi {
 
     console.groupEnd();
     const results = await query.find();
+
     // Filter out all the null values (i.e. merchants not partnered with us)
     return results.map(mapResultToMerchant).filter(Boolean);
   }

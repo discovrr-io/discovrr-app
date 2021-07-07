@@ -21,18 +21,10 @@ import PostItemCard from './PostItemCard';
 import PostMasonryList from '../../components/masonry/PostMasonryList';
 // import SearchLocationModal from '../../components/bottomSheets/SearchLocationModal';
 
-import MerchantItemCard, {
-  MerchantItemCardFooter,
-} from '../merchants/MerchantItemCard';
+import MerchantItemCard from '../merchants/MerchantItemCard';
 
 import { colors, typography, values } from '../../constants';
-
-import {
-  EmptyTabView,
-  ErrorTabView,
-  LoadingTabView,
-  MasonryList,
-} from '../../components';
+import { EmptyTabView, ErrorTabView, MasonryList } from '../../components';
 
 import {
   fetchAllPosts,
@@ -513,7 +505,7 @@ function NearMeTab() {
    * @typedef {import('../../models').Merchant} Merchant
    * @type {[Merchant[], (value: Merchant) => void]}
    */
-  const [nearMeItems, setNearMeItems] = useState([]);
+  const [merchants, setMerchants] = useState([]);
 
   const [isInitialRender, setIsInitialRender] = useState(true);
   const [shouldFetch, setShouldFetch] = useState(true);
@@ -527,7 +519,7 @@ function NearMeTab() {
         try {
           console.log('[NearMeTab] Fetching near me items...');
           const items = await MerchantApi.fetchAllMerchants();
-          setNearMeItems(items);
+          setMerchants(items);
         } catch (error) {
           console.error('[NearMeTab] Failed to fetch near me items:', error);
           setFetchError(error);
@@ -545,7 +537,7 @@ function NearMeTab() {
 
   return (
     <MasonryList
-      data={nearMeItems}
+      data={merchants}
       refreshControl={
         <RefreshControl
           title="Loading activity near you..."
@@ -564,27 +556,7 @@ function NearMeTab() {
           <EmptyTabView message="Looks like there isn't any activity near you" />
         )
       }
-      listContainerStyle={{
-        paddingBottom: tileSpacing,
-      }}
-      completeCustomComponent={({
-        data: {
-          merchant,
-          column,
-          source: imageSource,
-          masonryDimensions: imageDimensions,
-        },
-      }) => (
-        <MerchantItemCard
-          merchant={merchant}
-          imageSource={imageSource}
-          imageDimensions={imageDimensions}
-          style={{
-            marginTop: tileSpacing,
-            marginLeft: column % 2 === 0 ? tileSpacing * 0.75 : tileSpacing,
-          }}
-        />
-      )}
+      ListFooterComponent={merchants.length > 0 && <MasonryListFooter />}
       renderItem={({ item: merchant, column }) => (
         <MerchantItemCard
           merchant={merchant}

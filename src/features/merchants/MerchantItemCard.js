@@ -8,10 +8,10 @@ import {
   View,
 } from 'react-native';
 
-// import FastImage from 'react-native-fast-image';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
 
+import { useIsMounted } from '../../hooks';
 import { DEFAULT_IMAGE, DEFAULT_IMAGE_DIMENSIONS } from '../../constants/media';
 
 import {
@@ -34,6 +34,7 @@ export default function MerchantItemCard({ merchant, ...props }) {
   /** @type {import('../../models/common').ImageSource} */
   const coverPhoto = merchant.coverPhoto ?? DEFAULT_IMAGE;
 
+  const isMounted = useIsMounted();
   const [imageDimensions, setImageDimensions] = useState(null);
 
   return (
@@ -78,7 +79,7 @@ export default function MerchantItemCard({ merchant, ...props }) {
             resizeMode="cover"
             onLoad={(event) => {
               const { height, width } = event.nativeEvent.source;
-              setImageDimensions({ height, width });
+              if (isMounted.current) setImageDimensions({ height, width });
             }}
             style={[
               {

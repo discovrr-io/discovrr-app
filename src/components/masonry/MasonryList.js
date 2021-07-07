@@ -22,6 +22,10 @@ const isCloseToBottom = (
 };
 
 /**
+ * @typedef {import('react-native').ScrollViewProps} ScrollViewProps
+ */
+
+/**
  * @template ItemT
  * @typedef {{ item: ItemT, index: number, column: number }} RenderItemInfo<ItemT>
  */
@@ -38,10 +42,6 @@ const isCloseToBottom = (
  *   ListEmptyComponent?: React.ComponentType<any> | React.ReactElement | null,
  *   ListFooterComponent?: React.ComponentType<any> | React.ReactElement | null,
  * }} MasonryListProps<ItemT>
- */
-
-/**
- * @typedef {import('react-native').ScrollViewProps} ScrollViewProps
  */
 
 /**
