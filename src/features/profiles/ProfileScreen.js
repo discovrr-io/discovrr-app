@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
-import { Tabs } from 'react-native-collapsible-tab-view';
+import { Tabs, MaterialTabBar } from 'react-native-collapsible-tab-view';
 import { useNavigation } from '@react-navigation/native';
 import { useRoute } from '@react-navigation/core';
 import { useDispatch, useSelector } from 'react-redux';
@@ -484,11 +484,18 @@ export default function ProfileScreen() {
     <SafeAreaView style={{ flex: 1 }}>
       <Tabs.Container
         lazy
-        // minHeaderHeight={topInset + HEADER_MIN_HEIGHT}
         snapThreshold={0.25}
         HeaderComponent={() => (
           <ProfileScreenHeader
             profileDetails={{ ...profile, isMyProfile, totalLikes }}
+          />
+        )}
+        TabBarComponent={(props) => (
+          <MaterialTabBar
+            {...props}
+            activeColor={colors.black}
+            inactiveColor={colors.gray700}
+            indicatorStyle={{ backgroundColor: colors.accent }}
           />
         )}>
         <Tabs.Tab name="posts" label="Posts">

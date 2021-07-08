@@ -34,6 +34,6 @@ export const black = '#141414';
 export const gray = gray500;
 export const white = '#FAFAFA';
 
-export const accent = blue500;
-export const accentFocused = blue700;
-export const accentDisabled = blue300;
+export const accent = teal500;
+export const accentFocused = teal700;
+export const accentDisabled = teal300;

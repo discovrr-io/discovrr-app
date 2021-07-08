@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Alert, RefreshControl, SafeAreaView } from 'react-native';
 
-import { Tabs } from 'react-native-collapsible-tab-view';
+import { Tabs, MaterialTabBar } from 'react-native-collapsible-tab-view';
 import { useRoute } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -15,7 +15,7 @@ import { selectAllNotes } from '../notes/notesSlice';
 import { selectPostsByProfile } from '../posts/postsSlice';
 import { SOMETHING_WENT_WRONG } from '../../constants/strings';
 import { useIsMounted } from '../../hooks';
-import { values } from '../../constants';
+import { colors, values } from '../../constants';
 
 import {
   fetchProductsForMerchant,
@@ -189,6 +189,14 @@ export default function MerchantProfileScreen() {
               isVendor: true,
               address: merchant.address,
             }}
+          />
+        )}
+        TabBarComponent={(props) => (
+          <MaterialTabBar
+            {...props}
+            activeColor={colors.black}
+            inactiveColor={colors.gray700}
+            indicatorStyle={{ backgroundColor: colors.accent }}
           />
         )}>
         <Tabs.Tab name="products" label="Products">

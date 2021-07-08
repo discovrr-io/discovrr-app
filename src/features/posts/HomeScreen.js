@@ -157,6 +157,7 @@ function DiscoverTab() {
     <PostMasonryList
       smallContent
       postIds={postIds}
+      style={{ backgroundColor: colors.white }}
       onEndReached={handleFetchMorePosts}
       onEndReachedThreshold={0.85}
       refreshControl={
@@ -594,6 +595,7 @@ function NearMeTab() {
   return (
     <MasonryList
       data={nearMeItems}
+      style={{ backgroundColor: colors.white }}
       refreshControl={
         <RefreshControl
           title="Loading activity near you..."
@@ -626,8 +628,10 @@ function NearMeTab() {
           const productId = nearMeItem.item;
           return (
             <ProductItemCard
+              showFooter
               productId={productId}
-              style={itemCardStyles(column)}
+              promoLabel="buy now!"
+              style={[itemCardStyles(column)]}
             />
           );
         }

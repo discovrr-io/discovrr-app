@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 
 import * as Animatable from 'react-native-animatable';
-import FastImage from 'react-native-fast-image';
+// import FastImage from 'react-native-fast-image';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
 
@@ -130,7 +130,7 @@ export default function MerchantItemCard({ merchantId, ...props }) {
         </View>
         <MerchantItemCardCaption merchant={merchant} />
       </TouchableOpacity>
-      <MerchantItemCardFooter merchant={merchant} />
+      <MerchantItemCardFooter merchantId={merchantId} />
     </View>
   );
 }
@@ -151,6 +151,7 @@ const merchantItemCardStyles = StyleSheet.create({
  */
 function MerchantItemCardCaption({ merchant }) {
   const { description, __distanceToDefaultPoint } = merchant;
+
   return (
     <View
       style={{
@@ -181,9 +182,25 @@ const merchantItemCardCaptionStyles = StyleSheet.create({
 });
 
 /**
- * @param {{ merchant: Merchant }} param0
+ * @typedef {import('../../models').MerchantId} MerchantId
+ * @param {{ merchantId: MerchantId }} param0
  */
-function MerchantItemCardFooter({ merchant }) {
+export function MerchantItemCardFooter({ merchantId }) {
+  const navigation = useNavigation();
+
+  const merchant = useSelector((state) =>
+    selectMerchantById(state, merchantId),
+  );
+
+  if (!merchant) {
+    console.warn(
+      '[MerchantItemCardCaption] Failed to select merchant with id:',
+      merchantId,
+    );
+
+    return null;
+  }
+
   const { avatar, shortName, statistics } = merchant;
   const { didSave = false, didLike = false, totalLikes = 0 } = statistics ?? {};
 
@@ -191,6 +208,12 @@ function MerchantItemCardFooter({ merchant }) {
     <View style={merchantItemCardFooterStyles.container}>
       <TouchableOpacity
         activeOpacity={DEFAULT_ACTIVE_OPACITY}
+        onPress={() =>
+          navigation.navigate('MerchantProfileScreen', {
+            merchant,
+            merchantShortName: shortName,
+          })
+        }
         style={{ flex: 1 }}>
         <View style={merchantItemCardFooterStyles.merchantContainer}>
           <Image
