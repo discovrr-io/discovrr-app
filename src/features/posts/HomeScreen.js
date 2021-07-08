@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { createSelector } from '@reduxjs/toolkit';
 import { Alert, FlatList, RefreshControl, Text, View } from 'react-native';
@@ -38,6 +38,7 @@ import {
 } from '../merchants/merchantsSlice';
 
 import { fetchAllProducts, selectProductIds } from '../products/productsSlice';
+import { StyleSheet } from 'react-native';
 
 const PAGINATION_LIMIT = 26;
 
@@ -509,20 +510,19 @@ function DiscoverTab() {
 const selectNearMeItems = createSelector(
   [selectMerchantIds, selectProductIds],
   (allMerchantIds, allProductIds) => {
-    // Get every 5th product
-    const productIds = allProductIds.filter((_, idx) => idx % 5 === 0);
-
     // The current product index
     let curr = 0;
 
     /** @type {import('../../models').NearMeItem[]} */
     const nearMeItems = allMerchantIds.flatMap((merchantId, idx) => {
-      // We'll add a product if we still have products to choose from
-      // NOTE: If we're at the end, no more products will be shown, even if
-      // there is more to show
-      if (idx % 2 === 0 && curr < productIds.length) {
-        const productId = productIds[curr];
-        curr += 1;
+      // We'll add a product for every four merchant items, if we still have
+      // products to choose from
+      // NOTE: If `curr >= productIds.length`, no more products will be added,
+      // even if there are still more products left in the Redux store
+      if (idx % 4 === 0) {
+        const productId = allProductIds[curr];
+        // We'll skip every 5 products
+        curr = (curr + 5) % allProductIds.length;
 
         return [
           { type: 'merchant', item: merchantId },
@@ -550,6 +550,12 @@ function NearMeTab() {
   // const [didReachEnd, setDidReachEnd] = useState(false);
 
   const tileSpacing = useMemo(() => values.spacing.xs * 1.75, []);
+  const itemCardStyles = (column) => ({
+    marginTop: tileSpacing,
+    marginLeft: column % 2 === 0 ? tileSpacing : tileSpacing / 2,
+    marginRight: column % 2 !== 0 ? tileSpacing : tileSpacing / 2,
+    marginBottom: values.spacing.sm,
+  });
 
   useEffect(() => {
     if (shouldRefresh) {
@@ -613,12 +619,7 @@ function NearMeTab() {
           return (
             <MerchantItemCard
               merchantId={merchantId}
-              style={{
-                marginTop: tileSpacing,
-                marginLeft: column % 2 === 0 ? tileSpacing : tileSpacing / 2,
-                marginRight: column % 2 !== 0 ? tileSpacing : tileSpacing / 2,
-                marginBottom: values.spacing.sm,
-              }}
+              style={itemCardStyles(column)}
             />
           );
         } else {
@@ -626,12 +627,7 @@ function NearMeTab() {
           return (
             <ProductItemCard
               productId={productId}
-              style={{
-                marginTop: tileSpacing,
-                marginLeft: column % 2 === 0 ? tileSpacing : tileSpacing / 2,
-                marginRight: column % 2 !== 0 ? tileSpacing : tileSpacing / 2,
-                marginBottom: values.spacing.sm,
-              }}
+              style={itemCardStyles(column)}
             />
           );
         }

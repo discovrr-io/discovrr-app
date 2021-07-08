@@ -47,19 +47,19 @@ export default function MerchantItemCard({ merchantId, ...props }) {
     selectMerchantById(state, merchantId),
   );
 
-  const isInitialRender = useIsInitialRender();
+  // const isInitialRender = useIsInitialRender();
   const isMounted = useIsMounted();
 
   const [imageDimensions, setImageDimensions] = useState(null);
 
-  useEffect(() => {
-    console.warn('[MerchantItemCard] Retrying fetch...');
-
-    if (isInitialRender.current && !merchant)
-      (async () => {
-        await dispatch(fetchMerchantById(merchantId)).unwrap();
-      })();
-  }, [isInitialRender]);
+  // useEffect(() => {
+  //   console.warn('[MerchantItemCard] Retrying fetch...');
+  //
+  //   if (isInitialRender.current && !merchant)
+  //     (async () => {
+  //       await dispatch(fetchMerchantById(merchantId)).unwrap();
+  //     })();
+  // }, [isInitialRender]);
 
   if (!merchant) {
     console.warn(
