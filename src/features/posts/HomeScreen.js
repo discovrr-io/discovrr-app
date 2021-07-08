@@ -588,9 +588,9 @@ function NearMeTab() {
     if (!shouldRefresh) setShouldRefresh(true);
   };
 
-  const handleFetchMoreItems = () => {
-    if (!shouldRefresh && !shouldFetchMore) setShouldFetchMore(true);
-  };
+  // const handleFetchMoreItems = () => {
+  //   if (!shouldRefresh && !shouldFetchMore) setShouldFetchMore(true);
+  // };
 
   return (
     <MasonryList

@@ -12,9 +12,9 @@ export const fetchAllPosts = createAsyncThunk(
   'posts/fetchPosts',
   /**
    * @typedef {import('../../models/common').Pagination} Pagination
-   * @param {{ pagination: Pagination, reload?: boolean }} param0
+   * @param {{ pagination?: Pagination, reload?: boolean }=} param0
    */
-  async ({ pagination }) => PostApi.fetchAllPosts(pagination),
+  async ({ pagination } = {}) => PostApi.fetchAllPosts(pagination),
 );
 
 export const fetchPostById = createAsyncThunk(
@@ -62,13 +62,13 @@ const postsSlice = createSlice({
     builder
       // -- fetchAllPosts --
       .addCase(fetchAllPosts.pending, (state, action) => {
-        const { reload } = action.meta.arg;
+        const { reload = false } = action.meta.arg ?? {};
         state.status = reload ? 'refreshing' : 'pending';
       })
       .addCase(fetchAllPosts.fulfilled, (state, action) => {
         state.status = 'fulfilled';
         state.error = null;
-        const { reload = false } = action.meta.arg;
+        const { reload = false } = action.meta.arg ?? {};
         if (reload) {
           postsAdapter.setAll(state, action.payload);
         } else {

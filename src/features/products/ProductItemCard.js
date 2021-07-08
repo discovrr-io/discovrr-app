@@ -127,7 +127,8 @@ export default function ProductItemCard({
             {product.name}
           </Text>
           <Text style={productItemCardStyles.productPrice}>
-            ${product.price}
+            {/* {product.price === 0 ? 'Free' : `$${product.price}`} */}$
+            {product.price}
           </Text>
         </View>
       </TouchableOpacity>
@@ -151,5 +152,6 @@ const productItemCardStyles = StyleSheet.create({
   productPrice: {
     fontWeight: '700',
     fontSize: typography.size.h4,
+    marginLeft: values.spacing.sm,
   },
 });

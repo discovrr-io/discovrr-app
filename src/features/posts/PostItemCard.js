@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-// import PropTypes from 'prop-types';
 import {
   Alert,
   NativeEventEmitter,
@@ -59,13 +58,13 @@ const alertUnimplementedFeature = () => {
  *
  * @param {PostItemFooterProps & import('react-native').ViewProps} param0
  */
-export const PostItemCardFooter = ({
+export function PostItemCardFooter({
   post,
   smallContent = false,
   showShareIcon = false,
   showMenuIcon = false,
   ...props
-}) => {
+}) {
   const dispatch = useDispatch();
   const navigation = useNavigation();
 
@@ -269,12 +268,7 @@ export const PostItemCardFooter = ({
       </View>
     </View>
   );
-};
-
-// PostItemCardFooter.propTypes = {
-//   post: PropTypes.object.isRequired,
-//   options: PostItemFooterOptions,
-// };
+}
 
 const postItemFooterStyles = StyleSheet.create({
   container: {
@@ -312,15 +306,15 @@ const postItemFooterStyles = StyleSheet.create({
  *
  * @param {PostItemCardProps & import('react-native').ViewProps} param0
  */
-const PostItemCard = ({
+export default function PostItemCard({
   postId,
   showFooter = true,
   smallContent = false,
   ...props
-}) => {
+}) {
   const navigation = useNavigation();
 
-  /** @type {import('../models').Post | undefined} */
+  /** @type {import('../../models').Post | undefined} */
   const post = useSelector((state) => selectPostById(state, postId));
   if (!post) {
     console.warn('[PostItemCard] Failed to select post with id:', postId);
@@ -364,6 +358,34 @@ const PostItemCard = ({
 
       cardContent = (
         <View>
+          {post.content.sources.length > 1 && (
+            <View
+              style={{
+                position: 'absolute',
+                zIndex: 1,
+                top:
+                  (smallContent ? values.spacing.sm : values.spacing.md) * 1.5,
+                right:
+                  (smallContent ? values.spacing.sm : values.spacing.md) * 1.5,
+                backgroundColor: 'rgba(0, 0, 0, 0.55)',
+                paddingVertical: values.spacing.sm,
+                paddingHorizontal: values.spacing.md,
+                borderRadius: 20,
+                minWidth: smallContent ? 22 : 38,
+              }}>
+              <Text
+                style={{
+                  color: colors.white,
+                  fontWeight: '700',
+                  textAlign: 'center',
+                  fontSize: smallContent
+                    ? typography.size.md
+                    : typography.size.h3,
+                }}>
+                {post.content.sources.length}
+              </Text>
+            </View>
+          )}
           <FastImage
             source={post.content.sources[0]}
             resizeMode="cover"
@@ -427,19 +449,7 @@ const PostItemCard = ({
       )}
     </View>
   );
-};
-
-// PostItemCard.propTypes = {
-//   postId: PropTypes.string.isRequired,
-//   column: PropTypes.number,
-//   imagePreview: PropTypes.oneOfType([PropTypes.object, PropTypes.number]),
-//   imagePreviewDimensions: PropTypes.shape({
-//     width: PropTypes.number.isRequired,
-//     height: PropTypes.number.isRequired,
-//   }),
-//   displayFooter: PropTypes.bool,
-//   footerOptions: PostItemFooterOptions,
-// };
+}
 
 const postItemStyles = StyleSheet.create({
   captionContainer: {
@@ -460,5 +470,3 @@ const postItemStyles = StyleSheet.create({
     fontWeight: '500',
   },
 });
-
-export default PostItemCard;
