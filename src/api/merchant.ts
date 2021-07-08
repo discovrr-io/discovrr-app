@@ -113,6 +113,7 @@ export namespace MerchantApi {
     } as Merchant;
   }
 
+  // TODO: Try-catch
   export async function fetchAllMerchants(pagination?: Pagination) {
     console.group('MerchantApi.fetchAllMerchants');
 
@@ -135,8 +136,10 @@ export namespace MerchantApi {
     return results.map(mapResultToMerchant).filter(Boolean);
   }
 
+  // TODO: Try-catch
   export async function fetchMerchantsNearMe(
     preferences?: LocationQueryPreferences,
+    pagination?: Pagination,
   ): Promise<Merchant[]> {
     const {
       searchRadius = DEFAULT_SEARCH_RADIUS,
@@ -150,11 +153,35 @@ export namespace MerchantApi {
     });
 
     const query = new Parse.Query(Parse.Object.extend('Vendor'));
+    query.exists('avatarUrl');
+    query.exists('coverPhotoUrl');
+
     const pointOfInterest = new Parse.GeoPoint(latitude, longitude);
     query.withinKilometers('geopoint', pointOfInterest, searchRadius);
-    query.limit(100);
+
+    if (pagination) {
+      query.limit(pagination.limit);
+      query.skip(pagination.limit * pagination.currentPage);
+    }
 
     const results = await query.find();
     return results.map(mapResultToMerchant);
+  }
+
+  export async function fetchMerchantById(
+    merchantId: string,
+  ): Promise<Merchant | null> {
+    try {
+      const query = new Parse.Query(Parse.Object.extend('Vendor'));
+      query.equalTo('owner', merchantId);
+      query.exists('avatarUrl');
+      query.exists('coverPhotoUrl');
+
+      const result = await query.first();
+      return mapResultToMerchant(result);
+    } catch (error) {
+      console.error('Failed to fetch merchant by id:', error);
+      throw error;
+    }
   }
 }

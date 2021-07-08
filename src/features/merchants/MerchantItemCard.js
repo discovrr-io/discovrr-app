@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Image,
@@ -13,7 +13,7 @@ import FastImage from 'react-native-fast-image';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
 
-import { useIsMounted } from '../../hooks';
+import { useIsInitialRender, useIsMounted } from '../../hooks';
 import { DEFAULT_AVATAR, DEFAULT_IMAGE } from '../../constants/media';
 
 import {
@@ -23,8 +23,12 @@ import {
   values,
 } from '../../constants';
 
-import { useSelector } from 'react-redux';
-import { selectMerchantById } from './merchantsSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  fetchAllMerchants,
+  fetchMerchantById,
+  selectMerchantById,
+} from './merchantsSlice';
 
 const SMALL_ICON = 24;
 
@@ -36,24 +40,38 @@ const SMALL_ICON = 24;
  * @param {MerchantItemCardProps & ViewProps} param0
  */
 export default function MerchantItemCard({ merchantId, ...props }) {
+  const dispatch = useDispatch();
   const navigation = useNavigation();
 
   const merchant = useSelector((state) =>
     selectMerchantById(state, merchantId),
   );
+
+  const isInitialRender = useIsInitialRender();
+  const isMounted = useIsMounted();
+
+  const [imageDimensions, setImageDimensions] = useState(null);
+
+  useEffect(() => {
+    console.warn('[MerchantItemCard] Retrying fetch...');
+
+    if (isInitialRender.current && !merchant)
+      (async () => {
+        await dispatch(fetchMerchantById(merchantId)).unwrap();
+      })();
+  }, [isInitialRender]);
+
   if (!merchant) {
     console.warn(
       '[MerchantItemCard] Failed to select merchant with id:',
       merchantId,
     );
+
     return null;
   }
 
   /** @type {import('../../models/common').ImageSource} */
   const coverPhoto = merchant.coverPhoto ?? DEFAULT_IMAGE;
-
-  const isMounted = useIsMounted();
-  const [imageDimensions, setImageDimensions] = useState(null);
 
   return (
     <View style={props.style}>
@@ -175,12 +193,13 @@ function MerchantItemCardFooter({ merchant }) {
         activeOpacity={DEFAULT_ACTIVE_OPACITY}
         style={{ flex: 1 }}>
         <View style={merchantItemCardFooterStyles.merchantContainer}>
-          <FastImage
+          <Image
             source={avatar ?? DEFAULT_AVATAR}
             style={{
               width: SMALL_ICON,
               height: SMALL_ICON,
               borderRadius: SMALL_ICON / 2,
+              backgroundColor: colors.gray200,
             }}
           />
           <Text

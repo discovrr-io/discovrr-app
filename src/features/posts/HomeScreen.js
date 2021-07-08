@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 
+import { createSelector } from '@reduxjs/toolkit';
 import { Alert, FlatList, RefreshControl, Text, View } from 'react-native';
 
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
@@ -13,15 +14,14 @@ import { useDispatch, useSelector } from 'react-redux';
 //   PERMISSIONS,
 // } from 'react-native-permissions';
 
-import { MerchantApi } from '../../api';
-// import { SOMETHING_WENT_WRONG } from '../../constants/strings';
+import { SOMETHING_WENT_WRONG } from '../../constants/strings';
 import { fetchAllProfiles } from '../profiles/profilesSlice';
 
+import MerchantItemCard from '../merchants/MerchantItemCard';
 import PostItemCard from './PostItemCard';
 import PostMasonryList from '../../components/masonry/PostMasonryList';
+import ProductItemCard from '../products/ProductItemCard';
 // import SearchLocationModal from '../../components/bottomSheets/SearchLocationModal';
-
-import MerchantItemCard from '../merchants/MerchantItemCard';
 
 import { colors, typography, values } from '../../constants';
 import { EmptyTabView, ErrorTabView, MasonryList } from '../../components';
@@ -31,11 +31,13 @@ import {
   selectFollowingPosts,
   selectPostIds,
 } from './postsSlice';
+
 import {
   fetchAllMerchants,
   selectMerchantIds,
 } from '../merchants/merchantsSlice';
-import { SOMETHING_WENT_WRONG } from '../../constants/strings';
+
+import { fetchAllProducts, selectProductIds } from '../products/productsSlice';
 
 const PAGINATION_LIMIT = 26;
 
@@ -504,19 +506,48 @@ function DiscoverTab() {
 //   );
 // }
 
+const selectNearMeItems = createSelector(
+  [selectMerchantIds, selectProductIds],
+  (allMerchantIds, allProductIds) => {
+    // Get every 5th product
+    const productIds = allProductIds.filter((_, idx) => idx % 5 === 0);
+
+    // The current product index
+    let curr = 0;
+
+    /** @type {import('../../models').NearMeItem[]} */
+    const nearMeItems = allMerchantIds.flatMap((merchantId, idx) => {
+      // We'll add a product if we still have products to choose from
+      // NOTE: If we're at the end, no more products will be shown, even if
+      // there is more to show
+      if (idx % 2 === 0 && curr < productIds.length) {
+        const productId = productIds[curr];
+        curr += 1;
+
+        return [
+          { type: 'merchant', item: merchantId },
+          { type: 'product', item: productId },
+        ];
+      } else {
+        return { type: 'merchant', item: merchantId };
+      }
+    });
+
+    return nearMeItems;
+  },
+);
+
 function NearMeTab() {
   const dispatch = useDispatch();
 
-  // NOTE: For now, we'll just display merchants
-  const merchantIds = useSelector(selectMerchantIds);
-
-  /** @type {import('../../api').ApiFetchStatus} */
-  const { error: fetchError } = useSelector((state) => state.merchants);
+  const nearMeItems = useSelector((state) => selectNearMeItems(state));
 
   const [shouldRefresh, setShouldRefresh] = useState(true);
   const [shouldFetchMore, setShouldFetchMore] = useState(false);
-  const [currentPage, setCurrentPage] = useState(0);
-  const [didReachEnd, setDidReachEnd] = useState(false);
+  const [fetchError, setFetchError] = useState(null);
+
+  // const [currentPage, setCurrentPage] = useState(0);
+  // const [didReachEnd, setDidReachEnd] = useState(false);
 
   const tileSpacing = useMemo(() => values.spacing.xs * 1.75, []);
 
@@ -524,18 +555,14 @@ function NearMeTab() {
     if (shouldRefresh) {
       (async () => {
         try {
-          console.log('[NearMeTab] Fetching near me items...');
-          // const items = await MerchantApi.fetchAllMerchants();
-          // setMerchants(items);
-
-          /** @type {import('../../models/common').Pagination} */
-          const pagination = { limit: PAGINATION_LIMIT, currentPage: 0 };
-          await dispatch(
-            fetchAllMerchants({ pagination, reload: true }),
-          ).unwrap();
+          await Promise.all([
+            dispatch(fetchAllMerchants()).unwrap(),
+            dispatch(fetchAllProducts()).unwrap(),
+          ]);
         } catch (error) {
-          console.error('[NearMeTab] Failed to refresh near me items:', error);
+          console.error('Failed to select merchants and products:', error);
           Alert.alert(SOMETHING_WENT_WRONG.title, SOMETHING_WENT_WRONG.message);
+          setFetchError(error);
         } finally {
           setShouldRefresh(false);
         }
@@ -544,8 +571,10 @@ function NearMeTab() {
   }, [shouldRefresh]);
 
   useEffect(() => {
-    if (shouldFetchMore)
+    if (shouldFetchMore) {
       console.warn('UNIMPLEMENTED: Fetch more near me items');
+      setShouldFetchMore(false);
+    }
   }, [shouldFetchMore]);
 
   const handleRefresh = () => {
@@ -558,7 +587,7 @@ function NearMeTab() {
 
   return (
     <MasonryList
-      data={merchantIds}
+      data={nearMeItems}
       refreshControl={
         <RefreshControl
           title="Loading activity near you..."
@@ -577,18 +606,36 @@ function NearMeTab() {
           <EmptyTabView message="Looks like there isn't any activity near you" />
         )
       }
-      ListFooterComponent={merchantIds.length > 0 && <MasonryListFooter />}
-      renderItem={({ item: merchantId, column }) => (
-        <MerchantItemCard
-          merchantId={merchantId}
-          style={{
-            marginTop: tileSpacing,
-            marginLeft: column % 2 === 0 ? tileSpacing : tileSpacing / 2,
-            marginRight: column % 2 !== 0 ? tileSpacing : tileSpacing / 2,
-            marginBottom: values.spacing.sm,
-          }}
-        />
-      )}
+      ListFooterComponent={nearMeItems.length > 0 && <MasonryListFooter />}
+      renderItem={({ item: nearMeItem, column }) => {
+        if (nearMeItem.type === 'merchant') {
+          const merchantId = nearMeItem.item;
+          return (
+            <MerchantItemCard
+              merchantId={merchantId}
+              style={{
+                marginTop: tileSpacing,
+                marginLeft: column % 2 === 0 ? tileSpacing : tileSpacing / 2,
+                marginRight: column % 2 !== 0 ? tileSpacing : tileSpacing / 2,
+                marginBottom: values.spacing.sm,
+              }}
+            />
+          );
+        } else {
+          const productId = nearMeItem.item;
+          return (
+            <ProductItemCard
+              productId={productId}
+              style={{
+                marginTop: tileSpacing,
+                marginLeft: column % 2 === 0 ? tileSpacing : tileSpacing / 2,
+                marginRight: column % 2 !== 0 ? tileSpacing : tileSpacing / 2,
+                marginBottom: values.spacing.sm,
+              }}
+            />
+          );
+        }
+      }}
     />
   );
 }

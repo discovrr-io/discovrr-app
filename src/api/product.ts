@@ -1,5 +1,6 @@
 import Parse from 'parse/react-native';
 
+import { Pagination } from '../models/common';
 import { Product } from '../models';
 
 export namespace ProductApi {
@@ -39,6 +40,25 @@ export namespace ProductApi {
       throw error;
     } finally {
       console.groupEnd();
+    }
+  }
+
+  export async function fetchAllProducts(
+    pagination?: Pagination,
+  ): Promise<Product[]> {
+    try {
+      const query = new Parse.Query(Parse.Object.extend('Product'));
+
+      if (pagination) {
+        query.limit(pagination.limit);
+        query.skip(pagination.limit * pagination.currentPage);
+      }
+
+      const results = await query.find();
+      return results.map((result) => mapResultToProduct(result));
+    } catch (error) {
+      console.error(`Failed to fetch distinct product:`, error);
+      throw error;
     }
   }
 }

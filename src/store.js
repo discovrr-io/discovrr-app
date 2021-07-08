@@ -19,7 +19,7 @@ import {
 import authReducer from './features/authentication/authSlice';
 import commentsReducer from './features/comments/commentsSlice';
 import merchantsReducer from './features/merchants/merchantsSlice';
-import nearMeReducer from './features/nearMe/nearMeSlice';
+// import nearMeReducer from './features/nearMe/nearMeSlice';
 import notesReducer from './features/notes/notesSlice';
 import postsReducer from './features/posts/postsSlice';
 import productsReducer from './features/products/productsSlice';
@@ -30,7 +30,7 @@ const rootReducer = combineReducers({
   auth: authReducer,
   comments: commentsReducer,
   merchants: merchantsReducer,
-  nearMe: nearMeReducer,
+  // nearMe: nearMeReducer,
   notes: notesReducer,
   posts: postsReducer,
   products: productsReducer,
@@ -43,8 +43,7 @@ const persistedReducer = persistReducer(
     key: 'root',
     storage: AsyncStorage,
     stateReconciler: autoMergeLevel2,
-    // blacklist: ['comments', 'merchants', 'products'],
-    blacklist: ['comments', 'merchants'],
+    blacklist: ['comments', 'merchants', 'products'],
   },
   rootReducer,
 );

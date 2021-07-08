@@ -1,17 +1,17 @@
 import { createEntityAdapter, createSlice } from '@reduxjs/toolkit';
 
-const nearMePostsAdapter = createEntityAdapter();
+const nearMeItemsAdapter = createEntityAdapter();
 
 /**
  * @typedef {import('../../api').ApiFetchStatus} ApiFetchStatus
  * @typedef {import('../../models').Merchant} Merchant
  * @typedef {import('../../models').Product} Product
- * @typedef {Merchant | Product} NearMeItem
+ * @typedef {import('../../models').NearMeItem} NearMeItem
  *
  * @typedef {import('@reduxjs/toolkit').EntityState<NearMeItem>} NearMeEntityState
  * @type {NearMeEntityState & ApiFetchStatus}
  */
-const initialState = nearMePostsAdapter.getInitialState({
+const initialState = nearMeItemsAdapter.getInitialState({
   status: 'idle',
 });
 
