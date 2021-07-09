@@ -22,6 +22,14 @@ export const fetchPostById = createAsyncThunk(
   PostApi.fetchPostById,
 );
 
+export const changePostLikeStatus = createAsyncThunk(
+  'posts/changePostLikeStatus',
+  /**
+   * @param {{ postId: PostId, didLike: boolean }} param0
+   */
+  async ({ postId, didLike }) => PostApi.changePostLikeStatus(postId, didLike),
+);
+
 /**
  * @typedef {import('../../models').Post} Post
  * @type {import('@reduxjs/toolkit').EntityAdapter<Post>}
@@ -92,11 +100,32 @@ const postsSlice = createSlice({
       .addCase(fetchPostById.rejected, (state, action) => {
         state.status = 'rejected';
         state.error = action.error;
+      })
+      // -- changePostLikeStatus --
+      .addCase(changePostLikeStatus.pending, (state, action) => {
+        state.status = 'pending';
+        postsSlice.caseReducers.postLikeStatusChanged(state, {
+          ...action,
+          payload: action.meta.arg,
+        });
+      })
+      // .addCase(changePostLikeStatus.fulfilled, (state, action) => {
+      //   state.status = 'fulfilled';
+      // })
+      .addCase(changePostLikeStatus.rejected, (state, action) => {
+        state.status = 'rejected';
+        const oldLike = !action.meta.arg.didLike;
+        postsSlice.caseReducers.postLikeStatusChanged(state, {
+          ...action,
+          payload: { ...action.meta.arg, didLike: oldLike },
+        });
       });
   },
 });
 
-export const { postLikeStatusChanged } = postsSlice.actions;
+export const {
+  /* postLikeStatusChanged */
+} = postsSlice.actions;
 
 // Generated selectors with new names
 export const {

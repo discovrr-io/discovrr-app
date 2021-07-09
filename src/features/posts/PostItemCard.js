@@ -16,10 +16,10 @@ import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIc
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { NotificationApi, PostApi } from '../../api';
+import { NotificationApi } from '../../api';
 import { FEATURE_UNAVAILABLE } from '../../constants/strings';
 import { selectProfileById } from '../profiles/profilesSlice';
-import { selectPostById, postLikeStatusChanged } from './postsSlice';
+import { selectPostById, changePostLikeStatus } from './postsSlice';
 
 import {
   colors,
@@ -67,8 +67,6 @@ export function PostItemCardFooter({
 }) {
   const dispatch = useDispatch();
   const navigation = useNavigation();
-
-  const bottomSheetEmitter = new NativeEventEmitter('showPanel');
 
   /** @type {import('../authentication/authSlice').AuthState} */
   const { isAuthenticated, user: currentUser } = useSelector(
@@ -122,11 +120,16 @@ export function PostItemCardFooter({
         `[PostItemFooter] Will ${newDidLike ? 'like' : 'unlike'} post...`,
       );
 
-      // FIXME: Waiting for like status to change sometimes takes too long
-      dispatch(postLikeStatusChanged({ postId: post.id, didLike: newDidLike }));
-      await PostApi.setLikeStatus(post.id, newDidLike);
+      // This will automatically handle the failure case by appropriately
+      // setting the like statistics of the current post to its previous value
+      await dispatch(
+        changePostLikeStatus({
+          postId: post.id,
+          didLike: newDidLike,
+        }),
+      ).unwrap();
 
-      // Only send notification if the current user liked the post and it's not
+      // Only send a notification if the current user liked the post and it's not
       // their own post
       if (
         newDidLike &&
@@ -153,9 +156,7 @@ export function PostItemCardFooter({
       Alert.alert(
         'Something went wrong',
         `We weren't able to complete your request. Please try again later.`,
-        [{ text: 'Dismiss' }],
       );
-      dispatch(postLikeStatusChanged({ postId: post.id, didLike }));
     } finally {
       setIsProcessingLike(false);
     }
@@ -207,11 +208,7 @@ export function PostItemCardFooter({
           <TouchableOpacity
             disabled={false}
             activeOpacity={DEFAULT_ACTIVE_OPACITY}
-            onPress={() =>
-              bottomSheetEmitter.emit('showPanel', {
-                contentSelector: 'reportPost',
-              })
-            }>
+            onPress={alertUnimplementedFeature}>
             <MaterialCommunityIcon
               name="dots-horizontal"
               color={colors.gray}

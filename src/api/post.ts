@@ -136,7 +136,7 @@ export namespace PostApi {
     }
   }
 
-  export async function setLikeStatus(postId: PostId, didLike: boolean) {
+  export async function changePostLikeStatus(postId: PostId, didLike: boolean) {
     try {
       console.group('PostApi.setLikeStatus');
       await Parse.Cloud.run('likeOrUnlikePost', { postId, like: didLike });
