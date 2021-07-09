@@ -8,14 +8,15 @@ import { useDispatch, useSelector } from 'react-redux';
 import NoteMasonryList from '../../components/masonry/NoteMasonryList';
 import PostMasonryList from '../../components/masonry/PostMasonryList';
 import ProductItemCard from '../products/ProductItemCard';
-import { EmptyTabView, LoadingTabView, MasonryList } from '../../components';
+import { EmptyTabView, ErrorTabView, MasonryList } from '../../components';
 import { ProfileScreenHeader } from '../profiles/ProfileScreen';
 
 import { selectAllNotes } from '../notes/notesSlice';
 import { selectPostsByProfile } from '../posts/postsSlice';
 import { SOMETHING_WENT_WRONG } from '../../constants/strings';
-import { useIsMounted } from '../../hooks';
+import { useIsInitialRender, useIsMounted } from '../../hooks';
 import { colors, values } from '../../constants';
+import { fetchMerchantById } from './merchantsSlice';
 
 import {
   fetchProductsForMerchant,
@@ -30,74 +31,44 @@ import {
 function ProductsTab({ merchant }) {
   const dispatch = useDispatch();
 
-  // /**
-  //  * @typedef {import('../../models').ProductId} ProductId
-  //  * @type {[ProductId, (value: ProductId) => void]}
-  //  */
-  // const [productIds, setProductIds] = useState([]);
-  // const [shouldRefresh, setShouldRefresh] = useState(true);
-
-  // useEffect(() => {
-  //   if (shouldRefresh)
-  //     (async () => {
-  //       try {
-  //         console.log('[ProductsTab] Fetching products for merchant...');
-  //         /** @type {import('../../models').Product[]} */
-  //         const products = await dispatch(
-  //           fetchProductsForMerchant(String(merchant.id)),
-  //         ).unwrap();
-  //         setProductIds(products.map((product) => product.id));
-  //         // await dispatch(fetchProductsForMerchant(merchantId)).unwrap();
-  //       } catch (error) {
-  //         console.error(
-  //           '[ProductsTab] Failed to fetch products for merchant:',
-  //           error,
-  //         );
-  //       } finally {
-  //         setShouldRefresh(false);
-  //       }
-  //     })();
-  // }, [shouldRefresh, dispatch]);
-
   const merchantId = String(merchant.id);
   const productIds = useSelector((state) =>
     selectProductsForMerchant(state, merchantId).map((product) => product.id),
   );
 
   /** @type {import('../../api').ApiFetchStatus} */
-  const { status: fetchStatus /* error: fetchError */ } = useSelector(
+  const { status: fetchStatus, error: fetchError } = useSelector(
     (state) => state.products,
   );
 
   const isMounted = useIsMounted();
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
-
+  const [isInitialRender, setIsInitialRender] = useState(true);
   const [shouldRefresh, setShouldRefresh] = useState(false);
-  const [fetchError, setFetchError] = useState(null);
 
   useEffect(() => {
-    if (isInitialLoad || shouldRefresh)
+    if (shouldRefresh || isInitialRender)
       (async () => {
         try {
-          await dispatch(fetchProductsForMerchant(merchantId)).unwrap();
+          await dispatch(
+            fetchProductsForMerchant({ merchantId, reload: true }),
+          ).unwrap();
         } catch (error) {
           console.error(
             '[MerchantProfileScreen] Failed to fetch products for merchant:',
             error,
           );
-          isMounted.current && setFetchError(error);
           Alert.alert(
             SOMETHING_WENT_WRONG.title,
             "We weren't able to get products for you. Please try again later.",
           );
         } finally {
           if (isMounted.current) {
-            if (isInitialLoad) setIsInitialLoad(false);
+            if (isInitialRender) setIsInitialRender(false);
             if (shouldRefresh) setShouldRefresh(false);
           }
         }
       })();
-  }, [isInitialLoad, shouldRefresh]);
+  }, [isInitialRender, shouldRefresh]);
 
   const handleRefresh = () => {
     if (!shouldRefresh) setShouldRefresh(true);
@@ -105,49 +76,49 @@ function ProductsTab({ merchant }) {
 
   const tileSpacing = useMemo(() => values.spacing.sm * 1.25, []);
 
-  if (isInitialLoad) {
-    return <LoadingTabView message="Loading products..." />;
-  }
-
   return (
-    <MasonryList
-      data={productIds}
-      ListEmptyComponent={
-        fetchError ? (
-          <ErrorTabView
-            caption={`We weren't able to get products for ${
-              merchant.shortName || 'this merchant'
-            }.`}
-            error={fetchError}
-          />
-        ) : (
-          <EmptyTabView
-            message={`${
-              merchant.shortName || 'this merchant'
-            } doesn't have any products yet`}
-          />
-        )
-      }
+    <Tabs.ScrollView
+      nestedScrollEnabled
       refreshControl={
         <RefreshControl
           title="Loading products..."
           refreshing={fetchStatus === 'refreshing' || shouldRefresh}
           onRefresh={handleRefresh}
         />
-      }
-      contentContainerStyle={{ paddingBottom: tileSpacing }}
-      renderItem={({ item: productId, index }) => (
-        <ProductItemCard
-          productId={productId}
-          key={String(productId)}
-          style={{
-            marginTop: tileSpacing,
-            marginLeft: index % 2 === 0 ? tileSpacing : tileSpacing / 2,
-            marginRight: index % 2 !== 0 ? tileSpacing : tileSpacing / 2,
-          }}
+      }>
+      {fetchError ? (
+        <ErrorTabView
+          caption={`We weren't able to get products for ${
+            merchant.shortName || 'this merchant'
+          }.`}
+          error={fetchError}
+        />
+      ) : (
+        <MasonryList
+          nestedScrollEnabled
+          data={productIds}
+          ListEmptyComponent={
+            <EmptyTabView
+              message={`${
+                merchant.shortName || 'this merchant'
+              } doesn't have any products yet`}
+            />
+          }
+          contentContainerStyle={{ paddingBottom: tileSpacing * 2 }}
+          renderItem={({ item: productId, column }) => (
+            <ProductItemCard
+              productId={productId}
+              key={String(productId)}
+              style={{
+                marginTop: tileSpacing,
+                marginLeft: column % 2 === 0 ? tileSpacing : tileSpacing / 2,
+                marginRight: column % 2 !== 0 ? tileSpacing : tileSpacing / 2,
+              }}
+            />
+          )}
         />
       )}
-    />
+    </Tabs.ScrollView>
   );
 }
 
@@ -200,14 +171,13 @@ export default function MerchantProfileScreen() {
           />
         )}>
         <Tabs.Tab name="products" label="Products">
-          <Tabs.ScrollView>
-            <ProductsTab merchant={merchant} />
-          </Tabs.ScrollView>
+          <ProductsTab merchant={merchant} />
         </Tabs.Tab>
         <Tabs.Tab name="posts" label="Posts">
-          <Tabs.ScrollView /* refreshControl={<RefreshControl />} */>
+          <Tabs.ScrollView>
             <PostMasonryList
               smallContent
+              nestedScrollEnabled
               showFooter={false}
               postIds={postIds}
               ListEmptyComponent={
@@ -224,6 +194,7 @@ export default function MerchantProfileScreen() {
           <Tabs.ScrollView>
             <NoteMasonryList
               smallContent
+              nestedScrollEnabled
               showFooter={false}
               noteIds={noteIds}
               ListEmptyComponent={

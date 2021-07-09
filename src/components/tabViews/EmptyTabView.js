@@ -1,6 +1,5 @@
 import React from 'react';
-// import PropTypes from 'prop-types';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { typography, values } from '../../constants';
 
@@ -23,10 +22,6 @@ const EmptyTabView = ({
     </View>
   );
 };
-
-// EmptyTabView.propTypes = {
-//   message: PropTypes.string,
-// };
 
 const commonTextStyles = {
   textAlign: 'center',

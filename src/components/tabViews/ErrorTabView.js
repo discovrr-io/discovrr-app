@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { StyleSheet, Text, View } from 'react-native';
 
 const isDevMode = process.env.NODE_ENV === 'development';
@@ -44,13 +43,6 @@ const ErrorTabView = ({
       )}
     </View>
   );
-};
-
-ErrorTabView.propTypes = {
-  title: PropTypes.string,
-  message: PropTypes.string,
-  error: PropTypes.any,
-  refreshControl: PropTypes.node,
 };
 
 const commonTextStyles = {

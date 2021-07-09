@@ -18,7 +18,12 @@ export const fetchAllProducts = createAsyncThunk(
 
 export const fetchProductsForMerchant = createAsyncThunk(
   'products/fetchProductsForMerchant',
-  ProductApi.fetchProductsForMerchant,
+  /**
+   * @typedef {import('../../models').MerchantId} MerchantId
+   * @param {{ merchantId: MerchantId, reload?: boolean }} param0
+   * @returns
+   */
+  async ({ merchantId }) => ProductApi.fetchProductsForMerchant(merchantId),
 );
 
 export const changeProductLikeStatus = createAsyncThunk(
@@ -84,8 +89,9 @@ const productsSlice = createSlice({
         state.error = action.error;
       })
       // -- fetchProductsForMerchant --
-      .addCase(fetchProductsForMerchant.pending, (state, _) => {
-        state.status = 'pending';
+      .addCase(fetchProductsForMerchant.pending, (state, action) => {
+        const { reload = false } = action.meta.arg ?? {};
+        state.status = reload ? 'refreshing' : 'pending';
       })
       .addCase(fetchProductsForMerchant.fulfilled, (state, action) => {
         state.status = 'fulfilled';
