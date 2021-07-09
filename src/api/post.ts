@@ -6,6 +6,7 @@ import { ImageSource, Pagination } from '../models/common';
 
 import { DEFAULT_IMAGE_DIMENSIONS } from '../constants/media';
 import { MediaSource } from '.';
+import { UserApi } from './user';
 
 const EARLIEST_DATE = new Date('2020-10-30');
 
@@ -107,29 +108,16 @@ export namespace PostApi {
   export async function fetchPostById(postId: string): Promise<Post | null> {
     try {
       console.group('ProfileApi.fetchPostById');
-      const currentUser = await Parse.User.currentAsync();
-      const profileQuery = new Parse.Query(Parse.Object.extend('Profile'));
-      profileQuery.equalTo('owner', currentUser);
 
-      let profileId: string | undefined = undefined;
-      if (currentUser) {
-        profileQuery.equalTo('owner', currentUser);
-        const profile = await profileQuery.first();
-        console.log(
-          '[PostApi.fetchAllPosts] Found Parse profile:',
-          profile?.id,
-        );
-        profileId = profile?.id;
-      }
-
+      const profile = await UserApi.getCurrentUserProfile();
       const postQuery = new Parse.Query(Parse.Object.extend('Post'));
       postQuery.equalTo('objectId', postId);
 
       const result = await postQuery.first();
       if (result) {
-        return mapResultToPost(profileId, result);
+        return mapResultToPost(profile?.id, result);
       } else {
-        console.warn('No profile found with id:', profileId);
+        console.warn('No profile found with id:', profile?.id);
         return null;
       }
     } catch (error) {

@@ -10,11 +10,11 @@ import {
 } from 'react-native';
 
 import * as Animatable from 'react-native-animatable';
-// import FastImage from 'react-native-fast-image';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
 
-import { useIsInitialRender, useIsMounted } from '../../hooks';
+import { FEATURE_UNAVAILABLE } from '../../constants/strings';
+import { useIsMounted } from '../../hooks';
 import { DEFAULT_AVATAR, DEFAULT_IMAGE } from '../../constants/media';
 
 import {
@@ -25,15 +25,14 @@ import {
 } from '../../constants';
 
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  changeMerchantLikeStatus,
-  fetchAllMerchants,
-  fetchMerchantById,
-  selectMerchantById,
-} from './merchantsSlice';
+import { changeMerchantLikeStatus, selectMerchantById } from './merchantsSlice';
 import { SOMETHING_WENT_WRONG } from '../../constants/strings';
 
 const SMALL_ICON = 24;
+
+const alertUnimplementedFeature = () => {
+  Alert.alert(FEATURE_UNAVAILABLE.title, FEATURE_UNAVAILABLE.message);
+};
 
 /**
  * @typedef {import('../../models').MerchantId} MerchantId
@@ -43,26 +42,15 @@ const SMALL_ICON = 24;
  * @param {MerchantItemCardProps & ViewProps} param0
  */
 export default function MerchantItemCard({ merchantId, ...props }) {
-  // const dispatch = useDispatch();
   const navigation = useNavigation();
 
   const merchant = useSelector((state) =>
     selectMerchantById(state, merchantId),
   );
 
-  // const isInitialRender = useIsInitialRender();
   const isMounted = useIsMounted();
 
   const [imageDimensions, setImageDimensions] = useState(null);
-
-  // useEffect(() => {
-  //   console.warn('[MerchantItemCard] Retrying fetch...');
-  //
-  //   if (isInitialRender.current && !merchant)
-  //     (async () => {
-  //       await dispatch(fetchMerchantById(merchantId)).unwrap();
-  //     })();
-  // }, [isInitialRender]);
 
   if (!merchant) {
     console.warn(
@@ -198,7 +186,7 @@ export function MerchantItemCardFooter({ merchantId }) {
 
   if (!merchant) {
     console.warn(
-      '[MerchantItemCardCaption] Failed to select merchant with id:',
+      '[MerchantItemCardFooter] Failed to select merchant with id:',
       merchantId,
     );
 
@@ -269,7 +257,7 @@ export function MerchantItemCardFooter({ merchantId }) {
       <View style={merchantItemCardFooterStyles.actionsContainer}>
         <TouchableOpacity
           activeOpacity={DEFAULT_ACTIVE_OPACITY}
-          onPress={() => {}}>
+          onPress={alertUnimplementedFeature}>
           <Icon
             name={didSave ? 'bookmark' : 'bookmark-outline'}
             color={didSave ? colors.black : colors.gray}

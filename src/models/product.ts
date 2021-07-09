@@ -1,4 +1,5 @@
 import { EntityId } from '@reduxjs/toolkit';
+import { Statistics } from './common';
 
 import { MerchantId } from './merchant';
 
@@ -12,4 +13,5 @@ export default interface Product {
   price: number;
   squareSpaceUrl: string;
   imageUrl: string;
+  statistics?: Statistics;
 }

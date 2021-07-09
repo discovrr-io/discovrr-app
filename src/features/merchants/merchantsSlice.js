@@ -29,6 +29,7 @@ export const changeMerchantLikeStatus = createAsyncThunk(
   async ({ merchantId, didLike }) =>
     MerchantApi.changeMerchantLikeStatus(merchantId, didLike),
 );
+
 /**
  * @typedef {import('../../models').Merchant} Merchant
  * @type {import('@reduxjs/toolkit').EntityAdapter<Merchant>}

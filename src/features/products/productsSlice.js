@@ -8,7 +8,7 @@ import {
 import { ProductApi } from '../../api';
 
 export const fetchAllProducts = createAsyncThunk(
-  'merchants/fetchAllProducts',
+  'products/fetchAllProducts',
   /**
    * @typedef {import('../../models/common').Pagination} Pagination
    * @param {{ pagination?: Pagination, reload?: boolean }=} param0
@@ -19,6 +19,16 @@ export const fetchAllProducts = createAsyncThunk(
 export const fetchProductsForMerchant = createAsyncThunk(
   'products/fetchProductsForMerchant',
   ProductApi.fetchProductsForMerchant,
+);
+
+export const changeProductLikeStatus = createAsyncThunk(
+  'products/changeProductLikeStatus',
+  /**
+   * @typedef {import('../../models').ProductId} ProductId
+   * @param {{ productId: ProductId, didLike: boolean }} param0
+   */
+  async ({ productId, didLike }) =>
+    ProductApi.changeProductLikeStatus(productId, didLike),
 );
 
 /**
@@ -39,7 +49,20 @@ const initialState = productsAdapter.getInitialState({
 const productsSlice = createSlice({
   name: 'products',
   initialState,
-  reducers: {},
+  reducers: {
+    /**
+     * @typedef {{ productId: ProductId, didLike: boolean }} Payload
+     * @param {import('@reduxjs/toolkit').PayloadAction<Payload>} action
+     */
+    productLikeStatusChanged: (state, action) => {
+      const { productId, didLike } = action.payload;
+      const existingProduct = state.entities[productId];
+      if (existingProduct && existingProduct.statistics) {
+        existingProduct.statistics.didLike = didLike;
+        existingProduct.statistics.totalLikes += didLike ? 1 : -1;
+      }
+    },
+  },
   extraReducers: (builder) => {
     builder
       // -- fetchAllProducts --
@@ -71,6 +94,22 @@ const productsSlice = createSlice({
       .addCase(fetchProductsForMerchant.rejected, (state, action) => {
         state.status = 'rejected';
         state.error = action.error;
+      })
+      // -- changeProductLikeStatus --
+      .addCase(changeProductLikeStatus.pending, (state, action) => {
+        state.status = 'pending';
+        productsSlice.caseReducers.productLikeStatusChanged(state, {
+          ...action,
+          payload: action.meta.arg,
+        });
+      })
+      .addCase(changeProductLikeStatus.rejected, (state, action) => {
+        state.status = 'rejected';
+        const oldLike = !action.meta.arg.didLike;
+        productsSlice.caseReducers.productLikeStatusChanged(state, {
+          ...action,
+          payload: { ...action.meta.arg, didLike: oldLike },
+        });
       });
   },
 });

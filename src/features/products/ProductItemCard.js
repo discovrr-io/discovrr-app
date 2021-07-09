@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   Image,
   StyleSheet,
   Text,
@@ -8,13 +9,15 @@ import {
   View,
 } from 'react-native';
 
-// import FastImage from 'react-native-fast-image';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import * as Animatable from 'react-native-animatable';
+import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
+import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation } from '@react-navigation/native';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
-import { MerchantItemCardFooter } from '../merchants/MerchantItemCard';
-import { selectProductById } from './productsSlice';
+import { FEATURE_UNAVAILABLE } from '../../constants/strings';
+import { selectMerchantById } from '../merchants/merchantsSlice';
+import { changeProductLikeStatus, selectProductById } from './productsSlice';
 
 import {
   colors,
@@ -22,6 +25,12 @@ import {
   values,
   DEFAULT_ACTIVE_OPACITY,
 } from '../../constants';
+
+const SMALL_ICON = 24;
+
+const alertUnimplementedFeature = () => {
+  Alert.alert(FEATURE_UNAVAILABLE.title, FEATURE_UNAVAILABLE.message);
+};
 
 /**
  * @typedef {import('../../models').ProductId} ProductId
@@ -87,7 +96,11 @@ export default function ProductItemCard({
             padding: values.spacing.sm,
             borderRadius: 20,
           }}>
-          <Icon name="shopping-outline" color={colors.white} size={20} />
+          <MaterialCommunityIcon
+            name="shopping-outline"
+            color={colors.white}
+            size={20}
+          />
         </View>
         <View>
           <View
@@ -132,7 +145,12 @@ export default function ProductItemCard({
           </Text>
         </View>
       </TouchableOpacity>
-      {showFooter && <MerchantItemCardFooter merchantId={product.merchantId} />}
+      {showFooter && (
+        <ProductItemCardFooter
+          productId={product.id}
+          merchantId={product.merchantId}
+        />
+      )}
     </View>
   );
 }
@@ -153,5 +171,153 @@ const productItemCardStyles = StyleSheet.create({
     fontWeight: '700',
     fontSize: typography.size.h4,
     marginLeft: values.spacing.sm,
+  },
+});
+
+/**
+ * @typedef {import('../../models').MerchantId} MerchantId
+ * @param {{ productId: ProductId, merchantId: MerchantId }} param0
+ */
+export function ProductItemCardFooter({ productId, merchantId }) {
+  const dispatch = useDispatch();
+  const navigation = useNavigation();
+
+  const product = useSelector((state) => selectProductById(state, productId));
+  const merchant = useSelector((state) =>
+    selectMerchantById(state, merchantId),
+  );
+
+  if (!product || !merchant) {
+    console.warn('[ProductItemCard] One of the following is not defined:', {
+      product,
+      merchant,
+    });
+
+    return null;
+  }
+
+  const { statistics } = product;
+  const { avatar, shortName } = merchant;
+  const { didSave = false, didLike = false, totalLikes = 0 } = statistics ?? {};
+
+  const [isProcessingLike, setIsProcessingLike] = useState(false);
+
+  const handlePressLike = async () => {
+    try {
+      setIsProcessingLike(true);
+
+      const newDidLike = !didLike;
+      console.log(
+        `[MerchantItemCardFooter] Will ${
+          newDidLike ? 'like' : 'unlike'
+        } merchant...`,
+      );
+
+      await dispatch(
+        changeProductLikeStatus({
+          productId: productId,
+          didLike: newDidLike,
+        }),
+      ).unwrap();
+    } catch (error) {
+      console.error(
+        '[MerchantItemCardFooter] Failed to change merchant like status:',
+        error,
+      );
+      Alert.alert(SOMETHING_WENT_WRONG.title, SOMETHING_WENT_WRONG.message);
+    } finally {
+      setIsProcessingLike(false);
+    }
+  };
+
+  return (
+    <View style={merchantItemCardFooterStyles.container}>
+      <TouchableOpacity
+        activeOpacity={DEFAULT_ACTIVE_OPACITY}
+        onPress={() =>
+          navigation.navigate('MerchantProfileScreen', {
+            merchant,
+            merchantShortName: shortName,
+          })
+        }
+        style={{ flex: 1 }}>
+        <View style={merchantItemCardFooterStyles.merchantContainer}>
+          <Image
+            source={avatar ?? DEFAULT_AVATAR}
+            style={{
+              width: SMALL_ICON,
+              height: SMALL_ICON,
+              borderRadius: SMALL_ICON / 2,
+              backgroundColor: colors.gray200,
+            }}
+          />
+          <Text
+            numberOfLines={1}
+            style={merchantItemCardFooterStyles.merchantName}>
+            {shortName}
+          </Text>
+        </View>
+      </TouchableOpacity>
+      <View style={merchantItemCardFooterStyles.actionsContainer}>
+        <TouchableOpacity
+          activeOpacity={DEFAULT_ACTIVE_OPACITY}
+          onPress={alertUnimplementedFeature}>
+          <MaterialIcon
+            name={didSave ? 'bookmark' : 'bookmark-outline'}
+            color={didSave ? colors.black : colors.gray}
+            size={SMALL_ICON}
+            style={{ marginRight: values.spacing.sm }}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity
+          disabled={isProcessingLike}
+          activeOpacity={DEFAULT_ACTIVE_OPACITY}
+          onPress={handlePressLike}>
+          <Animatable.View key={didLike.toString()} animation="bounceIn">
+            <MaterialIcon
+              name={didLike ? 'favorite' : 'favorite-border'}
+              color={didLike ? colors.red500 : colors.gray}
+              size={SMALL_ICON}
+            />
+          </Animatable.View>
+        </TouchableOpacity>
+        <Text
+          style={[
+            merchantItemCardFooterStyles.likesCount,
+            {
+              fontSize: typography.size.xs,
+            },
+          ]}>
+          {totalLikes > 999 ? `${(totalLikes / 1000).toFixed(1)}k` : totalLikes}
+        </Text>
+      </View>
+    </View>
+  );
+}
+
+const merchantItemCardFooterStyles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: values.spacing.sm,
+    marginHorizontal: values.spacing.sm,
+  },
+  merchantContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  merchantName: {
+    flexGrow: 1,
+    flexShrink: 1,
+    marginLeft: values.spacing.sm * 1.5,
+    color: colors.black,
+  },
+  actionsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  likesCount: {
+    marginLeft: values.spacing.xxs,
+    alignSelf: 'flex-end',
   },
 });

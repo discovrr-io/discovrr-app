@@ -38,3 +38,4 @@ export { NotificationApi } from './notification';
 export { PostApi } from './post';
 export { ProductApi } from './product';
 export { ProfileApi } from './profile';
+export { UserApi } from './user';

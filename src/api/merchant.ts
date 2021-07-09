@@ -1,14 +1,8 @@
-// import { Image } from 'react-native';
 import Parse from 'parse/react-native';
 
-// import { MediaSource } from '.';
-import {
-  // DEFAULT_AVATAR,
-  DEFAULT_AVATAR_DIMENSIONS,
-  // DEFAULT_IMAGE,
-  // DEFAULT_IMAGE_DIMENSIONS,
-} from '../constants/media';
+import { DEFAULT_AVATAR_DIMENSIONS } from '../constants/media';
 
+import { UserApi } from '.';
 import { Merchant } from '../models';
 import { MerchantAddress, MerchantId } from '../models/merchant';
 
@@ -24,7 +18,7 @@ import {
 export namespace MerchantApi {
   function mapResultToMerchant(
     result: Parse.Object<Parse.Attributes>,
-    profileId: string | undefined,
+    profileId?: string,
   ): Merchant | null {
     let hasCompleteProfile = false;
 
@@ -120,23 +114,23 @@ export namespace MerchantApi {
     } as Merchant;
   }
 
-  async function getCurrentProfile(): Promise<Parse.Object<Parse.Attributes> | null> {
-    const currentUser = await Parse.User.currentAsync();
-    if (!currentUser) return null;
+  // async function getCurrentProfile(): Promise<Parse.Object<Parse.Attributes> | null> {
+  //   const currentUser = await Parse.User.currentAsync();
+  //   if (!currentUser) return null;
 
-    const profileQuery = new Parse.Query(Parse.Object.extend('Profile'));
-    profileQuery.equalTo('owner', currentUser);
+  //   const profileQuery = new Parse.Query(Parse.Object.extend('Profile'));
+  //   profileQuery.equalTo('owner', currentUser);
 
-    const profile = await profileQuery.first();
-    console.log('Found current user profile:', profile?.id);
-    return profile;
-  }
+  //   const profile = await profileQuery.first();
+  //   console.log('Found current user profile:', profile?.id);
+  //   return profile;
+  // }
 
   // TODO: Try-catch
   export async function fetchAllMerchants(pagination?: Pagination) {
     console.group('MerchantApi.fetchAllMerchants');
 
-    const profile = await getCurrentProfile();
+    const profile = await UserApi.getCurrentUserProfile();
     const query = new Parse.Query(Parse.Object.extend('Vendor'));
     query.exists('avatarUrl');
     query.exists('coverPhotoUrl');
@@ -174,7 +168,7 @@ export namespace MerchantApi {
       longitude,
     });
 
-    const profile = await getCurrentProfile();
+    const profile = await UserApi.getCurrentUserProfile();
     const query = new Parse.Query(Parse.Object.extend('Vendor'));
     query.exists('avatarUrl');
     query.exists('coverPhotoUrl');
@@ -195,7 +189,7 @@ export namespace MerchantApi {
     merchantId: string,
   ): Promise<Merchant | null> {
     try {
-      const profile = await getCurrentProfile();
+      const profile = await UserApi.getCurrentUserProfile();
       const query = new Parse.Query(Parse.Object.extend('Vendor'));
       query.equalTo('objectId', merchantId);
       query.exists('avatarUrl');
@@ -214,7 +208,7 @@ export namespace MerchantApi {
     didLike: boolean,
   ) {
     try {
-      const profile = await getCurrentProfile();
+      const profile = await UserApi.getCurrentUserProfile();
       const query = new Parse.Query(Parse.Object.extend('Vendor'));
       query.equalTo('objectId', merchantId);
 
