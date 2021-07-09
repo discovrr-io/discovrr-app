@@ -514,9 +514,9 @@ export default function ProfileScreen() {
                 <EmptyTabView
                   message={
                     isMyProfile
-                      ? "Looks like you haven't posted anything"
-                      : `Looks like ${
-                          profile.fullName || 'this user'
+                      ? "You haven't posted anything"
+                      : `${
+                          profile.fullName || 'This user'
                         } hasn't posted anything yet`
                   }
                 />
@@ -539,9 +539,9 @@ export default function ProfileScreen() {
                 <EmptyTabView
                   message={
                     isMyProfile
-                      ? "Looks like you haven't shared any public notes"
-                      : `Looks like ${
-                          profile.fullName || 'this user'
+                      ? "You haven't shared any public notes"
+                      : `${
+                          profile.fullName || 'This user'
                         } hasn't shared any public notes yet`
                   }
                 />

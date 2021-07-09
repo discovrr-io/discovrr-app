@@ -212,8 +212,8 @@ export default function MerchantProfileScreen() {
               postIds={postIds}
               ListEmptyComponent={
                 <EmptyTabView
-                  message={`Looks like ${
-                    merchant.shortName || 'this profile'
+                  message={`${
+                    merchant.shortName || 'This profile'
                   } hasn't posted anything yet`}
                 />
               }
@@ -228,8 +228,8 @@ export default function MerchantProfileScreen() {
               noteIds={noteIds}
               ListEmptyComponent={
                 <EmptyTabView
-                  message={`Looks like ${
-                    merchant.shortName || 'this profile'
+                  message={`${
+                    merchant.shortName || 'This profile'
                   } hasn't shared any public notes yet`}
                 />
               }

@@ -172,7 +172,7 @@ function DiscoverTab() {
         fetchError ? (
           <ErrorTabView error={fetchError} />
         ) : (
-          <EmptyTabView message="Looks like no one has posted yet" />
+          <EmptyTabView message="No one has posted yet" />
         )
       }
       ListFooterComponent={
@@ -611,7 +611,7 @@ function NearMeTab() {
             error={fetchError}
           />
         ) : (
-          <EmptyTabView message="Looks like there isn't any activity near you" />
+          <EmptyTabView message="There isn't any activity near you" />
         )
       }
       ListFooterComponent={nearMeItems.length > 0 && <MasonryListFooter />}

@@ -93,7 +93,7 @@ export default function NotesScreen() {
         fetchError ? (
           <ErrorTabView error={fetchError} />
         ) : (
-          <EmptyTabView message="Looks like you don't have any notes yet" />
+          <EmptyTabView message="You don't have any notes yet" />
         )
       }
       refreshControl={
