@@ -25,6 +25,7 @@ export const fetchPostById = createAsyncThunk(
 export const changePostLikeStatus = createAsyncThunk(
   'posts/changePostLikeStatus',
   /**
+   * @typedef {import('../../models').PostId} PostId
    * @param {{ postId: PostId, didLike: boolean }} param0
    */
   async ({ postId, didLike }) => PostApi.changePostLikeStatus(postId, didLike),
@@ -53,7 +54,6 @@ const postsSlice = createSlice({
   initialState,
   reducers: {
     /**
-     * @typedef {import('../../models').PostId} PostId
      * @typedef {{ postId: PostId, didLike: boolean }} Payload
      * @param {import('@reduxjs/toolkit').PayloadAction<Payload>} action
      */
@@ -109,9 +109,6 @@ const postsSlice = createSlice({
           payload: action.meta.arg,
         });
       })
-      // .addCase(changePostLikeStatus.fulfilled, (state, action) => {
-      //   state.status = 'fulfilled';
-      // })
       .addCase(changePostLikeStatus.rejected, (state, action) => {
         state.status = 'rejected';
         const oldLike = !action.meta.arg.didLike;

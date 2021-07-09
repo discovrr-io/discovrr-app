@@ -10,7 +10,7 @@ import {
 } from '../constants/media';
 
 import { Merchant } from '../models';
-import { MerchantAddress } from '../models/merchant';
+import { MerchantAddress, MerchantId } from '../models/merchant';
 
 import {
   Coordinates,
@@ -24,6 +24,7 @@ import {
 export namespace MerchantApi {
   function mapResultToMerchant(
     result: Parse.Object<Parse.Attributes>,
+    profileId: string | undefined,
   ): Merchant | null {
     let hasCompleteProfile = false;
 
@@ -91,6 +92,12 @@ export namespace MerchantApi {
       country: result.get('country'),
     };
 
+    const likersArray: string[] = result.get('likersArray') ?? [];
+    const totalLikes = likersArray.length;
+    const didLike = profileId
+      ? likersArray.some((liker) => profileId === liker)
+      : false;
+
     return {
       id: result.id,
       shortName: result.get('shortName'),
@@ -102,9 +109,9 @@ export namespace MerchantApi {
       address: merchantAddress,
       statistics: {
         didSave: false,
-        didLike: false,
-        totalLikes: 0,
-        totalViews: 0,
+        didLike,
+        totalLikes,
+        totalViews: result.get('viewersCount') ?? 0,
       },
       __distanceToDefaultPoint: geoPoint?.kilometersTo(
         new Parse.GeoPoint(DEFAULT_COORDINATES),
@@ -113,10 +120,23 @@ export namespace MerchantApi {
     } as Merchant;
   }
 
+  async function getCurrentProfile(): Promise<Parse.Object<Parse.Attributes> | null> {
+    const currentUser = await Parse.User.currentAsync();
+    if (!currentUser) return null;
+
+    const profileQuery = new Parse.Query(Parse.Object.extend('Profile'));
+    profileQuery.equalTo('owner', currentUser);
+
+    const profile = await profileQuery.first();
+    console.log('Found current user profile:', profile?.id);
+    return profile;
+  }
+
   // TODO: Try-catch
   export async function fetchAllMerchants(pagination?: Pagination) {
     console.group('MerchantApi.fetchAllMerchants');
 
+    const profile = await getCurrentProfile();
     const query = new Parse.Query(Parse.Object.extend('Vendor'));
     query.exists('avatarUrl');
     query.exists('coverPhotoUrl');
@@ -133,7 +153,9 @@ export namespace MerchantApi {
     const results = await query.find();
 
     // Filter out all the null values (i.e. merchants not partnered with us)
-    return results.map(mapResultToMerchant).filter(Boolean);
+    return results
+      .map((result) => mapResultToMerchant(result, profile?.id))
+      .filter(Boolean);
   }
 
   // TODO: Try-catch
@@ -152,6 +174,7 @@ export namespace MerchantApi {
       longitude,
     });
 
+    const profile = await getCurrentProfile();
     const query = new Parse.Query(Parse.Object.extend('Vendor'));
     query.exists('avatarUrl');
     query.exists('coverPhotoUrl');
@@ -165,22 +188,80 @@ export namespace MerchantApi {
     }
 
     const results = await query.find();
-    return results.map(mapResultToMerchant);
+    return results.map((result) => mapResultToMerchant(result, profile?.id));
   }
 
   export async function fetchMerchantById(
     merchantId: string,
   ): Promise<Merchant | null> {
     try {
+      const profile = await getCurrentProfile();
       const query = new Parse.Query(Parse.Object.extend('Vendor'));
-      query.equalTo('owner', merchantId);
+      query.equalTo('objectId', merchantId);
       query.exists('avatarUrl');
       query.exists('coverPhotoUrl');
 
       const result = await query.first();
-      return mapResultToMerchant(result);
+      return mapResultToMerchant(result, profile?.id);
     } catch (error) {
       console.error('Failed to fetch merchant by id:', error);
+      throw error;
+    }
+  }
+
+  export async function changeMerchantLikeStatus(
+    merchantId: MerchantId,
+    didLike: boolean,
+  ) {
+    try {
+      const profile = await getCurrentProfile();
+      const query = new Parse.Query(Parse.Object.extend('Vendor'));
+      query.equalTo('objectId', merchantId);
+
+      const merchant = await query.first();
+      console.log('Found merchant:', merchant.id);
+
+      const profileLikedVendorsRelation = profile.relation('likedVendors');
+      const profileLikedVendorsArray = profile.get('likedVendorsArray') ?? [];
+      const profileLikedVendorsSet = new Set<string>(profileLikedVendorsArray);
+
+      const merchantLikersRelation = merchant.relation('likers');
+      const merchantLikersArray = merchant.get('likersArray') ?? [];
+      const merchantLikersSet = new Set<string>(merchantLikersArray);
+
+      if (didLike) {
+        console.log('Adding liked merchant...');
+        profileLikedVendorsRelation.add(merchant);
+        profileLikedVendorsSet.add(merchant.id);
+        profile.increment('likedVendorsCount');
+
+        console.log('Adding liker profile...');
+        merchantLikersRelation.add(profile);
+        merchantLikersSet.add(profile.id);
+        merchant.increment('likersCount');
+      } else {
+        console.log('Removing liked merchant...');
+        profileLikedVendorsRelation.remove(merchant);
+        profileLikedVendorsSet.delete(merchant.id);
+        profile.decrement('likedVendorsCount');
+
+        console.log('Removing liker profile...');
+        merchantLikersRelation.remove(profile);
+        merchantLikersSet.delete(profile.id);
+        merchant.decrement('likersCount');
+      }
+
+      profile.set('likedVendorsArray', [...profileLikedVendorsSet]);
+      merchant.set('likersArray', [...merchantLikersSet]);
+
+      console.log('Saving...');
+      await Promise.all([profile.save(), merchant.save()]);
+      console.log('Done!');
+    } catch (error) {
+      console.error(
+        `Failed to ${didLike ? 'like' : 'unlike'} merchant:`,
+        error,
+      );
       throw error;
     }
   }

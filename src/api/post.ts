@@ -37,7 +37,7 @@ export namespace PostApi {
       postContent = { type: 'image-gallery', sources, caption };
     }
 
-    const likersArray = (result.get('likersArray') as Array<string>) ?? [];
+    const likersArray: string[] = result.get('likersArray') ?? [];
     const totalLikes = likersArray.length;
     const didLike = profileId
       ? likersArray.some((liker) => profileId === liker)
@@ -49,7 +49,12 @@ export namespace PostApi {
       content: postContent,
       createdAt: result.createdAt.toJSON(),
       location: result.get('location'),
-      statistics: { didSave: false, didLike, totalLikes, totalViews: 0 },
+      statistics: {
+        didSave: false,
+        didLike,
+        totalLikes,
+        totalViews: result.get('viewersCount') ?? 0,
+      },
     } as Post;
   }
 
@@ -63,13 +68,12 @@ export namespace PostApi {
       console.group('PostApi.fetchAllPosts');
       const currentUser = await Parse.User.currentAsync();
       const profileQuery = new Parse.Query(Parse.Object.extend('Profile'));
-      profileQuery.equalTo('owner', currentUser);
 
       let profileId: string | undefined = undefined;
       if (currentUser) {
         profileQuery.equalTo('owner', currentUser);
         const profile = await profileQuery.first();
-        console.log('Found Parse profile:', profile?.id);
+        console.log('Found current user profile:', profile?.id);
         profileId = profile?.id;
       }
 

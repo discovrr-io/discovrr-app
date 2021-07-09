@@ -20,6 +20,15 @@ export const fetchMerchantById = createAsyncThunk(
   MerchantApi.fetchMerchantById,
 );
 
+export const changeMerchantLikeStatus = createAsyncThunk(
+  'merchants/changeMerchantLikeStatus',
+  /**
+   * @typedef {import('../../models').MerchantId} MerchantId
+   * @param {{ merchantId: MerchantId, didLike: boolean }} param0
+   */
+  async ({ merchantId, didLike }) =>
+    MerchantApi.changeMerchantLikeStatus(merchantId, didLike),
+);
 /**
  * @typedef {import('../../models').Merchant} Merchant
  * @type {import('@reduxjs/toolkit').EntityAdapter<Merchant>}
@@ -38,7 +47,20 @@ const initialState = merchantsAdapter.getInitialState({
 const merchantsSlice = createSlice({
   name: 'merchants',
   initialState,
-  reducers: {},
+  reducers: {
+    /**
+     * @typedef {{ merchantId: MerchantId, didLike: boolean }} Payload
+     * @param {import('@reduxjs/toolkit').PayloadAction<Payload>} action
+     */
+    merchantLikeStatusChanged: (state, action) => {
+      const { merchantId, didLike } = action.payload;
+      const existingMerchant = state.entities[merchantId];
+      if (existingMerchant && existingMerchant.statistics) {
+        existingMerchant.statistics.didLike = didLike;
+        existingMerchant.statistics.totalLikes += didLike ? 1 : -1;
+      }
+    },
+  },
   extraReducers: (builder) => {
     builder
       // -- fetchAllMerchants --
@@ -70,6 +92,22 @@ const merchantsSlice = createSlice({
       .addCase(fetchMerchantById.rejected, (state, action) => {
         state.status = 'rejected';
         state.error = action.error;
+      })
+      // -- changeMerchantLikeStatus --
+      .addCase(changeMerchantLikeStatus.pending, (state, action) => {
+        state.status = 'pending';
+        merchantsSlice.caseReducers.merchantLikeStatusChanged(state, {
+          ...action,
+          payload: action.meta.arg,
+        });
+      })
+      .addCase(changeMerchantLikeStatus.rejected, (state, action) => {
+        state.status = 'rejected';
+        const oldLike = !action.meta.arg.didLike;
+        merchantsSlice.caseReducers.merchantLikeStatusChanged(state, {
+          ...action,
+          payload: { ...action.meta.arg, didLike: oldLike },
+        });
       });
   },
 });

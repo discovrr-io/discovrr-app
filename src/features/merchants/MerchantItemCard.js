@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   Image,
   StyleSheet,
   Text,
@@ -25,10 +26,12 @@ import {
 
 import { useDispatch, useSelector } from 'react-redux';
 import {
+  changeMerchantLikeStatus,
   fetchAllMerchants,
   fetchMerchantById,
   selectMerchantById,
 } from './merchantsSlice';
+import { SOMETHING_WENT_WRONG } from '../../constants/strings';
 
 const SMALL_ICON = 24;
 
@@ -40,7 +43,7 @@ const SMALL_ICON = 24;
  * @param {MerchantItemCardProps & ViewProps} param0
  */
 export default function MerchantItemCard({ merchantId, ...props }) {
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
   const navigation = useNavigation();
 
   const merchant = useSelector((state) =>
@@ -186,6 +189,7 @@ const merchantItemCardCaptionStyles = StyleSheet.create({
  * @param {{ merchantId: MerchantId }} param0
  */
 export function MerchantItemCardFooter({ merchantId }) {
+  const dispatch = useDispatch();
   const navigation = useNavigation();
 
   const merchant = useSelector((state) =>
@@ -203,6 +207,36 @@ export function MerchantItemCardFooter({ merchantId }) {
 
   const { avatar, shortName, statistics } = merchant;
   const { didSave = false, didLike = false, totalLikes = 0 } = statistics ?? {};
+
+  const [isProcessingLike, setIsProcessingLike] = useState(false);
+
+  const handlePressLike = async () => {
+    try {
+      setIsProcessingLike(true);
+
+      const newDidLike = !didLike;
+      console.log(
+        `[MerchantItemCardFooter] Will ${
+          newDidLike ? 'like' : 'unlike'
+        } merchant...`,
+      );
+
+      await dispatch(
+        changeMerchantLikeStatus({
+          merchantId: merchant.id,
+          didLike: newDidLike,
+        }),
+      ).unwrap();
+    } catch (error) {
+      console.error(
+        '[MerchantItemCardFooter] Failed to change merchant like status:',
+        error,
+      );
+      Alert.alert(SOMETHING_WENT_WRONG.title, SOMETHING_WENT_WRONG.message);
+    } finally {
+      setIsProcessingLike(false);
+    }
+  };
 
   return (
     <View style={merchantItemCardFooterStyles.container}>
@@ -244,8 +278,9 @@ export function MerchantItemCardFooter({ merchantId }) {
           />
         </TouchableOpacity>
         <TouchableOpacity
+          disabled={isProcessingLike}
           activeOpacity={DEFAULT_ACTIVE_OPACITY}
-          onPress={() => {}}>
+          onPress={handlePressLike}>
           <Animatable.View key={didLike.toString()} animation="bounceIn">
             <Icon
               name={didLike ? 'favorite' : 'favorite-border'}

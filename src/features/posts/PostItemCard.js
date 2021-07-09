@@ -17,7 +17,10 @@ import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { NotificationApi } from '../../api';
-import { FEATURE_UNAVAILABLE } from '../../constants/strings';
+import {
+  FEATURE_UNAVAILABLE,
+  SOMETHING_WENT_WRONG,
+} from '../../constants/strings';
 import { selectProfileById } from '../profiles/profilesSlice';
 import { selectPostById, changePostLikeStatus } from './postsSlice';
 
@@ -54,9 +57,9 @@ const alertUnimplementedFeature = () => {
 /**
  * @typedef {import('../../models').Post} Post
  * @typedef {{ largeIcons?: boolean, showActions?: boolean, showShareIcon?: boolean }} FooterOptions
- * @typedef {{ post: Post, smallContent?: boolean, showShareIcon?: boolean, showMenuIcon?: boolean }} PostItemFooterProps
+ * @typedef {{ post: Post, smallContent?: boolean, showShareIcon?: boolean, showMenuIcon?: boolean }} PostItemCardFooterProps
  *
- * @param {PostItemFooterProps & import('react-native').ViewProps} param0
+ * @param {PostItemCardFooterProps & import('react-native').ViewProps} param0
  */
 export function PostItemCardFooter({
   post,
@@ -75,7 +78,7 @@ export function PostItemCardFooter({
 
   if (!isAuthenticated) {
     console.warn(
-      '[PostItemFooter]',
+      '[PostItemCardFooter]',
       'Current user is not authenticated, which is unexpected',
     );
   }
@@ -117,7 +120,7 @@ export function PostItemCardFooter({
 
       const newDidLike = !didLike;
       console.log(
-        `[PostItemFooter] Will ${newDidLike ? 'like' : 'unlike'} post...`,
+        `[PostItemCardFooter] Will ${newDidLike ? 'like' : 'unlike'} post...`,
       );
 
       // This will automatically handle the failure case by appropriately
@@ -145,18 +148,18 @@ export function PostItemCardFooter({
             `discovrr://post/${post.id}`,
           );
         } catch (error) {
-          console.error('[PostItemFooter] Failed to send notification:', error);
+          console.error(
+            '[PostItemCardFooter] Failed to send notification:',
+            error,
+          );
         }
       }
     } catch (error) {
       console.error(
-        '[PostItemFooter] Failed to change post like status:',
+        '[PostItemCardFooter] Failed to change post like status:',
         error,
       );
-      Alert.alert(
-        'Something went wrong',
-        `We weren't able to complete your request. Please try again later.`,
-      );
+      Alert.alert(SOMETHING_WENT_WRONG.title, SOMETHING_WENT_WRONG.message);
     } finally {
       setIsProcessingLike(false);
     }
