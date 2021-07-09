@@ -2,12 +2,14 @@ import React, { useEffect, useRef } from 'react';
 
 /**
  * A custom hook that determines whether or not the enclosing component is
- * mounted.
+ * mounted, and thus if its state can still be changed.
  *
- * This is useful when you want to check if you can mutate a stateful value
- * after dispatching an action that may unmount the enclosing component. This
- * specifically avoids the `"Can't perform a React state update on an
- * unmounted component"` error you may see.
+ * This is useful when you want to check if you can still mutate a stateful
+ * value after awaiting an asynchronous task in a possibly unmounted component.
+ * This specifically avoids the `"Can't perform a React state update on an
+ * unmounted component"` error.
+ *
+ * @returns Whether or not the current component is still mounted.
  */
 export function useIsMounted(): React.MutableRefObject<boolean> {
   const isMounted = useRef(true);

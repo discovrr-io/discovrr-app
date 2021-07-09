@@ -92,18 +92,18 @@ export namespace ProfileApi {
   }
 
   export async function changeProfileFollowStatus(
-    followeeProfileId: string,
-    isFollowing: boolean,
+    profileId: string,
+    didFollow: boolean,
   ) {
     try {
       console.group('ProfileApi.changeProfileFollowStatus');
       await Parse.Cloud.run('followOrUnfollowProfile', {
-        profileId: followeeProfileId,
-        follow: isFollowing,
+        profileId,
+        follow: didFollow,
       });
     } catch (error) {
       console.error(
-        `Failed to ${isFollowing ? 'follow' : 'unfollow'} profile with id:`,
+        `Failed to ${didFollow ? 'follow' : 'unfollow'} profile with id:`,
         error,
       );
       throw error;

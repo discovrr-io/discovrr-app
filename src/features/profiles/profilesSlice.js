@@ -17,14 +17,15 @@ export const fetchProfileById = createAsyncThunk(
   ProfileApi.fetchProfileById,
 );
 
-// export const changeProfileFollowStatus = createAsyncThunk(
-//   'profiles/changeProfileFollowStatus',
-//   /**
-//    * @param {{ profileId: string, isFollowing: boolean }} param0
-//    */
-//   async ({ profileId, isFollowing }) =>
-//     ProfileApi.changeProfileFollowStatus(profileId, isFollowing),
-// );
+export const changeProfileFollowStatus = createAsyncThunk(
+  'profiles/changeProfileFollowStatus',
+  /**
+   * @typedef {import('../../models').ProfileId} ProfileId
+   * @param {{ followeeId: ProfileId, followerId: ProfileId, didFollow: boolean }} param0
+   */
+  async ({ followeeId, didFollow }) =>
+    ProfileApi.changeProfileFollowStatus(followeeId, didFollow),
+);
 
 /**
  * @typedef {import('../../models').Profile} Profile
@@ -46,22 +47,31 @@ const profilesSlice = createSlice({
   initialState,
   reducers: {
     updateProfile: profilesAdapter.updateOne,
-    didChangeFollowStatus: (state, action) => {
+    /**
+     * @typedef {{ followeeId: ProfileId, followerId: ProfileId, didFollow: boolean, }} Payload
+     * @param {import('@reduxjs/toolkit').PayloadAction<Payload>} action
+     */
+    profileFollowStatusChanged: (state, action) => {
       const { didFollow, followeeId, followerId } = action.payload;
       const followee = state.entities[followeeId];
       const follower = state.entities[followerId];
 
       if (didFollow) {
-        followee.followers.push(followerId);
-        follower.following.push(followeeId);
-      } else {
-        // Remove from follower's list
-        const followerIndex = followee.followers.indexOf(followerId);
-        if (followerIndex > -1) followee.followers.splice(followerIndex, 1);
+        // Update followee's followers list
+        if (followee.followers) followee.followers.push(followerId);
+        else followee.followers = [followerId];
 
-        // Remove from followee's list
-        const followeeIndex = follower.following.indexOf(followeeId);
-        if (followeeIndex > -1) follower.following.splice(followeeIndex, 1);
+        // Update follower's followings list
+        if (follower.following) follower.following.push(followeeId);
+        else follower.following = [followeeId];
+      } else {
+        // Remove from followee's followers list
+        const followerIndex = followee.followers?.indexOf(followerId);
+        if (followerIndex > -1) followee.followers?.splice(followerIndex, 1);
+
+        // Remove from follower's followings list
+        const followeeIndex = follower.following?.indexOf(followeeId);
+        if (followeeIndex > -1) follower.following?.splice(followeeIndex, 1);
       }
     },
   },
@@ -91,22 +101,27 @@ const profilesSlice = createSlice({
       .addCase(fetchProfileById.rejected, (state, action) => {
         state.status = 'rejected';
         state.error = action.error;
+      })
+      // -- changeProfileFollowStatus --
+      .addCase(changeProfileFollowStatus.pending, (state, action) => {
+        // state.status = 'pending';
+        profilesSlice.caseReducers.profileFollowStatusChanged(state, {
+          ...action,
+          payload: action.meta.arg,
+        });
+      })
+      .addCase(changeProfileFollowStatus.rejected, (state, action) => {
+        // state.status = 'rejected';
+        const oldDidFollow = !action.meta.arg.isFollowing;
+        profilesSlice.caseReducers.profileFollowStatusChanged(state, {
+          ...action,
+          payload: { ...action.meta.arg, didFollow: oldDidFollow },
+        });
       });
-    // // -- changeProfileFollowStatus --
-    // .addCase(changeProfileFollowStatus.pending, (state) => {
-    //   state.status = 'pending';
-    // })
-    // .addCase(changeProfileFollowStatus.fulfilled, (state, action) => {
-    //   state.status = 'fulfilled';
-    // })
-    // .addCase(changeProfileFollowStatus.rejected, (state, action) => {
-    //   state.status = 'rejected';
-    //   state.error = action.error;
-    // });
   },
 });
 
-export const { updateProfile, didChangeFollowStatus } = profilesSlice.actions;
+export const { updateProfile } = profilesSlice.actions;
 
 export const {
   selectAll: selectAllProfiles,

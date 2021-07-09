@@ -130,7 +130,7 @@ export default function FollowerScreen() {
   const profileIds =
     selector === 'following' ? profile.following : profile.followers;
 
-  const [shouldRefresh, setShouldRefresh] = useState(false);
+  const [shouldRefresh, setShouldRefresh] = useState(true);
 
   useEffect(() => {
     if (shouldRefresh)

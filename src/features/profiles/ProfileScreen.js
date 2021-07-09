@@ -19,9 +19,10 @@ import NoteMasonryList from '../../components/masonry/NoteMasonryList';
 import PostMasonryList from '../../components/masonry/PostMasonryList';
 import { DEFAULT_AVATAR } from '../../constants/media';
 import { FEATURE_UNAVAILABLE } from '../../constants/strings';
-import { NotificationApi, ProfileApi } from '../../api';
+import { NotificationApi } from '../../api';
 import { selectAllNotes } from '../notes/notesSlice';
 import { selectPostsByProfile } from '../posts/postsSlice';
+import { useIsMounted } from '../../hooks';
 
 import {
   Button,
@@ -38,6 +39,7 @@ import {
 } from '../../constants';
 
 import {
+  changeProfileFollowStatus,
   didChangeFollowStatus,
   fetchProfileById,
   selectProfileById,
@@ -100,7 +102,9 @@ const alertRequestFailure = () =>
  */
 function ProfileScreenHeaderContent({ profileDetails }) {
   const dispatch = useDispatch();
+
   const navigation = useNavigation();
+  const isMounted = useIsMounted();
 
   const {
     avatar = DEFAULT_AVATAR,
@@ -157,14 +161,13 @@ function ProfileScreenHeaderContent({ profileDetails }) {
     try {
       setIsProcessingFollow(true);
 
-      const changeFollowStatusAction = didChangeFollowStatus({
-        didFollow,
+      const changeFollowStatusAction = changeProfileFollowStatus({
         followeeId,
         followerId: currentUserProfile.id,
+        didFollow,
       });
 
-      dispatch(changeFollowStatusAction);
-      await ProfileApi.changeProfileFollowStatus(followeeId, didFollow);
+      await dispatch(changeFollowStatusAction).unwrap();
 
       if (didFollow && profileDetails.id && !isMyProfile) {
         try {
@@ -185,17 +188,8 @@ function ProfileScreenHeaderContent({ profileDetails }) {
     } catch (error) {
       console.error('Failed to change follow status:', error);
       alertRequestFailure();
-
-      // Revert the action by simply toggling it back to its previous value
-      const revertChangeFollowStatusAction = didChangeFollowStatus({
-        didFollow: !didFollow,
-        followeeId,
-        followerId: currentUserProfile.id,
-      });
-
-      dispatch(revertChangeFollowStatusAction);
     } finally {
-      setIsProcessingFollow(false);
+      if (isMounted.current) setIsProcessingFollow(false);
     }
   };
 

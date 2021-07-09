@@ -103,14 +103,14 @@ const postsSlice = createSlice({
       })
       // -- changePostLikeStatus --
       .addCase(changePostLikeStatus.pending, (state, action) => {
-        state.status = 'pending';
+        // state.status = 'pending';
         postsSlice.caseReducers.postLikeStatusChanged(state, {
           ...action,
           payload: action.meta.arg,
         });
       })
       .addCase(changePostLikeStatus.rejected, (state, action) => {
-        state.status = 'rejected';
+        // state.status = 'rejected';
         const oldLike = !action.meta.arg.didLike;
         postsSlice.caseReducers.postLikeStatusChanged(state, {
           ...action,
