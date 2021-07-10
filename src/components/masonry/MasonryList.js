@@ -1,7 +1,7 @@
 // Adapted from @react-native-seoul/masonry-list
 
 import React from 'react';
-import { ScrollView, View } from 'react-native';
+import { ScrollView as RNScrollView, View } from 'react-native';
 
 /**
  *
@@ -38,6 +38,7 @@ const isCloseToBottom = (
  *   onEndReached?: () => void,
  *   onEndReachedThreshold?: number,
  *   renderItem: (info: RenderItemInfo<ItemT>) => React.ReactElement | null,
+ *   ScrollViewComponent?: React.ComponentType<ScrollViewProps>,
  *   ListHeaderComponent?: React.ComponentType<any> | React.ReactElement | null,
  *   ListEmptyComponent?: React.ComponentType<any> | React.ReactElement | null,
  *   ListFooterComponent?: React.ComponentType<any> | React.ReactElement | null,
@@ -55,11 +56,14 @@ export default function MasonryList(props) {
     renderItem,
     onEndReached,
     onEndReachedThreshold,
+    ScrollViewComponent,
     ListHeaderComponent,
     ListEmptyComponent,
     ListFooterComponent,
     ...scrollViewProps
   } = props;
+
+  const ScrollView = ScrollViewComponent ?? RNScrollView;
 
   return (
     <ScrollView

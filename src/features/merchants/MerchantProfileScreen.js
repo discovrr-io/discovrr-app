@@ -11,10 +11,14 @@ import ProductItemCard from '../products/ProductItemCard';
 import {
   EmptyTabView,
   ErrorTabView,
+  LoadingTabView,
   MasonryList,
   RouteError,
 } from '../../components';
-import { ProfileScreenHeader } from '../profiles/ProfileScreen';
+import {
+  HEADER_MAX_HEIGHT,
+  ProfileScreenHeader,
+} from '../profiles/ProfileScreen';
 
 import { selectAllNotes } from '../notes/notesSlice';
 import { selectPostsByProfile } from '../posts/postsSlice';
@@ -56,11 +60,12 @@ function ProductsTab({ merchant }) {
   );
 
   /** @type {import('../../api').ApiFetchStatus} */
-  const { status: fetchStatus, error: fetchError } = useSelector(
+  const { status: fetchStatus /* error: fetchError */ } = useSelector(
     (state) => state.products,
   );
 
   const isMounted = useIsMounted();
+  const tileSpacing = useMemo(() => values.spacing.sm * 1.25, []);
   const [isInitialRender, setIsInitialRender] = useState(true);
   const [shouldRefresh, setShouldRefresh] = useState(false);
 
@@ -93,51 +98,39 @@ function ProductsTab({ merchant }) {
     if (!shouldRefresh) setShouldRefresh(true);
   };
 
-  const tileSpacing = useMemo(() => values.spacing.sm * 1.25, []);
-
   return (
-    <Tabs.ScrollView
-      nestedScrollEnabled
+    <MasonryList
+      data={productIds}
       refreshControl={
         <RefreshControl
           title="Loading products..."
-          refreshing={fetchStatus === 'refreshing' || shouldRefresh}
+          refreshing={
+            !isInitialRender && (fetchStatus === 'refreshing' || shouldRefresh)
+          }
           onRefresh={handleRefresh}
         />
-      }>
-      {fetchError ? (
-        <ErrorTabView
-          caption={`We weren't able to get products for ${
+      }
+      ScrollViewComponent={Tabs.ScrollView}
+      ListEmptyComponent={
+        <EmptyTabView
+          message={`${
             merchant.shortName || 'this merchant'
-          }.`}
-          error={fetchError}
+          } doesn't have any products yet`}
         />
-      ) : (
-        <MasonryList
-          nestedScrollEnabled
-          data={productIds}
-          ListEmptyComponent={
-            <EmptyTabView
-              message={`${
-                merchant.shortName || 'this merchant'
-              } doesn't have any products yet`}
-            />
-          }
-          contentContainerStyle={{ paddingBottom: tileSpacing * 2 }}
-          renderItem={({ item: productId, column }) => (
-            <ProductItemCard
-              productId={productId}
-              key={String(productId)}
-              style={{
-                marginTop: tileSpacing,
-                marginLeft: column % 2 === 0 ? tileSpacing : tileSpacing / 2,
-                marginRight: column % 2 !== 0 ? tileSpacing : tileSpacing / 2,
-              }}
-            />
-          )}
+      }
+      contentContainerStyle={{ paddingBottom: tileSpacing * 2 }}
+      renderItem={({ item: productId, column }) => (
+        <ProductItemCard
+          productId={productId}
+          key={String(productId)}
+          style={{
+            marginTop: tileSpacing,
+            marginLeft: column % 2 === 0 ? tileSpacing : tileSpacing / 2,
+            marginRight: column % 2 !== 0 ? tileSpacing : tileSpacing / 2,
+          }}
         />
       )}
-    </Tabs.ScrollView>
+    />
   );
 }
 
@@ -198,7 +191,8 @@ export default function MerchantProfileScreen() {
       <Tabs.Container
         lazy
         snapThreshold={0.25}
-        HeaderComponent={() => (
+        headerHeight={HEADER_MAX_HEIGHT}
+        renderHeader={() => (
           <ProfileScreenHeader
             profileDetails={{
               ...merchant,

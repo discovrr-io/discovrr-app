@@ -232,7 +232,7 @@ export function MerchantItemCardFooter({ merchantId }) {
         activeOpacity={DEFAULT_ACTIVE_OPACITY}
         onPress={() =>
           navigation.navigate('MerchantProfileScreen', {
-            merchant,
+            merchantId,
             merchantShortName: shortName,
           })
         }

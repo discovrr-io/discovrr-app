@@ -45,8 +45,7 @@ import {
   selectProfileById,
 } from './profilesSlice';
 
-const HEADER_MAX_HEIGHT = 280;
-// const HEADER_MIN_HEIGHT = 80;
+export const HEADER_MAX_HEIGHT = 280;
 const AVATAR_IMAGE_RADIUS = 80;
 
 /**
