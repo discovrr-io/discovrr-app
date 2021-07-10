@@ -23,7 +23,8 @@ export const fetchProductsForMerchant = createAsyncThunk(
    * @param {{ merchantId: MerchantId, reload?: boolean }} param0
    * @returns
    */
-  async ({ merchantId }) => ProductApi.fetchProductsForMerchant(merchantId),
+  async ({ merchantId }) =>
+    ProductApi.fetchProductsForMerchant(String(merchantId)),
 );
 
 export const changeProductLikeStatus = createAsyncThunk(
@@ -33,7 +34,16 @@ export const changeProductLikeStatus = createAsyncThunk(
    * @param {{ productId: ProductId, didLike: boolean }} param0
    */
   async ({ productId, didLike }) =>
-    ProductApi.changeProductLikeStatus(productId, didLike),
+    ProductApi.changeProductLikeStatus(String(productId), didLike),
+);
+
+export const updateProductViewCounter = createAsyncThunk(
+  'products/updateProductViewers',
+  /**
+   * @param {{ productId: ProductId, lastViewed?: string }} param0
+   */
+  async ({ productId }) =>
+    ProductApi.updateProductViewCounter(String(productId)),
 );
 
 /**
@@ -55,6 +65,7 @@ const productsSlice = createSlice({
   name: 'products',
   initialState,
   reducers: {
+    updateProduct: productsAdapter.updateOne,
     /**
      * @typedef {{ productId: ProductId, didLike: boolean }} Payload
      * @param {import('@reduxjs/toolkit').PayloadAction<Payload>} action
@@ -103,24 +114,41 @@ const productsSlice = createSlice({
       })
       // -- changeProductLikeStatus --
       .addCase(changeProductLikeStatus.pending, (state, action) => {
-        state.status = 'pending';
         productsSlice.caseReducers.productLikeStatusChanged(state, {
           ...action,
           payload: action.meta.arg,
         });
       })
       .addCase(changeProductLikeStatus.rejected, (state, action) => {
-        state.status = 'rejected';
         const oldLike = !action.meta.arg.didLike;
         productsSlice.caseReducers.productLikeStatusChanged(state, {
           ...action,
           payload: { ...action.meta.arg, didLike: oldLike },
         });
+      })
+      // -- updateProductViewCounter --
+      .addCase(updateProductViewCounter.fulfilled, (state, action) => {
+        const { productId, lastViewed = new Date().toJSON() } = action.meta.arg;
+        const selectedProduct = state.entities[productId];
+        if (selectedProduct) {
+          if (selectedProduct.statistics) {
+            selectedProduct.statistics.totalViews += 1;
+            selectedProduct.statistics.lastViewed = lastViewed;
+          } else {
+            selectedProduct.statistics = {
+              didSave: false,
+              didLike: false,
+              totalLikes: 0,
+              totalViews: 1,
+              lastViewed: lastViewed,
+            };
+          }
+        }
       });
   },
 });
 
-export const {} = productsSlice.actions;
+export const { updateProduct } = productsSlice.actions;
 
 export const {
   selectAll: selectAllProducts,

@@ -8,5 +8,4 @@
   },
   "files.insertFinalNewline": true,
   "files.trimTrailingWhitespace": true,
-  "prettier.prettierPath": "../nodule_modules/prettier",
 }

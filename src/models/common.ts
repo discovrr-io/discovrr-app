@@ -39,5 +39,5 @@ export type Statistics = {
   didLike: boolean;
   totalLikes: number;
   totalViews: number;
-  lastViewed?: string; // Needs to be a string for Redux-Persist to serialize
+  lastViewed?: string; // Needs to be a string for Redux to serialize
 };

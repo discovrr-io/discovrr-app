@@ -70,7 +70,7 @@ export default function MerchantItemCard({ merchantId, ...props }) {
         activeOpacity={DEFAULT_ACTIVE_OPACITY}
         onPress={() =>
           navigation.navigate('MerchantProfileScreen', {
-            merchant,
+            merchantId,
             merchantShortName: merchant.shortName,
           })
         }>

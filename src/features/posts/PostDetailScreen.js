@@ -322,7 +322,8 @@ export default function PostDetailScreen() {
           keyExtractor={(comment) => String(comment)}
           contentContainerStyle={{
             flexGrow: 1,
-            paddingVertical: values.spacing.lg,
+            paddingTop: values.spacing.lg,
+            paddingBottom: values.spacing.huge * 2,
           }}
           ListHeaderComponent={postContent}
           ListEmptyComponent={

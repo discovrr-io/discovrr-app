@@ -207,13 +207,15 @@ export namespace MerchantApi {
     merchantId: MerchantId,
     didLike: boolean,
   ) {
+    const FUNC = '[MerchantApi.changeMerchantLikeStatus]';
+
     try {
       const profile = await UserApi.getCurrentUserProfile();
       const query = new Parse.Query(Parse.Object.extend('Vendor'));
       query.equalTo('objectId', merchantId);
 
       const merchant = await query.first();
-      console.log('Found merchant:', merchant.id);
+      console.log(FUNC, 'Found merchant:', merchant.id);
 
       const profileLikedVendorsRelation = profile.relation('likedVendors');
       const profileLikedVendorsArray = profile.get('likedVendorsArray') ?? [];
@@ -224,38 +226,82 @@ export namespace MerchantApi {
       const merchantLikersSet = new Set<string>(merchantLikersArray);
 
       if (didLike) {
-        console.log('Adding liked merchant...');
+        console.log(FUNC, 'Adding liked merchant...');
         profileLikedVendorsRelation.add(merchant);
         profileLikedVendorsSet.add(merchant.id);
-        profile.increment('likedVendorsCount');
 
-        console.log('Adding liker profile...');
+        console.log(FUNC, 'Adding liker profile...');
         merchantLikersRelation.add(profile);
         merchantLikersSet.add(profile.id);
-        merchant.increment('likersCount');
       } else {
-        console.log('Removing liked merchant...');
+        console.log(FUNC, 'Removing liked merchant...');
         profileLikedVendorsRelation.remove(merchant);
         profileLikedVendorsSet.delete(merchant.id);
-        profile.decrement('likedVendorsCount');
 
-        console.log('Removing liker profile...');
+        console.log(FUNC, 'Removing liker profile...');
         merchantLikersRelation.remove(profile);
         merchantLikersSet.delete(profile.id);
-        merchant.decrement('likersCount');
       }
 
       profile.set('likedVendorsArray', [...profileLikedVendorsSet]);
+      profile.set('likedVendorsCount', profileLikedVendorsSet.size);
       merchant.set('likersArray', [...merchantLikersSet]);
+      merchant.set('likersCount', merchantLikersSet.size);
 
-      console.log('Saving...');
+      console.log(FUNC, 'Saving changes...');
       await Promise.all([profile.save(), merchant.save()]);
-      console.log('Done!');
+      console.log(FUNC, 'Successfully saved');
     } catch (error) {
       console.error(
+        FUNC,
         `Failed to ${didLike ? 'like' : 'unlike'} merchant:`,
         error,
       );
+      throw error;
+    }
+  }
+
+  export async function updateMerchantViewCounter(merchantId: string) {
+    const FUNC = '[MerchantApi.updateMerchantViewCounter]';
+
+    try {
+      const profile = await UserApi.getCurrentUserProfile();
+      const query = new Parse.Query(Parse.Object.extend('Vendor'));
+      query.equalTo('objectId', merchantId);
+
+      const merchant = await query.first();
+      console.log(FUNC, 'Found merchant:', merchant.id);
+
+      const profileViewedMerchantsRelation = profile.relation('viewedVendors');
+      const profileViewedMerchantsArray =
+        profile.get('viewedVendorsArray') ?? [];
+      const profileViewedMerchantsSet = new Set<string>(
+        profileViewedMerchantsArray,
+      );
+
+      console.log(FUNC, 'Adding viewed merchant...');
+      profileViewedMerchantsRelation.add(merchant);
+      profileViewedMerchantsSet.add(merchant.id);
+      profile.set('viewedVendorsArray', [...profileViewedMerchantsSet]);
+      profile.set('viewedVendorsCount', profileViewedMerchantsSet.size);
+
+      const productViewersRelation = merchant.relation('viewers');
+      const productViewersArray = merchant.get('viewersArray') ?? [];
+      const productViewersSet = new Set<string>(productViewersArray);
+
+      console.log(FUNC, 'Adding viewer profile...');
+      productViewersRelation.add(profile);
+      merchant.set('viewersArray', [...productViewersSet.add(profile.id)]);
+      // A "view" is counted as the number of times a user has visited the
+      // product's page spaced out in 5 minute intervals. If the last visit was
+      // less than 5 minutes ago, it will NOT be counted as a view.
+      merchant.increment('viewersCount');
+
+      console.log(FUNC, 'Saving changes...');
+      await Promise.all([profile.save(), merchant.save()]);
+      console.log(FUNC, 'Successfully saved');
+    } catch (error) {
+      console.error(FUNC, 'Failed to update viewers for merchant:', error);
       throw error;
     }
   }

@@ -2,7 +2,7 @@ import Parse from 'parse/react-native';
 
 import { UserApi } from '.';
 import { Pagination } from '../models/common';
-import { Product, ProductId } from '../models';
+import { Product } from '../models';
 
 export namespace ProductApi {
   function mapResultToProduct(
@@ -82,8 +82,9 @@ export namespace ProductApi {
     }
   }
 
+  // TODO: Rename to `updateProductLikeStatus`
   export async function changeProductLikeStatus(
-    productId: ProductId,
+    productId: string,
     didLike: boolean,
   ) {
     try {
@@ -134,6 +135,51 @@ export namespace ProductApi {
       console.log('Done!');
     } catch (error) {
       console.error(`Failed to ${didLike ? 'like' : 'unlike'} product:`, error);
+      throw error;
+    }
+  }
+
+  export async function updateProductViewCounter(productId: string) {
+    const FUNC = '[ProductApi.updateProductViewCounter]';
+
+    try {
+      const profile = await UserApi.getCurrentUserProfile();
+      const query = new Parse.Query(Parse.Object.extend('Product'));
+      query.equalTo('objectId', productId);
+
+      const product = await query.first();
+      console.log(FUNC, 'Found product:', product.id);
+
+      const profileViewedProductsRelation = profile.relation('viewedProducts');
+      const profileViewedProductsArray =
+        profile.get('viewedProductsArray') ?? [];
+      const profileViewedProductsSet = new Set<string>(
+        profileViewedProductsArray,
+      );
+
+      console.log(FUNC, 'Adding viewed product...');
+      profileViewedProductsRelation.add(product);
+      profileViewedProductsSet.add(product.id);
+      profile.set('viewedProductsArray', [...profileViewedProductsSet]);
+      profile.set('viewedProductsCount', profileViewedProductsSet.size);
+
+      const productViewersRelation = product.relation('viewers');
+      const productViewersArray = product.get('viewersArray') ?? [];
+      const productViewersSet = new Set<string>(productViewersArray);
+
+      console.log(FUNC, 'Adding viewer profile...');
+      productViewersRelation.add(profile);
+      product.set('viewersArray', [...productViewersSet.add(profile.id)]);
+      // A "view" is counted as the number of times a user has visited the
+      // product's page spaced out in 5 minute intervals. If the last visit was
+      // less than 5 minutes ago, it will NOT be counted as a view.
+      product.increment('viewersCount');
+
+      console.log(FUNC, 'Saving changes...');
+      await Promise.all([profile.save(), product.save()]);
+      console.log(FUNC, 'Successfully saved');
+    } catch (error) {
+      console.error(FUNC, 'Failed to update viewers for product:', error);
       throw error;
     }
   }

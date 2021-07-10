@@ -59,6 +59,7 @@ export default function ProductItemCard({
 
   const handlePressProduct = () => {
     navigation.push('ProductCheckoutScreen', {
+      productId: product.id,
       productName: product.name,
       squareSpaceUrl: product.squareSpaceUrl,
     });

@@ -8,7 +8,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import NoteMasonryList from '../../components/masonry/NoteMasonryList';
 import PostMasonryList from '../../components/masonry/PostMasonryList';
 import ProductItemCard from '../products/ProductItemCard';
-import { EmptyTabView, ErrorTabView, MasonryList } from '../../components';
+import {
+  EmptyTabView,
+  ErrorTabView,
+  MasonryList,
+  RouteError,
+} from '../../components';
 import { ProfileScreenHeader } from '../profiles/ProfileScreen';
 
 import { selectAllNotes } from '../notes/notesSlice';
@@ -16,12 +21,26 @@ import { selectPostsByProfile } from '../posts/postsSlice';
 import { SOMETHING_WENT_WRONG } from '../../constants/strings';
 import { useIsInitialRender, useIsMounted } from '../../hooks';
 import { colors, values } from '../../constants';
-import { fetchMerchantById } from './merchantsSlice';
+import {
+  fetchMerchantById,
+  selectMerchantById,
+  updateMerchantViewCounter,
+} from './merchantsSlice';
 
 import {
   fetchProductsForMerchant,
   selectProductsForMerchant,
 } from '../products/productsSlice';
+
+// TODO: Refactor out
+function isOverFiveMinutes(date) {
+  if (!date) return false;
+
+  const FIVE_MINS = 5 * 60 * 1000;
+  const now = new Date();
+  const then = new Date(date);
+  return now - then > FIVE_MINS;
+}
 
 /**
  * @typedef {import('../../models').Merchant} Merchant
@@ -128,8 +147,20 @@ function ProductsTab({ merchant }) {
  * @param {MerchantProfileScreenProps} param0
  */
 export default function MerchantProfileScreen() {
-  /** @type {{ merchant: Merchant }} */
-  const { merchant } = useRoute().params ?? {};
+  const FUNC = '[MerchantProfileScreen]';
+  const dispatch = useDispatch();
+
+  /** @type {{ merchantId: import('../../models').MerchantId }} */
+  const { merchantId } = useRoute().params ?? {};
+  const merchant = useSelector((state) =>
+    selectMerchantById(state, merchantId),
+  );
+
+  // TODO: Try to fetch merchant before returning error
+  if (!merchant) {
+    console.warn(FUNC, 'Failed to select merchant with id:', merchantId);
+    return <RouteError />;
+  }
 
   const profileId = merchant.profileId;
 
@@ -146,6 +177,21 @@ export default function MerchantProfileScreen() {
           .map((note) => note.id);
       })
     : [];
+
+  useEffect(() => {
+    const { lastViewed } = merchant.statistics ?? {};
+
+    // We don't want to count views in development mode
+    if ((!__DEV__ && !lastViewed) || isOverFiveMinutes(lastViewed)) {
+      console.log(FUNC, 'Updating last viewed date-time...');
+      dispatch(
+        updateMerchantViewCounter({
+          merchantId,
+          lastViewed: new Date().toJSON(),
+        }),
+      );
+    }
+  });
 
   return (
     <SafeAreaView style={{ flex: 1 }}>

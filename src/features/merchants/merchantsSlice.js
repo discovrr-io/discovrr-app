@@ -27,7 +27,16 @@ export const changeMerchantLikeStatus = createAsyncThunk(
    * @param {{ merchantId: MerchantId, didLike: boolean }} param0
    */
   async ({ merchantId, didLike }) =>
-    MerchantApi.changeMerchantLikeStatus(merchantId, didLike),
+    MerchantApi.changeMerchantLikeStatus(String(merchantId), didLike),
+);
+
+export const updateMerchantViewCounter = createAsyncThunk(
+  'products/updateMerchantViewCounter',
+  /**
+   * @param {{ merchantId: MerchantId, lastViewed?: string }} param0
+   */
+  async ({ merchantId }) =>
+    MerchantApi.updateMerchantViewCounter(String(merchantId)),
 );
 
 /**
@@ -109,6 +118,26 @@ const merchantsSlice = createSlice({
           ...action,
           payload: { ...action.meta.arg, didLike: oldLike },
         });
+      })
+      // -- updateMerchantViewCounter --
+      .addCase(updateMerchantViewCounter.fulfilled, (state, action) => {
+        const { merchantId, lastViewed = new Date().toJSON() } =
+          action.meta.arg;
+        const selectedMerchant = state.entities[merchantId];
+        if (selectedMerchant) {
+          if (selectedMerchant.statistics) {
+            selectedMerchant.statistics.totalViews += 1;
+            selectedMerchant.statistics.lastViewed = lastViewed;
+          } else {
+            selectedMerchant.statistics = {
+              didSave: false,
+              didLike: false,
+              totalLikes: 0,
+              totalViews: 1,
+              lastViewed: lastViewed,
+            };
+          }
+        }
       });
   },
 });
