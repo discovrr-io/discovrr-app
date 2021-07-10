@@ -1,12 +1,12 @@
 import Parse from 'parse/react-native';
 
+import { MediaSource } from '.';
 import { Comment, Post } from '../models';
 import { PostId, PostContent } from '../models/post';
 import { ImageSource, Pagination } from '../models/common';
 
-import { DEFAULT_IMAGE_DIMENSIONS } from '../constants/media';
-import { MediaSource } from '.';
 import { UserApi } from './user';
+import { DEFAULT_IMAGE_DIMENSIONS } from '../constants/media';
 
 const EARLIEST_DATE = new Date('2020-10-30');
 
@@ -93,7 +93,7 @@ export namespace PostApi {
       const posts: Post[] = results
         // We only want posts that have a 'profile' field (so we know who the
         // author of that particular post is).
-        .filter((post) => !!post.get('profile')?.id)
+        // .filter((post) => !!post.get('profile')?.id)
         .map((post) => mapResultToPost(profileId, post));
 
       return posts;

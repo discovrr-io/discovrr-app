@@ -9,7 +9,11 @@ import { ProfileApi } from '../../api';
 
 export const fetchAllProfiles = createAsyncThunk(
   'profiles/fetchAllProfiles',
-  ProfileApi.fetchAllProfiles,
+  /**
+   * @typedef {import('../../models/common').Pagination} Pagination
+   * @param {{ pagination?: Pagination, reload?: boolean }=} param0
+   */
+  async ({ pagination } = {}) => ProfileApi.fetchAllProfiles(pagination),
 );
 
 export const fetchProfileById = createAsyncThunk(
@@ -78,17 +82,23 @@ const profilesSlice = createSlice({
   extraReducers: (builder) => {
     builder
       // -- fetchAllProfiles --
-      .addCase(fetchAllProfiles.pending, (state) => {
-        state.status = 'pending';
+      .addCase(fetchAllProfiles.pending, (state, action) => {
+        const { reload = false } = action.meta.arg ?? {};
+        state.status = reload ? 'refreshing' : 'pending';
       })
       .addCase(fetchAllProfiles.fulfilled, (state, action) => {
         state.status = 'fulfilled';
-        profilesAdapter.upsertMany(state, action.payload);
+        state.error = null;
+        const { reload = false } = action.meta.arg ?? {};
+        if (reload) {
+          profilesAdapter.setAll(state, action.payload);
+        } else {
+          profilesAdapter.upsertMany(state, action.payload);
+        }
       })
       .addCase(fetchAllProfiles.rejected, (state, action) => {
         state.status = 'rejected';
         state.error = action.error;
-        // profilesAdapter.setAll(state, []); // Should we reset the post list?
       })
       // -- fetchProfileById --
       .addCase(fetchProfileById.pending, (state) => {

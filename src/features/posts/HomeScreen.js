@@ -38,9 +38,10 @@ import {
 } from '../merchants/merchantsSlice';
 
 import { fetchAllProducts, selectProductIds } from '../products/productsSlice';
-import { StyleSheet } from 'react-native';
+import { ActivityIndicator } from 'react-native';
+// import { StyleSheet } from 'react-native';
 
-const PAGINATION_LIMIT = 26;
+const PAGINATION_LIMIT = 24;
 
 const FeedTab = createMaterialTopTabNavigator();
 
@@ -52,25 +53,39 @@ const tabViewStyles = {
 
 /**
  * @typedef {import('react-native').ViewProps} ViewProps
- * @param {{ message?: string } & ViewProps} param0
+ * @param {{ message?: string, loading?: boolean } & ViewProps} param0
  */
-function MasonryListFooter({ message = "You're all caught up! 😎", ...props }) {
+function MasonryListFooter({
+  message = "You're all caught up! 😎",
+  loading = false,
+  ...props
+}) {
   return (
     <View style={[{ paddingVertical: values.spacing.xl }, props.style]}>
-      <Text
-        style={{
-          color: colors.black,
-          textAlign: 'center',
-          fontWeight: '600',
-          fontSize: typography.size.lg,
-        }}>
-        {message}
-      </Text>
+      <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+        {loading && (
+          <ActivityIndicator
+            size="small"
+            color={colors.gray500}
+            style={{ marginRight: values.spacing.md }}
+          />
+        )}
+        <Text
+          style={{
+            color: colors.black,
+            textAlign: 'center',
+            fontWeight: '600',
+            fontSize: typography.size.lg,
+          }}>
+          {message}
+        </Text>
+      </View>
     </View>
   );
 }
 
 function DiscoverTab() {
+  const FUNC = '[DiscoverTab]';
   const dispatch = useDispatch();
 
   const postIds = useSelector(selectPostIds);
@@ -96,10 +111,10 @@ function DiscoverTab() {
           const pagination = { limit: PAGINATION_LIMIT, currentPage: 0 };
           await Promise.all([
             dispatch(fetchAllPosts({ pagination, reload: true })).unwrap(),
-            dispatch(fetchAllProfiles()).unwrap(),
+            dispatch(fetchAllProfiles({ reload: true })).unwrap(),
           ]);
         } catch (error) {
-          console.error('[DiscoverTab] Failed to refresh posts:', error);
+          console.error(FUNC, 'Failed to refresh posts:', error);
           Alert.alert(
             SOMETHING_WENT_WRONG.title,
             "We couldn't refresh your posts for you at the moment.",
@@ -114,27 +129,28 @@ function DiscoverTab() {
     if (shouldFetchMore)
       (async () => {
         try {
-          console.log('[DiscoverTab] Fetching more...');
+          console.log(FUNC, 'Fetching more posts...');
 
-          const fetchAction = fetchAllPosts({
-            pagination: {
-              limit: PAGINATION_LIMIT,
-              currentPage: currentPage + 1,
-            },
-          });
+          /** @type {import('../../models/common').Pagination} */
+          const pagination = {
+            limit: PAGINATION_LIMIT,
+            currentPage: currentPage + 1,
+          };
 
-          const posts = await dispatch(fetchAction).unwrap();
-          console.log(`[DiscoverTab] Found ${posts.length} more posts`);
+          const fetchAllPostsAction = fetchAllPosts({ pagination });
+
+          const posts = await dispatch(fetchAllPostsAction).unwrap();
+          console.log(FUNC, `Found ${posts.length} more post(s)`);
 
           if (posts.length === 0) {
             setDidReachEnd(true);
           } else {
-            // TODO: Paginate profiles too
+            // TODO: Find a way to only fetch profiles from the loaded posts
             await dispatch(fetchAllProfiles()).unwrap();
             setCurrentPage(currentPage + 1);
           }
         } catch (error) {
-          console.error('[DiscoverTab] Failed to fetch more posts:', error);
+          console.error(FUNC, 'Failed to fetch more posts:', error);
           Alert.alert(
             'Something went wrong',
             "We couldn't fetch more posts for you",
@@ -178,6 +194,7 @@ function DiscoverTab() {
       ListFooterComponent={
         postIds.length > 0 && (
           <MasonryListFooter
+            loading={!didReachEnd}
             message={!didReachEnd ? 'Loading more posts...' : undefined}
           />
         )

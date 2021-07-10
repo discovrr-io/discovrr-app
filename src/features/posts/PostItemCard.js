@@ -109,7 +109,7 @@ export function PostItemCardFooter({
 
   const handlePressAvatar = () => {
     navigation.push('UserProfileScreen', {
-      profileId: profile.id,
+      profileId: profile?.id,
       profileName,
     });
   };

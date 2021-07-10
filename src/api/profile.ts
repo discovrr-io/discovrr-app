@@ -1,8 +1,8 @@
 import Parse from 'parse/react-native';
 
-import { Profile } from '../models';
-import { ImageSource } from '../models/common';
 import { MediaSource } from '.';
+import { Profile } from '../models';
+import { ImageSource, Pagination } from '../models/common';
 
 import {
   DEFAULT_AVATAR,
@@ -55,10 +55,18 @@ export namespace ProfileApi {
     } as Profile;
   }
 
-  export async function fetchAllProfiles(): Promise<Profile[]> {
+  export async function fetchAllProfiles(
+    pagination?: Pagination,
+  ): Promise<Profile[]> {
     try {
       console.group('ProfileApi.fetchAllProfiles');
       const query = new Parse.Query('Profile');
+
+      if (pagination) {
+        query.limit(pagination.limit);
+        query.skip(pagination.limit * pagination.currentPage);
+      }
+
       const results = await query.findAll();
       return results.map(mapResultToProfile);
     } catch (error) {

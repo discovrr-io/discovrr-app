@@ -9,7 +9,7 @@ import { PostApi } from '../../api';
 import { selectProfileById } from '../profiles/profilesSlice';
 
 export const fetchAllPosts = createAsyncThunk(
-  'posts/fetchPosts',
+  'posts/fetchAllPosts',
   /**
    * @typedef {import('../../models/common').Pagination} Pagination
    * @param {{ pagination?: Pagination, reload?: boolean }=} param0
@@ -86,7 +86,6 @@ const postsSlice = createSlice({
       .addCase(fetchAllPosts.rejected, (state, action) => {
         state.status = 'rejected';
         state.error = action.error;
-        // postsAdapter.setAll(state, []); // Should we reset the post list?
       })
       // -- fetchPostById --
       .addCase(fetchPostById.pending, (state) => {
@@ -103,14 +102,12 @@ const postsSlice = createSlice({
       })
       // -- changePostLikeStatus --
       .addCase(changePostLikeStatus.pending, (state, action) => {
-        // state.status = 'pending';
         postsSlice.caseReducers.postLikeStatusChanged(state, {
           ...action,
           payload: action.meta.arg,
         });
       })
       .addCase(changePostLikeStatus.rejected, (state, action) => {
-        // state.status = 'rejected';
         const oldLike = !action.meta.arg.didLike;
         postsSlice.caseReducers.postLikeStatusChanged(state, {
           ...action,
