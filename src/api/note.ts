@@ -7,14 +7,15 @@ import { MediaSource } from '.';
 
 export namespace NoteApi {
   export async function fetchNotesForCurrentUser(): Promise<Note[]> {
+    const $FUNC = '[NoteApi.fetchNotesForCurrentUser]';
+
     try {
-      console.group('NoteApi.fetchNotesForCurrentUser');
       const currentUser = await Parse.User.currentAsync();
       const notesQuery = new Parse.Query(Parse.Object.extend('Board'));
       notesQuery.equalTo('owner', currentUser);
 
       const results = await notesQuery.find();
-      console.log(`Found ${results.length} note(s) for current profile`);
+      console.log($FUNC, `Found ${results.length} note(s) for current profile`);
 
       const notes = results.map((note) => {
         const image: MediaSource | undefined = note.get('image');
@@ -41,10 +42,8 @@ export namespace NoteApi {
 
       return notes;
     } catch (error) {
-      console.error('Failed to fetch notes for current user:', error);
+      console.error($FUNC, 'Failed to fetch notes for current user:', error);
       throw error;
-    } finally {
-      console.groupEnd();
     }
   }
 }

@@ -85,7 +85,7 @@ function MasonryListFooter({
 }
 
 function DiscoverTab() {
-  const FUNC = '[DiscoverTab]';
+  const $FUNC = '[HomeScreen.DiscoverTab]';
   const dispatch = useDispatch();
 
   const postIds = useSelector(selectPostIds);
@@ -114,7 +114,7 @@ function DiscoverTab() {
             dispatch(fetchAllProfiles({ reload: true })).unwrap(),
           ]);
         } catch (error) {
-          console.error(FUNC, 'Failed to refresh posts:', error);
+          console.error($FUNC, 'Failed to refresh posts:', error);
           Alert.alert(
             SOMETHING_WENT_WRONG.title,
             "We couldn't refresh your posts for you at the moment.",
@@ -129,7 +129,7 @@ function DiscoverTab() {
     if (shouldFetchMore)
       (async () => {
         try {
-          console.log(FUNC, 'Fetching more posts...');
+          console.log($FUNC, 'Fetching more posts...');
 
           /** @type {import('../../models/common').Pagination} */
           const pagination = {
@@ -140,7 +140,7 @@ function DiscoverTab() {
           const fetchAllPostsAction = fetchAllPosts({ pagination });
 
           const posts = await dispatch(fetchAllPostsAction).unwrap();
-          console.log(FUNC, `Found ${posts.length} more post(s)`);
+          console.log($FUNC, `Found ${posts.length} more post(s)`);
 
           if (posts.length === 0) {
             setDidReachEnd(true);
@@ -150,7 +150,7 @@ function DiscoverTab() {
             setCurrentPage(currentPage + 1);
           }
         } catch (error) {
-          console.error(FUNC, 'Failed to fetch more posts:', error);
+          console.error($FUNC, 'Failed to fetch more posts:', error);
           Alert.alert(
             'Something went wrong',
             "We couldn't fetch more posts for you",
@@ -637,6 +637,7 @@ function NearMeTab() {
           const merchantId = nearMeItem.item;
           return (
             <MerchantItemCard
+              displayedOnNearMeTab
               merchantId={merchantId}
               style={itemCardStyles(column)}
             />
@@ -646,6 +647,7 @@ function NearMeTab() {
           return (
             <ProductItemCard
               showFooter
+              displayedOnNearMeTab
               productId={productId}
               promoLabel="buy now!"
               style={[itemCardStyles(column)]}

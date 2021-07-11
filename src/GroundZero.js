@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   useWindowDimensions,
   Modal,
@@ -12,16 +12,15 @@ import {
   Platform,
 } from 'react-native';
 
+import analytics from '@react-native-firebase/analytics';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-import { withSafeAreaInsets } from 'react-native-safe-area-context';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { IconButton, Portal } from 'react-native-paper';
-
-import { connect, useDispatch, useSelector } from 'react-redux';
+import { IconButton } from 'react-native-paper';
+import { useDispatch, useSelector } from 'react-redux';
 
 import HomeScreen from './features/posts/HomeScreen';
 import AccountSettingsScreen from './features/settings/AccountSettingsScreen';
@@ -430,8 +429,21 @@ export default function GroundZero() {
   const dispatch = useDispatch();
 
   /** @type {import('./features/authentication/authSlice').AuthState} */
-  const { status, isFirstLogin } = useSelector((state) => state.auth);
-  // console.log({ status });
+  const { status, isFirstLogin, isAuthenticated, user } = useSelector(
+    (state) => state.auth,
+  );
+
+  useEffect(() => {
+    if (isAuthenticated && !!user)
+      (async () => {
+        try {
+          console.log('[GroundZero] Setting Firebase user id...');
+          await analytics().setUserId(user.profile.id);
+        } catch (error) {
+          console.log('[GroundZero] Failed to set Firebase user id:', error);
+        }
+      })();
+  }, [isAuthenticated, user]);
 
   return (
     <>

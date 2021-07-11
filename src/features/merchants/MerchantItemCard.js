@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 
 import * as Animatable from 'react-native-animatable';
+import analytics from '@react-native-firebase/analytics';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
 
@@ -36,12 +37,17 @@ const alertUnimplementedFeature = () => {
 
 /**
  * @typedef {import('../../models').MerchantId} MerchantId
- * @typedef {{ merchantId: MerchantId }} MerchantItemCardProps
+ * @typedef {{ merchantId: MerchantId, displayedOnNearMeTab?: boolean }} MerchantItemCardProps
  * @typedef {import('react-native').ViewProps} ViewProps
  *
  * @param {MerchantItemCardProps & ViewProps} param0
  */
-export default function MerchantItemCard({ merchantId, ...props }) {
+export default function MerchantItemCard({
+  merchantId,
+  displayedOnNearMeTab = false, // For analytics purposes
+  ...props
+}) {
+  const $FUNC = '[MerchantItemCard]';
   const navigation = useNavigation();
 
   const merchant = useSelector((state) =>
@@ -49,14 +55,10 @@ export default function MerchantItemCard({ merchantId, ...props }) {
   );
 
   const isMounted = useIsMounted();
-
   const [imageDimensions, setImageDimensions] = useState(null);
 
   if (!merchant) {
-    console.warn(
-      '[MerchantItemCard] Failed to select merchant with id:',
-      merchantId,
-    );
+    console.warn($FUNC, 'Failed to select merchant with id:', merchantId);
 
     return null;
   }
@@ -121,7 +123,10 @@ export default function MerchantItemCard({ merchantId, ...props }) {
         </View>
         <MerchantItemCardCaption merchant={merchant} />
       </TouchableOpacity>
-      <MerchantItemCardFooter merchantId={merchantId} />
+      <MerchantItemCardFooter
+        merchantId={merchantId}
+        displayedOnNearMeTab={displayedOnNearMeTab}
+      />
     </View>
   );
 }
@@ -174,9 +179,13 @@ const merchantItemCardCaptionStyles = StyleSheet.create({
 
 /**
  * @typedef {import('../../models').MerchantId} MerchantId
- * @param {{ merchantId: MerchantId }} param0
+ * @param {{ merchantId: MerchantId, displayedOnNearMeTab?: boolean }} param0
  */
-export function MerchantItemCardFooter({ merchantId }) {
+export function MerchantItemCardFooter({
+  merchantId,
+  displayedOnNearMeTab = false, // For analytics purposes
+}) {
+  const $FUNC = '[MerchantItemCardFooter]';
   const dispatch = useDispatch();
   const navigation = useNavigation();
 
@@ -185,10 +194,7 @@ export function MerchantItemCardFooter({ merchantId }) {
   );
 
   if (!merchant) {
-    console.warn(
-      '[MerchantItemCardFooter] Failed to select merchant with id:',
-      merchantId,
-    );
+    console.warn($FUNC, 'Failed to select merchant with id:', merchantId);
 
     return null;
   }
@@ -203,11 +209,7 @@ export function MerchantItemCardFooter({ merchantId }) {
       setIsProcessingLike(true);
 
       const newDidLike = !didLike;
-      console.log(
-        `[MerchantItemCardFooter] Will ${
-          newDidLike ? 'like' : 'unlike'
-        } merchant...`,
-      );
+      console.log($FUNC, `Will ${newDidLike ? 'like' : 'unlike'} merchant...`);
 
       await dispatch(
         changeMerchantLikeStatus({
@@ -215,11 +217,21 @@ export function MerchantItemCardFooter({ merchantId }) {
           didLike: newDidLike,
         }),
       ).unwrap();
+
+      if (newDidLike) {
+        try {
+          console.log($FUNC, 'Sending `like_merchant` event...');
+          await analytics().logEvent('like_merchant', {
+            merchant_id: merchant.id,
+            merchant_name: merchant.shortName,
+            from_near_me_tab: displayedOnNearMeTab,
+          });
+        } catch (error) {
+          console.error($FUNC, 'Failed to send `like_merchant` event:', error);
+        }
+      }
     } catch (error) {
-      console.error(
-        '[MerchantItemCardFooter] Failed to change merchant like status:',
-        error,
-      );
+      console.error($FUNC, 'Failed to change merchant like status:', error);
       Alert.alert(SOMETHING_WENT_WRONG.title, SOMETHING_WENT_WRONG.message);
     } finally {
       setIsProcessingLike(false);

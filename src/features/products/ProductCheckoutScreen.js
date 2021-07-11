@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native';
 
+import analytics from '@react-native-firebase/analytics';
 import WebView from 'react-native-webview';
 import { useRoute } from '@react-navigation/core';
 import { useDispatch, useSelector } from 'react-redux';
@@ -36,14 +37,35 @@ export default function ProductCheckoutScreen() {
     const { lastViewed } = product.statistics ?? {};
 
     // We don't want to count views in development mode
-    if ((!__DEV__ && !lastViewed) || isOverFiveMinutes(lastViewed)) {
-      console.log(FUNC, 'Updating last viewed date-time...');
-      dispatch(
-        updateProductViewCounter({
-          productId,
-          lastViewed: new Date().toJSON(),
-        }),
-      );
+    if (!lastViewed || isOverFiveMinutes(lastViewed)) {
+      if (!__DEV__) {
+        console.log(FUNC, 'Updating last viewed date-time...');
+        dispatch(
+          updateProductViewCounter({
+            productId,
+            lastViewed: new Date().toJSON(),
+          }),
+        );
+      }
+
+      // If on debug mode, Firebase Analytics will automatically send this event
+      // to the DebugView (and thus won't pollute events in production)
+      (async () => {
+        try {
+          await analytics().logViewItem({
+            items: [
+              {
+                item_id: productId,
+                item_name: product.name,
+                price: product.price,
+                quantity: 1,
+              },
+            ],
+          });
+        } catch (error) {
+          console.error(FUNC, 'Failed to send `view_item` event:', error);
+        }
+      })();
     }
   }, []);
 

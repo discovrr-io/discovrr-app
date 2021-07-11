@@ -126,30 +126,33 @@ export namespace MerchantApi {
   //   return profile;
   // }
 
-  // TODO: Try-catch
   export async function fetchAllMerchants(pagination?: Pagination) {
-    console.group('MerchantApi.fetchAllMerchants');
+    const $FUNC = '[MerchantApi.fetchAllMerchants]';
 
-    const profile = await UserApi.getCurrentUserProfile();
-    const query = new Parse.Query(Parse.Object.extend('Vendor'));
-    query.exists('avatarUrl');
-    query.exists('coverPhotoUrl');
+    try {
+      const profile = await UserApi.getCurrentUserProfile();
+      const query = new Parse.Query(Parse.Object.extend('Vendor'));
+      query.exists('avatarUrl');
+      query.exists('coverPhotoUrl');
 
-    const pointOfInterest = new Parse.GeoPoint(DEFAULT_COORDINATES);
-    query.withinKilometers('geopoint', pointOfInterest, 50);
+      const pointOfInterest = new Parse.GeoPoint(DEFAULT_COORDINATES);
+      query.withinKilometers('geopoint', pointOfInterest, 50);
 
-    if (pagination) {
-      query.limit(pagination.limit);
-      query.skip(pagination.limit * pagination.currentPage);
+      if (pagination) {
+        query.limit(pagination.limit);
+        query.skip(pagination.limit * pagination.currentPage);
+      }
+
+      const results = await query.find();
+
+      // Filter out all the null values (i.e. merchants not partnered with us)
+      return results
+        .map((result) => mapResultToMerchant(result, profile?.id))
+        .filter(Boolean);
+    } catch (error) {
+      console.error($FUNC, 'Failed to fetch all merchants:', error);
+      throw error;
     }
-
-    console.groupEnd();
-    const results = await query.find();
-
-    // Filter out all the null values (i.e. merchants not partnered with us)
-    return results
-      .map((result) => mapResultToMerchant(result, profile?.id))
-      .filter(Boolean);
   }
 
   // TODO: Try-catch
@@ -207,7 +210,7 @@ export namespace MerchantApi {
     merchantId: MerchantId,
     didLike: boolean,
   ) {
-    const FUNC = '[MerchantApi.changeMerchantLikeStatus]';
+    const $FUNC = '[MerchantApi.changeMerchantLikeStatus]';
 
     try {
       const profile = await UserApi.getCurrentUserProfile();
@@ -215,7 +218,7 @@ export namespace MerchantApi {
       query.equalTo('objectId', merchantId);
 
       const merchant = await query.first();
-      console.log(FUNC, 'Found merchant:', merchant.id);
+      console.log($FUNC, 'Found merchant:', merchant.id);
 
       const profileLikedVendorsRelation = profile.relation('likedVendors');
       const profileLikedVendorsArray = profile.get('likedVendorsArray') ?? [];
@@ -226,19 +229,19 @@ export namespace MerchantApi {
       const merchantLikersSet = new Set<string>(merchantLikersArray);
 
       if (didLike) {
-        console.log(FUNC, 'Adding liked merchant...');
+        console.log($FUNC, 'Adding liked merchant...');
         profileLikedVendorsRelation.add(merchant);
         profileLikedVendorsSet.add(merchant.id);
 
-        console.log(FUNC, 'Adding liker profile...');
+        console.log($FUNC, 'Adding liker profile...');
         merchantLikersRelation.add(profile);
         merchantLikersSet.add(profile.id);
       } else {
-        console.log(FUNC, 'Removing liked merchant...');
+        console.log($FUNC, 'Removing liked merchant...');
         profileLikedVendorsRelation.remove(merchant);
         profileLikedVendorsSet.delete(merchant.id);
 
-        console.log(FUNC, 'Removing liker profile...');
+        console.log($FUNC, 'Removing liker profile...');
         merchantLikersRelation.remove(profile);
         merchantLikersSet.delete(profile.id);
       }
@@ -248,12 +251,12 @@ export namespace MerchantApi {
       merchant.set('likersArray', [...merchantLikersSet]);
       merchant.set('likersCount', merchantLikersSet.size);
 
-      console.log(FUNC, 'Saving changes...');
+      console.log($FUNC, 'Saving changes...');
       await Promise.all([profile.save(), merchant.save()]);
-      console.log(FUNC, 'Successfully saved');
+      console.log($FUNC, 'Successfully saved');
     } catch (error) {
       console.error(
-        FUNC,
+        $FUNC,
         `Failed to ${didLike ? 'like' : 'unlike'} merchant:`,
         error,
       );
@@ -262,7 +265,7 @@ export namespace MerchantApi {
   }
 
   export async function updateMerchantViewCounter(merchantId: string) {
-    const FUNC = '[MerchantApi.updateMerchantViewCounter]';
+    const $FUNC = '[MerchantApi.updateMerchantViewCounter]';
 
     try {
       const profile = await UserApi.getCurrentUserProfile();
@@ -270,7 +273,7 @@ export namespace MerchantApi {
       query.equalTo('objectId', merchantId);
 
       const merchant = await query.first();
-      console.log(FUNC, 'Found merchant:', merchant.id);
+      console.log($FUNC, 'Found merchant:', merchant.id);
 
       const profileViewedMerchantsRelation = profile.relation('viewedVendors');
       const profileViewedMerchantsArray =
@@ -279,7 +282,7 @@ export namespace MerchantApi {
         profileViewedMerchantsArray,
       );
 
-      console.log(FUNC, 'Adding viewed merchant...');
+      console.log($FUNC, 'Adding viewed merchant...');
       profileViewedMerchantsRelation.add(merchant);
       profileViewedMerchantsSet.add(merchant.id);
       profile.set('viewedVendorsArray', [...profileViewedMerchantsSet]);
@@ -289,7 +292,7 @@ export namespace MerchantApi {
       const productViewersArray = merchant.get('viewersArray') ?? [];
       const productViewersSet = new Set<string>(productViewersArray);
 
-      console.log(FUNC, 'Adding viewer profile...');
+      console.log($FUNC, 'Adding viewer profile...');
       productViewersRelation.add(profile);
       merchant.set('viewersArray', [...productViewersSet.add(profile.id)]);
       // A "view" is counted as the number of times a user has visited the
@@ -297,11 +300,11 @@ export namespace MerchantApi {
       // less than 5 minutes ago, it will NOT be counted as a view.
       merchant.increment('viewersCount');
 
-      console.log(FUNC, 'Saving changes...');
+      console.log($FUNC, 'Saving changes...');
       await Promise.all([profile.save(), merchant.save()]);
-      console.log(FUNC, 'Successfully saved');
+      console.log($FUNC, 'Successfully saved');
     } catch (error) {
-      console.error(FUNC, 'Failed to update viewers for merchant:', error);
+      console.error($FUNC, 'Failed to update viewers for merchant:', error);
       throw error;
     }
   }

@@ -7,17 +7,18 @@ export namespace CommentApi {
     postId: string,
     message: string,
   ): Promise<Comment | null> {
+    const FUNC = '[CommentApi.addCommentForPost]';
+
     try {
-      console.group('CommentApi.addCommentForPost');
       const postQuery = new Parse.Query(Parse.Object.extend('Post'));
       postQuery.equalTo('objectId', postId);
       const post = await postQuery.first();
 
       if (!post) {
-        console.warn('Failed to find post with id:', postId);
+        console.warn(FUNC, 'Failed to find post with id:', postId);
         return null;
       } else {
-        console.log('Found post owner for comment:', post.id);
+        console.log(FUNC, 'Found post owner for comment:', post.id);
       }
 
       const PostComment = Parse.Object.extend('PostComment');
@@ -35,10 +36,8 @@ export namespace CommentApi {
         message,
       } as Comment;
     } catch (error) {
-      console.error('Failed to add comment for post:', error);
+      console.error(FUNC, 'Failed to add comment for post:', error);
       throw error;
-    } finally {
-      console.groupEnd();
     }
   }
 }

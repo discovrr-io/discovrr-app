@@ -65,8 +65,9 @@ export namespace PostApi {
   export async function fetchAllPosts(
     pagination?: Pagination,
   ): Promise<Post[]> {
+    const $FUNC = '[PostApi.fetchAllPosts]';
+
     try {
-      console.group('PostApi.fetchAllPosts');
       const currentUser = await Parse.User.currentAsync();
       const profileQuery = new Parse.Query(Parse.Object.extend('Profile'));
 
@@ -74,7 +75,7 @@ export namespace PostApi {
       if (currentUser) {
         profileQuery.equalTo('owner', currentUser);
         const profile = await profileQuery.first();
-        console.log('Found current user profile:', profile?.id);
+        console.log($FUNC, 'Found current user profile:', profile?.id);
         profileId = profile?.id;
       }
 
@@ -98,17 +99,15 @@ export namespace PostApi {
 
       return posts;
     } catch (error) {
-      console.error('Failed to fetch all posts:', error);
+      console.error($FUNC, 'Failed to fetch all posts:', error);
       throw error;
-    } finally {
-      console.groupEnd();
     }
   }
 
   export async function fetchPostById(postId: string): Promise<Post | null> {
-    try {
-      console.group('ProfileApi.fetchPostById');
+    const $FUNC = '[ProfileApi.fetchPostById]';
 
+    try {
       const profile = await UserApi.getCurrentUserProfile();
       const postQuery = new Parse.Query(Parse.Object.extend('Post'));
       postQuery.equalTo('objectId', postId);
@@ -121,31 +120,33 @@ export namespace PostApi {
         return null;
       }
     } catch (error) {
-      console.error('Failed to fetch profile by id:', error);
+      console.error($FUNC, 'Failed to fetch profile by id:', error);
       throw error;
-    } finally {
-      console.groupEnd();
     }
   }
 
   export async function changePostLikeStatus(postId: PostId, didLike: boolean) {
+    const $FUNC = '[PostApi.setLikeStatus]';
+
     try {
-      console.group('PostApi.setLikeStatus');
       await Parse.Cloud.run('likeOrUnlikePost', { postId, like: didLike });
-      console.log(`Successfully ${didLike ? 'liked' : 'unliked'} post`);
+      console.log($FUNC, `Successfully ${didLike ? 'liked' : 'unliked'} post`);
     } catch (error) {
-      console.error(`Failed to ${didLike ? 'like' : 'unlike'} post:`, error);
+      console.error(
+        $FUNC,
+        `Failed to ${didLike ? 'like' : 'unlike'} post:`,
+        error,
+      );
       throw error;
-    } finally {
-      console.groupEnd();
     }
   }
 
   export async function fetchCommentsForPost(
     postId: string,
   ): Promise<Comment[]> {
+    const FUNC = '[PostApi.fetchCommentsForPosts]';
+
     try {
-      console.group('PostApi.fetchCommentsForPosts');
       const postPointer = {
         __type: 'Pointer',
         className: 'Post',
@@ -157,7 +158,10 @@ export namespace PostApi {
       query.include('profile');
 
       const results = await query.find();
-      console.log(`Found ${results.length} comment(s) for post '${postId}'`);
+      console.log(
+        FUNC,
+        `Found ${results.length} comment(s) for post '${postId}'`,
+      );
 
       const comments = results.map(
         (comment) =>
@@ -172,10 +176,8 @@ export namespace PostApi {
 
       return comments;
     } catch (error) {
-      console.error(`Failed to fetch comments for post:`, error);
+      console.error(FUNC, `Failed to fetch comments for post:`, error);
       throw error;
-    } finally {
-      console.groupEnd();
     }
   }
 }

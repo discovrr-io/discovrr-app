@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Alert, RefreshControl, SafeAreaView } from 'react-native';
 
+import analytics from '@react-native-firebase/analytics';
 import { Tabs, MaterialTabBar } from 'react-native-collapsible-tab-view';
 import { useRoute } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -52,11 +53,16 @@ function isOverFiveMinutes(date) {
  * @returns
  */
 function ProductsTab({ merchant }) {
+  const FUNC = '[MerchantProfileScreen.ProductsTab]';
   const dispatch = useDispatch();
 
   const merchantId = String(merchant.id);
-  const productIds = useSelector((state) =>
-    selectProductsForMerchant(state, merchantId).map((product) => product.id),
+  const products = useSelector((state) =>
+    selectProductsForMerchant(state, merchantId),
+  );
+  const productIds = useMemo(
+    () => products.map((product) => product.id),
+    [products],
   );
 
   /** @type {import('../../api').ApiFetchStatus} */
@@ -77,10 +83,7 @@ function ProductsTab({ merchant }) {
             fetchProductsForMerchant({ merchantId, reload: true }),
           ).unwrap();
         } catch (error) {
-          console.error(
-            '[MerchantProfileScreen] Failed to fetch products for merchant:',
-            error,
-          );
+          console.error(FUNC, 'Failed to fetch products for merchant:', error);
           Alert.alert(
             SOMETHING_WENT_WRONG.title,
             "We weren't able to get products for you. Please try again later.",
@@ -93,6 +96,23 @@ function ProductsTab({ merchant }) {
         }
       })();
   }, [isInitialRender, shouldRefresh]);
+
+  useEffect(() => {
+    if (fetchStatus === 'fulfilled' && products.length > 0)
+      (async () => {
+        try {
+          await analytics().logViewItemList({
+            items: products.map((product) => ({
+              item_id: product.id,
+              item_name: product.name,
+              item_list_name: merchant.shortName,
+            })),
+          });
+        } catch (error) {
+          console.error(FUNC, 'Failed to send `view_item_list` event:', error);
+        }
+      })();
+  }, [products, fetchStatus]);
 
   const handleRefresh = () => {
     if (!shouldRefresh) setShouldRefresh(true);
@@ -122,7 +142,7 @@ function ProductsTab({ merchant }) {
       renderItem={({ item: productId, column }) => (
         <ProductItemCard
           productId={productId}
-          key={String(productId)}
+          key={productId.toString()}
           style={{
             marginTop: tileSpacing,
             marginLeft: column % 2 === 0 ? tileSpacing : tileSpacing / 2,

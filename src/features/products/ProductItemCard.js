@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 
 import * as Animatable from 'react-native-animatable';
+import analytics from '@react-native-firebase/analytics';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation } from '@react-navigation/native';
@@ -34,7 +35,7 @@ const alertUnimplementedFeature = () => {
 
 /**
  * @typedef {import('../../models').ProductId} ProductId
- * @typedef {{ productId: ProductId, promoLabel?: string, showFooter?: boolean }} ProductItemCardProps
+ * @typedef {{ productId: ProductId, promoLabel?: string, showFooter?: boolean, displayedOnNearMeTab?: boolean }} ProductItemCardProps
  * @typedef {import('react-native').ViewProps} ViewProps
  * @param {ProductItemCardProps & ViewProps} param0
  */
@@ -42,6 +43,7 @@ export default function ProductItemCard({
   productId,
   promoLabel = undefined,
   showFooter = false,
+  displayedOnNearMeTab = false, // For analytics purposes
   ...props
 }) {
   const navigation = useNavigation();
@@ -150,6 +152,7 @@ export default function ProductItemCard({
         <ProductItemCardFooter
           productId={product.id}
           merchantId={product.merchantId}
+          displayedOnNearMeTab={displayedOnNearMeTab}
         />
       )}
     </View>
@@ -177,9 +180,14 @@ const productItemCardStyles = StyleSheet.create({
 
 /**
  * @typedef {import('../../models').MerchantId} MerchantId
- * @param {{ productId: ProductId, merchantId: MerchantId }} param0
+ * @param {{ productId: ProductId, merchantId: MerchantId, displayedOnNearMeTab?: boolean }} param0
  */
-export function ProductItemCardFooter({ productId, merchantId }) {
+export function ProductItemCardFooter({
+  productId,
+  merchantId,
+  displayedOnNearMeTab = false, // For analytics purposes
+}) {
+  const FUNC = '[ProductItemCardFooter]';
   const dispatch = useDispatch();
   const navigation = useNavigation();
 
@@ -189,7 +197,7 @@ export function ProductItemCardFooter({ productId, merchantId }) {
   );
 
   if (!product || !merchant) {
-    console.warn('[ProductItemCard] One of the following is not defined:', {
+    console.warn(FUNC, 'One of the following is not defined:', {
       product,
       merchant,
     });
@@ -208,11 +216,7 @@ export function ProductItemCardFooter({ productId, merchantId }) {
       setIsProcessingLike(true);
 
       const newDidLike = !didLike;
-      console.log(
-        `[MerchantItemCardFooter] Will ${
-          newDidLike ? 'like' : 'unlike'
-        } merchant...`,
-      );
+      console.log(FUNC, `Will ${newDidLike ? 'like' : 'unlike'} merchant...`);
 
       await dispatch(
         changeProductLikeStatus({
@@ -220,11 +224,22 @@ export function ProductItemCardFooter({ productId, merchantId }) {
           didLike: newDidLike,
         }),
       ).unwrap();
+
+      if (newDidLike) {
+        try {
+          console.log(FUNC, 'Sending `like_product` event...');
+          await analytics().logEvent('like_product', {
+            product_id: product.id,
+            product_name: product.name,
+            merchant_name: merchant.shortName,
+            from_near_me_tab: displayedOnNearMeTab,
+          });
+        } catch (error) {
+          console.error(FUNC, 'Failed to send `like_product` event:', error);
+        }
+      }
     } catch (error) {
-      console.error(
-        '[MerchantItemCardFooter] Failed to change merchant like status:',
-        error,
-      );
+      console.error(FUNC, 'Failed to change merchant like status:', error);
       Alert.alert(SOMETHING_WENT_WRONG.title, SOMETHING_WENT_WRONG.message);
     } finally {
       setIsProcessingLike(false);

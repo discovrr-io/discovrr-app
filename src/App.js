@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
 
+import analytics from '@react-native-firebase/analytics';
 import AsyncStorage from '@react-native-community/async-storage';
 import Bugsnag from '@bugsnag/react-native';
 import codePush from 'react-native-code-push';
@@ -46,7 +47,37 @@ function LoadingScreen() {
   );
 }
 
+/** @type {import('@react-navigation/native').LinkingOptions} */
+const linking = {
+  prefixes: ['https://discovrrio.com', 'http://discovrrio.com', 'discovrr://'],
+  config: {
+    screens: {
+      GroundZero: {
+        initialRouteName: 'HomeTabs',
+        screens: {
+          HomeTabs: {
+            initialRouteName: 'Home',
+            screens: {
+              Home: '',
+            },
+          },
+          PostDetailScreen: 'post/:postId',
+          UserProfileScreen: 'profile/:profileId',
+        },
+      },
+    },
+  },
+};
+
 export function App() {
+  /**
+   * @typedef {import('@react-navigation/native').NavigationContainerRef} NavigationContainerRef
+   * @type {React.MutableRefObject<NavigationContainerRef>}
+   */
+  const navigationRef = useRef(null);
+  /** @type {React.MutableRefObject<string>} */
+  const routeNameRef = useRef(null);
+
   const onBeforeLift = async () => {
     // TODO: Maybe check with Regex? (/^\d+\.\d{1,2}\.\d{1,2}$/g)
     const [major, minor, patch, build] = [2, 1, 2, 6];
@@ -78,32 +109,24 @@ export function App() {
     }
   };
 
-  /** @type {import('@react-navigation/native').LinkingOptions} */
-  const linking = {
-    prefixes: [
-      'https://discovrrio.com',
-      'http://discovrrio.com',
-      'discovrr://',
-    ],
-    config: {
-      screens: {
-        GroundZero: {
-          initialRouteName: 'HomeTabs',
-          screens: {
-            HomeTabs: {
-              initialRouteName: 'Home',
-              screens: {
-                Home: '',
-              },
-            },
-            PostDetailScreen: 'post/:postId',
-            UserProfileScreen: 'profile/:profileId',
-          },
-        },
-      },
-    },
+  const handleNavigationOnReady = () => {
+    routeNameRef.current = navigationRef.current.getCurrentRoute().name;
   };
 
+  const handleNavigationOnStageChange = async (state) => {
+    const previousRouteName = routeNameRef.current;
+    const currentRouteName = navigationRef.current.getCurrentRoute().name;
+    if (previousRouteName !== currentRouteName) {
+      if (__DEV__) console.log('Sending screen analytics:', currentRouteName);
+      await analytics().logScreenView({
+        screen_name: currentRouteName,
+        screen_class: currentRouteName,
+      });
+    }
+
+    // Save the current route name for later comparison
+    routeNameRef.current = currentRouteName;
+  };
   return (
     <Provider store={store}>
       <PersistGate
@@ -112,7 +135,11 @@ export function App() {
         onBeforeLift={onBeforeLift}>
         <PaperProvider theme={theme}>
           <BottomSheetModalProvider>
-            <NavigationContainer linking={linking}>
+            <NavigationContainer
+              ref={navigationRef}
+              linking={linking}
+              onReady={handleNavigationOnReady}
+              onStateChange={handleNavigationOnStageChange}>
               <AuthLoadingScreen />
             </NavigationContainer>
           </BottomSheetModalProvider>
