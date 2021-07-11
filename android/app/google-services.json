@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "930461821085-d6j46e1fh60erbh3h21vmo00l27hahrs.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.discovrr.discovrr_app",
+            "certificate_hash": "287a887736ab7da85d60074a3d524c2cba9ffb5d"
+          }
+        },
+        {
           "client_id": "930461821085-pmo91isqq9jlvvhsteeoosm1n26ef3i4.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -31,11 +39,10 @@
               "client_type": 3
             },
             {
-              "client_id": "930461821085-9oi5tufovr4ertfgiac4ducje18kbqmo.apps.googleusercontent.com",
+              "client_id": "930461821085-39jf9mthqtme4enmpr22bu9118ecm104.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.discovrr",
-                "app_store_id": "1541137819"
+                "bundle_id": "com.discovrr.debug"
               }
             }
           ]
@@ -51,6 +58,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "930461821085-rnhakta54viai154nkbouebuvl21c6k6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.discovrr.discovrr_app.debug",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
           "client_id": "930461821085-pmo91isqq9jlvvhsteeoosm1n26ef3i4.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -68,11 +83,10 @@
               "client_type": 3
             },
             {
-              "client_id": "930461821085-9oi5tufovr4ertfgiac4ducje18kbqmo.apps.googleusercontent.com",
+              "client_id": "930461821085-39jf9mthqtme4enmpr22bu9118ecm104.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.discovrr",
-                "app_store_id": "1541137819"
+                "bundle_id": "com.discovrr.debug"
               }
             }
           ]
@@ -88,6 +102,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "930461821085-p3k6ff9h0s18krsck6r4s5rn1rmfmcf2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.discovrr.discovrr_app.releaseStaging",
+            "certificate_hash": "287a887736ab7da85d60074a3d524c2cba9ffb5d"
+          }
+        },
+        {
           "client_id": "930461821085-pmo91isqq9jlvvhsteeoosm1n26ef3i4.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -105,11 +127,10 @@
               "client_type": 3
             },
             {
-              "client_id": "930461821085-9oi5tufovr4ertfgiac4ducje18kbqmo.apps.googleusercontent.com",
+              "client_id": "930461821085-39jf9mthqtme4enmpr22bu9118ecm104.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.discovrr",
-                "app_store_id": "1541137819"
+                "bundle_id": "com.discovrr.debug"
               }
             }
           ]
@@ -142,11 +163,10 @@
               "client_type": 3
             },
             {
-              "client_id": "930461821085-9oi5tufovr4ertfgiac4ducje18kbqmo.apps.googleusercontent.com",
+              "client_id": "930461821085-39jf9mthqtme4enmpr22bu9118ecm104.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.discovrr",
-                "app_store_id": "1541137819"
+                "bundle_id": "com.discovrr.debug"
               }
             }
           ]
@@ -179,11 +199,10 @@
               "client_type": 3
             },
             {
-              "client_id": "930461821085-9oi5tufovr4ertfgiac4ducje18kbqmo.apps.googleusercontent.com",
+              "client_id": "930461821085-39jf9mthqtme4enmpr22bu9118ecm104.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.discovrr",
-                "app_store_id": "1541137819"
+                "bundle_id": "com.discovrr.debug"
               }
             }
           ]
