@@ -670,7 +670,7 @@ function FollowingTab() {
 
   const followingPostsIds = user
     ? useSelector((state) =>
-        selectFollowingPosts(state, user.profile.id).map((post) => post.id),
+        selectFollowingPosts(state, user.profileId).map((post) => post.id),
       )
     : [];
 

@@ -109,14 +109,8 @@ const authSlice = createSlice({
         state.status = 'signing-out';
         state.isSigningOut = true;
       })
-      .addCase(signOut.fulfilled, (state, action) => {
-        // Reset to initial state
-        state.status = 'idle';
-        state.error = undefined;
-        state.isAuthenticated = false;
-        state.isSigningOut = false;
-        state.isFirstLogin = false;
-        state.user = undefined;
+      .addCase(signOut.fulfilled, (state) => {
+        Object.assign(state, initialState);
       })
       .addCase(signOut.rejected, (state, action) => {
         state.status = 'rejected';

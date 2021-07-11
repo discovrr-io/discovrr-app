@@ -34,7 +34,7 @@ export default function PostComment({ commentId, ...props }) {
 
   const currentUser = useSelector(selectCurrentUser);
   const isMyComment =
-    currentUser && comment.profileId === currentUser.profile.id;
+    currentUser && comment.profileId === currentUser.profileId;
 
   const handlePressAvatar = () => {
     navigation.push('UserProfileScreen', {

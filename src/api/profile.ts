@@ -58,7 +58,7 @@ export namespace ProfileApi {
   export async function fetchAllProfiles(
     pagination?: Pagination,
   ): Promise<Profile[]> {
-    const FUNC = '[ProfileApi.fetchAllProfiles]';
+    const $FUNC = '[ProfileApi.fetchAllProfiles]';
 
     try {
       const query = new Parse.Query('Profile');
@@ -71,7 +71,7 @@ export namespace ProfileApi {
       const results = await query.findAll();
       return results.map(mapResultToProfile);
     } catch (error) {
-      console.error(FUNC, 'Failed to fetch all profiles:', error);
+      console.error($FUNC, 'Failed to fetch all profiles:', error);
       throw error;
     }
   }
@@ -79,7 +79,7 @@ export namespace ProfileApi {
   export async function fetchProfileById(
     profileId: string,
   ): Promise<Profile | null> {
-    const FUNC = '[ProfileApi.fetchProfileById]';
+    const $FUNC = '[ProfileApi.fetchProfileById]';
 
     try {
       const query = new Parse.Query('Profile');
@@ -88,11 +88,11 @@ export namespace ProfileApi {
       if (result) {
         return mapResultToProfile(result);
       } else {
-        console.warn(FUNC, 'No profile found with id:', profileId);
+        console.warn($FUNC, 'No profile found with id:', profileId);
         return null;
       }
     } catch (error) {
-      console.error(FUNC, 'Failed to fetch profile by id:', error);
+      console.error($FUNC, 'Failed to fetch profile by id:', error);
       throw error;
     }
   }
@@ -101,7 +101,7 @@ export namespace ProfileApi {
     profileId: string,
     didFollow: boolean,
   ) {
-    const FUNC = '[ProfileApi.changeProfileFollowStatus]';
+    const $FUNC = '[ProfileApi.changeProfileFollowStatus]';
 
     try {
       await Parse.Cloud.run('followOrUnfollowProfile', {
@@ -110,7 +110,7 @@ export namespace ProfileApi {
       });
     } catch (error) {
       console.error(
-        FUNC,
+        $FUNC,
         `Failed to ${didFollow ? 'follow' : 'unfollow'} profile with id:`,
         error,
       );
@@ -124,7 +124,7 @@ export namespace ProfileApi {
   export async function getOneSignalPlayerIdsForProfile(
     profileId: string,
   ): Promise<string[]> {
-    const FUNC = '[ProfileApi.getOneSignalPlayerIdsForProfile]';
+    const $FUNC = '[ProfileApi.getOneSignalPlayerIdsForProfile]';
 
     try {
       const profileQuery = new Parse.Query(Parse.Object.extend('Profile'));
@@ -138,7 +138,7 @@ export namespace ProfileApi {
       }
     } catch (error) {
       console.error(
-        FUNC,
+        $FUNC,
         'Failed to get OneSignal player IDs for profile:',
         profileId,
       );

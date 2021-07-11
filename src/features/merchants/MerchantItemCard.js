@@ -220,7 +220,6 @@ export function MerchantItemCardFooter({
 
       if (newDidLike) {
         try {
-          console.log($FUNC, 'Sending `like_merchant` event...');
           await analytics().logEvent('like_merchant', {
             merchant_id: merchant.id,
             merchant_name: merchant.shortName,

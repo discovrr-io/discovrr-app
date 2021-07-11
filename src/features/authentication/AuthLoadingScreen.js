@@ -3,7 +3,7 @@ import { StatusBar } from 'react-native';
 
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createStackNavigator } from '@react-navigation/stack';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import AsyncStorage from '@react-native-community/async-storage';
 import OneSignal from 'react-native-onesignal';
@@ -15,6 +15,7 @@ import { colors } from '../../constants';
 
 import LoginScreen from './LoginScreen';
 import TermsAndConditions from './TermsAndConditions';
+import { fetchProfileById } from '../profiles/profilesSlice';
 
 const Parse = require('parse/react-native');
 
@@ -35,42 +36,45 @@ async function setUpOneSignal() {
 }
 
 function setUpOneSignalHandlers() {
+  const $FUNC = '[OneSignal]';
+
   OneSignal.promptForPushNotificationsWithUserResponse((response) => {
-    console.log('[OneSignal] Permission to push notifications:', response);
+    console.log($FUNC, 'Permission to push notifications:', response);
   });
 
   OneSignal.setNotificationWillShowInForegroundHandler((event) => {
-    console.log('[OneSignal] Notification will show in foreground:', event);
+    console.log($FUNC, 'Notification will show in foreground:', event);
   });
 
   OneSignal.setNotificationOpenedHandler((notification) => {
-    console.log('[OneSignal] Notification opened:', notification);
+    console.log($FUNC, 'Notification opened:', notification);
   });
 
   OneSignal.setInAppMessageClickHandler((event) => {
-    console.log('[OneSignal] In-app message clicked:', event);
+    console.log($FUNC, 'In-app message clicked:', event);
   });
 
   OneSignal.addPermissionObserver((event) => {
-    console.log('[OneSignal] Permission changed:', event);
+    console.log($FUNC, 'Permission changed:', event);
   });
 }
 
 /**
- * @param {import('../../models').User} user
+ * @param {import('../../models').Profile} profile
  */
-function sendOneSignalTags(user) {
-  const { id: profileId, email, fullName, isVendor } = user.profile;
+function sendOneSignalTags(profile) {
+  const $FUNC = '[AuthLoadingScreen.sendOneSignalTags]';
+  const { id: profileId, email, fullName, isVendor } = profile;
 
   if (profileId && email) {
-    console.log('[OneSignal] Sending OneSignal tags...');
+    console.log($FUNC, 'Sending OneSignal tags...');
     OneSignal.sendTags({
       email,
       fullName,
       isVendor,
     });
 
-    console.log('[OneSignal] Setting external user id...');
+    console.log($FUNC, 'Setting external user id...');
     OneSignal.setExternalUserId(profileId, (results) => {
       console.log('[OneSignal] Result of setting external id:', results);
     });
@@ -83,24 +87,48 @@ function sendOneSignalTags(user) {
 }
 
 export default function AuthLoadingScreen() {
+  const $FUNC = '[AuthLoadingScreen]';
+  const dispatch = useDispatch();
+
   /** @type {import('./authSlice').AuthState} */
   const { isAuthenticated, isFirstLogin, user } = useSelector(
     (state) => state.auth,
   );
 
-  console.log('[AuthLoadingScreen] isAuthenticated?', isAuthenticated);
+  console.log($FUNC, 'isAuthenticated:', isAuthenticated);
 
   useEffect(() => {
     RNBootSplash.hide({ duration: 250 });
-    console.log('[AuthLoadingScreen] Will set up OneSignal...');
+    console.log($FUNC, 'Will set up OneSignal...');
     setUpOneSignal();
   }, []);
 
   useEffect(() => {
-    if (isFirstLogin && !!user) {
-      console.log('[AuthLoadingScreen] Will send OneSignal tags...');
-      sendOneSignalTags(user);
-    }
+    if (isFirstLogin && !!user)
+      (async () => {
+        try {
+          console.log($FUNC, "Fetching current user's profile...");
+          /** @type {import('../../models').Profile} */
+          const profile = await dispatch(
+            fetchProfileById(user.profileId),
+          ).unwrap();
+
+          if (!profile) {
+            throw new Error(
+              `Profile with id '${user.profileId}' doesn't exist, which is unexpected.`,
+            );
+          }
+
+          console.log($FUNC, 'Will send OneSignal tags...');
+          sendOneSignalTags(profile);
+        } catch (error) {
+          console.error(
+            $FUNC,
+            "Failed to fetch current user's profile:",
+            error,
+          );
+        }
+      })();
   }, [isFirstLogin]);
 
   return isAuthenticated ? (

@@ -96,17 +96,18 @@ export namespace AuthApi {
 
     return {
       provider: firebaseUser.providerId,
-      profile: {
-        id: profile.id,
-        fullName: fullName || '',
-        username: profile.get('username') ?? '',
-        email: email || '',
-        avatar,
-        coverPhoto,
-        isVendor: false,
-        description: profile.get('description'),
-      },
-    };
+      profileId: profile.id,
+      // profile: {
+      //   id: profile.id,
+      //   fullName: fullName || '',
+      //   username: profile.get('username') ?? '',
+      //   email: email || '',
+      //   avatar,
+      //   coverPhoto,
+      //   isVendor: false,
+      //   description: profile.get('description'),
+      // },
+    } as User;
   }
 
   async function signInWithParse(
@@ -167,7 +168,7 @@ export namespace AuthApi {
 
       const authenticatedUser = await signInWithParse(user);
       await analytics().logLogin({ method: 'email' });
-      await analytics().setUserId(authenticatedUser.profile.id.toString());
+      await analytics().setUserId(authenticatedUser.profileId.toString());
       didLoginViaParse = true;
 
       return authenticatedUser;
@@ -200,7 +201,7 @@ export namespace AuthApi {
         await analytics().logLogin({ method: credential.providerId });
       }
 
-      await analytics().setUserId(authenticatedUser.profile.id.toString());
+      await analytics().setUserId(authenticatedUser.profileId.toString());
 
       return authenticatedUser;
     } catch (error) {

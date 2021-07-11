@@ -17,6 +17,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import SearchLocationModal from './bottomSheets/SearchLocationModal';
 import { FEATURE_UNAVAILABLE } from '../constants/strings';
+import { selectProfileById } from '../features/profiles/profilesSlice';
 import { signOut } from '../features/authentication/authSlice';
 
 import {
@@ -53,6 +54,7 @@ const AppDrawerItem = ({ label, iconName, onPress }) => (
 );
 
 export default function AppDrawer({ navigation, ...props }) {
+  const $FUNC = '[AppDrawer]';
   const dispatch = useDispatch();
 
   /**
@@ -63,11 +65,13 @@ export default function AppDrawer({ navigation, ...props }) {
   /**@type {import('../features/authentication/authSlice').AuthState} */
   const authState = useSelector((state) => state.auth);
   if (!authState.user) {
-    console.error('[AppDrawer] No user found in store');
+    console.error($FUNC, 'No user found in store');
     return null;
   }
 
-  const { profile } = authState.user;
+  const { profileId } = authState.user;
+  const profile = useSelector((state) => selectProfileById(state, profileId));
+  if (!profile) console.warn($FUNC, `Profile '${profileId}' is undefined`);
 
   const handleShowModal = useCallback(() => {
     bottomSheetModalRef.current?.present();
@@ -79,15 +83,12 @@ export default function AppDrawer({ navigation, ...props }) {
     const signOutUser = async () => {
       try {
         await dispatch(signOut()).unwrap();
-        console.log('[AppDrawer] Removing OneSignal external user ID...');
+        console.log($FUNC, 'Removing OneSignal external user ID...');
         OneSignal.removeExternalUserId((results) => {
-          console.log(
-            '[AppDrawer] Successfully removed external user id:',
-            results,
-          );
+          console.log($FUNC, 'Successfully removed external user id:', results);
         });
       } catch (error) {
-        console.error('[AppDrawer] Failed to log out user:', error);
+        console.error($FUNC, 'Failed to log out user:', error);
         throw error;
       }
     };
@@ -102,9 +103,9 @@ export default function AppDrawer({ navigation, ...props }) {
           style: 'destructive',
           onPress: () => {
             signOutUser()
-              .then(() => console.info('[AppDrawer] Successfully logged out'))
+              .then(() => console.info($FUNC, 'Successfully logged out'))
               .catch((error) => {
-                console.error('[AppDrawer] Failed to sign out:', error);
+                console.error($FUNC, 'Failed to sign out:', error);
                 Alert.alert(
                   'Something went wrong',
                   "We weren't able to sign you out right now. Please try again later.",
@@ -129,18 +130,19 @@ export default function AppDrawer({ navigation, ...props }) {
             activeOpacity={DEFAULT_ACTIVE_OPACITY}
             onPress={() => {
               navigation.navigate('UserProfileScreen', {
-                profileId: profile.id,
+                profileId: profile?.id,
                 profileName: 'My Profile',
               });
             }}>
             <View style={{ alignItems: 'center' }}>
               <FastImage
-                source={profile.avatar}
+                source={profile?.avatar}
                 resizeMode="cover"
                 style={{
                   width: AVATAR_DIAMETER,
                   height: AVATAR_DIAMETER,
                   borderRadius: AVATAR_DIAMETER / 2,
+                  backgroundColor: colors.gray100,
                 }}
               />
               <Text
@@ -151,7 +153,7 @@ export default function AppDrawer({ navigation, ...props }) {
                   textAlign: 'center',
                   paddingTop: values.spacing.lg,
                 }}>
-                {profile.fullName}
+                {profile?.fullName ?? 'Undefined'}
               </Text>
             </View>
           </TouchableOpacity>
@@ -173,7 +175,7 @@ export default function AppDrawer({ navigation, ...props }) {
           label="Profile Settings"
           iconName="person"
           onPress={() => {
-            navigation.navigate('ProfileEditScreen', { profile: profile.id });
+            navigation.navigate('ProfileEditScreen', { profile: profile?.id });
           }}
         />
         <AppDrawerItem

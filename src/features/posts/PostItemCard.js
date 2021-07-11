@@ -76,6 +76,10 @@ export function PostItemCardFooter({
     (state) => state.auth,
   );
 
+  const currentUserProfile = useSelector((state) =>
+    selectProfileById(state, currentUser.profileId),
+  );
+
   if (!isAuthenticated) {
     console.warn(
       '[PostItemCardFooter]',
@@ -137,10 +141,10 @@ export function PostItemCardFooter({
       if (
         newDidLike &&
         !!currentUser &&
-        currentUser.profile.id !== post.profileId
+        currentUser.profileId !== post.profileId
       ) {
         try {
-          const { fullName = 'Someone' } = currentUser.profile ?? {};
+          const { fullName = 'Someone' } = currentUserProfile ?? {};
           await NotificationApi.sendNotificationToProfileIds(
             [String(profile.id)],
             { en: `${fullName} liked your post!` },

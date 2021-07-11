@@ -128,15 +128,21 @@ function ProfileScreenHeaderContent({ profileDetails }) {
   const followersCount = followers.length ?? 0;
   const followingCount = following.length ?? 0;
 
-  /** @type {Profile | undefined} */
-  const currentUserProfile = useSelector((state) => state.auth.user?.profile);
-  const isMyProfile =
-    currentUserProfile?.id &&
-    profileDetails.id &&
-    currentUserProfile.id === profileDetails.id;
+  /** @type {import('../../models').ProfileId | undefined} */
+  const currentUserProfileId = useSelector(
+    (state) => state.auth.user.profileId,
+  );
+  const currentUserProfile = useSelector((state) =>
+    selectProfileById(state, currentUserProfileId),
+  );
 
-  const isFollowing = followers.includes(currentUserProfile.id);
-  const isFollowee = following.includes(currentUserProfile.id);
+  const isMyProfile =
+    currentUserProfileId &&
+    profileDetails.id &&
+    currentUserProfileId === profileDetails.id;
+
+  const isFollowing = followers.includes(currentUserProfileId);
+  const isFollowee = following.includes(currentUserProfileId);
   const [isProcessingFollow, setIsProcessingFollow] = useState(false);
 
   // const [isBlocked, setIsBlocked] = useState(false);
@@ -162,7 +168,7 @@ function ProfileScreenHeaderContent({ profileDetails }) {
 
       const changeFollowStatusAction = changeProfileFollowStatus({
         followeeId,
-        followerId: currentUserProfile.id,
+        followerId: currentUserProfileId,
         didFollow,
       });
 
@@ -170,12 +176,12 @@ function ProfileScreenHeaderContent({ profileDetails }) {
 
       if (didFollow && profileDetails.id && !isMyProfile) {
         try {
-          const { fullName = 'Someone' } = currentUserProfile;
+          const { fullName = 'Someone' } = currentUserProfile ?? {};
           await NotificationApi.sendNotificationToProfileIds(
             [profileDetails.id],
             { en: `${fullName} followed you!` },
             { en: 'Why not follow them back? 😃' },
-            `discovrr://profile/${currentUserProfile.id}`,
+            `discovrr://profile/${currentUserProfileId.id}`,
           );
         } catch (error) {
           console.error(
@@ -388,8 +394,9 @@ export default function ProfileScreen() {
   const [isRefreshingNotes, setIsRefreshingNotes] = useState(false);
 
   /** @type {import('../authentication/authSlice').AuthState} */
-  const { user } = useSelector((state) => state.auth);
-  const currentUserProfileId = user?.profile.id;
+  const currentUserProfileId = useSelector(
+    (state) => state.auth.user.profileId,
+  );
 
   let resolvedProfileId = profileId;
   let isMyProfile =
@@ -442,7 +449,7 @@ export default function ProfileScreen() {
       (async () => {
         try {
           console.log('[ProfileScreen] Will fetch profile...');
-          await dispatch(fetchProfileById(profileId)).unwrap();
+          await dispatch(fetchProfileById(resolvedProfileId)).unwrap();
         } catch (error) {
           console.error('[ProfileScreen] Failed to refresh profile:', error);
           Alert.alert(
@@ -509,7 +516,7 @@ export default function ProfileScreen() {
                   isMyProfile
                     ? "You haven't posted anything"
                     : `${
-                        profile.fullName || 'This user'
+                        profile?.fullName || 'This user'
                       } hasn't posted anything yet`
                 }
               />
@@ -533,7 +540,7 @@ export default function ProfileScreen() {
                   isMyProfile
                     ? "You haven't shared any public notes"
                     : `${
-                        profile.fullName || 'This user'
+                        profile?.fullName || 'This user'
                       } hasn't shared any public notes yet`
                 }
               />

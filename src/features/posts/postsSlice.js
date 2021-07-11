@@ -135,7 +135,7 @@ export const selectPostsByProfile = createSelector(
 );
 
 export const selectFollowingPosts = createSelector(
-  [selectAllPosts, selectProfileById],
+  [selectAllPosts, (_state, profileId) => profileId],
   (posts, profile) => {
     const followingProfiles = profile?.following ?? [];
     if (followingProfiles.length < 1) return [];

@@ -227,7 +227,6 @@ export function ProductItemCardFooter({
 
       if (newDidLike) {
         try {
-          console.log(FUNC, 'Sending `like_product` event...');
           await analytics().logEvent('like_product', {
             product_id: product.id,
             product_name: product.name,

@@ -15,11 +15,9 @@ import {
 import analytics from '@react-native-firebase/analytics';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { TextInput } from './components';
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { useDispatch, useSelector } from 'react-redux';
 
 import HomeScreen from './features/posts/HomeScreen';
@@ -38,14 +36,12 @@ import FollowerScreen from './features/profiles/FollowerScreen';
 import MerchantProfileScreen from './features/merchants/MerchantProfileScreen';
 import ProductCheckoutScreen from './features/products/ProductCheckoutScreen';
 
+import { Button, LoadingOverlay, TextInput } from './components';
 import { colors, typography, values } from './constants';
-
-import { Button, LoadingOverlay } from './components';
 import { didDismissInfoModal } from './features/authentication/authSlice';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
-const TopTab = createMaterialTopTabNavigator();
 
 const CreateScreen = () => (
   <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }} />
@@ -62,7 +58,6 @@ const NotificationsScreen = () => (
     <View
       style={{
         flex: 1,
-        // height: windowHeight * 0.7,
         justifyContent: 'center',
         alignItems: 'center',
       }}>
@@ -98,7 +93,22 @@ const HomeStack = () => (
           <View style={{ marginLeft: -32, marginRight: -8 }}>
             <TextInput
               placeholder="Search..."
-              onFocus={() => analytics().logEvent('tap_search_bar').catch()}
+              returnKeyType="search"
+              onFocus={async () => {
+                try {
+                  await analytics().logEvent('tap_search_bar');
+                } catch (error) {
+                  console.error('Failed to end `tap_search_bar` event:', error);
+                }
+              }}
+              onEndEditing={async ({ nativeEvent }) => {
+                try {
+                  const query = nativeEvent.text;
+                  await analytics().logSearch({ search_term: query });
+                } catch (error) {
+                  console.error('Failed to end `search` event:', error);
+                }
+              }}
               style={{
                 borderWidth: 0,
                 backgroundColor: colors.gray100,
