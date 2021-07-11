@@ -104,14 +104,11 @@ export default function AuthLoadingScreen() {
   }, [isFirstLogin]);
 
   return isAuthenticated ? (
-    <>
-      <StatusBar animated barStyle="dark-content" />
-      <MainDrawer.Navigator
-        drawerType="slide"
-        drawerContent={(props) => <AppDrawer {...props} />}>
-        <MainDrawer.Screen name="GroundZero" component={GroundZero} />
-      </MainDrawer.Navigator>
-    </>
+    <MainDrawer.Navigator
+      drawerType="slide"
+      drawerContent={(props) => <AppDrawer {...props} />}>
+      <MainDrawer.Screen name="GroundZero" component={GroundZero} />
+    </MainDrawer.Navigator>
   ) : (
     <AuthStack.Navigator>
       <AuthStack.Screen

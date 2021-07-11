@@ -383,7 +383,7 @@ export default function ProfileScreen() {
    */
   const { profileId } = useRoute().params ?? {};
 
-  const [shouldRefresh, setShouldRefresh] = useState(false);
+  const [shouldRefresh, setShouldRefresh] = useState(true);
   const [isRefreshingPosts, setIsRefreshingPosts] = useState(false);
   const [isRefreshingNotes, setIsRefreshingNotes] = useState(false);
 
@@ -492,55 +492,53 @@ export default function ProfileScreen() {
           />
         )}>
         <Tabs.Tab name="posts" label="Posts">
-          <Tabs.ScrollView
+          <PostMasonryList
+            smallContent
+            showFooter={false}
+            postIds={postIds}
             refreshControl={
               <RefreshControl
                 refreshing={isRefreshingPosts}
                 onRefresh={handleRefreshPosts}
               />
-            }>
-            <PostMasonryList
-              smallContent
-              showFooter={false}
-              postIds={postIds}
-              ListEmptyComponent={
-                <EmptyTabView
-                  message={
-                    isMyProfile
-                      ? "You haven't posted anything"
-                      : `${
-                          profile.fullName || 'This user'
-                        } hasn't posted anything yet`
-                  }
-                />
-              }
-            />
-          </Tabs.ScrollView>
+            }
+            ScrollViewComponent={Tabs.ScrollView}
+            ListEmptyComponent={
+              <EmptyTabView
+                message={
+                  isMyProfile
+                    ? "You haven't posted anything"
+                    : `${
+                        profile.fullName || 'This user'
+                      } hasn't posted anything yet`
+                }
+              />
+            }
+          />
         </Tabs.Tab>
         <Tabs.Tab name="notes" label="Notes">
-          <Tabs.ScrollView
+          <NoteMasonryList
+            smallContent
+            noteIds={noteIds}
             refreshControl={
               <RefreshControl
                 refreshing={isRefreshingNotes}
                 onRefresh={handleRefreshNotes}
               />
-            }>
-            <NoteMasonryList
-              smallContent
-              noteIds={noteIds}
-              ListEmptyComponent={
-                <EmptyTabView
-                  message={
-                    isMyProfile
-                      ? "You haven't shared any public notes"
-                      : `${
-                          profile.fullName || 'This user'
-                        } hasn't shared any public notes yet`
-                  }
-                />
-              }
-            />
-          </Tabs.ScrollView>
+            }
+            ScrollViewComponent={Tabs.ScrollView}
+            ListEmptyComponent={
+              <EmptyTabView
+                message={
+                  isMyProfile
+                    ? "You haven't shared any public notes"
+                    : `${
+                        profile.fullName || 'This user'
+                      } hasn't shared any public notes yet`
+                }
+              />
+            }
+          />
         </Tabs.Tab>
       </Tabs.Container>
     </SafeAreaView>

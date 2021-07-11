@@ -117,7 +117,11 @@ export function App() {
     const previousRouteName = routeNameRef.current;
     const currentRouteName = navigationRef.current.getCurrentRoute().name;
     if (previousRouteName !== currentRouteName) {
-      if (__DEV__) console.log('Sending screen analytics:', currentRouteName);
+      if (__DEV__)
+        console.log(
+          '[App.handleNavigationOnStageChange] Sending screen analytics:',
+          currentRouteName,
+        );
       await analytics().logScreenView({
         screen_name: currentRouteName,
         screen_class: currentRouteName,

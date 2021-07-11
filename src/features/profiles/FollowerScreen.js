@@ -27,10 +27,7 @@ function UserListItem({ profileId }) {
 
   const profile = useSelector((state) => selectProfileById(state, profileId));
   if (!profile) {
-    console.error(
-      '[UserListItem] Failed to select profile with id:',
-      profileId,
-    );
+    console.warn('[UserListItem] Failed to select profile with id:', profileId);
     return null;
   }
 
@@ -47,30 +44,42 @@ function UserListItem({ profileId }) {
   };
 
   return (
-    <TouchableHighlight
-      underlayColor={colors.gray200}
-      onPress={handlePressProfile}>
-      <View style={userListItemStyles.container}>
-        <FastImage
-          onLoad={onLoadAvatar}
-          source={isAvatarLoaded ? avatar : DEFAULT_AVATAR}
-          width={AVATAR_IMAGE_RADIUS}
-          height={AVATAR_IMAGE_RADIUS}
-          style={userListItemStyles.avatar}
-          resizeMode="cover"
-        />
-        <View style={userListItemStyles.textContainer}>
-          <Text style={userListItemStyles.name}>{fullName || 'Anonymous'}</Text>
-          <Text
-            style={userListItemStyles.description}
-            numberOfLines={1}
-            ellipsizeMode="tail">
-            {description || 'No description'}
-          </Text>
+    <>
+      <TouchableHighlight
+        underlayColor={colors.gray200}
+        onPress={handlePressProfile}>
+        <View style={userListItemStyles.container}>
+          <FastImage
+            onLoad={onLoadAvatar}
+            source={isAvatarLoaded ? avatar : DEFAULT_AVATAR}
+            width={AVATAR_IMAGE_RADIUS}
+            height={AVATAR_IMAGE_RADIUS}
+            style={userListItemStyles.avatar}
+            resizeMode="cover"
+          />
+          <View style={userListItemStyles.textContainer}>
+            <Text style={userListItemStyles.name}>
+              {fullName || 'Anonymous'}
+            </Text>
+            <Text
+              style={userListItemStyles.description}
+              numberOfLines={1}
+              ellipsizeMode="tail">
+              {description || 'No description'}
+            </Text>
+          </View>
+          <Icon name="chevron-right" size={AVATAR_IMAGE_RADIUS * 0.75} />
         </View>
-        <Icon name="chevron-right" size={AVATAR_IMAGE_RADIUS * 0.75} />
-      </View>
-    </TouchableHighlight>
+      </TouchableHighlight>
+      {/* A compromise for now */}
+      <View
+        style={{
+          borderBottomColor: colors.gray200,
+          borderBottomWidth: values.border.thin,
+          marginHorizontal: values.spacing.lg,
+        }}
+      />
+    </>
   );
 }
 
@@ -120,7 +129,7 @@ export default function FollowerScreen() {
 
   const profile = useSelector((state) => selectProfileById(state, profileId));
   if (!profile) {
-    console.error(
+    console.warn(
       '[FollowerScreen] Failed to select profile with id:',
       profileId,
     );
@@ -130,7 +139,7 @@ export default function FollowerScreen() {
   const profileIds =
     selector === 'following' ? profile.following : profile.followers;
 
-  const [shouldRefresh, setShouldRefresh] = useState(true);
+  const [shouldRefresh, setShouldRefresh] = useState(false);
 
   useEffect(() => {
     if (shouldRefresh)
@@ -167,18 +176,15 @@ export default function FollowerScreen() {
             onRefresh={handleRefresh}
           />
         }
-        renderItem={({ item: profileId }) => (
-          <UserListItem profileId={profileId} />
-        )}
-        ItemSeparatorComponent={() => (
-          <View
-            style={{
-              borderBottomColor: colors.gray200,
-              borderBottomWidth: values.border.thin,
-              marginHorizontal: values.spacing.lg,
-            }}
-          />
-        )}
+        // ItemSeparatorComponent={() => (
+        //   <View
+        //     style={{
+        //       borderBottomColor: colors.gray200,
+        //       borderBottomWidth: values.border.thin,
+        //       marginHorizontal: values.spacing.lg,
+        //     }}
+        //   />
+        // )}
         ListEmptyComponent={
           <EmptyTabView
             message={
@@ -188,6 +194,9 @@ export default function FollowerScreen() {
             }
           />
         }
+        renderItem={({ item: profileId, index }) => (
+          <UserListItem profileId={profileId} />
+        )}
       />
     </SafeAreaView>
   );

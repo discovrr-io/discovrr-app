@@ -1,25 +1,25 @@
 import React, { useEffect } from 'react';
 import {
   useWindowDimensions,
+  Linking,
   Modal,
+  Platform,
   SafeAreaView,
+  StatusBar,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
-  Linking,
-  Platform,
 } from 'react-native';
 
 import analytics from '@react-native-firebase/analytics';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { TextInput } from './components';
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { IconButton } from 'react-native-paper';
 import { useDispatch, useSelector } from 'react-redux';
 
 import HomeScreen from './features/posts/HomeScreen';
@@ -38,7 +38,6 @@ import FollowerScreen from './features/profiles/FollowerScreen';
 import MerchantProfileScreen from './features/merchants/MerchantProfileScreen';
 import ProductCheckoutScreen from './features/products/ProductCheckoutScreen';
 
-import { isAndroid, windowWidth } from './utilities/Constants';
 import { colors, typography, values } from './constants';
 
 import { Button, LoadingOverlay } from './components';
@@ -72,48 +71,6 @@ const NotificationsScreen = () => (
   </View>
 );
 
-// const HomeTopTabs = () => (
-//   <TopTab.Navigator
-//     lazy
-//     allowFontScaling={false}
-//     initialRouteName="Discover"
-//     // lazyPlaceholder=
-//     tabBarOptions={{
-//       // activeTintColor: 'red',
-//       indicatorStyle: {
-//         backgroundColor: '#00D8C6',
-//       },
-//       labelStyle: {
-//         fontSize: 12,
-//         textTransform: 'none',
-//       },
-//     }}>
-//     <Tab.Screen
-//       name="Discover"
-//       component={HomeScreen}
-//       initialParams={{
-//         postTypes: 'posts',
-//       }}
-//     />
-
-//     <Tab.Screen
-//       name="Near Me"
-//       component={HomeScreen}
-//       initialParams={{
-//         postTypes: 'nearMePosts',
-//       }}
-//     />
-
-//     <Tab.Screen
-//       name="Following"
-//       component={HomeScreen}
-//       initialParams={{
-//         postTypes: 'followingPosts',
-//       }}
-//     />
-//   </TopTab.Navigator>
-// );
-
 const HomeStack = () => (
   <Stack.Navigator>
     <Stack.Screen
@@ -124,74 +81,32 @@ const HomeStack = () => (
           elevation: 0,
           shadowOpacity: 0,
         },
-        headerTitle: ({ allowFontScaling, style, children }) => {
-          return (
-            <View
-              style={{
-                width: windowWidth,
-                paddingLeft: isAndroid ? 0 : 5,
-                // paddingRight: 15,
-                // minHeight: 50,
-                paddingTop: isAndroid ? 10 : 0,
-                // paddingBottom: 10,
-                flexDirection: 'row',
-                // backgroundColor: 'orange',
-                // justifyContent: 'space-between',
-                alignItems: 'center',
-                // elevation: 4,
-              }}>
-              <IconButton
-                icon="menu"
-                color="#777777"
-                size={20}
-                style={{
-                  marginLeft: isAndroid ? 0 : undefined,
-                }}
-                onPress={() => navigation.toggleDrawer()}
-              />
 
-              <View
-                style={{
-                  // flex: 1,
-                  height: 40,
-                  width: '85%',
-                  flexDirection: 'row',
-                  // marginRight: 15,
-                  alignItems: 'center',
-                  borderWidth: 1,
-                  borderColor: '#AAAAAA',
-                  borderRadius: 30,
-                }}>
-                <TextInput
-                  allowFontScaling={false}
-                  autoCorrect={false}
-                  autoCompleteType="street-address"
-                  keyboardType="default"
-                  placeholder="Search.."
-                  placeholderTextColor={isAndroid ? undefined : '#BBBBBB'}
-                  returnKeyType="done"
-                  textContentType="addressCityAndState"
-                  style={{
-                    flex: 1,
-                    height: 40,
-                    paddingLeft: 10,
-                    marginRight: 10,
-                  }}
-                  // onSubmitEditing={focusAction}
-                  // onChangeText={updateInputValue(selector)}
-                />
-
-                <MaterialIcon
-                  name="search"
-                  size={28}
-                  color="#777777"
-                  // onPress={() => this.toggleDrawer()}
-                  // onPress={this.postComment}
-                />
-              </View>
-            </View>
-          );
+        headerLeft: () => (
+          <MaterialIcon
+            name="menu"
+            size={24}
+            color={colors.black}
+            onPress={() => navigation.openDrawer()}
+          />
+        ),
+        headerLeftContainerStyle: {
+          marginLeft: values.spacing.md,
         },
+        headerTitleAlign: 'left',
+        headerTitle: () => (
+          <View style={{ marginLeft: -32, marginRight: -8 }}>
+            <TextInput
+              placeholder="Search..."
+              onFocus={() => analytics().logEvent('tap_search_bar').catch()}
+              style={{
+                borderWidth: 0,
+                backgroundColor: colors.gray100,
+                height: 40,
+              }}
+            />
+          </View>
+        ),
       })}
     />
   </Stack.Navigator>
@@ -429,24 +344,16 @@ export default function GroundZero() {
   const dispatch = useDispatch();
 
   /** @type {import('./features/authentication/authSlice').AuthState} */
-  const { status, isFirstLogin, isAuthenticated, user } = useSelector(
-    (state) => state.auth,
-  );
-
-  useEffect(() => {
-    if (isAuthenticated && !!user)
-      (async () => {
-        try {
-          console.log('[GroundZero] Setting Firebase user id...');
-          await analytics().setUserId(user.profile.id);
-        } catch (error) {
-          console.log('[GroundZero] Failed to set Firebase user id:', error);
-        }
-      })();
-  }, [isAuthenticated, user]);
+  const { status, isFirstLogin } = useSelector((state) => state.auth);
 
   return (
     <>
+      <StatusBar
+        animated
+        barStyle="dark-content"
+        backgroundColor={Platform.OS === 'android' && 'transparent'}
+      />
+
       {status === 'signing-out' && (
         <LoadingOverlay message="Signing you out..." />
       )}

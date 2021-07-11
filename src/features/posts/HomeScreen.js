@@ -41,7 +41,7 @@ import { fetchAllProducts, selectProductIds } from '../products/productsSlice';
 import { ActivityIndicator } from 'react-native';
 // import { StyleSheet } from 'react-native';
 
-const PAGINATION_LIMIT = 24;
+const PAGINATION_LIMIT = 26;
 
 const FeedTab = createMaterialTopTabNavigator();
 
@@ -126,7 +126,7 @@ function DiscoverTab() {
   }, [shouldRefresh]);
 
   useEffect(() => {
-    if (shouldFetchMore)
+    if (shouldFetchMore && !didReachEnd)
       (async () => {
         try {
           console.log($FUNC, 'Fetching more posts...');
@@ -175,7 +175,7 @@ function DiscoverTab() {
       postIds={postIds}
       style={{ backgroundColor: colors.white }}
       onEndReached={handleFetchMorePosts}
-      onEndReachedThreshold={0.85}
+      onEndReachedThreshold={currentPage == 0 ? 0.3 : 0.15}
       refreshControl={
         <RefreshControl
           title="Loading your personalised feed..."
@@ -537,7 +537,7 @@ const selectNearMeItems = createSelector(
       // products to choose from
       // NOTE: If `curr >= productIds.length`, no more products will be added,
       // even if there are still more products left in the Redux store
-      if (idx % 4 === 0) {
+      if (idx % 2 === 0) {
         const productId = allProductIds[curr];
         // We'll skip every 5 products
         curr = (curr + 5) % allProductIds.length;

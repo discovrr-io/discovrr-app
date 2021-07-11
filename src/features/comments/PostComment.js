@@ -65,7 +65,7 @@ export default function PostComment({ commentId, ...props }) {
             {
               fontWeight: '700',
               color: colors.gray700,
-              marginBottom: values.spacing.sm,
+              marginBottom: values.spacing.xs,
             },
             isMyComment && { color: colors.accent },
           ]}>

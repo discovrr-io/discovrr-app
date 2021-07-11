@@ -7,6 +7,7 @@ import { ImageSource, Pagination } from '../models/common';
 
 import { UserApi } from './user';
 import { DEFAULT_IMAGE_DIMENSIONS } from '../constants/media';
+import { profile } from 'console';
 
 const EARLIEST_DATE = new Date('2020-10-30');
 
@@ -144,7 +145,7 @@ export namespace PostApi {
   export async function fetchCommentsForPost(
     postId: string,
   ): Promise<Comment[]> {
-    const FUNC = '[PostApi.fetchCommentsForPosts]';
+    const $FUNC = '[PostApi.fetchCommentsForPosts]';
 
     try {
       const postPointer = {
@@ -159,24 +160,30 @@ export namespace PostApi {
 
       const results = await query.find();
       console.log(
-        FUNC,
+        $FUNC,
         `Found ${results.length} comment(s) for post '${postId}'`,
       );
 
-      const comments = results.map(
-        (comment) =>
-          ({
+      const comments = results
+        .map((comment) => {
+          if (!comment.get('profile')) {
+            console.warn($FUNC, `Comment '${comment.id}' has no profile`);
+            return null;
+          }
+
+          return {
             id: comment.id,
             postId: comment.get('post').id,
             profileId: comment.get('profile').id,
             createdAt: comment.createdAt.toJSON(),
             message: comment.get('message') ?? '',
-          } as Comment),
-      );
+          } as Comment;
+        })
+        .filter(Boolean);
 
       return comments;
     } catch (error) {
-      console.error(FUNC, `Failed to fetch comments for post:`, error);
+      console.error($FUNC, 'Failed to fetch comments for post:', error);
       throw error;
     }
   }

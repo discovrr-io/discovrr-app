@@ -9,10 +9,16 @@ import {
   values as layout,
 } from '../constants';
 
+/**
+ * @typedef {import('react-native').TextInputProps} RNTextInputProps
+ * @typedef {{ size: 'big' | 'small', error?: any }} TextInputProps
+ * @param {TextInputProps & RNTextInputProps} param0
+ * @returns
+ */
 export default function TextInput({
   size = 'big',
-  editable = true,
   error = undefined,
+  editable = true,
   secureTextEntry = false,
   ...props
 }) {
