@@ -117,32 +117,4 @@ export namespace ProfileApi {
       throw error;
     }
   }
-
-  /**
-   * @deprecated The `oneSignalPlayerIds` column will be deleted soon
-   */
-  export async function getOneSignalPlayerIdsForProfile(
-    profileId: string,
-  ): Promise<string[]> {
-    const $FUNC = '[ProfileApi.getOneSignalPlayerIdsForProfile]';
-
-    try {
-      const profileQuery = new Parse.Query(Parse.Object.extend('Profile'));
-      profileQuery.equalTo('objectId', profileId);
-
-      const result = await profileQuery.first();
-      if (result) {
-        return result.get('oneSignalPlayerIds') ?? [];
-      } else {
-        return [];
-      }
-    } catch (error) {
-      console.error(
-        $FUNC,
-        'Failed to get OneSignal player IDs for profile:',
-        profileId,
-      );
-      throw error;
-    }
-  }
 }
