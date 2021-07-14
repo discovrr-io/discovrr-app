@@ -401,7 +401,7 @@ export default function PostItemCard({
                 />
               </View>
             )}
-            <View
+            {/* <View
               style={{
                 flexDirection: 'row',
                 alignItems: 'center',
@@ -434,7 +434,7 @@ export default function PostItemCard({
                 }}>
                 {post.statistics?.totalViews ?? 0}
               </Text>
-            </View>
+            </View> */}
             <FastImage
               source={post.content.sources[0]}
               resizeMode="cover"

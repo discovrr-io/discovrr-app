@@ -41,7 +41,7 @@ import { fetchAllProducts, selectProductIds } from '../products/productsSlice';
 import { ActivityIndicator } from 'react-native';
 // import { StyleSheet } from 'react-native';
 
-const PAGINATION_LIMIT = 26;
+const PAGINATION_LIMIT = 25;
 
 const FeedTab = createMaterialTopTabNavigator();
 
