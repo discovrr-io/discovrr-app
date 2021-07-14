@@ -161,19 +161,19 @@ export default function ProductItemCard({
 
 const productItemCardStyles = StyleSheet.create({
   imageContainer: {
-    borderWidth: values.border.thin,
+    // borderWidth: values.border.thin,
+    // borderColor: colors.gray300,
     borderRadius: values.radius.md,
-    borderColor: colors.gray300,
     backgroundColor: colors.gray100,
   },
   productName: {
-    fontSize: typography.size.sm,
+    fontSize: typography.size.xs + 1,
     flexGrow: 1,
     flexShrink: 1,
   },
   productPrice: {
     fontWeight: '700',
-    fontSize: typography.size.h4,
+    fontSize: typography.size.lg,
     marginLeft: values.spacing.sm,
   },
 });
@@ -187,7 +187,7 @@ export function ProductItemCardFooter({
   merchantId,
   displayedOnNearMeTab = false, // For analytics purposes
 }) {
-  const FUNC = '[ProductItemCardFooter]';
+  const $FUNC = '[ProductItemCardFooter]';
   const dispatch = useDispatch();
   const navigation = useNavigation();
 
@@ -196,8 +196,14 @@ export function ProductItemCardFooter({
     selectMerchantById(state, merchantId),
   );
 
+  const { statistics } = product ?? {};
+  const { avatar, shortName } = merchant ?? {};
+  const { didSave = false, didLike = false, totalLikes = 0 } = statistics ?? {};
+
+  const [isProcessingLike, setIsProcessingLike] = useState(false);
+
   if (!product || !merchant) {
-    console.warn(FUNC, 'One of the following is not defined:', {
+    console.warn($FUNC, 'One of the following is not defined:', {
       product,
       merchant,
     });
@@ -205,18 +211,12 @@ export function ProductItemCardFooter({
     return null;
   }
 
-  const { statistics } = product;
-  const { avatar, shortName } = merchant;
-  const { didSave = false, didLike = false, totalLikes = 0 } = statistics ?? {};
-
-  const [isProcessingLike, setIsProcessingLike] = useState(false);
-
   const handlePressLike = async () => {
     try {
       setIsProcessingLike(true);
 
       const newDidLike = !didLike;
-      console.log(FUNC, `Will ${newDidLike ? 'like' : 'unlike'} merchant...`);
+      console.log($FUNC, `Will ${newDidLike ? 'like' : 'unlike'} merchant...`);
 
       await dispatch(
         changeProductLikeStatus({
@@ -225,7 +225,7 @@ export function ProductItemCardFooter({
         }),
       ).unwrap();
 
-      if (newDidLike) {
+      if (newDidLike && product && merchant) {
         try {
           await analytics().logEvent('like_product', {
             product_id: product.id,
@@ -234,11 +234,11 @@ export function ProductItemCardFooter({
             from_near_me_tab: displayedOnNearMeTab,
           });
         } catch (error) {
-          console.error(FUNC, 'Failed to send `like_product` event:', error);
+          console.error($FUNC, 'Failed to send `like_product` event:', error);
         }
       }
     } catch (error) {
-      console.error(FUNC, 'Failed to change merchant like status:', error);
+      console.error($FUNC, 'Failed to change merchant like status:', error);
       Alert.alert(SOMETHING_WENT_WRONG.title, SOMETHING_WENT_WRONG.message);
     } finally {
       setIsProcessingLike(false);
@@ -246,7 +246,7 @@ export function ProductItemCardFooter({
   };
 
   return (
-    <View style={merchantItemCardFooterStyles.container}>
+    <View style={productItemCardFooterStyles.container}>
       <TouchableOpacity
         activeOpacity={DEFAULT_ACTIVE_OPACITY}
         onPress={() =>
@@ -256,24 +256,24 @@ export function ProductItemCardFooter({
           })
         }
         style={{ flex: 1 }}>
-        <View style={merchantItemCardFooterStyles.merchantContainer}>
+        <View style={productItemCardFooterStyles.productContainer}>
           <Image
             source={avatar ?? DEFAULT_AVATAR}
             style={{
               width: SMALL_ICON,
               height: SMALL_ICON,
               borderRadius: SMALL_ICON / 2,
-              backgroundColor: colors.gray200,
+              backgroundColor: colors.gray100,
             }}
           />
           <Text
             numberOfLines={1}
-            style={merchantItemCardFooterStyles.merchantName}>
+            style={productItemCardFooterStyles.productName}>
             {shortName}
           </Text>
         </View>
       </TouchableOpacity>
-      <View style={merchantItemCardFooterStyles.actionsContainer}>
+      <View style={productItemCardFooterStyles.actionsContainer}>
         <TouchableOpacity
           activeOpacity={DEFAULT_ACTIVE_OPACITY}
           onPress={alertUnimplementedFeature}>
@@ -298,7 +298,7 @@ export function ProductItemCardFooter({
         </TouchableOpacity>
         <Text
           style={[
-            merchantItemCardFooterStyles.likesCount,
+            productItemCardFooterStyles.likesCount,
             {
               fontSize: typography.size.xs,
             },
@@ -310,18 +310,18 @@ export function ProductItemCardFooter({
   );
 }
 
-const merchantItemCardFooterStyles = StyleSheet.create({
+const productItemCardFooterStyles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: values.spacing.sm,
+    marginTop: values.spacing.xs,
     marginHorizontal: values.spacing.sm,
   },
-  merchantContainer: {
+  productContainer: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  merchantName: {
+  productName: {
     flexGrow: 1,
     flexShrink: 1,
     marginLeft: values.spacing.sm * 1.5,

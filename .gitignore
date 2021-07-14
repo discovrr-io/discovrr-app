@@ -1,6 +1,11 @@
 # OSX
 .DS_Store
 
+# Project-specific files
+*.old.*
+*.new.*
+.env*
+
 # Xcode
 build/
 *.pbxuser
@@ -54,7 +59,3 @@ buck-out/
 
 # CocoaPods
 /ios/Pods/
-
-# Project-specific files
-*.old.*
-*.new.*

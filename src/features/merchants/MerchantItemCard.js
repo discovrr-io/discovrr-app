@@ -59,7 +59,6 @@ export default function MerchantItemCard({
 
   if (!merchant) {
     console.warn($FUNC, 'Failed to select merchant with id:', merchantId);
-
     return null;
   }
 
@@ -133,9 +132,9 @@ export default function MerchantItemCard({
 
 const merchantItemCardStyles = StyleSheet.create({
   imageContainer: {
-    borderWidth: values.border.thin,
+    // borderWidth: values.border.thin,
+    // borderColor: colors.gray300,
     borderRadius: values.radius.md,
-    borderColor: colors.gray300,
     backgroundColor: colors.gray100,
   },
 });
@@ -173,7 +172,7 @@ function MerchantItemCardCaption({ merchant }) {
 const merchantItemCardCaptionStyles = StyleSheet.create({
   caption: {
     color: colors.black,
-    fontSize: typography.size.sm,
+    fontSize: typography.size.xs + 1,
   },
 });
 
@@ -193,13 +192,12 @@ export function MerchantItemCardFooter({
     selectMerchantById(state, merchantId),
   );
 
-  if (!merchant) {
-    console.warn($FUNC, 'Failed to select merchant with id:', merchantId);
+  // if (!merchant) {
+  //   console.warn($FUNC, 'Failed to select merchant with id:', merchantId);
+  //   return null;
+  // }
 
-    return null;
-  }
-
-  const { avatar, shortName, statistics } = merchant;
+  const { avatar, shortName = 'Loading...', statistics } = merchant ?? {};
   const { didSave = false, didLike = false, totalLikes = 0 } = statistics ?? {};
 
   const [isProcessingLike, setIsProcessingLike] = useState(false);
@@ -255,7 +253,7 @@ export function MerchantItemCardFooter({
               width: SMALL_ICON,
               height: SMALL_ICON,
               borderRadius: SMALL_ICON / 2,
-              backgroundColor: colors.gray200,
+              backgroundColor: colors.gray100,
             }}
           />
           <Text

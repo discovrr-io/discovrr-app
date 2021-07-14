@@ -16,7 +16,7 @@ import { values } from '../../constants';
  */
 export default function PostMasonryList({
   postIds,
-  tileSpacing = values.spacing.sm * 1.25,
+  tileSpacing = values.spacing.sm,
   smallContent,
   showFooter,
   ...props

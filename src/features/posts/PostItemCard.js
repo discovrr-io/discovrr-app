@@ -196,6 +196,7 @@ export function PostItemCardFooter({
               width: avatarIconSize,
               height: avatarIconSize,
               borderRadius: avatarIconSize / 2,
+              backgroundColor: colors.gray100,
             }}
           />
           <Text
@@ -335,7 +336,9 @@ export default function PostItemCard({
         <Text
           numberOfLines={2}
           style={{
-            fontSize: smallContent ? typography.size.sm : typography.size.md,
+            fontSize: smallContent
+              ? typography.size.xs + 1
+              : typography.size.md,
             paddingVertical: smallContent
               ? values.spacing.xs
               : values.spacing.sm,
@@ -362,21 +365,64 @@ export default function PostItemCard({
 
       cardContent = (
         <View>
-          {post.content.sources.length > 1 && (
-            <View
+          <View>
+            {post.content.sources.length > 1 && (
+              <View
+                style={{
+                  position: 'absolute',
+                  zIndex: 1,
+                  top:
+                    (smallContent ? values.spacing.sm : values.spacing.md) *
+                    1.5,
+                  right:
+                    (smallContent ? values.spacing.sm : values.spacing.md) *
+                    1.5,
+                  backgroundColor: 'rgba(0, 0, 0, 0.55)',
+                  paddingVertical: values.spacing.sm,
+                  paddingHorizontal: values.spacing.md,
+                  borderRadius: values.radius.md,
+                  minWidth: smallContent ? 22 : 38,
+                }}>
+                {/* <Text
+                  style={{
+                    color: colors.white,
+                    fontWeight: '700',
+                    textAlign: 'center',
+                    fontSize: smallContent
+                      ? typography.size.md
+                      : typography.size.h3,
+                  }}>
+                  {post.content.sources.length}
+                </Text> */}
+                <MaterialCommunityIcon
+                  name="image-multiple"
+                  color={colors.white}
+                  size={20}
+                />
+              </View>
+            )}
+            {/* <View
               style={{
+                flexDirection: 'row',
+                alignItems: 'center',
                 position: 'absolute',
                 zIndex: 1,
-                top:
+                bottom:
                   (smallContent ? values.spacing.sm : values.spacing.md) * 1.5,
-                right:
+                left:
                   (smallContent ? values.spacing.sm : values.spacing.md) * 1.5,
                 backgroundColor: 'rgba(0, 0, 0, 0.55)',
                 paddingVertical: values.spacing.sm,
                 paddingHorizontal: values.spacing.md,
-                borderRadius: 20,
+                borderRadius: values.radius.md,
                 minWidth: smallContent ? 22 : 38,
               }}>
+              <MaterialCommunityIcon
+                name="eye"
+                color={colors.white}
+                size={20}
+                style={{ marginRight: values.spacing.sm }}
+              />
               <Text
                 style={{
                   color: colors.white,
@@ -386,21 +432,21 @@ export default function PostItemCard({
                     ? typography.size.md
                     : typography.size.h3,
                 }}>
-                {post.content.sources.length}
+                {post.statistics?.totalViews ?? 0}
               </Text>
-            </View>
-          )}
-          <FastImage
-            source={post.content.sources[0]}
-            resizeMode="cover"
-            style={{
-              aspectRatio: imagePreviewWidth / imagePreviewHeight,
-              backgroundColor: colors.gray100,
-              borderRadius: values.radius.md,
-              borderWidth: values.border.thin,
-              borderColor: colors.gray300,
-            }}
-          />
+            </View> */}
+            <FastImage
+              source={post.content.sources[0]}
+              resizeMode="cover"
+              style={{
+                aspectRatio: imagePreviewWidth / imagePreviewHeight,
+                backgroundColor: colors.gray100,
+                borderRadius: values.radius.md,
+                // borderWidth: values.border.thin,
+                // borderColor: colors.gray300,
+              }}
+            />
+          </View>
           <PostItemCardCaption caption={post.content.caption} />
         </View>
       );

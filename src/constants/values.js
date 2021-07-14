@@ -16,12 +16,13 @@ export const border = {
 };
 
 export const buttonSizes = {
-  large: 50,
-  small: 28,
+  lg: 48,
+  md: 40,
+  sm: 28,
 };
 
 export const radius = {
-  lg: 15,
+  lg: 12,
   md: 10,
-  sm: 5,
+  sm: 8,
 };

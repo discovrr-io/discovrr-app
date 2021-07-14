@@ -1,28 +1,18 @@
 import React, { useEffect } from 'react';
-import { StatusBar } from 'react-native';
 
+import OneSignal from 'react-native-onesignal';
+import RNBootSplash from 'react-native-bootsplash';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createStackNavigator } from '@react-navigation/stack';
 import { useDispatch, useSelector } from 'react-redux';
 
-import AsyncStorage from '@react-native-community/async-storage';
-import OneSignal from 'react-native-onesignal';
-import RNBootSplash from 'react-native-bootsplash';
-
 import AppDrawer from '../../components/AppDrawer';
 import GroundZero from '../../GroundZero';
 import { colors } from '../../constants';
+import { fetchProfileById } from '../profiles/profilesSlice';
 
 import LoginScreen from './LoginScreen';
 import TermsAndConditions from './TermsAndConditions';
-import { fetchProfileById } from '../profiles/profilesSlice';
-
-const Parse = require('parse/react-native');
-
-Parse.setAsyncStorage(AsyncStorage);
-Parse.User.enableUnsafeCurrentUser();
-Parse.initialize('discovrrServer');
-Parse.serverURL = 'https://discovrr-uat.herokuapp.com/discovrrServer'; // production
 
 const AuthStack = createStackNavigator();
 const MainDrawer = createDrawerNavigator();
@@ -95,7 +85,7 @@ export default function AuthLoadingScreen() {
     (state) => state.auth,
   );
 
-  console.log($FUNC, 'isAuthenticated:', isAuthenticated);
+  console.log($FUNC, 'Is authenticated?', isAuthenticated);
 
   useEffect(() => {
     RNBootSplash.hide({ duration: 250 });

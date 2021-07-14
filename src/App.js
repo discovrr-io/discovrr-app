@@ -15,17 +15,25 @@ import { persistStore } from 'redux-persist';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 
 import AuthLoadingScreen from './features/authentication/AuthLoadingScreen';
-import debugAppLogger from './utilities/DebugAppLogger';
+// import debugAppLogger from './utilities/DebugAppLogger';
 import store from './store';
+
+const Parse = require('parse/react-native');
+
+Parse.setAsyncStorage(AsyncStorage);
+Parse.User.enableUnsafeCurrentUser();
+Parse.initialize('discovrrServer');
+Parse.serverURL = 'https://discovrr-uat.herokuapp.com/discovrrServer'; // production
+// Parse.serverURL = 'http://discovrr-dev-server.herokuapp.com/parse';
 
 Bugsnag.start();
 
-global.debugAppLogger = () => {};
-const disableDebugAppLogger = false;
+// global.debugAppLogger = () => {};
+// const disableDebugAppLogger = false;
 
-if (process.env.NODE_ENV === 'development') {
-  if (!disableDebugAppLogger) global.debugAppLogger = debugAppLogger;
-}
+// if (process.env.NODE_ENV === 'development') {
+//   if (!disableDebugAppLogger) global.debugAppLogger = debugAppLogger;
+// }
 
 const theme = {
   ...DefaultTheme,
@@ -80,7 +88,7 @@ export function App() {
 
   const onBeforeLift = async () => {
     // TODO: Maybe check with Regex? (/^\d+\.\d{1,2}\.\d{1,2}$/g)
-    const [major, minor, patch, build] = [2, 1, 2, 6];
+    const [major, minor, patch, build] = [2, 1, 2, 7];
     const versionNumber =
       major * 10 ** 6 + minor * 10 ** 4 + patch * 10 ** 2 + build;
     const currStoreVersion = String(versionNumber);
@@ -99,6 +107,8 @@ export function App() {
       if (prevStoreVersion !== currStoreVersion) {
         AsyncStorage.setItem('storeVersion', currStoreVersion);
         console.log('[App.onBeforeLift] Purging store...');
+        persistor.pause();
+        await persistor.flush();
         await persistor.purge();
       }
     } catch (error) {

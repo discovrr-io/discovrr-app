@@ -92,6 +92,8 @@ const HomeStack = () => (
         headerTitle: () => (
           <View style={{ marginLeft: -32, marginRight: -8 }}>
             <TextInput
+              filled
+              size="medium"
               placeholder="Search..."
               returnKeyType="search"
               onFocus={async () => {
@@ -112,7 +114,6 @@ const HomeStack = () => (
               style={{
                 borderWidth: 0,
                 backgroundColor: colors.gray100,
-                height: 40,
               }}
             />
           </View>
