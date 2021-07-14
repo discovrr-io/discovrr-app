@@ -335,7 +335,9 @@ export default function PostItemCard({
         <Text
           numberOfLines={2}
           style={{
-            fontSize: smallContent ? typography.size.sm : typography.size.md,
+            fontSize: smallContent
+              ? typography.size.xs + 1
+              : typography.size.md,
             paddingVertical: smallContent
               ? values.spacing.xs
               : values.spacing.sm,
@@ -397,8 +399,8 @@ export default function PostItemCard({
               aspectRatio: imagePreviewWidth / imagePreviewHeight,
               backgroundColor: colors.gray100,
               borderRadius: values.radius.md,
-              borderWidth: values.border.thin,
-              borderColor: colors.gray300,
+              // borderWidth: values.border.thin,
+              // borderColor: colors.gray300,
             }}
           />
           <PostItemCardCaption caption={post.content.caption} />

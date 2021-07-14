@@ -22,7 +22,7 @@ const Parse = require('parse/react-native');
 
 Parse.setAsyncStorage(AsyncStorage);
 Parse.User.enableUnsafeCurrentUser();
-Parse.initialize('discovrr-dev-server');
+Parse.initialize('discovrrServer');
 Parse.serverURL = 'https://discovrr-uat.herokuapp.com/discovrrServer'; // production
 // Parse.serverURL = 'http://discovrr-dev-server.herokuapp.com/parse';
 

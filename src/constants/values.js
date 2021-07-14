@@ -21,7 +21,7 @@ export const buttonSizes = {
 };
 
 export const radius = {
-  lg: 15,
-  md: 10,
-  sm: 5,
+  lg: 16,
+  md: 12,
+  sm: 8,
 };

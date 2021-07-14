@@ -133,9 +133,9 @@ export default function MerchantItemCard({
 
 const merchantItemCardStyles = StyleSheet.create({
   imageContainer: {
-    borderWidth: values.border.thin,
+    // borderWidth: values.border.thin,
+    // borderColor: colors.gray300,
     borderRadius: values.radius.md,
-    borderColor: colors.gray300,
     backgroundColor: colors.gray100,
   },
 });
@@ -173,7 +173,7 @@ function MerchantItemCardCaption({ merchant }) {
 const merchantItemCardCaptionStyles = StyleSheet.create({
   caption: {
     color: colors.black,
-    fontSize: typography.size.sm,
+    fontSize: typography.size.xs + 1,
   },
 });
 

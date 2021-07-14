@@ -51,6 +51,11 @@ const tabViewStyles = {
   paddingHorizontal: values.spacing.lg,
 };
 
+/** @type {import('react-native').ViewStyle} */
+const masonryListStyles = {
+  backgroundColor: colors.white,
+};
+
 /**
  * @typedef {import('react-native').ViewProps} ViewProps
  * @param {{ message?: string, loading?: boolean } & ViewProps} param0
@@ -173,7 +178,7 @@ function DiscoverTab() {
     <PostMasonryList
       smallContent
       postIds={postIds}
-      style={{ backgroundColor: colors.white }}
+      style={masonryListStyles}
       onEndReached={handleFetchMorePosts}
       onEndReachedThreshold={currentPage == 0 ? 0.3 : 0.15}
       refreshControl={
@@ -525,29 +530,62 @@ function DiscoverTab() {
 //   );
 // }
 
+// const selectNearMeItems = createSelector(
+//   [selectMerchantIds, selectProductIds],
+//   (allMerchantIds, allProductIds) => {
+//     // The current product index
+//     let curr = 0;
+//
+//     /** @type {import('../../models').NearMeItem[]} */
+//     const nearMeItems = allMerchantIds.flatMap((merchantId, idx) => {
+//       // We'll add a product for every four merchant items, if we still have
+//       // products to choose from
+//       // NOTE: If `curr >= productIds.length`, no more products will be added,
+//       // even if there are still more products left in the Redux store
+//       if (idx % 2 === 0) {
+//         const productId = allProductIds[curr];
+//         // We'll skip every 5 products
+//         curr = (curr + 5) % allProductIds.length;
+//
+//         return [
+//           { type: 'merchant', item: merchantId },
+//           { type: 'product', item: productId },
+//         ];
+//       } else {
+//         return { type: 'merchant', item: merchantId };
+//       }
+//     });
+//
+//     return nearMeItems;
+//   },
+// );
+
 const selectNearMeItems = createSelector(
   [selectMerchantIds, selectProductIds],
   (allMerchantIds, allProductIds) => {
-    // The current product index
+    // The current merchant index
     let curr = 0;
 
+    // Here we shuffle all products before processing them. This isn't an
+    // efficient solution, but this is a temporary solution for a temporary
+    // feature.
+    const shuffledProductIds = allProductIds
+      .map((product) => ({ sort: Math.random(), product }))
+      .sort((a, b) => a.sort - b.sort)
+      .map((a) => a.product);
+
     /** @type {import('../../models').NearMeItem[]} */
-    const nearMeItems = allMerchantIds.flatMap((merchantId, idx) => {
-      // We'll add a product for every four merchant items, if we still have
-      // products to choose from
-      // NOTE: If `curr >= productIds.length`, no more products will be added,
-      // even if there are still more products left in the Redux store
+    const nearMeItems = shuffledProductIds.flatMap((productId, idx) => {
       if (idx % 2 === 0) {
-        const productId = allProductIds[curr];
-        // We'll skip every 5 products
-        curr = (curr + 5) % allProductIds.length;
+        const merchantId = allMerchantIds[curr];
+        if (curr < allMerchantIds.length) curr += 1;
 
         return [
-          { type: 'merchant', item: merchantId },
           { type: 'product', item: productId },
+          { type: 'merchant', item: merchantId },
         ];
       } else {
-        return { type: 'merchant', item: merchantId };
+        return { type: 'product', item: productId };
       }
     });
 
@@ -567,7 +605,7 @@ function NearMeTab() {
   // const [currentPage, setCurrentPage] = useState(0);
   // const [didReachEnd, setDidReachEnd] = useState(false);
 
-  const tileSpacing = useMemo(() => values.spacing.xs * 1.75, []);
+  const tileSpacing = useMemo(() => values.spacing.sm, []);
   const itemCardStyles = (column) => ({
     marginTop: tileSpacing,
     marginLeft: column % 2 === 0 ? tileSpacing : tileSpacing / 2,
@@ -612,7 +650,7 @@ function NearMeTab() {
   return (
     <MasonryList
       data={nearMeItems}
-      style={{ backgroundColor: colors.white }}
+      style={masonryListStyles}
       refreshControl={
         <RefreshControl
           title="Loading activity near you..."
@@ -708,7 +746,7 @@ function FollowingTab() {
     <FlatList
       data={followingPostsIds}
       keyExtractor={(postId) => String(postId)}
-      style={{ backgroundColor: colors.white }}
+      style={masonryListStyles}
       contentContainerStyle={{
         ...tabViewStyles,
         paddingVertical: values.spacing.md,
