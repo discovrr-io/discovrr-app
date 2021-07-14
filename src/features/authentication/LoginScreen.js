@@ -643,12 +643,15 @@ export default function LoginScreen() {
           style={loginScreenStyles.backgroundVideo}
         />
         <ScrollView
+          keyboardShouldPersistTaps="handled"
           contentContainerStyle={{
             justifyContent: 'center',
             flexGrow: 1,
             alignItems: 'center',
           }}>
-          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <TouchableWithoutFeedback
+            onPress={Keyboard.dismiss}
+            accessible={false}>
             <KeyboardAvoidingView
               behavior="position"
               keyboardVerticalOffset={-135}

@@ -44,7 +44,7 @@ const accountSettingsScreenStyles = StyleSheet.create({
     borderColor: colors.gray500,
     backgroundColor: colors.gray100,
     marginBottom: values.spacing.lg,
-    height: values.buttonSizes.large,
+    height: values.buttonSizes.lg,
     padding: values.spacing.md,
   },
 });

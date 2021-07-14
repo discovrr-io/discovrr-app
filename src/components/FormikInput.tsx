@@ -1,35 +1,25 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { StyleSheet, Text, View } from 'react-native';
 
-import TextInput from './TextInput';
+import TextInput, { TextInputProps } from './TextInput';
 import {
   colors as color,
   typography as font,
   values as layout,
 } from '../constants';
 
-export default function FormikInput({
-  formikProps,
-  field,
-  editable = true,
-  placeholder = '',
-  keyboardType = 'default',
-  secureTextEntry = false,
-  autoComplete = false,
-  autoCapitalize = 'sentences',
-  ...props
-}) {
+type FormikInputProps = TextInputProps & {
+  formikProps: any;
+  field: any;
+};
+
+export default function FormikInput(props: FormikInputProps) {
+  const { formikProps, field, ...textInputProps } = props;
+
   return (
     <View style={[formikInputStyles.textInputContainer, props.style]}>
       <TextInput
-        editable={editable}
-        placeholder={placeholder}
-        keyboardType={keyboardType}
-        secureTextEntry={secureTextEntry}
-        autoComplete={autoComplete}
-        autoCorrect={false}
-        autoCapitalize={autoCapitalize}
+        {...textInputProps}
         error={formikProps.touched[field] && formikProps.errors[field]}
         value={formikProps.values[field]}
         onChangeText={formikProps.handleChange(field)}
@@ -44,22 +34,6 @@ export default function FormikInput({
     </View>
   );
 }
-
-FormikInput.propTypes = {
-  formikProps: PropTypes.object.isRequired,
-  field: PropTypes.string.isRequired,
-  placeholder: PropTypes.string,
-  keyboardType: PropTypes.string,
-  secureTextEntry: PropTypes.bool,
-  autoComplete: PropTypes.string,
-};
-
-FormikInput.defaultTypes = {
-  placeholder: '',
-  keyboardType: 'default',
-  secureTextEntry: false,
-  autoComplete: 'off',
-};
 
 const formikInputStyles = StyleSheet.create({
   textInput: {

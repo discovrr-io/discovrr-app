@@ -1,4 +1,3 @@
-import React from 'react';
 import { StyleSheet } from 'react-native';
 import { colors, typography, values } from '../../constants';
 
@@ -9,13 +8,13 @@ export const buttonStyles = {
 };
 
 export const smallStyle = {
-  height: 28,
-  borderRadius: values.radius.md,
+  height: values.buttonSizes.sm,
+  borderRadius: values.radius.sm,
   padding: values.spacing.sm,
 };
 
 export const bigStyle = {
-  height: 50,
+  height: values.buttonSizes.lg,
   borderRadius: values.radius.lg,
   padding: values.spacing.md,
 };
