@@ -59,7 +59,6 @@ export default function MerchantItemCard({
 
   if (!merchant) {
     console.warn($FUNC, 'Failed to select merchant with id:', merchantId);
-
     return null;
   }
 
@@ -193,13 +192,12 @@ export function MerchantItemCardFooter({
     selectMerchantById(state, merchantId),
   );
 
-  if (!merchant) {
-    console.warn($FUNC, 'Failed to select merchant with id:', merchantId);
+  // if (!merchant) {
+  //   console.warn($FUNC, 'Failed to select merchant with id:', merchantId);
+  //   return null;
+  // }
 
-    return null;
-  }
-
-  const { avatar, shortName, statistics } = merchant;
+  const { avatar, shortName = 'Loading...', statistics } = merchant ?? {};
   const { didSave = false, didLike = false, totalLikes = 0 } = statistics ?? {};
 
   const [isProcessingLike, setIsProcessingLike] = useState(false);
@@ -255,7 +253,7 @@ export function MerchantItemCardFooter({
               width: SMALL_ICON,
               height: SMALL_ICON,
               borderRadius: SMALL_ICON / 2,
-              backgroundColor: colors.gray200,
+              backgroundColor: colors.gray100,
             }}
           />
           <Text

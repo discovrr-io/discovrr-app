@@ -196,8 +196,8 @@ export function ProductItemCardFooter({
     selectMerchantById(state, merchantId),
   );
 
-  const { statistics } = product;
-  const { avatar, shortName } = merchant;
+  const { statistics } = product ?? {};
+  const { avatar, shortName } = merchant ?? {};
   const { didSave = false, didLike = false, totalLikes = 0 } = statistics ?? {};
 
   const [isProcessingLike, setIsProcessingLike] = useState(false);
@@ -225,7 +225,7 @@ export function ProductItemCardFooter({
         }),
       ).unwrap();
 
-      if (newDidLike) {
+      if (newDidLike && product && merchant) {
         try {
           await analytics().logEvent('like_product', {
             product_id: product.id,
@@ -263,7 +263,7 @@ export function ProductItemCardFooter({
               width: SMALL_ICON,
               height: SMALL_ICON,
               borderRadius: SMALL_ICON / 2,
-              backgroundColor: colors.gray200,
+              backgroundColor: colors.gray100,
             }}
           />
           <Text

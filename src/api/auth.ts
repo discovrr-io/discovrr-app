@@ -122,7 +122,10 @@ export namespace AuthApi {
 
     let currentUser = await Parse.User.currentAsync();
     if (!currentUser) {
-      console.info('Current user not found. Logging in with Firebase...');
+      console.info(
+        $FUNC,
+        'Current user not found. Logging in with Firebase...',
+      );
       currentUser = await Parse.User.logInWith('firebase', { authData });
       console.log(
         $FUNC,
@@ -133,22 +136,33 @@ export namespace AuthApi {
 
     console.log($FUNC, 'Querying profile...');
     const query = new Parse.Query(Parse.Object.extend('Profile'));
-    query.equalTo('owner', currentUser);
+    query.equalTo('owner', currentUser.toPointer());
 
     const profile = await query.first();
     console.log($FUNC, 'Found Parse profile:', profile?.id);
 
     if (!profile) {
-      console.error(
+      console.warn('Current user has no profile, which is unexpected');
+      const Profile = Parse.Object.extend('Profile');
+      const profile: Parse.Object<Parse.Attributes> = new Profile();
+
+      console.log($FUNC, 'Creating new profile with owner:', currentUser.id);
+      profile.set('owner', currentUser);
+      profile.set('fullName', firebaseUser.displayName);
+      profile.set('email', firebaseUser.email);
+      profile.set('provider', firebaseUser.providerId);
+
+      const newProfile = await profile.save();
+      console.log(
         $FUNC,
-        'Failed to find profile with owner ID:',
-        currentUser.id,
+        'Successfully created new profile with objectId:',
+        newProfile.id,
       );
-      // This will be handled by LoginScreen
-      throw {
-        code: AuthApiError.NO_PROFILE_FOUND,
-        message: 'No profile with the provided owner ID was found.',
-      };
+
+      return {
+        provider: firebaseUser.providerId,
+        profileId: newProfile.id,
+      } as User;
     }
 
     return await syncAndConstructUser(profile, firebaseUser);
@@ -164,11 +178,21 @@ export namespace AuthApi {
 
     try {
       console.log($FUNC, 'Authenticating via Firebase...');
-      const { user } = await auth().signInWithEmailAndPassword(email, password);
+      const cred = await auth().signInWithEmailAndPassword(email, password);
+      const firebaseUser = cred.user;
       didLoginViaFirebase = true;
 
+      if (cred.additionalUserInfo?.isNewUser) {
+        console.warn(
+          $FUNC,
+          'A new user has bypassed registration and is attempting to sign in',
+          "with a new email and password, which is unexpected. From now we'll",
+          'assume this user is new.',
+        );
+      }
+
       console.log($FUNC, 'Signing in via Parse...');
-      const authenticatedUser = await signInWithParse(user);
+      const authenticatedUser = await signInWithParse(firebaseUser);
       didLoginViaParse = true;
 
       await analytics().logLogin({ method: 'email' });
@@ -192,15 +216,15 @@ export namespace AuthApi {
 
     try {
       console.log($FUNC, 'Authenticating via Firebase...');
-      const userCredential = await auth().signInWithCredential(credential);
+      const cred = await auth().signInWithCredential(credential);
+      const firebaseUser = cred.user;
       didLoginViaFirebase = true;
 
-      console.log($FUNC, 'Signing in via Parse...');
-      const authenticatedUser = await signInWithParse(userCredential.user);
+      const authenticatedUser = await signInWithParse(firebaseUser);
       didLoginViaParse = true;
 
-      if (userCredential.additionalUserInfo?.isNewUser) {
-        console.log($FUNC, 'New user signing up with', credential.providerId);
+      if (cred.additionalUserInfo?.isNewUser) {
+        console.log($FUNC, 'Signed up new user via', credential.providerId);
         await analytics().logSignUp({ method: credential.providerId });
       } else {
         await analytics().logLogin({ method: credential.providerId });
@@ -256,7 +280,11 @@ export namespace AuthApi {
       };
 
       const currentUser = await Parse.User.logInWith('firebase', { authData });
-      console.log($FUNC, 'Successfully logged in with Firebase:', currentUser);
+      console.log(
+        $FUNC,
+        'Successfully logged in with Firebase:',
+        currentUser.id,
+      );
       didLoginViaParse = true;
 
       const Profile = Parse.Object.extend('Profile');
@@ -267,6 +295,7 @@ export namespace AuthApi {
       profile.set('fullName', fullName);
       profile.set('username', username);
       profile.set('email', email);
+      profile.set('provider', firebaseUser.providerId);
 
       const newProfile = await profile.save();
       console.log(
@@ -278,9 +307,14 @@ export namespace AuthApi {
       await analytics().logSignUp({ method: 'email' });
       await analytics().setUserId(newProfile.id);
 
-      // TODO: We might want to prevent syncing some fields since this is a new
-      // profile anyway
-      return await syncAndConstructUser(newProfile, firebaseUser);
+      // // TODO: We might want to prevent syncing some fields since this is a new
+      // // profile anyway
+      // return await syncAndConstructUser(newProfile, firebaseUser);
+
+      return {
+        provider: firebaseUser.providerId,
+        profileId: newProfile.id,
+      } as User;
     } catch (error) {
       console.warn($FUNC, 'Aborting authentication. Signing out...');
       await signOut(didLoginViaParse, didLoginViaFirebase);

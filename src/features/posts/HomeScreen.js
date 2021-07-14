@@ -596,14 +596,12 @@ const selectNearMeItems = createSelector(
 function NearMeTab() {
   const dispatch = useDispatch();
 
+  // TODO: Paginate this
   const nearMeItems = useSelector((state) => selectNearMeItems(state));
 
   const [shouldRefresh, setShouldRefresh] = useState(true);
   const [shouldFetchMore, setShouldFetchMore] = useState(false);
   const [fetchError, setFetchError] = useState(null);
-
-  // const [currentPage, setCurrentPage] = useState(0);
-  // const [didReachEnd, setDidReachEnd] = useState(false);
 
   const tileSpacing = useMemo(() => values.spacing.sm, []);
   const itemCardStyles = (column) => ({
@@ -642,10 +640,6 @@ function NearMeTab() {
   const handleRefresh = () => {
     if (!shouldRefresh) setShouldRefresh(true);
   };
-
-  // const handleFetchMoreItems = () => {
-  //   if (!shouldRefresh && !shouldFetchMore) setShouldFetchMore(true);
-  // };
 
   return (
     <MasonryList

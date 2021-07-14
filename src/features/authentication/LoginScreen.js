@@ -57,9 +57,9 @@ const VIDEO_POSTER_SOURCE = Image.resolveAssetSource(
 
 const DEFAULT_ERROR_TITLE = 'Something went wrong';
 const DEFAULT_AUTH_SIGN_IN_ERROR_MESSAGE =
-  "We weren't able to sign you in at this time.";
+  "Sorry, we weren't able to sign you in at this time.";
 const DEFAULT_AUTH_REGISTER_ERROR_MESSAGE =
-  "We weren't able to create your account at this time.";
+  "Sorry, we weren't able to create your account at this time.";
 
 /**
  * @param {any} error

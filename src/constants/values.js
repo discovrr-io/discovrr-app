@@ -18,7 +18,7 @@ export const border = {
 export const buttonSizes = {
   lg: 48,
   md: 40,
-  sm: 32,
+  sm: 28,
 };
 
 export const radius = {

@@ -85,7 +85,7 @@ export default function AuthLoadingScreen() {
     (state) => state.auth,
   );
 
-  console.log($FUNC, 'isAuthenticated:', isAuthenticated);
+  console.log($FUNC, 'Is authenticated?', isAuthenticated);
 
   useEffect(() => {
     RNBootSplash.hide({ duration: 250 });
