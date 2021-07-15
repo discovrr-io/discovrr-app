@@ -513,7 +513,7 @@ const postItemStyles = StyleSheet.create({
     borderTopLeftRadius: values.radius.md,
     borderTopRightRadius: values.radius.md,
     borderBottomRightRadius: values.radius.md,
-    marginBottom: values.spacing.md,
+    marginBottom: values.spacing.sm * 1.5,
   },
   dialogBoxText: {
     color: colors.black,

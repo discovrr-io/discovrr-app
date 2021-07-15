@@ -141,6 +141,7 @@ export namespace AuthApi {
     const profile = await query.first();
     console.log($FUNC, 'Found Parse profile:', profile?.id);
 
+    // TODO: We shouldn't really need this, but we'll keep it just in case
     if (!profile) {
       console.warn('Current user has no profile, which is unexpected');
       const Profile = Parse.Object.extend('Profile');

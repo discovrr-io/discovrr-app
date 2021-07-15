@@ -88,7 +88,7 @@ export function App() {
 
   const onBeforeLift = async () => {
     // TODO: Maybe check with Regex? (/^\d+\.\d{1,2}\.\d{1,2}$/g)
-    const [major, minor, patch, build] = [2, 1, 2, 7];
+    const [major, minor, patch, build] = [2, 1, 2, 8];
     const versionNumber =
       major * 10 ** 6 + minor * 10 ** 4 + patch * 10 ** 2 + build;
     const currStoreVersion = String(versionNumber);
