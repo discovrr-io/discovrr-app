@@ -603,7 +603,7 @@ function NearMeTab() {
   const [shouldFetchMore, setShouldFetchMore] = useState(false);
   const [fetchError, setFetchError] = useState(null);
 
-  const tileSpacing = useMemo(() => values.spacing.sm, []);
+  const tileSpacing = useMemo(() => values.DEFAULT_TILE_SPACING, []);
   const itemCardStyles = (column) => ({
     marginTop: tileSpacing,
     marginLeft: column % 2 === 0 ? tileSpacing : tileSpacing / 2,

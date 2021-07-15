@@ -26,3 +26,5 @@ export const radius = {
   md: 10,
   sm: 8,
 };
+
+export const DEFAULT_TILE_SPACING = spacing.sm * 1.5;

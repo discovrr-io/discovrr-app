@@ -122,7 +122,7 @@ const profilesSlice = createSlice({
       })
       .addCase(changeProfileFollowStatus.rejected, (state, action) => {
         // state.status = 'rejected';
-        const oldDidFollow = !action.meta.arg.isFollowing;
+        const oldDidFollow = !action.meta.arg.didFollow;
         profilesSlice.caseReducers.profileFollowStatusChanged(state, {
           ...action,
           payload: { ...action.meta.arg, didFollow: oldDidFollow },
