@@ -137,7 +137,7 @@ export default function ProductItemCard({
             flexDirection: 'row',
             alignItems: 'center',
             marginHorizontal: values.spacing.sm,
-            marginTop: values.spacing.sm,
+            marginTop: values.spacing.xs * 1.5,
           }}>
           <Text numberOfLines={2} style={productItemCardStyles.productName}>
             {product.name}
