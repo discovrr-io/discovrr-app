@@ -17,6 +17,7 @@ import { values } from '../../constants';
 export default function PostMasonryList({
   postIds,
   tileSpacing = values.DEFAULT_TILE_SPACING,
+  bottomSpacing = values.spacing.sm,
   smallContent,
   showFooter,
   ...props
@@ -35,7 +36,7 @@ export default function PostMasonryList({
             marginTop: tileSpacing,
             marginLeft: index % 2 === 0 ? tileSpacing : tileSpacing / 2,
             marginRight: index % 2 !== 0 ? tileSpacing : tileSpacing / 2,
-            marginBottom: values.spacing.sm,
+            marginBottom: bottomSpacing,
           }}
         />
       )}

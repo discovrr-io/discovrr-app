@@ -4,33 +4,29 @@ import Parse from 'parse/react-native';
 
 import { MediaSource } from '.';
 import { User } from '../models';
-import { ImageSource } from '../models/common';
-import {
-  DEFAULT_AVATAR,
-  DEFAULT_AVATAR_DIMENSIONS,
-  DEFAULT_IMAGE,
-  DEFAULT_IMAGE_DIMENSIONS,
-} from '../constants/media';
+import { DEFAULT_AVATAR_DIMENSIONS } from '../constants/media';
+
+const MAX_ATTEMPTS = 3;
 
 export namespace AuthApi {
   export enum AuthApiError {
-    NO_PROFILE_FOUND = '1000',
+    // NO_PROFILE_FOUND = '1000',
     USERNAME_ALREADY_TAKEN = '2000',
   }
 
   async function syncAndConstructUser(
+    currentUserId: string,
     profile: Parse.Object<Parse.Attributes>,
     firebaseUser: FirebaseAuthTypes.User,
-  ) {
+  ): Promise<User> {
     const $FUNC = '[AuthApi.syncAndConstructUser]';
     let syncProfile = false;
 
-    let fullName: string | undefined =
+    const fullName: string | undefined =
       profile.get('fullName') ||
       profile.get('name') ||
       profile.get('displayName');
     if (!fullName && firebaseUser.displayName) {
-      fullName = firebaseUser.displayName;
       profile.set('fullName', firebaseUser.displayName ?? '');
       syncProfile = true;
     } else if (fullName /* && !firebaseUser.displayName */) {
@@ -38,50 +34,26 @@ export namespace AuthApi {
       await firebaseUser.updateProfile({ displayName: fullName });
     }
 
-    // let phone: string | undefined = profile.get('phone');
-    // if (!phone && firebaseUser.phoneNumber) {
-    //   profile.set('phone', firebaseUser.phoneNumber);
-    //   syncProfile = true;
-    // }
+    const phone: string | undefined = profile.get('phone');
+    if (!phone && firebaseUser.phoneNumber) {
+      profile.set('phone', firebaseUser.phoneNumber);
+      syncProfile = true;
+    }
 
-    // May be undefined if anonymous
-    let email: string | undefined = profile.get('email');
+    const email: string | undefined = profile.get('email');
     if (!email && firebaseUser.email) {
-      email = firebaseUser.email;
       profile.set('email', firebaseUser.email);
       syncProfile = true;
     }
 
-    let avatar: ImageSource;
-    const foundAvatar: MediaSource | undefined = profile.get('avatar');
-    if (foundAvatar && foundAvatar.url) {
-      avatar = {
-        uri: foundAvatar.url,
-        width: foundAvatar.width ?? DEFAULT_AVATAR_DIMENSIONS.width,
-        height: foundAvatar.height ?? DEFAULT_AVATAR_DIMENSIONS.height,
-      };
-    } else if (!foundAvatar && firebaseUser.photoURL) {
-      avatar = { uri: firebaseUser.photoURL, ...DEFAULT_AVATAR_DIMENSIONS };
+    const avatar: MediaSource | undefined = profile.get('avatar');
+    if (!avatar && firebaseUser.photoURL) {
       profile.set('avatar', {
         url: firebaseUser.photoURL,
         ...DEFAULT_AVATAR_DIMENSIONS,
       });
       syncProfile = true;
-    } else {
-      avatar = DEFAULT_AVATAR;
     }
-
-    // let coverPhoto: ImageSource;
-    // const foundCoverPhoto: MediaSource | undefined = profile.get('coverPhoto');
-    // if (foundCoverPhoto) {
-    //   coverPhoto = {
-    //     uri: foundCoverPhoto.url,
-    //     width: foundCoverPhoto.width ?? DEFAULT_IMAGE_DIMENSIONS.width,
-    //     height: foundCoverPhoto.height ?? DEFAULT_IMAGE_DIMENSIONS.height,
-    //   };
-    // } else {
-    //   coverPhoto = DEFAULT_IMAGE;
-    // }
 
     if (syncProfile) {
       try {
@@ -95,18 +67,9 @@ export namespace AuthApi {
     }
 
     return {
+      id: currentUserId,
       provider: firebaseUser.providerId,
       profileId: profile.id,
-      // profile: {
-      //   id: profile.id,
-      //   fullName: fullName || '',
-      //   username: profile.get('username') ?? '',
-      //   email: email || '',
-      //   avatar,
-      //   coverPhoto,
-      //   isVendor: false,
-      //   description: profile.get('description'),
-      // },
     } as User;
   }
 
@@ -138,35 +101,28 @@ export namespace AuthApi {
     const query = new Parse.Query(Parse.Object.extend('Profile'));
     query.equalTo('owner', currentUser.toPointer());
 
-    const profile = await query.first();
+    let profile = await query.first();
     console.log($FUNC, 'Found Parse profile:', profile?.id);
 
-    // TODO: We shouldn't really need this, but we'll keep it just in case
-    if (!profile) {
-      console.warn('Current user has no profile, which is unexpected');
-      const Profile = Parse.Object.extend('Profile');
-      const profile: Parse.Object<Parse.Attributes> = new Profile();
-
-      console.log($FUNC, 'Creating new profile with owner:', currentUser.id);
-      profile.set('owner', currentUser);
-      profile.set('fullName', firebaseUser.displayName);
-      profile.set('email', firebaseUser.email);
-      profile.set('provider', firebaseUser.providerId);
-
-      const newProfile = await profile.save();
-      console.log(
-        $FUNC,
-        'Successfully created new profile with objectId:',
-        newProfile.id,
-      );
-
-      return {
-        provider: firebaseUser.providerId,
-        profileId: newProfile.id,
-      } as User;
+    let attempts = 0;
+    while (!profile && attempts < MAX_ATTEMPTS) {
+      console.warn($FUNC, `Current user profile ID not found.`);
+      console.log($FUNC, `(Attempt ${attempts + 1} of ${MAX_ATTEMPTS})`);
+      await new Promise<void>((resolve) => {
+        setTimeout(async () => {
+          const result = await query.first();
+          profile = result;
+          attempts += 1;
+          resolve();
+        }, 2000);
+      });
     }
 
-    return await syncAndConstructUser(profile, firebaseUser);
+    if (!profile) {
+      throw new Error(`No profile was found with user id '${currentUser.id}'.`);
+    }
+
+    return await syncAndConstructUser(currentUser.id, profile, firebaseUser);
   }
 
   export async function signInWithEmailAndPassword(
@@ -222,7 +178,7 @@ export namespace AuthApi {
       didLoginViaFirebase = true;
 
       const authenticatedUser = await signInWithParse(firebaseUser);
-      didLoginViaParse = true;
+      didLoginViaParse = true; // We'll put this before to force Parse logout
 
       if (cred.additionalUserInfo?.isNewUser) {
         console.log($FUNC, 'Signed up new user via', credential.providerId);
@@ -231,7 +187,9 @@ export namespace AuthApi {
         await analytics().logLogin({ method: credential.providerId });
       }
 
-      await analytics().setUserId(authenticatedUser.profileId.toString());
+      if (authenticatedUser.profileId) {
+        await analytics().setUserId(authenticatedUser.profileId.toString());
+      }
 
       return authenticatedUser;
     } catch (error) {

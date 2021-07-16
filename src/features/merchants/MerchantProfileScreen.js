@@ -9,13 +9,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import NoteMasonryList from '../../components/masonry/NoteMasonryList';
 import PostMasonryList from '../../components/masonry/PostMasonryList';
 import ProductItemCard from '../products/ProductItemCard';
-import {
-  EmptyTabView,
-  ErrorTabView,
-  LoadingTabView,
-  MasonryList,
-  RouteError,
-} from '../../components';
+import { EmptyTabView, MasonryList, RouteError } from '../../components';
 import {
   HEADER_MAX_HEIGHT,
   ProfileScreenHeader,
@@ -24,10 +18,9 @@ import {
 import { selectAllNotes } from '../notes/notesSlice';
 import { selectPostsByProfile } from '../posts/postsSlice';
 import { SOMETHING_WENT_WRONG } from '../../constants/strings';
-import { useIsInitialRender, useIsMounted } from '../../hooks';
+import { useIsMounted } from '../../hooks';
 import { colors, values } from '../../constants';
 import {
-  fetchMerchantById,
   selectMerchantById,
   updateMerchantViewCounter,
 } from './merchantsSlice';
@@ -160,7 +153,7 @@ function ProductsTab({ merchant }) {
  * @param {MerchantProfileScreenProps} param0
  */
 export default function MerchantProfileScreen() {
-  const FUNC = '[MerchantProfileScreen]';
+  const $FUNC = '[MerchantProfileScreen]';
   const dispatch = useDispatch();
 
   /** @type {{ merchantId: import('../../models').MerchantId }} */
@@ -171,7 +164,7 @@ export default function MerchantProfileScreen() {
 
   // TODO: Try to fetch merchant before returning error
   if (!merchant) {
-    console.warn(FUNC, 'Failed to select merchant with id:', merchantId);
+    console.warn($FUNC, 'Failed to select merchant with id:', merchantId);
     return <RouteError />;
   }
 
@@ -196,7 +189,7 @@ export default function MerchantProfileScreen() {
 
     // We don't want to count views in development mode
     if ((!__DEV__ && !lastViewed) || isOverFiveMinutes(lastViewed)) {
-      console.log(FUNC, 'Updating last viewed date-time...');
+      console.log($FUNC, 'Updating last viewed date-time...');
       dispatch(
         updateMerchantViewCounter({
           merchantId,
@@ -204,7 +197,7 @@ export default function MerchantProfileScreen() {
         }),
       );
     }
-  });
+  }, []);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>

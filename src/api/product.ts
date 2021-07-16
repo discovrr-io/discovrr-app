@@ -33,36 +33,10 @@ export namespace ProductApi {
     } as Product;
   }
 
-  export async function fetchProductsForMerchant(
-    merchantId: string,
-  ): Promise<Product[]> {
-    const FUNC = '[ProductApi.fetchProductsForMerchant]';
-
-    try {
-      const vendorPointer = {
-        __type: 'Pointer',
-        className: 'Vendor',
-        objectId: merchantId,
-      };
-
-      const profile = await UserApi.getCurrentUserProfile();
-      const query = new Parse.Query(Parse.Object.extend('Product'));
-      query.equalTo('owner', vendorPointer);
-
-      const results = await query.find();
-      return results.map((result) =>
-        mapResultToProduct(result, merchantId, profile?.id),
-      );
-    } catch (error) {
-      console.error(FUNC, `Failed to fetch products for merchant:`, error);
-      throw error;
-    }
-  }
-
   export async function fetchAllProducts(
     pagination?: Pagination,
   ): Promise<Product[]> {
-    const FUNC = '[ProductApi.fetchAllProducts]';
+    const $FUNC = '[ProductApi.fetchAllProducts]';
 
     try {
       const profile = await UserApi.getCurrentUserProfile();
@@ -78,7 +52,33 @@ export namespace ProductApi {
         mapResultToProduct(result, undefined, profile?.id),
       );
     } catch (error) {
-      console.error(FUNC, `Failed to fetch distinct product:`, error);
+      console.error($FUNC, `Failed to fetch distinct product:`, error);
+      throw error;
+    }
+  }
+
+  export async function fetchProductsForMerchant(
+    merchantId: string,
+  ): Promise<Product[]> {
+    const $FUNC = '[ProductApi.fetchProductsForMerchant]';
+
+    try {
+      const vendorPointer = {
+        __type: 'Pointer',
+        className: 'Vendor',
+        objectId: merchantId,
+      };
+
+      const currentProfile = await UserApi.getCurrentUserProfile();
+      const query = new Parse.Query(Parse.Object.extend('Product'));
+      query.equalTo('owner', vendorPointer);
+
+      const results = await query.find();
+      return results.map((result) =>
+        mapResultToProduct(result, merchantId, currentProfile?.id),
+      );
+    } catch (error) {
+      console.error($FUNC, `Failed to fetch products for merchant:`, error);
       throw error;
     }
   }
@@ -88,7 +88,7 @@ export namespace ProductApi {
     productId: string,
     didLike: boolean,
   ) {
-    const FUNC = '[ProductApi.changeProductLikeStatus]';
+    const $FUNC = '[ProductApi.changeProductLikeStatus]';
 
     try {
       const profile = await UserApi.getCurrentUserProfile();
@@ -96,7 +96,7 @@ export namespace ProductApi {
       query.equalTo('objectId', productId);
 
       const product = await query.first();
-      console.log(FUNC, 'Found product:', product.id);
+      console.log($FUNC, 'Found product:', product.id);
 
       const profileLikedProductsRelation = profile.relation('likedProducts');
       const profileLikedProductsArray = profile.get('likedProductsArray') ?? [];
@@ -109,22 +109,22 @@ export namespace ProductApi {
       const productLikersSet = new Set<string>(productLikersArray);
 
       if (didLike) {
-        console.log(FUNC, 'Adding liked product...');
+        console.log($FUNC, 'Adding liked product...');
         profileLikedProductsRelation.add(product);
         profileLikedProductsSet.add(product.id);
         profile.increment('likedProductsCount');
 
-        console.log(FUNC, 'Adding liker profile...');
+        console.log($FUNC, 'Adding liker profile...');
         productLikersRelation.add(profile);
         productLikersSet.add(profile.id);
         product.increment('likersCount');
       } else {
-        console.log(FUNC, 'Removing liked product...');
+        console.log($FUNC, 'Removing liked product...');
         profileLikedProductsRelation.remove(product);
         profileLikedProductsSet.delete(product.id);
         profile.decrement('likedProductsCount');
 
-        console.log(FUNC, 'Removing liker profile...');
+        console.log($FUNC, 'Removing liker profile...');
         productLikersRelation.remove(profile);
         productLikersSet.delete(profile.id);
         product.decrement('likersCount');
@@ -133,12 +133,12 @@ export namespace ProductApi {
       profile.set('likedProductsArray', [...profileLikedProductsSet]);
       product.set('likersArray', [...productLikersSet]);
 
-      console.log(FUNC, 'Saving...');
+      console.log($FUNC, 'Saving...');
       await Promise.all([profile.save(), product.save()]);
-      console.log(FUNC, 'Done!');
+      console.log($FUNC, 'Done!');
     } catch (error) {
       console.error(
-        FUNC,
+        $FUNC,
         `Failed to ${didLike ? 'like' : 'unlike'} product:`,
         error,
       );
@@ -147,7 +147,7 @@ export namespace ProductApi {
   }
 
   export async function updateProductViewCounter(productId: string) {
-    const FUNC = '[ProductApi.updateProductViewCounter]';
+    const $FUNC = '[ProductApi.updateProductViewCounter]';
 
     try {
       const profile = await UserApi.getCurrentUserProfile();
@@ -155,7 +155,7 @@ export namespace ProductApi {
       query.equalTo('objectId', productId);
 
       const product = await query.first();
-      console.log(FUNC, 'Found product:', product.id);
+      console.log($FUNC, 'Found product:', product.id);
 
       const profileViewedProductsRelation = profile.relation('viewedProducts');
       const profileViewedProductsArray =
@@ -164,7 +164,7 @@ export namespace ProductApi {
         profileViewedProductsArray,
       );
 
-      console.log(FUNC, 'Adding viewed product...');
+      console.log($FUNC, 'Adding viewed product...');
       profileViewedProductsRelation.add(product);
       profileViewedProductsSet.add(product.id);
       profile.set('viewedProductsArray', [...profileViewedProductsSet]);
@@ -174,7 +174,7 @@ export namespace ProductApi {
       const productViewersArray = product.get('viewersArray') ?? [];
       const productViewersSet = new Set<string>(productViewersArray);
 
-      console.log(FUNC, 'Adding viewer profile...');
+      console.log($FUNC, 'Adding viewer profile...');
       productViewersRelation.add(profile);
       product.set('viewersArray', [...productViewersSet.add(profile.id)]);
       // A "view" is counted as the number of times a user has visited the
@@ -182,11 +182,11 @@ export namespace ProductApi {
       // less than 5 minutes ago, it will NOT be counted as a view.
       product.increment('viewersCount');
 
-      console.log(FUNC, 'Saving changes...');
+      console.log($FUNC, 'Saving changes...');
       await Promise.all([profile.save(), product.save()]);
-      console.log(FUNC, 'Successfully saved');
+      console.log($FUNC, 'Successfully saved');
     } catch (error) {
-      console.error(FUNC, 'Failed to update viewers for product:', error);
+      console.error($FUNC, 'Failed to update viewers for product:', error);
       throw error;
     }
   }

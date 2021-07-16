@@ -694,7 +694,7 @@ function NearMeTab() {
 function FollowingTab() {
   const dispatch = useDispatch();
 
-  /** @type {import('../authentication/authSlice').AuthState} */
+  /** @type {import('../authentication/authSlice').BaseAuthState} */
   const { user } = useSelector((state) => state.auth);
   if (!user) {
     console.warn('User not signed in');

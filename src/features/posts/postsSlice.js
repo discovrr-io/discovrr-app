@@ -6,7 +6,6 @@ import {
 } from '@reduxjs/toolkit';
 
 import { PostApi } from '../../api';
-import { selectProfileById } from '../profiles/profilesSlice';
 
 export const fetchAllPosts = createAsyncThunk(
   'posts/fetchAllPosts',
@@ -15,6 +14,15 @@ export const fetchAllPosts = createAsyncThunk(
    * @param {{ pagination?: Pagination, reload?: boolean }=} param0
    */
   async ({ pagination } = {}) => PostApi.fetchAllPosts(pagination),
+);
+
+export const fetchPostsForProfile = createAsyncThunk(
+  'posts/fetchPostsForProfile',
+  /**
+   * @typedef {import('../../models').ProfileId} ProfileId
+   * @param {ProfileId} profileId
+   */
+  async (profileId) => PostApi.fetchPostsForProfile(String(profileId)),
 );
 
 export const fetchPostById = createAsyncThunk(
@@ -29,6 +37,14 @@ export const changePostLikeStatus = createAsyncThunk(
    * @param {{ postId: PostId, didLike: boolean }} param0
    */
   async ({ postId, didLike }) => PostApi.changePostLikeStatus(postId, didLike),
+);
+
+export const updatePostViewCounter = createAsyncThunk(
+  'products/updatePostViewCounter',
+  /**
+   * @param {{ postId: PostId, lastViewed?: string }} param0
+   */
+  async ({ postId }) => PostApi.updatePostViewCounter(String(postId)),
 );
 
 /**
@@ -87,6 +103,19 @@ const postsSlice = createSlice({
         state.status = 'rejected';
         state.error = action.error;
       })
+      // -- fetchPostsForProfile --
+      .addCase(fetchPostsForProfile.pending, (state, action) => {
+        state.status = 'pending';
+      })
+      .addCase(fetchPostsForProfile.fulfilled, (state, action) => {
+        state.status = 'fulfilled';
+        state.error = null;
+        postsAdapter.upsertMany(state, action.payload);
+      })
+      .addCase(fetchPostsForProfile.rejected, (state, action) => {
+        state.status = 'rejected';
+        state.error = action.error;
+      })
       // -- fetchPostById --
       .addCase(fetchPostById.pending, (state) => {
         state.status = 'pending';
@@ -113,6 +142,25 @@ const postsSlice = createSlice({
           ...action,
           payload: { ...action.meta.arg, didLike: oldLike },
         });
+      })
+      // -- updatePostViewCounter --
+      .addCase(updatePostViewCounter.fulfilled, (state, action) => {
+        const { postId, lastViewed = new Date().toJSON() } = action.meta.arg;
+        const selectedPost = state.entities[postId];
+        if (selectedPost) {
+          if (selectedPost.statistics) {
+            selectedPost.statistics.totalViews += 1;
+            selectedPost.statistics.lastViewed = lastViewed;
+          } else {
+            selectedPost.statistics = {
+              didSave: false,
+              didLike: false,
+              totalLikes: 0,
+              totalViews: 1,
+              lastViewed: lastViewed,
+            };
+          }
+        }
       });
   },
 });

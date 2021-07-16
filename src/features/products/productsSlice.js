@@ -21,7 +21,6 @@ export const fetchProductsForMerchant = createAsyncThunk(
   /**
    * @typedef {import('../../models').MerchantId} MerchantId
    * @param {{ merchantId: MerchantId, reload?: boolean }} param0
-   * @returns
    */
   async ({ merchantId }) =>
     ProductApi.fetchProductsForMerchant(String(merchantId)),
@@ -38,7 +37,7 @@ export const changeProductLikeStatus = createAsyncThunk(
 );
 
 export const updateProductViewCounter = createAsyncThunk(
-  'products/updateProductViewers',
+  'products/updateProductViewCounter',
   /**
    * @param {{ productId: ProductId, lastViewed?: string }} param0
    */
@@ -106,6 +105,7 @@ const productsSlice = createSlice({
       })
       .addCase(fetchProductsForMerchant.fulfilled, (state, action) => {
         state.status = 'fulfilled';
+        state.error = null;
         productsAdapter.upsertMany(state, action.payload);
       })
       .addCase(fetchProductsForMerchant.rejected, (state, action) => {

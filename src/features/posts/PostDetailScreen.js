@@ -11,6 +11,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  TouchableOpacity,
   View,
 } from 'react-native';
 
@@ -18,8 +19,25 @@ import Carousel, { Pagination } from 'react-native-snap-carousel';
 import FastImage from 'react-native-fast-image';
 import Video from 'react-native-video';
 import { useRoute } from '@react-navigation/core';
-import { createSelector } from '@reduxjs/toolkit';
 import { useDispatch, useSelector } from 'react-redux';
+
+import PostComment from '../comments/PostComment';
+import { colors, typography, values } from '../../constants';
+import { SOMETHING_WENT_WRONG } from '../../constants/strings';
+import { useIsMounted } from '../../hooks';
+
+import { PostItemCardFooter } from './PostItemCard';
+import {
+  fetchPostById,
+  selectPostById,
+  updatePostViewCounter,
+} from './postsSlice';
+
+import {
+  addCommentForPost,
+  fetchCommentsForPost,
+  selectCommentsForPost,
+} from '../comments/commentsSlice';
 
 import {
   EmptyTabView,
@@ -27,38 +45,19 @@ import {
   RouteError,
   LoadingTabView,
 } from '../../components';
-import PostComment from '../comments/PostComment';
-import { PostItemCardFooter } from './PostItemCard';
-import { colors, typography, values } from '../../constants';
-import {
-  addCommentForPost,
-  fetchCommentsForPost,
-  selectAllComments,
-} from '../comments/commentsSlice';
-import { fetchPostById, selectPostById } from './postsSlice';
-import { TouchableOpacity } from 'react-native-gesture-handler';
-import { useIsMounted } from '../../hooks';
-
-const Parse = require('parse/react-native');
 
 const COMMENT_TEXT_INPUT_HEIGHT = 50;
 const COMMENT_POST_BUTTON_WIDTH = 70;
 
-const getCommentsForPost = createSelector(
-  [selectPostById, selectAllComments],
-  /**
-   * @returns {import('../../models').CommentId[]}
-   */
-  (post, allComments) => {
-    if (post) {
-      return allComments
-        .filter((comment) => comment.postId === post.id)
-        .map((comment) => comment.id);
-    } else {
-      return [];
-    }
-  },
-);
+// TODO: Refactor out
+function isOverFiveMinutes(date) {
+  if (!date) return false;
+
+  const FIVE_MINS = 5 * 60 * 1000;
+  const now = new Date();
+  const then = new Date(date);
+  return now - then > FIVE_MINS;
+}
 
 /**
  * @typedef {import('../../models/common').ImageSource} ImageSource
@@ -188,7 +187,7 @@ function PostDetailContent({ post, ...props }) {
 const postDetailContentStyles = StyleSheet.create({
   dialogBox: {
     backgroundColor: colors.gray100,
-    borderColor: colors.gray300,
+    borderColor: colors.gray200,
     borderTopLeftRadius: values.radius.md,
     borderTopRightRadius: values.radius.md,
     borderBottomRightRadius: values.radius.md,
@@ -211,22 +210,31 @@ const postDetailContentStyles = StyleSheet.create({
 });
 
 export default function PostDetailScreen() {
+  const $FUNC = '[PostDetailScreen]';
   const dispatch = useDispatch();
 
   /** @type {{ postId: import('../../models').PostId | undefined }} */
-  const { postId = undefined } = useRoute().params || {};
+  const { postId = undefined } = useRoute().params ?? {};
   if (!postId) {
-    console.error('[PostDetailScreen] No post ID was given');
+    console.error($FUNC, 'No post ID was given');
     return <RouteError />;
   }
 
   const post = useSelector((state) => selectPostById(state, postId));
   if (!post) {
-    console.error('[PostDetailScreen] Failed to select post with id:', postId);
+    console.error($FUNC, 'Failed to select post with id:', postId);
     return <RouteError />;
   }
 
-  const commentIds = useSelector((state) => getCommentsForPost(state, postId));
+  /** @type {import('../../models').ProfileId} */
+  const currentUserProfileId = useSelector(
+    (state) => state.auth.user.profileId,
+  );
+  const isMyPost = post.profileId === currentUserProfileId;
+
+  const commentIds = useSelector((state) =>
+    selectCommentsForPost(state, postId),
+  );
 
   const isMounted = useIsMounted();
   const [isInitialLoad, setIsInitialLoad] = useState(true);
@@ -238,6 +246,25 @@ export default function PostDetailScreen() {
   const [isProcessingComment, setIsProcessingComment] = useState(false);
 
   useEffect(() => {
+    const { lastViewed } = post.statistics ?? {};
+
+    // We don't want to count views in development mode or if it's the user's
+    // own post
+    if (
+      (!__DEV__ && !lastViewed && !isMyPost) ||
+      isOverFiveMinutes(lastViewed)
+    ) {
+      console.log($FUNC, 'Updating last viewed date-time...');
+      dispatch(
+        updatePostViewCounter({
+          postId,
+          lastViewed: new Date().toJSON(),
+        }),
+      );
+    }
+  }, []);
+
+  useEffect(() => {
     if (isInitialLoad || shouldRefresh)
       (async () => {
         try {
@@ -246,10 +273,7 @@ export default function PostDetailScreen() {
             dispatch(fetchCommentsForPost(String(postId))).unwrap(),
           ]);
         } catch (error) {
-          console.error(
-            '[PostDetailsScreen] Failed to fetch comments for post:',
-            error,
-          );
+          console.error($FUNC, 'Failed to fetch comments for post:', error);
           isMounted.current && setCommentsError(error);
         } finally {
           if (isMounted.current) {
@@ -275,9 +299,9 @@ export default function PostDetailScreen() {
       await dispatch(addCommentAction).unwrap();
       // TODO: Send notification when user posts a comment
     } catch (error) {
-      console.error('Failed to post comment:', error);
+      console.error($FUNC, 'Failed to post comment:', error);
       Alert.alert(
-        'Something went wrong',
+        SOMETHING_WENT_WRONG.title,
         "Sorry, we weren't able to post your comment. Please try again later.",
       );
     } finally {
