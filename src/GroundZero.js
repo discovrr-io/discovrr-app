@@ -106,6 +106,7 @@ const HomeStack = () => (
               onEndEditing={async ({ nativeEvent }) => {
                 try {
                   const query = nativeEvent.text;
+                  if (query.length === 0) return;
                   await analytics().logSearch({ search_term: query });
                 } catch (error) {
                   console.error('Failed to end `search` event:', error);
@@ -354,7 +355,7 @@ const modalStyles = StyleSheet.create({
 export default function GroundZero() {
   const dispatch = useDispatch();
 
-  /** @type {import('./features/authentication/authSlice').AuthState} */
+  /** @type {import('./features/authentication/authSlice').BaseAuthState} */
   const { status, isFirstLogin } = useSelector((state) => state.auth);
 
   return (

@@ -188,7 +188,7 @@ function PostDetailContent({ post, ...props }) {
 const postDetailContentStyles = StyleSheet.create({
   dialogBox: {
     backgroundColor: colors.gray100,
-    borderColor: colors.gray300,
+    borderColor: colors.gray200,
     borderTopLeftRadius: values.radius.md,
     borderTopRightRadius: values.radius.md,
     borderBottomRightRadius: values.radius.md,

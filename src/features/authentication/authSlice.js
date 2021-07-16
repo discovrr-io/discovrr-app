@@ -1,8 +1,4 @@
-import {
-  createAsyncThunk,
-  createSelector,
-  createSlice,
-} from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
 import { AuthApi } from '../../api';
 
@@ -20,14 +16,32 @@ export const signInWithCredential = createAsyncThunk(
 export const registerNewAccount = createAsyncThunk(
   'auth/registerNewAccount',
   /**
-   * @typedef {{fullName: string;username: string;email: string;password: string;}} RegisterFormDetails
+   * @typedef {{ fullName: string, username: string, email: string, password: string }} RegisterFormDetails
    * @param {RegisterFormDetails} param0
    */
   async ({ fullName, username, email, password }) =>
     AuthApi.registerNewAccount(fullName, username, email, password),
 );
 
-export const signOut = createAsyncThunk('auth/signOut', AuthApi.signOut);
+export const signOut = createAsyncThunk(
+  'auth/signOut',
+  /**
+   * @param {{ logoutParse?: boolean, logoutFirebase?: boolean }=} param0
+   */
+  async ({ logoutParse = true, logoutFirebase = true } = {}) =>
+    AuthApi.signOut(logoutParse, logoutFirebase),
+);
+
+export const abortSignOut = createAsyncThunk(
+  'auth/abortSignOut',
+  /**
+   * @param {any} error The error object to throw.
+   */
+  async (error) => {
+    await AuthApi.signOut();
+    throw error;
+  },
+);
 
 /**
  * @typedef {import('../../models').User} User
@@ -36,11 +50,13 @@ export const signOut = createAsyncThunk('auth/signOut', AuthApi.signOut);
  * @typedef {'idle' | 'signing-in' | 'registering' | 'signing-out' | 'fulfilled' | 'rejected'} AuthLoadingStatus
  * @typedef {Pick<ApiFetchStatus, 'error'> & { status: AuthLoadingStatus }} CurrentAuthStatus
  *
- * @typedef {{ isAuthenticated: boolean, isFirstLogin?: boolean, user?: User }} AuthState
- * @type {AuthState & CurrentAuthStatus}
+ * @typedef {{ isAuthenticated: boolean, isFirstLogin?: boolean, user?: User }} BaseAuthState
+ * @typedef {BaseAuthState & CurrentAuthStatus} AuthState
+ * @type {AuthState}
  */
 const initialState = {
   status: 'idle',
+  error: undefined,
   isAuthenticated: false,
   isFirstLogin: false,
   user: undefined,
@@ -53,6 +69,13 @@ const authSlice = createSlice({
     didDismissInfoModal: (state) => {
       state.isFirstLogin = false;
     },
+    /**
+     * @typedef {import('@reduxjs/toolkit').PayloadAction<User>} PayloadAction
+     * @param {PayloadAction} action
+     */
+    updateUser: (state, action) => {
+      state.user = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -62,15 +85,16 @@ const authSlice = createSlice({
       })
       .addCase(signInWithEmailAndPassword.fulfilled, (state, action) => {
         state.status = 'fulfilled';
+        state.error = undefined;
         state.isAuthenticated = true;
-        state.user = action.payload;
         state.isFirstLogin = true;
+        state.user = action.payload;
       })
       .addCase(signInWithEmailAndPassword.rejected, (state, action) => {
         state.status = 'rejected';
         state.error = action.error;
-        state.user = undefined;
         state.isFirstLogin = false;
+        state.user = undefined;
       })
       // signInWithCredential
       .addCase(signInWithCredential.pending, (state) => {
@@ -78,15 +102,16 @@ const authSlice = createSlice({
       })
       .addCase(signInWithCredential.fulfilled, (state, action) => {
         state.status = 'fulfilled';
+        state.error = undefined;
         state.isAuthenticated = true;
-        state.user = action.payload;
         state.isFirstLogin = true;
+        state.user = action.payload;
       })
       .addCase(signInWithCredential.rejected, (state, action) => {
         state.status = 'rejected';
         state.error = action.error;
-        state.user = undefined;
         state.isFirstLogin = false;
+        state.user = undefined;
       })
       // registerNewAccount
       .addCase(registerNewAccount.pending, (state) => {
@@ -94,15 +119,16 @@ const authSlice = createSlice({
       })
       .addCase(registerNewAccount.fulfilled, (state, action) => {
         state.status = 'fulfilled';
+        state.error = undefined;
         state.isAuthenticated = true;
-        state.user = action.payload;
         state.isFirstLogin = true;
+        state.user = action.payload;
       })
       .addCase(registerNewAccount.rejected, (state, action) => {
         state.status = 'rejected';
         state.error = action.error;
-        state.user = undefined;
         state.isFirstLogin = false;
+        state.user = undefined;
       })
       // signOut
       .addCase(signOut.pending, (state) => {
@@ -117,6 +143,13 @@ const authSlice = createSlice({
         state.error = action.error;
         state.isSigningOut = false;
         state.isFirstLogin = false;
+      })
+      // abortSignOut
+      .addCase(abortSignOut.rejected, (state, action) => {
+        Object.assign(state, initialState);
+        state.status = 'fulfilled';
+        const error = action.meta.arg;
+        state.error = error.message ?? String(error.code) ?? String(error);
       });
   },
 });

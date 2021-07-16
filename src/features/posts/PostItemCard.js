@@ -509,7 +509,7 @@ const postItemStyles = StyleSheet.create({
   dialogBox: {
     backgroundColor: colors.gray100,
     borderWidth: values.border.thin,
-    borderColor: colors.gray300,
+    borderColor: colors.gray200,
     borderTopLeftRadius: values.radius.md,
     borderTopRightRadius: values.radius.md,
     borderBottomRightRadius: values.radius.md,

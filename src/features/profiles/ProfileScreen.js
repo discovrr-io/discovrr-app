@@ -393,7 +393,7 @@ export default function ProfileScreen() {
   const [isRefreshingPosts, setIsRefreshingPosts] = useState(false);
   const [isRefreshingNotes, setIsRefreshingNotes] = useState(false);
 
-  /** @type {import('../authentication/authSlice').AuthState} */
+  /** @type {ProfileId} */
   const currentUserProfileId = useSelector(
     (state) => state.auth.user.profileId,
   );

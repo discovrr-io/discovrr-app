@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   useWindowDimensions,
   Alert,
@@ -45,6 +45,7 @@ import {
   signInWithCredential,
   signInWithEmailAndPassword,
 } from './authSlice';
+import { SOMETHING_WENT_WRONG } from '../../constants/strings';
 
 const DISCOVRR_LOGO = require('../../../resources/images/discovrrLogoHorizontal.png');
 
@@ -60,6 +61,8 @@ const DEFAULT_AUTH_SIGN_IN_ERROR_MESSAGE =
   "Sorry, we weren't able to sign you in at this time.";
 const DEFAULT_AUTH_REGISTER_ERROR_MESSAGE =
   "Sorry, we weren't able to create your account at this time.";
+const REPORT_MESSAGE =
+  'Please report the following error to the Discovrr development team';
 
 /**
  * @param {any} error
@@ -78,11 +81,8 @@ function createReportMessage(
   } else if (error.code) {
     errorMessage = error.code;
   } else {
-    errorMessage = 'Unknown Error';
+    errorMessage = String(error);
   }
-
-  const REPORT_MESSAGE =
-    'Please report the following error to the Discovrr development team';
 
   return `${message}\n\n${REPORT_MESSAGE}:\n\n${errorMessage}`;
 }
@@ -534,10 +534,22 @@ export default function LoginScreen() {
   const { width: screenWidth } = useWindowDimensions();
 
   /** @type {import('./authSlice').CurrentAuthStatus} */
-  const { status } = useSelector((state) => state.auth);
+  const { status, error } = useSelector((state) => state.auth);
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [formType, setFormType] = useState('login');
+
+  useEffect(() => {
+    if (error) {
+      Alert.alert(
+        SOMETHING_WENT_WRONG.title,
+        createReportMessage(
+          error,
+          'We had to sign you out due to an authentication error.',
+        ),
+      );
+    }
+  }, [error]);
 
   const handleSignInWithApple = async () => {
     if (isProcessing) return;

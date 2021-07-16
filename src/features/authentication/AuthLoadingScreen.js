@@ -10,6 +10,7 @@ import AppDrawer from '../../components/AppDrawer';
 import GroundZero from '../../GroundZero';
 import { colors } from '../../constants';
 import { fetchProfileById } from '../profiles/profilesSlice';
+import { abortSignOut } from './authSlice';
 
 import LoginScreen from './LoginScreen';
 import TermsAndConditions from './TermsAndConditions';
@@ -80,7 +81,7 @@ export default function AuthLoadingScreen() {
   const $FUNC = '[AuthLoadingScreen]';
   const dispatch = useDispatch();
 
-  /** @type {import('./authSlice').AuthState} */
+  /** @type {import('./authSlice').AuthState } */
   const { isAuthenticated, isFirstLogin, user } = useSelector(
     (state) => state.auth,
   );
@@ -117,6 +118,9 @@ export default function AuthLoadingScreen() {
             "Failed to fetch current user's profile:",
             error,
           );
+
+          console.log($FUNC, 'Aborting operation. Signing out...');
+          await dispatch(abortSignOut(error)).unwrap();
         }
       })();
   }, [isFirstLogin]);

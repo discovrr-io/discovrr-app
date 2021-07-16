@@ -62,7 +62,7 @@ export default function AppDrawer({ navigation, ...props }) {
    * @type {React.MutableRefObject<BottomSheetModal | null>} */
   const bottomSheetModalRef = useRef(null);
 
-  /**@type {import('../features/authentication/authSlice').AuthState} */
+  /**@type {import('../features/authentication/authSlice').BaseAuthState} */
   const authState = useSelector((state) => state.auth);
   if (!authState.user) {
     console.error($FUNC, 'No user found in store');
@@ -207,7 +207,7 @@ export default function AppDrawer({ navigation, ...props }) {
             textAlign: 'center',
             padding: values.spacing.lg,
           }}>
-          Discovrr v{DeviceInfo.getVersion()} (Build 2021.7.18.3)
+          Discovrr v{DeviceInfo.getVersion()} (Build 2021.7.18.4)
         </Text>
       </SafeAreaView>
 

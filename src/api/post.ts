@@ -117,7 +117,7 @@ export namespace PostApi {
       if (result) {
         return mapResultToPost(profile?.id, result);
       } else {
-        console.warn('No profile found with id:', profile?.id);
+        console.warn($FUNC, 'No profile found with id:', profile?.id);
         return null;
       }
     } catch (error) {
