@@ -18,11 +18,19 @@ import { useDispatch, useSelector } from 'react-redux';
 import NoteMasonryList from '../../components/masonry/NoteMasonryList';
 import PostMasonryList from '../../components/masonry/PostMasonryList';
 import { DEFAULT_AVATAR } from '../../constants/media';
-import { FEATURE_UNAVAILABLE } from '../../constants/strings';
+import { useIsMounted } from '../../hooks';
 import { NotificationApi } from '../../api';
 import { selectAllNotes } from '../notes/notesSlice';
-import { selectPostsByProfile } from '../posts/postsSlice';
-import { useIsMounted } from '../../hooks';
+
+import {
+  FEATURE_UNAVAILABLE,
+  SOMETHING_WENT_WRONG,
+} from '../../constants/strings';
+
+import {
+  fetchPostsForProfile,
+  selectPostsByProfile,
+} from '../posts/postsSlice';
 
 import {
   Button,
@@ -44,6 +52,7 @@ import {
   fetchProfileById,
   selectProfileById,
 } from './profilesSlice';
+import PostItemCard from '../posts/PostItemCard';
 
 export const HEADER_MAX_HEIGHT = 280;
 const AVATAR_IMAGE_RADIUS = 80;
@@ -381,6 +390,7 @@ export function ProfileScreenHeader({ profileDetails }) {
 }
 
 export default function ProfileScreen() {
+  const $FUNC = '[ProfileScreen]';
   const dispatch = useDispatch();
 
   /**
@@ -389,9 +399,10 @@ export default function ProfileScreen() {
    */
   const { profileId } = useRoute().params ?? {};
 
+  const isMounted = useIsMounted();
   const [shouldRefresh, setShouldRefresh] = useState(true);
-  const [isRefreshingPosts, setIsRefreshingPosts] = useState(false);
-  const [isRefreshingNotes, setIsRefreshingNotes] = useState(false);
+  // const [isRefreshingPosts, setIsRefreshingPosts] = useState(false);
+  // const [isRefreshingNotes, setIsRefreshingNotes] = useState(false);
 
   /** @type {ProfileId} */
   const currentUserProfileId = useSelector(
@@ -406,7 +417,7 @@ export default function ProfileScreen() {
   if (!resolvedProfileId) {
     if (currentUserProfileId) {
       console.info(
-        '[ProfileScreen]',
+        $FUNC,
         'No profile id was given. Falling back to current user profile:',
         currentUserProfileId,
       );
@@ -414,7 +425,8 @@ export default function ProfileScreen() {
       isMyProfile = true;
     } else {
       console.error(
-        '[ProfileScreen] No profile id was given and/or the user was undefined',
+        $FUNC,
+        'No profile id was given and/or the user was undefined',
       );
       return <RouteError />;
     }
@@ -425,7 +437,6 @@ export default function ProfileScreen() {
   );
 
   const posts = useSelector((state) => selectPostsByProfile(state, profileId));
-
   const postIds = posts.map((post) => post.id);
   const totalLikes = posts
     .map((post) => post.statistics?.totalLikes ?? 0)
@@ -448,37 +459,44 @@ export default function ProfileScreen() {
     if (shouldRefresh)
       (async () => {
         try {
-          console.log('[ProfileScreen] Will fetch profile...');
-          await dispatch(fetchProfileById(resolvedProfileId)).unwrap();
+          console.log($FUNC, 'Fetch profile data...');
+          await Promise.all([
+            dispatch(fetchProfileById(resolvedProfileId)).unwrap(),
+            dispatch(fetchPostsForProfile(resolvedProfileId)).unwrap(),
+          ]);
         } catch (error) {
-          console.error('[ProfileScreen] Failed to refresh profile:', error);
+          console.error($FUNC, 'Failed to refresh profile:', error);
           Alert.alert(
-            'Something went wrong',
+            SOMETHING_WENT_WRONG.title,
             "We weren't able to refresh this profile. Please try again later.",
           );
         } finally {
-          setShouldRefresh(false);
+          if (isMounted.current) setShouldRefresh(false);
         }
       })();
   }, [shouldRefresh]);
 
-  const handleRefreshPosts = async () => {
-    await new Promise((resolve, _) => {
-      setTimeout(() => {
-        setIsRefreshingPosts(false);
-        resolve([]);
-      }, 3000);
-    });
+  const handleRefresh = () => {
+    if (!shouldRefresh) setShouldRefresh(true);
   };
 
-  const handleRefreshNotes = async () => {
-    await new Promise((resolve, _) => {
-      setTimeout(() => {
-        setIsRefreshingNotes(false);
-        resolve([]);
-      }, 3000);
-    });
-  };
+  // const handleRefreshPosts = () => {
+  //   await new Promise((resolve, _) => {
+  //     setTimeout(() => {
+  //       setIsRefreshingPosts(false);
+  //       resolve([]);
+  //     }, 3000);
+  //   });
+  // };
+
+  // const handleRefreshNotes = async () => {
+  //   await new Promise((resolve, _) => {
+  //     setTimeout(() => {
+  //       setIsRefreshingNotes(false);
+  //       resolve([]);
+  //     }, 3000);
+  //   });
+  // };
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -503,10 +521,13 @@ export default function ProfileScreen() {
             smallContent
             showFooter={false}
             postIds={postIds}
+            bottomSpacing={0}
+            contentContainerStyle={{ paddingBottom: values.spacing.md }}
             refreshControl={
               <RefreshControl
-                refreshing={isRefreshingPosts}
-                onRefresh={handleRefreshPosts}
+                title="Loading posts..."
+                refreshing={shouldRefresh}
+                onRefresh={handleRefresh}
               />
             }
             ScrollViewComponent={Tabs.ScrollView}
@@ -529,8 +550,8 @@ export default function ProfileScreen() {
             noteIds={noteIds}
             refreshControl={
               <RefreshControl
-                refreshing={isRefreshingNotes}
-                onRefresh={handleRefreshNotes}
+                refreshing={shouldRefresh}
+                onRefresh={handleRefresh}
               />
             }
             ScrollViewComponent={Tabs.ScrollView}

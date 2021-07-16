@@ -6,7 +6,6 @@ import {
 } from '@reduxjs/toolkit';
 
 import { PostApi } from '../../api';
-import { selectProfileById } from '../profiles/profilesSlice';
 
 export const fetchAllPosts = createAsyncThunk(
   'posts/fetchAllPosts',
@@ -15,6 +14,15 @@ export const fetchAllPosts = createAsyncThunk(
    * @param {{ pagination?: Pagination, reload?: boolean }=} param0
    */
   async ({ pagination } = {}) => PostApi.fetchAllPosts(pagination),
+);
+
+export const fetchPostsForProfile = createAsyncThunk(
+  'posts/fetchPostsForProfile',
+  /**
+   * @typedef {import('../../models').ProfileId} ProfileId
+   * @param {ProfileId} profileId
+   */
+  async (profileId) => PostApi.fetchPostsForProfile(String(profileId)),
 );
 
 export const fetchPostById = createAsyncThunk(
@@ -92,6 +100,19 @@ const postsSlice = createSlice({
         }
       })
       .addCase(fetchAllPosts.rejected, (state, action) => {
+        state.status = 'rejected';
+        state.error = action.error;
+      })
+      // -- fetchPostsForProfile --
+      .addCase(fetchPostsForProfile.pending, (state, action) => {
+        state.status = 'pending';
+      })
+      .addCase(fetchPostsForProfile.fulfilled, (state, action) => {
+        state.status = 'fulfilled';
+        state.error = null;
+        postsAdapter.upsertMany(state, action.payload);
+      })
+      .addCase(fetchPostsForProfile.rejected, (state, action) => {
         state.status = 'rejected';
         state.error = action.error;
       })

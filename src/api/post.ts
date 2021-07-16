@@ -12,7 +12,7 @@ const EARLIEST_DATE = new Date('2020-10-30');
 
 export namespace PostApi {
   function mapResultToPost(
-    profileId: string | undefined,
+    currentProfileId: string | undefined,
     result: Parse.Object<Parse.Attributes>,
   ): Post {
     let postContent: PostContent;
@@ -40,8 +40,8 @@ export namespace PostApi {
 
     const likersArray: string[] = result.get('likersArray') ?? [];
     const totalLikes = likersArray.length;
-    const didLike = profileId
-      ? likersArray.some((liker) => profileId === liker)
+    const didLike = currentProfileId
+      ? likersArray.some((liker) => currentProfileId === liker)
       : false;
 
     return {
@@ -100,6 +100,32 @@ export namespace PostApi {
       return posts;
     } catch (error) {
       console.error($FUNC, 'Failed to fetch all posts:', error);
+      throw error;
+    }
+  }
+
+  export async function fetchPostsForProfile(
+    profileId: string,
+  ): Promise<Post[]> {
+    const $FUNC = '[PostApi.fetchPostsForProfile]';
+
+    try {
+      const profilePointer = {
+        __type: 'Pointer',
+        className: 'Profile',
+        objectId: profileId,
+      };
+
+      const currentProfile = await UserApi.getCurrentUserProfile();
+      const query = new Parse.Query(Parse.Object.extend('Post'));
+      query.equalTo('profile', profilePointer);
+
+      const results = await query.find();
+      return results.map((result) =>
+        mapResultToPost(currentProfile?.id, result),
+      );
+    } catch (error) {
+      console.error($FUNC, `Failed to fetch posts for profile:`, error);
       throw error;
     }
   }
