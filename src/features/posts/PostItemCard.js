@@ -17,10 +17,6 @@ import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { NotificationApi } from '../../api';
-import {
-  FEATURE_UNAVAILABLE,
-  SOMETHING_WENT_WRONG,
-} from '../../constants/strings';
 import { selectProfileById } from '../profiles/profilesSlice';
 import { selectPostById, changePostLikeStatus } from './postsSlice';
 
@@ -30,6 +26,11 @@ import {
   values,
   DEFAULT_ACTIVE_OPACITY,
 } from '../../constants';
+
+import {
+  FEATURE_UNAVAILABLE,
+  SOMETHING_WENT_WRONG,
+} from '../../constants/strings';
 
 import {
   DEFAULT_AVATAR,
@@ -53,6 +54,45 @@ const iconSize = {
 const alertUnimplementedFeature = () => {
   Alert.alert(FEATURE_UNAVAILABLE.title, FEATURE_UNAVAILABLE.message);
 };
+
+/**
+ *
+ * @param {{ post: Post, smallContent?: boolean }} param0
+ */
+function ViewsIndicator({ post, smallContent }) {
+  return (
+    <View
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        position: 'absolute',
+        zIndex: 1,
+        bottom: (smallContent ? values.spacing.sm : values.spacing.md) * 1.5,
+        left: (smallContent ? values.spacing.sm : values.spacing.md) * 1.5,
+        backgroundColor: 'rgba(0, 0, 0, 0.55)',
+        paddingVertical: values.spacing.sm,
+        paddingHorizontal: values.spacing.md,
+        borderRadius: values.radius.md,
+        minWidth: smallContent ? 22 : 38,
+      }}>
+      <MaterialCommunityIcon
+        name="eye"
+        color={colors.white}
+        size={20}
+        style={{ marginRight: values.spacing.sm }}
+      />
+      <Text
+        style={{
+          color: colors.white,
+          fontWeight: '700',
+          textAlign: 'center',
+          fontSize: smallContent ? typography.size.md : typography.size.h3,
+        }}>
+        {post.statistics?.totalViews ?? 0}
+      </Text>
+    </View>
+  );
+}
 
 /**
  * @typedef {import('../../models').Post} Post
@@ -326,6 +366,12 @@ export default function PostItemCard({
     return null;
   }
 
+  /** @type {import('../../models').ProfileId} */
+  const currentUserProfileId = useSelector(
+    (state) => state.auth.user.profileId,
+  );
+  const isMyPost = post.profileId === currentUserProfileId;
+
   const handlePostPress = () => {
     navigation.push('PostDetailScreen', { postId });
   };
@@ -401,40 +447,9 @@ export default function PostItemCard({
                 />
               </View>
             )}
-            {/* <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                position: 'absolute',
-                zIndex: 1,
-                bottom:
-                  (smallContent ? values.spacing.sm : values.spacing.md) * 1.5,
-                left:
-                  (smallContent ? values.spacing.sm : values.spacing.md) * 1.5,
-                backgroundColor: 'rgba(0, 0, 0, 0.55)',
-                paddingVertical: values.spacing.sm,
-                paddingHorizontal: values.spacing.md,
-                borderRadius: values.radius.md,
-                minWidth: smallContent ? 22 : 38,
-              }}>
-              <MaterialCommunityIcon
-                name="eye"
-                color={colors.white}
-                size={20}
-                style={{ marginRight: values.spacing.sm }}
-              />
-              <Text
-                style={{
-                  color: colors.white,
-                  fontWeight: '700',
-                  textAlign: 'center',
-                  fontSize: smallContent
-                    ? typography.size.md
-                    : typography.size.h3,
-                }}>
-                {post.statistics?.totalViews ?? 0}
-              </Text>
-            </View> */}
+            {isMyPost && (
+              <ViewsIndicator post={post} smallContent={smallContent} />
+            )}
             <FastImage
               source={post.content.sources[0]}
               resizeMode="cover"
@@ -442,8 +457,6 @@ export default function PostItemCard({
                 aspectRatio: imagePreviewWidth / imagePreviewHeight,
                 backgroundColor: colors.gray100,
                 borderRadius: values.radius.md,
-                // borderWidth: values.border.thin,
-                // borderColor: colors.gray300,
               }}
             />
           </View>

@@ -38,7 +38,7 @@ export const changeProductLikeStatus = createAsyncThunk(
 );
 
 export const updateProductViewCounter = createAsyncThunk(
-  'products/updateProductViewers',
+  'products/updateProductViewCounter',
   /**
    * @param {{ productId: ProductId, lastViewed?: string }} param0
    */

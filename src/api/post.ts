@@ -7,7 +7,6 @@ import { ImageSource, Pagination } from '../models/common';
 
 import { UserApi } from './user';
 import { DEFAULT_IMAGE_DIMENSIONS } from '../constants/media';
-import { profile } from 'console';
 
 const EARLIEST_DATE = new Date('2020-10-30');
 
@@ -184,6 +183,48 @@ export namespace PostApi {
       return comments;
     } catch (error) {
       console.error($FUNC, 'Failed to fetch comments for post:', error);
+      throw error;
+    }
+  }
+
+  export async function updatePostViewCounter(postId: string) {
+    const $FUNC = '[PostApi.updatePostViewCounter]';
+
+    try {
+      const profile = await UserApi.getCurrentUserProfile();
+      const query = new Parse.Query(Parse.Object.extend('Post'));
+      query.equalTo('objectId', postId);
+
+      const post = await query.first();
+      console.log($FUNC, 'Found post:', post.id);
+
+      const profileViewedPostsRelation = profile.relation('viewedPosts');
+      const profileViewedPostsArray = profile.get('viewedPostsArray') ?? [];
+      const profileViewedPostsSet = new Set<string>(profileViewedPostsArray);
+
+      console.log($FUNC, 'Adding viewed post...');
+      profileViewedPostsRelation.add(post);
+      profileViewedPostsSet.add(post.id);
+      profile.set('viewedPostsArray', [...profileViewedPostsSet]);
+      profile.set('viewedPostsCount', profileViewedPostsSet.size);
+
+      const postViewersRelation = post.relation('viewers');
+      const postViewersArray = post.get('viewersArray') ?? [];
+      const postViewersSet = new Set<string>(postViewersArray);
+
+      console.log($FUNC, 'Adding viewer profile...');
+      postViewersRelation.add(profile);
+      post.set('viewersArray', [...postViewersSet.add(profile.id)]);
+      // A "view" is counted as the number of times a user has visited the
+      // product's page spaced out in 5 minute intervals. If the last visit was
+      // less than 5 minutes ago, it will NOT be counted as a view.
+      post.increment('viewersCount');
+
+      console.log($FUNC, 'Saving changes...');
+      await Promise.all([profile.save(), post.save()]);
+      console.log($FUNC, 'Successfully saved');
+    } catch (error) {
+      console.error($FUNC, 'Failed to update viewers for post:', error);
       throw error;
     }
   }

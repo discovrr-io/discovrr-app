@@ -1,10 +1,12 @@
 import {
   createAsyncThunk,
   createEntityAdapter,
+  createSelector,
   createSlice,
 } from '@reduxjs/toolkit';
 
 import { CommentApi, PostApi } from '../../api';
+import { selectPostById } from '../posts/postsSlice';
 
 export const fetchCommentsForPost = createAsyncThunk(
   'comments/fetchCommentsForPost',
@@ -74,5 +76,18 @@ export const {
   selectById: selectCommentById,
   selectIds: selectCommentIds,
 } = commentsAdapter.getSelectors((state) => state.comments);
+
+export const selectCommentsForPost = createSelector(
+  [selectPostById, selectAllComments],
+  (post, allComments) => {
+    if (post) {
+      return allComments
+        .filter((comment) => comment.postId === post.id)
+        .map((comment) => comment.id);
+    } else {
+      return [];
+    }
+  },
+);
 
 export default commentsSlice.reducer;

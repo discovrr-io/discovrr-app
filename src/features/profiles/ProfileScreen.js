@@ -128,7 +128,7 @@ function ProfileScreenHeaderContent({ profileDetails }) {
   const followersCount = followers.length ?? 0;
   const followingCount = following.length ?? 0;
 
-  /** @type {import('../../models').ProfileId | undefined} */
+  /** @type {import('../../models').ProfileId} */
   const currentUserProfileId = useSelector(
     (state) => state.auth.user.profileId,
   );
