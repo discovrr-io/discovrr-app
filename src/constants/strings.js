@@ -5,7 +5,7 @@
 /** @type {Message} */
 export const FEATURE_UNAVAILABLE = {
   title: "We're still working on this!",
-  message: "We'll let your know when this feature is ready for you.",
+  message: "We'll let you know when this feature is ready for you.",
 };
 
 /** @type {Message} */
