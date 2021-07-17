@@ -178,18 +178,24 @@ export namespace AuthApi {
       didLoginViaFirebase = true;
 
       const authenticatedUser = await signInWithParse(firebaseUser);
-      didLoginViaParse = true; // We'll put this before to force Parse logout
+      didLoginViaParse = true;
 
-      if (cred.additionalUserInfo?.isNewUser) {
-        console.log($FUNC, 'Signed up new user via', credential.providerId);
-        await analytics().logSignUp({ method: credential.providerId });
-      } else {
-        await analytics().logLogin({ method: credential.providerId });
-      }
+      // We won't await for analytics, nor do we care if it fails.
+      console.log($FUNC, 'Sending analytics...');
+      const eventParams = { method: credential.providerId };
+      const analyticsPromise = cred.additionalUserInfo?.isNewUser
+        ? analytics().logSignUp(eventParams)
+        : analytics().logLogin(eventParams);
 
-      if (authenticatedUser.profileId) {
-        await analytics().setUserId(authenticatedUser.profileId.toString());
-      }
+      const setUserId = async () => {
+        if (authenticatedUser.profileId)
+          await analytics().setUserId(authenticatedUser.profileId.toString());
+      };
+
+      analyticsPromise
+        .then(setUserId)
+        .then(() => console.log($FUNC, 'Successfully sent analytics'))
+        .catch((err) => console.error($FUNC, 'Failed to send analytics:', err));
 
       return authenticatedUser;
     } catch (error) {
@@ -263,12 +269,11 @@ export namespace AuthApi {
         newProfile.id,
       );
 
-      await analytics().logSignUp({ method: 'email' });
-      await analytics().setUserId(newProfile.id);
-
-      // // TODO: We might want to prevent syncing some fields since this is a new
-      // // profile anyway
-      // return await syncAndConstructUser(newProfile, firebaseUser);
+      // We won't await for analytics, nor do we care if it fails.
+      console.log($FUNC, 'Sending analytics...');
+      analytics()
+        .logSignUp({ method: 'email' })
+        .then(() => analytics().setUserId(newProfile.id));
 
       return {
         provider: firebaseUser.providerId,
