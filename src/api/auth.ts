@@ -152,8 +152,16 @@ export namespace AuthApi {
       const authenticatedUser = await signInWithParse(firebaseUser);
       didLoginViaParse = true;
 
-      await analytics().logLogin({ method: 'email' });
-      await analytics().setUserId(authenticatedUser.profileId.toString());
+      // We won't await for analytics, nor do we care if it fails.
+      console.log($FUNC, 'Sending analytics...');
+      analytics()
+        .logLogin({ method: 'email' })
+        .then(() =>
+          analytics().setUserId(authenticatedUser.profileId.toString()),
+        )
+        .catch((error) =>
+          console.error($FUNC, 'Failed to send analytics:', error),
+        );
 
       return authenticatedUser;
     } catch (error) {
