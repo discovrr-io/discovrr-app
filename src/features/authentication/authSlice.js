@@ -38,7 +38,9 @@ export const abortSignOut = createAsyncThunk(
    * @param {any} error The error object to throw.
    */
   async (error) => {
-    await AuthApi.signOut();
+    AuthApi.signOut().catch((error) =>
+      console.warn('Failed to forcefully sign out:', error),
+    );
     throw error;
   },
 );
@@ -149,7 +151,14 @@ const authSlice = createSlice({
         Object.assign(state, initialState);
         state.status = 'fulfilled';
         const error = action.meta.arg;
-        state.error = error.message ?? String(error.code) ?? String(error);
+        // We're not guaranteed that error is iterable or has `name`, `code` or
+        // `message` fields, so we manually assign these fields even if they're
+        // undefined.
+        state.error = {
+          name: error.name,
+          code: error.code,
+          message: error.message ?? String(error),
+        };
       });
   },
 });

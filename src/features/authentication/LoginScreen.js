@@ -36,8 +36,10 @@ import {
 } from '@react-native-google-signin/google-signin';
 
 import { AuthApi } from '../../api';
+import { useIsMounted } from '../../hooks';
 import { Button, FormikInput, LoadingOverlay } from '../../components';
 import { colors, typography, values } from '../../constants';
+import { SOMETHING_WENT_WRONG } from '../../constants/strings';
 import * as buttonStyles from '../../components/buttons/styles';
 
 import {
@@ -45,7 +47,6 @@ import {
   signInWithCredential,
   signInWithEmailAndPassword,
 } from './authSlice';
-import { SOMETHING_WENT_WRONG } from '../../constants/strings';
 
 const DISCOVRR_LOGO = require('../../../resources/images/discovrrLogoHorizontal.png');
 
@@ -189,6 +190,8 @@ function TextButton({ title, disabled, onPress, ...props }) {
  */
 function LoginForm({ setFormType }) {
   const dispatch = useDispatch();
+
+  const isMounted = useIsMounted();
   const [isProcessing, setIsProcessing] = useState(false);
 
   /**
@@ -242,7 +245,7 @@ function LoginForm({ setFormType }) {
 
       Alert.alert(title, message);
     } finally {
-      setIsProcessing(false);
+      if (isMounted.current) setIsProcessing(false);
     }
   };
 
@@ -300,6 +303,7 @@ function RegisterForm({ setFormType }) {
   const dispatch = useDispatch();
   const navigation = useNavigation();
 
+  const isMounted = useIsMounted();
   const [isProcessing, setIsProcessing] = useState(false);
 
   /**
@@ -343,7 +347,7 @@ function RegisterForm({ setFormType }) {
 
       Alert.alert(title, message);
     } finally {
-      setIsProcessing(false);
+      if (isMounted.current) setIsProcessing(false);
     }
   };
 
@@ -448,6 +452,7 @@ function RegisterForm({ setFormType }) {
  * @returns
  */
 function ForgotPasswordForm({ setFormType }) {
+  const isMounted = useIsMounted();
   const [isProcessing, setIsProcessing] = useState(false);
 
   /**
@@ -485,7 +490,7 @@ function ForgotPasswordForm({ setFormType }) {
         Alert.alert(DEFAULT_ERROR_TITLE, message);
       }
     } finally {
-      setIsProcessing(false);
+      if (isMounted.current) setIsProcessing(false);
     }
   };
 
@@ -536,6 +541,7 @@ export default function LoginScreen() {
   /** @type {import('./authSlice').CurrentAuthStatus} */
   const { status, error } = useSelector((state) => state.auth);
 
+  const isMounted = useIsMounted();
   const [isProcessing, setIsProcessing] = useState(false);
   const [formType, setFormType] = useState('login');
 
@@ -588,7 +594,7 @@ export default function LoginScreen() {
       const message = createReportMessage(error);
       Alert.alert(DEFAULT_ERROR_TITLE, message);
     } finally {
-      setIsProcessing(false);
+      if (isMounted.current) setIsProcessing(false);
     }
   };
 
@@ -618,7 +624,7 @@ export default function LoginScreen() {
       const message = createReportMessage(error);
       Alert.alert(DEFAULT_ERROR_TITLE, message);
     } finally {
-      setIsProcessing(false);
+      if (isMounted.current) setIsProcessing(false);
     }
   };
 
