@@ -1,11 +1,9 @@
 import React, { useRef } from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
-import { DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
 
 import analytics from '@react-native-firebase/analytics';
-import AsyncStorage from '@react-native-community/async-storage';
-import Bugsnag from '@bugsnag/react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import codePush from 'react-native-code-push';
 
 import { Provider } from 'react-redux';
@@ -15,7 +13,6 @@ import { persistStore } from 'redux-persist';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 
 import AuthLoadingScreen from './features/authentication/AuthLoadingScreen';
-import debugAppLogger from './utilities/DebugAppLogger';
 import store from './store';
 
 const Parse = require('parse/react-native');
@@ -33,18 +30,12 @@ if (__DEV__ && false) {
   Parse.serverURL = 'https://discovrr-uat.herokuapp.com/discovrrServer'; // production
 }
 
-Bugsnag.start();
+// global.debugAppLogger = () => {};
+// const disableDebugAppLogger = false;
 
-global.debugAppLogger = () => {};
-const disableDebugAppLogger = false;
-
-if (process.env.NODE_ENV === 'development') {
-  if (!disableDebugAppLogger) global.debugAppLogger = debugAppLogger;
-}
-
-const theme = {
-  ...DefaultTheme,
-};
+// if (process.env.NODE_ENV === 'development') {
+//   if (!disableDebugAppLogger) global.debugAppLogger = debugAppLogger;
+// }
 
 const persistor = persistStore(store);
 
@@ -160,17 +151,15 @@ export function App() {
         loading={<LoadingScreen />}
         persistor={persistor}
         onBeforeLift={onBeforeLift}>
-        <PaperProvider theme={theme}>
-          <BottomSheetModalProvider>
-            <NavigationContainer
-              ref={navigationRef}
-              linking={linking}
-              onReady={handleNavigationOnReady}
-              onStateChange={handleNavigationOnStageChange}>
-              <AuthLoadingScreen />
-            </NavigationContainer>
-          </BottomSheetModalProvider>
-        </PaperProvider>
+        <BottomSheetModalProvider>
+          <NavigationContainer
+            ref={navigationRef}
+            linking={linking}
+            onReady={handleNavigationOnReady}
+            onStateChange={handleNavigationOnStageChange}>
+            <AuthLoadingScreen />
+          </NavigationContainer>
+        </BottomSheetModalProvider>
       </PersistGate>
     </Provider>
   );

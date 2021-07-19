@@ -66,7 +66,7 @@ const settingsSlice = createSlice({
 export const { didUpdateSearchRadius, didUpdateLocationQueryPrefs } =
   settingsSlice.actions;
 
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { persistReducer } from 'redux-persist';
 
 // Don't persist `locationQueryPrefs`
