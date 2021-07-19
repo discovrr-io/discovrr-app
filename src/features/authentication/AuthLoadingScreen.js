@@ -10,7 +10,7 @@ import AppDrawer from '../../components/AppDrawer';
 import GroundZero from '../../GroundZero';
 import { colors } from '../../constants';
 import { fetchProfileById } from '../profiles/profilesSlice';
-import { abortSignOut } from './authSlice';
+import { signOut } from './authSlice';
 
 import LoginScreen from './LoginScreen';
 import TermsAndConditions from './TermsAndConditions';
@@ -104,12 +104,6 @@ export default function AuthLoadingScreen() {
             fetchProfileById(user.profileId),
           ).unwrap();
 
-          if (!profile) {
-            throw new Error(
-              `Profile with id '${user.profileId}' doesn't exist, which is unexpected.`,
-            );
-          }
-
           console.log($FUNC, 'Will send OneSignal tags...');
           sendOneSignalTags(profile);
         } catch (error) {
@@ -119,8 +113,11 @@ export default function AuthLoadingScreen() {
             error,
           );
 
-          console.log($FUNC, 'Aborting operation. Signing out...');
-          await dispatch(abortSignOut(error)).unwrap();
+          console.warn($FUNC, 'Aborting operation. Signing out...');
+          // await dispatch(abortSignOut(error)).unwrap();
+          dispatch(signOut())
+            .unwrap()
+            .catch((error) => console.warn('Ignored sign out error:', error));
         }
       })();
   }, [isFirstLogin]);

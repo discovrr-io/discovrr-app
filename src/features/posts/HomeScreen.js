@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 import { createSelector } from '@reduxjs/toolkit';
 import { Alert, FlatList, RefreshControl, Text, View } from 'react-native';
@@ -39,6 +39,7 @@ import {
 
 import { fetchAllProducts, selectProductIds } from '../products/productsSlice';
 import { ActivityIndicator } from 'react-native';
+import { abortSignOut } from '../authentication/authSlice';
 // import { StyleSheet } from 'react-native';
 
 const PAGINATION_LIMIT = 25;
@@ -119,6 +120,12 @@ function DiscoverTab() {
             dispatch(fetchAllProfiles({ reload: true })).unwrap(),
           ]);
         } catch (error) {
+          if (error.message === 'Invalid session token') {
+            console.error($FUNC, 'Invalid session token. Signing out...');
+            await dispatch(abortSignOut(error)).unwrap();
+            return;
+          }
+
           console.error($FUNC, 'Failed to refresh posts:', error);
           Alert.alert(
             SOMETHING_WENT_WRONG.title,
@@ -155,6 +162,12 @@ function DiscoverTab() {
             setCurrentPage(currentPage + 1);
           }
         } catch (error) {
+          if (error.message === 'Invalid session token') {
+            console.error($FUNC, 'Invalid session token. Signing out...');
+            await dispatch(abortSignOut(error)).unwrap();
+            return;
+          }
+
           console.error($FUNC, 'Failed to fetch more posts:', error);
           Alert.alert(
             'Something went wrong',

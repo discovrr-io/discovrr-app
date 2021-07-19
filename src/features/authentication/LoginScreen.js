@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   useWindowDimensions,
   Alert,
@@ -36,9 +36,10 @@ import {
 } from '@react-native-google-signin/google-signin';
 
 import { AuthApi } from '../../api';
+import { useIsMounted } from '../../hooks';
 import { Button, FormikInput, LoadingOverlay } from '../../components';
 import { colors, typography, values } from '../../constants';
-import { useIsMounted } from '../../hooks';
+import { SOMETHING_WENT_WRONG } from '../../constants/strings';
 import * as buttonStyles from '../../components/buttons/styles';
 
 import {
@@ -544,17 +545,17 @@ export default function LoginScreen() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [formType, setFormType] = useState('login');
 
-  // useEffect(() => {
-  //   if (error) {
-  //     Alert.alert(
-  //       SOMETHING_WENT_WRONG.title,
-  //       createReportMessage(
-  //         error,
-  //         'We had to sign you out due to an authentication error.',
-  //       ),
-  //     );
-  //   }
-  // }, [error]);
+  useEffect(() => {
+    if (error) {
+      Alert.alert(
+        SOMETHING_WENT_WRONG.title,
+        createReportMessage(
+          error,
+          'We had to sign you out due to an authentication error.',
+        ),
+      );
+    }
+  }, [error]);
 
   const handleSignInWithApple = async () => {
     if (isProcessing) return;

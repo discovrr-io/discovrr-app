@@ -27,11 +27,18 @@ export namespace AuthApi {
       profile.get('name') ||
       profile.get('displayName');
     if (!fullName && firebaseUser.displayName) {
-      profile.set('fullName', firebaseUser.displayName ?? '');
+      profile.set('fullName', firebaseUser.displayName);
       syncProfile = true;
     } else if (fullName /* && !firebaseUser.displayName */) {
       console.log($FUNC, 'Updating Firebase display name...');
       await firebaseUser.updateProfile({ displayName: fullName });
+    }
+
+    const provider: string | undefined = profile.get('provider');
+    const firebaseProviderId = firebaseUser.providerData[0]?.providerId;
+    if (!provider && firebaseProviderId) {
+      profile.set('provider', firebaseProviderId);
+      syncProfile = true;
     }
 
     const phone: string | undefined = profile.get('phone');
@@ -68,12 +75,41 @@ export namespace AuthApi {
 
     return {
       id: currentUserId,
-      provider: firebaseUser.providerId,
+      provider: firebaseProviderId,
       profileId: profile.id,
     } as User;
   }
 
-  async function signInWithParse(
+  async function attemptToFetchProfileForUser(
+    currentUser: Parse.User<Parse.Attributes>,
+  ): Promise<Parse.Object<Parse.Attributes> | null> {
+    const $FUNC = '[AuthApi.attemptToFetchProfileForUser]';
+
+    console.log($FUNC, 'Querying profile...');
+    const query = new Parse.Query(Parse.Object.extend('Profile'));
+    query.equalTo('owner', currentUser.toPointer());
+
+    let profile = await query.first();
+    console.log($FUNC, 'Found Parse profile:', profile?.id);
+
+    let attempts = 0;
+    while (!profile && attempts < MAX_ATTEMPTS) {
+      console.warn($FUNC, `Current user profile ID not found.`);
+      console.log($FUNC, `(Attempt ${attempts + 1} of ${MAX_ATTEMPTS})`);
+      await new Promise<void>((resolve) => {
+        setTimeout(async () => {
+          const result = await query.first();
+          profile = result;
+          attempts += 1;
+          resolve();
+        }, 2000);
+      });
+    }
+
+    return profile;
+  }
+
+  async function authenticateViaParse(
     firebaseUser: FirebaseAuthTypes.User,
   ): Promise<User> {
     const $FUNC = '[AuthApi.signInWithParse]';
@@ -97,27 +133,7 @@ export namespace AuthApi {
       );
     }
 
-    console.log($FUNC, 'Querying profile...');
-    const query = new Parse.Query(Parse.Object.extend('Profile'));
-    query.equalTo('owner', currentUser.toPointer());
-
-    let profile = await query.first();
-    console.log($FUNC, 'Found Parse profile:', profile?.id);
-
-    let attempts = 0;
-    while (!profile && attempts < MAX_ATTEMPTS) {
-      console.warn($FUNC, `Current user profile ID not found.`);
-      console.log($FUNC, `(Attempt ${attempts + 1} of ${MAX_ATTEMPTS})`);
-      await new Promise<void>((resolve) => {
-        setTimeout(async () => {
-          const result = await query.first();
-          profile = result;
-          attempts += 1;
-          resolve();
-        }, 2000);
-      });
-    }
-
+    const profile = await attemptToFetchProfileForUser(currentUser);
     if (!profile) {
       throw new Error(`No profile was found with user id '${currentUser.id}'.`);
     }
@@ -148,20 +164,16 @@ export namespace AuthApi {
         );
       }
 
-      console.log($FUNC, 'Signing in via Parse...');
-      const authenticatedUser = await signInWithParse(firebaseUser);
+      console.log($FUNC, 'Authenticating via Parse...');
+      const authenticatedUser = await authenticateViaParse(firebaseUser);
       didLoginViaParse = true;
 
       // We won't await for analytics, nor do we care if it fails.
       console.log($FUNC, 'Sending analytics...');
       analytics()
         .logLogin({ method: 'email' })
-        .then(() =>
-          analytics().setUserId(authenticatedUser.profileId.toString()),
-        )
-        .catch((error) =>
-          console.error($FUNC, 'Failed to send analytics:', error),
-        );
+        .then(() => analytics().setUserId(String(authenticatedUser.profileId)))
+        .catch((err) => console.error($FUNC, 'Failed to send analytics:', err));
 
       return authenticatedUser;
     } catch (error) {
@@ -185,7 +197,7 @@ export namespace AuthApi {
       const firebaseUser = cred.user;
       didLoginViaFirebase = true;
 
-      const authenticatedUser = await signInWithParse(firebaseUser);
+      const authenticatedUser = await authenticateViaParse(firebaseUser);
       didLoginViaParse = true;
 
       // We won't await for analytics, nor do we care if it fails.
@@ -252,41 +264,45 @@ export namespace AuthApi {
         id: firebaseUser.uid,
       };
 
-      const currentUser = await Parse.User.logInWith('firebase', { authData });
-      console.log(
-        $FUNC,
-        'Successfully logged in with Firebase:',
-        currentUser.id,
-      );
+      console.log($FUNC, 'Authenticating via Parse...');
+      const newUser = await Parse.User.logInWith('firebase', { authData });
+      console.log($FUNC, 'Successfully logged in via Parse:', newUser.id);
       didLoginViaParse = true;
 
-      const Profile = Parse.Object.extend('Profile');
-      const profile: Parse.Object<Parse.Attributes> = new Profile();
+      const newProfile = await attemptToFetchProfileForUser(newUser);
+      if (!newProfile) {
+        console.error(
+          $FUNC,
+          'Failed to find profile with owner:',
+          newProfile.id,
+        );
+        throw new Error(`No profile was associated with user '${newUser.id}'`);
+      }
 
-      console.log($FUNC, 'Creating new profile with owner:', currentUser.id);
-      profile.set('owner', currentUser);
-      profile.set('fullName', fullName);
-      profile.set('username', username);
-      profile.set('email', email);
-      profile.set('provider', firebaseUser.providerId);
+      newProfile.set('fullName', fullName);
+      newProfile.set('username', username);
+      newProfile.set('email', email);
 
-      const newProfile = await profile.save();
-      console.log(
-        $FUNC,
-        'Successfully created new profile with objectId:',
-        newProfile.id,
-      );
+      const providerId = firebaseUser.providerData[0]?.providerId;
+      if (providerId) {
+        newProfile.set('provider', providerId);
+      }
+
+      console.log($FUNC, 'Saving new profile details...');
+      await newProfile.save();
 
       // We won't await for analytics, nor do we care if it fails.
       console.log($FUNC, 'Sending analytics...');
       analytics()
         .logSignUp({ method: 'email' })
-        .then(() => analytics().setUserId(newProfile.id));
+        .then(() => analytics().setUserId(newProfile.id))
+        .catch((err) => console.error($FUNC, 'Failed to send analytics:', err));
 
       return {
-        provider: firebaseUser.providerId,
+        id: newUser.id,
+        provider: providerId,
         profileId: newProfile.id,
-      } as User;
+      };
     } catch (error) {
       console.warn($FUNC, 'Aborting authentication. Signing out...');
       await signOut(didLoginViaParse, didLoginViaFirebase);

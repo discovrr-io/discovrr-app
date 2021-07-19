@@ -22,9 +22,16 @@ const Parse = require('parse/react-native');
 
 Parse.setAsyncStorage(AsyncStorage);
 Parse.User.enableUnsafeCurrentUser();
-Parse.initialize('discovrrServer');
-Parse.serverURL = 'https://discovrr-uat.herokuapp.com/discovrrServer'; // production
-// Parse.serverURL = 'http://discovrr-dev-server.herokuapp.com/parse';
+
+// TODO: Use dotenv to hide production keys
+if (__DEV__ && false) {
+  Parse.initialize('discovrr-dev-server');
+  // Parse.serverURL = 'http://discovrr-dev-server.herokuapp.com/parse';
+  Parse.serverURL = 'http://192.168.0.4:1337/parse';
+} else {
+  Parse.initialize('discovrrServer');
+  Parse.serverURL = 'https://discovrr-uat.herokuapp.com/discovrrServer'; // production
+}
 
 Bugsnag.start();
 
@@ -50,14 +57,14 @@ function LoadingScreen() {
         justifyContent: 'center',
       }}>
       <ActivityIndicator size="large" color="gray" />
-      <Text style={{ textAlign: 'center' }}>Loading...</Text>
+      <Text style={{ textAlign: 'center', marginTop: 8 }}>Loading...</Text>
     </View>
   );
 }
 
 /** @type {import('@react-navigation/native').LinkingOptions} */
 const linking = {
-  prefixes: ['https://discovrrio.com', 'http://discovrrio.com', 'discovrr://'],
+  prefixes: ['discovrr://', 'https://discovrrio.com', 'http://discovrrio.com'],
   config: {
     screens: {
       GroundZero: {
@@ -71,6 +78,8 @@ const linking = {
           },
           PostDetailScreen: 'post/:postId',
           UserProfileScreen: 'profile/:profileId',
+          MerchantProfileScreen: 'merchant/:merchantId',
+          ProductCheckoutScreen: 'product/:productId',
         },
       },
     },
@@ -86,36 +95,42 @@ export function App() {
   /** @type {React.MutableRefObject<string>} */
   const routeNameRef = useRef(null);
 
+  // We could GET /health to force the server to wake up if it's sleeping. That
+  // way it'll buy us some time while the user reads the screen and attempts to
+  // register or sign in. This still needs some testing though.
+  // useEffect(() => {
+  //   console.log('Fetching health...');
+  //   fetch('https://discovrr-uat.herokuapp.com/health')
+  //     .then((response) => response.json())
+  //     .then(console.log)
+  //     .catch(console.error);
+  // }, []);
+
   const onBeforeLift = async () => {
+    const $FUNC = '[App.onBeforeLift]';
     // TODO: Maybe check with Regex? (/^\d+\.\d{1,2}\.\d{1,2}$/g)
     const [major, minor, patch, build] = [2, 1, 2, 7];
     const versionNumber =
       major * 10 ** 6 + minor * 10 ** 4 + patch * 10 ** 2 + build;
     const currStoreVersion = String(versionNumber);
-    console.log('[App.onBeforeLift] current store version:', currStoreVersion);
+    console.log($FUNC, 'current store version:', currStoreVersion);
 
     try {
       const [[_, prevStoreVersion]] = await AsyncStorage.multiGet([
         'storeVersion',
       ]);
 
-      console.log(
-        '[App.onBeforeLift] previous store version:',
-        prevStoreVersion,
-      );
+      console.log($FUNC, 'previous store version:', prevStoreVersion);
 
       if (prevStoreVersion !== currStoreVersion) {
         AsyncStorage.setItem('storeVersion', currStoreVersion);
-        console.log('[App.onBeforeLift] Purging store...');
+        console.log($FUNC, 'Purging store...');
         persistor.pause();
         await persistor.flush();
         await persistor.purge();
       }
     } catch (error) {
-      console.error([
-        '[App.onBeforeLift] Failed to configure persistor:',
-        error,
-      ]);
+      console.error([$FUNC, 'Failed to configure persistor:', error]);
     }
   };
 
@@ -123,15 +138,13 @@ export function App() {
     routeNameRef.current = navigationRef.current.getCurrentRoute().name;
   };
 
-  const handleNavigationOnStageChange = async (state) => {
+  const handleNavigationOnStageChange = async (_state) => {
+    const $FUNC = '[App.handleNavigationOnStageChange]';
     const previousRouteName = routeNameRef.current;
     const currentRouteName = navigationRef.current.getCurrentRoute().name;
     if (previousRouteName !== currentRouteName) {
       if (__DEV__)
-        console.log(
-          '[App.handleNavigationOnStageChange] Sending screen analytics:',
-          currentRouteName,
-        );
+        console.log($FUNC, 'Sending screen analytics:', currentRouteName);
       await analytics().logScreenView({
         screen_name: currentRouteName,
         screen_class: currentRouteName,
