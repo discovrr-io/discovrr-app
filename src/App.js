@@ -55,7 +55,7 @@ function LoadingScreen() {
 
 /** @type {import('@react-navigation/native').LinkingOptions} */
 const linking = {
-  prefixes: ['discovrr://', 'https://discovrrio.com', 'http://discovrrio.com'],
+  prefixes: ['discovrr://', 'http://discovrrio.com', 'https://discovrrio.com'],
   config: {
     screens: {
       GroundZero: {
@@ -121,7 +121,7 @@ export function App() {
         await persistor.purge();
       }
     } catch (error) {
-      console.error([$FUNC, 'Failed to configure persistor:', error]);
+      console.error($FUNC, 'Failed to configure persistor:', error);
     }
   };
 

@@ -19,6 +19,10 @@ export type ApiFetchStatus = {
   error?: SerializedError;
 };
 
+export type ApiFetchStatuses = {
+  statuses: { [entityId: string]: ApiFetchStatus };
+};
+
 export type MediaSource = {
   mime: string;
   url: string;

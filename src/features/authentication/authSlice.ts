@@ -1,10 +1,18 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { PURGE } from 'redux-persist';
 
-import { AuthApi } from '../../api';
+import { ApiFetchStatus, AuthApi } from '../../api';
+import { User } from '../../models';
+import { RootState } from '../../store';
+
+type SignInWithEmailAndPasswordParams = {
+  email: string;
+  password: string;
+};
 
 export const signInWithEmailAndPassword = createAsyncThunk(
   'auth/signInWithEmailAndPassword',
-  async ({ email, password }) =>
+  async ({ email, password }: SignInWithEmailAndPasswordParams) =>
     AuthApi.signInWithEmailAndPassword(email, password),
 );
 
@@ -13,31 +21,33 @@ export const signInWithCredential = createAsyncThunk(
   AuthApi.signInWithCredential,
 );
 
+type RegisterNewAccountParams = {
+  fullName: string;
+  username: string;
+  email: string;
+  password: string;
+};
+
 export const registerNewAccount = createAsyncThunk(
   'auth/registerNewAccount',
-  /**
-   * @typedef {{ fullName: string, username: string, email: string, password: string }} RegisterFormDetails
-   * @param {RegisterFormDetails} param0
-   */
-  async ({ fullName, username, email, password }) =>
+  async ({ fullName, username, email, password }: RegisterNewAccountParams) =>
     AuthApi.registerNewAccount(fullName, username, email, password),
 );
 
+type SignOutParams = {
+  logoutParse?: boolean;
+  logoutFirebase?: boolean;
+};
+
 export const signOut = createAsyncThunk(
   'auth/signOut',
-  /**
-   * @param {{ logoutParse?: boolean, logoutFirebase?: boolean }=} param0
-   */
-  async ({ logoutParse = true, logoutFirebase = true } = {}) =>
+  async ({ logoutParse = true, logoutFirebase = true }: SignOutParams) =>
     AuthApi.signOut(logoutParse, logoutFirebase),
 );
 
 export const abortSignOut = createAsyncThunk(
   'auth/abortSignOut',
-  /**
-   * @param {any} error The error object to throw.
-   */
-  async (error) => {
+  async (error: any) => {
     AuthApi.signOut().catch((error) =>
       console.warn('Failed to forcefully sign out:', error),
     );
@@ -45,20 +55,27 @@ export const abortSignOut = createAsyncThunk(
   },
 );
 
-/**
- * @typedef {import('../../models').User} User
- * @typedef {import('../../api').ApiFetchStatus} ApiFetchStatus
- *
- * @typedef {'idle' | 'signing-in' | 'registering' | 'signing-out' | 'fulfilled' | 'rejected'} AuthLoadingStatus
- * @typedef {Pick<ApiFetchStatus, 'error'> & { status: AuthLoadingStatus }} CurrentAuthStatus
- *
- * @typedef {{ isAuthenticated: boolean, isFirstLogin?: boolean, user?: User }} BaseAuthState
- * @typedef {BaseAuthState & CurrentAuthStatus} AuthState
- * @type {AuthState}
- */
-const initialState = {
+type AuthLoadingStatus =
+  | 'idle'
+  | 'signing-in'
+  | 'registering'
+  | 'signing-out'
+  | 'fulfilled'
+  | 'rejected';
+
+type AuthFetchStatus = Pick<ApiFetchStatus, 'error'> & {
+  status: AuthLoadingStatus;
+};
+
+export type AuthState = AuthFetchStatus & {
+  isAuthenticated: boolean;
+  isFirstLogin: boolean;
+  user?: User;
+};
+
+const initialState: AuthState = {
   status: 'idle',
-  error: undefined,
+  error: null,
   isAuthenticated: false,
   isFirstLogin: false,
   user: undefined,
@@ -71,71 +88,66 @@ const authSlice = createSlice({
     didDismissInfoModal: (state) => {
       state.isFirstLogin = false;
     },
-    /**
-     * @typedef {import('@reduxjs/toolkit').PayloadAction<User>} PayloadAction
-     * @param {PayloadAction} action
-     */
-    updateUser: (state, action) => {
-      state.user = action.payload;
-    },
   },
   extraReducers: (builder) => {
     builder
-      // signInWithEmailAndPassword
+      .addCase(PURGE, (state) => {
+        // We don't want to remove the current session if the store is purged
+        // console.log('Ignoring purge for authentication:', state);
+        console.warn('Purging authentication... (this should be disabled)');
+        Object.assign(state, initialState);
+      })
+      // -- signInWithEmailAndPassword --
       .addCase(signInWithEmailAndPassword.pending, (state) => {
         state.status = 'signing-in';
       })
       .addCase(signInWithEmailAndPassword.fulfilled, (state, action) => {
         state.status = 'fulfilled';
-        state.error = undefined;
         state.isAuthenticated = true;
-        state.isFirstLogin = true;
         state.user = action.payload;
+        state.isFirstLogin = true;
       })
       .addCase(signInWithEmailAndPassword.rejected, (state, action) => {
         state.status = 'rejected';
         state.error = action.error;
-        state.isFirstLogin = false;
         state.user = undefined;
+        state.isFirstLogin = false;
       })
-      // signInWithCredential
+      // -- signInWithCredential --
       .addCase(signInWithCredential.pending, (state) => {
         state.status = 'signing-in';
       })
       .addCase(signInWithCredential.fulfilled, (state, action) => {
         state.status = 'fulfilled';
-        state.error = undefined;
         state.isAuthenticated = true;
-        state.isFirstLogin = true;
         state.user = action.payload;
+        state.isFirstLogin = true;
       })
       .addCase(signInWithCredential.rejected, (state, action) => {
         state.status = 'rejected';
         state.error = action.error;
-        state.isFirstLogin = false;
         state.user = undefined;
+        state.isFirstLogin = false;
       })
-      // registerNewAccount
+      // -- registerNewAccount --
       .addCase(registerNewAccount.pending, (state) => {
         state.status = 'registering';
       })
       .addCase(registerNewAccount.fulfilled, (state, action) => {
         state.status = 'fulfilled';
-        state.error = undefined;
         state.isAuthenticated = true;
-        state.isFirstLogin = true;
         state.user = action.payload;
+        state.isFirstLogin = true;
       })
       .addCase(registerNewAccount.rejected, (state, action) => {
         state.status = 'rejected';
         state.error = action.error;
-        state.isFirstLogin = false;
         state.user = undefined;
+        state.isFirstLogin = false;
       })
-      // signOut
+      // -- signOut --
       .addCase(signOut.pending, (state) => {
         state.status = 'signing-out';
-        state.isSigningOut = true;
       })
       .addCase(signOut.fulfilled, (state) => {
         Object.assign(state, initialState);
@@ -143,29 +155,13 @@ const authSlice = createSlice({
       .addCase(signOut.rejected, (state, action) => {
         state.status = 'rejected';
         state.error = action.error;
-        state.isSigningOut = false;
-        state.isFirstLogin = false;
-      })
-      // abortSignOut
-      .addCase(abortSignOut.rejected, (state, action) => {
-        Object.assign(state, initialState);
-        state.status = 'fulfilled';
-        const error = action.meta.arg;
-        // We're not guaranteed that error is iterable or has `name`, `code` or
-        // `message` fields, so we manually assign these fields even if they're
-        // undefined.
-        state.error = {
-          name: error.name,
-          code: error.code,
-          message: error.message ?? String(error),
-        };
       });
   },
 });
 
 export const { didDismissInfoModal } = authSlice.actions;
 
-/** @type {(state: any) => User | undefined} */
-export const selectCurrentUser = (state) => state.auth.user;
+export const selectCurrentUser = (state: RootState): User | undefined =>
+  state.auth.user;
 
 export default authSlice.reducer;

@@ -2,55 +2,61 @@ import {
   createAsyncThunk,
   createEntityAdapter,
   createSlice,
+  EntityState,
+  PayloadAction,
 } from '@reduxjs/toolkit';
 
-import { MerchantApi } from '../../api';
+import { PURGE } from 'redux-persist';
+
+import { ApiFetchStatus, MerchantApi } from '../../api';
+import { Merchant, MerchantId } from '../../models';
+import { Pagination } from '../../models/common';
+import { RootState } from '../../store';
+
+type FetchAllMerchantsParams = {
+  pagination?: Pagination;
+  reload?: boolean;
+};
 
 export const fetchAllMerchants = createAsyncThunk(
   'merchants/fetchAllMerchants',
-  /**
-   * @typedef {import('../../models/common').Pagination} Pagination
-   * @param {{ pagination?: Pagination, reload?: boolean }=} param0
-   */
-  async ({ pagination } = {}) => MerchantApi.fetchAllMerchants(pagination),
+  async ({ pagination }: FetchAllMerchantsParams = {}) =>
+    MerchantApi.fetchAllMerchants(pagination),
 );
 
 export const fetchMerchantById = createAsyncThunk(
   'merchants/fetchMerchantById',
-  MerchantApi.fetchMerchantById,
+  async (merchantId: MerchantId) =>
+    MerchantApi.fetchMerchantById(String(merchantId)),
 );
+
+type ChangeMerchantLikeStatusParams = {
+  merchantId: MerchantId;
+  didLike: boolean;
+};
 
 export const changeMerchantLikeStatus = createAsyncThunk(
   'merchants/changeMerchantLikeStatus',
-  /**
-   * @typedef {import('../../models').MerchantId} MerchantId
-   * @param {{ merchantId: MerchantId, didLike: boolean }} param0
-   */
-  async ({ merchantId, didLike }) =>
+  async ({ merchantId, didLike }: ChangeMerchantLikeStatusParams) =>
     MerchantApi.changeMerchantLikeStatus(String(merchantId), didLike),
 );
 
+type UpdateMerchantViewCountParams = {
+  merchantId: MerchantId;
+  lastViewed?: string;
+};
+
 export const updateMerchantViewCounter = createAsyncThunk(
   'products/updateMerchantViewCounter',
-  /**
-   * @param {{ merchantId: MerchantId, lastViewed?: string }} param0
-   */
-  async ({ merchantId }) =>
+  async ({ merchantId }: UpdateMerchantViewCountParams) =>
     MerchantApi.updateMerchantViewCounter(String(merchantId)),
 );
 
-/**
- * @typedef {import('../../models').Merchant} Merchant
- * @type {import('@reduxjs/toolkit').EntityAdapter<Merchant>}
- */
-const merchantsAdapter = createEntityAdapter();
+export type MerchantsState = EntityState<Merchant> & ApiFetchStatus;
 
-/**
- * @typedef {import('../../api').ApiFetchStatus} ApiFetchStatus
- * @typedef {import('@reduxjs/toolkit').EntityState<Merchant>} MerchantEntityState
- * @type {MerchantEntityState & ApiFetchStatus}
- */
-const initialState = merchantsAdapter.getInitialState({
+const merchantsAdapter = createEntityAdapter<Merchant>();
+
+const initialState = merchantsAdapter.getInitialState<ApiFetchStatus>({
   status: 'idle',
 });
 
@@ -58,11 +64,10 @@ const merchantsSlice = createSlice({
   name: 'merchants',
   initialState,
   reducers: {
-    /**
-     * @typedef {{ merchantId: MerchantId, didLike: boolean }} Payload
-     * @param {import('@reduxjs/toolkit').PayloadAction<Payload>} action
-     */
-    merchantLikeStatusChanged: (state, action) => {
+    merchantLikeStatusChanged: (
+      state,
+      action: PayloadAction<{ merchantId: MerchantId; didLike: boolean }>,
+    ) => {
       const { merchantId, didLike } = action.payload;
       const existingMerchant = state.entities[merchantId];
       if (existingMerchant && existingMerchant.statistics) {
@@ -73,6 +78,10 @@ const merchantsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      .addCase(PURGE, (state) => {
+        console.log('Purging merchants...');
+        Object.assign(state, initialState);
+      })
       // -- fetchAllMerchants --
       .addCase(fetchAllMerchants.pending, (state, action) => {
         const { reload = false } = action.meta.arg ?? {};
@@ -148,6 +157,6 @@ export const {
   selectAll: selectAllMerchants,
   selectById: selectMerchantById,
   selectIds: selectMerchantIds,
-} = merchantsAdapter.getSelectors((state) => state.merchants);
+} = merchantsAdapter.getSelectors<RootState>((state) => state.merchants);
 
 export default merchantsSlice.reducer;
