@@ -407,7 +407,7 @@ export default function GroundZero() {
             headerBackTitleVisible: false,
             headerTintColor: 'black',
             title: 'Profile Settings',
-            headerTransparent: true,
+            // headerTransparent: true,
             headerBackground: () => (
               <View
                 style={[
