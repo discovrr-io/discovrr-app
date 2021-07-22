@@ -18,7 +18,7 @@ import {
 
 import auth from '@react-native-firebase/auth';
 import Video from 'react-native-video';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 
 import { Formik } from 'formik';
@@ -40,6 +40,7 @@ import { useIsMounted } from '../../hooks';
 import { Button, FormikInput, LoadingOverlay } from '../../components';
 import { colors, typography, values } from '../../constants';
 import { SOMETHING_WENT_WRONG } from '../../constants/strings';
+import { useAppDispatch } from '../../store';
 import * as buttonStyles from '../../components/buttons/styles';
 
 import {
@@ -189,7 +190,7 @@ function TextButton({ title, disabled, onPress, ...props }) {
  * @param {{ setFormType: (formType: FormType) => void }} param0
  */
 function LoginForm({ setFormType }) {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const isMounted = useIsMounted();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -300,7 +301,7 @@ function LoginForm({ setFormType }) {
  * @returns
  */
 function RegisterForm({ setFormType }) {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const navigation = useNavigation();
 
   const isMounted = useIsMounted();
@@ -535,7 +536,7 @@ function ForgotPasswordForm({ setFormType }) {
 }
 
 export default function LoginScreen() {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const { width: screenWidth } = useWindowDimensions();
 
   /** @type {import('./authSlice').CurrentAuthStatus} */
