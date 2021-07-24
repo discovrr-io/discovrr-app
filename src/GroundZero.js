@@ -94,7 +94,7 @@ const HomeStack = () => (
             <TextInput
               filled
               size="medium"
-              placeholder="Search..."
+              placeholder="Search anything..."
               returnKeyType="search"
               onFocus={async () => {
                 try {

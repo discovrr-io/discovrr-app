@@ -21,7 +21,7 @@ type FetchAllProductsParams = {
 
 export const fetchAllProducts = createAsyncThunk(
   'products/fetchAllProducts',
-  async ({ pagination }: FetchAllProductsParams) =>
+  async ({ pagination }: FetchAllProductsParams = {}) =>
     ProductApi.fetchAllProducts(pagination),
 );
 

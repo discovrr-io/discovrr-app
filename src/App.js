@@ -23,8 +23,7 @@ Parse.User.enableUnsafeCurrentUser();
 // TODO: Use dotenv to hide production keys
 if (__DEV__ && false) {
   Parse.initialize('discovrr-dev-server');
-  // Parse.serverURL = 'http://discovrr-dev-server.herokuapp.com/parse';
-  Parse.serverURL = 'http://192.168.0.4:1337/parse';
+  Parse.serverURL = 'http://discovrr-dev-server.herokuapp.com/parse';
 } else {
   Parse.initialize('discovrrServer');
   Parse.serverURL = 'https://discovrr-uat.herokuapp.com/discovrrServer'; // production

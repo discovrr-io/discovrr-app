@@ -52,7 +52,7 @@ import {
   fetchProfileById,
   selectProfileById,
 } from './profilesSlice';
-import { Profile } from '../../models';
+import { Profile, ProfileId } from '../../models';
 import { MerchantAddress } from '../../models/merchant';
 
 export const HEADER_MAX_HEIGHT = 280;
@@ -218,6 +218,7 @@ function ProfileScreenHeaderContent({ profileDetails }) {
     if (profileDetails.isVendor) {
       alertUnavailableFeature();
     } else {
+      // @ts-ignore
       navigation.push('FollowerScreen', {
         profileId: profileDetails.id,
         profileName: profileDetails.fullName,
@@ -397,11 +398,7 @@ export default function ProfileScreen() {
   const $FUNC = '[ProfileScreen]';
   const dispatch = useAppDispatch();
 
-  /**
-   * @typedef {import('../../models').ProfileId} ProfileId
-   * @type {{ profileId: ProfileId | undefined }}
-   */
-  const { profileId } = useRoute().params ?? {};
+  const { profileId }: { profileId?: ProfileId } = useRoute().params ?? {};
 
   const isMounted = useIsMounted();
   const [shouldRefresh, setShouldRefresh] = useState(true);
@@ -467,7 +464,9 @@ export default function ProfileScreen() {
         try {
           console.log($FUNC, 'Fetch profile data...');
           await Promise.all([
-            dispatch(fetchProfileById(resolvedProfileId)).unwrap(),
+            dispatch(
+              fetchProfileById({ profileId: resolvedProfileId, reload: true }),
+            ).unwrap(),
             dispatch(fetchPostsForProfile(resolvedProfileId)).unwrap(),
           ]);
         } catch (error) {

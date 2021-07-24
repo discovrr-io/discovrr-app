@@ -20,6 +20,7 @@ import FastImage from 'react-native-fast-image';
 import Video from 'react-native-video';
 import { useRoute } from '@react-navigation/core';
 import { useDispatch, useSelector } from 'react-redux';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import PostComment from '../comments/PostComment';
 import { colors, typography, values } from '../../constants';
@@ -213,6 +214,8 @@ export default function PostDetailScreen() {
   const $FUNC = '[PostDetailScreen]';
   const dispatch = useDispatch();
 
+  const { bottom: bottomInsets } = useSafeAreaInsets();
+
   /** @type {{ postId: import('../../models').PostId | undefined }} */
   const { postId = undefined } = useRoute().params ?? {};
   if (!postId) {
@@ -339,7 +342,9 @@ export default function PostDetailScreen() {
     <SafeAreaView style={{ flexGrow: 1, backgroundColor: colors.white }}>
       <KeyboardAvoidingView
         behavior="padding"
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : -200}
+        keyboardVerticalOffset={
+          Platform.OS === 'ios' ? 65 + Math.max(0, bottomInsets - 8) : -200
+        }
         style={{ flex: 1 }}>
         <FlatList
           data={commentIds}
