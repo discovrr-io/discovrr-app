@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 
@@ -85,16 +85,22 @@ export function App() {
   /** @type {React.MutableRefObject<string>} */
   const routeNameRef = useRef(null);
 
-  // We could GET /health to force the server to wake up if it's sleeping. That
-  // way it'll buy us some time while the user reads the screen and attempts to
-  // register or sign in. This still needs some testing though.
-  // useEffect(() => {
-  //   console.log('Fetching health...');
-  //   fetch('https://discovrr-uat.herokuapp.com/health')
-  //     .then((response) => response.json())
-  //     .then(console.log)
-  //     .catch(console.error);
-  // }, []);
+  // We could GET /health to force the server to wake up if it's sleeping. It'll
+  // buy us some time to start up the server while the user reads the screen and
+  // attempts to register or sign in.
+  useEffect(() => {
+    console.log('[App] Fetching health...');
+    fetch(Parse.serverURL + '/health')
+      .then((response) => response.json())
+      .then((json) => {
+        if (json.status !== 'ok') {
+          console.warn(
+            'Server did not return an ok status. Will continue on anyway.',
+          );
+        }
+      })
+      .catch((error) => console.error('Failed to get server status:', error));
+  }, []);
 
   const onBeforeLift = async () => {
     const $FUNC = '[App.onBeforeLift]';

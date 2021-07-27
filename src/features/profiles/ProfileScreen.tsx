@@ -535,6 +535,7 @@ export default function ProfileScreen() {
                 onRefresh={handleRefresh}
               />
             }
+            // @ts-ignore
             ScrollViewComponent={Tabs.ScrollView}
             ListEmptyComponent={
               <EmptyTabView
@@ -559,6 +560,7 @@ export default function ProfileScreen() {
                 onRefresh={handleRefresh}
               />
             }
+            // @ts-ignore
             ScrollViewComponent={Tabs.ScrollView}
             ListEmptyComponent={
               <EmptyTabView

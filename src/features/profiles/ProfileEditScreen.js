@@ -53,8 +53,8 @@ export default function ProfileEditScreen() {
 
 // const Parse = require('parse/react-native');
 
-// const defaultAvatar = require('../../../resources/images/defaultAvatar.jpeg');
-// const defaultCoverPhoto = require('../../../resources/images/imagePlaceholder.png');
+// const defaultAvatar = require('../../../assets/images/defaultAvatar.jpeg');
+// const defaultCoverPhoto = require('../../../assets/images/imagePlaceholder.png');
 
 // const appVersion = getVersion();
 

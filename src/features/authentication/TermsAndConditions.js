@@ -3,7 +3,7 @@ import { SafeAreaView, StatusBar } from 'react-native';
 
 import WebView from 'react-native-webview';
 
-const TERMS_AND_CONDITIONS = require('../../../resources/Terms-and-Conditions.html');
+const TERMS_AND_CONDITIONS = require('../../../assets/Terms-and-Conditions.html');
 
 export default function TermsAndConditions() {
   return (

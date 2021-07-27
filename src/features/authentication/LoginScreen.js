@@ -49,13 +49,13 @@ import {
   signInWithEmailAndPassword,
 } from './authSlice';
 
-const DISCOVRR_LOGO = require('../../../resources/images/discovrrLogoHorizontal.png');
+const DISCOVRR_LOGO = require('../../../assets/images/discovrrLogoHorizontal.png');
 
 const VIDEO_SOURCE =
   'https://firebasestorage.googleapis.com/v0/b/discovrrapp-88c28.appspot.com/o/sys%2FloginBackgroundVideo.mp4?alt=media&token=ee3959f1-71ae-4f7b-94d9-05a3979112bc';
 
 const VIDEO_POSTER_SOURCE = Image.resolveAssetSource(
-  require('../../../resources/images/videoPoster.png'),
+  require('../../../assets/images/videoPoster.png'),
 );
 
 const DEFAULT_ERROR_TITLE = 'Something went wrong';
