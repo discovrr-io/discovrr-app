@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   Alert,
+  Platform,
   RefreshControl,
   SafeAreaView,
   StyleSheet,
@@ -158,8 +159,8 @@ function ProfileScreenHeaderContent({ profileDetails }) {
   const isFollowee = following.includes(currentUserProfileId);
   const [isProcessingFollow, setIsProcessingFollow] = useState(false);
 
-  // const [isBlocked, setIsBlocked] = useState(false);
-  // const [isProcessingBlock, setIsProcessingBlock] = useState(false);
+  const [isBlocked, setIsBlocked] = useState(false);
+  const [isProcessingBlock, setIsProcessingBlock] = useState(false);
 
   /**
    * @param {boolean} didFollow
@@ -292,36 +293,40 @@ function ProfileScreenHeaderContent({ profileDetails }) {
                   onPress={handleFollowButtonPress}
                   style={{ flex: 1, marginRight: values.spacing.xs * 1.5 }}
                 />
-                <Button
-                  transparent
-                  size="small"
-                  title={'Message'}
-                  onPress={alertUnavailableFeature}
-                  style={{ flex: 1, marginLeft: values.spacing.xs * 1.5 }}
-                />
-                {/* <Button
-                  transparent
-                  size="small"
-                  title={isBlocked ? 'Unblock' : 'Block'}
-                  isLoading={isProcessingBlock}
-                  onPress={() => {
-                    if (isBlocked) {
-                      setIsBlocked(false);
-                      return;
-                    }
 
-                    setIsProcessingBlock(true);
-                    setTimeout(() => {
-                      Alert.alert(
-                        'Report Successfully Sent',
-                        'Your report will be reviewed by one of our moderators.',
-                      );
-                      setIsBlocked(true);
-                      setIsProcessingBlock(false);
-                    }, 2000);
-                  }}
-                  style={{ flex: 1, marginLeft: values.spacing.xs * 1.5 }}
-                /> */}
+                {Platform.OS === 'ios' ? (
+                  <Button
+                    transparent
+                    size="small"
+                    title={isBlocked ? 'Unblock' : 'Report'}
+                    isLoading={isProcessingBlock}
+                    onPress={() => {
+                      if (isBlocked) {
+                        setIsBlocked(false);
+                        return;
+                      }
+
+                      setIsProcessingBlock(true);
+                      setTimeout(() => {
+                        Alert.alert(
+                          'Report Successfully Sent',
+                          `Your report will be reviewed by one of our moderators.\n\nIn the meantime, ${fullName} won't be able to see your posts.`,
+                        );
+                        setIsBlocked(true);
+                        setIsProcessingBlock(false);
+                      }, 2000);
+                    }}
+                    style={{ flex: 1, marginLeft: values.spacing.xs * 1.5 }}
+                  />
+                ) : (
+                  <Button
+                    transparent
+                    size="small"
+                    title={'Message'}
+                    onPress={alertUnavailableFeature}
+                    style={{ flex: 1, marginLeft: values.spacing.xs * 1.5 }}
+                  />
+                )}
               </>
             )}
           </View>

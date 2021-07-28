@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import {
   Alert,
-  NativeEventEmitter,
+  ActivityIndicator,
+  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -150,6 +151,7 @@ export function PostItemCardFooter({
 
   const [isProcessingLike, setIsProcessingLike] = useState(false);
   const [isProcessingSave, _setIsProcessingSave] = useState(false);
+  const [isProcessingReport, setIsProcessingReport] = useState(false);
 
   const handlePressAvatar = () => {
     navigation.push('UserProfileScreen', {
@@ -209,6 +211,28 @@ export function PostItemCardFooter({
     }
   };
 
+  const handleReportPost = () => {
+    const reportPost = () => {
+      setIsProcessingReport(true);
+      setTimeout(() => {
+        Alert.alert(
+          'Report Successfully Sent.',
+          'Your report will be reviewed by one of our moderators.',
+        );
+        setIsProcessingReport(false);
+      }, 3000);
+    };
+
+    Alert.prompt(
+      'Report Post',
+      "Believe this post is not suitable for Discovrr? Please provide your reason and we'll look into it:",
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Report', style: 'default', onPress: reportPost },
+      ],
+    );
+  };
+
   const avatarIconSize = smallContent
     ? iconSize.small.avatar
     : iconSize.large.avatar;
@@ -265,6 +289,31 @@ export function PostItemCardFooter({
             />
           </TouchableOpacity>
         )}
+        {Platform.OS === 'ios' &&
+          showMenuIcon &&
+          (isProcessingReport ? (
+            <ActivityIndicator
+              size="small"
+              color={colors.gray}
+              style={{
+                marginLeft: values.spacing.sm * 1.5,
+                marginRight: actionIconMarginRight * 1.3,
+                transform: [{ scale: 1.25 }],
+              }}
+            />
+          ) : (
+            <TouchableOpacity
+              disabled={false}
+              activeOpacity={DEFAULT_ACTIVE_OPACITY}
+              onPress={handleReportPost}>
+              <MaterialCommunityIcon
+                name="flag-outline"
+                color={colors.gray}
+                size={actionIconSize}
+                style={{ marginRight: actionIconMarginRight * 0.75 }}
+              />
+            </TouchableOpacity>
+          ))}
         {showShareIcon && (
           <TouchableOpacity
             disabled={false}
