@@ -151,7 +151,7 @@ export namespace PostApi {
     }
   }
 
-  export async function changePostLikeStatus(postId: PostId, didLike: boolean) {
+  export async function changePostLikeStatus(postId: string, didLike: boolean) {
     const $FUNC = '[PostApi.setLikeStatus]';
 
     try {

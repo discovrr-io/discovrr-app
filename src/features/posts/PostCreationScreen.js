@@ -1,3 +1,14 @@
+// import React from 'react';
+// import { Text, View } from 'react-native';
+
+// export default function PostCreationScreen() {
+//   return (
+//     <View>
+//       <Text>PostCreationScreen</Text>
+//     </View>
+//   );
+// }
+
 import React, { Component } from 'react';
 
 import {
@@ -17,26 +28,29 @@ import {
 import { connect } from 'react-redux';
 import { getVersion } from 'react-native-device-info';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
-import { Portal, TextInput } from 'react-native-paper';
 import * as Animatable from 'react-native-animatable';
 import FastImage from 'react-native-fast-image';
 import Geolocation from 'react-native-geolocation-service';
-import ImagePicker from 'react-native-image-crop-picker';
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
+import storage from '@react-native-firebase/storage';
+
+import { Portal, TextInput } from 'react-native-paper';
+import ImagePicker from 'react-native-image-crop-picker';
 import ProgressCircle from 'react-native-progress/Circle';
 import RNPopoverMenu from 'react-native-popover-menu';
-import storage from '@react-native-firebase/storage';
 
 import { isAndroid, windowWidth } from '../../utilities/Constants';
 import { requestPermissionConfig } from '../../utilities/Permissions';
 import { updateNotes } from '../../utilities/Actions';
-import ModalActivityIndicatorAlt from '../../components/ModalActivityIndicatorAlt';
+import { LoadingOverlay } from '../../components';
+import { colors } from '../../constants';
+import DeveloperNote from '../../components/DeveloperNote';
 
 const Parse = require('parse/react-native');
 const isEqual = require('lodash/isEqual');
 
-const imagePlaceholder = require('../../../resources/images/imagePlaceholder.png');
+const imagePlaceholder = require('../../../assets/images/imagePlaceholder.png');
 
 const cameraIcon = <MaterialIcon name="camera-alt" color="#000000" size={24} />;
 const photosIcon = (
@@ -934,6 +948,8 @@ class PostCreationScreen extends Component {
             />
           </View> */}
 
+          <DeveloperNote style={{ marginTop: 8 }} />
+
           <View
             style={{
               marginTop: 20,
@@ -1153,7 +1169,7 @@ class PostCreationScreen extends Component {
                 alignSelf: 'flex-start',
               }}
               onPress={this.showBottomSheet}>
-              <View
+              {/* <View
                 style={{
                   flexDirection: 'row',
                   alignItems: 'center',
@@ -1208,7 +1224,7 @@ class PostCreationScreen extends Component {
                   size={24}
                   color="black"
                 />
-              </View>
+              </View> */}
             </TouchableOpacity>
           )}
 
@@ -1279,9 +1295,10 @@ class PostCreationScreen extends Component {
         </ScrollView>
 
         {isProcessing && (
-          <Portal>
-            <ModalActivityIndicatorAlt hideIndicator opacity={0.1} />
-          </Portal>
+          // <Portal>
+          //   <ModalActivityIndicatorAlt hideIndicator opacity={0.1} />
+          // </Portal>
+          <LoadingOverlay message="Submitting post..." />
         )}
       </View>
     );

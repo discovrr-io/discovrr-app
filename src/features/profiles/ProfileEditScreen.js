@@ -35,6 +35,8 @@ import { isAndroid, windowWidth } from '../../utilities/Constants';
 import { logException } from '../../utilities/NetworkRequests';
 import { updateProfile } from '../../utilities/Actions';
 
+import DeveloperNote from '../../components/DeveloperNote';
+
 const cameraIcon = <MaterialIcon name="camera-alt" color="#000000" size={24} />;
 const photosIcon = (
   <MaterialIcon name="collections" color="#000000" size={24} />
@@ -42,8 +44,8 @@ const photosIcon = (
 
 const Parse = require('parse/react-native');
 
-const defaultAvatar = require('../../../resources/images/defaultAvatar.jpeg');
-const defaultCoverPhoto = require('../../../resources/images/imagePlaceholder.png');
+const defaultAvatar = require('../../../assets/images/defaultAvatar.jpeg');
+const defaultCoverPhoto = require('../../../assets/images/imagePlaceholder.png');
 
 const appVersion = getVersion();
 
@@ -490,7 +492,11 @@ class ProfileEditScreen extends Component {
             }}>
             {/* <SafeAreaView style={styles.container}> */}
             <ScrollView keyboardShouldPersistTaps="handled">
-              <View style={{ paddingTop: headerHeight }}>
+              <DeveloperNote
+                style={{ marginHorizontal: 16, marginVertical: 8 }}
+              />
+
+              <View>
                 <View
                   style={{
                     paddingLeft: 20,

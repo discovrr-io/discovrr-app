@@ -2,27 +2,25 @@ import {
   createAsyncThunk,
   createEntityAdapter,
   createSlice,
+  EntityState,
 } from '@reduxjs/toolkit';
 
-import { NoteApi } from '../../api';
+import { PURGE } from 'redux-persist';
+
+import { ApiFetchStatus, NoteApi } from '../../api';
+import { Note } from '../../models';
+import { RootState } from '../../store';
 
 export const fetchNotesForCurrentUser = createAsyncThunk(
   'notes/fetchNotesForCurrentUser',
   NoteApi.fetchNotesForCurrentUser,
 );
 
-/**
- * @typedef {import('../../models').Note} Note
- * @type {import('@reduxjs/toolkit').EntityAdapter<Note>}
- */
-const notesAdapter = createEntityAdapter();
+export type NotesState = EntityState<Note> & ApiFetchStatus;
 
-/**
- * @typedef {import('../../api').ApiFetchStatus} ApiFetchStatus
- * @typedef {import('@reduxjs/toolkit').EntityState<Note>} CommentEntityState
- * @type {CommentEntityState & ApiFetchStatus}
- */
-const initialState = notesAdapter.getInitialState({
+const notesAdapter = createEntityAdapter<Note>();
+
+const initialState = notesAdapter.getInitialState<ApiFetchStatus>({
   status: 'idle',
 });
 
@@ -31,8 +29,12 @@ const notesSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-    // -- fetchNotesForCurrentUser --
     builder
+      .addCase(PURGE, (state) => {
+        console.log('Purging notes...');
+        Object.assign(state, initialState);
+      })
+      // -- fetchNotesForCurrentUser --
       .addCase(fetchNotesForCurrentUser.pending, (state, _) => {
         state.status = 'pending';
       })
@@ -53,6 +55,6 @@ export const {
   selectAll: selectAllNotes,
   selectById: selectNoteById,
   selectIds: selectNoteIds,
-} = notesAdapter.getSelectors((state) => state.notes);
+} = notesAdapter.getSelectors((state: RootState) => state.notes);
 
 export default notesSlice.reducer;

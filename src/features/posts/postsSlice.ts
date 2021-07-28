@@ -3,66 +3,69 @@ import {
   createEntityAdapter,
   createSelector,
   createSlice,
+  EntityState,
+  PayloadAction,
 } from '@reduxjs/toolkit';
 
-import { PostApi } from '../../api';
+import { PURGE } from 'redux-persist';
+
+import { ApiFetchStatus, PostApi } from '../../api';
+import { Post, PostId, ProfileId } from '../../models';
+import { Pagination } from '../../models/common';
+import { RootState } from '../../store';
 import { selectProfileById } from '../profiles/profilesSlice';
+
+type FetchAllPostsParams = {
+  pagination?: Pagination;
+  reload?: boolean;
+};
 
 export const fetchAllPosts = createAsyncThunk(
   'posts/fetchAllPosts',
-  /**
-   * @typedef {import('../../models/common').Pagination} Pagination
-   * @param {{ pagination?: Pagination, reload?: boolean }=} param0
-   */
-  async ({ pagination } = {}) => PostApi.fetchAllPosts(pagination),
+  async ({ pagination }: FetchAllPostsParams = {}) =>
+    PostApi.fetchAllPosts(pagination),
 );
 
 export const fetchPostsForProfile = createAsyncThunk(
   'posts/fetchPostsForProfile',
-  /**
-   * @typedef {import('../../models').ProfileId} ProfileId
-   * @param {ProfileId} profileId
-   */
-  async (profileId) => PostApi.fetchPostsForProfile(String(profileId)),
+  async (postId: PostId) => PostApi.fetchPostsForProfile(String(postId)),
 );
 
 export const fetchPostById = createAsyncThunk(
   'posts/fetchPostById',
-  PostApi.fetchPostById,
+  async (postId: PostId) => PostApi.fetchPostById(String(postId)),
 );
+
+type ChangePostLikeStatusParams = {
+  postId: PostId;
+  didLike: boolean;
+};
 
 export const changePostLikeStatus = createAsyncThunk(
   'posts/changePostLikeStatus',
-  /**
-   * @typedef {import('../../models').PostId} PostId
-   * @param {{ postId: PostId, didLike: boolean }} param0
-   */
-  async ({ postId, didLike }) => PostApi.changePostLikeStatus(postId, didLike),
+  async ({ postId, didLike }: ChangePostLikeStatusParams) =>
+    PostApi.changePostLikeStatus(String(postId), didLike),
 );
+
+type UpdatePostViewCounterParams = {
+  postId: PostId;
+  lastViewed?: string;
+};
 
 export const updatePostViewCounter = createAsyncThunk(
-  'products/updatePostViewCounter',
-  /**
-   * @param {{ postId: PostId, lastViewed?: string }} param0
-   */
-  async ({ postId }) => PostApi.updatePostViewCounter(String(postId)),
+  'posts/updatePostViewCounter',
+  async ({ postId }: UpdatePostViewCounterParams) =>
+    PostApi.updatePostViewCounter(String(postId)),
 );
 
-/**
- * @typedef {import('../../models').Post} Post
- * @type {import('@reduxjs/toolkit').EntityAdapter<Post>}
- */
-const postsAdapter = createEntityAdapter({
+export type PostsState = EntityState<Post> & ApiFetchStatus;
+
+const postsAdapter = createEntityAdapter<Post>({
   // Sort by newest post (this probably shouldn't be needed)
   sortComparer: (a, b) => b.createdAt.localeCompare(a.createdAt),
 });
 
-/**
- * @typedef {import('../../api').ApiFetchStatus} ApiFetchStatus
- * @typedef {import('@reduxjs/toolkit').EntityState<Post>} PostEntityState
- * @type {PostEntityState & ApiFetchStatus}
- */
-const initialState = postsAdapter.getInitialState({
+const initialState = postsAdapter.getInitialState<ApiFetchStatus>({
   status: 'idle',
 });
 
@@ -70,11 +73,10 @@ const postsSlice = createSlice({
   name: 'posts',
   initialState,
   reducers: {
-    /**
-     * @typedef {{ postId: PostId, didLike: boolean }} Payload
-     * @param {import('@reduxjs/toolkit').PayloadAction<Payload>} action
-     */
-    postLikeStatusChanged: (state, action) => {
+    postLikeStatusChanged: (
+      state,
+      action: PayloadAction<{ postId: PostId; didLike: boolean }>,
+    ) => {
       const { postId, didLike } = action.payload;
       const existingPost = state.entities[postId];
       if (existingPost && existingPost.statistics) {
@@ -85,6 +87,10 @@ const postsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      .addCase(PURGE, (state) => {
+        console.log('Purging posts...');
+        Object.assign(state, initialState);
+      })
       // -- fetchAllPosts --
       .addCase(fetchAllPosts.pending, (state, action) => {
         const { reload = false } = action.meta.arg ?? {};
@@ -105,7 +111,7 @@ const postsSlice = createSlice({
         state.error = action.error;
       })
       // -- fetchPostsForProfile --
-      .addCase(fetchPostsForProfile.pending, (state, action) => {
+      .addCase(fetchPostsForProfile.pending, (state) => {
         state.status = 'pending';
       })
       .addCase(fetchPostsForProfile.fulfilled, (state, action) => {
@@ -175,11 +181,11 @@ export const {
   selectAll: selectAllPosts,
   selectById: selectPostById,
   selectIds: selectPostIds,
-} = postsAdapter.getSelectors((state) => state.posts);
+} = postsAdapter.getSelectors<RootState>((state) => state.posts);
 
 // Memoized: selectPostsByProfile(state, profileId)
 export const selectPostsByProfile = createSelector(
-  [selectAllPosts, (_state, profileId) => profileId],
+  [selectAllPosts, (_state: RootState, profileId: ProfileId) => profileId],
   (posts, profileId) => posts.filter((post) => post.profileId === profileId),
 );
 

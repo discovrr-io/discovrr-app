@@ -72,9 +72,6 @@
             android:exported="true" /> -->
 
         <meta-data
-            android:name="com.bugsnag.android.API_KEY"
-            android:value="22a243fa7f0c5b3f126ce4fac8863630" />
-        <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyDzoBkO5Rpp6jZVUjhHGCVz4UWvsass6Ms" />
         <meta-data

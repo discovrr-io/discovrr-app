@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   Alert,
+  Platform,
   RefreshControl,
   SafeAreaView,
   StyleSheet,
@@ -21,6 +22,7 @@ import { DEFAULT_AVATAR } from '../../constants/media';
 import { useIsMounted } from '../../hooks';
 import { NotificationApi } from '../../api';
 import { selectAllNotes } from '../notes/notesSlice';
+import { RootState, useAppDispatch } from '../../store';
 
 import {
   FEATURE_UNAVAILABLE,
@@ -48,11 +50,11 @@ import {
 
 import {
   changeProfileFollowStatus,
-  didChangeFollowStatus,
   fetchProfileById,
   selectProfileById,
 } from './profilesSlice';
-import PostItemCard from '../posts/PostItemCard';
+import { Profile, ProfileId } from '../../models';
+import { MerchantAddress } from '../../models/merchant';
 
 export const HEADER_MAX_HEIGHT = 280;
 const AVATAR_IMAGE_RADIUS = 80;
@@ -102,14 +104,18 @@ const alertRequestFailure = () =>
     `Sorry, we weren't able to complete your request. Please try again later.`,
   );
 
-/**
- * @typedef {import('../../models').Profile} Profile
- * @typedef {import('../../models/merchant').MerchantAddress} MerchantAddress
- * @typedef {Omit<Profile, 'id' | 'email'> & { id?: string, totalLikes?: number, address?: MerchantAddress }} ProfileDetails
- * @param {{ profileDetails: ProfileDetails | undefined }} param0
- */
+type ProfileDetails = Omit<Profile, 'id' | 'email'> & {
+  id?: string;
+  totalLikes?: number;
+  address?: MerchantAddress;
+};
+
+type ProfileScreenHeaderContentParams = {
+  profileDetails: ProfileDetails;
+};
+
 function ProfileScreenHeaderContent({ profileDetails }) {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const navigation = useNavigation();
   const isMounted = useIsMounted();
@@ -137,11 +143,10 @@ function ProfileScreenHeaderContent({ profileDetails }) {
   const followersCount = followers.length ?? 0;
   const followingCount = following.length ?? 0;
 
-  /** @type {import('../../models').ProfileId} */
   const currentUserProfileId = useSelector(
-    (state) => state.auth.user.profileId,
+    (state: RootState) => state.auth.user.profileId,
   );
-  const currentUserProfile = useSelector((state) =>
+  const currentUserProfile = useSelector((state: RootState) =>
     selectProfileById(state, currentUserProfileId),
   );
 
@@ -154,8 +159,8 @@ function ProfileScreenHeaderContent({ profileDetails }) {
   const isFollowee = following.includes(currentUserProfileId);
   const [isProcessingFollow, setIsProcessingFollow] = useState(false);
 
-  // const [isBlocked, setIsBlocked] = useState(false);
-  // const [isProcessingBlock, setIsProcessingBlock] = useState(false);
+  const [isBlocked, setIsBlocked] = useState(false);
+  const [isProcessingBlock, setIsProcessingBlock] = useState(false);
 
   /**
    * @param {boolean} didFollow
@@ -190,7 +195,7 @@ function ProfileScreenHeaderContent({ profileDetails }) {
             [profileDetails.id],
             { en: `${fullName} followed you!` },
             { en: 'Why not follow them back? 😃' },
-            `discovrr://profile/${currentUserProfileId.id}`,
+            `discovrr://profile/${currentUserProfileId}`,
           );
         } catch (error) {
           console.error(
@@ -214,6 +219,7 @@ function ProfileScreenHeaderContent({ profileDetails }) {
     if (profileDetails.isVendor) {
       alertUnavailableFeature();
     } else {
+      // @ts-ignore
       navigation.push('FollowerScreen', {
         profileId: profileDetails.id,
         profileName: profileDetails.fullName,
@@ -287,36 +293,40 @@ function ProfileScreenHeaderContent({ profileDetails }) {
                   onPress={handleFollowButtonPress}
                   style={{ flex: 1, marginRight: values.spacing.xs * 1.5 }}
                 />
-                <Button
-                  transparent
-                  size="small"
-                  title={'Message'}
-                  onPress={alertUnavailableFeature}
-                  style={{ flex: 1, marginLeft: values.spacing.xs * 1.5 }}
-                />
-                {/* <Button
-                  transparent
-                  size="small"
-                  title={isBlocked ? 'Unblock' : 'Block'}
-                  isLoading={isProcessingBlock}
-                  onPress={() => {
-                    if (isBlocked) {
-                      setIsBlocked(false);
-                      return;
-                    }
 
-                    setIsProcessingBlock(true);
-                    setTimeout(() => {
-                      Alert.alert(
-                        'Report Successfully Sent',
-                        'Your report will be reviewed by one of our moderators.',
-                      );
-                      setIsBlocked(true);
-                      setIsProcessingBlock(false);
-                    }, 2000);
-                  }}
-                  style={{ flex: 1, marginLeft: values.spacing.xs * 1.5 }}
-                /> */}
+                {Platform.OS === 'ios' ? (
+                  <Button
+                    transparent
+                    size="small"
+                    title={isBlocked ? 'Unblock' : 'Report'}
+                    isLoading={isProcessingBlock}
+                    onPress={() => {
+                      if (isBlocked) {
+                        setIsBlocked(false);
+                        return;
+                      }
+
+                      setIsProcessingBlock(true);
+                      setTimeout(() => {
+                        Alert.alert(
+                          'Report Successfully Sent',
+                          `Your report will be reviewed by one of our moderators.\n\nIn the meantime, ${fullName} won't be able to see your posts.`,
+                        );
+                        setIsBlocked(true);
+                        setIsProcessingBlock(false);
+                      }, 2000);
+                    }}
+                    style={{ flex: 1, marginLeft: values.spacing.xs * 1.5 }}
+                  />
+                ) : (
+                  <Button
+                    transparent
+                    size="small"
+                    title={'Message'}
+                    onPress={alertUnavailableFeature}
+                    style={{ flex: 1, marginLeft: values.spacing.xs * 1.5 }}
+                  />
+                )}
               </>
             )}
           </View>
@@ -391,22 +401,17 @@ export function ProfileScreenHeader({ profileDetails }) {
 
 export default function ProfileScreen() {
   const $FUNC = '[ProfileScreen]';
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
-  /**
-   * @typedef {import('../../models').ProfileId} ProfileId
-   * @type {{ profileId: ProfileId | undefined }}
-   */
-  const { profileId } = useRoute().params ?? {};
+  const { profileId }: { profileId?: ProfileId } = useRoute().params ?? {};
 
   const isMounted = useIsMounted();
   const [shouldRefresh, setShouldRefresh] = useState(true);
   // const [isRefreshingPosts, setIsRefreshingPosts] = useState(false);
   // const [isRefreshingNotes, setIsRefreshingNotes] = useState(false);
 
-  /** @type {ProfileId} */
   const currentUserProfileId = useSelector(
-    (state) => state.auth.user.profileId,
+    (state: RootState) => state.auth.user.profileId,
   );
 
   let resolvedProfileId = profileId;
@@ -432,17 +437,20 @@ export default function ProfileScreen() {
     }
   }
 
-  const profile = useSelector((state) =>
+  const profile = useSelector((state: RootState) =>
     selectProfileById(state, resolvedProfileId),
   );
 
-  const posts = useSelector((state) => selectPostsByProfile(state, profileId));
+  const posts = useSelector((state: RootState) =>
+    selectPostsByProfile(state, profileId),
+  );
+
   const postIds = posts.map((post) => post.id);
   const totalLikes = posts
     .map((post) => post.statistics?.totalLikes ?? 0)
     .reduce((acc, curr) => acc + curr, 0);
 
-  const noteIds = useSelector((state) => {
+  const noteIds = useSelector((state: RootState) => {
     const allNotes = selectAllNotes(state);
     return allNotes
       .filter((note) => {
@@ -461,7 +469,9 @@ export default function ProfileScreen() {
         try {
           console.log($FUNC, 'Fetch profile data...');
           await Promise.all([
-            dispatch(fetchProfileById(resolvedProfileId)).unwrap(),
+            dispatch(
+              fetchProfileById({ profileId: resolvedProfileId, reload: true }),
+            ).unwrap(),
             dispatch(fetchPostsForProfile(resolvedProfileId)).unwrap(),
           ]);
         } catch (error) {
@@ -530,6 +540,7 @@ export default function ProfileScreen() {
                 onRefresh={handleRefresh}
               />
             }
+            // @ts-ignore
             ScrollViewComponent={Tabs.ScrollView}
             ListEmptyComponent={
               <EmptyTabView
@@ -554,6 +565,7 @@ export default function ProfileScreen() {
                 onRefresh={handleRefresh}
               />
             }
+            // @ts-ignore
             ScrollViewComponent={Tabs.ScrollView}
             ListEmptyComponent={
               <EmptyTabView

@@ -1,4 +1,5 @@
 import analytics from '@react-native-firebase/analytics';
+import crashlytics from '@react-native-firebase/crashlytics';
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import Parse from 'parse/react-native';
 
@@ -135,7 +136,10 @@ export namespace AuthApi {
 
     const profile = await attemptToFetchProfileForUser(currentUser);
     if (!profile) {
-      throw new Error(`No profile was found with user id '${currentUser.id}'.`);
+      crashlytics().log(
+        `No profile was found with user ID '${currentUser.id}'.`,
+      );
+      throw new Error(`No profile was found with user ID '${currentUser.id}'.`);
     }
 
     return await syncAndConstructUser(currentUser.id, profile, firebaseUser);
@@ -322,7 +326,7 @@ export namespace AuthApi {
     if (logoutFirebase) {
       console.log($FUNC, 'Signing out via Firebase...');
       await auth().signOut();
-      // await analytics().setUserId(null)
+      await analytics().setUserId(null);
     }
   }
 }

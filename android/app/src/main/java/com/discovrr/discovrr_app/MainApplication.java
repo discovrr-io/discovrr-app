@@ -14,7 +14,6 @@ import com.facebook.soloader.SoLoader;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
-import com.bugsnag.android.Bugsnag;
 import com.microsoft.codepush.react.CodePush;
 import com.facebook.react.bridge.JSIModulePackage;
 import com.swmansion.reanimated.ReanimatedJSIModulePackage;
@@ -63,7 +62,6 @@ public class MainApplication extends Application implements ShareApplication, Re
     public void onCreate() {
         super.onCreate();
         SoLoader.init(this, /* native exopackage */ false);
-        Bugsnag.start(this);
         initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
     }
 

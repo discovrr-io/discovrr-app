@@ -18,7 +18,7 @@ import {
 
 import auth from '@react-native-firebase/auth';
 import Video from 'react-native-video';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 
 import { Formik } from 'formik';
@@ -40,6 +40,7 @@ import { useIsMounted } from '../../hooks';
 import { Button, FormikInput, LoadingOverlay } from '../../components';
 import { colors, typography, values } from '../../constants';
 import { SOMETHING_WENT_WRONG } from '../../constants/strings';
+import { useAppDispatch } from '../../store';
 import * as buttonStyles from '../../components/buttons/styles';
 
 import {
@@ -48,13 +49,13 @@ import {
   signInWithEmailAndPassword,
 } from './authSlice';
 
-const DISCOVRR_LOGO = require('../../../resources/images/discovrrLogoHorizontal.png');
+const DISCOVRR_LOGO = require('../../../assets/images/discovrrLogoHorizontal.png');
 
 const VIDEO_SOURCE =
   'https://firebasestorage.googleapis.com/v0/b/discovrrapp-88c28.appspot.com/o/sys%2FloginBackgroundVideo.mp4?alt=media&token=ee3959f1-71ae-4f7b-94d9-05a3979112bc';
 
 const VIDEO_POSTER_SOURCE = Image.resolveAssetSource(
-  require('../../../resources/images/videoPoster.png'),
+  require('../../../assets/images/videoPoster.png'),
 );
 
 const DEFAULT_ERROR_TITLE = 'Something went wrong';
@@ -189,7 +190,7 @@ function TextButton({ title, disabled, onPress, ...props }) {
  * @param {{ setFormType: (formType: FormType) => void }} param0
  */
 function LoginForm({ setFormType }) {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const isMounted = useIsMounted();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -300,7 +301,7 @@ function LoginForm({ setFormType }) {
  * @returns
  */
 function RegisterForm({ setFormType }) {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const navigation = useNavigation();
 
   const isMounted = useIsMounted();
@@ -535,7 +536,7 @@ function ForgotPasswordForm({ setFormType }) {
 }
 
 export default function LoginScreen() {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const { width: screenWidth } = useWindowDimensions();
 
   /** @type {import('./authSlice').CurrentAuthStatus} */

@@ -98,6 +98,7 @@ function DiscoverTab() {
 
   /** @type {import('../../api').ApiFetchStatus} */
   const { status: fetchStatus, error: fetchError } = useSelector(
+    /** @param {import('../../store').RootState} state */
     (state) => state.posts,
   );
 

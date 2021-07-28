@@ -1,6 +1,5 @@
 #import "AppDelegate.h"
 
-#import <Bugsnag/Bugsnag.h>
 #import <CodePush/CodePush.h>
 #import <Firebase/Firebase.h>
 
@@ -50,8 +49,6 @@ static void InitializeFlipper(UIApplication *application) {
     self.window.rootViewController = rootViewController;
     [self.window makeKeyAndVisible];
 
-    [Bugsnag start];
-
     return YES;
 }
 
@@ -59,7 +56,6 @@ static void InitializeFlipper(UIApplication *application) {
 #if DEBUG
     return [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index" fallbackResource:nil];
 #else
-    // return [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
     return [CodePush bundleURL];
 #endif
 }

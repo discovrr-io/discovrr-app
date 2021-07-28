@@ -108,6 +108,11 @@ export namespace ProfileApi {
         profileId,
         follow: didFollow,
       });
+
+      // await Parse.Cloud.run('changeFollowStatus', {
+      //   followeeId: profileId,
+      //   didFollow,
+      // });
     } catch (error) {
       console.error(
         $FUNC,

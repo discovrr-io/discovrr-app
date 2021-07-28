@@ -1,11 +1,9 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
-import { DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
 
 import analytics from '@react-native-firebase/analytics';
-import AsyncStorage from '@react-native-community/async-storage';
-import Bugsnag from '@bugsnag/react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import codePush from 'react-native-code-push';
 
 import { Provider } from 'react-redux';
@@ -15,7 +13,6 @@ import { persistStore } from 'redux-persist';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 
 import AuthLoadingScreen from './features/authentication/AuthLoadingScreen';
-import debugAppLogger from './utilities/DebugAppLogger';
 import store from './store';
 
 const Parse = require('parse/react-native');
@@ -26,14 +23,11 @@ Parse.User.enableUnsafeCurrentUser();
 // TODO: Use dotenv to hide production keys
 if (__DEV__ && false) {
   Parse.initialize('discovrr-dev-server');
-  // Parse.serverURL = 'http://discovrr-dev-server.herokuapp.com/parse';
   Parse.serverURL = 'http://192.168.0.4:1337/parse';
 } else {
   Parse.initialize('discovrrServer');
   Parse.serverURL = 'https://discovrr-uat.herokuapp.com/discovrrServer'; // production
 }
-
-Bugsnag.start();
 
 global.debugAppLogger = () => {};
 const disableDebugAppLogger = false;
@@ -41,10 +35,6 @@ const disableDebugAppLogger = false;
 if (process.env.NODE_ENV === 'development') {
   if (!disableDebugAppLogger) global.debugAppLogger = debugAppLogger;
 }
-
-const theme = {
-  ...DefaultTheme,
-};
 
 const persistor = persistStore(store);
 
@@ -64,7 +54,7 @@ function LoadingScreen() {
 
 /** @type {import('@react-navigation/native').LinkingOptions} */
 const linking = {
-  prefixes: ['discovrr://', 'https://discovrrio.com', 'http://discovrrio.com'],
+  prefixes: ['discovrr://', 'http://discovrrio.com', 'https://discovrrio.com'],
   config: {
     screens: {
       GroundZero: {
@@ -95,16 +85,22 @@ export function App() {
   /** @type {React.MutableRefObject<string>} */
   const routeNameRef = useRef(null);
 
-  // We could GET /health to force the server to wake up if it's sleeping. That
-  // way it'll buy us some time while the user reads the screen and attempts to
-  // register or sign in. This still needs some testing though.
-  // useEffect(() => {
-  //   console.log('Fetching health...');
-  //   fetch('https://discovrr-uat.herokuapp.com/health')
-  //     .then((response) => response.json())
-  //     .then(console.log)
-  //     .catch(console.error);
-  // }, []);
+  // We could GET /health to force the server to wake up if it's sleeping. It'll
+  // buy us some time to start up the server while the user reads the screen and
+  // attempts to register or sign in.
+  useEffect(() => {
+    console.log('[App] Fetching health...');
+    fetch(Parse.serverURL + '/health')
+      .then((response) => response.json())
+      .then((json) => {
+        if (json.status !== 'ok') {
+          console.warn(
+            'Server did not return an ok status. Will continue on anyway.',
+          );
+        }
+      })
+      .catch((error) => console.error('Failed to get server status:', error));
+  }, []);
 
   const onBeforeLift = async () => {
     const $FUNC = '[App.onBeforeLift]';
@@ -130,7 +126,7 @@ export function App() {
         await persistor.purge();
       }
     } catch (error) {
-      console.error([$FUNC, 'Failed to configure persistor:', error]);
+      console.error($FUNC, 'Failed to configure persistor:', error);
     }
   };
 
@@ -160,17 +156,15 @@ export function App() {
         loading={<LoadingScreen />}
         persistor={persistor}
         onBeforeLift={onBeforeLift}>
-        <PaperProvider theme={theme}>
-          <BottomSheetModalProvider>
-            <NavigationContainer
-              ref={navigationRef}
-              linking={linking}
-              onReady={handleNavigationOnReady}
-              onStateChange={handleNavigationOnStageChange}>
-              <AuthLoadingScreen />
-            </NavigationContainer>
-          </BottomSheetModalProvider>
-        </PaperProvider>
+        <BottomSheetModalProvider>
+          <NavigationContainer
+            ref={navigationRef}
+            linking={linking}
+            onReady={handleNavigationOnReady}
+            onStateChange={handleNavigationOnStageChange}>
+            <AuthLoadingScreen />
+          </NavigationContainer>
+        </BottomSheetModalProvider>
       </PersistGate>
     </Provider>
   );

@@ -3,60 +3,66 @@ import {
   createEntityAdapter,
   createSelector,
   createSlice,
+  EntityState,
+  PayloadAction,
 } from '@reduxjs/toolkit';
 
-import { ProductApi } from '../../api';
+import { PURGE } from 'redux-persist';
+
+import { ApiFetchStatus, ProductApi } from '../../api';
+import { MerchantId, Product, ProductId } from '../../models';
+import { Pagination } from '../../models/common';
+import { RootState } from '../../store';
+
+type FetchAllProductsParams = {
+  pagination?: Pagination;
+  reload?: boolean;
+};
 
 export const fetchAllProducts = createAsyncThunk(
   'products/fetchAllProducts',
-  /**
-   * @typedef {import('../../models/common').Pagination} Pagination
-   * @param {{ pagination?: Pagination, reload?: boolean }=} param0
-   */
-  async ({ pagination } = {}) => ProductApi.fetchAllProducts(pagination),
+  async ({ pagination }: FetchAllProductsParams = {}) =>
+    ProductApi.fetchAllProducts(pagination),
 );
+
+type FetchProductsForMerchantParams = {
+  merchantId: MerchantId;
+  reload?: boolean;
+};
 
 export const fetchProductsForMerchant = createAsyncThunk(
   'products/fetchProductsForMerchant',
-  /**
-   * @typedef {import('../../models').MerchantId} MerchantId
-   * @param {{ merchantId: MerchantId, reload?: boolean }} param0
-   */
-  async ({ merchantId }) =>
+  async ({ merchantId }: FetchProductsForMerchantParams) =>
     ProductApi.fetchProductsForMerchant(String(merchantId)),
 );
 
+type ChangeProductLikeStatusParams = {
+  productId: ProductId;
+  didLike: boolean;
+};
+
 export const changeProductLikeStatus = createAsyncThunk(
   'products/changeProductLikeStatus',
-  /**
-   * @typedef {import('../../models').ProductId} ProductId
-   * @param {{ productId: ProductId, didLike: boolean }} param0
-   */
-  async ({ productId, didLike }) =>
+  async ({ productId, didLike }: ChangeProductLikeStatusParams) =>
     ProductApi.changeProductLikeStatus(String(productId), didLike),
 );
 
+type UpdateProductViewCounterParams = {
+  productId: ProductId;
+  lastViewed?: string;
+};
+
 export const updateProductViewCounter = createAsyncThunk(
   'products/updateProductViewCounter',
-  /**
-   * @param {{ productId: ProductId, lastViewed?: string }} param0
-   */
-  async ({ productId }) =>
+  async ({ productId }: UpdateProductViewCounterParams) =>
     ProductApi.updateProductViewCounter(String(productId)),
 );
 
-/**
- * @typedef {import('../../models').Product} Product
- * @type {import("@reduxjs/toolkit").EntityAdapter<Product>}
- */
-const productsAdapter = createEntityAdapter();
+export type ProductsState = EntityState<Product> & ApiFetchStatus;
 
-/**
- * @typedef {import('../../api').ApiFetchStatus} ApiFetchStatus
- * @typedef {import('@reduxjs/toolkit').EntityState<Product>} ProductEntityState
- * @type {ProductEntityState & ApiFetchStatus}
- */
-const initialState = productsAdapter.getInitialState({
+const productsAdapter = createEntityAdapter<Product>();
+
+const initialState = productsAdapter.getInitialState<ApiFetchStatus>({
   status: 'idle',
 });
 
@@ -65,11 +71,10 @@ const productsSlice = createSlice({
   initialState,
   reducers: {
     updateProduct: productsAdapter.updateOne,
-    /**
-     * @typedef {{ productId: ProductId, didLike: boolean }} Payload
-     * @param {import('@reduxjs/toolkit').PayloadAction<Payload>} action
-     */
-    productLikeStatusChanged: (state, action) => {
+    productLikeStatusChanged: (
+      state,
+      action: PayloadAction<{ productId: ProductId; didLike: boolean }>,
+    ) => {
       const { productId, didLike } = action.payload;
       const existingProduct = state.entities[productId];
       if (existingProduct && existingProduct.statistics) {
@@ -80,9 +85,13 @@ const productsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      .addCase(PURGE, (state) => {
+        console.log('Purging products...');
+        Object.assign(state, initialState);
+      })
       // -- fetchAllProducts --
       .addCase(fetchAllProducts.pending, (state, action) => {
-        const { reload = false } = action.meta.arg ?? {};
+        const { reload = false } = action.meta.arg ?? {}; // `??` may not be necessary
         state.status = reload ? 'refreshing' : 'pending';
       })
       .addCase(fetchAllProducts.fulfilled, (state, action) => {
@@ -105,7 +114,6 @@ const productsSlice = createSlice({
       })
       .addCase(fetchProductsForMerchant.fulfilled, (state, action) => {
         state.status = 'fulfilled';
-        state.error = null;
         productsAdapter.upsertMany(state, action.payload);
       })
       .addCase(fetchProductsForMerchant.rejected, (state, action) => {
@@ -154,10 +162,13 @@ export const {
   selectAll: selectAllProducts,
   selectById: selectProductById,
   selectIds: selectProductIds,
-} = productsAdapter.getSelectors((state) => state.products);
+} = productsAdapter.getSelectors<RootState>((state) => state.products);
 
 export const selectProductsForMerchant = createSelector(
-  [selectAllProducts, (_state, merchantId) => merchantId],
+  [
+    selectAllProducts,
+    (_state: RootState, merchantId: MerchantId) => merchantId,
+  ],
   (products, merchantId) => {
     return products.filter((product) => product.merchantId === merchantId);
   },

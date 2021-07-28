@@ -3,34 +3,36 @@ import {
   createEntityAdapter,
   createSelector,
   createSlice,
+  EntityState,
 } from '@reduxjs/toolkit';
 
-import { CommentApi, PostApi } from '../../api';
-import { selectPostById } from '../posts/postsSlice';
+import { PURGE } from 'redux-persist';
+
+import { ApiFetchStatus, CommentApi, PostApi } from '../../api';
+import { Comment, PostId } from '../../models';
+import { RootState } from '../../store';
 
 export const fetchCommentsForPost = createAsyncThunk(
   'comments/fetchCommentsForPost',
-  PostApi.fetchCommentsForPost,
+  async (postId: PostId) => PostApi.fetchCommentsForPost(String(postId)),
 );
+
+type AddCommentForPostParams = {
+  postId: PostId;
+  message: string;
+};
 
 export const addCommentForPost = createAsyncThunk(
   'comments/addCommentForPost',
-  async ({ postId, message }, _) =>
-    CommentApi.addCommentForPost(postId, message),
+  async ({ postId, message }: AddCommentForPostParams) =>
+    CommentApi.addCommentForPost(String(postId), message),
 );
 
-/**
- * @typedef {import('../../models').Comment} Comment
- * @type {import('@reduxjs/toolkit').EntityAdapter<Comment>}
- */
-const commentsAdapter = createEntityAdapter();
+export type CommentsState = EntityState<Comment> & ApiFetchStatus;
 
-/**
- * @typedef {import('../../api').ApiFetchStatus} ApiFetchStatus
- * @typedef {import('@reduxjs/toolkit').EntityState<Comment>} CommentEntityState
- * @type {CommentEntityState & ApiFetchStatus}
- */
-const initialState = commentsAdapter.getInitialState({
+const commentsAdapter = createEntityAdapter<Comment>();
+
+const initialState = commentsAdapter.getInitialState<ApiFetchStatus>({
   status: 'idle',
 });
 
@@ -40,6 +42,10 @@ const commentsSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
+      .addCase(PURGE, (state) => {
+        console.log('Purging comments...');
+        Object.assign(state, initialState);
+      })
       // -- fetchCommentsForPost --
       .addCase(fetchCommentsForPost.pending, (state) => {
         state.status = 'pending';
@@ -75,18 +81,14 @@ export const {
   selectAll: selectAllComments,
   selectById: selectCommentById,
   selectIds: selectCommentIds,
-} = commentsAdapter.getSelectors((state) => state.comments);
+} = commentsAdapter.getSelectors<RootState>((state) => state.comments);
 
 export const selectCommentsForPost = createSelector(
-  [selectPostById, selectAllComments],
-  (post, allComments) => {
-    if (post) {
-      return allComments
-        .filter((comment) => comment.postId === post.id)
-        .map((comment) => comment.id);
-    } else {
-      return [];
-    }
+  [selectAllComments, (_state: RootState, postId: PostId) => postId],
+  (allComments, postId) => {
+    return allComments
+      .filter((comment) => comment.postId === postId)
+      .map((comment) => comment.id);
   },
 );
 

@@ -1,4 +1,6 @@
 apply plugin: "com.android.application"
+apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.google.firebase.crashlytics'
 apply plugin: 'com.google.firebase.firebase-perf'
 apply plugin: 'com.onesignal.androidsdk.onesignal-gradle-plugin'
 
@@ -80,7 +82,7 @@ import com.android.build.OutputFile
  */
 
 project.ext.react = [
-    enableHermes: true,  // clean and rebuild if changing
+    enableHermes: true, // clean and rebuild if changing
 ]
 
 project.ext.vectoricons = [
@@ -89,7 +91,6 @@ project.ext.vectoricons = [
 
 apply from: "../../node_modules/react-native/react.gradle"
 apply from: "../../node_modules/react-native-code-push/android/codepush.gradle"
-apply from: "../../node_modules/@bugsnag/react-native/bugsnag-react-native.gradle"
 apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
 
 /**
@@ -130,8 +131,8 @@ def jscFlavor = 'org.webkit:android-jsc:+'
 def enableHermes = project.ext.react.get("enableHermes", false);
 
 def versionMajor = 2 // Can be more than 2 digits
-def versionMinor = 1 // Must be between 0 and 99
-def versionPatch = 3 // Must be between 0 and 99
+def versionMinor = 2 // Must be between 0 and 99
+def versionPatch = 0 // Must be between 0 and 99
 def versionBuild = 0 // Must be between 0 and 99
 
 android {
@@ -186,7 +187,7 @@ android {
         releaseStaging {
             applicationIdSuffix ".releaseStaging"
             signingConfig signingConfigs.release
-            resValue "string", "CodePushDeploymentKey", '"SgI5BxrXPLuqHbbMqUxgRRJr2mARpovisHdU-"'
+            resValue "string", "CodePushDeploymentKey", '"JifUNCwdHstktjVKrZxx3KE-eE9hE2QaetqKk"'
             // resValue "string", "fbProviderId", "com.facebook.app.FacebookContentProvider{**enjaga**}"
 
             minifyEnabled enableProguardInReleaseBuilds
@@ -197,7 +198,7 @@ android {
             // Caution! In production, you need to generate your own keystore file.
             // see https://reactnative.dev/docs/signed-apk-android.
             signingConfig signingConfigs.release
-            resValue "string", "CodePushDeploymentKey", '"OadHGBPtsVP88ju21JVgJw5A7dfTSgRLCDaWj"'
+            resValue "string", "CodePushDeploymentKey", '"vYu7b5Dg8cXZFg7RbIRSrSJjQCkKGOQFPrE03"'
             // resValue "string", "fbProviderId", "com.facebook.app.FacebookContentProvider691371558227281"
 
             minifyEnabled enableProguardInReleaseBuilds
@@ -281,4 +282,3 @@ afterEvaluate {
 }
 
 apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
-apply plugin: 'com.google.gms.google-services' // This should be the last line

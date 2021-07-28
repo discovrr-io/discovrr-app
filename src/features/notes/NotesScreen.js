@@ -7,6 +7,7 @@ import {
   View,
 } from 'react-native';
 
+import crashlytics from '@react-native-firebase/crashlytics';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -103,6 +104,7 @@ export default function NotesScreen() {
           onRefresh={handleRefresh}
         />
       }
+      style={{ backgroundColor: colors.white }}
     />
   );
 }

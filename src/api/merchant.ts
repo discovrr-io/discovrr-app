@@ -2,7 +2,7 @@ import Parse from 'parse/react-native';
 
 import { DEFAULT_AVATAR_DIMENSIONS } from '../constants/media';
 
-import { UserApi } from '.';
+import { UserApi } from './user';
 import { Merchant } from '../models';
 import { MerchantAddress, MerchantId } from '../models/merchant';
 

@@ -94,7 +94,7 @@ const HomeStack = () => (
             <TextInput
               filled
               size="medium"
-              placeholder="Search..."
+              placeholder="Search anything..."
               returnKeyType="search"
               onFocus={async () => {
                 try {
@@ -407,7 +407,7 @@ export default function GroundZero() {
             headerBackTitleVisible: false,
             headerTintColor: 'black',
             title: 'Profile Settings',
-            headerTransparent: true,
+            // headerTransparent: true,
             headerBackground: () => (
               <View
                 style={[
