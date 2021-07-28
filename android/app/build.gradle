@@ -187,7 +187,7 @@ android {
         releaseStaging {
             applicationIdSuffix ".releaseStaging"
             signingConfig signingConfigs.release
-            resValue "string", "CodePushDeploymentKey", '"JifUNCwdHstktjVKrZxx3KE-eE9hE2QaetqKk"'
+            resValue "string", "CodePushDeploymentKey", '"pjAas8K6vagmVLbl2HIUQ1eK7L1_GtpZX4VR6"'
             // resValue "string", "fbProviderId", "com.facebook.app.FacebookContentProvider{**enjaga**}"
 
             minifyEnabled enableProguardInReleaseBuilds
@@ -198,7 +198,7 @@ android {
             // Caution! In production, you need to generate your own keystore file.
             // see https://reactnative.dev/docs/signed-apk-android.
             signingConfig signingConfigs.release
-            resValue "string", "CodePushDeploymentKey", '"vYu7b5Dg8cXZFg7RbIRSrSJjQCkKGOQFPrE03"'
+            resValue "string", "CodePushDeploymentKey", '"bRj21JE4-Rigvx4QKt2OEWkutNH-G6mJZ8Jta"'
             // resValue "string", "fbProviderId", "com.facebook.app.FacebookContentProvider691371558227281"
 
             minifyEnabled enableProguardInReleaseBuilds
