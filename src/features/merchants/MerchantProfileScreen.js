@@ -10,20 +10,23 @@ import NoteMasonryList from '../../components/masonry/NoteMasonryList';
 import PostMasonryList from '../../components/masonry/PostMasonryList';
 import ProductItemCard from '../products/ProductItemCard';
 import { EmptyTabView, MasonryList, RouteError } from '../../components';
-import {
-  HEADER_MAX_HEIGHT,
-  ProfileScreenHeader,
-} from '../profiles/ProfileScreen';
 
 import { selectAllNotes } from '../notes/notesSlice';
 import { selectPostsByProfile } from '../posts/postsSlice';
 import { SOMETHING_WENT_WRONG } from '../../constants/strings';
 import { useIsMounted } from '../../hooks';
 import { colors, values } from '../../constants';
+
 import {
   selectMerchantById,
+  selectTotalLikesForMerchant,
   updateMerchantViewCounter,
 } from './merchantsSlice';
+
+import {
+  HEADER_MAX_HEIGHT,
+  ProfileScreenHeader,
+} from '../profiles/ProfileScreen';
 
 import {
   fetchProductsForMerchant,
@@ -53,6 +56,7 @@ function ProductsTab({ merchant }) {
   const products = useSelector((state) =>
     selectProductsForMerchant(state, merchantId),
   );
+
   const productIds = useMemo(
     () => products.map((product) => product.id),
     [products],
@@ -184,6 +188,10 @@ export default function MerchantProfileScreen() {
       })
     : [];
 
+  const totalLikes = useSelector((state) =>
+    selectTotalLikesForMerchant(state, merchantId),
+  );
+
   useEffect(() => {
     const { lastViewed } = merchant.statistics ?? {};
 
@@ -212,6 +220,7 @@ export default function MerchantProfileScreen() {
               fullName: merchant.shortName,
               isVendor: true,
               address: merchant.address,
+              totalLikes,
             }}
           />
         )}

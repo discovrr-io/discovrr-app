@@ -1,6 +1,7 @@
 import {
   createAsyncThunk,
   createEntityAdapter,
+  createSelector,
   createSlice,
   EntityState,
   PayloadAction,
@@ -12,6 +13,7 @@ import { ApiFetchStatus, MerchantApi } from '../../api';
 import { Merchant, MerchantId } from '../../models';
 import { Pagination } from '../../models/common';
 import { RootState } from '../../store';
+import { selectProductsForMerchant } from '../products/productsSlice';
 
 type FetchAllMerchantsParams = {
   pagination?: Pagination;
@@ -158,5 +160,18 @@ export const {
   selectById: selectMerchantById,
   selectIds: selectMerchantIds,
 } = merchantsAdapter.getSelectors<RootState>((state) => state.merchants);
+
+export const selectTotalLikesForMerchant = createSelector(
+  [selectProductsForMerchant, selectMerchantById],
+  (products, merchant) => {
+    const merchantLikes = merchant.statistics?.totalLikes ?? 0;
+    const productLikes = products.reduce(
+      (acc, curr) => acc + curr.statistics?.totalLikes ?? 0,
+      0,
+    );
+
+    return merchantLikes + productLikes;
+  },
+);
 
 export default merchantsSlice.reducer;

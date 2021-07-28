@@ -294,7 +294,7 @@ const InfoModal = ({ visible, onRequestClose }) => {
                   </Text>
                 ) : (
                   <Text style={modalStyles.message}>
-                    This is Discovrr v2.1 Beta. Please report any bugs or give
+                    This is Discovrr v2.2 Beta. Please report any bugs or give
                     your feedback at{' '}
                     <Text
                       onPress={handleEmailPress}
