@@ -104,6 +104,7 @@ export default function NotesScreen() {
           onRefresh={handleRefresh}
         />
       }
+      style={{ backgroundColor: colors.white }}
     />
   );
 }

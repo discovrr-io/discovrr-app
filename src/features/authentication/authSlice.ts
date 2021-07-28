@@ -41,7 +41,7 @@ type SignOutParams = {
 
 export const signOut = createAsyncThunk(
   'auth/signOut',
-  async ({ logoutParse = true, logoutFirebase = true }: SignOutParams) =>
+  async ({ logoutParse = true, logoutFirebase = true }: SignOutParams = {}) =>
     AuthApi.signOut(logoutParse, logoutFirebase),
 );
 

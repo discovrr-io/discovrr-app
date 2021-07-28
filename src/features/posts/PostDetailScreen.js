@@ -47,7 +47,8 @@ import {
   LoadingTabView,
 } from '../../components';
 
-const COMMENT_TEXT_INPUT_HEIGHT = 50;
+const COMMENT_TEXT_INPUT_MIN_HEIGHT = 50;
+const COMMENT_TEXT_INPUT_MAX_HEIGHT = 200;
 const COMMENT_POST_BUTTON_WIDTH = 70;
 
 // TODO: Refactor out
@@ -296,7 +297,7 @@ export default function PostDetailScreen() {
       setIsProcessingComment(true);
       const addCommentAction = addCommentForPost({
         postId,
-        message: commentTextInput,
+        message: commentTextInput.trim(),
       });
 
       await dispatch(addCommentAction).unwrap();
@@ -391,7 +392,7 @@ export default function PostDetailScreen() {
         />
         <View
           style={{
-            minHeight: COMMENT_TEXT_INPUT_HEIGHT,
+            minHeight: COMMENT_TEXT_INPUT_MIN_HEIGHT,
             flexDirection: 'row',
             alignItems: 'flex-end',
             backgroundColor: colors.white,
@@ -415,7 +416,8 @@ export default function PostDetailScreen() {
                     paddingTop: values.spacing.lg,
                     paddingBottom: values.spacing.lg,
                     paddingRight: values.spacing.md * 1.5,
-                    minHeight: COMMENT_TEXT_INPUT_HEIGHT,
+                    minHeight: COMMENT_TEXT_INPUT_MIN_HEIGHT,
+                    maxHeight: COMMENT_TEXT_INPUT_MAX_HEIGHT,
                   }
                 : {}),
             }}
@@ -425,7 +427,7 @@ export default function PostDetailScreen() {
             onPress={handlePostComment}
             style={{
               justifyContent: 'center',
-              height: COMMENT_TEXT_INPUT_HEIGHT,
+              height: COMMENT_TEXT_INPUT_MIN_HEIGHT,
               width: COMMENT_POST_BUTTON_WIDTH,
             }}>
             {isProcessingComment ? (

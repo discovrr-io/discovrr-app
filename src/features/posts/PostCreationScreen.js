@@ -35,15 +35,17 @@ import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIc
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import storage from '@react-native-firebase/storage';
 
-// import { Portal, TextInput } from 'react-native-paper';
-// import ImagePicker from 'react-native-image-crop-picker';
-// import ProgressCircle from 'react-native-progress/Circle';
-// import RNPopoverMenu from 'react-native-popover-menu';
+import { Portal, TextInput } from 'react-native-paper';
+import ImagePicker from 'react-native-image-crop-picker';
+import ProgressCircle from 'react-native-progress/Circle';
+import RNPopoverMenu from 'react-native-popover-menu';
 
-// import { isAndroid, windowWidth } from '../../utilities/Constants';
-// import { requestPermissionConfig } from '../../utilities/Permissions';
-// import { updateNotes } from '../../utilities/Actions';
-// import ModalActivityIndicatorAlt from '../../components/ModalActivityIndicatorAlt';
+import { isAndroid, windowWidth } from '../../utilities/Constants';
+import { requestPermissionConfig } from '../../utilities/Permissions';
+import { updateNotes } from '../../utilities/Actions';
+import { LoadingOverlay } from '../../components';
+import { colors } from '../../constants';
+import DeveloperNote from '../../components/DeveloperNote';
 
 const Parse = require('parse/react-native');
 const isEqual = require('lodash/isEqual');
@@ -946,6 +948,8 @@ class PostCreationScreen extends Component {
             />
           </View> */}
 
+          <DeveloperNote style={{ marginTop: 8 }} />
+
           <View
             style={{
               marginTop: 20,
@@ -1165,7 +1169,7 @@ class PostCreationScreen extends Component {
                 alignSelf: 'flex-start',
               }}
               onPress={this.showBottomSheet}>
-              <View
+              {/* <View
                 style={{
                   flexDirection: 'row',
                   alignItems: 'center',
@@ -1220,7 +1224,7 @@ class PostCreationScreen extends Component {
                   size={24}
                   color="black"
                 />
-              </View>
+              </View> */}
             </TouchableOpacity>
           )}
 
@@ -1291,9 +1295,10 @@ class PostCreationScreen extends Component {
         </ScrollView>
 
         {isProcessing && (
-          <Portal>
-            <ModalActivityIndicatorAlt hideIndicator opacity={0.1} />
-          </Portal>
+          // <Portal>
+          //   <ModalActivityIndicatorAlt hideIndicator opacity={0.1} />
+          // </Portal>
+          <LoadingOverlay message="Submitting post..." />
         )}
       </View>
     );

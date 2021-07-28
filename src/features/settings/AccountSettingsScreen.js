@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput } from 'react-native';
 
+import DeveloperNote from '../../components/DeveloperNote';
 import { colors, typography, values } from '../../constants';
 
 const Parse = require('parse/react-native');
@@ -10,6 +11,7 @@ export default function AccountSettingsScreen() {
 
   return (
     <ScrollView contentContainerStyle={accountSettingsScreenStyles.container}>
+      <DeveloperNote style={{ marginBottom: 8 }} />
       <Text style={accountSettingsScreenStyles.section}>
         Login and Security
       </Text>

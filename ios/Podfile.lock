@@ -182,6 +182,7 @@ PODS:
   - FlipperKit/SKIOSNetworkPlugin (0.98.0):
     - FlipperKit/Core
     - FlipperKit/FlipperKitNetworkPlugin
+  - FTPopOverMenu (2.1.1)
   - glog (0.3.5)
   - GoogleAppMeasurement (8.3.0):
     - GoogleAppMeasurement/AdIdSupport (= 8.3.0)
@@ -579,8 +580,23 @@ PODS:
   - RNGoogleSignin (6.0.1):
     - GoogleSignIn (~> 5.0.0)
     - React-Core
+  - RNImageCropPicker (0.36.2):
+    - React-Core
+    - React-RCTImage
+    - RNImageCropPicker/QBImagePickerController (= 0.36.2)
+    - TOCropViewController
+  - RNImageCropPicker/QBImagePickerController (0.36.2):
+    - React-Core
+    - React-RCTImage
+    - TOCropViewController
+  - RNImageHelper (0.0.3):
+    - React
   - RNPermissions (3.0.5):
     - React-Core
+  - RNPopoverMenu (2.0.2):
+    - FTPopOverMenu (~> 2.1.1)
+    - React-Core
+    - RNImageHelper
   - RNReanimated (2.2.0):
     - DoubleConversion
     - FBLazyVector
@@ -614,6 +630,8 @@ PODS:
     - React-Core
   - RNShare (4.1.2):
     - React-Core
+  - RNSVG (12.1.1):
+    - React
   - RNVectorIcons (7.1.0):
     - React
   - SDWebImage (5.11.1):
@@ -623,6 +641,7 @@ PODS:
     - libwebp (~> 1.0)
     - SDWebImage/Core (~> 5.7)
   - SSZipArchive (2.2.3)
+  - TOCropViewController (2.6.0)
   - Yoga (1.14.0)
   - YogaKit (1.18.1):
     - Yoga (~> 1.14)
@@ -703,10 +722,14 @@ DEPENDENCIES:
   - "RNFBStorage (from `../node_modules/@react-native-firebase/storage`)"
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - "RNGoogleSignin (from `../node_modules/@react-native-google-signin/google-signin`)"
+  - RNImageCropPicker (from `../node_modules/react-native-image-crop-picker`)
+  - RNImageHelper (from `../node_modules/react-native-image-helper/ios`)
   - RNPermissions (from `../node_modules/react-native-permissions`)
+  - RNPopoverMenu (from `../node_modules/react-native-popover-menu/ios`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNShare (from `../node_modules/react-native-share`)
+  - RNSVG (from `../node_modules/react-native-svg`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
@@ -738,6 +761,7 @@ SPEC REPOS:
     - Flipper-PeerTalk
     - Flipper-RSocket
     - FlipperKit
+    - FTPopOverMenu
     - GoogleAppMeasurement
     - GoogleDataTransport
     - GoogleSignIn
@@ -756,6 +780,7 @@ SPEC REPOS:
     - SDWebImage
     - SDWebImageWebPCoder
     - SSZipArchive
+    - TOCropViewController
     - YogaKit
 
 EXTERNAL SOURCES:
@@ -865,14 +890,22 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-gesture-handler"
   RNGoogleSignin:
     :path: "../node_modules/@react-native-google-signin/google-signin"
+  RNImageCropPicker:
+    :path: "../node_modules/react-native-image-crop-picker"
+  RNImageHelper:
+    :path: "../node_modules/react-native-image-helper/ios"
   RNPermissions:
     :path: "../node_modules/react-native-permissions"
+  RNPopoverMenu:
+    :path: "../node_modules/react-native-popover-menu/ios"
   RNReanimated:
     :path: "../node_modules/react-native-reanimated"
   RNScreens:
     :path: "../node_modules/react-native-screens"
   RNShare:
     :path: "../node_modules/react-native-share"
+  RNSVG:
+    :path: "../node_modules/react-native-svg"
   RNVectorIcons:
     :path: "../node_modules/react-native-vector-icons"
   Yoga:
@@ -909,6 +942,7 @@ SPEC CHECKSUMS:
   Flipper-PeerTalk: 116d8f857dc6ef55c7a5a75ea3ceaafe878aadc9
   Flipper-RSocket: d9d9ade67cbecf6ac10730304bf5607266dd2541
   FlipperKit: 2c7cd44efce216d1aeb165a0dca5e29877a92cc5
+  FTPopOverMenu: 202d46aea0656307fd463fac0340c9c8837158d2
   glog: 40a13f7840415b9a77023fbcae0f1e6f43192af3
   GoogleAppMeasurement: de70802583dedceb0bca18172b345307e8f410b8
   GoogleDataTransport: 85fd18ff3019bb85d3f2c551d04c481dedf71fc9
@@ -973,14 +1007,19 @@ SPEC CHECKSUMS:
   RNFBStorage: 8c14190052be92c1fc772ef8c36aac4d3d4d4c7f
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNGoogleSignin: e64616a4080cf7d83f4b292fad82d174587444e2
+  RNImageCropPicker: 35a3ceb837446fa11547704709bb22b5fac6d584
+  RNImageHelper: efb1e1b39f0e19a40b8873c2c1c9614c0dd150ed
   RNPermissions: 7043bacbf928eae25808275cfe73799b8f618911
+  RNPopoverMenu: 4ad647eee0cfeeaf872a25a42882c598d726a1fe
   RNReanimated: 9c13c86454bfd54dab7505c1a054470bfecd2563
   RNScreens: f7ad633b2e0190b77b6a7aab7f914fad6f198d8d
   RNShare: d22507fa5e80c72f236b5622556cf831de5b1e93
+  RNSVG: 551acb6562324b1d52a4e0758f7ca0ec234e278f
   RNVectorIcons: bc69e6a278b14842063605de32bec61f0b251a59
   SDWebImage: a7f831e1a65eb5e285e3fb046a23fcfbf08e696d
   SDWebImageWebPCoder: d0dac55073088d24b2ac1b191a71a8f8d0adac21
   SSZipArchive: 62d4947b08730e4cda640473b0066d209ff033c9
+  TOCropViewController: 3105367e808b7d3d886a74ff59bf4804e7d3ab38
   Yoga: 575c581c63e0d35c9a83f4b46d01d63abc1100ac
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 

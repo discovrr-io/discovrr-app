@@ -98,10 +98,13 @@ export default function AuthLoadingScreen() {
     if (isFirstLogin && !!user)
       (async () => {
         try {
-          console.log($FUNC, "Fetching current user's profile...");
+          console.log(
+            $FUNC,
+            `Fetching current user's profile (${user.profileId})...`,
+          );
           /** @type {import('../../models').Profile} */
           const profile = await dispatch(
-            fetchProfileById(user.profileId),
+            fetchProfileById({ profileId: user.profileId, reload: true }),
           ).unwrap();
 
           console.log($FUNC, 'Will send OneSignal tags...');
