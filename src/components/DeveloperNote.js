@@ -5,7 +5,7 @@ import { Platform, Text, View } from 'react-native';
  * @param {import('react-native').ViewProps} props
  */
 export default function DeveloperNote(props) {
-  // if (Platform.OS === 'ios') return null;
+  if (Platform.OS === 'ios') return null;
 
   return (
     <View style={props.style}>

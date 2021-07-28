@@ -3,6 +3,7 @@ import { ActivityIndicator, Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 
 import analytics from '@react-native-firebase/analytics';
+import inAppMessaging from '@react-native-firebase/in-app-messaging';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import codePush from 'react-native-code-push';
 
@@ -77,6 +78,8 @@ const linking = {
 };
 
 export function App() {
+  const $FUNC = '[App]';
+
   /**
    * @typedef {import('@react-navigation/native').NavigationContainerRef} NavigationContainerRef
    * @type {React.MutableRefObject<NavigationContainerRef>}
@@ -85,21 +88,32 @@ export function App() {
   /** @type {React.MutableRefObject<string>} */
   const routeNameRef = useRef(null);
 
-  // We could GET /health to force the server to wake up if it's sleeping. It'll
-  // buy us some time to start up the server while the user reads the screen and
-  // attempts to register or sign in.
   useEffect(() => {
-    console.log('[App] Fetching health...');
+    // TODO: Should we move this to LoginScreen?
+    console.log($FUNC, 'Suppressing in app messages...');
+    inAppMessaging()
+      .setMessagesDisplaySuppressed(true)
+      .catch((error) =>
+        console.error($FUNC, 'Failed to suppress in app messages:', error),
+      );
+
+    // We could GET /health to force the server to wake up if it's sleeping.
+    // It'll buy us some time to start up the server while the user reads the
+    // screen and attempts to register or sign in.
+    console.log($FUNC, 'Fetching health...');
     fetch(Parse.serverURL + '/health')
       .then((response) => response.json())
       .then((json) => {
         if (json.status !== 'ok') {
           console.warn(
+            $FUNC,
             'Server did not return an ok status. Will continue on anyway.',
           );
         }
       })
-      .catch((error) => console.error('Failed to get server status:', error));
+      .catch((error) =>
+        console.error($FUNC, 'Failed to get server status:', error),
+      );
   }, []);
 
   const onBeforeLift = async () => {

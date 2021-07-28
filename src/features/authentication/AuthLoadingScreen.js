@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 
+import inAppMessaging from '@react-native-firebase/in-app-messaging';
 import OneSignal from 'react-native-onesignal';
 import RNBootSplash from 'react-native-bootsplash';
 import { createDrawerNavigator } from '@react-navigation/drawer';
@@ -95,8 +96,17 @@ export default function AuthLoadingScreen() {
   }, []);
 
   useEffect(() => {
-    if (isFirstLogin && !!user)
-      (async () => {
+    (async () => {
+      if (isAuthenticated) {
+        try {
+          console.log($FUNC, 'Enabling in app messages...');
+          await inAppMessaging().setMessagesDisplaySuppressed(false);
+        } catch (error) {
+          console.error($FUNC, 'Failed to enable in app messages:', error);
+        }
+      }
+
+      if (isFirstLogin && !!user) {
         try {
           console.log(
             $FUNC,
@@ -122,8 +132,9 @@ export default function AuthLoadingScreen() {
             .unwrap()
             .catch((error) => console.warn('Ignored sign out error:', error));
         }
-      })();
-  }, [isFirstLogin]);
+      }
+    })();
+  }, [isAuthenticated, isFirstLogin, user]);
 
   return isAuthenticated ? (
     <MainDrawer.Navigator
