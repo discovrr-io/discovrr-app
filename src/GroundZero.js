@@ -385,9 +385,6 @@ export default function GroundZero() {
           options={{
             headerShown: false,
           }}
-          cardStyle={{
-            backgroundColor: 'white',
-          }}
         />
 
         <Stack.Screen
@@ -407,18 +404,6 @@ export default function GroundZero() {
             headerBackTitleVisible: false,
             headerTintColor: 'black',
             title: 'Profile Settings',
-            // headerTransparent: true,
-            headerBackground: () => (
-              <View
-                style={[
-                  StyleSheet.absoluteFill,
-                  { backgroundColor: 'rgba(255, 255, 255, 0.8)' },
-                ]}
-              />
-            ),
-          }}
-          cardStyle={{
-            backgroundColor: 'white',
           }}
         />
 
@@ -441,9 +426,6 @@ export default function GroundZero() {
               </TouchableOpacity>
             ),
           }}
-          cardStyle={{
-            backgroundColor: 'white',
-          }}
         />
 
         <Stack.Screen
@@ -453,13 +435,6 @@ export default function GroundZero() {
             headerBackTitleVisible: false,
             headerTintColor: 'black',
             title: 'New Post',
-            // headerTransparent: true,
-            // headerBackground: () => (
-            //   <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(255, 255, 255, 0.8)' }]} />
-            // ),
-          }}
-          cardStyle={{
-            backgroundColor: 'white',
           }}
         />
 
@@ -480,13 +455,6 @@ export default function GroundZero() {
             headerBackTitleVisible: false,
             headerTintColor: 'black',
             title: 'Notifications',
-            // headerTransparent: true,
-            // headerBackground: () => (
-            //   <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(255, 255, 255, 0.8)' }]} />
-            // ),
-          }}
-          cardStyle={{
-            backgroundColor: 'white',
           }}
         />
 

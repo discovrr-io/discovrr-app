@@ -3,6 +3,7 @@ import {
   createSelector,
   createSlice,
 } from '@reduxjs/toolkit';
+import { useSelector } from 'react-redux';
 import { PURGE } from 'redux-persist';
 
 import { ApiFetchStatus, AuthApi } from '../../api';

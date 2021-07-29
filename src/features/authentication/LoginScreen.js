@@ -537,23 +537,23 @@ export default function LoginScreen() {
   const dispatch = useAppDispatch();
   const { width: screenWidth } = useWindowDimensions();
 
-  const { status, error } = useAppSelector((state) => state.auth);
+  const { status /* error */ } = useAppSelector((state) => state.auth);
 
   const isMounted = useIsMounted();
   const [isProcessing, setIsProcessing] = useState(false);
   const [formType, setFormType] = useState('login');
 
-  useEffect(() => {
-    if (error) {
-      Alert.alert(
-        SOMETHING_WENT_WRONG.title,
-        createReportMessage(
-          error,
-          'We had to sign you out due to an authentication error.',
-        ),
-      );
-    }
-  }, [error]);
+  // useEffect(() => {
+  //   if (error) {
+  //     Alert.alert(
+  //       SOMETHING_WENT_WRONG.title,
+  //       createReportMessage(
+  //         error,
+  //         'We had to sign you out due to an authentication error.',
+  //       ),
+  //     );
+  //   }
+  // }, [error]);
 
   const handleSignInWithApple = async () => {
     if (isProcessing) return;
