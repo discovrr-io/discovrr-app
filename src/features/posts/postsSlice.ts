@@ -36,6 +36,11 @@ export const fetchPostById = createAsyncThunk(
   async (postId: PostId) => PostApi.fetchPostById(String(postId)),
 );
 
+export const deletePost = createAsyncThunk(
+  'posts/deletePost',
+  async (postId: PostId) => PostApi.deletePost(String(postId)),
+);
+
 type ChangePostLikeStatusParams = {
   postId: PostId;
   didLike: boolean;
@@ -133,6 +138,20 @@ const postsSlice = createSlice({
         postsAdapter.upsertOne(state, action.payload);
       })
       .addCase(fetchPostById.rejected, (state, action) => {
+        state.status = 'rejected';
+        state.error = action.error;
+        // TODO: We need to know if this was a refresh action to not remove it
+        postsAdapter.removeOne(state, action.meta.arg);
+      })
+      // -- deletePost --
+      .addCase(deletePost.pending, (state) => {
+        state.status = 'deleting';
+      })
+      .addCase(deletePost.fulfilled, (state, action) => {
+        const deletedPostId = action.meta.arg;
+        postsAdapter.removeOne(state, deletedPostId);
+      })
+      .addCase(deletePost.rejected, (state, action) => {
         state.status = 'rejected';
         state.error = action.error;
       })

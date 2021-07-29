@@ -3,10 +3,7 @@ import { ActivityIndicator, Text, View } from 'react-native';
 
 import { colors, typography, values } from '../constants';
 
-/**
- * @param {{ message: string }} param0
- */
-export default function LoadingOverlay({ message }) {
+export default function LoadingOverlay({ message }: { message: string }) {
   return (
     <View
       style={{

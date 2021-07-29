@@ -130,25 +130,44 @@ export namespace PostApi {
     }
   }
 
-  export async function fetchPostById(postId: string): Promise<Post | null> {
+  // TODO: Move the implementation of this to a backend cloud function
+  export async function deletePost(postId: string): Promise<void> {
+    const $FUNC = '[ProfileApi.deletePost]';
+    const postQuery = new Parse.Query(Parse.Object.extend('Post'));
+    const post = await postQuery.get(postId);
+
+    const commentsQuery = new Parse.Query(Parse.Object.extend('PostComment'));
+    commentsQuery.equalTo('post', post.toPointer());
+    const commentsToRemove = await commentsQuery.find();
+    console.log(
+      $FUNC,
+      'Found comments to remove:',
+      commentsToRemove.map((it) => it.id),
+    );
+
+    console.log($FUNC, 'Removing comments...');
+    await Parse.Object.destroyAll(commentsToRemove);
+
+    console.log($FUNC, 'Removing post...');
+    await post.destroy();
+
+    console.log($FUNC, 'Successfully removed post and associated comments!');
+  }
+
+  export async function fetchPostById(postId: string): Promise<Post> {
     const $FUNC = '[ProfileApi.fetchPostById]';
 
-    try {
-      const profile = await UserApi.getCurrentUserProfile();
-      const postQuery = new Parse.Query(Parse.Object.extend('Post'));
-      postQuery.equalTo('objectId', postId);
+    const profile = await UserApi.getCurrentUserProfile();
+    const postQuery = new Parse.Query(Parse.Object.extend('Post'));
+    postQuery.get(postId);
 
-      const result = await postQuery.first();
-      if (result) {
-        return mapResultToPost(profile?.id, result);
-      } else {
-        console.warn($FUNC, 'No profile found with id:', profile?.id);
-        return null;
-      }
-    } catch (error) {
-      console.error($FUNC, 'Failed to fetch profile by id:', error);
-      throw error;
+    const result = await postQuery.first();
+    if (!result) {
+      console.error($FUNC, 'No post found with id:', postId);
+      throw new Error('Failed to find post with given ID.');
     }
+
+    return mapResultToPost(profile?.id, result);
   }
 
   export async function changePostLikeStatus(postId: string, didLike: boolean) {

@@ -8,7 +8,8 @@ export type LoadingStatus =
   | 'pending'
   | 'refreshing'
   | 'fulfilled'
-  | 'rejected';
+  | 'rejected'
+  | 'deleting';
 
 /**
  * Used by Redux to indicate the current status of an async request to the Parse

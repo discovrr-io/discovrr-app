@@ -30,7 +30,9 @@ export const addCommentForPost = createAsyncThunk(
 
 export type CommentsState = EntityState<Comment> & ApiFetchStatus;
 
-const commentsAdapter = createEntityAdapter<Comment>();
+const commentsAdapter = createEntityAdapter<Comment>({
+  sortComparer: (a, b) => a.createdAt.localeCompare(b.createdAt),
+});
 
 const initialState = commentsAdapter.getInitialState<ApiFetchStatus>({
   status: 'idle',

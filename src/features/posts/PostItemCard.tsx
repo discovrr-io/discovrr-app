@@ -1,8 +1,6 @@
 import React, { useCallback, useRef, useState } from 'react';
 import {
   Alert,
-  ActivityIndicator,
-  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -14,13 +12,14 @@ import * as Animatable from 'react-native-animatable';
 import FastImage from 'react-native-fast-image';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { Portal } from '@gorhom/portal';
 import { useNavigation } from '@react-navigation/native';
 
 import ActionModal from '../../components/bottomSheets/ActionModal';
 import { NotificationApi } from '../../api';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { selectProfileById } from '../profiles/profilesSlice';
-import { selectPostById, changePostLikeStatus } from './postsSlice';
+import { selectPostById, changePostLikeStatus, deletePost } from './postsSlice';
 
 import {
   colors,
@@ -41,7 +40,7 @@ import {
 import { selectCurrentUserProfileId } from '../authentication/authSlice';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { Post, PostId } from '../../models';
-import { Button } from '../../components';
+import { Button, LoadingOverlay } from '../../components';
 import { ImageSource } from '../../models/common';
 
 const SMALL_ICON = 24;
@@ -109,6 +108,7 @@ type PostItemCardFooterProps = ViewProps & {
 };
 
 export function PostItemCardFooter(props: PostItemCardFooterProps) {
+  const $FUNC = '[PostItemCardFooter]';
   const {
     post,
     smallContent = false,
@@ -143,6 +143,7 @@ export function PostItemCardFooter(props: PostItemCardFooterProps) {
 
   const [isProcessingLike, setIsProcessingLike] = useState(false);
   const [isProcessingSave, _setIsProcessingSave] = useState(false);
+  const [isProcessingDelete, setIsProcessingDelete] = useState(false);
   // const [isProcessingReport, setIsProcessingReport] = useState(false);
 
   const handlePressAvatar = () => {
@@ -222,6 +223,37 @@ export function PostItemCardFooter(props: PostItemCardFooterProps) {
   //   );
   // };
 
+  const handleDeletePost = async () => {
+    const commitDeletion = async () => {
+      try {
+        console.log($FUNC, `Deleting post with id '${post.id}'...`);
+        setIsProcessingDelete(true);
+        await dispatch(deletePost(post.id)).unwrap();
+        // NOTE: Are we guaranteed that the menu dots, and thus the delete
+        // button, is always on the post detail screen?
+        navigation.goBack();
+      } catch (error) {
+        console.error($FUNC, 'Failed to delete post:', error);
+        Alert.alert(
+          'Failed to delete post',
+          "We weren't able to delete this post. Please try again later.",
+        );
+      } finally {
+        setIsProcessingDelete(false);
+      }
+    };
+
+    bottomSheetModalRef.current.close();
+    Alert.alert(
+      'Delete post?',
+      'Are you sure you want to delete this post? This action is irreversible.',
+      [
+        { text: 'Delete', style: 'destructive', onPress: commitDeletion },
+        { text: 'Cancel', style: 'cancel' },
+      ],
+    );
+  };
+
   const handleShowActionModal = useCallback(() => {
     bottomSheetModalRef.current.present();
   }, []);
@@ -271,7 +303,6 @@ export function PostItemCardFooter(props: PostItemCardFooterProps) {
       <View style={postItemFooterStyles.actionsContainer}>
         {showMenuIcon && (
           <TouchableOpacity
-            disabled={false}
             activeOpacity={DEFAULT_ACTIVE_OPACITY}
             onPress={handleShowActionModal}>
             <MaterialCommunityIcon
@@ -321,7 +352,7 @@ export function PostItemCardFooter(props: PostItemCardFooterProps) {
           </TouchableOpacity>
         )}
         <TouchableOpacity
-          disabled={isProcessingSave}
+          disabled={isProcessingSave || isProcessingDelete}
           activeOpacity={DEFAULT_ACTIVE_OPACITY}
           onPress={alertUnimplementedFeature}>
           <MaterialIcon
@@ -332,7 +363,7 @@ export function PostItemCardFooter(props: PostItemCardFooterProps) {
           />
         </TouchableOpacity>
         <TouchableOpacity
-          disabled={isProcessingLike}
+          disabled={isProcessingLike || isProcessingDelete}
           activeOpacity={DEFAULT_ACTIVE_OPACITY}
           onPress={handlePressLike}>
           <Animatable.View key={didLike.toString()} animation="bounceIn">
@@ -374,7 +405,7 @@ export function PostItemCardFooter(props: PostItemCardFooterProps) {
               <ActionModal.Item
                 label="Delete Post"
                 iconName="delete"
-                onPress={alertUnimplementedFeature}
+                onPress={handleDeletePost}
               />
             </>
           ) : (

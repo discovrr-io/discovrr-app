@@ -1,44 +1,56 @@
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  ViewProps,
+} from 'react-native';
 
 import FastImage from 'react-native-fast-image';
 import { useNavigation } from '@react-navigation/native';
 
 import { colors, typography, values } from '../../constants';
 import { useAppSelector } from '../../hooks';
+import { CommentId } from '../../models';
+import {
+  selectCurrentUser,
+  selectCurrentUserProfileId,
+} from '../authentication/authSlice';
 import { selectProfileById } from '../profiles/profilesSlice';
-import { selectCurrentUser } from '../authentication/authSlice';
 import { selectCommentById } from './commentsSlice';
+import { DEFAULT_AVATAR } from '../../constants/media';
 
 const AVATAR_DIAMETER = 32;
 const DEFAULT_ACTIVE_OPACITY = 0.6;
 
-/**
- * @typedef {import('../../models').CommentId} CommentId
- * @typedef {import('react-native').ViewProps} ViewProps
- * @typedef {{ commentId: CommentId }} PostCommentProps
- * @param {PostCommentProps & ViewProps} param0
- */
-export default function PostComment({ commentId, ...props }) {
+type PostCommentProps = ViewProps & {
+  commentId: CommentId;
+};
+
+export default function PostComment(props: PostCommentProps) {
+  const { commentId, ...restProps } = props;
+
   const navigation = useNavigation();
 
   const comment = useAppSelector((state) =>
     selectCommentById(state, commentId),
   );
+
   if (!comment) {
     console.warn('[Comment] Failed to select comment with id:', commentId);
     return null;
   }
 
-  const { avatar, fullName } = useAppSelector((state) =>
-    selectProfileById(state, comment.profileId),
-  );
+  const { avatar = DEFAULT_AVATAR, fullName = 'Anonymous' } =
+    useAppSelector((state) => selectProfileById(state, comment.profileId)) ??
+    {};
 
-  const currentUser = useAppSelector(selectCurrentUser);
-  const isMyComment =
-    currentUser && comment.profileId === currentUser.profileId;
+  const currentUserProfileId = useAppSelector(selectCurrentUserProfileId);
+  const isMyComment = comment.profileId === currentUserProfileId;
 
   const handlePressAvatar = () => {
+    // @ts-ignore
     navigation.push('UserProfileScreen', {
       profileId: String(comment.profileId),
       profileName: fullName,
@@ -46,7 +58,7 @@ export default function PostComment({ commentId, ...props }) {
   };
 
   return (
-    <View style={[postCommentStyles.container, props.style]}>
+    <View style={[postCommentStyles.container, restProps.style]}>
       <TouchableOpacity
         activeOpacity={DEFAULT_ACTIVE_OPACITY}
         onPress={handlePressAvatar}>

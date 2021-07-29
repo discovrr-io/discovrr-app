@@ -1293,13 +1293,6 @@ class PostCreationScreen extends Component {
 
           <Animated.View style={{ height: animatedHeight }} />
         </ScrollView>
-
-        {isProcessing && (
-          // <Portal>
-          //   <ModalActivityIndicatorAlt hideIndicator opacity={0.1} />
-          // </Portal>
-          <LoadingOverlay message="Submitting post..." />
-        )}
       </View>
     );
   }

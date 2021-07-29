@@ -18,7 +18,7 @@ import {
 
 import Carousel, { Pagination } from 'react-native-snap-carousel';
 import FastImage from 'react-native-fast-image';
-import Video from 'react-native-video';
+// import Video from 'react-native-video';
 import { useRoute } from '@react-navigation/core';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -26,8 +26,11 @@ import PostComment from '../comments/PostComment';
 import { colors, typography, values } from '../../constants';
 import { SOMETHING_WENT_WRONG } from '../../constants/strings';
 import { useAppDispatch, useAppSelector, useIsMounted } from '../../hooks';
-
+import { ImageSource } from '../../models/common';
+import { Post, PostId } from '../../models';
+import { DEFAULT_IMAGE_DIMENSIONS } from '../../constants/media';
 import { PostItemCardFooter } from './PostItemCard';
+
 import {
   fetchPostById,
   selectPostById,
@@ -45,12 +48,8 @@ import {
   ErrorTabView,
   RouteError,
   LoadingTabView,
+  LoadingOverlay,
 } from '../../components';
-import { ImageSource } from '../../models/common';
-import { Post, PostId } from '../../models';
-import { DEFAULT_IMAGE_DIMENSIONS } from '../../constants/media';
-import ActionModal from '../../components/bottomSheets/ActionModal';
-import { BottomSheetModal } from '@gorhom/bottom-sheet';
 
 const COMMENT_TEXT_INPUT_MIN_HEIGHT = 50;
 const COMMENT_TEXT_INPUT_MAX_HEIGHT = 200;
@@ -65,12 +64,6 @@ function isOverFiveMinutes(date: string | number | Date) {
   const then = new Date(date);
   return now.valueOf() - then.valueOf() > FIVE_MINS;
 }
-
-/**
- * @typedef {import('../../models/common').ImageSource} ImageSource
- * @typedef {{ item: ImageSource }} SliderImageProps
- * @param {SliderImageProps} param0
- */
 
 type SliderImageProps = {
   item: ImageSource;
@@ -231,23 +224,13 @@ const postDetailContentStyles = StyleSheet.create({
   },
 });
 
-export default function PostDetailScreen() {
-  const $FUNC = '[PostDetailScreen]';
+function LoadedPostDetailScreen({ post }: { post: Post }) {
+  const $FUNC = '[LoadedPostDetailScreen]';
   const dispatch = useAppDispatch();
 
+  const postStatus = useAppSelector((state) => state.posts.status);
+
   const { bottom: bottomInsets } = useSafeAreaInsets();
-
-  const { postId }: { postId?: PostId | undefined } = useRoute().params ?? {};
-  if (!postId) {
-    console.error($FUNC, 'No post ID was given');
-    return <RouteError />;
-  }
-
-  const post = useAppSelector((state) => selectPostById(state, postId));
-  if (!post) {
-    console.error($FUNC, 'Failed to select post with id:', postId);
-    return <RouteError />;
-  }
 
   const currentUserProfileId = useAppSelector(
     (state) => state.auth.user.profileId,
@@ -255,7 +238,7 @@ export default function PostDetailScreen() {
   const isMyPost = post.profileId === currentUserProfileId;
 
   const commentIds = useAppSelector((state) =>
-    selectCommentsForPost(state, postId),
+    selectCommentsForPost(state, post.id),
   );
 
   const isMounted = useIsMounted();
@@ -279,7 +262,7 @@ export default function PostDetailScreen() {
       console.log($FUNC, 'Updating last viewed date-time...');
       dispatch(
         updatePostViewCounter({
-          postId,
+          postId: post.id,
           lastViewed: new Date().toJSON(),
         }),
       );
@@ -291,8 +274,8 @@ export default function PostDetailScreen() {
       (async () => {
         try {
           await Promise.all([
-            dispatch(fetchPostById(String(postId))).unwrap(),
-            dispatch(fetchCommentsForPost(String(postId))).unwrap(),
+            dispatch(fetchPostById(String(post.id))).unwrap(),
+            dispatch(fetchCommentsForPost(String(post.id))).unwrap(),
           ]);
         } catch (error) {
           console.error($FUNC, 'Failed to fetch comments for post:', error);
@@ -314,7 +297,7 @@ export default function PostDetailScreen() {
     try {
       setIsProcessingComment(true);
       const addCommentAction = addCommentForPost({
-        postId,
+        postId: post.id,
         message: commentTextInput.trim(),
       });
 
@@ -337,7 +320,7 @@ export default function PostDetailScreen() {
   const canPostComment =
     !isProcessingComment && commentTextInput.trim().length > 3;
 
-  const postContent = (
+  const PostContent = () => (
     <View>
       <PostDetailContent post={post} />
       <PostItemCardFooter
@@ -358,112 +341,118 @@ export default function PostDetailScreen() {
   );
 
   return (
-    <SafeAreaView style={{ flexGrow: 1, backgroundColor: colors.white }}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={
-          Platform.OS === 'ios' ? 65 + Math.max(0, bottomInsets - 8) : -200
-        }
-        style={{ flex: 1 }}>
-        <FlatList
-          data={commentIds}
-          keyExtractor={(comment) => String(comment)}
-          contentContainerStyle={{
-            flexGrow: 1,
-            paddingTop: values.spacing.lg,
-            paddingBottom: values.spacing.huge * 2,
-          }}
-          ListHeaderComponent={postContent}
-          ListEmptyComponent={
-            isInitialLoad ? (
-              <LoadingTabView
-                message="Loading comments..."
-                style={postDetailScreenStyles.tabView}
-              />
-            ) : commentsError ? (
-              <ErrorTabView
-                caption="We weren't able to get comments for this post."
-                error={commentsError}
-                style={postDetailScreenStyles.tabView}
-              />
-            ) : (
-              <EmptyTabView
-                message="No comments. Be the first one!"
-                style={postDetailScreenStyles.tabView}
-              />
-            )
+    <>
+      <SafeAreaView style={{ flexGrow: 1, backgroundColor: colors.white }}>
+        <KeyboardAvoidingView
+          behavior="padding"
+          keyboardVerticalOffset={
+            Platform.OS === 'ios' ? 65 + Math.max(0, bottomInsets - 8) : -190
           }
-          refreshControl={
-            <RefreshControl
-              refreshing={shouldRefresh}
-              onRefresh={handleRefresh}
-              colors={[colors.gray500]}
-              tintColor={colors.gray500}
-            />
-          }
-          renderItem={({ item: commentId }) => (
-            <PostComment
-              commentId={commentId}
-              style={{ padding: values.spacing.md }}
-            />
-          )}
-        />
-        <View
-          style={{
-            minHeight: COMMENT_TEXT_INPUT_MIN_HEIGHT,
-            flexDirection: 'row',
-            alignItems: 'flex-end',
-            backgroundColor: colors.white,
-            borderColor: colors.gray200,
-            borderTopWidth: values.border.thin,
-          }}>
-          <TextInput
-            multiline
-            maxLength={300}
-            value={commentTextInput}
-            onChangeText={setCommentTextInput}
-            editable={!isProcessingComment}
-            placeholder="Add your comment..."
-            placeholderTextColor={colors.gray500}
-            style={{
+          style={{ flex: 1 }}>
+          <FlatList
+            data={commentIds}
+            keyExtractor={(comment) => String(comment)}
+            contentContainerStyle={{
               flexGrow: 1,
-              flexShrink: 1,
-              paddingLeft: values.spacing.md * 1.5,
-              ...(Platform.OS === 'ios'
-                ? {
-                    paddingTop: values.spacing.lg,
-                    paddingBottom: values.spacing.lg,
-                    paddingRight: values.spacing.md * 1.5,
-                    minHeight: COMMENT_TEXT_INPUT_MIN_HEIGHT,
-                    maxHeight: COMMENT_TEXT_INPUT_MAX_HEIGHT,
-                  }
-                : {}),
+              paddingTop: values.spacing.lg,
+              paddingBottom: values.spacing.huge * 2,
             }}
-          />
-          <TouchableOpacity
-            disabled={!canPostComment}
-            onPress={handlePostComment}
-            style={{
-              justifyContent: 'center',
-              height: COMMENT_TEXT_INPUT_MIN_HEIGHT,
-              width: COMMENT_POST_BUTTON_WIDTH,
-            }}>
-            {isProcessingComment ? (
-              <ActivityIndicator size="small" color={colors.gray500} />
-            ) : (
-              <Text
-                style={{
-                  textAlign: 'center',
-                  color: !canPostComment ? colors.gray500 : colors.accent,
-                  fontSize: typography.size.md,
-                }}>
-                Post
-              </Text>
+            ListHeaderComponent={PostContent}
+            ListEmptyComponent={
+              isInitialLoad ? (
+                <LoadingTabView
+                  message="Loading comments..."
+                  style={postDetailScreenStyles.tabView}
+                />
+              ) : commentsError ? (
+                <ErrorTabView
+                  caption="We weren't able to get comments for this post."
+                  error={commentsError}
+                  style={postDetailScreenStyles.tabView}
+                />
+              ) : (
+                <EmptyTabView
+                  message="No comments. Be the first one!"
+                  style={postDetailScreenStyles.tabView}
+                />
+              )
+            }
+            refreshControl={
+              <RefreshControl
+                refreshing={shouldRefresh}
+                onRefresh={handleRefresh}
+                colors={[colors.gray500]}
+                tintColor={colors.gray500}
+              />
+            }
+            renderItem={({ item: commentId }) => (
+              <PostComment
+                commentId={commentId}
+                style={{ padding: values.spacing.md }}
+              />
             )}
-          </TouchableOpacity>
-        </View>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+          />
+          <View
+            style={{
+              minHeight: COMMENT_TEXT_INPUT_MIN_HEIGHT,
+              flexDirection: 'row',
+              alignItems: 'flex-end',
+              backgroundColor: colors.white,
+              borderColor: colors.gray200,
+              borderTopWidth: values.border.thin,
+            }}>
+            <TextInput
+              multiline
+              maxLength={300}
+              value={commentTextInput}
+              onChangeText={setCommentTextInput}
+              editable={!isProcessingComment}
+              placeholder="Add your comment..."
+              placeholderTextColor={colors.gray500}
+              style={{
+                flexGrow: 1,
+                flexShrink: 1,
+                paddingLeft: values.spacing.md * 1.5,
+                ...(Platform.OS === 'ios'
+                  ? {
+                      paddingTop: values.spacing.lg,
+                      paddingBottom: values.spacing.lg,
+                      paddingRight: values.spacing.md * 1.5,
+                      minHeight: COMMENT_TEXT_INPUT_MIN_HEIGHT,
+                      maxHeight: COMMENT_TEXT_INPUT_MAX_HEIGHT,
+                    }
+                  : {}),
+              }}
+            />
+            <TouchableOpacity
+              disabled={!canPostComment}
+              onPress={handlePostComment}
+              style={{
+                justifyContent: 'center',
+                height: COMMENT_TEXT_INPUT_MIN_HEIGHT,
+                width: COMMENT_POST_BUTTON_WIDTH,
+              }}>
+              {isProcessingComment ? (
+                <ActivityIndicator size="small" color={colors.gray500} />
+              ) : (
+                <Text
+                  style={{
+                    textAlign: 'center',
+                    color: !canPostComment ? colors.gray500 : colors.accent,
+                    fontSize: typography.size.md,
+                  }}>
+                  Post
+                </Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+
+      {postStatus === 'deleting' && (
+        <LoadingOverlay message="Deleting post..." />
+      )}
+    </>
   );
 }
 
@@ -473,3 +462,26 @@ const postDetailScreenStyles = StyleSheet.create({
     paddingTop: values.spacing.md,
   },
 });
+
+export default function PostDetailScreen() {
+  const $FUNC = '[PostDetailScreen]';
+
+  const { postId }: { postId?: PostId | undefined } = useRoute().params ?? {};
+  if (!postId) {
+    console.error($FUNC, 'No post ID was given');
+    return <RouteError />;
+  }
+
+  const post = useAppSelector((state) => selectPostById(state, postId));
+  const postStatus = useAppSelector((state) => state.posts.status);
+
+  // FIXME: A previously rejected post would have set this status to 'rejected',
+  // meaning that future inspections of the status will also return 'rejected'.
+  // For now we'll disabled this.
+  if (/* postStatus === 'rejected' && */ !post) {
+    console.error($FUNC, 'Failed to select post with id:', postId);
+    return <RouteError />;
+  }
+
+  return <LoadedPostDetailScreen post={post} />;
+}

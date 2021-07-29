@@ -1,8 +1,15 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+
+import {
+  Alert,
+  DeviceEventEmitter,
+  FlatList,
+  RefreshControl,
+  Text,
+  View,
+} from 'react-native';
 
 import { createSelector } from '@reduxjs/toolkit';
-import { Alert, FlatList, RefreshControl, Text, View } from 'react-native';
-
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
 // import GeoLocation from 'react-native-geolocation-service';
@@ -96,7 +103,6 @@ function DiscoverTab() {
 
   const postIds = useAppSelector(selectPostIds);
   const { status: fetchStatus, error: fetchError } = useAppSelector(
-    /** @param {import('../../store').RootState} state */
     (state) => state.posts,
   );
 
@@ -104,6 +110,22 @@ function DiscoverTab() {
   const [shouldFetchMore, setShouldFetchMore] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const [didReachEnd, setDidReachEnd] = useState(false);
+
+  const onReceiveRefreshPostEvent = useCallback(() => {
+    if (!shouldFetchMore || shouldRefresh) {
+      console.log($FUNC, 'Received `refreshPosts` event');
+      setShouldRefresh(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    DeviceEventEmitter.addListener('refreshPosts', onReceiveRefreshPostEvent);
+    return () =>
+      DeviceEventEmitter.removeListener(
+        'refreshPosts',
+        onReceiveRefreshPostEvent,
+      );
+  }, []);
 
   useEffect(() => {
     if (shouldRefresh)
