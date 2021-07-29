@@ -4,7 +4,6 @@ import { createSelector } from '@reduxjs/toolkit';
 import { Alert, FlatList, RefreshControl, Text, View } from 'react-native';
 
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { useDispatch, useSelector } from 'react-redux';
 
 // import GeoLocation from 'react-native-geolocation-service';
 // import {
@@ -40,6 +39,7 @@ import {
 import { fetchAllProducts, selectProductIds } from '../products/productsSlice';
 import { ActivityIndicator } from 'react-native';
 import { abortSignOut } from '../authentication/authSlice';
+import { useAppDispatch, useAppSelector } from '../../hooks';
 // import { StyleSheet } from 'react-native';
 
 const PAGINATION_LIMIT = 25;
@@ -92,12 +92,10 @@ function MasonryListFooter({
 
 function DiscoverTab() {
   const $FUNC = '[HomeScreen.DiscoverTab]';
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
-  const postIds = useSelector(selectPostIds);
-
-  /** @type {import('../../api').ApiFetchStatus} */
-  const { status: fetchStatus, error: fetchError } = useSelector(
+  const postIds = useAppSelector(selectPostIds);
+  const { status: fetchStatus, error: fetchError } = useAppSelector(
     /** @param {import('../../store').RootState} state */
     (state) => state.posts,
   );
@@ -223,11 +221,7 @@ function DiscoverTab() {
 }
 
 // function NearMeTab() {
-//   /**
-//    * @typedef {import('../settings/settingsSlice').AppSettings} AppSettings
-//    * @type {AppSettings}
-//    */
-//   const { locationQueryPrefs } = useSelector((state) => state.settings);
+//   const { locationQueryPrefs } = useAppSelector((state) => state.settings);
 //
 //   /**
 //    * NOTE: For now, we'll just fetch merchants
@@ -455,7 +449,7 @@ function DiscoverTab() {
 // }
 
 // function NearMeTab() {
-//   const dispatch = useDispatch();
+//   const dispatch = useAppDispatch();
 //
 //   /**
 //    * @typedef {import('@gorhom/bottom-sheet').BottomSheetModal} BottomSheetModal
@@ -464,8 +458,7 @@ function DiscoverTab() {
 //   const bottomSheetModalRef = useRef(null);
 //   const tileSpacing = values.spacing.sm * 1.25;
 //
-//   /** @type {import('../settings/settingsSlice').AppSettings} */
-//   const { locationQueryPrefs } = useSelector((state) => state.settings);
+//   const { locationQueryPrefs } = useAppSelector((state) => state.settings);
 //
 //   /**
 //    * @typedef {{ latitude: number, longitude: number }} Coordinates
@@ -608,10 +601,10 @@ const selectNearMeItems = createSelector(
 );
 
 function NearMeTab() {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   // TODO: Paginate this
-  const nearMeItems = useSelector((state) => selectNearMeItems(state));
+  const nearMeItems = useAppSelector((state) => selectNearMeItems(state));
 
   const [shouldRefresh, setShouldRefresh] = useState(true);
   const [shouldFetchMore, setShouldFetchMore] = useState(false);
@@ -706,16 +699,15 @@ function NearMeTab() {
 }
 
 function FollowingTab() {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
-  /** @type {import('../authentication/authSlice').AuthState} */
-  const { user } = useSelector((state) => state.auth);
+  const { user } = useAppSelector((state) => state.auth);
   if (!user) {
     console.warn('User not signed in');
   }
 
   const followingPostsIds = user
-    ? useSelector((state) =>
+    ? useAppSelector((state) =>
         selectFollowingPosts(state, user.profileId).map((post) => post.id),
       )
     : [];

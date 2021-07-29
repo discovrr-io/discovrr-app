@@ -3,7 +3,10 @@ import { Text, TouchableOpacity, View } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
 import { useNavigation } from '@react-navigation/core';
-import { useSelector } from 'react-redux';
+
+import { DEFAULT_IMAGE_DIMENSIONS } from '../../constants/media';
+import { useAppSelector } from '../../hooks';
+import { selectNoteById } from './notesSlice';
 
 import {
   colors,
@@ -11,8 +14,6 @@ import {
   values,
   DEFAULT_ACTIVE_OPACITY,
 } from '../../constants';
-import { DEFAULT_IMAGE_DIMENSIONS } from '../../constants/media';
-import { selectNoteById } from './notesSlice';
 
 /**
  * @typedef {import('../../models').NoteId} NoteId
@@ -23,7 +24,7 @@ import { selectNoteById } from './notesSlice';
 export default function NoteItemCard({ noteId, ...props }) {
   const navigation = useNavigation();
 
-  const note = useSelector((state) => selectNoteById(state, noteId));
+  const note = useAppSelector((state) => selectNoteById(state, noteId));
   if (!note) {
     console.error('[NoteItemCard] Failed to find note with id:', noteId);
     return null;

@@ -5,7 +5,6 @@ import OneSignal from 'react-native-onesignal';
 import RNBootSplash from 'react-native-bootsplash';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createStackNavigator } from '@react-navigation/stack';
-import { useDispatch, useSelector } from 'react-redux';
 
 import AppDrawer from '../../components/AppDrawer';
 import GroundZero from '../../GroundZero';
@@ -15,6 +14,7 @@ import { signOut } from './authSlice';
 
 import LoginScreen from './LoginScreen';
 import TermsAndConditions from './TermsAndConditions';
+import { useAppDispatch, useAppSelector } from '../../hooks';
 
 const AuthStack = createStackNavigator();
 const MainDrawer = createDrawerNavigator();
@@ -80,10 +80,9 @@ function sendOneSignalTags(profile) {
 
 export default function AuthLoadingScreen() {
   const $FUNC = '[AuthLoadingScreen]';
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
-  /** @type {import('./authSlice').AuthState } */
-  const { isAuthenticated, isFirstLogin, user } = useSelector(
+  const { isAuthenticated, isFirstLogin, user } = useAppSelector(
     (state) => state.auth,
   );
 

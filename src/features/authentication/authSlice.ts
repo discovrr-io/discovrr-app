@@ -1,9 +1,14 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import {
+  createAsyncThunk,
+  createSelector,
+  createSlice,
+} from '@reduxjs/toolkit';
 import { PURGE } from 'redux-persist';
 
 import { ApiFetchStatus, AuthApi } from '../../api';
 import { User } from '../../models';
 import { RootState } from '../../store';
+import { selectProfileById } from '../profiles/profilesSlice';
 
 type SignInWithEmailAndPasswordParams = {
   email: string;
@@ -161,7 +166,13 @@ const authSlice = createSlice({
 
 export const { didDismissInfoModal } = authSlice.actions;
 
+export const selectCurrentAuthState = (state: RootState) =>
+  [state.auth.status, state.auth.error] as const;
+
 export const selectCurrentUser = (state: RootState): User | undefined =>
   state.auth.user;
+
+export const selectCurrentUserProfileId = (state: RootState) =>
+  state.auth.user?.profileId;
 
 export default authSlice.reducer;

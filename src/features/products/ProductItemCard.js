@@ -14,9 +14,9 @@ import analytics from '@react-native-firebase/analytics';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation } from '@react-navigation/native';
-import { useDispatch, useSelector } from 'react-redux';
 
 import { FEATURE_UNAVAILABLE } from '../../constants/strings';
+import { useAppDispatch, useAppSelector } from '../../hooks';
 import { selectMerchantById } from '../merchants/merchantsSlice';
 import { changeProductLikeStatus, selectProductById } from './productsSlice';
 
@@ -47,7 +47,9 @@ export default function ProductItemCard({
   ...props
 }) {
   const navigation = useNavigation();
-  const product = useSelector((state) => selectProductById(state, productId));
+  const product = useAppSelector((state) =>
+    selectProductById(state, productId),
+  );
 
   const [isImageLoaded, setIsImageLoaded] = useState(false);
 
@@ -188,11 +190,13 @@ export function ProductItemCardFooter({
   displayedOnNearMeTab = false, // For analytics purposes
 }) {
   const $FUNC = '[ProductItemCardFooter]';
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const navigation = useNavigation();
 
-  const product = useSelector((state) => selectProductById(state, productId));
-  const merchant = useSelector((state) =>
+  const product = useAppSelector((state) =>
+    selectProductById(state, productId),
+  );
+  const merchant = useAppSelector((state) =>
     selectMerchantById(state, merchantId),
   );
 

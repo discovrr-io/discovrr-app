@@ -5,7 +5,6 @@ import Slider from '@react-native-community/slider';
 import MapView from 'react-native-maps';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 // import { NativeViewGestureHandler } from 'react-native-gesture-handler';
-import { useDispatch, useSelector } from 'react-redux';
 
 import Animated, {
   Extrapolate,
@@ -15,6 +14,7 @@ import Animated, {
 
 import { Button, TextInput } from '../../components';
 import { colors, typography, values } from '../../constants';
+import { useAppDispatch, useAppSelector } from '../../hooks';
 
 import {
   didUpdateLocationQueryPrefs,
@@ -57,12 +57,10 @@ const SearchLocationModal = React.forwardRef(
    * @param {React.ForwardedRef<BottomSheetModal} ref
    */
   (props, ref) => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
+    const { locationQueryPrefs } = useAppSelector((state) => state.settings);
 
     const snapPoints = useMemo(() => ['80%'], []);
-
-    /** @type {import('../../models').AppSettings} */
-    const { locationQueryPrefs } = useSelector((state) => state.settings);
 
     const [searchRegion, setSearchRegion] = useState({
       ...(locationQueryPrefs?.coordinates ?? DEFAULT_COORDINATES),

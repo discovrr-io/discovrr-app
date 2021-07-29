@@ -14,15 +14,13 @@ import FastImage from 'react-native-fast-image';
 import { Tabs, MaterialTabBar } from 'react-native-collapsible-tab-view';
 import { useNavigation } from '@react-navigation/native';
 import { useRoute } from '@react-navigation/core';
-import { useDispatch, useSelector } from 'react-redux';
 
 import NoteMasonryList from '../../components/masonry/NoteMasonryList';
 import PostMasonryList from '../../components/masonry/PostMasonryList';
 import { DEFAULT_AVATAR } from '../../constants/media';
-import { useIsMounted } from '../../hooks';
+import { useAppDispatch, useAppSelector, useIsMounted } from '../../hooks';
 import { NotificationApi } from '../../api';
 import { selectAllNotes } from '../notes/notesSlice';
-import { RootState, useAppDispatch } from '../../store';
 
 import {
   FEATURE_UNAVAILABLE,
@@ -143,10 +141,11 @@ function ProfileScreenHeaderContent({ profileDetails }) {
   const followersCount = followers.length ?? 0;
   const followingCount = following.length ?? 0;
 
-  const currentUserProfileId = useSelector(
-    (state: RootState) => state.auth.user.profileId,
+  // TODO: This could be undefined
+  const currentUserProfileId = useAppSelector(
+    (state) => state.auth.user?.profileId,
   );
-  const currentUserProfile = useSelector((state: RootState) =>
+  const currentUserProfile = useAppSelector((state) =>
     selectProfileById(state, currentUserProfileId),
   );
 
@@ -410,8 +409,8 @@ export default function ProfileScreen() {
   // const [isRefreshingPosts, setIsRefreshingPosts] = useState(false);
   // const [isRefreshingNotes, setIsRefreshingNotes] = useState(false);
 
-  const currentUserProfileId = useSelector(
-    (state: RootState) => state.auth.user.profileId,
+  const currentUserProfileId = useAppSelector(
+    (state) => state.auth.user.profileId,
   );
 
   let resolvedProfileId = profileId;
@@ -437,11 +436,11 @@ export default function ProfileScreen() {
     }
   }
 
-  const profile = useSelector((state: RootState) =>
+  const profile = useAppSelector((state) =>
     selectProfileById(state, resolvedProfileId),
   );
 
-  const posts = useSelector((state: RootState) =>
+  const posts = useAppSelector((state) =>
     selectPostsByProfile(state, profileId),
   );
 
@@ -450,7 +449,7 @@ export default function ProfileScreen() {
     .map((post) => post.statistics?.totalLikes ?? 0)
     .reduce((acc, curr) => acc + curr, 0);
 
-  const noteIds = useSelector((state: RootState) => {
+  const noteIds = useAppSelector((state) => {
     const allNotes = selectAllNotes(state);
     return allNotes
       .filter((note) => {

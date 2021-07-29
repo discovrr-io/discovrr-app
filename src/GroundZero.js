@@ -18,7 +18,6 @@ import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIc
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
-import { useDispatch, useSelector } from 'react-redux';
 
 import HomeScreen from './features/posts/HomeScreen';
 import AccountSettingsScreen from './features/settings/AccountSettingsScreen';
@@ -39,6 +38,7 @@ import ProductCheckoutScreen from './features/products/ProductCheckoutScreen';
 import { Button, LoadingOverlay, TextInput } from './components';
 import { colors, typography, values } from './constants';
 import { didDismissInfoModal } from './features/authentication/authSlice';
+import { useAppDispatch, useAppSelector } from './hooks';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -93,6 +93,7 @@ const HomeStack = () => (
           <View style={{ marginLeft: -32, marginRight: -8 }}>
             <TextInput
               filled
+              search
               size="medium"
               placeholder="Search anything..."
               returnKeyType="search"
@@ -353,10 +354,9 @@ const modalStyles = StyleSheet.create({
 });
 
 export default function GroundZero() {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
-  /** @type {import('./features/authentication/authSlice').BaseAuthState} */
-  const { status, isFirstLogin } = useSelector((state) => state.auth);
+  const { status, isFirstLogin } = useAppSelector((state) => state.auth);
 
   return (
     <>

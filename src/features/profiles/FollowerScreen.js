@@ -13,19 +13,21 @@ import {
 import FastImage from 'react-native-fast-image';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { useDispatch, useSelector } from 'react-redux';
 
 import { EmptyTabView, RouteError } from '../../components';
-import { fetchProfileById, selectProfileById } from './profilesSlice';
 import { colors, typography, values } from '../../constants';
 import { DEFAULT_AVATAR } from '../../constants/media';
+import { useAppDispatch, useAppSelector } from '../../hooks';
+import { fetchProfileById, selectProfileById } from './profilesSlice';
 
 const AVATAR_IMAGE_RADIUS = 45;
 
 function UserListItem({ profileId }) {
   const navigation = useNavigation();
 
-  const profile = useSelector((state) => selectProfileById(state, profileId));
+  const profile = useAppSelector((state) =>
+    selectProfileById(state, profileId),
+  );
   if (!profile) {
     console.warn('[UserListItem] Failed to select profile with id:', profileId);
     return null;
@@ -120,14 +122,16 @@ const userListItemStyles = StyleSheet.create({
  */
 
 export default function FollowerScreen() {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   /**
    * @typedef {import('../../models').ProfileId} ProfileId
    * @type {{ profileId: ProfileId, selector: FollowerScreenSelector }} */
   const { profileId, selector } = useRoute().params ?? {};
 
-  const profile = useSelector((state) => selectProfileById(state, profileId));
+  const profile = useAppSelector((state) =>
+    selectProfileById(state, profileId),
+  );
   if (!profile) {
     console.warn(
       '[FollowerScreen] Failed to select profile with id:',

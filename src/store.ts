@@ -17,7 +17,6 @@ import {
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import autoMergeLevel2 from 'redux-persist/lib/stateReconciler/autoMergeLevel2';
-import { useDispatch } from 'react-redux';
 
 import authReducer from './features/authentication/authSlice';
 import notesReducer from './features/notes/notesSlice';
@@ -82,6 +81,5 @@ const store = configureStore({
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
-export const useAppDispatch = () => useDispatch<AppDispatch>();
 
 export default store;

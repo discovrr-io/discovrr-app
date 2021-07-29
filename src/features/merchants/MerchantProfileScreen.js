@@ -4,7 +4,6 @@ import { Alert, RefreshControl, SafeAreaView } from 'react-native';
 import analytics from '@react-native-firebase/analytics';
 import { Tabs, MaterialTabBar } from 'react-native-collapsible-tab-view';
 import { useRoute } from '@react-navigation/native';
-import { useDispatch, useSelector } from 'react-redux';
 
 import NoteMasonryList from '../../components/masonry/NoteMasonryList';
 import PostMasonryList from '../../components/masonry/PostMasonryList';
@@ -14,7 +13,7 @@ import { EmptyTabView, MasonryList, RouteError } from '../../components';
 import { selectAllNotes } from '../notes/notesSlice';
 import { selectPostsByProfile } from '../posts/postsSlice';
 import { SOMETHING_WENT_WRONG } from '../../constants/strings';
-import { useIsMounted } from '../../hooks';
+import { useAppDispatch, useAppSelector, useIsMounted } from '../../hooks';
 import { colors, values } from '../../constants';
 
 import {
@@ -50,10 +49,10 @@ function isOverFiveMinutes(date) {
  */
 function ProductsTab({ merchant }) {
   const FUNC = '[MerchantProfileScreen.ProductsTab]';
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const merchantId = String(merchant.id);
-  const products = useSelector((state) =>
+  const products = useAppSelector((state) =>
     selectProductsForMerchant(state, merchantId),
   );
 
@@ -62,8 +61,7 @@ function ProductsTab({ merchant }) {
     [products],
   );
 
-  /** @type {import('../../api').ApiFetchStatus} */
-  const { status: fetchStatus /* error: fetchError */ } = useSelector(
+  const { status: fetchStatus /* error: fetchError */ } = useAppSelector(
     (state) => state.products,
   );
 
@@ -158,11 +156,11 @@ function ProductsTab({ merchant }) {
  */
 export default function MerchantProfileScreen() {
   const $FUNC = '[MerchantProfileScreen]';
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   /** @type {{ merchantId: import('../../models').MerchantId }} */
   const { merchantId } = useRoute().params ?? {};
-  const merchant = useSelector((state) =>
+  const merchant = useAppSelector((state) =>
     selectMerchantById(state, merchantId),
   );
 
@@ -175,20 +173,20 @@ export default function MerchantProfileScreen() {
   const profileId = merchant.profileId;
 
   const postIds = profileId
-    ? useSelector((state) =>
+    ? useAppSelector((state) =>
         selectPostsByProfile(state, profileId).map((post) => post.id),
       )
     : [];
 
   const noteIds = profileId
-    ? useSelector((state) => {
+    ? useAppSelector((state) => {
         return selectAllNotes(state)
           .filter((note) => note.isPublic && note.profileId === profileId)
           .map((note) => note.id);
       })
     : [];
 
-  const totalLikes = useSelector((state) =>
+  const totalLikes = useAppSelector((state) =>
     selectTotalLikesForMerchant(state, merchantId),
   );
 

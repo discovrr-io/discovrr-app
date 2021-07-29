@@ -1,11 +1,11 @@
 import React from 'react';
-import { Text, View } from 'react-native';
+// import { Text, View } from 'react-native';
 
 import { useRoute } from '@react-navigation/native';
-import { useSelector } from 'react-redux';
 
 import PostMasonryList from '../../components/masonry/PostMasonryList';
 import { EmptyTabView, RouteError } from '../../components';
+import { useAppSelector } from '../../hooks';
 import { selectNoteById } from './notesSlice';
 
 export default function NoteDetailScreen() {
@@ -15,7 +15,7 @@ export default function NoteDetailScreen() {
     return <RouteError />;
   }
 
-  const note = useSelector((state) => selectNoteById(state, noteId));
+  const note = useAppSelector((state) => selectNoteById(state, noteId));
   if (!note) {
     console.error('[PostDetailScreen] Failed to find post with id:', noteId);
     return <RouteError />;

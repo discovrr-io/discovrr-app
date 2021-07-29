@@ -3,9 +3,9 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
 import { useNavigation } from '@react-navigation/native';
-import { useSelector } from 'react-redux';
 
 import { colors, typography, values } from '../../constants';
+import { useAppSelector } from '../../hooks';
 import { selectProfileById } from '../profiles/profilesSlice';
 import { selectCurrentUser } from '../authentication/authSlice';
 import { selectCommentById } from './commentsSlice';
@@ -22,17 +22,19 @@ const DEFAULT_ACTIVE_OPACITY = 0.6;
 export default function PostComment({ commentId, ...props }) {
   const navigation = useNavigation();
 
-  const comment = useSelector((state) => selectCommentById(state, commentId));
+  const comment = useAppSelector((state) =>
+    selectCommentById(state, commentId),
+  );
   if (!comment) {
     console.warn('[Comment] Failed to select comment with id:', commentId);
     return null;
   }
 
-  const { avatar, fullName } = useSelector((state) =>
+  const { avatar, fullName } = useAppSelector((state) =>
     selectProfileById(state, comment.profileId),
   );
 
-  const currentUser = useSelector(selectCurrentUser);
+  const currentUser = useAppSelector(selectCurrentUser);
   const isMyComment =
     currentUser && comment.profileId === currentUser.profileId;
 

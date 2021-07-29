@@ -13,9 +13,9 @@ import FastImage from 'react-native-fast-image';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import OneSignal from 'react-native-onesignal';
 import { DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer';
-import { useDispatch, useSelector } from 'react-redux';
 
 import SearchLocationModal from './bottomSheets/SearchLocationModal';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import { FEATURE_UNAVAILABLE } from '../constants/strings';
 import { selectProfileById } from '../features/profiles/profilesSlice';
 import { signOut } from '../features/authentication/authSlice';
@@ -55,22 +55,23 @@ const AppDrawerItem = ({ label, iconName, onPress }) => (
 
 export default function AppDrawer({ navigation, ...props }) {
   const $FUNC = '[AppDrawer]';
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   /**
    * @typedef {import('@gorhom/bottom-sheet').BottomSheetModal} BottomSheetModal
    * @type {React.MutableRefObject<BottomSheetModal | null>} */
   const bottomSheetModalRef = useRef(null);
 
-  /**@type {import('../features/authentication/authSlice').BaseAuthState} */
-  const authState = useSelector((state) => state.auth);
+  const authState = useAppSelector((state) => state.auth);
   if (!authState.user) {
     console.error($FUNC, 'No user found in store');
     return null;
   }
 
   const { profileId } = authState.user;
-  const profile = useSelector((state) => selectProfileById(state, profileId));
+  const profile = useAppSelector((state) =>
+    selectProfileById(state, profileId),
+  );
   if (!profile) console.warn($FUNC, `Profile '${profileId}' is undefined`);
 
   const handleShowModal = useCallback(() => {

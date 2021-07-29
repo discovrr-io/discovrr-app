@@ -18,7 +18,6 @@ import {
 
 import auth from '@react-native-firebase/auth';
 import Video from 'react-native-video';
-import { useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 
 import { Formik } from 'formik';
@@ -36,11 +35,10 @@ import {
 } from '@react-native-google-signin/google-signin';
 
 import { AuthApi } from '../../api';
-import { useIsMounted } from '../../hooks';
+import { useAppDispatch, useAppSelector, useIsMounted } from '../../hooks';
 import { Button, FormikInput, LoadingOverlay } from '../../components';
 import { colors, typography, values } from '../../constants';
 import { SOMETHING_WENT_WRONG } from '../../constants/strings';
-import { useAppDispatch } from '../../store';
 import * as buttonStyles from '../../components/buttons/styles';
 
 import {
@@ -539,8 +537,7 @@ export default function LoginScreen() {
   const dispatch = useAppDispatch();
   const { width: screenWidth } = useWindowDimensions();
 
-  /** @type {import('./authSlice').CurrentAuthStatus} */
-  const { status, error } = useSelector((state) => state.auth);
+  const { status, error } = useAppSelector((state) => state.auth);
 
   const isMounted = useIsMounted();
   const [isProcessing, setIsProcessing] = useState(false);

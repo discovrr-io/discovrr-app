@@ -19,13 +19,12 @@ import Carousel, { Pagination } from 'react-native-snap-carousel';
 import FastImage from 'react-native-fast-image';
 import Video from 'react-native-video';
 import { useRoute } from '@react-navigation/core';
-import { useDispatch, useSelector } from 'react-redux';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import PostComment from '../comments/PostComment';
 import { colors, typography, values } from '../../constants';
 import { SOMETHING_WENT_WRONG } from '../../constants/strings';
-import { useIsMounted } from '../../hooks';
+import { useAppDispatch, useAppSelector, useIsMounted } from '../../hooks';
 
 import { PostItemCardFooter } from './PostItemCard';
 import {
@@ -213,7 +212,7 @@ const postDetailContentStyles = StyleSheet.create({
 
 export default function PostDetailScreen() {
   const $FUNC = '[PostDetailScreen]';
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const { bottom: bottomInsets } = useSafeAreaInsets();
 
@@ -224,19 +223,18 @@ export default function PostDetailScreen() {
     return <RouteError />;
   }
 
-  const post = useSelector((state) => selectPostById(state, postId));
+  const post = useAppSelector((state) => selectPostById(state, postId));
   if (!post) {
     console.error($FUNC, 'Failed to select post with id:', postId);
     return <RouteError />;
   }
 
-  /** @type {import('../../models').ProfileId} */
-  const currentUserProfileId = useSelector(
+  const currentUserProfileId = useAppSelector(
     (state) => state.auth.user.profileId,
   );
   const isMyPost = post.profileId === currentUserProfileId;
 
-  const commentIds = useSelector((state) =>
+  const commentIds = useAppSelector((state) =>
     selectCommentsForPost(state, postId),
   );
 

@@ -4,9 +4,9 @@ import { SafeAreaView } from 'react-native';
 import analytics from '@react-native-firebase/analytics';
 import WebView from 'react-native-webview';
 import { useRoute } from '@react-navigation/core';
-import { useDispatch, useSelector } from 'react-redux';
 
 import { LoadingTabView, RouteError } from '../../components';
+import { useAppDispatch, useAppSelector } from '../../hooks';
 import { selectProductById, updateProductViewCounter } from './productsSlice';
 
 // TODO: Refactor out
@@ -21,10 +21,12 @@ function isOverFiveMinutes(date) {
 
 export default function ProductCheckoutScreen() {
   const FUNC = '[ProductCheckoutScreen]';
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const { productId } = useRoute().params ?? {};
-  const product = useSelector((state) => selectProductById(state, productId));
+  const product = useAppSelector((state) =>
+    selectProductById(state, productId),
+  );
 
   if (!product) {
     console.error(FUNC, 'Failed to select product with id:', productId);

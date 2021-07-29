@@ -15,7 +15,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
 
 import { FEATURE_UNAVAILABLE } from '../../constants/strings';
-import { useIsMounted } from '../../hooks';
+import { useAppDispatch, useAppSelector, useIsMounted } from '../../hooks';
 import { DEFAULT_AVATAR, DEFAULT_IMAGE } from '../../constants/media';
 
 import {
@@ -25,7 +25,6 @@ import {
   values,
 } from '../../constants';
 
-import { useDispatch, useSelector } from 'react-redux';
 import { changeMerchantLikeStatus, selectMerchantById } from './merchantsSlice';
 import { SOMETHING_WENT_WRONG } from '../../constants/strings';
 
@@ -50,7 +49,7 @@ export default function MerchantItemCard({
   const $FUNC = '[MerchantItemCard]';
   const navigation = useNavigation();
 
-  const merchant = useSelector((state) =>
+  const merchant = useAppSelector((state) =>
     selectMerchantById(state, merchantId),
   );
 
@@ -185,10 +184,10 @@ export function MerchantItemCardFooter({
   displayedOnNearMeTab = false, // For analytics purposes
 }) {
   const $FUNC = '[MerchantItemCardFooter]';
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const navigation = useNavigation();
 
-  const merchant = useSelector((state) =>
+  const merchant = useAppSelector((state) =>
     selectMerchantById(state, merchantId),
   );
 

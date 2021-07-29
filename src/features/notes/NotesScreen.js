@@ -7,10 +7,9 @@ import {
   View,
 } from 'react-native';
 
-import crashlytics from '@react-native-firebase/crashlytics';
+// import crashlytics from '@react-native-firebase/crashlytics';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
-import { useDispatch, useSelector } from 'react-redux';
 
 import NoteMasonryList from '../../components/masonry/NoteMasonryList';
 import { EmptyTabView, ErrorTabView } from '../../components';
@@ -23,6 +22,7 @@ import {
   values,
   DEFAULT_ACTIVE_OPACITY,
 } from '../../constants';
+import { useAppDispatch, useAppSelector } from '../../hooks';
 
 function CreateNewNoteButton() {
   return (
@@ -53,13 +53,11 @@ function CreateNewNoteButton() {
 }
 
 export default function NotesScreen() {
-  const dispatch = useDispatch();
-  const navigation = useNavigation();
+  const dispatch = useAppDispatch();
+  // const navigation = useNavigation();
 
-  const noteIds = useSelector(selectNoteIds);
-
-  /** @type {import('../../api').ApiFetchStatus */
-  const { error: fetchError } = useSelector((state) => state.notes);
+  const noteIds = useAppSelector(selectNoteIds);
+  const { error: fetchError } = useAppSelector((state) => state.notes);
 
   const [shouldRefresh, setShouldRefresh] = useState(true);
 

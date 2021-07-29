@@ -13,11 +13,10 @@ import * as Animatable from 'react-native-animatable';
 import FastImage from 'react-native-fast-image';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
-
 import { useNavigation } from '@react-navigation/native';
-import { useDispatch, useSelector } from 'react-redux';
 
 import { NotificationApi } from '../../api';
+import { useAppDispatch, useAppSelector } from '../../hooks';
 import { selectProfileById } from '../profiles/profilesSlice';
 import { selectPostById, changePostLikeStatus } from './postsSlice';
 
@@ -109,15 +108,14 @@ export function PostItemCardFooter({
   showMenuIcon = false,
   ...props
 }) {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const navigation = useNavigation();
 
-  /** @type {import('../authentication/authSlice').AuthState} */
-  const { isAuthenticated, user: currentUser } = useSelector(
+  const { isAuthenticated, user: currentUser } = useAppSelector(
     (state) => state.auth,
   );
 
-  const currentUserProfile = useSelector((state) =>
+  const currentUserProfile = useAppSelector((state) =>
     selectProfileById(state, currentUser.profileId),
   );
 
@@ -129,7 +127,7 @@ export function PostItemCardFooter({
   }
 
   /** @type {import('../../models').Profile | undefined} */
-  const profile = useSelector((state) =>
+  const profile = useAppSelector((state) =>
     selectProfileById(state, post.profileId),
   );
 
@@ -408,15 +406,13 @@ export default function PostItemCard({
 }) {
   const navigation = useNavigation();
 
-  /** @type {import('../../models').Post | undefined} */
-  const post = useSelector((state) => selectPostById(state, postId));
+  const post = useAppSelector((state) => selectPostById(state, postId));
   if (!post) {
     console.warn('[PostItemCard] Failed to select post with id:', postId);
     return null;
   }
 
-  /** @type {import('../../models').ProfileId} */
-  const currentUserProfileId = useSelector(
+  const currentUserProfileId = useAppSelector(
     (state) => state.auth.user.profileId,
   );
   const isMyPost = post.profileId === currentUserProfileId;

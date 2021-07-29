@@ -1,4 +1,6 @@
 import React, { useEffect, useRef } from 'react';
+import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../store';
 
 /**
  * A custom hook that determines whether or not the enclosing component is
@@ -34,3 +36,6 @@ export function useIsInitialRender(): React.MutableRefObject<boolean> {
 
   return isInitialRender;
 }
+
+export const useAppDispatch = () => useDispatch<AppDispatch>();
+export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;

@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
-import { useSelector } from 'react-redux';
 
 import { Profile, ProfileId } from '../../models';
-import { RootState, useAppDispatch } from '../../store';
+import { useAppDispatch, useAppSelector } from '../../hooks';
+
 import { fetchProfileById, selectProfileById } from './profilesSlice';
 
 export function useProfile(
@@ -35,5 +35,5 @@ export function useProfile(
     })();
   }, [dispatch, reload, profileId]); // Runs once per hook or when profileId changes
 
-  return useSelector((state: RootState) => selectProfileById(state, profileId));
+  return useAppSelector((state) => selectProfileById(state, profileId));
 }

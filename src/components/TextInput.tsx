@@ -5,6 +5,7 @@ import {
   TextInputProps as RNTextInputProps,
 } from 'react-native';
 
+import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import {
@@ -17,12 +18,14 @@ type TextInputSize = 'small' | 'medium' | 'large';
 
 export type TextInputProps = RNTextInputProps & {
   size?: TextInputSize;
+  search?: boolean;
   error?: boolean;
 };
 
 export default function TextInput(props: TextInputProps) {
   const {
     size = 'large',
+    search = false,
     error = false,
     editable = true,
     secureTextEntry = false,
@@ -52,6 +55,17 @@ export default function TextInput(props: TextInputProps) {
           props.style,
         ]}
       />
+      {search && (
+        <MaterialIcon
+          name="search"
+          size={24}
+          style={{
+            position: 'absolute',
+            right: 8,
+            top: 8,
+          }}
+        />
+      )}
       {/* TODO: This icon doesn't have size variants */}
       {!!secureTextEntry && (
         <MaterialCommunityIcon
