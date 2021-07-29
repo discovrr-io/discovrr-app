@@ -356,7 +356,7 @@ export function PostItemCardFooter(props: PostItemCardFooterProps) {
 
       <ActionModal
         ref={bottomSheetModalRef}
-        snapPoints={[isMyPost ? '30%' : '18%']}>
+        snapPoints={[isMyPost ? 180 : 135]}>
         <View
           style={{
             flexGrow: 1,
@@ -364,7 +364,7 @@ export function PostItemCardFooter(props: PostItemCardFooterProps) {
             marginTop: values.spacing.md,
             marginBottom: values.spacing.lg,
           }}>
-          {isMyPost && (
+          {isMyPost ? (
             <>
               <ActionModal.Item
                 label="Edit Post"
@@ -377,12 +377,13 @@ export function PostItemCardFooter(props: PostItemCardFooterProps) {
                 onPress={alertUnimplementedFeature}
               />
             </>
+          ) : (
+            <ActionModal.Item
+              label="Report Post"
+              iconName="flag"
+              onPress={alertUnimplementedFeature}
+            />
           )}
-          <ActionModal.Item
-            label="Report Post"
-            iconName="flag"
-            onPress={alertUnimplementedFeature}
-          />
         </View>
         <Button
           title="Cancel"

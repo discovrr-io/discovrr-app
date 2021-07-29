@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Text, View } from 'react-native';
+import { Text, View, ViewProps } from 'react-native';
 
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
@@ -23,7 +23,7 @@ import {
 } from '../../constants';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-type ActionModalItemProps = {
+type ActionModalItemProps = ViewProps & {
   label: string;
   iconName: string;
   onPress?: () => void | Promise<void>;
@@ -53,7 +53,7 @@ function ActionModalItem(props: ActionModalItemProps) {
 }
 
 type ActionModalSheetProps = {
-  snapPoints?: string[];
+  snapPoints?: (string | number)[];
   children: React.ReactNode;
 };
 

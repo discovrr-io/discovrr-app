@@ -5,4 +5,4 @@ import * as values from './values';
 
 export { colors, strings, typography, values };
 
-export const DEFAULT_ACTIVE_OPACITY = 0.6;
+export const DEFAULT_ACTIVE_OPACITY = 0.8;
