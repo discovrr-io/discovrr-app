@@ -18,7 +18,10 @@ import SearchLocationModal from './bottomSheets/SearchLocationModal';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { FEATURE_UNAVAILABLE } from '../constants/strings';
 import { selectProfileById } from '../features/profiles/profilesSlice';
-import { signOut } from '../features/authentication/authSlice';
+import {
+  selectCurrentUserProfileId,
+  signOut,
+} from '../features/authentication/authSlice';
 
 import {
   DEFAULT_ACTIVE_OPACITY,
@@ -26,6 +29,7 @@ import {
   typography,
   values,
 } from '../constants';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
 
 const AVATAR_DIAMETER = 125;
 
@@ -57,10 +61,7 @@ export default function AppDrawer({ navigation, ...props }) {
   const $FUNC = '[AppDrawer]';
   const dispatch = useAppDispatch();
 
-  /**
-   * @typedef {import('@gorhom/bottom-sheet').BottomSheetModal} BottomSheetModal
-   * @type {React.MutableRefObject<BottomSheetModal | null>} */
-  const bottomSheetModalRef = useRef(null);
+  const bottomSheetModalRef = useRef<BottomSheetModal | null>(null);
 
   const authState = useAppSelector((state) => state.auth);
   if (!authState.user) {
@@ -68,14 +69,15 @@ export default function AppDrawer({ navigation, ...props }) {
     return null;
   }
 
-  const { profileId } = authState.user;
+  const profileId = useAppSelector(selectCurrentUserProfileId);
   const profile = useAppSelector((state) =>
     selectProfileById(state, profileId),
   );
+
   if (!profile) console.warn($FUNC, `Profile '${profileId}' is undefined`);
 
   const handleShowModal = useCallback(() => {
-    bottomSheetModalRef.current?.present();
+    bottomSheetModalRef.current.present();
   }, []);
 
   const handleLogOut = () => {
@@ -83,7 +85,7 @@ export default function AppDrawer({ navigation, ...props }) {
 
     const signOutUser = async () => {
       try {
-        await dispatch(signOut()).unwrap();
+        await dispatch(signOut({})).unwrap();
         console.log($FUNC, 'Removing OneSignal external user ID...');
         OneSignal.removeExternalUserId((results) => {
           console.log($FUNC, 'Successfully removed external user id:', results);

@@ -13,6 +13,7 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  ViewProps,
 } from 'react-native';
 
 import Carousel, { Pagination } from 'react-native-snap-carousel';
@@ -45,19 +46,24 @@ import {
   RouteError,
   LoadingTabView,
 } from '../../components';
+import { ImageSource } from '../../models/common';
+import { Post, PostId } from '../../models';
+import { DEFAULT_IMAGE_DIMENSIONS } from '../../constants/media';
+import ActionModal from '../../components/bottomSheets/ActionModal';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
 
 const COMMENT_TEXT_INPUT_MIN_HEIGHT = 50;
 const COMMENT_TEXT_INPUT_MAX_HEIGHT = 200;
 const COMMENT_POST_BUTTON_WIDTH = 70;
 
 // TODO: Refactor out
-function isOverFiveMinutes(date) {
+function isOverFiveMinutes(date: string | number | Date) {
   if (!date) return false;
 
   const FIVE_MINS = 5 * 60 * 1000;
   const now = new Date();
   const then = new Date(date);
-  return now - then > FIVE_MINS;
+  return now.valueOf() - then.valueOf() > FIVE_MINS;
 }
 
 /**
@@ -65,47 +71,47 @@ function isOverFiveMinutes(date) {
  * @typedef {{ item: ImageSource }} SliderImageProps
  * @param {SliderImageProps} param0
  */
-function SliderImage({ item: source }) {
-  if (source.type === 'video') {
-    <Video
-      paused
-      allowsExternalPlayback={false}
-      resizeMode="cover"
-      source={source}
+
+type SliderImageProps = {
+  item: ImageSource;
+};
+
+function SliderImage({ item: source }: SliderImageProps) {
+  let dimensions: { width: number; height: number };
+  if (typeof source === 'number') {
+    dimensions = DEFAULT_IMAGE_DIMENSIONS;
+  } else {
+    dimensions = {
+      width: source.width ?? DEFAULT_IMAGE_DIMENSIONS.width,
+      height: source.height ?? DEFAULT_IMAGE_DIMENSIONS.height,
+    };
+  }
+
+  return (
+    <FastImage
       style={{
-        // FIXME: source may be number
-        aspectRatio: source.width / source.height,
+        aspectRatio: dimensions.width / dimensions.height,
         borderRadius: values.radius.md,
       }}
-    />;
-  } else {
-    return (
-      <FastImage
-        style={{
-          // FIXME: source may be number
-          aspectRatio: source.width / source.height,
-          borderRadius: values.radius.md,
-        }}
-        source={source}
-        resizeMode="cover"
-      />
-    );
-  }
+      source={source}
+      resizeMode="cover"
+    />
+  );
 }
 
-/**
- * @typedef {import('../../models').Post} Post
- * @typedef {{ post: Post }} PostDetailContentProps
- * @typedef {import('react-native').ViewProps} ViewProps
- * @param {PostDetailContentProps & ViewProps} param0
- */
-function PostDetailContent({ post, ...props }) {
+type PostDetailContentProps = ViewProps & {
+  post: Post;
+};
+
+function PostDetailContent(props: PostDetailContentProps) {
+  const { post, ...restProps } = props;
+
   const carouselRef = useRef(null);
   const { width: screenWidth } = useWindowDimensions();
 
   const [activeMediaIndex, setActiveMediaIndex] = useState(0);
 
-  const postContent = () => {
+  const renderPostContent = () => {
     switch (post.content.type) {
       case 'image-gallery':
         return (
@@ -117,7 +123,9 @@ function PostDetailContent({ post, ...props }) {
               data={post.content.sources}
               sliderWidth={screenWidth}
               itemWidth={screenWidth * 0.85}
-              renderItem={({ item }) => <SliderImage item={item} />}
+              renderItem={({ item }: { item: ImageSource }) => (
+                <SliderImage item={item} />
+              )}
               onSnapToItem={(index) => setActiveMediaIndex(index)}
             />
             <Pagination
@@ -148,6 +156,19 @@ function PostDetailContent({ post, ...props }) {
           </View>
         );
       case 'video':
+        // return (
+        //   <Video
+        //     paused
+        //     allowsExternalPlayback={false}
+        //     resizeMode="cover"
+        //     source={post.content.source}
+        //     style={{
+        //       // FIXME: source may be number
+        //       // aspectRatio: post.content.source.width / post.content.source.height,
+        //       borderRadius: values.radius.md,
+        //     }}
+        //   />
+        // );
         return <Text>(VIDEO)</Text>;
       case 'text': /* FALLTHROUGH */
       default:
@@ -167,8 +188,8 @@ function PostDetailContent({ post, ...props }) {
     }
   };
   return (
-    <View style={[props.style]}>
-      {postContent()}
+    <View style={[restProps.style]}>
+      {renderPostContent()}
       {post.location && (
         <Text
           style={{
@@ -216,8 +237,7 @@ export default function PostDetailScreen() {
 
   const { bottom: bottomInsets } = useSafeAreaInsets();
 
-  /** @type {{ postId: import('../../models').PostId | undefined }} */
-  const { postId = undefined } = useRoute().params ?? {};
+  const { postId }: { postId?: PostId | undefined } = useRoute().params ?? {};
   if (!postId) {
     console.error($FUNC, 'No post ID was given');
     return <RouteError />;
@@ -340,7 +360,7 @@ export default function PostDetailScreen() {
   return (
     <SafeAreaView style={{ flexGrow: 1, backgroundColor: colors.white }}>
       <KeyboardAvoidingView
-        behavior="padding"
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={
           Platform.OS === 'ios' ? 65 + Math.max(0, bottomInsets - 8) : -200
         }

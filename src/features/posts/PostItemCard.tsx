@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import {
   Alert,
   ActivityIndicator,
@@ -7,6 +7,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  ViewProps,
 } from 'react-native';
 
 import * as Animatable from 'react-native-animatable';
@@ -15,6 +16,7 @@ import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation } from '@react-navigation/native';
 
+import ActionModal from '../../components/bottomSheets/ActionModal';
 import { NotificationApi } from '../../api';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { selectProfileById } from '../profiles/profilesSlice';
@@ -36,6 +38,11 @@ import {
   DEFAULT_AVATAR,
   DEFAULT_IMAGE_DIMENSIONS,
 } from '../../constants/media';
+import { selectCurrentUserProfileId } from '../authentication/authSlice';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { Post, PostId } from '../../models';
+import { Button } from '../../components';
+import { ImageSource } from '../../models/common';
 
 const SMALL_ICON = 24;
 const LARGE_ICON = 32;
@@ -55,11 +62,11 @@ const alertUnimplementedFeature = () => {
   Alert.alert(FEATURE_UNAVAILABLE.title, FEATURE_UNAVAILABLE.message);
 };
 
-/**
- *
- * @param {{ post: Post, smallContent?: boolean }} param0
- */
-function ViewsIndicator({ post, smallContent }) {
+type ViewsIndicatorProps = { post: Post; smallContent?: boolean };
+
+function ViewsIndicator(props: ViewsIndicatorProps) {
+  const { post, smallContent } = props;
+
   return (
     <View
       style={{
@@ -94,52 +101,39 @@ function ViewsIndicator({ post, smallContent }) {
   );
 }
 
-/**
- * @typedef {import('../../models').Post} Post
- * @typedef {{ largeIcons?: boolean, showActions?: boolean, showShareIcon?: boolean }} FooterOptions
- * @typedef {{ post: Post, smallContent?: boolean, showShareIcon?: boolean, showMenuIcon?: boolean }} PostItemCardFooterProps
- *
- * @param {PostItemCardFooterProps & import('react-native').ViewProps} param0
- */
-export function PostItemCardFooter({
-  post,
-  smallContent = false,
-  showShareIcon = false,
-  showMenuIcon = false,
-  ...props
-}) {
+type PostItemCardFooterProps = ViewProps & {
+  post: Post;
+  smallContent?: boolean;
+  showShareIcon?: boolean;
+  showMenuIcon?: boolean;
+};
+
+export function PostItemCardFooter(props: PostItemCardFooterProps) {
+  const {
+    post,
+    smallContent = false,
+    showShareIcon = false,
+    showMenuIcon = false,
+    ...restProps
+  } = props;
+
   const dispatch = useAppDispatch();
   const navigation = useNavigation();
+  const bottomSheetModalRef = useRef<BottomSheetModal | null>(null);
 
-  const { isAuthenticated, user: currentUser } = useAppSelector(
-    (state) => state.auth,
-  );
-
+  const currentUserProfileId = useAppSelector(selectCurrentUserProfileId);
   const currentUserProfile = useAppSelector((state) =>
-    selectProfileById(state, currentUser.profileId),
+    selectProfileById(state, currentUserProfileId),
   );
+  const isMyPost = currentUserProfileId === post.profileId;
 
-  if (!isAuthenticated) {
-    console.warn(
-      '[PostItemCardFooter]',
-      'Current user is not authenticated, which is unexpected',
-    );
-  }
-
-  /** @type {import('../../models').Profile | undefined} */
   const profile = useAppSelector((state) =>
     selectProfileById(state, post.profileId),
   );
 
   const profileName =
     (profile?.fullName ?? '').length > 1 ? profile?.fullName : 'Anonymous';
-
-  let profileAvatar;
-  if (profile && profile.avatar) {
-    profileAvatar = profile.avatar;
-  } else {
-    profileAvatar = DEFAULT_AVATAR;
-  }
+  const profileAvatar: ImageSource = profile?.avatar ?? DEFAULT_AVATAR;
 
   const { didSave, didLike, totalLikes } = post.statistics ?? {
     didSave: false,
@@ -149,9 +143,10 @@ export function PostItemCardFooter({
 
   const [isProcessingLike, setIsProcessingLike] = useState(false);
   const [isProcessingSave, _setIsProcessingSave] = useState(false);
-  const [isProcessingReport, setIsProcessingReport] = useState(false);
+  // const [isProcessingReport, setIsProcessingReport] = useState(false);
 
   const handlePressAvatar = () => {
+    // @ts-ignore
     navigation.push('UserProfileScreen', {
       profileId: profile?.id,
       profileName,
@@ -178,11 +173,7 @@ export function PostItemCardFooter({
 
       // Only send a notification if the current user liked the post and it's not
       // their own post
-      if (
-        newDidLike &&
-        !!currentUser &&
-        currentUser.profileId !== post.profileId
-      ) {
+      if (newDidLike && !isMyPost) {
         try {
           const { fullName = 'Someone' } = currentUserProfile ?? {};
           await NotificationApi.sendNotificationToProfileIds(
@@ -209,27 +200,31 @@ export function PostItemCardFooter({
     }
   };
 
-  const handleReportPost = () => {
-    const reportPost = () => {
-      setIsProcessingReport(true);
-      setTimeout(() => {
-        Alert.alert(
-          'Report Successfully Sent.',
-          'Your report will be reviewed by one of our moderators.',
-        );
-        setIsProcessingReport(false);
-      }, 3000);
-    };
+  // const handleReportPost = () => {
+  //   const reportPost = () => {
+  //     setIsProcessingReport(true);
+  //     setTimeout(() => {
+  //       Alert.alert(
+  //         'Report Successfully Sent.',
+  //         'Your report will be reviewed by one of our moderators.',
+  //       );
+  //       setIsProcessingReport(false);
+  //     }, 3000);
+  //   };
+  //
+  //   Alert.prompt(
+  //     'Report Post',
+  //     "Believe this post is not suitable for Discovrr? Please provide your reason and we'll look into it:",
+  //     [
+  //       { text: 'Cancel', style: 'cancel' },
+  //       { text: 'Report', style: 'default', onPress: reportPost },
+  //     ],
+  //   );
+  // };
 
-    Alert.prompt(
-      'Report Post',
-      "Believe this post is not suitable for Discovrr? Please provide your reason and we'll look into it:",
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Report', style: 'default', onPress: reportPost },
-      ],
-    );
-  };
+  const handleShowActionModal = useCallback(() => {
+    bottomSheetModalRef.current.present();
+  }, []);
 
   const avatarIconSize = smallContent
     ? iconSize.small.avatar
@@ -246,7 +241,7 @@ export function PostItemCardFooter({
   const authorFontSize = smallContent ? typography.size.sm : typography.size.md;
 
   return (
-    <View style={[postItemFooterStyles.container, props.style]}>
+    <View style={[postItemFooterStyles.container, restProps.style]}>
       <TouchableOpacity
         activeOpacity={DEFAULT_ACTIVE_OPACITY}
         style={{ flex: 1 }}
@@ -278,7 +273,7 @@ export function PostItemCardFooter({
           <TouchableOpacity
             disabled={false}
             activeOpacity={DEFAULT_ACTIVE_OPACITY}
-            onPress={alertUnimplementedFeature}>
+            onPress={handleShowActionModal}>
             <MaterialCommunityIcon
               name="dots-horizontal"
               color={colors.gray}
@@ -287,7 +282,7 @@ export function PostItemCardFooter({
             />
           </TouchableOpacity>
         )}
-        {Platform.OS === 'ios' &&
+        {/* {Platform.OS === 'ios' &&
           showMenuIcon &&
           (isProcessingReport ? (
             <ActivityIndicator
@@ -311,7 +306,7 @@ export function PostItemCardFooter({
                 style={{ marginRight: actionIconMarginRight * 0.75 }}
               />
             </TouchableOpacity>
-          ))}
+          ))} */}
         {showShareIcon && (
           <TouchableOpacity
             disabled={false}
@@ -358,6 +353,42 @@ export function PostItemCardFooter({
           {totalLikes > 999 ? `${(totalLikes / 1000).toFixed(1)}k` : totalLikes}
         </Text>
       </View>
+
+      <ActionModal
+        ref={bottomSheetModalRef}
+        snapPoints={[isMyPost ? '30%' : '18%']}>
+        <View
+          style={{
+            flexGrow: 1,
+            justifyContent: 'space-between',
+            marginTop: values.spacing.md,
+            marginBottom: values.spacing.lg,
+          }}>
+          {isMyPost && (
+            <>
+              <ActionModal.Item
+                label="Edit Post"
+                iconName="edit"
+                onPress={alertUnimplementedFeature}
+              />
+              <ActionModal.Item
+                label="Delete Post"
+                iconName="delete"
+                onPress={alertUnimplementedFeature}
+              />
+            </>
+          )}
+          <ActionModal.Item
+            label="Report Post"
+            iconName="flag"
+            onPress={alertUnimplementedFeature}
+          />
+        </View>
+        <Button
+          title="Cancel"
+          onPress={() => bottomSheetModalRef.current.dismiss()}
+        />
+      </ActionModal>
     </View>
   );
 }
@@ -387,23 +418,20 @@ const postItemFooterStyles = StyleSheet.create({
   },
 });
 
-/**
- * @typedef {import('../models').PostId} PostId
- * @typedef {import('../models/post').PostType} PostType
- * @typedef {{
- *   postId: PostId,
- *   showFooter?: boolean,
- *   smallContent?: boolean,
- * }} PostItemCardProps
- *
- * @param {PostItemCardProps & import('react-native').ViewProps} param0
- */
-export default function PostItemCard({
-  postId,
-  showFooter = true,
-  smallContent = false,
-  ...props
-}) {
+type PostItemCardProps = ViewProps & {
+  postId: PostId;
+  showFooter?: boolean;
+  smallContent?: boolean;
+};
+
+export default function PostItemCard(props: PostItemCardProps) {
+  const {
+    postId,
+    showFooter = true,
+    smallContent = false,
+    ...restProps
+  } = props;
+
   const navigation = useNavigation();
 
   const post = useAppSelector((state) => selectPostById(state, postId));
@@ -412,12 +440,11 @@ export default function PostItemCard({
     return null;
   }
 
-  const currentUserProfileId = useAppSelector(
-    (state) => state.auth.user.profileId,
-  );
+  const currentUserProfileId = useAppSelector(selectCurrentUserProfileId);
   const isMyPost = post.profileId === currentUserProfileId;
 
   const handlePostPress = () => {
+    // @ts-ignore
     navigation.push('PostDetailScreen', { postId });
   };
 
@@ -440,113 +467,113 @@ export default function PostItemCard({
     );
   };
 
-  let cardContent;
-  switch (post.content.type) {
-    case 'image-gallery':
-      const imagePreviewSource = post.content.sources[0];
-      let imagePreviewWidth, imagePreviewHeight;
+  const renderCardContent = () => {
+    switch (post.content.type) {
+      case 'image-gallery':
+        const imagePreviewSource = post.content.sources[0];
+        let imagePreviewWidth, imagePreviewHeight;
 
-      if (typeof imagePreviewSource === 'number') {
-        imagePreviewWidth = DEFAULT_IMAGE_DIMENSIONS.width;
-        imagePreviewHeight = DEFAULT_IMAGE_DIMENSIONS.height;
-      } else {
-        imagePreviewWidth = imagePreviewSource.width;
-        imagePreviewHeight = imagePreviewSource.height;
-      }
+        if (typeof imagePreviewSource === 'number') {
+          imagePreviewWidth = DEFAULT_IMAGE_DIMENSIONS.width;
+          imagePreviewHeight = DEFAULT_IMAGE_DIMENSIONS.height;
+        } else {
+          imagePreviewWidth = imagePreviewSource.width;
+          imagePreviewHeight = imagePreviewSource.height;
+        }
 
-      cardContent = (
-        <View>
+        return (
           <View>
-            {post.content.sources.length > 1 && (
-              <View
-                style={{
-                  position: 'absolute',
-                  zIndex: 1,
-                  top:
-                    (smallContent ? values.spacing.sm : values.spacing.md) *
-                    1.5,
-                  right:
-                    (smallContent ? values.spacing.sm : values.spacing.md) *
-                    1.5,
-                  backgroundColor: 'rgba(0, 0, 0, 0.55)',
-                  paddingVertical: values.spacing.sm,
-                  paddingHorizontal: values.spacing.md,
-                  borderRadius: values.radius.md,
-                  minWidth: smallContent ? 22 : 38,
-                }}>
-                {/* <Text
+            <View>
+              {post.content.sources.length > 1 && (
+                <View
                   style={{
-                    color: colors.white,
-                    fontWeight: '700',
-                    textAlign: 'center',
-                    fontSize: smallContent
-                      ? typography.size.md
-                      : typography.size.h3,
+                    position: 'absolute',
+                    zIndex: 1,
+                    top:
+                      (smallContent ? values.spacing.sm : values.spacing.md) *
+                      1.5,
+                    right:
+                      (smallContent ? values.spacing.sm : values.spacing.md) *
+                      1.5,
+                    backgroundColor: 'rgba(0, 0, 0, 0.55)',
+                    paddingVertical: values.spacing.sm,
+                    paddingHorizontal: values.spacing.md,
+                    borderRadius: values.radius.md,
+                    minWidth: smallContent ? 22 : 38,
                   }}>
-                  {post.content.sources.length}
-                </Text> */}
-                <MaterialCommunityIcon
-                  name="image-multiple"
-                  color={colors.white}
-                  size={20}
-                />
-              </View>
-            )}
-            {isMyPost && (
-              <ViewsIndicator post={post} smallContent={smallContent} />
-            )}
-            <FastImage
-              source={post.content.sources[0]}
-              resizeMode="cover"
-              style={{
-                aspectRatio: imagePreviewWidth / imagePreviewHeight,
-                backgroundColor: colors.gray100,
-                borderRadius: values.radius.md,
-              }}
-            />
+                  {/* <Text
+                    style={{
+                      color: colors.white,
+                      fontWeight: '700',
+                      textAlign: 'center',
+                      fontSize: smallContent
+                        ? typography.size.md
+                        : typography.size.h3,
+                    }}>
+                    {post.content.sources.length}
+                  </Text> */}
+                  <MaterialCommunityIcon
+                    name="image-multiple"
+                    color={colors.white}
+                    size={20}
+                  />
+                </View>
+              )}
+              {isMyPost && (
+                <ViewsIndicator post={post} smallContent={smallContent} />
+              )}
+              <FastImage
+                source={post.content.sources[0]}
+                resizeMode="cover"
+                style={{
+                  aspectRatio: imagePreviewWidth / imagePreviewHeight,
+                  backgroundColor: colors.gray100,
+                  borderRadius: values.radius.md,
+                }}
+              />
+            </View>
+            <PostItemCardCaption caption={post.content.caption} />
           </View>
-          <PostItemCardCaption caption={post.content.caption} />
-        </View>
-      );
-      break;
-    case 'video':
-      cardContent = (
-        <View>
-          <Text>VIDEO</Text>
-          <PostItemCardCaption caption={post.content.caption} />
-        </View>
-      );
-      break;
-    case 'text': /* FALLTHROUGH */
-    default:
-      cardContent = (
-        <View style={postItemStyles.dialogBox}>
-          <Text
-            numberOfLines={smallContent ? 5 : 15}
-            style={[
-              postItemStyles.dialogBoxText,
-              {
-                fontSize: smallContent
-                  ? typography.size.sm
-                  : typography.size.md,
-                padding: smallContent
-                  ? values.spacing.md
-                  : values.spacing.md * 1.25,
-              },
-            ]}>
-            {post.content.text}
-          </Text>
-        </View>
-      );
-      break;
-  }
+        );
+
+      case 'video':
+        return (
+          <View>
+            <Text>VIDEO</Text>
+            <PostItemCardCaption caption={post.content.caption} />
+          </View>
+        );
+
+      case 'text': /* FALLTHROUGH */
+      default:
+        return (
+          <View style={postItemStyles.dialogBox}>
+            <Text
+              numberOfLines={smallContent ? 5 : 15}
+              style={[
+                postItemStyles.dialogBoxText,
+                {
+                  fontSize: smallContent
+                    ? typography.size.sm
+                    : typography.size.md,
+                  padding: smallContent
+                    ? values.spacing.md
+                    : values.spacing.md * 1.25,
+                },
+              ]}>
+              {post.content.text}
+            </Text>
+          </View>
+        );
+    }
+  };
 
   return (
-    <View style={[props.style]}>
+    <View style={[restProps.style]}>
       <TouchableOpacity
         activeOpacity={DEFAULT_ACTIVE_OPACITY}
         onPress={handlePostPress}>
-        {cardContent}
+        {renderCardContent()}
       </TouchableOpacity>
       {showFooter && (
         <PostItemCardFooter
