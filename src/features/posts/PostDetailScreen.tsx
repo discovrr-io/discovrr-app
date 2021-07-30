@@ -99,7 +99,7 @@ type PostDetailContentProps = ViewProps & {
 function PostDetailContent(props: PostDetailContentProps) {
   const { post, ...restProps } = props;
 
-  const carouselRef = useRef(null);
+  const carouselRef = useRef<Carousel<ImageSource> | null>(null);
   const { width: screenWidth } = useWindowDimensions();
 
   const [activeMediaIndex, setActiveMediaIndex] = useState(0);
@@ -119,7 +119,7 @@ function PostDetailContent(props: PostDetailContentProps) {
               renderItem={({ item }: { item: ImageSource }) => (
                 <SliderImage item={item} />
               )}
-              onSnapToItem={(index) => setActiveMediaIndex(index)}
+              onSnapToItem={setActiveMediaIndex}
             />
             <Pagination
               dotsLength={post.content.sources.length}
