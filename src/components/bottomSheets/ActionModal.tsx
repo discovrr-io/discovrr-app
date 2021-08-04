@@ -1,12 +1,12 @@
 import React, { useMemo } from 'react';
-import { Text, View, ViewProps } from 'react-native';
+import { SafeAreaView, Text, View, ViewProps } from 'react-native';
 
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import {
   BottomSheetBackdropProps,
   BottomSheetModal,
-  TouchableOpacity,
+  TouchableHighlight,
 } from '@gorhom/bottom-sheet';
 
 import Animated, {
@@ -15,13 +15,7 @@ import Animated, {
   useAnimatedStyle,
 } from 'react-native-reanimated';
 
-import {
-  colors,
-  DEFAULT_ACTIVE_OPACITY,
-  typography,
-  values,
-} from '../../constants';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { colors, typography, values } from '../../constants';
 
 type ActionModalItemProps = ViewProps & {
   label: string;
@@ -32,7 +26,10 @@ type ActionModalItemProps = ViewProps & {
 function ActionModalItem(props: ActionModalItemProps) {
   const { label, iconName, onPress } = props;
   return (
-    <TouchableOpacity activeOpacity={DEFAULT_ACTIVE_OPACITY} onPress={onPress}>
+    <TouchableHighlight
+      underlayColor={colors.gray100}
+      onPress={onPress}
+      style={{ borderRadius: values.radius.md }}>
       <View
         style={{
           flexGrow: 1,
@@ -48,7 +45,7 @@ function ActionModalItem(props: ActionModalItemProps) {
         />
         <Text style={{ fontSize: typography.size.h4 }}>{label}</Text>
       </View>
-    </TouchableOpacity>
+    </TouchableHighlight>
   );
 }
 
@@ -63,8 +60,8 @@ function ActionModalSheetModalBackdrop(props: BottomSheetBackdropProps) {
   const containerAnimatedStyle = useAnimatedStyle(() => ({
     opacity: interpolate(
       animatedIndex.value,
-      [0, 0.75],
-      [0, 0.75],
+      [0, 0.5],
+      [0, 0.5],
       Extrapolate.CLAMP,
     ),
   }));

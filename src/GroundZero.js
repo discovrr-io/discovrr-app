@@ -31,6 +31,7 @@ import NoteDetailScreen from './features/notes/NoteDetailScreen';
 
 import PostCreationScreen from './features/posts/PostCreationScreen';
 import PostDetailScreen from './features/posts/PostDetailScreen';
+import PostEditScreen from './features/posts/PostEditScreen';
 
 import ProfileScreen from './features/profiles/ProfileScreen';
 import ProfileEditScreen from './features/profiles/ProfileEditScreen';
@@ -660,6 +661,16 @@ export default function GroundZero() {
           component={PostDetailScreen}
           options={() => ({
             title: 'Post',
+            headerBackTitleVisible: false,
+            headerTintColor: 'black',
+          })}
+        />
+
+        <Stack.Screen
+          name="PostEditScreen"
+          component={PostEditScreen}
+          options={() => ({
+            title: 'Edit Post',
             headerBackTitleVisible: false,
             headerTintColor: 'black',
           })}

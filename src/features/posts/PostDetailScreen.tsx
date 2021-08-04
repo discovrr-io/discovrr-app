@@ -466,14 +466,14 @@ const postDetailScreenStyles = StyleSheet.create({
 export default function PostDetailScreen() {
   const $FUNC = '[PostDetailScreen]';
 
-  const { postId }: { postId?: PostId | undefined } = useRoute().params ?? {};
+  const { postId }: { postId?: PostId } = useRoute().params ?? {};
   if (!postId) {
     console.error($FUNC, 'No post ID was given');
     return <RouteError />;
   }
 
   const post = useAppSelector((state) => selectPostById(state, postId));
-  const postStatus = useAppSelector((state) => state.posts.status);
+  // const postStatus = useAppSelector((state) => state.posts.status);
 
   // FIXME: A previously rejected post would have set this status to 'rejected',
   // meaning that future inspections of the status will also return 'rejected'.

@@ -125,7 +125,9 @@ export function PostItemCardFooter(props: PostItemCardFooterProps) {
   const currentUserProfile = useAppSelector((state) =>
     selectProfileById(state, currentUserProfileId),
   );
-  const isMyPost = currentUserProfileId === post.profileId;
+
+  // const isMyPost = currentUserProfileId === post.profileId;
+  const isMyPost = true;
 
   const profile = useAppSelector((state) =>
     selectProfileById(state, post.profileId),
@@ -400,7 +402,12 @@ export function PostItemCardFooter(props: PostItemCardFooterProps) {
               <ActionModal.Item
                 label="Edit Post"
                 iconName="edit"
-                onPress={alertUnimplementedFeature}
+                onPress={() => {
+                  bottomSheetModalRef.current?.dismiss();
+                  return navigation.navigate('PostEditScreen', {
+                    postId: post.id,
+                  });
+                }}
               />
               <ActionModal.Item
                 label="Delete Post"
