@@ -14,12 +14,15 @@ import FastImage from 'react-native-fast-image';
 import { Tabs, MaterialTabBar } from 'react-native-collapsible-tab-view';
 import { useNavigation } from '@react-navigation/native';
 import { useRoute } from '@react-navigation/core';
+import { EntityId } from '@reduxjs/toolkit';
 
 import NoteMasonryList from '../../components/masonry/NoteMasonryList';
 import PostMasonryList from '../../components/masonry/PostMasonryList';
+import { NotificationApi } from '../../api';
 import { DEFAULT_AVATAR } from '../../constants/media';
 import { useAppDispatch, useAppSelector, useIsMounted } from '../../hooks';
-import { NotificationApi } from '../../api';
+import { Profile, ProfileId } from '../../models';
+import { MerchantAddress } from '../../models/merchant';
 import { selectAllNotes } from '../notes/notesSlice';
 
 import {
@@ -35,6 +38,7 @@ import {
 import {
   Button,
   EmptyTabView,
+  LocationLabel,
   RouteError,
   ToggleButton,
 } from '../../components';
@@ -51,17 +55,20 @@ import {
   fetchProfileById,
   selectProfileById,
 } from './profilesSlice';
-import { Profile, ProfileId } from '../../models';
-import { MerchantAddress } from '../../models/merchant';
+import { Coordinates } from '../../models/common';
 
 export const HEADER_MAX_HEIGHT = 280;
 const AVATAR_IMAGE_RADIUS = 80;
 
-/**
- * @typedef {{ label: string, value: number, onPress?: () => void }} StatisticProps
- * @param {StatisticProps} param0
- */
-function Statistic({ label, value, onPress = undefined }) {
+type StatisticProps = {
+  label: string;
+  value: number;
+  onPress?: () => void;
+};
+
+function Statistic(props: StatisticProps) {
+  const { label, value, onPress = undefined } = props;
+
   return (
     <TouchableOpacity
       activeOpacity={DEFAULT_ACTIVE_OPACITY}
@@ -102,17 +109,20 @@ const alertRequestFailure = () =>
     `Sorry, we weren't able to complete your request. Please try again later.`,
   );
 
-type ProfileDetails = Omit<Profile, 'id' | 'email'> & {
-  id?: string;
+type ProfileDetails = Omit<Profile, 'id' | 'email' | 'username'> & {
+  id?: EntityId;
   totalLikes?: number;
   address?: MerchantAddress;
+  coordinates?: Coordinates;
 };
 
 type ProfileScreenHeaderContentParams = {
   profileDetails: ProfileDetails;
 };
 
-function ProfileScreenHeaderContent({ profileDetails }) {
+function ProfileScreenHeaderContent(props: ProfileScreenHeaderContentParams) {
+  const { profileDetails } = props;
+
   const dispatch = useAppDispatch();
 
   const navigation = useNavigation();
@@ -125,7 +135,8 @@ function ProfileScreenHeaderContent({ profileDetails }) {
     followers = [],
     following = [],
     totalLikes = 0,
-    address = undefined,
+    address,
+    coordinates,
   } = profileDetails ?? {};
 
   const addressString = useMemo(() => {
@@ -161,11 +172,7 @@ function ProfileScreenHeaderContent({ profileDetails }) {
   const [isBlocked, setIsBlocked] = useState(false);
   const [isProcessingBlock, setIsProcessingBlock] = useState(false);
 
-  /**
-   * @param {boolean} didFollow
-   * @returns A boolean with the new value (or the previous value if it failed)
-   */
-  const handleFollowButtonPress = async (didFollow) => {
+  const handleFollowButtonPress = async (didFollow: boolean) => {
     if (profileDetails.isVendor) {
       alertUnavailableFeature();
       return !didFollow;
@@ -191,7 +198,7 @@ function ProfileScreenHeaderContent({ profileDetails }) {
         try {
           const { fullName = 'Someone' } = currentUserProfile ?? {};
           await NotificationApi.sendNotificationToProfileIds(
-            [profileDetails.id],
+            [String(profileDetails.id)],
             { en: `${fullName} followed you!` },
             { en: 'Why not follow them back? 😃' },
             `discovrr://profile/${currentUserProfileId}`,
@@ -211,10 +218,7 @@ function ProfileScreenHeaderContent({ profileDetails }) {
     }
   };
 
-  /**
-   * @param {import('./FollowerScreen').FollowerScreenSelector} selector
-   */
-  const handleGoToFollowerScreen = (selector) => {
+  const handleGoToFollowerScreen = (selector: 'followers' | 'following') => {
     if (profileDetails.isVendor) {
       alertUnavailableFeature();
     } else {
@@ -279,7 +283,7 @@ function ProfileScreenHeaderContent({ profileDetails }) {
               />
             ) : (
               <>
-                {/* TODO: This doesn't toggle back if following failed */}
+                {/* TODO: This doesn't toggle back if failed */}
                 <ToggleButton
                   transparent
                   size="small"
@@ -339,15 +343,27 @@ function ProfileScreenHeaderContent({ profileDetails }) {
         ]}>
         {fullName || 'Anonymous'}
       </Text>
-      {profileDetails.isVendor && addressString && (
-        <Text
-          style={[
-            profileScreenHeaderContentStyles.text,
-            { marginBottom: values.spacing.sm },
-          ]}>
-          {addressString}
-        </Text>
-      )}
+      {profileDetails.isVendor &&
+        addressString &&
+        (coordinates ? (
+          <LocationLabel
+            label={addressString}
+            coordinates={coordinates}
+            coordinatesLabel={profileDetails.fullName}
+            styles={[
+              profileScreenHeaderContentStyles.text,
+              { marginBottom: values.spacing.sm },
+            ]}
+          />
+        ) : (
+          <Text
+            style={[
+              profileScreenHeaderContentStyles.text,
+              { marginBottom: values.spacing.sm },
+            ]}>
+            {addressString}
+          </Text>
+        ))}
       <Text numberOfLines={3} style={profileScreenHeaderContentStyles.text}>
         {description || 'No description'}
       </Text>
@@ -373,10 +389,13 @@ const profileScreenHeaderContentStyles = StyleSheet.create({
   },
 });
 
-/**
- * @param {{ profileDetails: ProfileDetails }} param0
- */
-export function ProfileScreenHeader({ profileDetails }) {
+type ProfileScreenHeaderProps = {
+  profileDetails: ProfileDetails;
+};
+
+export function ProfileScreenHeader(props: ProfileScreenHeaderProps) {
+  const { profileDetails } = props;
+
   const coverPhoto =
     typeof profileDetails.coverPhoto === 'number'
       ? undefined
@@ -513,9 +532,7 @@ export default function ProfileScreen() {
         lazy
         snapThreshold={0.25}
         HeaderComponent={() => (
-          <ProfileScreenHeader
-            profileDetails={{ ...profile, isMyProfile, totalLikes }}
-          />
+          <ProfileScreenHeader profileDetails={{ ...profile, totalLikes }} />
         )}
         TabBarComponent={(props) => (
           <MaterialTabBar

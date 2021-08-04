@@ -46,9 +46,10 @@ import {
 import {
   EmptyTabView,
   ErrorTabView,
-  RouteError,
-  LoadingTabView,
   LoadingOverlay,
+  LoadingTabView,
+  LocationLabel,
+  RouteError,
 } from '../../components';
 
 const COMMENT_TEXT_INPUT_MIN_HEIGHT = 50;
@@ -184,16 +185,16 @@ function PostDetailContent(props: PostDetailContentProps) {
     <View style={[restProps.style]}>
       {renderPostContent()}
       {post.location && (
-        <Text
-          style={{
-            fontSize: typography.size.sm,
+        <LocationLabel
+          label={post.location.text}
+          coordinates={post.location.coordinates}
+          styles={{
             color: colors.gray500,
             marginHorizontal: values.spacing.md,
             marginTop: values.spacing.xs * 1.5,
             marginBottom: values.spacing.md,
-          }}>
-          {post.location.text}
-        </Text>
+          }}
+        />
       )}
     </View>
   );

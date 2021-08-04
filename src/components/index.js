@@ -4,6 +4,7 @@ import ToggleButton from './buttons/ToggleButton';
 import FormikInput from './FormikInput';
 import TextInput from './TextInput';
 
+import LocationLabel from './LocationLabel';
 import LoadingOverlay from './LoadingOverlay';
 import RouteError from './RouteError';
 
@@ -17,6 +18,7 @@ export {
   FormikInput,
   LoadingOverlay,
   LoadingTabView,
+  LocationLabel,
   MasonryList,
   RouteError,
   TextInput,

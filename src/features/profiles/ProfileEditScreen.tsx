@@ -105,7 +105,7 @@ export default function ProfileEditScreen() {
     <ScrollView
       stickyHeaderIndices={[0, 2, 4]}
       keyboardShouldPersistTaps="handled"
-      style={{ backgroundColor: 'yellow', flexGrow: 1 }}
+      style={{ backgroundColor: colors.white, flexGrow: 1 }}
       contentContainerStyle={{ paddingBottom: values.spacing.huge * 3 }}>
       {/* <TouchableWithoutFeedback onPress={Keyboard.dismiss}> */}
       {/* <KeyboardAvoidingView style={{ flexGrow: 1, backgroundColor: 'green' }}> */}

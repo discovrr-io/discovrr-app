@@ -31,23 +31,23 @@ import {
   fetchProductsForMerchant,
   selectProductsForMerchant,
 } from '../products/productsSlice';
+import { Merchant, MerchantId } from '../../models';
 
 // TODO: Refactor out
-function isOverFiveMinutes(date) {
+function isOverFiveMinutes(date: string | number | Date) {
   if (!date) return false;
 
   const FIVE_MINS = 5 * 60 * 1000;
   const now = new Date();
   const then = new Date(date);
-  return now - then > FIVE_MINS;
+  return now.valueOf() - then.valueOf() > FIVE_MINS;
 }
 
-/**
- * @typedef {import('../../models').Merchant} Merchant
- * @param {{ merchant: Merchant }} param0
- * @returns
- */
-function ProductsTab({ merchant }) {
+type ProductsTabProps = {
+  merchant: Merchant;
+};
+
+function ProductsTab({ merchant }: ProductsTabProps) {
   const FUNC = '[MerchantProfileScreen.ProductsTab]';
   const dispatch = useAppDispatch();
 
@@ -98,7 +98,7 @@ function ProductsTab({ merchant }) {
         try {
           await analytics().logViewItemList({
             items: products.map((product) => ({
-              item_id: product.id,
+              item_id: String(product.id),
               item_name: product.name,
               item_list_name: merchant.shortName,
             })),
@@ -125,6 +125,7 @@ function ProductsTab({ merchant }) {
           onRefresh={handleRefresh}
         />
       }
+      // @ts-ignore
       ScrollViewComponent={Tabs.ScrollView}
       ListEmptyComponent={
         <EmptyTabView
@@ -149,17 +150,13 @@ function ProductsTab({ merchant }) {
   );
 }
 
-/**
- * @typedef {import('../../models').Merchant} Merchant
- * @typedef {{ merchant: Merchant }} MerchantProfileScreenProps
- * @param {MerchantProfileScreenProps} param0
- */
 export default function MerchantProfileScreen() {
   const $FUNC = '[MerchantProfileScreen]';
   const dispatch = useAppDispatch();
 
-  /** @type {{ merchantId: import('../../models').MerchantId }} */
-  const { merchantId } = useRoute().params ?? {};
+  const { merchantId }: { merchantId?: MerchantId } = useRoute().params ?? {};
+  if (!merchantId) return <RouteError />;
+
   const merchant = useAppSelector((state) =>
     selectMerchantById(state, merchantId),
   );
@@ -234,10 +231,10 @@ export default function MerchantProfileScreen() {
           <ProductsTab merchant={merchant} />
         </Tabs.Tab>
         <Tabs.Tab name="posts" label="Posts">
+          {/* @ts-ignore */}
           <Tabs.ScrollView>
             <PostMasonryList
               smallContent
-              nestedScrollEnabled
               showFooter={false}
               postIds={postIds}
               ListEmptyComponent={
@@ -251,11 +248,11 @@ export default function MerchantProfileScreen() {
           </Tabs.ScrollView>
         </Tabs.Tab>
         <Tabs.Tab name="notes" label="Notes">
+          {/* @ts-ignore */}
           <Tabs.ScrollView>
             <NoteMasonryList
               smallContent
-              nestedScrollEnabled
-              showFooter={false}
+              // showFooter={false}
               noteIds={noteIds}
               ListEmptyComponent={
                 <EmptyTabView

@@ -9,15 +9,14 @@ import { values } from '../../constants';
  * @typedef {Omit<MasonryListProps, 'data' | 'renderItem'>} RestProps
  *
  * @typedef {import('../../models').NoteId} NoteId
- * @typedef {{ noteIds: NoteId[], tileSpacing?: number }} NoteMasonryListProps
+ * @typedef {{ noteIds: NoteId[], tileSpacing?: number, smallContent?: boolean }} NoteMasonryListProps
  *
  * @param {NoteMasonryListProps & RestProps} param0
- * @returns
  */
 export default function NoteMasonryList({
   noteIds,
   tileSpacing = values.spacing.sm * 1.25,
-  smallContent,
+  smallContent = false,
   ...props
 }) {
   return (

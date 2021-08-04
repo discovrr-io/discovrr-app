@@ -15,8 +15,8 @@ export default interface Profile {
   fullName: string;
   username: string;
   isVendor: boolean;
-  avatar: ImageSource;
-  coverPhoto: ImageSource;
+  avatar?: ImageSource;
+  coverPhoto?: ImageSource;
   description?: string;
   followers?: ProfileId[]; // TODO: Parse encodes this as Relation<Profile>. Maybe see if that can be taken advantage of?
   following?: ProfileId[];
