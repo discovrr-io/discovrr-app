@@ -19,7 +19,7 @@
 
 - Onboarding popup for new users
 - Popup menu to delete posts
-- Total number of likes for merchant profiles
+- Show total number of likes for merchant profiles
 
 [2021.8.1.1]: https://github.com/discovrr-io/discovrr-app/compare/2021.8.1.1...HEAD
 [2021.7.25.5]: https://github.com/discovrr-io/discovrr-app/compare/2021.7.25.5...2021.8.1.1
