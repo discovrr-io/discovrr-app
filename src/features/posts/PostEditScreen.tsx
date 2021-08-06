@@ -93,7 +93,6 @@ export default function PostEditScreen() {
   };
 
   useLayoutEffect(() => {
-    console.log($FUNC, 'Setting options...');
     navigation.setOptions({
       headerRight: () => {
         const disabled =
@@ -104,7 +103,8 @@ export default function PostEditScreen() {
           <TouchableOpacity
             disabled={disabled}
             style={{ marginRight: values.spacing.lg }}
-            hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}>
+            hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
+            onPress={() => handleSaveChanges(editedTextContent)}>
             {isSavingChanges ? (
               <ActivityIndicator size="small" color={colors.accent} />
             ) : (
@@ -113,8 +113,7 @@ export default function PostEditScreen() {
                   color: disabled ? colors.gray500 : colors.accent,
                   fontSize: typography.size.md,
                   fontWeight: '500',
-                }}
-                onPress={() => handleSaveChanges(editedTextContent)}>
+                }}>
                 Save
               </Text>
             )}

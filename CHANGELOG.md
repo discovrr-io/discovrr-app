@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix save button not respecting disable state when new post has too low
+  character count
+
 ## [2021.8.1.1] - 2021-08-06
 
 ### Added
@@ -21,5 +26,6 @@
 - Popup menu to delete posts
 - Show total number of likes for merchant profiles
 
-[2021.8.1.1]: https://github.com/discovrr-io/discovrr-app/compare/2021.8.1.1...HEAD
-[2021.7.25.5]: https://github.com/discovrr-io/discovrr-app/compare/2021.7.25.5...2021.8.1.1
+[unreleased]: https://github.com/discovrr-io/discovrr-app/compare/2021.8.1.1...HEAD
+[2021.8.1.1]: https://github.com/discovrr-io/discovrr-app/compare/2021.7.25.5...2021.8.1.1
+[2021.7.25.5]: https://github.com/discovrr-io/discovrr-app/releases/tag/2021.7.25.5
