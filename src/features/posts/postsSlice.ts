@@ -36,6 +36,17 @@ export const fetchPostById = createAsyncThunk(
   async (postId: PostId) => PostApi.fetchPostById(String(postId)),
 );
 
+type UpdatePostTextContentParams = {
+  postId: PostId;
+  text: string;
+};
+
+export const updatePostTextContent = createAsyncThunk(
+  'posts/updatePostTextContent',
+  async ({ postId, text }: UpdatePostTextContentParams) =>
+    PostApi.updatePostTextContent(String(postId), text),
+);
+
 export const deletePost = createAsyncThunk(
   'posts/deletePost',
   async (postId: PostId) => PostApi.deletePost(String(postId)),
@@ -142,6 +153,10 @@ const postsSlice = createSlice({
         state.error = action.error;
         // TODO: We need to know if this was a refresh action to not remove it
         postsAdapter.removeOne(state, action.meta.arg);
+      })
+      // -- updatePostTextContent --
+      .addCase(updatePostTextContent.fulfilled, (state, action) => {
+        postsAdapter.upsertOne(state, action.payload);
       })
       // -- deletePost --
       .addCase(deletePost.pending, (state) => {

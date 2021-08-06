@@ -12,12 +12,17 @@ import * as Animatable from 'react-native-animatable';
 import FastImage from 'react-native-fast-image';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { Portal } from '@gorhom/portal';
-import { useNavigation } from '@react-navigation/native';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 
 import ActionModal from '../../components/bottomSheets/ActionModal';
 import { NotificationApi } from '../../api';
 import { useAppDispatch, useAppSelector } from '../../hooks';
+import { Post, PostId } from '../../models';
+import { Button } from '../../components';
+import { ImageSource } from '../../models/common';
+
+import { selectCurrentUserProfileId } from '../authentication/authSlice';
 import { selectProfileById } from '../profiles/profilesSlice';
 import { selectPostById, changePostLikeStatus, deletePost } from './postsSlice';
 
@@ -37,11 +42,6 @@ import {
   DEFAULT_AVATAR,
   DEFAULT_IMAGE_DIMENSIONS,
 } from '../../constants/media';
-import { selectCurrentUserProfileId } from '../authentication/authSlice';
-import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { Post, PostId } from '../../models';
-import { Button, LoadingOverlay } from '../../components';
-import { ImageSource } from '../../models/common';
 
 const SMALL_ICON = 24;
 const LARGE_ICON = 32;
@@ -126,8 +126,7 @@ export function PostItemCardFooter(props: PostItemCardFooterProps) {
     selectProfileById(state, currentUserProfileId),
   );
 
-  // const isMyPost = currentUserProfileId === post.profileId;
-  const isMyPost = true;
+  const isMyPost = currentUserProfileId === post.profileId;
 
   const profile = useAppSelector((state) =>
     selectProfileById(state, post.profileId),
@@ -147,6 +146,20 @@ export function PostItemCardFooter(props: PostItemCardFooterProps) {
   const [isProcessingSave, _setIsProcessingSave] = useState(false);
   const [isProcessingDelete, setIsProcessingDelete] = useState(false);
   // const [isProcessingReport, setIsProcessingReport] = useState(false);
+
+  // FIXME: Sometimes this doesn't work if the user navigates out of the screen
+  // very quickly.
+  useFocusEffect(
+    useCallback(() => {
+      // Dismiss modal on navigation blur event
+      return () => {
+        console.log($FUNC, 'Dismissing modal if possible...');
+        if (!bottomSheetModalRef.current)
+          console.warn($FUNC, 'bottomSheetModalRef has no current reference');
+        bottomSheetModalRef.current?.dismiss();
+      };
+    }, []),
+  );
 
   const handlePressAvatar = () => {
     // @ts-ignore
@@ -226,7 +239,7 @@ export function PostItemCardFooter(props: PostItemCardFooterProps) {
   // };
 
   const handleDeletePost = async () => {
-    const commitDeletion = async () => {
+    const commitPostDeletion = async () => {
       try {
         console.log($FUNC, `Deleting post with id '${post.id}'...`);
         setIsProcessingDelete(true);
@@ -250,7 +263,7 @@ export function PostItemCardFooter(props: PostItemCardFooterProps) {
       'Delete post?',
       'Are you sure you want to delete this post? This action is irreversible.',
       [
-        { text: 'Delete', style: 'destructive', onPress: commitDeletion },
+        { text: 'Delete', style: 'destructive', onPress: commitPostDeletion },
         { text: 'Cancel', style: 'cancel' },
       ],
     );
@@ -403,10 +416,14 @@ export function PostItemCardFooter(props: PostItemCardFooterProps) {
                 label="Edit Post"
                 iconName="edit"
                 onPress={() => {
-                  bottomSheetModalRef.current?.dismiss();
-                  return navigation.navigate('PostEditScreen', {
-                    postId: post.id,
-                  });
+                  if (post.content.type === 'text') {
+                    navigation.navigate('PostEditScreen', {
+                      postId: post.id,
+                    });
+                  } else {
+                    // bottomSheetModalRef.current?.dismiss();
+                    alertUnimplementedFeature();
+                  }
                 }}
               />
               <ActionModal.Item
@@ -425,7 +442,7 @@ export function PostItemCardFooter(props: PostItemCardFooterProps) {
         </View>
         <Button
           title="Cancel"
-          onPress={() => bottomSheetModalRef.current.dismiss()}
+          onPress={() => bottomSheetModalRef.current?.dismiss()}
         />
       </ActionModal>
     </View>

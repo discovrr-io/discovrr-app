@@ -131,8 +131,26 @@ export namespace PostApi {
   }
 
   // TODO: Move the implementation of this to a backend cloud function
+  export async function updatePostTextContent(
+    postId: string,
+    text: string,
+  ): Promise<Post> {
+    const $FUNC = '[Post.updatePostTextContent]';
+    const currentProfile = await UserApi.getCurrentUserProfile();
+    const postQuery = new Parse.Query(Parse.Object.extend('Post'));
+    const post = await postQuery.get(postId);
+
+    console.log($FUNC, 'New text content:', JSON.stringify(text));
+    console.log($FUNC, 'Saving post text content...');
+    const newPost = await post.save({ caption: text.trim() });
+    console.log($FUNC, 'Successfully saved');
+
+    return mapResultToPost(currentProfile?.id, newPost);
+  }
+
+  // TODO: Move the implementation of this to a backend cloud function
   export async function deletePost(postId: string): Promise<void> {
-    const $FUNC = '[ProfileApi.deletePost]';
+    const $FUNC = '[Post.deletePost]';
     const postQuery = new Parse.Query(Parse.Object.extend('Post'));
     const post = await postQuery.get(postId);
 
@@ -155,7 +173,7 @@ export namespace PostApi {
   }
 
   export async function fetchPostById(postId: string): Promise<Post> {
-    const $FUNC = '[ProfileApi.fetchPostById]';
+    const $FUNC = '[Post.fetchPostById]';
 
     const profile = await UserApi.getCurrentUserProfile();
     const postQuery = new Parse.Query(Parse.Object.extend('Post'));
@@ -171,7 +189,7 @@ export namespace PostApi {
   }
 
   export async function changePostLikeStatus(postId: string, didLike: boolean) {
-    const $FUNC = '[PostApi.setLikeStatus]';
+    const $FUNC = '[PostApi.changePostLikeStatus]';
 
     try {
       await Parse.Cloud.run('likeOrUnlikePost', { postId, like: didLike });
