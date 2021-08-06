@@ -6,9 +6,20 @@
 
 ### Added
 
-- Added ability to delete any kind of post
-- Added ability to edit text posts
+- Ability to delete any kind of post
+- Ability to edit text posts
 
 ### Fixed
 
-- Fixed loading overlay when deleting post not covering the whole screen
+- Fixed loading overlay not covering the whole screen when deleting posts
+
+## [2021.7.25.5] - 2021-07-30
+
+### Added
+
+- Onboarding popup for new users
+- Popup menu to delete posts
+- Total number of likes for merchant profiles
+
+[2021.8.1.1]: https://github.com/discovrr-io/discovrr-app/compare/2021.8.1.1...HEAD
+[2021.7.25.5]: https://github.com/discovrr-io/discovrr-app/compare/2021.7.25.5...2021.8.1.1
