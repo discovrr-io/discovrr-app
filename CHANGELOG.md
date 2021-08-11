@@ -2,11 +2,6 @@
 
 ## [Unreleased]
 
-### Fixed
-
-- Fix save button not respecting disable state when new post has too low
-  character count
-
 ## [2021.8.1.1] - 2021-08-06
 
 ### Added
@@ -17,6 +12,8 @@
 ### Fixed
 
 - Fixed loading overlay not covering the whole screen when deleting posts
+- Fix save button not respecting disable state when new post has too low
+  character count
 
 ## [2021.7.25.5] - 2021-07-30
 

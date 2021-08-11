@@ -16,7 +16,7 @@ import {
 } from 'react-native';
 
 import analytics from '@react-native-firebase/analytics';
-import Carousel from 'react-native-snap-carousel';
+import Carousel, { Pagination } from 'react-native-snap-carousel';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 
@@ -41,9 +41,10 @@ import MerchantProfileScreen from './features/merchants/MerchantProfileScreen';
 import ProductCheckoutScreen from './features/products/ProductCheckoutScreen';
 
 import { Button, LoadingOverlay, TextInput } from './components';
+import { SOMETHING_WENT_WRONG } from './constants/strings';
+import { buttonSizes } from './constants/values';
 import { didDismissInfoModal } from './features/authentication/authSlice';
 import { useAppDispatch, useAppSelector } from './hooks';
-import { SOMETHING_WENT_WRONG } from './constants/strings';
 
 import {
   colors,
@@ -51,8 +52,6 @@ import {
   typography,
   values,
 } from './constants';
-import { Pagination } from 'react-native-snap-carousel';
-import { buttonSizes } from './constants/values';
 
 const DISCOVER_GRAPHIC = require('../assets/images/onboarding/discover.png');
 const NEAR_ME_GRAPHIC = require('../assets/images/onboarding/near-me.png');

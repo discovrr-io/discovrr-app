@@ -4,6 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 
 import analytics from '@react-native-firebase/analytics';
 import inAppMessaging from '@react-native-firebase/in-app-messaging';
+import messaging from '@react-native-firebase/messaging';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import codePush from 'react-native-code-push';
 
@@ -89,6 +90,20 @@ export function App() {
   const routeNameRef = useRef(null);
 
   useEffect(() => {
+    (async () => {
+      // try {
+      //   const apnsToken = await messaging().getAPNSToken();
+      //   const token = await messaging().getToken();
+      //   console.log({ apnsToken, token });
+      // } catch (error) {
+      //   console.error($FUNC, 'Some error:', error);
+      // }
+
+      messaging().onMessage(async (message) => {
+        console.log($FUNC, 'New message:', message);
+      });
+    })();
+
     // TODO: Should we move this to LoginScreen?
     console.log($FUNC, 'Suppressing in app messages...');
     inAppMessaging()
