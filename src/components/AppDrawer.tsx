@@ -189,7 +189,8 @@ export default function AppDrawer({ navigation, ...props }) {
         <AppDrawerItem
           label="Account Settings"
           iconName="settings"
-          onPress={() => navigation.navigate('AccountSettingsScreen')}
+          // onPress={() => navigation.navigate('AccountSettingsScreen')}
+          onPress={alertUnavailableFeature}
         />
 
         <Divider />
@@ -210,7 +211,7 @@ export default function AppDrawer({ navigation, ...props }) {
             textAlign: 'center',
             padding: values.spacing.lg,
           }}>
-          Discovrr v{DeviceInfo.getVersion()} (Build 2021.8.1.2)
+          Discovrr v{DeviceInfo.getVersion()} (Build 2021.9.1.0)
         </Text>
       </SafeAreaView>
 

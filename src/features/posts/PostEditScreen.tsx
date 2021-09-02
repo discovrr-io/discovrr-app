@@ -82,7 +82,7 @@ export default function PostEditScreen() {
       setDidSaveChanges(true);
       setShouldNavigateBack(true);
     } catch (error) {
-      console.error($FUNC, 'Failed to edit post:', error);
+      console.error($FUNC, 'Failed to save post changes:', error);
       Alert.alert(
         SOMETHING_WENT_WRONG.title,
         "We couldn't save your changes right now. Please try again later.",

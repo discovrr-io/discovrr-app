@@ -101,25 +101,40 @@ export namespace ProfileApi {
     profileId: string,
     didFollow: boolean,
   ) {
-    const $FUNC = '[ProfileApi.changeProfileFollowStatus]';
+    await Parse.Cloud.run('followOrUnfollowProfile', {
+      profileId,
+      follow: didFollow,
+    });
 
-    try {
-      await Parse.Cloud.run('followOrUnfollowProfile', {
-        profileId,
-        follow: didFollow,
+    // await Parse.Cloud.run('changeFollowStatus', {
+    //   followeeId: profileId,
+    //   didFollow,
+    // });
+  }
+
+  export type UpdateProfileChanges = Partial<
+    Omit<Profile, 'id' | 'followers' | 'following'>
+  >;
+
+  export async function updateProfile(
+    profileId: string,
+    changes: UpdateProfileChanges,
+  ) {
+    const query = new Parse.Query('Profile');
+    query.get(profileId);
+
+    const result = await query.first();
+
+    const name = changes.fullName || changes['displayName'] || changes['name'];
+    if (name) {
+      await result.save({
+        ...changes,
+        fullName: name,
+        displayName: name,
+        name: name,
       });
-
-      // await Parse.Cloud.run('changeFollowStatus', {
-      //   followeeId: profileId,
-      //   didFollow,
-      // });
-    } catch (error) {
-      console.error(
-        $FUNC,
-        `Failed to ${didFollow ? 'follow' : 'unfollow'} profile with id:`,
-        error,
-      );
-      throw error;
+    } else {
+      await result.save(changes);
     }
   }
 }

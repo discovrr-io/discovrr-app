@@ -6,9 +6,9 @@ import {
   EntityState,
   PayloadAction,
 } from '@reduxjs/toolkit';
-import { BaseThunkAPI } from '@reduxjs/toolkit/dist/createAsyncThunk';
 
 import { PURGE } from 'redux-persist';
+import { BaseThunkAPI } from '@reduxjs/toolkit/dist/createAsyncThunk';
 
 import { ApiFetchStatus, ApiFetchStatuses, ProfileApi } from '../../api';
 import { Profile, ProfileId } from '../../models';
@@ -61,12 +61,19 @@ type ChangeProfileFollowStatusParams = {
 
 export const changeProfileFollowStatus = createAsyncThunk(
   'profiles/changeProfileFollowStatus',
-  /**
-   * @typedef {import('../../models').ProfileId} ProfileId
-   * @param {{ followeeId: ProfileId, followerId: ProfileId, didFollow: boolean }} param0
-   */
   async ({ followeeId, didFollow }: ChangeProfileFollowStatusParams) =>
     ProfileApi.changeProfileFollowStatus(followeeId.toString(), didFollow),
+);
+
+type EditProfileParams = {
+  profileId: ProfileId;
+  changes: ProfileApi.UpdateProfileChanges;
+};
+
+export const editProfile = createAsyncThunk(
+  'profiles/editProfile',
+  async ({ profileId, changes }: EditProfileParams) =>
+    ProfileApi.updateProfile(profileId.toString(), changes),
 );
 
 export type ProfilesState = EntityState<Profile> & ApiFetchStatuses;
@@ -181,6 +188,14 @@ const profilesSlice = createSlice({
         profilesSlice.caseReducers.profileFollowStatusChanged(state, {
           ...action,
           payload: { ...action.meta.arg, didFollow: oldDidFollow },
+        });
+      })
+      // -- editProfile --
+      .addCase(editProfile.fulfilled, (state, action) => {
+        const { profileId, changes } = action.meta.arg;
+        profilesSlice.caseReducers.updateProfile(state, {
+          id: profileId,
+          changes,
         });
       });
   },
