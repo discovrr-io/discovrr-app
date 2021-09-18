@@ -28,7 +28,7 @@ if (__DEV__ && false) {
   Parse.serverURL = 'http://192.168.0.4:1337/parse';
 } else {
   Parse.initialize('discovrrServer');
-  Parse.serverURL = 'https://discovrr-uat.herokuapp.com/discovrrServer'; // production
+  Parse.serverURL = 'https://api.discovrrio.com/discovrrServer'; // production
 }
 
 global.debugAppLogger = () => {};
@@ -112,29 +112,31 @@ export function App() {
         console.error($FUNC, 'Failed to suppress in app messages:', error),
       );
 
-    // We could GET /health to force the server to wake up if it's sleeping.
-    // It'll buy us some time to start up the server while the user reads the
-    // screen and attempts to register or sign in.
-    console.log($FUNC, 'Fetching health...');
-    fetch(Parse.serverURL + '/health')
-      .then((response) => response.json())
-      .then((json) => {
-        if (json.status !== 'ok') {
-          console.warn(
-            $FUNC,
-            'Server did not return an ok status. Will continue on anyway.',
-          );
-        }
-      })
-      .catch((error) =>
-        console.error($FUNC, 'Failed to get server status:', error),
-      );
+    // TODO: This isn't needed anymore
+    // ---
+    // // We could GET /health to force the server to wake up if it's sleeping.
+    // // It'll buy us some time to start up the server while the user reads the
+    // // screen and attempts to register or sign in.
+    // console.log($FUNC, 'Fetching health...');
+    // fetch(Parse.serverURL + '/health')
+    //   .then((response) => response.json())
+    //   .then((json) => {
+    //     if (json.status !== 'ok') {
+    //       console.warn(
+    //         $FUNC,
+    //         'Server did not return an ok status. Will continue on anyway.',
+    //       );
+    //     }
+    //   })
+    //   .catch((error) =>
+    //     console.error($FUNC, 'Failed to get server status:', error),
+    //   );
   }, []);
 
   const onBeforeLift = async () => {
     const $FUNC = '[App.onBeforeLift]';
     // TODO: Maybe check with Regex? (/^\d+\.\d{1,2}\.\d{1,2}$/g)
-    const [major, minor, patch, build] = [2, 1, 2, 7];
+    const [major, minor, patch, build] = [2, 1, 2, 8];
     const versionNumber =
       major * 10 ** 6 + minor * 10 ** 4 + patch * 10 ** 2 + build;
     const currStoreVersion = String(versionNumber);
