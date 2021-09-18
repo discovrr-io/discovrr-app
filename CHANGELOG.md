@@ -36,6 +36,7 @@
 - Show total number of likes for merchant profiles
 
 [unreleased]: https://github.com/discovrr-io/discovrr-app/compare/2021.9.1.0...HEAD
+[2021.9.18.0]: https://github.com/discovrr-io/discovrr-app/compare/2021.9.1.0...2021.9.18.0
 [2021.9.1.0]: https://github.com/discovrr-io/discovrr-app/compare/2021.8.1.1...2021.9.1.0
 [2021.8.1.1]: https://github.com/discovrr-io/discovrr-app/compare/2021.7.25.5...2021.8.1.1
 [2021.7.25.5]: https://github.com/discovrr-io/discovrr-app/releases/tag/2021.7.25.5
