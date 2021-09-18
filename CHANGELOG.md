@@ -35,8 +35,10 @@
 - Popup menu to delete posts
 - Show total number of likes for merchant profiles
 
-[unreleased]: https://github.com/discovrr-io/discovrr-app/compare/2021.9.1.0...HEAD
-[2021.9.18.0]: https://github.com/discovrr-io/discovrr-app/compare/2021.9.1.0...2021.9.18.0
-[2021.9.1.0]: https://github.com/discovrr-io/discovrr-app/compare/2021.8.1.1...2021.9.1.0
-[2021.8.1.1]: https://github.com/discovrr-io/discovrr-app/compare/2021.7.25.5...2021.8.1.1
-[2021.7.25.5]: https://github.com/discovrr-io/discovrr-app/releases/tag/2021.7.25.5
+[unreleased]: https://github.com/discovrr-io/discovrr-app/compare/2021.09.18.00...HEAD
+[2021.09.18.00]: https://github.com/discovrr-io/discovrr-app/releases/tag/2021.09.18.00
+
+<!-- [2021.09.18.00]: https://github.com/discovrr-io/discovrr-app/compare/2021.09.01.00...2021.09.18.00 -->
+<!-- [2021.09.01.00]: https://github.com/discovrr-io/discovrr-app/compare/2021.08.01.01...2021.09.1.00 -->
+<!-- [2021.08.01.01]: https://github.com/discovrr-io/discovrr-app/compare/2021.07.25.05...2021.08.01.01 -->
+<!-- [2021.07.25.05]: https://github.com/discovrr-io/discovrr-app/releases/tag/2021.07.25.05 -->
