@@ -101,15 +101,10 @@ export namespace ProfileApi {
     profileId: string,
     didFollow: boolean,
   ) {
-    await Parse.Cloud.run('followOrUnfollowProfile', {
-      profileId,
-      follow: didFollow,
+    await Parse.Cloud.run('changeFollowStatus', {
+      followeeId: profileId,
+      didFollow,
     });
-
-    // await Parse.Cloud.run('changeFollowStatus', {
-    //   followeeId: profileId,
-    //   didFollow,
-    // });
   }
 
   export type UpdateProfileChanges = Partial<

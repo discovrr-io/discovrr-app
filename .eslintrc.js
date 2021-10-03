@@ -1,22 +1,42 @@
 module.exports = {
-  root: true,
-  extends: ['airbnb', 'airbnb/hooks'],
-  parser: 'babel-eslint',
   env: {
-    browser: true,
+    es2021: true,
     node: true,
-    es6: true,
-    mocha: true,
   },
-  globals: {
-    debugAppLogger: false,
+  extends: [
+    'plugin:react/recommended',
+    'plugin:react-hooks/recommended',
+    'plugin:@typescript-eslint/recommended',
+    // 'airbnb',
+  ],
+  parser: '@typescript-eslint/parser',
+  parserOptions: {
+    ecmaFeatures: { jsx: true },
+    ecmaVersion: 12,
+    // project: './tsconfig.json',
+    sourceType: 'module',
+    tsconfigRootDir: './',
   },
+  plugins: ['react', '@typescript-eslint', 'import'],
   rules: {
-    'max-len': [1, 120, 2, { ignoreComments: true }],
-    'no-use-before-define': ['error', { functions: false, classes: true, variables: false }],
-    'object-curly-newline': ['error', { consistent: true }],
-    'react/jsx-filename-extension': [1, { extensions: ['.js', '.jsx'] }],
-    'react/jsx-one-expression-per-line': ['warn', { allow: 'single-child' }],
-    'react/prop-types': 0,
+    '@typescript-eslint/ban-ts-comment': 'off',
+    '@typescript-eslint/explicit-module-boundary-types': 'off',
+    '@typescript-eslint/no-empty-function': 'off',
+    '@typescript-eslint/no-explicit-any': 'off',
+    '@typescript-eslint/no-namespace': 'off',
+    '@typescript-eslint/no-unused-vars': [
+      'warn',
+      { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+    ],
+    '@typescript-eslint/no-var-requires': 'off',
+    // 'react/display-name': 'off',
+  },
+  settings: {
+    react: {
+      version: 'detect',
+    },
+    'import/resolver': {
+      typescript: {},
+    },
   },
 };

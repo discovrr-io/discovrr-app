@@ -68,7 +68,7 @@ export namespace MerchantApi {
     }
 
     let merchantCoordinates: Coordinates | undefined;
-    const geoPoint: Parse.GeoPoint | undefined = result.get('geopoint');
+    const geoPoint: Parse.GeoPoint | undefined = result.get('geoPoint');
     if (geoPoint) {
       merchantCoordinates = {
         latitude: geoPoint.latitude,
@@ -136,7 +136,7 @@ export namespace MerchantApi {
       query.exists('coverPhotoUrl');
 
       const pointOfInterest = new Parse.GeoPoint(DEFAULT_COORDINATES);
-      query.withinKilometers('geopoint', pointOfInterest, 50);
+      query.withinKilometers('geoPoint', pointOfInterest, 50);
 
       if (pagination) {
         query.limit(pagination.limit);
@@ -177,7 +177,7 @@ export namespace MerchantApi {
     query.exists('coverPhotoUrl');
 
     const pointOfInterest = new Parse.GeoPoint(latitude, longitude);
-    query.withinKilometers('geopoint', pointOfInterest, searchRadius);
+    query.withinKilometers('geoPoint', pointOfInterest, searchRadius);
 
     if (pagination) {
       query.limit(pagination.limit);

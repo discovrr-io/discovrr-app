@@ -189,19 +189,11 @@ export namespace PostApi {
   }
 
   export async function changePostLikeStatus(postId: string, didLike: boolean) {
-    const $FUNC = '[PostApi.changePostLikeStatus]';
-
-    try {
-      await Parse.Cloud.run('likeOrUnlikePost', { postId, like: didLike });
-      console.log($FUNC, `Successfully ${didLike ? 'liked' : 'unliked'} post`);
-    } catch (error) {
-      console.error(
-        $FUNC,
-        `Failed to ${didLike ? 'like' : 'unlike'} post:`,
-        error,
-      );
-      throw error;
-    }
+    await Parse.Cloud.run('updatePostLikeStatus', {
+      postId,
+      didLike,
+      // sendNotification: true,
+    });
   }
 
   export async function fetchCommentsForPost(
