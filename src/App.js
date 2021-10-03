@@ -27,8 +27,9 @@ if (__DEV__ && false) {
   Parse.initialize('discovrr-dev-server');
   Parse.serverURL = 'http://192.168.0.4:1337/parse';
 } else {
-  Parse.initialize('discovrrServer');
-  Parse.serverURL = 'https://api.discovrrio.com/discovrrServer'; // production
+  Parse.initialize('discovrr-server');
+  Parse.serverURL = 'https://api.discovrrio.com/parse'; // production
+  // Parse.serverURL = 'https://api.discovrrio.com/discovrrServer'; // production
 }
 
 global.debugAppLogger = () => {};
@@ -135,8 +136,7 @@ export function App() {
 
   const onBeforeLift = async () => {
     const $FUNC = '[App.onBeforeLift]';
-    // TODO: Maybe check with Regex? (/^\d+\.\d{1,2}\.\d{1,2}$/g)
-    const [major, minor, patch, build] = [2, 1, 2, 8];
+    const [major, minor, patch, build] = [2, 3, 0, 0];
     const versionNumber =
       major * 10 ** 6 + minor * 10 ** 4 + patch * 10 ** 2 + build;
     const currStoreVersion = String(versionNumber);
