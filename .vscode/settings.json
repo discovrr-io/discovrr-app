@@ -2,10 +2,14 @@
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
   "editor.tabSize": 2,
+  "emmet.showExpandedAbbreviation": "never",
   "files.autoSave": "off",
   "files.exclude": {
     "**/._*": true,
+    "**/.DS_Store": true,
+    "node_modules": true,
   },
   "files.insertFinalNewline": true,
   "files.trimTrailingWhitespace": true,
+  "prettier.prettierPath": "../nodule_modules/prettier",
 }

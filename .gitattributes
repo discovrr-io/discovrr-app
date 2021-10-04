@@ -1,1 +1,8 @@
-*.pbxproj -text
+# Windows files should use crlf line endings
+# https://help.github.com/articles/dealing-with-line-endings/
+*.bat text eol=crlf
+
+# Let the git installation on a user's machine decide which line ending to use
+# when a repository is checked out:
+#   https://dev.to/tiguchi/comment/l4hi
+* text=auto
