@@ -131,7 +131,7 @@ def jscFlavor = 'org.webkit:android-jsc:+'
 def enableHermes = project.ext.react.get("enableHermes", false);
 
 def versionMajor = 2 // Can be more than 2 digits
-def versionMinor = 2 // Must be between 0 and 99
+def versionMinor = 3 // Must be between 0 and 99
 def versionPatch = 0 // Must be between 0 and 99
 def versionBuild = 0 // Must be between 0 and 99
 
