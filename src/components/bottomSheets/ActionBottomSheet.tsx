@@ -1,23 +1,24 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { StyleSheet, Text, TouchableHighlight, View } from 'react-native';
 
 import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetBackdropProps,
   BottomSheetView,
+  useBottomSheetDynamicSnapPoints,
 } from '@gorhom/bottom-sheet';
 import { Portal } from '@gorhom/portal';
 
 import Icon from 'react-native-vector-icons/Ionicons';
 
 import Spacer from '../Spacer';
-import { Button, ButtonProps } from '..';
 import { color, font, layout } from 'src/constants';
+import Button, { ButtonProps } from '../buttons/Button';
 
 const ICON_SIZE = 24;
-const BOTTOM_SHEET_ITEM_HEIGHT = 42;
-const BOTTOM_SHEET_KNOB_HEIGHT = 24;
-const BOTTOM_SHEET_NO_ITEMS_HEIGHT = 98 - BOTTOM_SHEET_KNOB_HEIGHT;
+// const BOTTOM_SHEET_ITEM_HEIGHT = 42;
+// const BOTTOM_SHEET_KNOB_HEIGHT = 24;
+// const BOTTOM_SHEET_NO_ITEMS_HEIGHT = 98 - BOTTOM_SHEET_KNOB_HEIGHT;
 const BOTTOM_SHEET_ITEM_SPACING = layout.spacing.sm;
 
 export type ActionBottomSheetItem = {
@@ -54,13 +55,21 @@ const ActionBottomSheet = React.forwardRef<BottomSheet, ActionBottomSheetProps>(
     //   setContentHeight(event.nativeEvent.layout.height);
     // }, []);
 
-    const snapPoints = React.useMemo(() => {
-      const itemsContainerHeight =
-        BOTTOM_SHEET_ITEM_HEIGHT * items.length +
-        BOTTOM_SHEET_ITEM_SPACING * Math.max(0, items.length - 1);
-      const fittedHeight = BOTTOM_SHEET_NO_ITEMS_HEIGHT + itemsContainerHeight;
-      return [fittedHeight];
-    }, [items.length]);
+    // const snapPoints = React.useMemo(() => {
+    //   const itemsContainerHeight =
+    //     BOTTOM_SHEET_ITEM_HEIGHT * items.length +
+    //     BOTTOM_SHEET_ITEM_SPACING * Math.max(0, items.length - 1);
+    //   const fittedHeight = BOTTOM_SHEET_NO_ITEMS_HEIGHT + itemsContainerHeight;
+    //   return [fittedHeight];
+    // }, [items.length]);
+
+    const initialSnapPoints = useMemo(() => ['CONTENT_HEIGHT'], []);
+    const {
+      animatedHandleHeight,
+      animatedSnapPoints,
+      animatedContentHeight,
+      handleContentLayout,
+    } = useBottomSheetDynamicSnapPoints(initialSnapPoints);
 
     const renderBackdrop = React.useCallback(
       (props: BottomSheetBackdropProps) => {
@@ -95,10 +104,14 @@ const ActionBottomSheet = React.forwardRef<BottomSheet, ActionBottomSheetProps>(
         <BottomSheet
           ref={ref}
           index={-1}
-          snapPoints={snapPoints}
+          animateOnMount
+          enablePanDownToClose
+          snapPoints={animatedSnapPoints}
+          handleHeight={animatedHandleHeight}
+          contentHeight={animatedContentHeight}
           backdropComponent={renderBackdrop}>
           <BottomSheetView
-            // onLayout={handleOnLayout}
+            onLayout={handleContentLayout}
             style={styles.container}>
             <View>
               {items.map((props: ActionBottomSheetItem, index) => (
@@ -114,7 +127,7 @@ const ActionBottomSheet = React.forwardRef<BottomSheet, ActionBottomSheetProps>(
                         color={props.destructive ? color.danger : color.black}
                         style={{ width: ICON_SIZE }}
                       />
-                      {/* <Spacer.Horizontal value={layout.spacing.lg} /> */}
+                      <Spacer.Horizontal value={layout.spacing.lg} />
                       <Text
                         numberOfLines={1}
                         style={[
@@ -126,9 +139,9 @@ const ActionBottomSheet = React.forwardRef<BottomSheet, ActionBottomSheetProps>(
                       </Text>
                     </View>
                   </TouchableHighlight>
-                  {/* {index < items.length - 1 && (
+                  {index < items.length - 1 && (
                     <Spacer.Vertical value={BOTTOM_SHEET_ITEM_SPACING} />
-                  )} */}
+                  )}
                 </View>
               ))}
             </View>
@@ -155,7 +168,7 @@ const styles = StyleSheet.create({
   },
   actionItemTouchableContainer: {
     borderRadius: layout.radius.md,
-    height: BOTTOM_SHEET_ITEM_HEIGHT,
+    // height: BOTTOM_SHEET_ITEM_HEIGHT,
     overflow: 'hidden',
   },
   actionItemContainer: {
