@@ -5,16 +5,12 @@ import {
   EntityState,
 } from '@reduxjs/toolkit';
 
-import { PURGE } from 'redux-persist';
+import { ApiFetchStatus, NoteApi } from 'src/api';
+import { resetAppState } from 'src/globalActions';
+import { Note } from 'src/models';
+import { RootState } from 'src/store';
 
-import { ApiFetchStatus, NoteApi } from '../../api';
-import { Note } from '../../models';
-import { RootState } from '../../store';
-
-export const fetchNotesForCurrentUser = createAsyncThunk(
-  'notes/fetchNotesForCurrentUser',
-  NoteApi.fetchNotesForCurrentUser,
-);
+//#region Note Adapter Initialization
 
 export type NotesState = EntityState<Note> & ApiFetchStatus;
 
@@ -24,13 +20,26 @@ const initialState = notesAdapter.getInitialState<ApiFetchStatus>({
   status: 'idle',
 });
 
+//#endregion Note Adapter Initialization
+
+//#region Note Async Thunks
+
+export const fetchNotesForCurrentUser = createAsyncThunk(
+  'notes/fetchNotesForCurrentUser',
+  NoteApi.fetchNotesForCurrentUser,
+);
+
+//#endregion Note Async Thunks
+
+//#region Note Slice
+
 const notesSlice = createSlice({
   name: 'notes',
   initialState,
   reducers: {},
-  extraReducers: (builder) => {
+  extraReducers: builder => {
     builder
-      .addCase(PURGE, (state) => {
+      .addCase(resetAppState, state => {
         console.log('Purging notes...');
         Object.assign(state, initialState);
       })
@@ -51,10 +60,16 @@ const notesSlice = createSlice({
 
 export const {} = notesSlice.actions;
 
+//#endregion Note Slice
+
+//#region Custom Note Selectors
+
 export const {
   selectAll: selectAllNotes,
   selectById: selectNoteById,
   selectIds: selectNoteIds,
 } = notesAdapter.getSelectors((state: RootState) => state.notes);
+
+//#endregion Custom Note Selectors
 
 export default notesSlice.reducer;

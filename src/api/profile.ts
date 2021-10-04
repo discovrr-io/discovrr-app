@@ -1,135 +1,89 @@
 import Parse from 'parse/react-native';
 
-import { MediaSource } from '.';
-import { Profile } from '../models';
-import { ImageSource, Pagination } from '../models/common';
+import { Profile, ProfileId } from 'src/models';
+import { Pagination } from 'src/models/common';
 
-import {
-  DEFAULT_AVATAR,
-  DEFAULT_AVATAR_DIMENSIONS,
-  DEFAULT_IMAGE,
-  DEFAULT_IMAGE_DIMENSIONS,
-} from '../constants/media';
+import { ApiError, CommonApiErrorCode } from './common';
 
 export namespace ProfileApi {
-  function mapResultToProfile(result: Parse.Object<Parse.Attributes>): Profile {
-    const avatar: MediaSource | undefined = result.get('avatar');
-    let profileAvatar: ImageSource;
-    if (avatar) {
-      profileAvatar = {
-        uri: avatar.url,
-        width: avatar.width ?? DEFAULT_AVATAR_DIMENSIONS.width,
-        height: avatar.height ?? DEFAULT_AVATAR_DIMENSIONS.height,
-      };
-    } else {
-      profileAvatar = DEFAULT_AVATAR;
-    }
+  export type ProfileApiErrorCode = CommonApiErrorCode | 'PROFILE_NOT_FOUND';
+  export class ProfileApiError extends ApiError<ProfileApiErrorCode> {}
 
-    const coverPhoto: MediaSource | undefined = result.get('coverPhoto');
-    let profileCoverPhoto: ImageSource;
-    if (coverPhoto) {
-      profileCoverPhoto = {
-        uri: coverPhoto.url,
-        width: coverPhoto.width ?? DEFAULT_IMAGE_DIMENSIONS.width,
-        height: coverPhoto.height ?? DEFAULT_IMAGE_DIMENSIONS.height,
-      };
-    } else {
-      profileCoverPhoto = DEFAULT_IMAGE;
-    }
-
+  function mapResultToProfile(result: Parse.Object): Profile {
     return {
-      id: result.id,
-      email: result.get('email') ?? '',
-      fullName:
+      id: result.id as ProfileId,
+      displayName:
+        result.get('displayName') ||
         result.get('fullName') ||
         result.get('name') ||
-        result.get('displayName') ||
-        '',
+        'Anonymous',
       username: result.get('username') ?? '',
-      avatar: profileAvatar,
-      coverPhoto: profileCoverPhoto,
-      description: result.get('description') ?? '',
+      email: result.get('email') ?? '',
       isVendor: false, // TODO: Determine if profile is vendor
+      avatar: result.get('avatar'),
+      coverPhoto: result.get('coverPhoto'),
+      description: result.get('description'),
+      biography: result.get('biography') || result.get('description'),
       followers: result.get('followersArray'),
       following: result.get('followingArray'),
-    } as Profile;
+    };
+  }
+
+  export async function fetchProfileById(profileId: string): Promise<Profile> {
+    const query = new Parse.Query('Profile');
+    query.equalTo('objectId', profileId);
+
+    const result = await query.first();
+    if (!result) {
+      throw new ProfileApiError(
+        'PROFILE_NOT_FOUND',
+        `No profile was found with the ID '${profileId}'.`,
+      );
+    }
+
+    return mapResultToProfile(result);
   }
 
   export async function fetchAllProfiles(
     pagination?: Pagination,
   ): Promise<Profile[]> {
-    const $FUNC = '[ProfileApi.fetchAllProfiles]';
+    const query = new Parse.Query('Profile');
 
-    try {
-      const query = new Parse.Query('Profile');
-
-      if (pagination) {
-        query.limit(pagination.limit);
-        query.skip(pagination.limit * pagination.currentPage);
-      }
-
-      const results = await query.findAll();
-      return results.map(mapResultToProfile);
-    } catch (error) {
-      console.error($FUNC, 'Failed to fetch all profiles:', error);
-      throw error;
+    if (pagination) {
+      query.limit(pagination.limit);
+      query.skip(pagination.limit * pagination.currentPage);
     }
+
+    const results = await query.findAll();
+    return results.map(mapResultToProfile);
   }
 
-  export async function fetchProfileById(
-    profileId: string,
-  ): Promise<Profile | null> {
-    const $FUNC = '[ProfileApi.fetchProfileById]';
-
-    try {
-      const query = new Parse.Query('Profile');
-      query.equalTo('objectId', profileId);
-      const result = await query.first();
-      if (result) {
-        return mapResultToProfile(result);
-      } else {
-        console.warn($FUNC, 'No profile found with id:', profileId);
-        return null;
-      }
-    } catch (error) {
-      console.error($FUNC, 'Failed to fetch profile by id:', error);
-      throw error;
-    }
-  }
-
-  export async function changeProfileFollowStatus(
-    profileId: string,
-    didFollow: boolean,
-  ) {
-    await Parse.Cloud.run('changeFollowStatus', {
-      followeeId: profileId,
-      didFollow,
-    });
-  }
-
-  export type UpdateProfileChanges = Partial<
+  export type ProfileChanges = Partial<
     Omit<Profile, 'id' | 'followers' | 'following'>
   >;
 
   export async function updateProfile(
     profileId: string,
-    changes: UpdateProfileChanges,
+    changes: ProfileChanges,
   ) {
-    const query = new Parse.Query('Profile');
-    query.get(profileId);
+    const profileQuery = new Parse.Query(Parse.Object.extend('Profile'));
+    profileQuery.equalTo('objectId', profileId);
 
-    const result = await query.first();
+    const profile = await profileQuery.first();
+    await profile?.save(changes);
+  }
 
-    const name = changes.fullName || changes['displayName'] || changes['name'];
-    if (name) {
-      await result.save({
-        ...changes,
-        fullName: name,
-        displayName: name,
-        name: name,
-      });
-    } else {
-      await result.save(changes);
-    }
+  export async function updateProfileFollowStatus(
+    profileId: string,
+    didFollow: boolean,
+  ) {
+    await Parse.Cloud.run('updateProfileFollowStatus', {
+      followeeId: profileId,
+      didFollow,
+    });
+  }
+
+  export async function generateRandomUsername(): Promise<string> {
+    return await Parse.Cloud.run('generateRandomUsername');
   }
 }

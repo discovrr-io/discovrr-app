@@ -1,23 +1,25 @@
 import { EntityId } from '@reduxjs/toolkit';
-import { ImageSource } from './common';
+import { MediaSource } from 'src/api';
 
 /**
  * The unique identifier type of a given profile.
  */
-export type ProfileId = EntityId;
+export type ProfileId = EntityId & { __profileIdBrand: any };
 
 /**
  * An interface describing the structure of a profile object.
  */
 export default interface Profile {
-  id: ProfileId;
-  email: string;
-  fullName: string;
-  username: string;
-  isVendor: boolean;
-  avatar?: ImageSource;
-  coverPhoto?: ImageSource;
-  description?: string;
-  followers?: ProfileId[]; // TODO: Parse encodes this as Relation<Profile>. Maybe see if that can be taken advantage of?
-  following?: ProfileId[];
+  readonly id: ProfileId;
+  readonly displayName: string;
+  readonly email: string;
+  readonly username: string;
+  readonly isVendor: boolean;
+  readonly avatar?: MediaSource;
+  readonly coverPhoto?: MediaSource;
+  /** @deprecated Use `biography` instead */
+  readonly description?: string;
+  readonly biography?: string;
+  readonly followers?: ProfileId[];
+  readonly following?: ProfileId[];
 }

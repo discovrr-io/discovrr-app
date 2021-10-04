@@ -29,7 +29,8 @@ module.exports = {
       { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
     ],
     '@typescript-eslint/no-var-requires': 'off',
-    // 'react/display-name': 'off',
+    'react/display-name': 'off',
+    'react/prop-types': 'off',
   },
   settings: {
     react: {

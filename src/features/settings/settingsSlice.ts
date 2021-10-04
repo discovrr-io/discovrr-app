@@ -3,14 +3,20 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { persistReducer } from 'redux-persist';
 import { PersistPartial } from 'redux-persist/es/persistReducer';
 
-import { AppSettings } from '../../models';
-import { LocationQueryPreferences } from '../../models/common';
+import { AppSettings } from 'src/models';
+import { LocationQueryPreferences } from 'src/models/common';
+
+//#region Settings State Initialization
 
 export type SettingsState = AppSettings & PersistPartial;
 
 const initialState: AppSettings = {
   locationQueryPrefs: undefined,
 };
+
+//#endregion Settings State Initialization
+
+//#region Settings Slice
 
 const settingsSlice = createSlice({
   name: 'settings',
@@ -59,6 +65,8 @@ const settingsSlice = createSlice({
 
 export const { didUpdateSearchRadius, didUpdateLocationQueryPrefs } =
   settingsSlice.actions;
+
+//#endregion Settings Slice
 
 // Don't persist `locationQueryPrefs`
 export default persistReducer(

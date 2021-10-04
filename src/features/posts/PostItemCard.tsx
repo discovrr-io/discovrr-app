@@ -1,663 +1,415 @@
-import React, { useCallback, useRef, useState } from 'react';
-import {
-  Alert,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-  ViewProps,
-} from 'react-native';
+import React, { useCallback } from 'react';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
-import * as Animatable from 'react-native-animatable';
 import FastImage from 'react-native-fast-image';
-import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
-import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+// import Video from 'react-native-video';
+import { useNavigation } from '@react-navigation/core';
 
-import ActionModal from '../../components/bottomSheets/ActionModal';
-import { NotificationApi } from '../../api';
-import { useAppDispatch, useAppSelector } from '../../hooks';
-import { Post, PostId } from '../../models';
-import { Button } from '../../components';
-import { ImageSource } from '../../models/common';
+import { AsyncGate, Card } from 'src/components';
+import { CardActionsProps } from 'src/components/cards/CardActions';
+import { useCardElementOptionsContext } from 'src/components/cards/hooks';
 
-import { selectCurrentUserProfileId } from '../authentication/authSlice';
-import { selectProfileById } from '../profiles/profilesSlice';
-import { selectPostById, changePostLikeStatus, deletePost } from './postsSlice';
+import { color, font } from 'src/constants';
+import { DEFAULT_IMAGE_DIMENSIONS } from 'src/constants/media';
+import { RootStackNavigationProp } from 'src/navigation';
 
-import {
-  colors,
-  typography,
-  values,
-  DEFAULT_ACTIVE_OPACITY,
-} from '../../constants';
+import { MediaSource } from 'src/api';
+import { Post, PostId, Profile, ProfileId } from 'src/models';
+import { PostType } from 'src/models/post';
+
+import { useIsMyProfile, useProfile } from 'src/features/profiles/hooks';
+import { useAppDispatch, useOverridableContextOptions } from 'src/hooks';
 
 import {
-  FEATURE_UNAVAILABLE,
-  SOMETHING_WENT_WRONG,
-} from '../../constants/strings';
+  CardElementOptions,
+  CardElementProps,
+} from 'src/components/cards/common';
 
 import {
-  DEFAULT_AVATAR,
-  DEFAULT_IMAGE_DIMENSIONS,
-} from '../../constants/media';
+  alertSomethingWentWrong,
+  generateRandomNumberBetween,
+  shortenLargeNumber,
+} from 'src/utilities';
 
-const SMALL_ICON = 24;
-const LARGE_ICON = 32;
+import { usePost } from './hooks';
+import { updatePostLikeStatus } from './postsSlice';
 
-const iconSize = {
-  small: {
-    action: SMALL_ICON,
-    avatar: SMALL_ICON,
-  },
-  large: {
-    action: LARGE_ICON,
-    avatar: LARGE_ICON,
-  },
+const ASPECT_RATIOS = [
+  1 / 1, // 1:1 (Square)
+  4 / 5, // 4:5 (Portrait Short)
+  2 / 3, // 2:3 (Portrait Tall)
+];
+
+type PostItemCardHandlers = {
+  showMenuIcon?: boolean;
+  showShareIcon?: boolean;
+  onPressMenu?: (post: Post) => void | Promise<void>;
+  onPressShare?: (post: Post) => void | Promise<void>;
 };
 
-const alertUnimplementedFeature = () => {
-  Alert.alert(FEATURE_UNAVAILABLE.title, FEATURE_UNAVAILABLE.message);
+export const PostItemCardHandlersContext =
+  React.createContext<PostItemCardHandlers>({});
+
+type PostItemCardWrapperProps = CardElementProps &
+  PostItemCardHandlers & {
+    postId: PostId;
+  };
+
+export default function PostItemCardWrapper(props: PostItemCardWrapperProps) {
+  const {
+    postId,
+    showMenuIcon,
+    showShareIcon,
+    onPressMenu,
+    onPressShare,
+    ...cardElementProps
+  } = props;
+
+  const postData = usePost(postId);
+
+  return (
+    <PostItemCardHandlersContext.Provider
+      value={{ showMenuIcon, showShareIcon, onPressMenu, onPressShare }}>
+      <AsyncGate
+        data={postData}
+        onPending={() => <PostItemCard.Pending {...cardElementProps} />}
+        onFulfilled={post => {
+          if (!post) return null;
+          return <PostItemCard post={post} {...cardElementProps} />;
+        }}
+      />
+    </PostItemCardHandlersContext.Provider>
+  );
+}
+
+//#region PostItemCard ---------------------------------------------------------
+
+type PostItemCardProps = CardElementProps & {
+  post: Post;
 };
 
-type ViewsIndicatorProps = { post: Post; smallContent?: boolean };
+const PostItemCard = (props: PostItemCardProps) => {
+  const { post, ...cardElementProps } = props;
+  const navigation = useNavigation<RootStackNavigationProp>();
 
-function ViewsIndicator(props: ViewsIndicatorProps) {
-  const { post, smallContent } = props;
+  const handlePressPost = () => {
+    navigation.push('PostDetails', { postId: post.id });
+  };
 
+  const renderImageGallery = useCallback(
+    (
+      sources: MediaSource[],
+      caption: string,
+      elementOptions: CardElementOptions,
+    ) => {
+      const imagePreviewSource = sources[0];
+      const {
+        width: imageWidth = DEFAULT_IMAGE_DIMENSIONS.width,
+        height: imageHeight = DEFAULT_IMAGE_DIMENSIONS.height,
+      } = imagePreviewSource;
+
+      return (
+        <View>
+          <View>
+            {sources.length > 1 && (
+              <Card.Indicator
+                iconName="images"
+                position="top-right"
+                label={sources.length.toString()}
+                elementOptions={elementOptions}
+              />
+            )}
+            {post.statistics.totalViews > 1 && (
+              <Card.Indicator
+                iconName="eye"
+                position="bottom-left"
+                label={shortenLargeNumber(post.statistics.totalViews)}
+                elementOptions={elementOptions}
+              />
+            )}
+            <FastImage
+              resizeMode="contain"
+              source={{ uri: imagePreviewSource.url }}
+              style={{
+                width: '100%',
+                height: undefined,
+                aspectRatio: imageWidth / imageHeight,
+                backgroundColor: color.placeholder,
+              }}
+            />
+          </View>
+          <PostItemCardCaption caption={caption} />
+        </View>
+      );
+    },
+    [post.statistics.totalViews],
+  );
+
+  const renderCardBody = useCallback(
+    (elementOptions: CardElementOptions) => {
+      switch (post.contents.type) {
+        case PostType.GALLERY:
+          return renderImageGallery(
+            post.contents.sources,
+            post.contents.caption,
+            elementOptions,
+          );
+        case PostType.VIDEO:
+          return (
+            <View>
+              <View
+                style={{
+                  minHeight: 200,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: 'lightblue',
+                }}>
+                <Text style={font.medium}>[VIDEO]</Text>
+              </View>
+              <PostItemCardCaption caption={post.contents.caption} />
+            </View>
+            // <View>
+            //   <Video
+            //     repeat
+            //     // paused
+            //     playWhenInactive
+            //     resizeMode="cover"
+            //     source={{
+            //       // uri: post.contents.source.url,
+            //       uri: 'https://firebasestorage.googleapis.com/v0/b/discovrr-dev.appspot.com/o/__test%2FVIDEO-2021-05-18-13-36-06.mp4?alt=media&token=ff57ab82-3a32-4898-95a0-01141d8cde8c',
+            //       // type: post.contents.source.type,
+            //     }}
+            //     style={{
+            //       backgroundColor: 'lightgreen',
+            //       width: '100%',
+            //       // height: '100%',
+            //       // aspectRatio: 820 / 700,
+            //       aspectRatio: 3 / 4,
+            //     }}
+            //   />
+            //   <PostItemCardCaption caption={post.contents.caption} />
+            // </View>
+          );
+        case PostType.TEXT:
+          return (
+            <View
+              style={{
+                paddingVertical: elementOptions.insetVertical,
+                paddingHorizontal: elementOptions.insetHorizontal,
+              }}>
+              <Text
+                numberOfLines={elementOptions.smallContent ? 4 : 8}
+                style={
+                  elementOptions.smallContent ? font.medium : font.extraLarge
+                }>
+                {post.contents.text}
+              </Text>
+            </View>
+          );
+      }
+    },
+    [post, renderImageGallery],
+  );
+
+  return (
+    <Card {...cardElementProps}>
+      <Card.Body onPress={handlePressPost}>
+        {elementOptions => renderCardBody(elementOptions)}
+      </Card.Body>
+      <PostItemCardFooter post={post} />
+    </Card>
+  );
+};
+
+// eslint-disable-next-line react/display-name
+PostItemCard.Pending = (props: CardElementProps) => {
+  const aspectRatioIndex = generateRandomNumberBetween(0, ASPECT_RATIOS.length);
+  return (
+    <Card {...props}>
+      <Card.Body
+        style={[
+          postItemCardStyles.cardBodyPlaceholder,
+          { aspectRatio: ASPECT_RATIOS[aspectRatioIndex] },
+        ]}>
+        {elementOptions => (
+          <ActivityIndicator
+            color={color.gray300}
+            style={{
+              transform: [{ scale: elementOptions.smallContent ? 2 : 3 }],
+            }}
+          />
+        )}
+      </Card.Body>
+      <PostItemCardFooter.Pending />
+    </Card>
+  );
+};
+
+//#endregion PostItemCard
+
+//#region PostItemCardCaption --------------------------------------------------
+
+type PostItemCardCaptionProps = {
+  caption: string;
+};
+
+function PostItemCardCaption(props: PostItemCardCaptionProps) {
+  const cardElementOptions = useCardElementOptionsContext();
   return (
     <View
       style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        position: 'absolute',
-        zIndex: 1,
-        bottom: (smallContent ? values.spacing.sm : values.spacing.md) * 1.5,
-        left: (smallContent ? values.spacing.sm : values.spacing.md) * 1.5,
-        backgroundColor: 'rgba(0, 0, 0, 0.55)',
-        paddingVertical: values.spacing.sm,
-        paddingHorizontal: values.spacing.md,
-        borderRadius: values.radius.md,
-        minWidth: smallContent ? 22 : 38,
+        paddingHorizontal: cardElementOptions.insetHorizontal,
+        paddingVertical: cardElementOptions.insetVertical,
       }}>
-      <MaterialCommunityIcon
-        name="eye"
-        color={colors.white}
-        size={20}
-        style={{ marginRight: values.spacing.sm }}
-      />
-      <Text
-        style={{
-          color: colors.white,
-          fontWeight: '700',
-          textAlign: 'center',
-          fontSize: smallContent ? typography.size.md : typography.size.h3,
-        }}>
-        {post.statistics?.totalViews ?? 0}
+      <Text numberOfLines={2} style={[cardElementOptions.captionTextStyle]}>
+        {props.caption}
       </Text>
     </View>
   );
 }
 
-type PostItemCardFooterProps = ViewProps & {
-  post: Post;
-  smallContent?: boolean;
-  showShareIcon?: boolean;
-  showMenuIcon?: boolean;
-};
+//#endregion PostItemCardCaption
 
-export function PostItemCardFooter(props: PostItemCardFooterProps) {
-  const $FUNC = '[PostItemCardFooter]';
-  const {
-    post,
-    smallContent = false,
-    showShareIcon = false,
-    showMenuIcon = false,
-    ...restProps
-  } = props;
+//#region PostItemCardFooter ---------------------------------------------------
 
-  const dispatch = useAppDispatch();
-  const navigation = useNavigation();
-  const bottomSheetModalRef = useRef<BottomSheetModal | null>(null);
-
-  const currentUserProfileId = useAppSelector(selectCurrentUserProfileId);
-  const currentUserProfile = useAppSelector((state) =>
-    selectProfileById(state, currentUserProfileId),
-  );
-
-  const isMyPost = currentUserProfileId === post.profileId;
-
-  const profile = useAppSelector((state) =>
-    selectProfileById(state, post.profileId),
-  );
-
-  const profileName =
-    (profile?.fullName ?? '').length > 1 ? profile?.fullName : 'Anonymous';
-  const profileAvatar: ImageSource = profile?.avatar ?? DEFAULT_AVATAR;
-
-  const { didSave, didLike, totalLikes } = post.statistics ?? {
-    didSave: false,
-    didLike: false,
-    totalLikes: 0,
+type PostItemCardFooterProps = CardElementProps &
+  Partial<PostItemCardHandlers> & {
+    post: Post;
   };
 
-  const [isProcessingLike, setIsProcessingLike] = useState(false);
-  const [isProcessingSave, _setIsProcessingSave] = useState(false);
-  const [isProcessingDelete, setIsProcessingDelete] = useState(false);
-  // const [isProcessingReport, setIsProcessingReport] = useState(false);
+export const PostItemCardFooter = (props: PostItemCardFooterProps) => {
+  const { post, elementOptions, style, ...handlers } = props;
+  const cardElementOptions = useCardElementOptionsContext(elementOptions);
 
-  // FIXME: Sometimes this doesn't work if the user navigates out of the screen
-  // very quickly.
-  useFocusEffect(
-    useCallback(() => {
-      // Dismiss modal on navigation blur event
-      return () => {
-        console.log($FUNC, 'Dismissing modal if possible...');
-        if (!bottomSheetModalRef.current)
-          console.warn($FUNC, 'bottomSheetModalRef has no current reference');
-        bottomSheetModalRef.current?.dismiss();
-      };
-    }, []),
+  return (
+    <Card.Footer elementOptions={cardElementOptions} style={style}>
+      <PostItemCardAuthor profileId={post.profileId} />
+      <PostItemCardActions post={post} {...handlers} />
+    </Card.Footer>
   );
+};
 
-  const handlePressAvatar = () => {
-    // @ts-ignore
-    navigation.push('UserProfileScreen', {
-      profileId: profile?.id,
-      profileName,
+// eslint-disable-next-line react/display-name
+PostItemCardFooter.Pending = (props: CardElementProps) => (
+  <Card.Footer {...props}>
+    <Card.Author.Pending />
+    <Card.Actions.Pending numberOfActions={1} />
+  </Card.Footer>
+);
+
+//#endregion PostItemCardFooter
+
+//#region PostItemCardAuthor ---------------------------------------------------
+
+type PostItemCardAuthorProps = CardElementProps & {
+  profileId: ProfileId;
+};
+
+function PostItemCardAuthor(props: PostItemCardAuthorProps) {
+  const { profileId, ...cardElementProps } = props;
+  const profileData = useProfile(profileId);
+  const navigation = useNavigation<RootStackNavigationProp>();
+  const isMyProfile = useIsMyProfile(props.profileId);
+
+  const handlePressAuthor = (profile: Profile | undefined) => {
+    if (!profile) {
+      console.warn(`Cannot navigate to profile with ID '${profileId}'`);
+      return;
+    }
+
+    navigation.navigate('ProfileDetails', {
+      profileId: profile.id,
+      profileDisplayName: profile.displayName,
     });
   };
 
-  const handlePressLike = async () => {
-    try {
-      setIsProcessingLike(true);
-
-      const newDidLike = !didLike;
-      console.log(
-        `[PostItemCardFooter] Will ${newDidLike ? 'like' : 'unlike'} post...`,
-      );
-
-      // This will automatically handle the failure case by appropriately
-      // setting the like statistics of the current post to its previous value
-      await dispatch(
-        changePostLikeStatus({
-          postId: post.id,
-          didLike: newDidLike,
-        }),
-      ).unwrap();
-
-      // Only send a notification if the current user liked the post and it's not
-      // their own post
-      if (newDidLike && !isMyPost) {
-        try {
-          const { fullName = 'Someone' } = currentUserProfile ?? {};
-          await NotificationApi.sendNotificationToProfileIds(
-            [String(profile.id)],
-            { en: `${fullName} liked your post!` },
-            { en: "Looks like you're getting popular 😎" },
-            `discovrr://post/${post.id}`,
-          );
-        } catch (error) {
-          console.error(
-            '[PostItemCardFooter] Failed to send notification:',
-            error,
-          );
-        }
-      }
-    } catch (error) {
-      console.error(
-        '[PostItemCardFooter] Failed to change post like status:',
-        error,
-      );
-      Alert.alert(SOMETHING_WENT_WRONG.title, SOMETHING_WENT_WRONG.message);
-    } finally {
-      setIsProcessingLike(false);
-    }
-  };
-
-  // const handleReportPost = () => {
-  //   const reportPost = () => {
-  //     setIsProcessingReport(true);
-  //     setTimeout(() => {
-  //       Alert.alert(
-  //         'Report Successfully Sent.',
-  //         'Your report will be reviewed by one of our moderators.',
-  //       );
-  //       setIsProcessingReport(false);
-  //     }, 3000);
-  //   };
-  //
-  //   Alert.prompt(
-  //     'Report Post',
-  //     "Believe this post is not suitable for Discovrr? Please provide your reason and we'll look into it:",
-  //     [
-  //       { text: 'Cancel', style: 'cancel' },
-  //       { text: 'Report', style: 'default', onPress: reportPost },
-  //     ],
-  //   );
-  // };
-
-  const handleDeletePost = async () => {
-    const commitPostDeletion = async () => {
-      try {
-        console.log($FUNC, `Deleting post with id '${post.id}'...`);
-        setIsProcessingDelete(true);
-        await dispatch(deletePost(post.id)).unwrap();
-        // NOTE: Are we guaranteed that the menu dots, and thus the delete
-        // button, is always on the post detail screen?
-        navigation.goBack();
-      } catch (error) {
-        console.error($FUNC, 'Failed to delete post:', error);
-        Alert.alert(
-          'Failed to delete post',
-          "We weren't able to delete this post. Please try again later.",
-        );
-      } finally {
-        setIsProcessingDelete(false);
-      }
-    };
-
-    bottomSheetModalRef.current.close();
-    Alert.alert(
-      'Delete post?',
-      'Are you sure you want to delete this post? This action is irreversible.',
-      [
-        { text: 'Delete', style: 'destructive', onPress: commitPostDeletion },
-        { text: 'Cancel', style: 'cancel' },
-      ],
-    );
-  };
-
-  const handleShowActionModal = useCallback(() => {
-    bottomSheetModalRef.current.present();
-  }, []);
-
-  const avatarIconSize = smallContent
-    ? iconSize.small.avatar
-    : iconSize.large.avatar;
-
-  const actionIconSize = smallContent
-    ? iconSize.small.action
-    : iconSize.large.action;
-
-  const actionIconMarginRight = smallContent
-    ? values.spacing.sm * 1.25
-    : values.spacing.md * 1.5;
-
-  const authorFontSize = smallContent ? typography.size.sm : typography.size.md;
-
   return (
-    <View style={[postItemFooterStyles.container, restProps.style]}>
-      <TouchableOpacity
-        activeOpacity={DEFAULT_ACTIVE_OPACITY}
-        style={{ flex: 1 }}
-        onPress={handlePressAvatar}>
-        <View style={postItemFooterStyles.authorContainer}>
-          <FastImage
-            source={profileAvatar}
-            style={{
-              width: avatarIconSize,
-              height: avatarIconSize,
-              borderRadius: avatarIconSize / 2,
-              backgroundColor: colors.gray100,
-            }}
-          />
-          <Text
-            numberOfLines={1}
-            ellipsizeMode="tail"
-            style={[
-              postItemFooterStyles.authorName,
-              { fontSize: authorFontSize },
-            ]}>
-            {profileName}
-          </Text>
-        </View>
-      </TouchableOpacity>
-
-      <View style={postItemFooterStyles.actionsContainer}>
-        {showMenuIcon && (
-          <TouchableOpacity
-            activeOpacity={DEFAULT_ACTIVE_OPACITY}
-            onPress={handleShowActionModal}>
-            <MaterialCommunityIcon
-              name="dots-horizontal"
-              color={colors.gray}
-              size={actionIconSize}
-              style={{ marginRight: actionIconMarginRight * 0.75 }}
-            />
-          </TouchableOpacity>
-        )}
-        {/* {Platform.OS === 'ios' &&
-          showMenuIcon &&
-          (isProcessingReport ? (
-            <ActivityIndicator
-              size="small"
-              color={colors.gray}
-              style={{
-                marginLeft: values.spacing.sm * 1.5,
-                marginRight: actionIconMarginRight * 1.3,
-                transform: [{ scale: 1.25 }],
-              }}
-            />
-          ) : (
-            <TouchableOpacity
-              disabled={false}
-              activeOpacity={DEFAULT_ACTIVE_OPACITY}
-              onPress={handleReportPost}>
-              <MaterialCommunityIcon
-                name="flag-outline"
-                color={colors.gray}
-                size={actionIconSize}
-                style={{ marginRight: actionIconMarginRight * 0.75 }}
-              />
-            </TouchableOpacity>
-          ))} */}
-        {showShareIcon && (
-          <TouchableOpacity
-            disabled={false}
-            activeOpacity={DEFAULT_ACTIVE_OPACITY}
-            onPress={alertUnimplementedFeature}>
-            <MaterialIcon
-              name="share"
-              color={colors.gray}
-              size={actionIconSize * 0.9}
-              style={{ marginRight: actionIconMarginRight }}
-            />
-          </TouchableOpacity>
-        )}
-        <TouchableOpacity
-          disabled={isProcessingSave || isProcessingDelete}
-          activeOpacity={DEFAULT_ACTIVE_OPACITY}
-          onPress={alertUnimplementedFeature}>
-          <MaterialIcon
-            name={didSave ? 'bookmark' : 'bookmark-outline'}
-            color={didSave ? colors.black : colors.gray}
-            size={actionIconSize}
-            style={{ marginRight: actionIconMarginRight }}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity
-          disabled={isProcessingLike || isProcessingDelete}
-          activeOpacity={DEFAULT_ACTIVE_OPACITY}
-          onPress={handlePressLike}>
-          <Animatable.View key={didLike.toString()} animation="bounceIn">
-            <MaterialIcon
-              name={didLike ? 'favorite' : 'favorite-border'}
-              color={didLike ? colors.red500 : colors.gray}
-              size={actionIconSize}
-            />
-          </Animatable.View>
-        </TouchableOpacity>
-        <Text
-          style={[
-            postItemFooterStyles.likesCount,
-            {
-              fontSize: smallContent ? typography.size.xs : typography.size.sm,
-            },
-          ]}>
-          {totalLikes > 999 ? `${(totalLikes / 1000).toFixed(1)}k` : totalLikes}
-        </Text>
-      </View>
-
-      <ActionModal
-        ref={bottomSheetModalRef}
-        snapPoints={[isMyPost ? 180 : 135]}>
-        <View
-          style={{
-            flexGrow: 1,
-            justifyContent: 'space-between',
-            marginTop: values.spacing.md,
-            marginBottom: values.spacing.lg,
-          }}>
-          {isMyPost ? (
-            <>
-              <ActionModal.Item
-                label="Edit Post"
-                iconName="edit"
-                onPress={() => {
-                  if (post.content.type === 'text') {
-                    navigation.navigate('PostEditScreen', {
-                      postId: post.id,
-                    });
-                  } else {
-                    // bottomSheetModalRef.current?.dismiss();
-                    alertUnimplementedFeature();
-                  }
-                }}
-              />
-              <ActionModal.Item
-                label="Delete Post"
-                iconName="delete"
-                onPress={handleDeletePost}
-              />
-            </>
-          ) : (
-            <ActionModal.Item
-              label="Report Post"
-              iconName="flag"
-              onPress={alertUnimplementedFeature}
-            />
-          )}
-        </View>
-        <Button
-          title="Cancel"
-          onPress={() => bottomSheetModalRef.current?.dismiss()}
-        />
-      </ActionModal>
-    </View>
-  );
-}
-
-const postItemFooterStyles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  authorContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  authorName: {
-    flexGrow: 1,
-    flexShrink: 1,
-    marginLeft: values.spacing.sm * 1.5,
-    color: colors.black,
-  },
-  actionsContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  likesCount: {
-    marginLeft: values.spacing.xxs,
-    alignSelf: 'flex-end',
-  },
-});
-
-type PostItemCardProps = ViewProps & {
-  postId: PostId;
-  showFooter?: boolean;
-  smallContent?: boolean;
-};
-
-export default function PostItemCard(props: PostItemCardProps) {
-  const {
-    postId,
-    showFooter = true,
-    smallContent = false,
-    ...restProps
-  } = props;
-
-  const navigation = useNavigation();
-
-  const post = useAppSelector((state) => selectPostById(state, postId));
-  if (!post) {
-    console.warn('[PostItemCard] Failed to select post with id:', postId);
-    return null;
-  }
-
-  const currentUserProfileId = useAppSelector(selectCurrentUserProfileId);
-  const isMyPost = post.profileId === currentUserProfileId;
-
-  const handlePostPress = () => {
-    // @ts-ignore
-    navigation.push('PostDetailScreen', { postId });
-  };
-
-  const PostItemCardCaption = ({ caption }) => {
-    return (
-      <View style={postItemStyles.captionContainer}>
-        <Text
-          numberOfLines={2}
-          style={{
-            fontSize: smallContent
-              ? typography.size.xs + 1
-              : typography.size.md,
-            paddingVertical: smallContent
-              ? values.spacing.xs
-              : values.spacing.sm,
-          }}>
-          {caption}
-        </Text>
-      </View>
-    );
-  };
-
-  const renderCardContent = () => {
-    switch (post.content.type) {
-      case 'image-gallery':
-        const imagePreviewSource = post.content.sources[0];
-        let imagePreviewWidth, imagePreviewHeight;
-
-        if (typeof imagePreviewSource === 'number') {
-          imagePreviewWidth = DEFAULT_IMAGE_DIMENSIONS.width;
-          imagePreviewHeight = DEFAULT_IMAGE_DIMENSIONS.height;
-        } else {
-          imagePreviewWidth = imagePreviewSource.width;
-          imagePreviewHeight = imagePreviewSource.height;
-        }
-
-        return (
-          <View>
-            <View>
-              {post.content.sources.length > 1 && (
-                <View
-                  style={{
-                    position: 'absolute',
-                    zIndex: 1,
-                    top:
-                      (smallContent ? values.spacing.sm : values.spacing.md) *
-                      1.5,
-                    right:
-                      (smallContent ? values.spacing.sm : values.spacing.md) *
-                      1.5,
-                    backgroundColor: 'rgba(0, 0, 0, 0.55)',
-                    paddingVertical: values.spacing.sm,
-                    paddingHorizontal: values.spacing.md,
-                    borderRadius: values.radius.md,
-                    minWidth: smallContent ? 22 : 38,
-                  }}>
-                  {/* <Text
-                    style={{
-                      color: colors.white,
-                      fontWeight: '700',
-                      textAlign: 'center',
-                      fontSize: smallContent
-                        ? typography.size.md
-                        : typography.size.h3,
-                    }}>
-                    {post.content.sources.length}
-                  </Text> */}
-                  <MaterialCommunityIcon
-                    name="image-multiple"
-                    color={colors.white}
-                    size={20}
-                  />
-                </View>
-              )}
-              {isMyPost && (
-                <ViewsIndicator post={post} smallContent={smallContent} />
-              )}
-              <FastImage
-                source={post.content.sources[0]}
-                resizeMode="cover"
-                style={{
-                  aspectRatio: imagePreviewWidth / imagePreviewHeight,
-                  backgroundColor: colors.gray100,
-                  borderRadius: values.radius.md,
-                }}
-              />
-            </View>
-            <PostItemCardCaption caption={post.content.caption} />
-          </View>
-        );
-
-      case 'video':
-        return (
-          <View>
-            <Text>VIDEO</Text>
-            <PostItemCardCaption caption={post.content.caption} />
-          </View>
-        );
-
-      case 'text': /* FALLTHROUGH */
-      default:
-        return (
-          <View style={postItemStyles.dialogBox}>
-            <Text
-              numberOfLines={smallContent ? 5 : 15}
-              style={[
-                postItemStyles.dialogBoxText,
-                {
-                  fontSize: smallContent
-                    ? typography.size.sm
-                    : typography.size.md,
-                  padding: smallContent
-                    ? values.spacing.md
-                    : values.spacing.md * 1.25,
-                },
-              ]}>
-              {post.content.text}
-            </Text>
-          </View>
-        );
-    }
-  };
-
-  return (
-    <View style={[restProps.style]}>
-      <TouchableOpacity
-        activeOpacity={DEFAULT_ACTIVE_OPACITY}
-        onPress={handlePostPress}>
-        {renderCardContent()}
-      </TouchableOpacity>
-      {showFooter && (
-        <PostItemCardFooter
-          post={post}
-          smallContent={smallContent}
-          style={{ marginHorizontal: values.spacing.sm }}
+    <AsyncGate
+      data={profileData}
+      onPending={() => <Card.Author.Pending {...cardElementProps} />}
+      onRejected={() => (
+        <Card.Author displayName="Anonymous" {...cardElementProps} />
+      )}
+      onFulfilled={profile => (
+        <Card.Author
+          avatar={profile?.avatar}
+          displayName={profile?.displayName ?? 'Anonymous'}
+          isMyProfile={isMyProfile}
+          onPress={() => handlePressAuthor(profile)}
+          {...cardElementProps}
         />
       )}
-    </View>
+    />
   );
 }
 
-const postItemStyles = StyleSheet.create({
-  captionContainer: {
-    paddingVertical: values.spacing.xs,
-    paddingHorizontal: values.spacing.sm,
-  },
-  dialogBox: {
-    backgroundColor: colors.gray100,
-    borderWidth: values.border.thin,
-    borderColor: colors.gray200,
-    borderTopLeftRadius: values.radius.md,
-    borderTopRightRadius: values.radius.md,
-    borderBottomRightRadius: values.radius.md,
-    marginBottom: values.spacing.sm * 1.5,
-  },
-  dialogBoxText: {
-    color: colors.black,
-    fontWeight: '500',
+//#endregion PostItemCardAuthor
+
+//#region PostItemCardActions --------------------------------------------------
+
+type PostItemCardActionsProps = Omit<CardActionsProps, 'children'> &
+  Partial<PostItemCardHandlers> & {
+    post: Post;
+  };
+
+function PostItemCardActions(props: PostItemCardActionsProps) {
+  const { post, itemSpacing, elementOptions, style, ...handlersProps } = props;
+  const { didLike, totalLikes } = post.statistics;
+
+  const dispatch = useAppDispatch();
+  const handlersContext = useOverridableContextOptions(
+    PostItemCardHandlersContext,
+    handlersProps,
+  );
+
+  const handleToggleLike = async (didLike: boolean) => {
+    try {
+      const action = updatePostLikeStatus({
+        postId: post.id,
+        didLike,
+        sendNotification: true,
+      });
+      await dispatch(action).unwrap();
+    } catch (error) {
+      alertSomethingWentWrong();
+    }
+  };
+
+  return (
+    <Card.Actions
+      itemSpacing={itemSpacing}
+      elementOptions={elementOptions}
+      style={style}>
+      <Card.HeartIconButton
+        didLike={didLike}
+        totalLikes={totalLikes}
+        onToggleLike={handleToggleLike}
+      />
+      {handlersContext.showShareIcon && (
+        <Card.IconButton
+          iconName="ios-share-outline"
+          onPress={() => handlersContext.onPressShare?.(post)}
+        />
+      )}
+      {handlersContext.showMenuIcon && (
+        <Card.IconButton
+          iconName="ellipsis-horizontal-outline"
+          onPress={() => handlersContext.onPressMenu?.(post)}
+        />
+      )}
+    </Card.Actions>
+  );
+}
+
+//#endregion PostItemCardActions
+
+//#region Styles ---------------------------------------------------------------
+
+const postItemCardStyles = StyleSheet.create({
+  cardBodyPlaceholder: {
+    width: '100%',
+    backgroundColor: color.placeholder,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

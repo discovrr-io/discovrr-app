@@ -7,13 +7,62 @@ import {
   PayloadAction,
 } from '@reduxjs/toolkit';
 
-import { PURGE } from 'redux-persist';
+import { BaseThunkAPI } from '@reduxjs/toolkit/dist/createAsyncThunk';
 
-import { ApiFetchStatus, PostApi } from '../../api';
-import { Post, PostId, ProfileId } from '../../models';
-import { Pagination } from '../../models/common';
-import { RootState } from '../../store';
-import { selectProfileById } from '../profiles/profilesSlice';
+import { ApiFetchStatus, ApiFetchStatuses, PostApi } from 'src/api';
+import { selectProfileById } from 'src/features/profiles/profilesSlice';
+import { resetAppState } from 'src/globalActions';
+import { Post, PostId, ProfileId } from 'src/models';
+import { Pagination } from 'src/models/common';
+import { RootState } from 'src/store';
+
+//#region Post Adapter Initialization
+
+export type PostsState = EntityState<Post> & ApiFetchStatuses;
+
+const postsAdapter = createEntityAdapter<Post>({
+  // Sort by newest post (this probably shouldn't be needed)
+  sortComparer: (a, b) => b.createdAt.localeCompare(a.createdAt),
+});
+
+// TODO: Only cache the first N number of posts
+const initialState = postsAdapter.getInitialState<ApiFetchStatuses>({
+  statuses: {},
+});
+
+//#endregion Post Adapter Initialization
+
+//#region Post Async Thunks
+
+export const createPost = createAsyncThunk(
+  'posts/createPost',
+  async (contents: PostApi.CreatePostParams) => PostApi.createPost(contents),
+);
+
+type FetchPostByIdParams = {
+  postId: PostId;
+  reload?: boolean;
+};
+
+export const fetchPostById = createAsyncThunk(
+  'posts/fetchPostById',
+  async ({ postId }: FetchPostByIdParams) =>
+    PostApi.fetchPostById(String(postId)),
+  {
+    condition: (
+      { postId, reload = false },
+      { getState }: BaseThunkAPI<RootState, unknown>,
+    ) => {
+      if (reload) return true;
+      const { status } = selectPostStatusById(getState(), postId);
+      return (
+        status !== 'fulfilled' &&
+        status !== 'pending' &&
+        status !== 'refreshing'
+      );
+    },
+  },
+);
 
 type FetchAllPostsParams = {
   pagination?: Pagination;
@@ -26,41 +75,27 @@ export const fetchAllPosts = createAsyncThunk(
     PostApi.fetchAllPosts(pagination),
 );
 
+type FetchPostsForProfileParams = {
+  profileId: ProfileId;
+  reload?: boolean;
+};
+
 export const fetchPostsForProfile = createAsyncThunk(
   'posts/fetchPostsForProfile',
-  async (postId: PostId) => PostApi.fetchPostsForProfile(String(postId)),
+  async ({ profileId }: FetchPostsForProfileParams) =>
+    PostApi.fetchPostsForProfile(String(profileId)),
 );
 
-export const fetchPostById = createAsyncThunk(
-  'posts/fetchPostById',
-  async (postId: PostId) => PostApi.fetchPostById(String(postId)),
-);
-
-type UpdatePostTextContentParams = {
-  postId: PostId;
-  text: string;
-};
-
-export const updatePostTextContent = createAsyncThunk(
-  'posts/updatePostTextContent',
-  async ({ postId, text }: UpdatePostTextContentParams) =>
-    PostApi.updatePostTextContent(String(postId), text),
-);
-
-export const deletePost = createAsyncThunk(
-  'posts/deletePost',
-  async (postId: PostId) => PostApi.deletePost(String(postId)),
-);
-
-type ChangePostLikeStatusParams = {
+type UpdatePostLikeStatusParams = {
   postId: PostId;
   didLike: boolean;
+  sendNotification?: boolean;
 };
 
-export const changePostLikeStatus = createAsyncThunk(
-  'posts/changePostLikeStatus',
-  async ({ postId, didLike }: ChangePostLikeStatusParams) =>
-    PostApi.changePostLikeStatus(String(postId), didLike),
+export const updatePostLikeStatus = createAsyncThunk(
+  'posts/updatePostLikeStatus',
+  async ({ postId, didLike, sendNotification }: UpdatePostLikeStatusParams) =>
+    PostApi.updatePostLikeStatus(String(postId), didLike, sendNotification),
 );
 
 type UpdatePostViewCounterParams = {
@@ -74,16 +109,14 @@ export const updatePostViewCounter = createAsyncThunk(
     PostApi.updatePostViewCounter(String(postId)),
 );
 
-export type PostsState = EntityState<Post> & ApiFetchStatus;
+export const deletePost = createAsyncThunk(
+  'posts/deletePost',
+  async (postId: PostId) => PostApi.deletePost(String(postId)),
+);
 
-const postsAdapter = createEntityAdapter<Post>({
-  // Sort by newest post (this probably shouldn't be needed)
-  sortComparer: (a, b) => b.createdAt.localeCompare(a.createdAt),
-});
+//#endregion Post Async Thunks
 
-const initialState = postsAdapter.getInitialState<ApiFetchStatus>({
-  status: 'idle',
-});
+//#region Post Slice
 
 const postsSlice = createSlice({
   name: 'posts',
@@ -91,93 +124,122 @@ const postsSlice = createSlice({
   reducers: {
     postLikeStatusChanged: (
       state,
-      action: PayloadAction<{ postId: PostId; didLike: boolean }>,
+      action: PayloadAction<UpdatePostLikeStatusParams>,
     ) => {
       const { postId, didLike } = action.payload;
-      const existingPost = state.entities[postId];
-      if (existingPost && existingPost.statistics) {
-        existingPost.statistics.didLike = didLike;
-        existingPost.statistics.totalLikes += didLike ? 1 : -1;
+      const selectedPost = state.entities[postId];
+      if (selectedPost && selectedPost.statistics) {
+        selectedPost.statistics.didLike = didLike;
+        if (didLike) {
+          selectedPost.statistics.totalLikes += 1;
+        } else {
+          const decremented = selectedPost.statistics.totalLikes - 1;
+          selectedPost.statistics.totalLikes = Math.max(0, decremented);
+        }
       }
     },
   },
-  extraReducers: (builder) => {
+  extraReducers: builder => {
     builder
-      .addCase(PURGE, (state) => {
+      .addCase(resetAppState, state => {
         console.log('Purging posts...');
         Object.assign(state, initialState);
+      })
+      // -- createPost --
+      .addCase(createPost.fulfilled, (state, action) => {
+        postsAdapter.addOne(state, action.payload);
+        state.statuses[action.payload.id] = {
+          status: 'fulfilled',
+          error: undefined,
+        };
       })
       // -- fetchAllPosts --
       .addCase(fetchAllPosts.pending, (state, action) => {
         const { reload = false } = action.meta.arg ?? {};
-        state.status = reload ? 'refreshing' : 'pending';
+        for (const postId of Object.keys(state.statuses)) {
+          state.statuses[postId] = {
+            status: reload ? 'refreshing' : 'pending',
+            error: undefined,
+          };
+        }
       })
       .addCase(fetchAllPosts.fulfilled, (state, action) => {
-        state.status = 'fulfilled';
-        state.error = null;
         const { reload = false } = action.meta.arg ?? {};
+
         if (reload) {
           postsAdapter.setAll(state, action.payload);
         } else {
           postsAdapter.upsertMany(state, action.payload);
         }
+
+        state.statuses = {};
+        for (const postId of action.payload.map(post => post.id)) {
+          state.statuses[String(postId)] = { status: 'fulfilled' };
+        }
       })
       .addCase(fetchAllPosts.rejected, (state, action) => {
-        state.status = 'rejected';
-        state.error = action.error;
+        for (const postId of Object.keys(state.statuses)) {
+          state.statuses[postId] = {
+            status: 'rejected',
+            error: action.error,
+          };
+        }
       })
       // -- fetchPostsForProfile --
-      .addCase(fetchPostsForProfile.pending, (state) => {
-        state.status = 'pending';
-      })
+      // .addCase(fetchPostsForProfile.pending, (state, action) => {
+      //   const { reload = false } = action.meta.arg;
+      //   for (const postId of Object.keys(state.statuses)) {
+      //     state.statuses[postId] = {
+      //       status: reload ? 'refreshing' : 'pending',
+      //     };
+      //   }
+      // })
       .addCase(fetchPostsForProfile.fulfilled, (state, action) => {
-        state.status = 'fulfilled';
-        state.error = null;
         postsAdapter.upsertMany(state, action.payload);
+        for (const postId of action.payload.map(postId => postId.id)) {
+          state.statuses[String(postId)] = {
+            status: 'fulfilled',
+            error: undefined,
+          };
+        }
       })
-      .addCase(fetchPostsForProfile.rejected, (state, action) => {
-        state.status = 'rejected';
-        state.error = action.error;
-      })
+      // .addCase(fetchPostsForProfile.rejected, (state, action) => {
+      //   for (const postId of Object.keys(state.statuses)) {
+      //     state.statuses[postId] = {
+      //       status: 'rejected',
+      //       error: action.error,
+      //     };
+      //   }
+      // })
       // -- fetchPostById --
-      .addCase(fetchPostById.pending, (state) => {
-        state.status = 'pending';
+      .addCase(fetchPostById.pending, (state, action) => {
+        const { postId, reload } = action.meta.arg;
+        state.statuses[String(postId)] = {
+          status: reload ? 'refreshing' : 'pending',
+          error: undefined,
+        };
       })
       .addCase(fetchPostById.fulfilled, (state, action) => {
-        state.status = 'fulfilled';
-        state.error = null;
-        postsAdapter.upsertOne(state, action.payload);
+        if (action.payload) postsAdapter.upsertOne(state, action.payload);
+        state.statuses[String(action.meta.arg.postId)] = {
+          status: 'fulfilled',
+          error: undefined,
+        };
       })
       .addCase(fetchPostById.rejected, (state, action) => {
-        state.status = 'rejected';
-        state.error = action.error;
-        // TODO: We need to know if this was a refresh action to not remove it
-        postsAdapter.removeOne(state, action.meta.arg);
+        state.statuses[String(action.meta.arg.postId)] = {
+          status: 'rejected',
+          error: action.error,
+        };
       })
-      // -- updatePostTextContent --
-      .addCase(updatePostTextContent.fulfilled, (state, action) => {
-        postsAdapter.upsertOne(state, action.payload);
-      })
-      // -- deletePost --
-      .addCase(deletePost.pending, (state) => {
-        state.status = 'deleting';
-      })
-      .addCase(deletePost.fulfilled, (state, action) => {
-        const deletedPostId = action.meta.arg;
-        postsAdapter.removeOne(state, deletedPostId);
-      })
-      .addCase(deletePost.rejected, (state, action) => {
-        state.status = 'rejected';
-        state.error = action.error;
-      })
-      // -- changePostLikeStatus --
-      .addCase(changePostLikeStatus.pending, (state, action) => {
+      // -- updatePostLikeStatus --
+      .addCase(updatePostLikeStatus.pending, (state, action) => {
         postsSlice.caseReducers.postLikeStatusChanged(state, {
           ...action,
           payload: action.meta.arg,
         });
       })
-      .addCase(changePostLikeStatus.rejected, (state, action) => {
+      .addCase(updatePostLikeStatus.rejected, (state, action) => {
         const oldLike = !action.meta.arg.didLike;
         postsSlice.caseReducers.postLikeStatusChanged(state, {
           ...action,
@@ -202,25 +264,37 @@ const postsSlice = createSlice({
             };
           }
         }
+      })
+      // -- deletePost --
+      .addCase(deletePost.fulfilled, (state, action) => {
+        postsAdapter.removeOne(state, action.meta.arg);
       });
   },
 });
 
-export const {
-  /* postLikeStatusChanged */
-} = postsSlice.actions;
+export const {} = postsSlice.actions;
 
-// Generated selectors with new names
+//#endregion Post Slice
+
+//#region Custom Post Selectors
+
 export const {
   selectAll: selectAllPosts,
   selectById: selectPostById,
   selectIds: selectPostIds,
-} = postsAdapter.getSelectors<RootState>((state) => state.posts);
+} = postsAdapter.getSelectors<RootState>(state => state.posts);
 
-// Memoized: selectPostsByProfile(state, profileId)
+export function selectPostStatusById(
+  state: RootState,
+  postId: PostId,
+): ApiFetchStatus {
+  return state.posts.statuses[String(postId)] ?? { status: 'idle' };
+}
+
+// Memoized: selectPostsByProfile(state, postId)
 export const selectPostsByProfile = createSelector(
   [selectAllPosts, (_state: RootState, profileId: ProfileId) => profileId],
-  (posts, profileId) => posts.filter((post) => post.profileId === profileId),
+  (posts, postId) => posts.filter(post => post.profileId === postId),
 );
 
 export const selectFollowingPosts = createSelector(
@@ -228,8 +302,10 @@ export const selectFollowingPosts = createSelector(
   (posts, profile) => {
     const followingProfiles = profile?.following ?? [];
     if (followingProfiles.length < 1) return [];
-    return posts.filter((post) => followingProfiles.includes(post.profileId));
+    return posts.filter(post => followingProfiles.includes(post.profileId));
   },
 );
+
+//#endregion Custom Post Selectors
 
 export default postsSlice.reducer;

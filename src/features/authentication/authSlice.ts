@@ -1,17 +1,45 @@
-import {
-  createAsyncThunk,
-  createSelector,
-  createSlice,
-} from '@reduxjs/toolkit';
-import { useSelector } from 'react-redux';
-import { PURGE } from 'redux-persist';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { BaseThunkAPI } from '@reduxjs/toolkit/dist/createAsyncThunk';
 
-import { ApiFetchStatus, AuthApi } from '../../api';
-import { User } from '../../models';
-import { RootState } from '../../store';
-import { selectProfileById } from '../profiles/profilesSlice';
+import { ApiFetchStatus, AuthApi } from 'src/api';
+import { ProfileId, User } from 'src/models';
+import { RootState } from 'src/store';
 
-type SignInWithEmailAndPasswordParams = {
+//#region Authentication State Initialization
+
+export type AuthLoadingStatus =
+  | 'idle'
+  | 'signing-in'
+  | 'registering'
+  | 'signing-out'
+  | 'fulfilled'
+  | 'rejected';
+
+export type AuthFetchStatus = Pick<ApiFetchStatus, 'error'> & {
+  status: AuthLoadingStatus;
+};
+
+export type AuthState = AuthFetchStatus & {
+  user: User | undefined;
+  isAuthenticated: boolean;
+  isFirstLogin: boolean;
+  didAbortSignOut: boolean;
+};
+
+const initialState: AuthState = {
+  status: 'idle',
+  error: undefined,
+  user: undefined,
+  isAuthenticated: false,
+  isFirstLogin: false,
+  didAbortSignOut: false,
+};
+
+//#endregion Authentication State Initialization
+
+//#region Authentication Async Thunks
+
+export type SignInWithEmailAndPasswordParams = {
   email: string;
   password: string;
 };
@@ -27,7 +55,7 @@ export const signInWithCredential = createAsyncThunk(
   AuthApi.signInWithCredential,
 );
 
-type RegisterNewAccountParams = {
+export type RegisterNewAccountParams = {
   fullName: string;
   username: string;
   email: string;
@@ -54,57 +82,37 @@ export const signOut = createAsyncThunk(
 export const abortSignOut = createAsyncThunk(
   'auth/abortSignOut',
   async (error: any) => {
-    AuthApi.signOut().catch((error) =>
+    AuthApi.signOut().catch(error =>
       console.warn('Failed to forcefully sign out:', error),
     );
     throw error;
   },
+  {
+    condition: (_, { getState }: BaseThunkAPI<RootState, unknown>) => {
+      return !getState().auth.didAbortSignOut;
+    },
+  },
 );
 
-type AuthLoadingStatus =
-  | 'idle'
-  | 'signing-in'
-  | 'registering'
-  | 'signing-out'
-  | 'fulfilled'
-  | 'rejected';
+//#endregion Authentication Async Thunks
 
-type AuthFetchStatus = Pick<ApiFetchStatus, 'error'> & {
-  status: AuthLoadingStatus;
-};
-
-export type AuthState = AuthFetchStatus & {
-  isAuthenticated: boolean;
-  isFirstLogin: boolean;
-  user?: User;
-};
-
-const initialState: AuthState = {
-  status: 'idle',
-  error: null,
-  isAuthenticated: false,
-  isFirstLogin: false,
-  user: undefined,
-};
+//#region Authentication Slice
 
 const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    didDismissInfoModal: (state) => {
+    didDismissInfoModal: state => {
       state.isFirstLogin = false;
     },
+    didDismissAbortSignOutAlert: state => {
+      state.didAbortSignOut = false;
+    },
   },
-  extraReducers: (builder) => {
+  extraReducers: builder => {
     builder
-      .addCase(PURGE, (state) => {
-        // We don't want to remove the current session if the store is purged
-        // console.log('Ignoring purge for authentication:', state);
-        console.warn('Purging authentication... (this should be disabled)');
-        Object.assign(state, initialState);
-      })
       // -- signInWithEmailAndPassword --
-      .addCase(signInWithEmailAndPassword.pending, (state) => {
+      .addCase(signInWithEmailAndPassword.pending, state => {
         state.status = 'signing-in';
       })
       .addCase(signInWithEmailAndPassword.fulfilled, (state, action) => {
@@ -120,7 +128,7 @@ const authSlice = createSlice({
         state.isFirstLogin = false;
       })
       // -- signInWithCredential --
-      .addCase(signInWithCredential.pending, (state) => {
+      .addCase(signInWithCredential.pending, state => {
         state.status = 'signing-in';
       })
       .addCase(signInWithCredential.fulfilled, (state, action) => {
@@ -136,7 +144,7 @@ const authSlice = createSlice({
         state.isFirstLogin = false;
       })
       // -- registerNewAccount --
-      .addCase(registerNewAccount.pending, (state) => {
+      .addCase(registerNewAccount.pending, state => {
         state.status = 'registering';
       })
       .addCase(registerNewAccount.fulfilled, (state, action) => {
@@ -152,28 +160,48 @@ const authSlice = createSlice({
         state.isFirstLogin = false;
       })
       // -- signOut --
-      .addCase(signOut.pending, (state) => {
+      .addCase(signOut.pending, state => {
         state.status = 'signing-out';
       })
-      .addCase(signOut.fulfilled, (state) => {
+      .addCase(signOut.fulfilled, state => {
         Object.assign(state, initialState);
       })
       .addCase(signOut.rejected, (state, action) => {
         state.status = 'rejected';
         state.error = action.error;
+      })
+      // --- abortSignOut
+      .addCase(abortSignOut.rejected, (state, action) => {
+        Object.assign(state, {
+          ...initialState,
+          status: 'rejected',
+          error: action.error,
+          didAbortSignOut: true,
+        });
       });
   },
 });
 
-export const { didDismissInfoModal } = authSlice.actions;
+export const { didDismissInfoModal, didDismissAbortSignOutAlert } =
+  authSlice.actions;
+
+//#endregion Authentication Slice
+
+//#region Custom Authentication Selectors
 
 export const selectCurrentAuthState = (state: RootState) =>
   [state.auth.status, state.auth.error] as const;
 
-export const selectCurrentUser = (state: RootState): User | undefined =>
-  state.auth.user;
+export const selectCurrentUser = (state: RootState) => state.auth.user;
 
 export const selectCurrentUserProfileId = (state: RootState) =>
   state.auth.user?.profileId;
+
+export const selectIsCurrentUserProfile = (
+  state: RootState,
+  profileId: ProfileId,
+) => profileId === selectCurrentUserProfileId(state);
+
+//#endregion Custom Authentication Selectors
 
 export default authSlice.reducer;

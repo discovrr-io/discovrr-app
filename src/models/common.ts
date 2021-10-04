@@ -9,13 +9,13 @@ export type ImageSource =
   | { uri: string; width?: number; height?: number };
 
 export type Coordinates = {
-  latitude: number;
-  longitude: number;
+  readonly latitude: number;
+  readonly longitude: number;
 };
 
 export type LocationQueryPreferences = {
-  searchRadius?: number;
-  coordinates?: Coordinates;
+  readonly searchRadius?: number;
+  readonly coordinates?: Coordinates;
 };
 
 export const MIN_SEARCH_RADIUS = 3;
@@ -30,14 +30,26 @@ export const DEFAULT_COORDINATES = {
 };
 
 export type Pagination = {
-  limit: number;
-  currentPage: number;
+  readonly limit: number;
+  readonly currentPage: number;
 };
 
+/**
+ * An object that records useful social metadata of an item with a `statistics`
+ * property.
+ */
 export type Statistics = {
-  didSave: boolean;
-  didLike: boolean;
-  totalLikes: number;
-  totalViews: number;
-  lastViewed?: string; // Needs to be a string for Redux to serialize
+  readonly didSave: boolean;
+  readonly didLike: boolean;
+  readonly totalLikes: number;
+  readonly totalViews: number;
+
+  /**
+   * An optional date-time string of the when the item associated with this
+   * `Statistics` object was last viewed.
+   *
+   * This is only available in the client app to record in the Redux store. This
+   * is also why its type is `string` – for serialization purposes.
+   */
+  readonly lastViewed?: string;
 };

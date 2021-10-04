@@ -1,38 +1,38 @@
 import analytics from '@react-native-firebase/analytics';
-import crashlytics from '@react-native-firebase/crashlytics';
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import Parse from 'parse/react-native';
 
-import { MediaSource } from '.';
-import { User } from '../models';
-import { DEFAULT_AVATAR_DIMENSIONS } from '../constants/media';
+import { MediaSource } from './common';
+import { ProfileId, User, UserId } from 'src/models';
+import { DEFAULT_AVATAR_DIMENSIONS } from 'src/constants/media';
 
 const MAX_ATTEMPTS = 3;
 
 export namespace AuthApi {
   export enum AuthApiError {
-    // NO_PROFILE_FOUND = '1000',
+    NO_PROFILE_FOUND = '1000',
     USERNAME_ALREADY_TAKEN = '2000',
   }
 
   async function syncAndConstructUser(
     currentUserId: string,
-    profile: Parse.Object<Parse.Attributes>,
+    profile: Parse.Object,
     firebaseUser: FirebaseAuthTypes.User,
   ): Promise<User> {
     const $FUNC = '[AuthApi.syncAndConstructUser]';
     let syncProfile = false;
 
-    const fullName: string | undefined =
+    const displayName: string | undefined =
       profile.get('fullName') ||
-      profile.get('name') ||
-      profile.get('displayName');
-    if (!fullName && firebaseUser.displayName) {
-      profile.set('fullName', firebaseUser.displayName);
+      profile.get('displayName') ||
+      profile.get('name');
+    if (!displayName && firebaseUser.displayName) {
+      // profile.set('fullName', firebaseUser.displayName);
+      profile.set('displayName', firebaseUser.displayName);
       syncProfile = true;
-    } else if (fullName /* && !firebaseUser.displayName */) {
+    } else if (displayName /* && !firebaseUser.displayName */) {
       console.log($FUNC, 'Updating Firebase display name...');
-      await firebaseUser.updateProfile({ displayName: fullName });
+      await firebaseUser.updateProfile({ displayName });
     }
 
     const provider: string | undefined = profile.get('provider');
@@ -82,8 +82,8 @@ export namespace AuthApi {
   }
 
   async function attemptToFetchProfileForUser(
-    currentUser: Parse.User<Parse.Attributes>,
-  ): Promise<Parse.Object<Parse.Attributes> | null> {
+    currentUser: Parse.User,
+  ): Promise<Parse.Object | undefined> {
     const $FUNC = '[AuthApi.attemptToFetchProfileForUser]';
 
     console.log($FUNC, 'Querying profile...');
@@ -97,7 +97,7 @@ export namespace AuthApi {
     while (!profile && attempts < MAX_ATTEMPTS) {
       console.warn($FUNC, `Current user profile ID not found.`);
       console.log($FUNC, `(Attempt ${attempts + 1} of ${MAX_ATTEMPTS})`);
-      await new Promise<void>((resolve) => {
+      await new Promise<void>(resolve => {
         setTimeout(async () => {
           const result = await query.first();
           profile = result;
@@ -113,7 +113,7 @@ export namespace AuthApi {
   async function authenticateViaParse(
     firebaseUser: FirebaseAuthTypes.User,
   ): Promise<User> {
-    const $FUNC = '[AuthApi.signInWithParse]';
+    const $FUNC = '[AuthApi.authenticateViaParse]';
 
     const authData = {
       access_token: await firebaseUser.getIdToken(),
@@ -136,10 +136,15 @@ export namespace AuthApi {
 
     const profile = await attemptToFetchProfileForUser(currentUser);
     if (!profile) {
-      crashlytics().log(
-        `No profile was found with user ID '${currentUser.id}'.`,
+      console.error(
+        $FUNC,
+        'No profile was found with user ID:',
+        currentUser.id,
       );
-      throw new Error(`No profile was found with user ID '${currentUser.id}'.`);
+      throw {
+        code: AuthApiError.NO_PROFILE_FOUND,
+        message: 'No profile was found with the given user ID.',
+      };
     }
 
     return await syncAndConstructUser(currentUser.id, profile, firebaseUser);
@@ -177,7 +182,7 @@ export namespace AuthApi {
       analytics()
         .logLogin({ method: 'email' })
         .then(() => analytics().setUserId(String(authenticatedUser.profileId)))
-        .catch((err) => console.error($FUNC, 'Failed to send analytics:', err));
+        .catch(err => console.error($FUNC, 'Failed to send analytics:', err));
 
       return authenticatedUser;
     } catch (error) {
@@ -219,7 +224,7 @@ export namespace AuthApi {
       analyticsPromise
         .then(setUserId)
         .then(() => console.log($FUNC, 'Successfully sent analytics'))
-        .catch((err) => console.error($FUNC, 'Failed to send analytics:', err));
+        .catch(err => console.error($FUNC, 'Failed to send analytics:', err));
 
       return authenticatedUser;
     } catch (error) {
@@ -231,7 +236,7 @@ export namespace AuthApi {
   }
 
   export async function registerNewAccount(
-    fullName: string,
+    displayName: string,
     username: string,
     email: string,
     password: string,
@@ -261,7 +266,7 @@ export namespace AuthApi {
       didLoginViaFirebase = true;
 
       console.log($FUNC, 'Updating Firebase profile...');
-      await firebaseUser.updateProfile({ displayName: fullName });
+      await firebaseUser.updateProfile({ displayName });
 
       const authData = {
         access_token: await firebaseUser.getIdToken(),
@@ -275,15 +280,15 @@ export namespace AuthApi {
 
       const newProfile = await attemptToFetchProfileForUser(newUser);
       if (!newProfile) {
-        console.error(
-          $FUNC,
-          'Failed to find profile with owner:',
-          newProfile.id,
-        );
-        throw new Error(`No profile was associated with user '${newUser.id}'`);
+        console.error($FUNC, 'No profile was found with user ID:', newUser.id);
+        throw {
+          code: AuthApiError.NO_PROFILE_FOUND,
+          message: 'No profile was found with the given user ID.',
+        };
       }
 
-      newProfile.set('fullName', fullName);
+      // newProfile.set('fullName', fullName);
+      newProfile.set('displayName', displayName);
       newProfile.set('username', username);
       newProfile.set('email', email);
 
@@ -295,17 +300,17 @@ export namespace AuthApi {
       console.log($FUNC, 'Saving new profile details...');
       await newProfile.save();
 
-      // We won't await for analytics, nor do we care if it fails.
-      console.log($FUNC, 'Sending analytics...');
-      analytics()
-        .logSignUp({ method: 'email' })
-        .then(() => analytics().setUserId(newProfile.id))
-        .catch((err) => console.error($FUNC, 'Failed to send analytics:', err));
+      // // We won't await for analytics, nor do we care if it fails.
+      // console.log($FUNC, 'Sending analytics...');
+      // analytics()
+      //   .logSignUp({ method: 'email' })
+      //   .then(() => analytics().setUserId(newProfile.id))
+      //   .catch(err => console.error($FUNC, 'Failed to send analytics:', err));
 
       return {
-        id: newUser.id,
+        id: newUser.id as UserId,
         provider: providerId,
-        profileId: newProfile.id,
+        profileId: newProfile.id as ProfileId,
       };
     } catch (error) {
       console.warn($FUNC, 'Aborting authentication. Signing out...');

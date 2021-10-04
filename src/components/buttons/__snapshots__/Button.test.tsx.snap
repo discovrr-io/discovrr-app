@@ -1,0 +1,45 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Button test large buttons test large idle buttons renders an enabled large idle button 1`] = `
+<View
+  accessible={true}
+  focusable={true}
+  onClick={[Function]}
+  onResponderGrant={[Function]}
+  onResponderMove={[Function]}
+  onResponderRelease={[Function]}
+  onResponderTerminate={[Function]}
+  onResponderTerminationRequest={[Function]}
+  onStartShouldSetResponder={[Function]}
+  style={
+    Object {
+      "alignItems": "center",
+      "backgroundColor": "transparent",
+      "borderColor": "transparent",
+      "borderRadius": 12,
+      "borderWidth": 1,
+      "height": 48,
+      "justifyContent": "center",
+      "opacity": 1,
+      "paddingHorizontal": 16,
+    }
+  }
+  testID="btn-container"
+>
+  <Text
+    style={
+      Array [
+        Object {
+          "color": "#141414",
+          "fontFamily": "Rubik-Medium",
+          "fontSize": 20,
+        },
+        undefined,
+      ]
+    }
+    testID="btn-text"
+  >
+    My Button
+  </Text>
+</View>
+`;

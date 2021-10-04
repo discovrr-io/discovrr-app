@@ -1,93 +1,101 @@
-import React, { useCallback, useRef } from 'react';
-import {
-  Alert,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import React from 'react';
+import { Alert, Text, TouchableOpacity, View } from 'react-native';
 
-import DeviceInfo from 'react-native-device-info';
 import FastImage from 'react-native-fast-image';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import Icon from 'react-native-vector-icons/Ionicons';
 import OneSignal from 'react-native-onesignal';
-import { DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer';
-
-import SearchLocationModal from './bottomSheets/SearchLocationModal';
-import { useAppDispatch, useAppSelector } from '../hooks';
-import { FEATURE_UNAVAILABLE } from '../constants/strings';
-import { selectProfileById } from '../features/profiles/profilesSlice';
-import {
-  selectCurrentUserProfileId,
-  signOut,
-} from '../features/authentication/authSlice';
 
 import {
-  DEFAULT_ACTIVE_OPACITY,
-  colors,
-  typography,
-  values,
-} from '../constants';
-import { BottomSheetModal } from '@gorhom/bottom-sheet';
+  DrawerContentComponentProps,
+  DrawerContentScrollView,
+  DrawerItem,
+} from '@react-navigation/drawer';
+
+import { color, font, layout } from 'src/constants';
+import { DEFAULT_AVATAR } from 'src/constants/media';
+import { DEFAULT_ACTIVE_OPACITY } from 'src/constants/values';
+import { signOut } from 'src/features/authentication/authSlice';
+import { selectProfileById } from 'src/features/profiles/profilesSlice';
+import { useAppDispatch, useAppSelector } from 'src/hooks';
+
+import { RootStackNavigationProp, RootStackParamList } from 'src/navigation';
+import { ProfileId } from 'src/models';
+import { alertSomethingWentWrong } from 'src/utilities';
 
 const AVATAR_DIAMETER = 125;
+const DRAWER_ITEM_ICON_COLOR = color.black;
+const DRAWER_ITEM_TEXT_COLOR = color.black;
 
-const DRAWER_ITEM_ICON_COLOR = colors.black;
-const DRAWER_ITEM_TEXT_COLOR = colors.black;
+type AppDrawerItemProps = {
+  label: string;
+  iconName: string;
+  onPress: () => void;
+};
+
+const AppDrawerItem = ({ label, iconName, onPress }: AppDrawerItemProps) => (
+  <DrawerItem
+    pressColor={color.gray200}
+    label={() => (
+      <Text
+        numberOfLines={1}
+        style={[
+          font.medium,
+          { color: DRAWER_ITEM_TEXT_COLOR, marginLeft: -8 },
+        ]}>
+        {label}
+      </Text>
+    )}
+    icon={({ size }) => (
+      <Icon name={iconName} size={size} color={DRAWER_ITEM_ICON_COLOR} />
+    )}
+    onPress={onPress}
+    style={{ paddingLeft: layout.spacing.md }}
+  />
+);
 
 const Divider = () => (
   <View
     style={{
       borderBottomWidth: 1,
-      borderColor: colors.gray100,
-      marginVertical: values.spacing.sm,
+      borderColor: color.gray100,
+      marginVertical: layout.spacing.sm,
     }}
   />
 );
 
-const AppDrawerItem = ({ label, iconName, onPress }) => (
-  <DrawerItem
-    label={() => <Text style={{ color: DRAWER_ITEM_TEXT_COLOR }}>{label}</Text>}
-    icon={({ size }) => (
-      <Icon name={iconName} size={size} color={DRAWER_ITEM_ICON_COLOR} />
-    )}
-    onPress={onPress}
-    style={appDrawerStyles.drawerItem}
-  />
-);
+type AppDrawerProps = DrawerContentComponentProps;
 
-export default function AppDrawer({ navigation, ...props }) {
-  const $FUNC = '[AppDrawer]';
-  const dispatch = useAppDispatch();
+export default function AppDrawerWrapper(props: AppDrawerProps) {
+  const $FUNC = '[AppDrawerWrapper]';
+  const authState = useAppSelector(state => state.auth);
 
-  const bottomSheetModalRef = useRef<BottomSheetModal | null>(null);
-
-  const authState = useAppSelector((state) => state.auth);
   if (!authState.user) {
     console.error($FUNC, 'No user found in store');
     return null;
   }
 
-  const profileId = useAppSelector(selectCurrentUserProfileId);
-  const profile = useAppSelector((state) =>
-    selectProfileById(state, profileId),
-  );
+  return <AppDrawer profileId={authState.user.profileId} {...props} />;
+}
 
-  if (!profile) console.warn($FUNC, `Profile '${profileId}' is undefined`);
+function AppDrawer(props: AppDrawerProps & { profileId: ProfileId }) {
+  const $FUNC = '[AppDrawer]';
+  const { profileId } = props;
 
-  const handleShowModal = useCallback(() => {
-    bottomSheetModalRef.current.present();
-  }, []);
+  const dispatch = useAppDispatch();
+  const navigation = props.navigation;
+  const profile = useAppSelector(state => selectProfileById(state, profileId));
+
+  const handleNavigation = (screen: keyof RootStackParamList) => {
+    navigation.closeDrawer();
+    navigation.getParent<RootStackNavigationProp>().navigate(screen);
+  };
 
   const handleLogOut = () => {
-    navigation.closeDrawer();
-
-    const signOutUser = async () => {
+    const commitLogOut = async () => {
       try {
-        await dispatch(signOut({})).unwrap();
+        await dispatch(signOut()).unwrap();
         console.log($FUNC, 'Removing OneSignal external user ID...');
-        OneSignal.removeExternalUserId((results) => {
+        OneSignal.removeExternalUserId(results => {
           console.log($FUNC, 'Successfully removed external user id:', results);
         });
       } catch (error) {
@@ -96,6 +104,7 @@ export default function AppDrawer({ navigation, ...props }) {
       }
     };
 
+    navigation.closeDrawer();
     Alert.alert(
       'Are you sure you want to log out?',
       'You will need to sign in again.',
@@ -105,123 +114,104 @@ export default function AppDrawer({ navigation, ...props }) {
           text: 'Log Out',
           style: 'destructive',
           onPress: () => {
-            signOutUser()
-              .then(() => console.info($FUNC, 'Successfully logged out'))
-              .catch((error) => {
-                console.error($FUNC, 'Failed to sign out:', error);
-                Alert.alert(
-                  'Something went wrong',
-                  "We weren't able to sign you out right now. Please try again later.",
-                );
-              });
+            commitLogOut().catch(error => {
+              console.error($FUNC, 'Failed to sign out:', error);
+              Alert.alert(
+                'Something went wrong',
+                "We weren't able to sign you out right now. \
+                   Please try again later.",
+              );
+            });
           },
         },
       ],
     );
   };
 
-  const alertUnavailableFeature = () => {
-    Alert.alert(FEATURE_UNAVAILABLE.title, FEATURE_UNAVAILABLE.message);
-  };
-
-  // TODO: Add version code
   return (
-    <View style={{ flex: 1 }}>
-      <DrawerContentScrollView {...props}>
-        <View style={{ padding: values.spacing.lg }}>
-          <TouchableOpacity
-            activeOpacity={DEFAULT_ACTIVE_OPACITY}
-            onPress={() => {
-              navigation.navigate('UserProfileScreen', {
-                profileId: profile?.id,
-                profileName: 'My Profile',
-              });
-            }}>
-            <View style={{ alignItems: 'center' }}>
-              <FastImage
-                source={profile?.avatar}
-                resizeMode="cover"
-                style={{
-                  width: AVATAR_DIAMETER,
-                  height: AVATAR_DIAMETER,
-                  borderRadius: AVATAR_DIAMETER / 2,
-                  backgroundColor: colors.gray100,
-                }}
-              />
-              <Text
-                numberOfLines={1}
-                style={{
-                  fontSize: typography.size.h4,
-                  fontWeight: '700',
-                  textAlign: 'center',
-                  paddingTop: values.spacing.lg,
-                }}>
-                {profile?.fullName ?? 'Undefined'}
-              </Text>
-            </View>
-          </TouchableOpacity>
-        </View>
-
-        <Divider />
-
-        <AppDrawerItem
-          label="Search Location"
-          iconName="location-pin"
-          onPress={handleShowModal}
-        />
-        <AppDrawerItem
-          label="Notifications"
-          iconName="notifications"
-          onPress={alertUnavailableFeature}
-        />
-        <AppDrawerItem
-          label="Profile Settings"
-          iconName="person"
+    <DrawerContentScrollView {...props}>
+      <View style={{ padding: layout.spacing.lg }}>
+        <TouchableOpacity
+          activeOpacity={DEFAULT_ACTIVE_OPACITY}
           onPress={() => {
-            navigation.navigate('ProfileEditScreen', { profile: profile?.id });
-          }}
-        />
-        <AppDrawerItem
-          label="My Shopping"
-          iconName="shopping-bag"
-          onPress={alertUnavailableFeature}
-        />
-        <AppDrawerItem
-          label="Account Settings"
-          iconName="settings"
-          // onPress={() => navigation.navigate('AccountSettingsScreen')}
-          onPress={alertUnavailableFeature}
-        />
-
-        <Divider />
-
-        <AppDrawerItem
-          label="Log Out"
-          iconName="logout"
-          onPress={handleLogOut}
-        />
-
-        <Divider />
-      </DrawerContentScrollView>
-      {/* Avoids the bottom edge on newer iOS devices */}
-      <SafeAreaView>
-        <Text
-          style={{
-            color: colors.gray700,
-            textAlign: 'center',
-            padding: values.spacing.lg,
+            if (profile) {
+              handleNavigation('ProfileSettings');
+            } else {
+              alertSomethingWentWrong();
+              navigation.closeDrawer();
+            }
           }}>
-          Discovrr v{DeviceInfo.getVersion()} (Build 2021.10.03.0)
-        </Text>
-      </SafeAreaView>
+          <View style={{ alignItems: 'center' }}>
+            <FastImage
+              source={
+                profile?.avatar ? { uri: profile.avatar.url } : DEFAULT_AVATAR
+              }
+              resizeMode="cover"
+              style={{
+                width: AVATAR_DIAMETER,
+                height: AVATAR_DIAMETER,
+                borderRadius: AVATAR_DIAMETER / 2,
+              }}
+            />
+            <Text
+              numberOfLines={1}
+              style={[
+                font.extraLargeBold,
+                {
+                  paddingTop: layout.spacing.lg,
+                  textAlign: 'center',
+                },
+              ]}>
+              {profile?.displayName || 'Anonymous'}
+            </Text>
+            <Text
+              numberOfLines={1}
+              style={[
+                font.medium,
+                {
+                  color: color.gray500,
+                  paddingTop: layout.spacing.xs,
+                  textAlign: 'center',
+                },
+              ]}>
+              @{profile?.username || 'anonymous'}
+            </Text>
+          </View>
+        </TouchableOpacity>
+      </View>
 
-      <SearchLocationModal ref={bottomSheetModalRef} />
-    </View>
+      <Divider />
+
+      <AppDrawerItem
+        label="Notifications"
+        iconName="notifications-outline"
+        onPress={() => handleNavigation('Notifications')}
+      />
+      <AppDrawerItem
+        label="My Shopping"
+        iconName="cart-outline"
+        onPress={() => handleNavigation('MyShopping')}
+      />
+      <AppDrawerItem
+        label="Saved"
+        iconName="bookmark-outline"
+        onPress={() => handleNavigation('Saved')}
+      />
+      <AppDrawerItem
+        label="Settings"
+        iconName="settings-outline"
+        onPress={() => handleNavigation('MainSettings')}
+      />
+
+      <Divider />
+
+      <AppDrawerItem
+        label="Log Out"
+        iconName="log-out-outline"
+        onPress={handleLogOut}
+      />
+
+      <Divider />
+    </DrawerContentScrollView>
   );
 }
-
-const appDrawerStyles = StyleSheet.create({
-  drawerItem: {
-    paddingLeft: values.spacing.lg,
-  },
-});

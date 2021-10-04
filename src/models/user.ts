@@ -1,4 +1,7 @@
+import { EntityId } from '@reduxjs/toolkit';
 import { ProfileId } from './profile';
+
+export type UserId = EntityId & { __userIdBrand: any };
 
 export default interface User {
   /**
@@ -6,13 +9,13 @@ export default interface User {
    *
    * This ID will be the same as getting the current user's ID via Parse.
    */
-  id: string;
+  readonly id: UserId;
   /**
    * The authentication provider of the user for internal purposes.
    */
-  provider?: string;
+  readonly provider?: string;
   /**
    * The profile ID associated with this user's account.
    */
-  profileId: ProfileId;
+  readonly profileId: ProfileId;
 }

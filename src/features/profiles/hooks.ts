@@ -1,39 +1,40 @@
-import { useEffect } from 'react';
+import { Profile, ProfileId } from 'src/models';
+import { TypedUseAsyncItem, useAppSelector, useAsyncItem } from 'src/hooks';
 
-import { Profile, ProfileId } from '../../models';
-import { useAppDispatch, useAppSelector } from '../../hooks';
+import {
+  selectCurrentUserProfileId,
+  selectIsCurrentUserProfile,
+} from 'src/features/authentication/authSlice';
 
-import { fetchProfileById, selectProfileById } from './profilesSlice';
+import {
+  fetchProfileById,
+  selectProfileById,
+  selectProfileStatusById,
+} from './profilesSlice';
 
-export function useProfile(
-  profileId: ProfileId,
-  reload = false,
-): Profile | undefined {
-  const $FUNC = '[profiles/hooks/useProfile]';
-  const dispatch = useAppDispatch();
+export const useProfile: TypedUseAsyncItem<ProfileId, Profile | undefined> =
+  profileId => {
+    return useAsyncItem(
+      'profile',
+      profileId,
+      fetchProfileById({ profileId }),
+      selectProfileById,
+      selectProfileStatusById,
+    );
+  };
 
-  useEffect(() => {
-    (async () => {
-      try {
-        console.log($FUNC, `Fetching profile with id ${profileId}...`);
-        await dispatch(fetchProfileById({ profileId, reload })).unwrap();
-      } catch (error) {
-        if (error.name && error.name === 'ConditionError') {
-          console.warn(
-            $FUNC,
-            'There is already a dispatched action fetching profile with',
-            `ID '${profileId}'`,
-          );
-        } else {
-          console.error(
-            $FUNC,
-            `Failed to fetch profile with id '${profileId}':`,
-            error,
-          );
-        }
-      }
-    })();
-  }, [dispatch, reload, profileId]); // Runs once per hook or when profileId changes
+export function useMyProfileId(): ProfileId | undefined {
+  return useAppSelector(selectCurrentUserProfileId);
+}
 
-  return useAppSelector((state) => selectProfileById(state, profileId));
+/**
+ * A custom hook to determine whether or not the provided profile is the
+ * current user's profile.
+ *
+ * @param profileId The ID of the profile to check.
+ * @returns Whether or not the given `profileID` matches the current user's
+ * profile ID.
+ */
+export function useIsMyProfile(profileId: ProfileId): boolean {
+  return useAppSelector(state => selectIsCurrentUserProfile(state, profileId));
 }
