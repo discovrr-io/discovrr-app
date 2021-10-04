@@ -118,7 +118,6 @@ export default function AuthGate() {
       <StatusBar
         animated
         barStyle={Platform.OS === 'android' ? 'light-content' : 'dark-content'}
-        backgroundColor={Platform.OS === 'android' ? 'transparent' : undefined}
       />
       {status === 'signing-out' && (
         <LoadingOverlay message="Signing you out.." />

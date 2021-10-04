@@ -32,7 +32,7 @@ import { resetAppState } from './globalActions';
 Parse.setAsyncStorage(AsyncStorage);
 Parse.User.enableUnsafeCurrentUser();
 
-if (__DEV__ && false) {
+if (__DEV__) {
   Parse.initialize('discovrr-dev-server');
   Parse.serverURL = 'http://192.168.0.4:1337/parse';
 } else {

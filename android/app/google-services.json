@@ -22,6 +22,14 @@
           }
         },
         {
+          "client_id": "930461821085-s01qpvr3vnobsl2c8o0smear47sm5i47.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.discovrr.discovrr_app",
+            "certificate_hash": "47dcb4e2ba09fcfb28350400f09bebd2911d746e"
+          }
+        },
+        {
           "client_id": "930461821085-pmo91isqq9jlvvhsteeoosm1n26ef3i4.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -51,20 +59,12 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:930461821085:android:5247a9e05e0c2e19678c74",
+        "mobilesdk_app_id": "1:930461821085:android:452b0fd6320e5775678c74",
         "android_client_info": {
           "package_name": "com.discovrr.discovrr_app.debug"
         }
       },
       "oauth_client": [
-        {
-          "client_id": "930461821085-rnhakta54viai154nkbouebuvl21c6k6.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.discovrr.discovrr_app.debug",
-            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
-          }
-        },
         {
           "client_id": "930461821085-pmo91isqq9jlvvhsteeoosm1n26ef3i4.apps.googleusercontent.com",
           "client_type": 3
@@ -109,78 +109,6 @@
             "certificate_hash": "287a887736ab7da85d60074a3d524c2cba9ffb5d"
           }
         },
-        {
-          "client_id": "930461821085-pmo91isqq9jlvvhsteeoosm1n26ef3i4.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyDarS3x-3izreKF10YPGj9FC-NJRjYyOEg"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "930461821085-pmo91isqq9jlvvhsteeoosm1n26ef3i4.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "930461821085-39jf9mthqtme4enmpr22bu9118ecm104.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.discovrr.debug"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:930461821085:android:4f901d5696bd05f4678c74",
-        "android_client_info": {
-          "package_name": "com.discovrr.discovrr_plus"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "930461821085-pmo91isqq9jlvvhsteeoosm1n26ef3i4.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyDarS3x-3izreKF10YPGj9FC-NJRjYyOEg"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "930461821085-pmo91isqq9jlvvhsteeoosm1n26ef3i4.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "930461821085-39jf9mthqtme4enmpr22bu9118ecm104.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.discovrr.debug"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:930461821085:android:e08b6ab85d0511dd678c74",
-        "android_client_info": {
-          "package_name": "com.discovrr.discovrr_plus.debug"
-        }
-      },
-      "oauth_client": [
         {
           "client_id": "930461821085-pmo91isqq9jlvvhsteeoosm1n26ef3i4.apps.googleusercontent.com",
           "client_type": 3
