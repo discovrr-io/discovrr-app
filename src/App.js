@@ -28,8 +28,8 @@ if (__DEV__ && false) {
   Parse.serverURL = 'http://192.168.0.4:1337/parse';
 } else {
   Parse.initialize('discovrr-server');
-  Parse.serverURL = 'https://api.discovrrio.com/parse'; // production
-  // Parse.serverURL = 'https://api.discovrrio.com/discovrrServer'; // production
+  // Parse.serverURL = 'https://api.discovrrio.com/parse'; // production
+  Parse.serverURL = 'https://discovrr-uat.herokuapp.com/parse'; // temporary
 }
 
 global.debugAppLogger = () => {};
