@@ -7,5 +7,5 @@ export const DEFAULT_MIN_BOTTOM_TAB_BAR_HEIGHT = 55;
 
 export const DEFAULT_ICON_LIKE_ANIMATION = 'tada';
 
-export const APP_VERSION = `${getVersion()}.1`;
-export const APP_BUILD = '2021.10.05.01';
+export const APP_VERSION = `${getVersion()}.2`;
+export const APP_BUILD = '2021.10.06.01';

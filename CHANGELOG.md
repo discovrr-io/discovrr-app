@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+## [v2.3.0.2] (2021-10-06)
+
+### Changed
+
+- Implement Near Me tab (WIP)
+- Change Feed bottom tab icon
+- Bug fixes
+
 ## [v2.3.0.1] (2021-10-05)
 
 ### Changed
@@ -17,7 +25,8 @@
   - Discover tab (previously Home tab)
   - Notifications tab (previously in drawer)
 
-[unreleased]: https://github.com/discovrr-io/discovrr-app/compare/v2.3.0.1...HEAD
+[unreleased]: https://github.com/discovrr-io/discovrr-app/compare/v2.3.0.2...HEAD
+[v2.3.0.2]: https://github.com/discovrr-io/discovrr-app/releases/tag/v2.3.0.2
 [v2.3.0.1]: https://github.com/discovrr-io/discovrr-app/releases/tag/v2.3.0.1
 
 <!-- ## [2021.09.18.00] - 2021-19-01
