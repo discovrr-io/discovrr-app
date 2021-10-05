@@ -28,6 +28,7 @@ import { LoadingContainer } from './components';
 import { color } from './constants';
 import { useAppDispatch } from './hooks';
 import { resetAppState } from './globalActions';
+// import { signOut } from './features/authentication/authSlice';
 
 Parse.setAsyncStorage(AsyncStorage);
 Parse.User.enableUnsafeCurrentUser();
@@ -99,10 +100,10 @@ function PersistedApp() {
         AsyncStorage.setItem('storeVersion', currVersion);
         console.log($FUNC, 'Purging store...');
         persistor.pause();
-        // await persistor.flush();
-        // await persistor.purge();
-        // Custom purging - purges every store except authentication
+        // Custom purging - purges everything in the store except authentication
         dispatch(resetAppState());
+        // Uncomment the following line if the user should be logged out
+        // await dispatch(signOut()).unwrap();
       }
     } catch (error) {
       console.error($FUNC, 'Failed to configure persistor', error);

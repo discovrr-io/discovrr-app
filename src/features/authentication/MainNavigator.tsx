@@ -95,21 +95,23 @@ function FacadeNavigator() {
           }
 
           let iconName: string;
+          let iconSize: number = size;
           switch (route.name) {
             case 'Home':
               iconName = focused ? 'home' : 'home-outline';
               break;
             case 'Feed':
-              iconName = focused ? 'compass' : 'compass-outline';
-              size *= 1.15;
+              iconName = focused ? 'chatbubbles' : 'chatbubbles-outline';
+              // iconName = focused ? 'compass' : 'compass-outline';
+              // iconSize *= 1.08;
               break;
             case '__Create':
               iconName = 'add';
-              size *= 1.25;
+              iconSize *= 1.25;
               break;
             case 'Notifications':
               iconName = focused ? 'notifications' : 'notifications-outline';
-              size *= 0.95;
+              iconSize *= 0.95;
               break;
             case '__MyProfile':
               iconName = focused ? 'person' : 'person-outline';
@@ -120,7 +122,7 @@ function FacadeNavigator() {
               break;
           }
 
-          return <Icon name={iconName} size={size} color={color} />;
+          return <Icon name={iconName} size={iconSize} color={color} />;
         },
         tabBarStyle: {
           backgroundColor: color.white,
@@ -146,7 +148,7 @@ function FacadeNavigator() {
             e.preventDefault();
             navigation.getParent<RootStackNavigationProp>().navigate('Create', {
               screen: 'CreateItemDetails',
-              params: { screen: 'Text' },
+              params: { screen: 'CreateText' },
             });
           },
         })}

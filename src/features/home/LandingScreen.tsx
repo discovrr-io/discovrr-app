@@ -5,13 +5,13 @@ import {
   HomeStackScreenProps,
 } from 'src/navigation';
 
-type MastheadScreenProps = HomeStackScreenProps<'Masthead'>;
+type MastheadScreenProps = HomeStackScreenProps<'Landing'>;
 
-export default function MastheadScreen(props: MastheadScreenProps) {
+export default function LandingScreen(props: MastheadScreenProps) {
   const handleNavigateToFeed = () => {
     props.navigation
       .getParent<FacadeBottomTabNavigationProp>()
-      .navigate('Feed', { screen: 'Discover' });
+      .navigate('Feed', { screen: 'DiscoverFeed' });
   };
 
   return (

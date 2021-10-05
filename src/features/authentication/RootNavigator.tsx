@@ -87,7 +87,7 @@ export default function RootNavigator() {
           });
           await dispatch(action).unwrap();
         } catch (error) {
-          console.error($FUNC, 'Failed to register FCM token:', error);
+          console.warn($FUNC, 'Failed to register FCM token:', error);
         }
       })();
   }, [dispatch, didRegisterFCMToken, myProfileId]);

@@ -45,10 +45,10 @@ const textPostSchema = yup.object({
     }),
 });
 
-type TextPostScreenProps = CreateItemDetailsTopTabScreenProps<'Text'>;
+type CreateTextScreenProps = CreateItemDetailsTopTabScreenProps<'CreateText'>;
 
-export default function TextPostScreen(props: TextPostScreenProps) {
-  const $FUNC = '[TextPostScreen]';
+export default function CreateTextScreen(props: CreateTextScreenProps) {
+  const $FUNC = '[CreateTextScreen]';
   const dispatch = useAppDispatch();
   const { navigation } = props;
 
@@ -99,7 +99,7 @@ export default function TextPostScreen(props: TextPostScreenProps) {
             initialValues={{ text: '' } as TextPostForm}
             validationSchema={textPostSchema}
             onSubmit={handleCreatePost}>
-            <TextPostFormikForm />
+            <NewTextPostFormikForm />
           </Formik>
         </KeyboardAvoidingView>
       </TouchableWithoutFeedback>
@@ -107,8 +107,8 @@ export default function TextPostScreen(props: TextPostScreenProps) {
   );
 }
 
-function TextPostFormikForm() {
-  const navigation = useNavigation<TextPostScreenProps['navigation']>();
+function NewTextPostFormikForm() {
+  const navigation = useNavigation<CreateTextScreenProps['navigation']>();
   const {
     dirty,
     isSubmitting,

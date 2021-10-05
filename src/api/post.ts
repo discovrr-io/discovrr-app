@@ -46,7 +46,7 @@ export namespace PostApi {
       id: result.id as PostId,
       profileId: result.get('owner')?.id,
       contents: postContents,
-      createdAt: result.createdAt.toJSON(),
+      createdAt: result.createdAt.toISOString(),
       location: result.get('location'),
       statistics: {
         didLike,

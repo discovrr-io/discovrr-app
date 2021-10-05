@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Alert, RefreshControl, Text, View } from 'react-native';
 
-import { EmptyContainer, PostMasonryList } from 'src/components';
+import {
+  EmptyContainer,
+  LoadingContainer,
+  PostMasonryList,
+} from 'src/components';
 import { color, font, layout } from 'src/constants';
 import { SOMETHING_WENT_WRONG } from 'src/constants/strings';
 import { fetchAllPosts, selectPostIds } from 'src/features/posts/postsSlice';
@@ -19,13 +23,14 @@ export default function DiscoverFeed() {
   const postIds = useAppSelector(selectPostIds) as PostId[];
   const isMounted = useIsMounted();
 
-  const [shouldRefresh, setShouldRefresh] = useState(true);
+  const [isInitialRender, setIsInitialRender] = useState(true);
+  const [shouldRefresh, setShouldRefresh] = useState(false);
   const [_shouldFetchMore, _setShouldFetchMore] = useState(false);
   const [_currentPage, setCurrentPage] = useState(0);
   const [_didReachEnd, setDidReachEnd] = useState(false);
 
   useEffect(() => {
-    if (shouldRefresh)
+    if (isInitialRender || shouldRefresh)
       (async () => {
         try {
           setCurrentPage(0);
@@ -57,10 +62,13 @@ export default function DiscoverFeed() {
           );
         } finally {
           console.log($FUNC, 'Finished refreshing posts');
-          if (isMounted.current) setShouldRefresh(false);
+          if (isMounted.current) {
+            if (isInitialRender) setIsInitialRender(false);
+            if (shouldRefresh) setShouldRefresh(false);
+          }
         }
       })();
-  }, [dispatch, isMounted, shouldRefresh]);
+  }, [dispatch, isMounted, isInitialRender, shouldRefresh]);
 
   const handleRefresh = () => {
     if (!shouldRefresh) setShouldRefresh(true);
@@ -75,12 +83,16 @@ export default function DiscoverFeed() {
           title="Loading your personalised feed..."
           tintColor={color.gray500}
           titleColor={color.gray700}
-          refreshing={shouldRefresh}
+          refreshing={!isInitialRender && shouldRefresh}
           onRefresh={handleRefresh}
         />
       }
       ListEmptyComponent={
-        <EmptyContainer message="No one has posted anything yet. Be the first one!" />
+        isInitialRender ? (
+          <LoadingContainer message="Loading your personalised feed..." />
+        ) : (
+          <EmptyContainer message="No one has posted anything yet. Be the first one!" />
+        )
       }
       ListFooterComponent={
         postIds.length > 0 ? (

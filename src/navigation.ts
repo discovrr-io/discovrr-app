@@ -131,13 +131,13 @@ export type FacadeBottomTabScreenProps<
 //#region HOME STACK
 
 export type HomeStackParamList = {
-  Masthead: undefined;
+  Landing: undefined;
   Filter: undefined;
 };
 
 export type HomeStackNavigationProp = StackNavigationProp<
   HomeStackParamList,
-  'Masthead'
+  'Landing'
 >;
 
 export type HomeStackScreenProps<K extends keyof HomeStackParamList> =
@@ -186,15 +186,15 @@ export type CreateItemStackScreenProps<
 //#region CREATE ITEM DETAILS TOP TAB
 
 export type CreateItemDetailsTopTabParamList = {
-  Text: undefined;
-  Gallery: undefined;
-  Video: undefined;
-  // Product: undefined;
-  // Workshop: undefined;
+  CreateText: undefined;
+  CreateGallery: undefined;
+  CreateVideo: undefined;
+  // CreateProduct: undefined;
+  // CreateWorkshop: undefined;
 };
 
 export type CreateItemDetailsTopTabNavigationProp =
-  MaterialTopTabNavigationProp<CreateItemDetailsTopTabParamList, 'Text'>;
+  MaterialTopTabNavigationProp<CreateItemDetailsTopTabParamList, 'CreateText'>;
 
 export type CreateItemDetailsTopTabScreenProps<
   K extends keyof CreateItemDetailsTopTabParamList,
@@ -293,7 +293,7 @@ Root = Stack {
   Main = Drawer {
     Facade = BottomTab {
       Home = Stack {
-        Masthead
+        Landing
         Filter
       }
       Feed = TopTab {
@@ -308,11 +308,11 @@ Root = Stack {
   }
   Create = Stack {
     CreateDetails = TopTab {
-      Text
-      Gallery
-      Video
-      // Product
-      // Workshop
+      CreateText
+      CreateGallery
+      CreateVideo
+      // CreateProduct
+      // CreateWorkshop
     }
     CreatePreview
   }

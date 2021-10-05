@@ -3,7 +3,7 @@ import React from 'react';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 
-import TextPostScreen from './TextPostScreen';
+import CreateTextScreen from './CreateTextScreen';
 import { HeaderIcon, PlaceholderScreen } from 'src/components';
 import { color, font, layout } from 'src/constants';
 
@@ -19,7 +19,7 @@ const CreateItemDetailsTopTab =
 function CreateItemDetailsNavigator() {
   return (
     <CreateItemDetailsTopTab.Navigator
-      initialRouteName="Text"
+      initialRouteName="CreateText"
       tabBarPosition="bottom"
       screenOptions={{
         tabBarLabelStyle: {
@@ -28,14 +28,20 @@ function CreateItemDetailsNavigator() {
           fontSize: font.size.md,
         },
       }}>
-      <CreateItemDetailsTopTab.Screen name="Text" component={TextPostScreen} />
       <CreateItemDetailsTopTab.Screen
-        name="Gallery"
-        component={PlaceholderScreen}
+        name="CreateText"
+        component={CreateTextScreen}
+        options={{ title: 'Text' }}
       />
       <CreateItemDetailsTopTab.Screen
-        name="Video"
+        name="CreateGallery"
         component={PlaceholderScreen}
+        options={{ title: 'Gallery' }}
+      />
+      <CreateItemDetailsTopTab.Screen
+        name="CreateVideo"
+        component={PlaceholderScreen}
+        options={{ title: 'Video' }}
       />
     </CreateItemDetailsTopTab.Navigator>
   );

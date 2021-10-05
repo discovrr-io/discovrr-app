@@ -37,7 +37,7 @@ export namespace CommentApi {
       id: result.id as CommentId,
       postId: result.get('post').id,
       profileId: owner.id as ProfileId,
-      createdAt: result.createdAt.toJSON(),
+      createdAt: result.createdAt.toISOString(),
       message: result.get('message'),
       statistics: {
         didLike,

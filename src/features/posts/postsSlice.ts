@@ -141,6 +141,7 @@ const postsSlice = createSlice({
   },
   extraReducers: builder => {
     builder
+      // -- resetAppState --
       .addCase(resetAppState, state => {
         console.log('Purging posts...');
         Object.assign(state, initialState);
