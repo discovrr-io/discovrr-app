@@ -32,7 +32,7 @@ import { resetAppState } from './globalActions';
 Parse.setAsyncStorage(AsyncStorage);
 Parse.User.enableUnsafeCurrentUser();
 
-if (__DEV__) {
+if (__DEV__ && false) {
   Parse.initialize('discovrr-dev-server');
   Parse.serverURL = 'http://192.168.0.4:1337/parse';
 } else {
@@ -52,7 +52,7 @@ const navigationTheme: Theme = {
   },
 };
 
-function createVersionNumber(
+function createVersionString(
   version: readonly [number, number, number, number],
 ): string {
   const [major, minor, patch, build] = version;
@@ -89,7 +89,7 @@ function PersistedApp() {
   const handleBeforeLift = async () => {
     try {
       // Store version 2.3.0.0 (2030000)
-      const currVersion = createVersionNumber([2, 3, 0, 1]);
+      const currVersion = createVersionString([2, 3, 0, 0]);
       console.log($FUNC, 'Current store version:', currVersion);
 
       const [[_, prevVersion]] = await AsyncStorage.multiGet(['storeVersion']);

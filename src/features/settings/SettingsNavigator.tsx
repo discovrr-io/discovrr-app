@@ -1,10 +1,9 @@
 import React from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { getVersion } from 'react-native-device-info';
-
 import { color, font, layout } from 'src/constants';
 import { Spacer } from 'src/components';
+import { APP_VERSION } from 'src/constants/values';
 import { RootStack, SettingsStackScreenProps } from 'src/navigation';
 
 import Cell from './components';
@@ -66,9 +65,9 @@ function MainSettingsScreenFooter() {
     <View style={footerStyles.container}>
       <Text style={[font.small, footerStyles.text]}>
         <Text style={[font.smallBold, footerStyles.text]}>
-          Discovrr {getVersion()}
+          Discovrr {APP_VERSION}
         </Text>{' '}
-        (Build 2021.09.12.01)
+        (Build 2021.10.05.01)
       </Text>
     </View>
   );

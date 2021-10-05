@@ -109,7 +109,9 @@ export type MainDrawerScreenProps<K extends keyof MainDrawerParamList> =
 //#region FACADE BOTTOM TAB
 
 export type FacadeBottomTabParamList = {
+  Home: NavigatorScreenParams<HomeStackParamList>;
   Feed: NavigatorScreenParams<FeedTopTabParamList>;
+  Notifications: undefined;
   // -- Placeholder Tabs --
   __Create: undefined;
   __MyProfile: ProfileStackParamList['ProfileDetails'];
@@ -117,7 +119,7 @@ export type FacadeBottomTabParamList = {
 
 export type FacadeBottomTabNavigationProp = BottomTabNavigationProp<
   FacadeBottomTabParamList,
-  'Feed'
+  'Home'
 >;
 
 export type FacadeBottomTabScreenProps<
@@ -126,19 +128,36 @@ export type FacadeBottomTabScreenProps<
 
 //#endregion
 
+//#region HOME STACK
+
+export type HomeStackParamList = {
+  Masthead: undefined;
+  Filter: undefined;
+};
+
+export type HomeStackNavigationProp = StackNavigationProp<
+  HomeStackParamList,
+  'Masthead'
+>;
+
+export type HomeStackScreenProps<K extends keyof HomeStackParamList> =
+  StackScreenProps<HomeStackParamList, K>;
+
+//#endregion HOME STACK
+
 //#region FEED TOP TAB
 
 export type FeedTopTabParamList = {
-  Discover: undefined;
-  NearMe:
+  DiscoverFeed: undefined;
+  NearMeFeed:
     | { latitude: number; longitude: number; searchRadius?: number }
     | undefined;
-  Following: undefined;
+  FollowingFeed: undefined;
 };
 
 export type FeedTopTabNavigationProp = MaterialTopTabNavigationProp<
   FeedTopTabParamList,
-  'Discover'
+  'DiscoverFeed'
 >;
 
 export type FeedTopTabScreenProps<K extends keyof FeedTopTabParamList> =
@@ -273,11 +292,16 @@ AuthStack = Stack {
 Root = Stack {
   Main = Drawer {
     Facade = BottomTab {
+      Home = Stack {
+        Masthead
+        Filter
+      }
       Feed = TopTab {
         Discover
         NearMe
         Following
       }
+      Notifications
       __Create
       __MyProfile
     }
@@ -312,7 +336,6 @@ Root = Stack {
     EditProduct
   }
   // -- Drawer Navigators --
-  Notifications
   MyShopping
   Saved
   (Settings) = Group {

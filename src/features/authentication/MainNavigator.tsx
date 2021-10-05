@@ -7,6 +7,7 @@ import { BottomTabHeaderProps } from '@react-navigation/bottom-tabs/lib/typescri
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { getDefaultHeaderHeight } from '@react-navigation/elements';
 
+import HomeNavigator from 'src/features/home/HomeNavigator';
 import FeedNavigator from 'src/features/feed/FeedNavigator';
 import ProfileScreenWrapper from 'src/features/profiles/ProfileScreen';
 
@@ -64,11 +65,12 @@ function FeedHeader(props: BottomTabHeaderProps) {
 }
 
 function FacadeNavigator() {
+  const $FUNC = '[FacadeNavigator]';
   const myProfileId = useMyProfileId();
 
   return (
     <FacadeBottomTab.Navigator
-      initialRouteName="Feed"
+      initialRouteName="Home"
       screenOptions={({ route }) => ({
         lazy: true,
         headerBackTitleVisible: false,
@@ -88,21 +90,33 @@ function FacadeNavigator() {
         tabBarShowLabel: false,
         tabBarHideOnKeyboard: Platform.OS === 'android',
         tabBarIcon: ({ focused, color, size }) => {
+          if (Platform.OS === 'ios' && route.name === 'Home') {
+            return <DiscovrrIcon size={size * 0.9} color={color} />;
+          }
+
           let iconName: string;
           switch (route.name) {
+            case 'Home':
+              iconName = focused ? 'home' : 'home-outline';
+              break;
             case 'Feed':
-              // iconName = focused ? 'home' : 'home-outline';
-              // break;
-              return <DiscovrrIcon size={size} color={color} />;
+              iconName = focused ? 'chatbubbles' : 'chatbubbles-outline';
+              break;
             case '__Create':
               iconName = 'add';
               size *= 1.25;
+              break;
+            case 'Notifications':
+              iconName = focused ? 'notifications' : 'notifications-outline';
+              size *= 0.95;
               break;
             case '__MyProfile':
               iconName = focused ? 'person' : 'person-outline';
               break;
             default:
-              throw new Error(`Invalid route: '${route.name}'`);
+              console.warn($FUNC, `Invalid route '${route.name}'`);
+              iconName = 'help';
+              break;
           }
 
           return <Icon name={iconName} size={size} color={color} />;
@@ -112,6 +126,7 @@ function FacadeNavigator() {
           minHeight: DEFAULT_MIN_BOTTOM_TAB_BAR_HEIGHT,
         },
       })}>
+      <FacadeBottomTab.Screen name="Home" component={HomeNavigator} />
       <FacadeBottomTab.Screen
         name="Feed"
         component={FeedNavigator}
@@ -134,6 +149,10 @@ function FacadeNavigator() {
             });
           },
         })}
+      />
+      <FacadeBottomTab.Screen
+        name="Notifications"
+        component={PlaceholderScreen}
       />
       <FacadeBottomTab.Screen
         name="__MyProfile"

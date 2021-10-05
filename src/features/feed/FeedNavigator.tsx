@@ -1,12 +1,12 @@
 import React from 'react';
-
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
 import { color, font } from 'src/constants';
+import { PlaceholderScreen } from 'src/components';
 import { FeedTopTabParamList } from 'src/navigation';
 
 import DiscoverFeed from './DiscoverFeed';
-import NearMeFeed from './NearMeFeed';
+// import NearMeFeed from './NearMeFeed';
 import FollowingFeed from './FollowingFeed';
 
 const FeedTopTab = createMaterialTopTabNavigator<FeedTopTabParamList>();
@@ -14,7 +14,7 @@ const FeedTopTab = createMaterialTopTabNavigator<FeedTopTabParamList>();
 export default function FeedNavigator() {
   return (
     <FeedTopTab.Navigator
-      initialRouteName="Discover"
+      initialRouteName="DiscoverFeed"
       screenOptions={{
         lazy: true,
         tabBarStyle: { backgroundColor: color.white },
@@ -32,13 +32,22 @@ export default function FeedNavigator() {
         backgroundColor: color.gray100,
         // backgroundColor: color.white,
       }}>
-      <FeedTopTab.Screen name="Discover" component={DiscoverFeed} />
       <FeedTopTab.Screen
-        name="NearMe"
-        component={NearMeFeed}
+        name="DiscoverFeed"
+        component={DiscoverFeed}
+        options={{ title: 'Discover' }}
+      />
+      <FeedTopTab.Screen
+        name="NearMeFeed"
+        // component={NearMeFeed}
+        component={PlaceholderScreen}
         options={{ title: 'Near Me' }}
       />
-      <FeedTopTab.Screen name="Following" component={FollowingFeed} />
+      <FeedTopTab.Screen
+        name="FollowingFeed"
+        component={FollowingFeed}
+        options={{ title: 'Following' }}
+      />
     </FeedTopTab.Navigator>
   );
 }

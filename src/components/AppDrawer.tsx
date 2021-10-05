@@ -182,11 +182,11 @@ function AppDrawer(props: AppDrawerProps & { profileId: ProfileId }) {
 
       <Divider />
 
-      <AppDrawerItem
+      {/* <AppDrawerItem
         label="Notifications"
         iconName="notifications-outline"
         onPress={() => handleNavigation('Notifications')}
-      />
+      /> */}
       <AppDrawerItem
         label="My Shopping"
         iconName="cart-outline"

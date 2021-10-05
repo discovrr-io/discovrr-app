@@ -38,6 +38,7 @@ import { AuthApi } from 'src/api';
 import { Button, FormikInput, LoadingOverlay } from 'src/components';
 import { color, font, layout } from 'src/constants';
 import { SOMETHING_WENT_WRONG } from 'src/constants/strings';
+import { APP_VERSION } from 'src/constants/values';
 import { useAppDispatch, useIsMounted } from 'src/hooks';
 import { AuthStackNavigationProp } from 'src/navigation';
 
@@ -267,6 +268,13 @@ function LoginForm({ setFormType }: LoginFormProps) {
             containerStyle={formStyles.button}
             textStyle={{ textDecorationLine: 'underline' }}
           />
+          <Text
+            style={[
+              font.extraSmallBold,
+              { color: color.gray700, textAlign: 'center' },
+            ]}>
+            Discovrr {APP_VERSION}
+          </Text>
         </>
       )}
     </Formik>
@@ -639,7 +647,7 @@ export default function AuthScreen() {
         contentContainerStyle={authScreenStyles.scrollView}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <KeyboardAvoidingView
-            behavior="padding"
+            behavior="position"
             keyboardVerticalOffset={-135}
             style={{ flexGrow: 1, justifyContent: 'center' }}>
             <View

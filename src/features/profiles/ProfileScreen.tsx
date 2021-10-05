@@ -7,6 +7,7 @@ import React, {
 } from 'react';
 import {
   Alert,
+  Platform,
   SafeAreaView,
   StyleSheet,
   TouchableOpacity,
@@ -114,7 +115,14 @@ function ProfileScreen(props: { profile: Profile }) {
           activeOpacity={DEFAULT_ACTIVE_OPACITY}
           onPress={() => actionBottomSheetRef.current?.expand()}
           style={{ marginRight: layout.defaultScreenMargins.horizontal }}>
-          <Icon name="ellipsis-horizontal" size={24} color={color.black} />
+          <Icon
+            name={Platform.select({
+              android: 'ellipsis-vertical',
+              default: 'ellipsis-horizontal',
+            })}
+            size={24}
+            color={color.black}
+          />
         </TouchableOpacity>
       ),
     });
