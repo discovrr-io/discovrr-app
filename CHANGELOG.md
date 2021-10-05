@@ -2,6 +2,24 @@
 
 ## [Unreleased]
 
+## [v2.3.0.1] (2021-10-05)
+
+### Changed
+
+- New user interface with a more modern design
+- Migrate project to TypeScript
+- Upgrade React Native dependencies
+
+### Added
+
+- New bottom bar tabs:
+  - Home tab (WIP)
+  - Discover tab (previously Home tab)
+  - Notifications tab (previously in drawer)
+
+[unreleased]: https://github.com/discovrr-io/discovrr-app/compare/v2.3.0.1...HEAD
+[v2.3.0.1]: https://github.com/discovrr-io/discovrr-app/releases/tag/v2.3.0.1
+
 <!-- ## [2021.09.18.00] - 2021-19-01
 
 ### Changed
