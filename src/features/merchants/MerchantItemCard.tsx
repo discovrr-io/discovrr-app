@@ -58,7 +58,7 @@ const MerchantItemCard = (props: MerchantItemCardProps) => {
       return (
         <View>
           <View>
-            <Card.Indicator iconName="pricetag" position="top-right" />
+            <Card.Indicator iconName="cart" position="top-right" />
             <FastImage
               resizeMode="contain"
               source={{ uri: merchant.coverPhoto?.url }}
@@ -76,7 +76,7 @@ const MerchantItemCard = (props: MerchantItemCardProps) => {
               paddingVertical: elementOptions.insetVertical,
             }}>
             <Text
-              numberOfLines={3}
+              numberOfLines={elementOptions.smallContent ? 2 : 4}
               style={[
                 elementOptions.captionTextStyle,
                 !merchant.biography && { fontStyle: 'italic' },

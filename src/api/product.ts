@@ -24,9 +24,10 @@ export namespace ProductApi {
     return {
       id: result.id as ProductId,
       merchantId: merchantId ?? result.get('owner').id,
-      name: result.get('productName'),
-      description: result.get('productProduct'),
-      price: result.get('productPrice'),
+      name: result.get('name') || result.get('productName'),
+      description:
+        result.get('description') || result.get('productDescription'),
+      price: result.get('price') || result.get('productPrice'),
       squareSpaceUrl: result.get('squareSpaceUrl'),
       imageUrl: result.get('imageUrl'),
       statistics: {

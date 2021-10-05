@@ -100,7 +100,7 @@ export function useAsyncItem<ItemId, Item, AsyncThunkReturned, AsyncThunkArg>(
           // NOTE: Native promises don't have cancellation, so we can't return a
           // cleanup function to abort this async action.
           await dispatch(fetchItemAction).unwrap();
-          console.log($FUNC, `Successfully fetched ${description}`);
+          // console.log($FUNC, `Successfully fetched ${description}`);
         } catch (error: any) {
           // "ConditionError" is thrown by redux-thunk when an action is
           // cancelled because it is already running. We'll ignore that error

@@ -112,14 +112,14 @@ const merchantsSlice = createSlice({
         Object.assign(state, initialState);
       })
       // -- fetchAllMerchants --
-      .addCase(fetchAllMerchants.pending, (state, action) => {
-        const { reload = false } = action.meta.arg ?? {};
-        for (const merchantId of Object.keys(state.statuses)) {
-          state.statuses[merchantId] = {
-            status: reload ? 'refreshing' : 'pending',
-          };
-        }
-      })
+      // .addCase(fetchAllMerchants.pending, (state, action) => {
+      //   const { reload = false } = action.meta.arg ?? {};
+      //   for (const merchantId of Object.keys(state.statuses)) {
+      //     state.statuses[merchantId] = {
+      //       status: reload ? 'refreshing' : 'pending',
+      //     };
+      //   }
+      // })
       .addCase(fetchAllMerchants.fulfilled, (state, action) => {
         const { reload = false } = action.meta.arg ?? {};
 
@@ -134,14 +134,14 @@ const merchantsSlice = createSlice({
           state.statuses[String(merchantId)] = { status: 'fulfilled' };
         }
       })
-      .addCase(fetchAllMerchants.rejected, (state, action) => {
-        for (const merchantId of Object.keys(state.statuses)) {
-          state.statuses[merchantId] = {
-            status: 'rejected',
-            error: action.error,
-          };
-        }
-      })
+      // .addCase(fetchAllMerchants.rejected, (state, action) => {
+      //   for (const merchantId of Object.keys(state.statuses)) {
+      //     state.statuses[merchantId] = {
+      //       status: 'rejected',
+      //       error: action.error,
+      //     };
+      //   }
+      // })
       // -- fetchMerchantById --
       .addCase(fetchMerchantById.pending, (state, action) => {
         const { merchantId, reload } = action.meta.arg;

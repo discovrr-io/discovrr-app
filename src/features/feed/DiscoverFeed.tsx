@@ -1,18 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, RefreshControl, Text, View } from 'react-native';
+import { Alert, RefreshControl } from 'react-native';
 
-import {
-  EmptyContainer,
-  LoadingContainer,
-  PostMasonryList,
-} from 'src/components';
-import { color, font, layout } from 'src/constants';
+import { color } from 'src/constants';
 import { SOMETHING_WENT_WRONG } from 'src/constants/strings';
 import { fetchAllPosts, selectPostIds } from 'src/features/posts/postsSlice';
 import { fetchProfileById } from 'src/features/profiles/profilesSlice';
 import { useAppDispatch, useAppSelector, useIsMounted } from 'src/hooks';
 import { PostId } from 'src/models';
 import { Pagination } from 'src/models/common';
+
+import {
+  EmptyContainer,
+  LoadingContainer,
+  PostMasonryList,
+} from 'src/components';
+
+import FeedFooter from './FeedFooter';
 
 const PAGINATION_LIMIT = 25;
 
@@ -80,13 +83,15 @@ export default function DiscoverFeed() {
       smallContent
       postIds={postIds}
       refreshControl={
-        <RefreshControl
-          title="Loading your personalised feed..."
-          tintColor={color.gray500}
-          titleColor={color.gray700}
-          refreshing={!isInitialRender && shouldRefresh}
-          onRefresh={handleRefresh}
-        />
+        !isInitialRender ? (
+          <RefreshControl
+            title="Loading your personalised feed..."
+            tintColor={color.gray500}
+            titleColor={color.gray700}
+            refreshing={!isInitialRender && shouldRefresh}
+            onRefresh={handleRefresh}
+          />
+        ) : undefined
       }
       ListEmptyComponent={
         isInitialRender ? (
@@ -96,13 +101,7 @@ export default function DiscoverFeed() {
         )
       }
       ListFooterComponent={
-        postIds.length > 0 ? (
-          <View style={{ paddingVertical: layout.spacing.lg }}>
-            <Text style={[font.largeBold, { textAlign: 'center' }]}>
-              You&apos;re all caught up! 😎
-            </Text>
-          </View>
-        ) : null
+        postIds.length > 0 ? <FeedFooter didReachEnd /> : null
       }
     />
   );

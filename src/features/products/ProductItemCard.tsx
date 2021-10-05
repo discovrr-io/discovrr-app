@@ -50,9 +50,9 @@ const ProductItemCard = (props: ProductItemCardProps) => {
         {elementOptions => (
           <View>
             <View>
-              <Card.Indicator iconName="basket" position="top-right" />
+              <Card.Indicator iconName="pricetags" position="top-right" />
               <FastImage
-                resizeMode="contain"
+                resizeMode="cover"
                 source={{ uri: product.imageUrl }}
                 style={{
                   width: '100%',

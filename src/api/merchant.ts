@@ -151,8 +151,10 @@ export namespace MerchantApi {
       profileId: result.get('profileId'),
       avatar: result.get('avatar'),
       coverPhoto: result.get('coverPhoto'),
-      description: result.get('description'),
-      biography: result.get('biography') || result.get('description'),
+      biography:
+        result.get('biography') ||
+        result.get('description') ||
+        result.get('about'),
       coordinates: merchantCoordinates,
       address: {
         addressLine1: result.get('addressLine1'),

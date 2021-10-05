@@ -143,14 +143,14 @@ const profilesSlice = createSlice({
         Object.assign(state, initialState);
       })
       // -- fetchAllProfiles --
-      .addCase(fetchAllProfiles.pending, (state, action) => {
-        const { reload = false } = action.meta.arg ?? {};
-        for (const profileId of Object.keys(state.statuses)) {
-          state.statuses[profileId] = {
-            status: reload ? 'refreshing' : 'pending',
-          };
-        }
-      })
+      // .addCase(fetchAllProfiles.pending, (state, action) => {
+      //   const { reload = false } = action.meta.arg ?? {};
+      //   for (const profileId of Object.keys(state.statuses)) {
+      //     state.statuses[profileId] = {
+      //       status: reload ? 'refreshing' : 'pending',
+      //     };
+      //   }
+      // })
       .addCase(fetchAllProfiles.fulfilled, (state, action) => {
         const { reload = false } = action.meta.arg ?? {};
 
@@ -165,14 +165,14 @@ const profilesSlice = createSlice({
           state.statuses[String(profileId)] = { status: 'fulfilled' };
         }
       })
-      .addCase(fetchAllProfiles.rejected, (state, action) => {
-        for (const profileId of Object.keys(state.statuses)) {
-          state.statuses[profileId] = {
-            status: 'rejected',
-            error: action.error,
-          };
-        }
-      })
+      // .addCase(fetchAllProfiles.rejected, (state, action) => {
+      //   for (const profileId of Object.keys(state.statuses)) {
+      //     state.statuses[profileId] = {
+      //       status: 'rejected',
+      //       error: action.error,
+      //     };
+      //   }
+      // })
       // -- fetchProfileById --
       .addCase(fetchProfileById.pending, (state, action) => {
         const { profileId, reload = false } = action.meta.arg;

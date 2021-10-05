@@ -22,8 +22,6 @@ export default interface Merchant {
   readonly profileId?: ProfileId;
   readonly avatar?: MediaSource;
   readonly coverPhoto?: MediaSource;
-  /** @deprecated Use `biography` instead */
-  readonly description?: string;
   readonly biography?: string;
   readonly coordinates?: Coordinates;
   readonly address?: MerchantAddress;

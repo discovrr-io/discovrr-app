@@ -16,9 +16,9 @@ export default function LandingScreen(props: MastheadScreenProps) {
 
   return (
     <InfoContainer
-      emoji="🎁"
-      title="No peeking!"
-      message="We're in the middle of curating a whole new experience for you. In the meantime, why not check out what everyone else is up to?"
+      emoji="🙉"
+      title="Did you hear?"
+      message="We're in the middle of curating a whole new experience for you! In the meantime, why not check out what everyone else is up to?"
       actionTitle="Show Me"
       actionButtonType="primary"
       actionOnPress={handleNavigateToFeed}
