@@ -8,6 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		00E356F31AD99517003FC87E /* DiscovrrTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* DiscovrrTests.m */; };
+		038B7570270C108F009254F9 /* Rubik-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A89AF5D403EB4EE99C8FE135 /* Rubik-Bold.ttf */; };
+		038B7571270C108F009254F9 /* Rubik-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 55A5083853CC448D9C114EBB /* Rubik-Italic.ttf */; };
+		038B7572270C108F009254F9 /* Rubik-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 940759826B744C8B9A60048C /* Rubik-Medium.ttf */; };
+		038B7573270C108F009254F9 /* Rubik-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D884BA1806B441D6938CB325 /* Rubik-Regular.ttf */; };
 		039EAA60262DCEE80088184B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 039EAA5F262DCEE80088184B /* LaunchScreen.storyboard */; };
 		03D0FE0C2665B9BE00AD22DE /* Info-release.plist in Resources */ = {isa = PBXBuildFile; fileRef = 03D0FE0B2665B9BE00AD22DE /* Info-release.plist */; };
 		03DC1AE2262DDCF900A0D5C5 /* Discovrr.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03DC1AE1262DDCF900A0D5C5 /* Discovrr.swift */; };
@@ -59,22 +63,6 @@
 		00E356EE1AD99517003FC87E /* DiscovrrTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DiscovrrTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* DiscovrrTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DiscovrrTests.m; sourceTree = "<group>"; };
-		035DC83D262E938500AAEDBC /* Fontisto.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Fontisto.ttf; sourceTree = "<group>"; };
-		035DC83E262E938500AAEDBC /* Octicons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Octicons.ttf; sourceTree = "<group>"; };
-		035DC83F262E938500AAEDBC /* Feather.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Feather.ttf; sourceTree = "<group>"; };
-		035DC840262E938500AAEDBC /* Entypo.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Entypo.ttf; sourceTree = "<group>"; };
-		035DC841262E938500AAEDBC /* FontAwesome5_Brands.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = FontAwesome5_Brands.ttf; sourceTree = "<group>"; };
-		035DC842262E938500AAEDBC /* MaterialCommunityIcons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = MaterialCommunityIcons.ttf; sourceTree = "<group>"; };
-		035DC843262E938500AAEDBC /* AntDesign.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = AntDesign.ttf; sourceTree = "<group>"; };
-		035DC844262E938500AAEDBC /* Foundation.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Foundation.ttf; sourceTree = "<group>"; };
-		035DC845262E938500AAEDBC /* Ionicons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Ionicons.ttf; sourceTree = "<group>"; };
-		035DC846262E938500AAEDBC /* FontAwesome5_Solid.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = FontAwesome5_Solid.ttf; sourceTree = "<group>"; };
-		035DC847262E938500AAEDBC /* FontAwesome5_Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = FontAwesome5_Regular.ttf; sourceTree = "<group>"; };
-		035DC848262E938500AAEDBC /* FontAwesome.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = FontAwesome.ttf; sourceTree = "<group>"; };
-		035DC849262E938500AAEDBC /* Zocial.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Zocial.ttf; sourceTree = "<group>"; };
-		035DC84A262E938500AAEDBC /* EvilIcons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = EvilIcons.ttf; sourceTree = "<group>"; };
-		035DC84B262E938500AAEDBC /* SimpleLineIcons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = SimpleLineIcons.ttf; sourceTree = "<group>"; };
-		035DC84C262E938500AAEDBC /* MaterialIcons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = MaterialIcons.ttf; sourceTree = "<group>"; };
 		038584352665EA38005DECD2 /* Discovrr.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; name = Discovrr.entitlements; path = Discovrr/Discovrr.entitlements; sourceTree = "<group>"; };
 		039EAA5F262DCEE80088184B /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		03D0FE0B2665B9BE00AD22DE /* Info-release.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "Info-release.plist"; path = "Discovrr/Info-release.plist"; sourceTree = "<group>"; };
@@ -98,8 +86,15 @@
 		1C5C06E0FFD78F1455E2A672 /* libPods-Discovrr-DiscovrrTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Discovrr-DiscovrrTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1DEFB0483F7BCB30B6BAA12D /* libPods-Discovrr.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Discovrr.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		25E30185216EE2F23A6F2CBA /* Pods-Discovrr.staging.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Discovrr.staging.xcconfig"; path = "Target Support Files/Pods-Discovrr/Pods-Discovrr.staging.xcconfig"; sourceTree = "<group>"; };
+		44B9A8AFB24247519B7FF1F3 /* MaterialCommunityIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = MaterialCommunityIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf"; sourceTree = "<group>"; };
+		55A5083853CC448D9C114EBB /* Rubik-Italic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-Italic.ttf"; path = "../assets/fonts/Rubik-Italic.ttf"; sourceTree = "<group>"; };
+		940759826B744C8B9A60048C /* Rubik-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-Medium.ttf"; path = "../assets/fonts/Rubik-Medium.ttf"; sourceTree = "<group>"; };
+		A89AF5D403EB4EE99C8FE135 /* Rubik-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-Bold.ttf"; path = "../assets/fonts/Rubik-Bold.ttf"; sourceTree = "<group>"; };
 		AFAA6F5BC1342DBCE5924A88 /* libPods-OneSignalNotificationServiceExtension.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-OneSignalNotificationServiceExtension.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B402E75D12184583A6F1494C /* Ionicons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Ionicons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Ionicons.ttf"; sourceTree = "<group>"; };
 		BCBFF7C25E6B59310E3A8066 /* Pods-OneSignalNotificationServiceExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OneSignalNotificationServiceExtension.debug.xcconfig"; path = "Target Support Files/Pods-OneSignalNotificationServiceExtension/Pods-OneSignalNotificationServiceExtension.debug.xcconfig"; sourceTree = "<group>"; };
+		D884BA1806B441D6938CB325 /* Rubik-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-Regular.ttf"; path = "../assets/fonts/Rubik-Regular.ttf"; sourceTree = "<group>"; };
+		D8CDED8E30D54BD9AE648079 /* MaterialIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = MaterialIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/MaterialIcons.ttf"; sourceTree = "<group>"; };
 		DF95F2E265D50C6E5EDC5F4B /* Pods-Discovrr-DiscovrrTests.staging.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Discovrr-DiscovrrTests.staging.xcconfig"; path = "Target Support Files/Pods-Discovrr-DiscovrrTests/Pods-Discovrr-DiscovrrTests.staging.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		ED2971642150620600B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS12.0.sdk/System/Library/Frameworks/JavaScriptCore.framework; sourceTree = DEVELOPER_DIR; };
@@ -136,6 +131,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0086AC63C35A48299C56A9E5 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				A89AF5D403EB4EE99C8FE135 /* Rubik-Bold.ttf */,
+				55A5083853CC448D9C114EBB /* Rubik-Italic.ttf */,
+				940759826B744C8B9A60048C /* Rubik-Medium.ttf */,
+				D884BA1806B441D6938CB325 /* Rubik-Regular.ttf */,
+				B402E75D12184583A6F1494C /* Ionicons.ttf */,
+				D8CDED8E30D54BD9AE648079 /* MaterialIcons.ttf */,
+				44B9A8AFB24247519B7FF1F3 /* MaterialCommunityIcons.ttf */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
 		00E356EF1AD99517003FC87E /* DiscovrrTests */ = {
 			isa = PBXGroup;
 			children = (
@@ -151,30 +160,6 @@
 				00E356F11AD99517003FC87E /* Info.plist */,
 			);
 			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		035DC83C262E938500AAEDBC /* Fonts */ = {
-			isa = PBXGroup;
-			children = (
-				035DC83D262E938500AAEDBC /* Fontisto.ttf */,
-				035DC83E262E938500AAEDBC /* Octicons.ttf */,
-				035DC83F262E938500AAEDBC /* Feather.ttf */,
-				035DC840262E938500AAEDBC /* Entypo.ttf */,
-				035DC841262E938500AAEDBC /* FontAwesome5_Brands.ttf */,
-				035DC842262E938500AAEDBC /* MaterialCommunityIcons.ttf */,
-				035DC843262E938500AAEDBC /* AntDesign.ttf */,
-				035DC844262E938500AAEDBC /* Foundation.ttf */,
-				035DC845262E938500AAEDBC /* Ionicons.ttf */,
-				035DC846262E938500AAEDBC /* FontAwesome5_Solid.ttf */,
-				035DC847262E938500AAEDBC /* FontAwesome5_Regular.ttf */,
-				035DC848262E938500AAEDBC /* FontAwesome.ttf */,
-				035DC849262E938500AAEDBC /* Zocial.ttf */,
-				035DC84A262E938500AAEDBC /* EvilIcons.ttf */,
-				035DC84B262E938500AAEDBC /* SimpleLineIcons.ttf */,
-				035DC84C262E938500AAEDBC /* MaterialIcons.ttf */,
-			);
-			name = Fonts;
-			path = "../node_modules/react-native-vector-icons/Fonts";
 			sourceTree = "<group>";
 		};
 		03DC1B03262DE70600A0D5C5 /* OneSignalNotificationServiceExtension */ = {
@@ -246,13 +231,13 @@
 			isa = PBXGroup;
 			children = (
 				13B07FAE1A68108700A75B9A /* Discovrr */,
-				035DC83C262E938500AAEDBC /* Fonts */,
 				03DC1B03262DE70600A0D5C5 /* OneSignalNotificationServiceExtension */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				00E356EF1AD99517003FC87E /* DiscovrrTests */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				350012BBEE1AF27A53CD8809 /* Pods */,
+				0086AC63C35A48299C56A9E5 /* Resources */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -407,6 +392,10 @@
 				039EAA60262DCEE80088184B /* LaunchScreen.storyboard in Resources */,
 				03ED367C26876304007B77D4 /* Info-staging.plist in Resources */,
 				03D0FE0C2665B9BE00AD22DE /* Info-release.plist in Resources */,
+				038B7570270C108F009254F9 /* Rubik-Bold.ttf in Resources */,
+				038B7571270C108F009254F9 /* Rubik-Italic.ttf in Resources */,
+				038B7572270C108F009254F9 /* Rubik-Medium.ttf in Resources */,
+				038B7573270C108F009254F9 /* Rubik-Regular.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -830,7 +819,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
 				LD_RUNPATH_SEARCH_PATHS = "/usr/lib/swift $(inherited)";
 				LIBRARY_SEARCH_PATHS = (
 					"\"$(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)\"",
@@ -859,7 +848,7 @@
 				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = K9APN5C6Z2;
 				INFOPLIST_FILE = "Discovrr/Info-staging.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MARKETING_VERSION = 2.2.0;
 				OTHER_LDFLAGS = (
@@ -917,7 +906,7 @@
 				DEVELOPMENT_TEAM = K9APN5C6Z2;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = OneSignalNotificationServiceExtension/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MARKETING_VERSION = 2.2.0;
 				MTL_FAST_MATH = YES;
@@ -948,7 +937,7 @@
 				DEVELOPMENT_TEAM = K9APN5C6Z2;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = OneSignalNotificationServiceExtension/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MARKETING_VERSION = 2.2.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
@@ -982,7 +971,7 @@
 				DEVELOPMENT_TEAM = K9APN5C6Z2;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = OneSignalNotificationServiceExtension/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MARKETING_VERSION = 2.2.0;
 				MTL_FAST_MATH = YES;
@@ -1010,7 +999,7 @@
 				DEVELOPMENT_TEAM = K9APN5C6Z2;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Discovrr/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MARKETING_VERSION = 2.2.0;
 				OTHER_LDFLAGS = (
@@ -1018,7 +1007,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.discovrr.debug;
+				PRODUCT_BUNDLE_IDENTIFIER = com.discovrr;
 				PRODUCT_NAME = "Discovrr Debug";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "Discovrr-Bridging-Header.h";
@@ -1042,7 +1031,7 @@
 				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = K9APN5C6Z2;
 				INFOPLIST_FILE = "Discovrr/Info-release.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MARKETING_VERSION = 2.2.0;
 				OTHER_LDFLAGS = (
@@ -1109,7 +1098,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
 				LD_RUNPATH_SEARCH_PATHS = "/usr/lib/swift $(inherited)";
 				LIBRARY_SEARCH_PATHS = (
 					"\"$(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)\"",
@@ -1166,7 +1155,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
 				LD_RUNPATH_SEARCH_PATHS = "/usr/lib/swift $(inherited)";
 				LIBRARY_SEARCH_PATHS = (
 					"\"$(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)\"",

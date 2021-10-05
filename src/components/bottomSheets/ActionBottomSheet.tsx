@@ -16,10 +16,7 @@ import { color, font, layout } from 'src/constants';
 import Button, { ButtonProps } from '../buttons/Button';
 
 const ICON_SIZE = 24;
-// const BOTTOM_SHEET_ITEM_HEIGHT = 42;
-// const BOTTOM_SHEET_KNOB_HEIGHT = 24;
-// const BOTTOM_SHEET_NO_ITEMS_HEIGHT = 98 - BOTTOM_SHEET_KNOB_HEIGHT;
-const BOTTOM_SHEET_ITEM_SPACING = layout.spacing.sm;
+const ITEM_SPACING = layout.spacing.sm;
 
 export type ActionBottomSheetItem = {
   label: string;
@@ -47,21 +44,6 @@ const ActionBottomSheet = React.forwardRef<BottomSheet, ActionBottomSheetProps>(
       footerButtonOnPress,
       onSelectItem,
     } = props;
-
-    // NOTE: Dynamically resizing the bottom sheet causes flickering on iOS
-    // const [contentHeight, setContentHeight] = React.useState(0);
-    // const snapPoints = React.useMemo(() => [contentHeight], [contentHeight]);
-    // const handleOnLayout = React.useCallback((event: LayoutChangeEvent) => {
-    //   setContentHeight(event.nativeEvent.layout.height);
-    // }, []);
-
-    // const snapPoints = React.useMemo(() => {
-    //   const itemsContainerHeight =
-    //     BOTTOM_SHEET_ITEM_HEIGHT * items.length +
-    //     BOTTOM_SHEET_ITEM_SPACING * Math.max(0, items.length - 1);
-    //   const fittedHeight = BOTTOM_SHEET_NO_ITEMS_HEIGHT + itemsContainerHeight;
-    //   return [fittedHeight];
-    // }, [items.length]);
 
     const initialSnapPoints = useMemo(() => ['CONTENT_HEIGHT'], []);
     const {
@@ -140,7 +122,7 @@ const ActionBottomSheet = React.forwardRef<BottomSheet, ActionBottomSheetProps>(
                     </View>
                   </TouchableHighlight>
                   {index < items.length - 1 && (
-                    <Spacer.Vertical value={BOTTOM_SHEET_ITEM_SPACING} />
+                    <Spacer.Vertical value={ITEM_SPACING} />
                   )}
                 </View>
               ))}

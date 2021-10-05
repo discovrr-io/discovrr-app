@@ -106,6 +106,10 @@
 	<string>To select images and video for posts you share and to customise your profile avatar</string>
 	<key>UIAppFonts</key>
 	<array>
+		<string>Rubik-Bold.ttf</string>
+		<string>Rubik-Italic.ttf</string>
+		<string>Rubik-Medium.ttf</string>
+		<string>Rubik-Regular.ttf</string>
 		<string>Ionicons.ttf</string>
 		<string>MaterialIcons.ttf</string>
 		<string>MaterialCommunityIcons.ttf</string>
