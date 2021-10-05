@@ -100,7 +100,8 @@ function FacadeNavigator() {
               iconName = focused ? 'home' : 'home-outline';
               break;
             case 'Feed':
-              iconName = focused ? 'chatbubbles' : 'chatbubbles-outline';
+              iconName = focused ? 'compass' : 'compass-outline';
+              size *= 1.15;
               break;
             case '__Create':
               iconName = 'add';

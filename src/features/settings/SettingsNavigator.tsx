@@ -3,7 +3,7 @@ import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { color, font, layout } from 'src/constants';
 import { Spacer } from 'src/components';
-import { APP_VERSION } from 'src/constants/values';
+import { APP_BUILD, APP_VERSION } from 'src/constants/values';
 import { RootStack, SettingsStackScreenProps } from 'src/navigation';
 
 import Cell from './components';
@@ -66,8 +66,9 @@ function MainSettingsScreenFooter() {
       <Text style={[font.small, footerStyles.text]}>
         <Text style={[font.smallBold, footerStyles.text]}>
           Discovrr {APP_VERSION}
-        </Text>{' '}
-        (Build 2021.10.05.01)
+        </Text>
+        <Text> </Text> {/* Empty space character */}
+        <Text>(Build {APP_BUILD})</Text>
       </Text>
     </View>
   );
