@@ -3,7 +3,7 @@ import { RefreshControl } from 'react-native';
 
 import { createSelector } from '@reduxjs/toolkit';
 
-import { MasonryList } from 'src/components';
+import { EmptyContainer, LoadingContainer, MasonryList } from 'src/components';
 import { color } from 'src/constants';
 import { DEFAULT_TILE_SPACING } from 'src/constants/values';
 import { useAppDispatch, useAppSelector, useIsMounted } from 'src/hooks';
@@ -21,7 +21,9 @@ import {
   fetchAllProducts,
   selectProductIds,
 } from 'src/features/products/productsSlice';
+import { Pagination } from 'src/models/common';
 
+const PAGINATION_LIMIT = 5;
 const TILE_SPACING = DEFAULT_TILE_SPACING;
 
 const selectNearMeItems = createSelector(
@@ -64,44 +66,150 @@ export default function NearMeFeed() {
   const nearMeItems = useAppSelector(selectNearMeItems);
 
   const isMounted = useIsMounted();
+  const [isInitialRender, setIsInitialRender] = useState(true);
   const [shouldRefresh, setShouldRefresh] = useState(true);
+  const [shouldFetchMore, setShouldFetchMore] = useState(false);
+
+  const [didReachEndMerchants, setDidReachEndMerchants] = useState(false);
+  const [didReachEndProducts, setDidReachEndProducts] = useState(false);
+  const [merchantsCurrentPage, setMerchantsCurrentPage] = useState(0);
+  const [productsCurrentPage, setProductsCurrentPage] = useState(0);
 
   useEffect(() => {
-    if (shouldRefresh)
+    if (isInitialRender || shouldRefresh)
       (async () => {
-        console.log('Fetching merchants and products...');
         try {
+          console.log('Fetching merchants and products...');
+          setMerchantsCurrentPage(0);
+          setProductsCurrentPage(0);
+
+          const pagination: Pagination = {
+            limit: PAGINATION_LIMIT,
+            currentPage: 0,
+          };
+
           await Promise.all([
-            dispatch(fetchAllMerchants()).unwrap(),
-            dispatch(fetchAllProducts()).unwrap(),
+            dispatch(fetchAllMerchants({ pagination, reload: true })).unwrap(),
+            dispatch(fetchAllProducts({ pagination, reload: true })).unwrap(),
           ]);
         } catch (error) {
           console.error(
             $FUNC,
-            'Failed to select merchants and products:',
+            'Failed to fetch merchants and products:',
             error,
           );
         } finally {
-          if (isMounted.current) setShouldRefresh(false);
+          if (isMounted.current) {
+            if (isInitialRender) setIsInitialRender(false);
+            if (shouldRefresh) setShouldRefresh(false);
+          }
         }
       })();
-  }, [dispatch, isMounted, shouldRefresh]);
+  }, [dispatch, isMounted, isInitialRender, shouldRefresh]);
+
+  useEffect(() => {
+    if (shouldFetchMore)
+      (async () => {
+        try {
+          console.log(
+            `Fetching next merchants (page ${merchantsCurrentPage}) and`,
+            `products (page ${productsCurrentPage})...`,
+          );
+
+          const [merchants, products] = await Promise.all([
+            didReachEndMerchants
+              ? Promise.resolve([])
+              : dispatch(
+                  fetchAllMerchants({
+                    pagination: {
+                      limit: PAGINATION_LIMIT,
+                      currentPage: merchantsCurrentPage,
+                    },
+                  }),
+                ).unwrap(),
+            didReachEndProducts
+              ? Promise.resolve([])
+              : dispatch(
+                  fetchAllProducts({
+                    pagination: {
+                      limit: PAGINATION_LIMIT,
+                      currentPage: productsCurrentPage,
+                    },
+                  }),
+                ).unwrap(),
+          ]);
+
+          if (merchants.length === 0) {
+            console.log($FUNC, 'Reached end of merchants');
+            setDidReachEndMerchants(true);
+          } else {
+            console.log($FUNC, `Found ${merchants.length} more merchants`);
+          }
+
+          if (products.length === 0) {
+            console.log($FUNC, 'Reached end of products');
+            setDidReachEndProducts(true);
+          } else {
+            console.log($FUNC, `Found ${products.length} more products`);
+          }
+        } catch (error) {
+          setMerchantsCurrentPage(curr => curr - 1);
+          setProductsCurrentPage(curr => curr - 1);
+
+          console.error(
+            $FUNC,
+            'Failed to fetch more merchants and products:',
+            error,
+          );
+        } finally {
+          if (isMounted) {
+            if (shouldFetchMore) setShouldFetchMore(false);
+          }
+        }
+      })();
+  }, [
+    dispatch,
+    isMounted,
+    shouldFetchMore,
+    // merchantsCurrentPage,
+    // productsCurrentPage,
+    // didReachEndMerchants,
+    // didReachEndProducts,
+  ]);
 
   const handleRefresh = () => {
     if (!shouldRefresh) setShouldRefresh(true);
   };
 
+  const handleEndReached = () => {
+    setShouldFetchMore(true);
+    setMerchantsCurrentPage(curr => curr + 1);
+    setProductsCurrentPage(curr => curr + 1);
+  };
+
   return (
     <MasonryList
       data={nearMeItems}
+      onEndReached={handleEndReached}
+      onEndReachedThreshold={1}
       refreshControl={
         <RefreshControl
           title="Loading activity near you..."
           tintColor={color.gray500}
           titleColor={color.gray700}
-          refreshing={shouldRefresh}
+          refreshing={!isInitialRender && shouldRefresh}
           onRefresh={handleRefresh}
         />
+      }
+      ListEmptyComponent={
+        isInitialRender ? (
+          <LoadingContainer message="Loading activity near you..." />
+        ) : (
+          <EmptyContainer
+            emoji="😕"
+            message="We couldn't find anything near you. Try refining your search to somewhere more specific"
+          />
+        )
       }
       renderItem={({ item: nearMeItem, column }) => {
         if (nearMeItem.type === 'merchant') {

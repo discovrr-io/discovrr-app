@@ -2,11 +2,11 @@ import React from 'react';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
 import { color, font } from 'src/constants';
-import { PlaceholderScreen } from 'src/components';
+// import { PlaceholderScreen } from 'src/components';
 import { FeedTopTabParamList } from 'src/navigation';
 
 import DiscoverFeed from './DiscoverFeed';
-// import NearMeFeed from './NearMeFeed';
+import NearMeFeed from './NearMeFeed';
 import FollowingFeed from './FollowingFeed';
 
 const FeedTopTab = createMaterialTopTabNavigator<FeedTopTabParamList>();
@@ -39,8 +39,8 @@ export default function FeedNavigator() {
       />
       <FeedTopTab.Screen
         name="NearMeFeed"
-        // component={NearMeFeed}
-        component={PlaceholderScreen}
+        component={NearMeFeed}
+        // component={PlaceholderScreen}
         options={{ title: 'Near Me' }}
       />
       <FeedTopTab.Screen
