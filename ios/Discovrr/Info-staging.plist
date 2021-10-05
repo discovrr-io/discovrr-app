@@ -113,6 +113,7 @@
 		<string>Ionicons.ttf</string>
 		<string>MaterialIcons.ttf</string>
 		<string>MaterialCommunityIcons.ttf</string>
+		<string>DiscovrrIcons.ttf</string>
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>

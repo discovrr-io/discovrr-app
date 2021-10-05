@@ -16,6 +16,7 @@ import { useMyProfileId } from 'src/features/profiles/hooks';
 
 import {
   AppDrawer,
+  DiscovrrIcon,
   HeaderIcon,
   PlaceholderScreen,
   TextInput,
@@ -90,8 +91,9 @@ function FacadeNavigator() {
           let iconName: string;
           switch (route.name) {
             case 'Feed':
-              iconName = focused ? 'home' : 'home-outline';
-              break;
+              // iconName = focused ? 'home' : 'home-outline';
+              // break;
+              return <DiscovrrIcon size={size} color={color} />;
             case '__Create':
               iconName = 'add';
               size *= 1.25;
