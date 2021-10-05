@@ -30,6 +30,8 @@ build/
 .idea
 .gradle
 local.properties
+*.aab
+*.apk
 *.iml
 *.hprof
 
