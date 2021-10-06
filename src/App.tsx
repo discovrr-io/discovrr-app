@@ -43,6 +43,7 @@ if (__DEV__ && true) {
 
 // Version 2.3.0.1 (2030001)
 const STORE_VERSION = [2, 3, 0, 1] as const;
+// Set this to the appropriate option any time the `STORE_VERSION` is changed
 const SIGN_OUT_USER = true;
 
 const persistor = persistStore(store);
@@ -57,6 +58,9 @@ const navigationTheme: Theme = {
   },
 };
 
+// TODO: Should we apply modulus 100 to each value to ensure it doesn't overflow
+// into the next version segment? At the moment, if we passed `[2, 3, 100, 0]`,
+// the function will return `"2040000"`, as if we passed `[2, 3, 4, 0]` instead.
 function createVersionString(
   version: readonly [number, number, number, number],
 ): string {
@@ -112,7 +116,9 @@ function PersistedApp() {
     } catch (error) {
       console.error($FUNC, 'Failed to configure persistor', error);
     } finally {
-      await RNBootSplash.hide({ fade: true });
+      await RNBootSplash.hide({ fade: true }).catch(error =>
+        console.log($FUNC, error),
+      );
     }
   };
 

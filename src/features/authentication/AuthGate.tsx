@@ -10,13 +10,18 @@ import { LoadingOverlay } from 'src/components';
 import { color } from 'src/constants';
 import { fetchProfileById } from 'src/features/profiles/profilesSlice';
 import { useAppDispatch, useAppSelector } from 'src/hooks';
+import { User } from 'src/models';
 import { AuthStackParamList } from 'src/navigation';
 
 import AuthScreen from './AuthScreen';
 import TermsAndConditionsScreen from './TermsAndConditions';
 import RootNavigator from './RootNavigator';
-import { abortSignOut, didDismissAbortSignOutAlert } from './authSlice';
-import { User } from 'src/models';
+
+import {
+  abortSignOut,
+  didDismissAbortSignOutAlert,
+  didDismissInfoModal,
+} from './authSlice';
 
 const AuthStack = createStackNavigator<AuthStackParamList>();
 
@@ -98,6 +103,11 @@ export default function AuthGate() {
               error,
             );
           });
+
+        // Ideally this should be set when the user has gone through onboarding,
+        // but since that isn't set up yet we'll manually call it here. This'll
+        // also prevent the Firebase calls above to be called on every launch.
+        dispatch(didDismissInfoModal());
       } catch (error) {
         const reportedError =
           error instanceof Error ? error : new Error(String(error));
