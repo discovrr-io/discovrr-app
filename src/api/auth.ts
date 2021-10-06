@@ -1,9 +1,9 @@
+import Parse from 'parse/react-native';
 import analytics from '@react-native-firebase/analytics';
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
-import Parse from 'parse/react-native';
 
 import { MediaSource } from './common';
-import { ProfileId, User, UserId } from 'src/models';
+import { ProfileId, SessionId, User, UserId } from 'src/models';
 import { DEFAULT_AVATAR_DIMENSIONS } from 'src/constants/media';
 
 const MAX_ATTEMPTS = 3;
@@ -13,6 +13,8 @@ export namespace AuthApi {
     NO_PROFILE_FOUND = '1000',
     USERNAME_ALREADY_TAKEN = '2000',
   }
+
+  export type AuthenticatedResult = readonly [User, SessionId];
 
   async function syncAndConstructUser(
     currentUserId: string,
@@ -153,7 +155,7 @@ export namespace AuthApi {
   export async function signInWithEmailAndPassword(
     email: string,
     password: string,
-  ): Promise<User> {
+  ): Promise<AuthenticatedResult> {
     const $FUNC = '[AuthApi.signInWithEmailAndPassword]';
     let didLoginViaFirebase = false;
     let didLoginViaParse = false;
@@ -175,6 +177,7 @@ export namespace AuthApi {
 
       console.log($FUNC, 'Authenticating via Parse...');
       const authenticatedUser = await authenticateViaParse(firebaseUser);
+      const currentSession = await Parse.Session.current();
       didLoginViaParse = true;
 
       // We won't await for analytics, nor do we care if it fails.
@@ -184,7 +187,7 @@ export namespace AuthApi {
         .then(() => analytics().setUserId(String(authenticatedUser.profileId)))
         .catch(err => console.error($FUNC, 'Failed to send analytics:', err));
 
-      return authenticatedUser;
+      return [authenticatedUser, currentSession.id as SessionId];
     } catch (error) {
       console.warn($FUNC, 'Aborting authentication. Signing out...');
       await signOut(didLoginViaParse, didLoginViaFirebase);
@@ -195,7 +198,7 @@ export namespace AuthApi {
 
   export async function signInWithCredential(
     credential: FirebaseAuthTypes.AuthCredential,
-  ) {
+  ): Promise<AuthenticatedResult> {
     const $FUNC = '[AuthApi.signInWithCredential]';
     let didLoginViaFirebase = false;
     let didLoginViaParse = false;
@@ -207,6 +210,7 @@ export namespace AuthApi {
       didLoginViaFirebase = true;
 
       const authenticatedUser = await authenticateViaParse(firebaseUser);
+      const currentSession = await Parse.Session.current();
       didLoginViaParse = true;
 
       // We won't await for analytics, nor do we care if it fails.
@@ -226,7 +230,7 @@ export namespace AuthApi {
         .then(() => console.log($FUNC, 'Successfully sent analytics'))
         .catch(err => console.error($FUNC, 'Failed to send analytics:', err));
 
-      return authenticatedUser;
+      return [authenticatedUser, currentSession.id as SessionId];
     } catch (error) {
       console.warn($FUNC, 'Aborting authentication. Signing out...');
       await signOut(didLoginViaParse, didLoginViaFirebase);
@@ -240,7 +244,7 @@ export namespace AuthApi {
     username: string,
     email: string,
     password: string,
-  ): Promise<User> {
+  ): Promise<AuthenticatedResult> {
     const $FUNC = '[AuthApi.registerNewAccount]';
     let didLoginViaFirebase = false;
     let didLoginViaParse = false;
@@ -274,13 +278,17 @@ export namespace AuthApi {
       };
 
       console.log($FUNC, 'Authenticating via Parse...');
-      const newUser = await Parse.User.logInWith('firebase', { authData });
-      console.log($FUNC, 'Successfully logged in via Parse:', newUser.id);
+      const newParseUser = await Parse.User.logInWith('firebase', { authData });
+      console.log($FUNC, 'Successfully logged in via Parse:', newParseUser.id);
       didLoginViaParse = true;
 
-      const newProfile = await attemptToFetchProfileForUser(newUser);
+      const newProfile = await attemptToFetchProfileForUser(newParseUser);
       if (!newProfile) {
-        console.error($FUNC, 'No profile was found with user ID:', newUser.id);
+        console.error(
+          $FUNC,
+          'No profile was found with user ID',
+          newParseUser.id,
+        );
         throw {
           code: AuthApiError.NO_PROFILE_FOUND,
           message: 'No profile was found with the given user ID.',
@@ -307,11 +315,15 @@ export namespace AuthApi {
       //   .then(() => analytics().setUserId(newProfile.id))
       //   .catch(err => console.error($FUNC, 'Failed to send analytics:', err));
 
-      return {
-        id: newUser.id as UserId,
+      const user: User = {
+        id: newParseUser.id as UserId,
         provider: providerId,
         profileId: newProfile.id as ProfileId,
       };
+
+      const currentSession = await Parse.Session.current();
+
+      return [user, currentSession.id as SessionId];
     } catch (error) {
       console.warn($FUNC, 'Aborting authentication. Signing out...');
       await signOut(didLoginViaParse, didLoginViaFirebase);

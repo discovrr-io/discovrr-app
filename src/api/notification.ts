@@ -1,13 +1,18 @@
 import Parse from 'parse/react-native';
+import { SessionId } from 'src/models';
 
 export namespace NotificationApi {
-  export type SetFCMRegistrationTokenForUserParams = {
+  export type SetFCMRegistrationTokenForSessionParams = {
+    sessionId: SessionId;
     registrationToken: string;
   };
 
-  export async function setFCMRegistrationTokenForUser(
-    params: SetFCMRegistrationTokenForUserParams,
+  export async function setFCMRegistrationTokenForSession(
+    params: SetFCMRegistrationTokenForSessionParams,
   ) {
-    await Parse.Cloud.run('setFCMRegistrationTokenForUser', params);
+    await Parse.Cloud.run('setFCMRegistrationTokenForSession', {
+      ...params,
+      sessionId: String(params.sessionId),
+    });
   }
 }

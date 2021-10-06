@@ -118,8 +118,7 @@ function AppDrawer(props: AppDrawerProps & { profileId: ProfileId }) {
               console.error($FUNC, 'Failed to sign out:', error);
               Alert.alert(
                 'Something went wrong',
-                "We weren't able to sign you out right now. \
-                   Please try again later.",
+                "We weren't able to sign you out right now. Please try again later.",
               );
             });
           },

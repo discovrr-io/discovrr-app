@@ -6,7 +6,7 @@ import { useLinkTo } from '@react-navigation/native';
 
 import { HeaderIcon, PlaceholderScreen, RouteError } from 'src/components';
 import { color, font } from 'src/constants';
-import { setFCMRegistrationTokenForUser } from 'src/features/notifications/notificationsSlice';
+import { setFCMRegistrationTokenForSession } from 'src/features/notifications/notificationsSlice';
 import { useAppDispatch, useAppSelector } from 'src/hooks';
 import { RootStack } from 'src/navigation';
 
@@ -35,6 +35,7 @@ export default function RootNavigator() {
   const dispatch = useAppDispatch();
   const linkTo = useLinkTo();
 
+  const sessionId = useAppSelector(state => state.auth.sessionId);
   const didRegisterFCMToken = useAppSelector(state => {
     return state.notifications.didRegisterFCMToken;
   });
@@ -46,11 +47,11 @@ export default function RootNavigator() {
       const alertTitle = remoteMessage.notification?.title ?? 'New Message';
       const alertMessage = remoteMessage.notification?.body ?? 'No body';
 
-      if (remoteMessage.data?.url) {
+      if (remoteMessage.data?.destination) {
         const handleOnPress = () => {
           /* eslint-disable @typescript-eslint/no-non-null-assertion */
-          console.log(`Navigating to ${remoteMessage.data!.url}...`);
-          linkTo(remoteMessage.data!.url);
+          console.log(`Navigating to ${remoteMessage.data!.destination}...`);
+          linkTo(remoteMessage.data!.destination);
           /* eslint-enable @typescript-eslint/no-non-null-assertion */
         };
 
@@ -67,12 +68,16 @@ export default function RootNavigator() {
 
   useEffect(() => {
     console.log($FUNC, 'Did register FCM token?', didRegisterFCMToken);
-    if (!didRegisterFCMToken)
+    console.log($FUNC, 'Session ID:', sessionId);
+    if (!sessionId) console.warn('Session ID is not set, which is unexpected');
+
+    if (!didRegisterFCMToken && sessionId)
       (async () => {
         try {
           console.log($FUNC, 'Will register FCM token...');
           const token = await getFCMToken();
-          const action = setFCMRegistrationTokenForUser({
+          const action = setFCMRegistrationTokenForSession({
+            sessionId,
             registrationToken: token,
           });
           await dispatch(action).unwrap();
@@ -80,7 +85,7 @@ export default function RootNavigator() {
           console.warn($FUNC, 'Failed to register FCM token:', error);
         }
       })();
-  }, [dispatch, didRegisterFCMToken]);
+  }, [dispatch, didRegisterFCMToken, sessionId]);
 
   return (
     <RootStack.Navigator

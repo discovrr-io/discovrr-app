@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { BaseThunkAPI } from '@reduxjs/toolkit/dist/createAsyncThunk';
 
 import { ApiFetchStatus, AuthApi } from 'src/api';
-import { ProfileId, User } from 'src/models';
+import { ProfileId, SessionId, User } from 'src/models';
 import { RootState } from 'src/store';
 
 //#region Authentication State Initialization
@@ -21,6 +21,7 @@ export type AuthFetchStatus = Pick<ApiFetchStatus, 'error'> & {
 
 export type AuthState = AuthFetchStatus & {
   user: User | undefined;
+  sessionId: SessionId | undefined;
   isAuthenticated: boolean;
   isFirstLogin: boolean;
   didAbortSignOut: boolean;
@@ -28,6 +29,7 @@ export type AuthState = AuthFetchStatus & {
 
 const initialState: AuthState = {
   status: 'idle',
+  sessionId: undefined,
   error: undefined,
   user: undefined,
   isAuthenticated: false,
@@ -126,9 +128,11 @@ const authSlice = createSlice({
         state.status = 'signing-in';
       })
       .addCase(signInWithEmailAndPassword.fulfilled, (state, action) => {
+        const [user, sessionId] = action.payload;
         state.status = 'fulfilled';
         state.isAuthenticated = true;
-        state.user = action.payload;
+        state.user = user;
+        state.sessionId = sessionId;
         state.isFirstLogin = true;
       })
       .addCase(signInWithEmailAndPassword.rejected, (state, action) => {
@@ -142,9 +146,11 @@ const authSlice = createSlice({
         state.status = 'signing-in';
       })
       .addCase(signInWithCredential.fulfilled, (state, action) => {
+        const [user, sessionId] = action.payload;
         state.status = 'fulfilled';
         state.isAuthenticated = true;
-        state.user = action.payload;
+        state.user = user;
+        state.sessionId = sessionId;
         state.isFirstLogin = true;
       })
       .addCase(signInWithCredential.rejected, (state, action) => {
@@ -158,9 +164,11 @@ const authSlice = createSlice({
         state.status = 'registering';
       })
       .addCase(registerNewAccount.fulfilled, (state, action) => {
+        const [user, sessionId] = action.payload;
         state.status = 'fulfilled';
         state.isAuthenticated = true;
-        state.user = action.payload;
+        state.user = user;
+        state.sessionId = sessionId;
         state.isFirstLogin = true;
       })
       .addCase(registerNewAccount.rejected, (state, action) => {

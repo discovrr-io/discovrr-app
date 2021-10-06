@@ -53,3 +53,5 @@ export type Statistics = {
    */
   readonly lastViewed?: string;
 };
+
+export type SessionId = string & { __sessionIdBrand: any };

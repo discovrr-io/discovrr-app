@@ -89,13 +89,14 @@ function FacadeNavigator() {
         headerTitleStyle: font.defaultHeaderTitleStyle,
         tabBarShowLabel: false,
         tabBarHideOnKeyboard: Platform.OS === 'android',
-        tabBarIcon: ({ focused, color, size }) => {
+        tabBarIcon: ({ focused, color, size: _ }) => {
+          let iconName: string;
+          let iconSize = 26;
+
           if (Platform.OS === 'ios' && route.name === 'Home') {
-            return <DiscovrrIcon size={size * 0.9} color={color} />;
+            return <DiscovrrIcon size={iconSize * 0.9} color={color} />;
           }
 
-          let iconName: string;
-          let iconSize: number = size;
           switch (route.name) {
             case 'Home':
               iconName = focused ? 'home' : 'home-outline';

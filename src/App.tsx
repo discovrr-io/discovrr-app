@@ -33,7 +33,7 @@ import { signOut } from './features/authentication/authSlice';
 Parse.setAsyncStorage(AsyncStorage);
 Parse.User.enableUnsafeCurrentUser();
 
-if (__DEV__ && true) {
+if (__DEV__) {
   Parse.initialize('discovrr-dev-server');
   Parse.serverURL = 'http://192.168.0.4:1337/parse';
 } else {

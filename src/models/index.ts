@@ -5,6 +5,8 @@ export type { default as Post, PostId } from './post';
 export type { default as Product, ProductId } from './product';
 export type { default as Profile, ProfileId } from './profile';
 export type { default as User, UserId } from './user';
+
+export type { SessionId } from './common';
 export type { NearMeItem } from './nearMe';
 
 export type {

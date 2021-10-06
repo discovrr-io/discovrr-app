@@ -6,9 +6,9 @@ import { resetAppState } from 'src/globalActions';
 
 //#region Notifications Async Thunks
 
-export const setFCMRegistrationTokenForUser = createAsyncThunk(
-  'settings/setFCMRegistrationTokenForUser',
-  NotificationApi.setFCMRegistrationTokenForUser,
+export const setFCMRegistrationTokenForSession = createAsyncThunk(
+  'settings/setFCMRegistrationTokenForSession',
+  NotificationApi.setFCMRegistrationTokenForSession,
 );
 
 //#endregion Notifications Async Thunks
@@ -38,7 +38,7 @@ const notificationsSlice = createSlice({
         Object.assign(state, initialState);
       })
 
-      .addCase(setFCMRegistrationTokenForUser.fulfilled, state => {
+      .addCase(setFCMRegistrationTokenForSession.fulfilled, state => {
         state.didRegisterFCMToken = true;
       })
       .addCase(signOut.fulfilled, state => {
