@@ -5,8 +5,10 @@ import { configureStore, ConfigureStoreOptions } from '@reduxjs/toolkit';
 import { render, RenderOptions } from '@testing-library/react-native';
 import '@testing-library/jest-dom';
 
-// @ts-ignore We don't care about typings here
+/* eslint-disable */
+// @ts-ignore
 import mockAsyncStorage from '@react-native-async-storage/async-storage/jest/async-storage-mock';
+/* eslint-enable */
 
 import { rootReducer } from './store';
 
