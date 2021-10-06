@@ -2,19 +2,29 @@
 
 ## [Unreleased]
 
+### Added
+
+- Add `LocationQueryBottomSheet` component with basic UI
+- Display Parse server URL on the settings page for ease of troubleshooting
+
+### Fixed
+
+- Fix issue where the `Slider` in the `LocationQueryBottomSheet` doesn't
+  properly respond to gesture events on Android
+
 ## [v2.3.0.2] (2021-10-06)
 
 ### Changed
 
 - Implement Near Me tab (WIP)
 - Change Feed bottom tab icon
-- Bug fixes
+- General bug fixes
 
 ## [v2.3.0.1] (2021-10-05)
 
 ### Changed
 
-- New user interface with a more modern design
+- New user interface with a modern design
 - Migrate project to TypeScript
 - Upgrade React Native dependencies
 

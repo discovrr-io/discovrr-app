@@ -1,89 +1,10 @@
 import React from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { color, font, layout } from 'src/constants';
-import { Spacer } from 'src/components';
-import { APP_BUILD, APP_VERSION } from 'src/constants/values';
-import { RootStack, SettingsStackScreenProps } from 'src/navigation';
+import { RootStack } from 'src/navigation';
 
-import Cell from './components';
 import ProfileSettingsScreen from './ProfileSettingsScreen';
 import NotificationsSettingsScreen from './NotificationSettings';
-import { CELL_GROUP_VERTICAL_SPACING } from './components/CellGroup';
-
-type MainSettingsScreenProps = SettingsStackScreenProps<'MainSettings'>;
-
-function MainSettingsScreen(_: MainSettingsScreenProps) {
-  return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <ScrollView
-        contentContainerStyle={{
-          paddingVertical: layout.defaultScreenMargins.vertical,
-          paddingHorizontal: layout.defaultScreenMargins.horizontal,
-        }}>
-        <Cell.Group label="General">
-          <Cell.Navigator
-            label="Profile"
-            iconName="person-outline"
-            onPress={navigation => navigation.push('ProfileSettings')}
-          />
-          <Cell.Navigator
-            label="Location accuracy"
-            iconName="location-outline"
-          />
-          <Cell.Navigator
-            label="Notifications"
-            iconName="notifications-outline"
-            onPress={navigation => navigation.push('NotificationSettings')}
-          />
-        </Cell.Group>
-        <Spacer.Vertical value={CELL_GROUP_VERTICAL_SPACING} />
-        <Cell.Group label="Display">
-          <Cell.Navigator label="Dark mode" iconName="moon-outline" />
-          <Cell.Navigator label="Font size" iconName="text-outline" />
-        </Cell.Group>
-        <Spacer.Vertical value={CELL_GROUP_VERTICAL_SPACING} />
-        <Cell.Group label="About">
-          <Cell.Navigator
-            label="About Discovrr"
-            iconName="information-circle-outline"
-          />
-          <Cell.Navigator
-            label="Terms and Conditions"
-            iconName="receipt-outline"
-          />
-        </Cell.Group>
-        <Spacer.Vertical value={CELL_GROUP_VERTICAL_SPACING} />
-        <MainSettingsScreenFooter />
-      </ScrollView>
-    </SafeAreaView>
-  );
-}
-
-function MainSettingsScreenFooter() {
-  return (
-    <View style={footerStyles.container}>
-      <Text style={[font.small, footerStyles.text]}>
-        <Text style={[font.smallBold, footerStyles.text]}>
-          Discovrr {APP_VERSION}
-        </Text>
-        <Text> </Text> {/* Empty space character */}
-        <Text>(Build {APP_BUILD})</Text>
-      </Text>
-    </View>
-  );
-}
-
-const footerStyles = StyleSheet.create({
-  container: {
-    alignItems: 'center',
-    textAlign: 'center',
-  },
-  text: {
-    textAlign: 'center',
-    color: color.gray500,
-  },
-});
+import MainSettingsScreen from './MainSettingsScreen';
 
 export default function renderSettingsNavigator() {
   return (
