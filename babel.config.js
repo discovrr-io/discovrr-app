@@ -8,7 +8,11 @@ module.exports = {
         moduleName: '@env',
         path: '.env',
         blacklist: null,
-        whitelist: ['ONE_SIGNAL_APP_ID', 'PARSE_APP_ID', 'PARSE_SERVER_URL'],
+        whitelist: [
+          'PARSE_APP_ID',
+          'PARSE_SERVER_URL',
+          'PARSE_SERVER_TERMS_URL',
+        ],
         safe: false,
         allowUndefined: true,
       },

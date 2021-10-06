@@ -1,3 +1,6 @@
+// @ts-ignore
+// import { PARSE_SERVER_TERMS_URL } from '@env';
+
 import React from 'react';
 
 import WebView from 'react-native-webview';
@@ -14,6 +17,10 @@ export default function TermsAndConditionsScreen() {
           allowFileAccess
           originWhitelist={['file://']}
           source={TERMS_AND_CONDITIONS}
+          // FIXME: This just renders a blank page
+          // source={{
+          //   uri: PARSE_SERVER_TERMS_URL ?? 'http://192.168.0.4:1337/terms',
+          // }}
           style={{ width: '100%' }}
         />
       </SafeAreaView>

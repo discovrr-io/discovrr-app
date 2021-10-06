@@ -75,8 +75,18 @@ type SignOutParams = {
 
 export const signOut = createAsyncThunk(
   'auth/signOut',
-  async ({ logoutParse = true, logoutFirebase = true }: SignOutParams = {}) =>
-    AuthApi.signOut(logoutParse, logoutFirebase),
+  async ({ logoutParse = true, logoutFirebase = true }: SignOutParams = {}) => {
+    try {
+      await AuthApi.signOut(logoutParse, logoutFirebase);
+    } catch (error: any) {
+      if (error.code === 'auth/no-current-user') {
+        console.warn("User doesn't exist. Skipping sign out...");
+      } else {
+        // It's some other error - we'll rethrow it
+        throw error;
+      }
+    }
+  },
 );
 
 export const abortSignOut = createAsyncThunk(

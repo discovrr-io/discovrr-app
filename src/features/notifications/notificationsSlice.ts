@@ -1,25 +1,14 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
 import { NotificationApi } from 'src/api';
+import { abortSignOut, signOut } from 'src/features/authentication/authSlice';
 import { resetAppState } from 'src/globalActions';
-import { ProfileId } from 'src/models';
 
 //#region Notifications Async Thunks
 
-type SetFCMRegistrationTokenForProfileParams = Omit<
-  NotificationApi.SetFCMRegistrationTokenForProfileParams,
-  'profileId'
-> & {
-  profileId: ProfileId;
-};
-
-export const setFCMRegistrationTokenForProfile = createAsyncThunk(
-  'settings/setFCMRegistrationTokenForProfile',
-  async ({ profileId, ...rest }: SetFCMRegistrationTokenForProfileParams) =>
-    await NotificationApi.setFCMRegistrationTokenForProfile({
-      profileId: String(profileId),
-      ...rest,
-    }),
+export const setFCMRegistrationTokenForUser = createAsyncThunk(
+  'settings/setFCMRegistrationTokenForUser',
+  NotificationApi.setFCMRegistrationTokenForUser,
 );
 
 //#endregion Notifications Async Thunks
@@ -48,8 +37,15 @@ const notificationsSlice = createSlice({
         console.log('Purging notifications...');
         Object.assign(state, initialState);
       })
-      .addCase(setFCMRegistrationTokenForProfile.fulfilled, state => {
+
+      .addCase(setFCMRegistrationTokenForUser.fulfilled, state => {
         state.didRegisterFCMToken = true;
+      })
+      .addCase(signOut.fulfilled, state => {
+        state.didRegisterFCMToken = false;
+      })
+      .addCase(abortSignOut.rejected, state => {
+        state.didRegisterFCMToken = false;
       });
   },
 });

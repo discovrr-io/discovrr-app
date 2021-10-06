@@ -28,18 +28,22 @@ import { LoadingContainer } from './components';
 import { color } from './constants';
 import { useAppDispatch } from './hooks';
 import { resetAppState } from './globalActions';
-// import { signOut } from './features/authentication/authSlice';
+import { signOut } from './features/authentication/authSlice';
 
 Parse.setAsyncStorage(AsyncStorage);
 Parse.User.enableUnsafeCurrentUser();
 
-if (__DEV__ && false) {
+if (__DEV__ && true) {
   Parse.initialize('discovrr-dev-server');
   Parse.serverURL = 'http://192.168.0.4:1337/parse';
 } else {
   Parse.initialize(PARSE_APP_ID || '');
   Parse.serverURL = PARSE_SERVER_URL || '';
 }
+
+// Version 2.3.0.1 (2030001)
+const STORE_VERSION = [2, 3, 0, 1] as const;
+const SIGN_OUT_USER = true;
 
 const persistor = persistStore(store);
 
@@ -89,8 +93,7 @@ function PersistedApp() {
 
   const handleBeforeLift = async () => {
     try {
-      // Store version 2.3.0.0 (2030000)
-      const currVersion = createVersionString([2, 3, 0, 0]);
+      const currVersion = createVersionString(STORE_VERSION);
       console.log($FUNC, 'Current store version:', currVersion);
 
       const [[_, prevVersion]] = await AsyncStorage.multiGet(['storeVersion']);
@@ -102,8 +105,9 @@ function PersistedApp() {
         persistor.pause();
         // Custom purging - purges everything in the store except authentication
         dispatch(resetAppState());
-        // Uncomment the following line if the user should be logged out
-        // await dispatch(signOut()).unwrap();
+        // User will only be signed out if the version has changed. Subsequent
+        // app launches will not be affected.
+        if (SIGN_OUT_USER) await dispatch(signOut()).unwrap();
       }
     } catch (error) {
       console.error($FUNC, 'Failed to configure persistor', error);

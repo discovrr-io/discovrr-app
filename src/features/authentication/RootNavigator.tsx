@@ -1,13 +1,12 @@
 import React, { useEffect } from 'react';
-import { Alert, Platform } from 'react-native';
+import { Alert } from 'react-native';
 
 import messaging from '@react-native-firebase/messaging';
 import { useLinkTo } from '@react-navigation/native';
 
 import { HeaderIcon, PlaceholderScreen, RouteError } from 'src/components';
 import { color, font } from 'src/constants';
-import { setFCMRegistrationTokenForProfile } from 'src/features/notifications/notificationsSlice';
-import { useMyProfileId } from 'src/features/profiles/hooks';
+import { setFCMRegistrationTokenForUser } from 'src/features/notifications/notificationsSlice';
 import { useAppDispatch, useAppSelector } from 'src/hooks';
 import { RootStack } from 'src/navigation';
 
@@ -36,7 +35,6 @@ export default function RootNavigator() {
   const dispatch = useAppDispatch();
   const linkTo = useLinkTo();
 
-  const myProfileId = useMyProfileId();
   const didRegisterFCMToken = useAppSelector(state => {
     return state.notifications.didRegisterFCMToken;
   });
@@ -68,29 +66,21 @@ export default function RootNavigator() {
   }, [linkTo]);
 
   useEffect(() => {
-    // FIXME: This will be true even if the user switches accounts, which means
-    // a new Installation object won't be created for the switched account.
     console.log($FUNC, 'Did register FCM token?', didRegisterFCMToken);
-    console.log($FUNC, 'My profile ID:', myProfileId);
-
-    // `myProfileId` should be defined (since we're authenticated by this
-    // point), but we'll just check anyway just in case
-    if (!didRegisterFCMToken && myProfileId)
+    if (!didRegisterFCMToken)
       (async () => {
         try {
           console.log($FUNC, 'Will register FCM token...');
           const token = await getFCMToken();
-          const action = setFCMRegistrationTokenForProfile({
-            profileId: myProfileId,
-            deviceToken: token,
-            deviceType: Platform.select({ ios: 'ios', default: 'android' }),
+          const action = setFCMRegistrationTokenForUser({
+            registrationToken: token,
           });
           await dispatch(action).unwrap();
         } catch (error) {
           console.warn($FUNC, 'Failed to register FCM token:', error);
         }
       })();
-  }, [dispatch, didRegisterFCMToken, myProfileId]);
+  }, [dispatch, didRegisterFCMToken]);
 
   return (
     <RootStack.Navigator
