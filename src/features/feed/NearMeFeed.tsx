@@ -234,7 +234,7 @@ export default function NearMeFeed(_: NearMeFeedProps) {
       <SearchLocationOptions />
       <MasonryList
         data={nearMeItems}
-        // onEndReached={handleFetchMore}
+        onEndReached={handleFetchMore}
         onEndReachedThreshold={0}
         contentContainerStyle={{ flexGrow: 1 }}
         refreshControl={
@@ -308,7 +308,6 @@ export default function NearMeFeed(_: NearMeFeedProps) {
 
 function SearchLocationOptions() {
   const queryPrefs = useAppSelector(state => state.settings.locationQueryPrefs);
-
   const bottomSheetRef = useRef<BottomSheet>(null);
 
   return (
@@ -326,9 +325,7 @@ function SearchLocationOptions() {
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
         <Icon name="location" size={18} color={color.black} />
         <Spacer.Horizontal value={layout.spacing.xs} />
-        <Text style={[font.smallBold]}>
-          Searching in {JSON.stringify(queryPrefs?.coordinates ?? 'NULL')}
-        </Text>
+        <Text style={[font.smallBold]}>Searching in default location</Text>
       </View>
       <Button
         title="Change Location"

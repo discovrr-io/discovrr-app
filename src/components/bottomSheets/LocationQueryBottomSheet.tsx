@@ -1,7 +1,9 @@
 import React from 'react';
-import { Text, TouchableHighlight, View } from 'react-native';
+import { Platform, Text, TouchableHighlight, View } from 'react-native';
 
 import Icon from 'react-native-vector-icons/Ionicons';
+import MapView, { Region } from 'react-native-maps';
+import Slider from '@react-native-community/slider';
 import { Portal } from '@gorhom/portal';
 
 import BottomSheet, {
@@ -10,11 +12,21 @@ import BottomSheet, {
   BottomSheetScrollView,
 } from '@gorhom/bottom-sheet';
 
-import Spacer from '../Spacer';
 import { color, font, layout } from 'src/constants';
+import { useAppSelector } from 'src/hooks';
+import { alertUnavailableFeature } from 'src/utilities';
 
-const ICON_SIZE = 24;
-const ICON_PADDING = layout.spacing.md * 1;
+import {
+  DEFAULT_COORDINATES,
+  MAX_SEARCH_RADIUS,
+  MIN_SEARCH_RADIUS,
+} from 'src/models/common';
+
+import Spacer from '../Spacer';
+import { Button } from '../buttons';
+
+const ICON_SIZE = 22;
+const ICON_PADDING = layout.spacing.md;
 const ICON_DIAMETER = ICON_SIZE + ICON_PADDING;
 
 // eslint-disable-next-line @typescript-eslint/ban-types
@@ -24,7 +36,14 @@ const LocationQueryBottomSheet = React.forwardRef<
   BottomSheet,
   LocationQueryBottomSheetProps
 >((props: LocationQueryBottomSheetProps, ref) => {
+  const queryPrefs = useAppSelector(state => state.settings.locationQueryPrefs);
   const snapPoints = React.useMemo(() => ['95%'], []);
+
+  const [searchRegion, setSearchRegion] = React.useState<Region>(() => ({
+    ...(queryPrefs?.coordinates ?? DEFAULT_COORDINATES),
+    latitudeDelta: 1.0,
+    longitudeDelta: 1.0,
+  }));
 
   const renderBackdrop = React.useCallback(
     (props: BottomSheetBackdropProps) => {
@@ -54,22 +73,57 @@ const LocationQueryBottomSheet = React.forwardRef<
         ref={ref}
         index={-1}
         animateOnMount
-        // enablePanDownToClose
+        enablePanDownToClose
+        // The following two lines are required to allow the Slider to respond
+        // to gestures
+        activeOffsetY={[-1, 1]}
+        failOffsetX={[-5, 5]}
         snapPoints={snapPoints}
         backdropComponent={renderBackdrop}>
         <LocationQueryBottomSheetHeader onPressClose={handleCloseBottomSheet} />
         <BottomSheetScrollView
-          contentContainerStyle={{
-            paddingHorizontal: layout.spacing.lg,
-            paddingVertical: layout.spacing.lg,
-            backgroundColor: 'lightgreen',
-          }}>
-          {[...new Array(100).keys()].map(n => (
-            <Text key={`text-${n}`} style={[font.medium]}>
-              TEST {n}
-            </Text>
-          ))}
+          contentContainerStyle={{ paddingHorizontal: layout.spacing.lg }}>
+          <View style={{ overflow: 'hidden', borderRadius: layout.radius.md }}>
+            <MapView
+              initialRegion={searchRegion}
+              onRegionChange={setSearchRegion}
+              style={{ height: 300 }}
+            />
+          </View>
+          <Spacer.Vertical value={layout.spacing.md} />
+          <Slider
+            step={1}
+            minimumValue={MIN_SEARCH_RADIUS}
+            maximumValue={MAX_SEARCH_RADIUS}
+            minimumTrackTintColor={color.accent}
+            thumbTintColor={Platform.select({
+              android: color.accent,
+              default: undefined,
+            })}
+          />
         </BottomSheetScrollView>
+        <View
+          style={{
+            flexDirection: 'row',
+            paddingVertical: layout.spacing.lg,
+            paddingHorizontal: layout.spacing.lg,
+          }}>
+          <Button
+            title="Reset"
+            type="secondary"
+            variant="contained"
+            onPress={() => alertUnavailableFeature()}
+            containerStyle={{ flex: 1 }}
+          />
+          <Spacer.Horizontal value={layout.spacing.md} />
+          <Button
+            title="Apply"
+            type="primary"
+            variant="contained"
+            onPress={() => alertUnavailableFeature()}
+            containerStyle={{ flex: 1 }}
+          />
+        </View>
       </BottomSheet>
     </Portal>
   );
@@ -85,11 +139,10 @@ function LocationQueryBottomSheetHeader(
   return (
     <View
       style={{
-        flexDirection: 'row',
+        flexDirection: 'row-reverse',
         alignItems: 'center',
-        paddingHorizontal: layout.spacing.md,
-        paddingVertical: layout.spacing.md,
-        backgroundColor: 'lightblue',
+        paddingHorizontal: layout.spacing.lg,
+        paddingBottom: layout.spacing.md,
       }}>
       <TouchableHighlight
         underlayColor={color.gray200}

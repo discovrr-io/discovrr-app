@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { InfoContainer } from 'src/components';
 import {
   FacadeBottomTabNavigationProp,
