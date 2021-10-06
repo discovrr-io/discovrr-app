@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { StyleSheet, Text, TouchableHighlight, View } from 'react-native';
 
 import BottomSheet, {
@@ -45,7 +45,7 @@ const ActionBottomSheet = React.forwardRef<BottomSheet, ActionBottomSheetProps>(
       onSelectItem,
     } = props;
 
-    const initialSnapPoints = useMemo(() => ['CONTENT_HEIGHT'], []);
+    const initialSnapPoints = React.useMemo(() => ['CONTENT_HEIGHT'], []);
     const {
       animatedHandleHeight,
       animatedSnapPoints,

@@ -36,7 +36,7 @@ export default function DiscoverFeed() {
     if (isInitialRender || shouldRefresh)
       (async () => {
         try {
-          console.log('Fetching posts...');
+          console.log($FUNC, 'Fetching posts...');
           setCurrentPage(0);
           setDidReachEnd(false);
 

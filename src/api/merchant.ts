@@ -186,6 +186,7 @@ export namespace MerchantApi {
 
     const results = await merchantQuery.find();
 
+    // TODO: Filter check isn't required anymore
     // Filter out all the null values (i.e. merchants not partnered with us)
     return results
       .map(result => mapResultToMerchant(result, myProfile?.id))

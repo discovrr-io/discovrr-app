@@ -1,26 +1,34 @@
-import React, { useEffect, useState } from 'react';
-import { RefreshControl } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { RefreshControl, StyleSheet, Text, View } from 'react-native';
 
-import MerchantItemCard from 'src/features/merchants/MerchantItemCard';
-import ProductItemCard from 'src/features/products/ProductItemCard';
+import BottomSheet from '@gorhom/bottom-sheet';
+import Icon from 'react-native-vector-icons/Ionicons';
 
-import { color } from 'src/constants';
+import { color, font, layout } from 'src/constants';
 import { DEFAULT_TILE_SPACING } from 'src/constants/values';
-import { EmptyContainer, LoadingContainer, MasonryList } from 'src/components';
 import { fetchAllMerchants } from 'src/features/merchants/merchantsSlice';
 import { fetchAllProducts } from 'src/features/products/productsSlice';
-import { useAppDispatch, useIsMounted } from 'src/hooks';
+import { useAppDispatch, useAppSelector, useIsMounted } from 'src/hooks';
 import { MerchantId, NearMeItem, ProductId } from 'src/models';
 import { FeedTopTabScreenProps } from 'src/navigation';
 import { alertSomethingWentWrong } from 'src/utilities';
 
+import {
+  Button,
+  EmptyContainer,
+  LoadingContainer,
+  LocationQueryBottomSheet,
+  MasonryList,
+  Spacer,
+} from 'src/components';
+
 import FeedFooter from './FeedFooter';
+import MerchantItemCard from 'src/features/merchants/MerchantItemCard';
+import ProductItemCard from 'src/features/products/ProductItemCard';
 
 const MERCHANT_PAGINATION_LIMIT = 5;
 const PRODUCT_PAGINATION_LIMIT = 8;
 const TILE_SPACING = DEFAULT_TILE_SPACING;
-
-type NearMeFeedProps = FeedTopTabScreenProps<'NearMeFeed'>;
 
 function shuffleMerchantsAndProducts(
   merchantIds: MerchantId[],
@@ -57,6 +65,8 @@ type CurrentPage = {
   didReachEnd: boolean;
 };
 
+type NearMeFeedProps = FeedTopTabScreenProps<'NearMeFeed'>;
+
 export default function NearMeFeed(_: NearMeFeedProps) {
   const $FUNC = '[NearMeFeed]';
   const dispatch = useAppDispatch();
@@ -78,7 +88,7 @@ export default function NearMeFeed(_: NearMeFeedProps) {
     () => {
       async function fetchMerchantsAndProducts() {
         try {
-          console.log('Fetching merchants and products...');
+          console.log($FUNC, 'Fetching merchants and products...');
           setCurrentMerchantsPage({ index: 0, didReachEnd: false });
           setCurrentProductsPage({ index: 0, didReachEnd: false });
 
@@ -220,71 +230,114 @@ export default function NearMeFeed(_: NearMeFeedProps) {
   };
 
   return (
-    <MasonryList
-      data={nearMeItems}
-      onEndReached={handleFetchMore}
-      onEndReachedThreshold={0}
-      contentContainerStyle={{ flexGrow: 1 }}
-      refreshControl={
-        !isInitialRender ? (
-          <RefreshControl
-            title="Loading activity near you..."
-            tintColor={color.gray500}
-            titleColor={color.gray700}
-            refreshing={!isInitialRender && !shouldFetchMore && shouldRefresh}
-            onRefresh={handleRefresh}
-          />
-        ) : undefined
-      }
-      ListEmptyComponent={
-        isInitialRender ? (
-          <LoadingContainer message="Loading activity near you..." />
-        ) : (
-          <EmptyContainer
-            emoji="😕"
-            message="We couldn't find anything near you. Try refining your search to somewhere more specific"
-          />
-        )
-      }
-      renderItem={({ item: nearMeItem, column }) => {
-        if (nearMeItem.type === 'merchant') {
-          return (
-            <MerchantItemCard
-              key={nearMeItem.item}
-              merchantId={nearMeItem.item}
-              elementOptions={{ smallContent: true }}
-              style={{
-                marginTop: TILE_SPACING,
-                marginLeft: column % 2 === 0 ? TILE_SPACING : TILE_SPACING / 2,
-                marginRight: column % 2 !== 0 ? TILE_SPACING : TILE_SPACING / 2,
-              }}
+    <View style={{ flex: 1 }}>
+      <SearchLocationOptions />
+      <MasonryList
+        data={nearMeItems}
+        // onEndReached={handleFetchMore}
+        onEndReachedThreshold={0}
+        contentContainerStyle={{ flexGrow: 1 }}
+        refreshControl={
+          !isInitialRender ? (
+            <RefreshControl
+              title="Loading activity near you..."
+              tintColor={color.gray500}
+              titleColor={color.gray700}
+              refreshing={!isInitialRender && !shouldFetchMore && shouldRefresh}
+              onRefresh={handleRefresh}
             />
-          );
-        } else {
-          return (
-            <ProductItemCard
-              key={nearMeItem.item}
-              productId={nearMeItem.item}
-              elementOptions={{ smallContent: true }}
-              style={{
-                marginTop: TILE_SPACING,
-                marginLeft: column % 2 === 0 ? TILE_SPACING : TILE_SPACING / 2,
-                marginRight: column % 2 !== 0 ? TILE_SPACING : TILE_SPACING / 2,
-              }}
-            />
-          );
+          ) : undefined
         }
-      }}
-      ListFooterComponent={
-        nearMeItems.length > 0 ? (
-          <FeedFooter
-            didReachEnd={
-              currentMerchantsPage.didReachEnd &&
-              currentProductsPage.didReachEnd
-            }
-          />
-        ) : null
-      }
-    />
+        ListEmptyComponent={
+          isInitialRender ? (
+            <LoadingContainer message="Loading activity near you..." />
+          ) : (
+            <EmptyContainer
+              emoji="😕"
+              message="We couldn't find anything near you. Try refining your search to somewhere more specific"
+            />
+          )
+        }
+        renderItem={({ item: nearMeItem, column }) => {
+          if (nearMeItem.type === 'merchant') {
+            return (
+              <MerchantItemCard
+                key={nearMeItem.item}
+                merchantId={nearMeItem.item}
+                elementOptions={{ smallContent: true }}
+                style={{
+                  marginTop: TILE_SPACING,
+                  marginLeft:
+                    column % 2 === 0 ? TILE_SPACING : TILE_SPACING / 2,
+                  marginRight:
+                    column % 2 !== 0 ? TILE_SPACING : TILE_SPACING / 2,
+                }}
+              />
+            );
+          } else {
+            return (
+              <ProductItemCard
+                key={nearMeItem.item}
+                productId={nearMeItem.item}
+                elementOptions={{ smallContent: true }}
+                style={{
+                  marginTop: TILE_SPACING,
+                  marginLeft:
+                    column % 2 === 0 ? TILE_SPACING : TILE_SPACING / 2,
+                  marginRight:
+                    column % 2 !== 0 ? TILE_SPACING : TILE_SPACING / 2,
+                }}
+              />
+            );
+          }
+        }}
+        ListFooterComponent={
+          nearMeItems.length > 0 ? (
+            <FeedFooter
+              didReachEnd={
+                currentMerchantsPage.didReachEnd &&
+                currentProductsPage.didReachEnd
+              }
+            />
+          ) : null
+        }
+      />
+    </View>
+  );
+}
+
+function SearchLocationOptions() {
+  const queryPrefs = useAppSelector(state => state.settings.locationQueryPrefs);
+
+  const bottomSheetRef = useRef<BottomSheet>(null);
+
+  return (
+    <View
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingVertical: layout.spacing.sm,
+        paddingHorizontal: layout.defaultScreenMargins.horizontal,
+        backgroundColor: color.white,
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        borderBottomColor: color.gray200,
+      }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <Icon name="location" size={18} color={color.black} />
+        <Spacer.Horizontal value={layout.spacing.xs} />
+        <Text style={[font.smallBold]}>
+          Searching in {JSON.stringify(queryPrefs?.coordinates ?? 'NULL')}
+        </Text>
+      </View>
+      <Button
+        title="Change Location"
+        type="primary"
+        size="small"
+        onPress={() => bottomSheetRef.current?.expand()}
+        containerStyle={{ paddingHorizontal: 0 }}
+      />
+      <LocationQueryBottomSheet ref={bottomSheetRef} />
+    </View>
   );
 }
