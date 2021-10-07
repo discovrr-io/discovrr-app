@@ -14,33 +14,31 @@ import { alertUnavailableFeature } from 'src/utilities';
 import { useProduct } from './hooks';
 import { DEFAULT_AVATAR } from 'src/constants/media';
 
-type ProductItemCardWrapperProps = CardElementProps & {
+type ProductItemCardProps = CardElementProps & {
   productId: ProductId;
 };
 
-export default function ProductItemCardWrapper(
-  props: ProductItemCardWrapperProps,
-) {
+export default function ProductItemCard(props: ProductItemCardProps) {
   const { productId, ...cardElementProps } = props;
   const productData = useProduct(productId);
 
   return (
     <AsyncGate
       data={productData}
-      onPending={() => <ProductItemCard.Pending {...cardElementProps} />}
+      onPending={() => <InnerProductItemCard.Pending {...cardElementProps} />}
       onFulfilled={product => {
         if (!product) return null;
-        return <ProductItemCard product={product} {...cardElementProps} />;
+        return <InnerProductItemCard product={product} {...cardElementProps} />;
       }}
     />
   );
 }
 
-type ProductItemCardProps = CardElementProps & {
+type InnerProductItemCardProps = CardElementProps & {
   product: Product;
 };
 
-const ProductItemCard = (props: ProductItemCardProps) => {
+const InnerProductItemCard = (props: InnerProductItemCardProps) => {
   const { product, ...cardElementProps } = props;
   const { didLike, totalLikes } = product.statistics;
 
@@ -106,7 +104,7 @@ const ProductItemCard = (props: ProductItemCardProps) => {
   );
 };
 
-ProductItemCard.Pending = (props: CardElementProps) => {
+InnerProductItemCard.Pending = (props: CardElementProps) => {
   return (
     <Card {...props}>
       <Card.Body>

@@ -16,33 +16,33 @@ import {
 
 import { useMerchant } from './hooks';
 
-type MerchantItemCardWrapperProps = CardElementProps & {
+type MerchantItemCardProps = CardElementProps & {
   merchantId: MerchantId;
 };
 
-export default function MerchantItemCardWrapper(
-  props: MerchantItemCardWrapperProps,
-) {
+export default function MerchantItemCard(props: MerchantItemCardProps) {
   const { merchantId, ...cardElementPRops } = props;
   const merchantData = useMerchant(merchantId);
 
   return (
     <AsyncGate
       data={merchantData}
-      onPending={() => <MerchantItemCard.Pending {...cardElementPRops} />}
+      onPending={() => <InnerMerchantItemCard.Pending {...cardElementPRops} />}
       onFulfilled={merchant => {
         if (!merchant) return null;
-        return <MerchantItemCard merchant={merchant} {...cardElementPRops} />;
+        return (
+          <InnerMerchantItemCard merchant={merchant} {...cardElementPRops} />
+        );
       }}
     />
   );
 }
 
-type MerchantItemCardProps = CardElementProps & {
+type InnerMerchantItemCardProps = CardElementProps & {
   merchant: Merchant;
 };
 
-const MerchantItemCard = (props: MerchantItemCardProps) => {
+const InnerMerchantItemCard = (props: InnerMerchantItemCardProps) => {
   const { merchant, ...cardElementProps } = props;
 
   const handlePressAuthor = () => {
@@ -114,7 +114,7 @@ const MerchantItemCard = (props: MerchantItemCardProps) => {
 };
 
 // eslint-disable-next-line react/display-name
-MerchantItemCard.Pending = (props: CardElementProps) => {
+InnerMerchantItemCard.Pending = (props: CardElementProps) => {
   return (
     <Card {...props}>
       <Card.Body>{/* TODO: Add placeholder... */}</Card.Body>

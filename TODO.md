@@ -8,12 +8,13 @@
 - [x] Create a new `Card` component that can be reused by many components
 - [x] Fix _My Profile_ tab to properly navigate to current profile
 - [x] Use [branded types][] as `EntityId`s to enforce type checking.
+- [x] Migrate `@gorhom/bottom-sheet` package to `^4.0.3`
 - [ ] Use `ApiFetchStatuses` for other Redux slices
+- [ ] Clean up Redux slices and API code
 - [ ] Add a splash screen for both iOS and Android
 - [ ] Add `error` prop to `RouteError` to visually display the error message
 - [ ] Fix issue in `ProfileSettingsScreen` where the unsaved changes alert
       still appears even if the form is saved
-- [ ] Migrate `@gorhom/bottom-sheet` package to `^4.0.3`
 - [ ] Refactor API and UI code to separate yarn workspace packages
       (`@discovrr-api` and `@discovrr-ui` )
 

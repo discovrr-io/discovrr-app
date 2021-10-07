@@ -33,11 +33,17 @@ const notificationsSlice = createSlice({
   reducers: {},
   extraReducers: builder => {
     builder
-      .addCase(resetAppState, state => {
+      .addCase(resetAppState, (state, action) => {
+        const { shouldResetFCMRegistrationToken } = action.payload;
         console.log('Purging notifications...');
-        Object.assign(state, initialState);
+        console.log('Should reset FCM token?', shouldResetFCMRegistrationToken);
+        Object.assign(state, {
+          ...initialState,
+          didRegisterFCMToken: shouldResetFCMRegistrationToken
+            ? false
+            : state.didRegisterFCMToken,
+        });
       })
-
       .addCase(setFCMRegistrationTokenForSession.fulfilled, state => {
         state.didRegisterFCMToken = true;
       })

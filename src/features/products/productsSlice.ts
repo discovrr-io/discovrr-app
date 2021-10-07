@@ -109,6 +109,27 @@ const productsSlice = createSlice({
         console.log('Purging products...');
         Object.assign(state, initialState);
       })
+      // -- fetchProductById --
+      .addCase(fetchProductById.pending, (state, action) => {
+        const { productId, reload } = action.meta.arg;
+        state.statuses[String(productId)] = {
+          status: reload ? 'refreshing' : 'pending',
+          error: undefined,
+        };
+      })
+      .addCase(fetchProductById.fulfilled, (state, action) => {
+        if (action.payload) productsAdapter.upsertOne(state, action.payload);
+        state.statuses[String(action.meta.arg.productId)] = {
+          status: 'fulfilled',
+          error: undefined,
+        };
+      })
+      .addCase(fetchProductById.rejected, (state, action) => {
+        state.statuses[String(action.meta.arg.productId)] = {
+          status: 'rejected',
+          error: action.error,
+        };
+      })
       // -- fetchAllProducts --
       // .addCase(fetchAllProducts.pending, (state, action) => {
       //   const { reload = false } = action.meta.arg ?? {}; // `??` may not be necessary

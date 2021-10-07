@@ -2,7 +2,18 @@ import { ViewStyle } from 'react-native';
 
 const SPACING_UNIT = 8;
 
-export const spacing = {
+export type Spacing = {
+  huge: number;
+  xxl: number;
+  xl: number;
+  lg: number;
+  md: number;
+  sm: number;
+  xs: number;
+  zero: number;
+};
+
+export const spacing: Spacing = {
   huge: SPACING_UNIT ** 2,
   xxl: SPACING_UNIT * 4,
   xl: SPACING_UNIT * 3,

@@ -107,8 +107,17 @@ function PersistedApp() {
         AsyncStorage.setItem('storeVersion', currVersion);
         console.log($FUNC, 'Purging store...');
         persistor.pause();
+
         // Custom purging - purges everything in the store except authentication
-        dispatch(resetAppState());
+        const resetAction = resetAppState({
+          // Only reset the FCM registration token if we actually signed the
+          // user out (and thus their associated Parse.Session object has been
+          // deleted)
+          shouldResetFCMRegistrationToken: SIGN_OUT_USER,
+        });
+
+        dispatch(resetAction);
+
         // User will only be signed out if the version has changed. Subsequent
         // app launches will not be affected.
         if (SIGN_OUT_USER) await dispatch(signOut()).unwrap();

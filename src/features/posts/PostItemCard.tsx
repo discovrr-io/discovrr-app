@@ -50,12 +50,12 @@ type PostItemCardHandlers = {
 export const PostItemCardHandlersContext =
   React.createContext<PostItemCardHandlers>({});
 
-type PostItemCardWrapperProps = CardElementProps &
+type PostItemCardProps = CardElementProps &
   PostItemCardHandlers & {
     postId: PostId;
   };
 
-export default function PostItemCardWrapper(props: PostItemCardWrapperProps) {
+export default function PostItemCard(props: PostItemCardProps) {
   const {
     postId,
     showMenuIcon,
@@ -72,10 +72,10 @@ export default function PostItemCardWrapper(props: PostItemCardWrapperProps) {
       value={{ showMenuIcon, showShareIcon, onPressMenu, onPressShare }}>
       <AsyncGate
         data={postData}
-        onPending={() => <PostItemCard.Pending {...cardElementProps} />}
+        onPending={() => <InnerPostItemCard.Pending {...cardElementProps} />}
         onFulfilled={post => {
           if (!post) return null;
-          return <PostItemCard post={post} {...cardElementProps} />;
+          return <InnerPostItemCard post={post} {...cardElementProps} />;
         }}
       />
     </PostItemCardHandlersContext.Provider>
@@ -84,11 +84,11 @@ export default function PostItemCardWrapper(props: PostItemCardWrapperProps) {
 
 //#region PostItemCard ---------------------------------------------------------
 
-type PostItemCardProps = CardElementProps & {
+type InnerPostItemCardProps = CardElementProps & {
   post: Post;
 };
 
-const PostItemCard = (props: PostItemCardProps) => {
+const InnerPostItemCard = (props: InnerPostItemCardProps) => {
   const { post, ...cardElementProps } = props;
   const navigation = useNavigation<RootStackNavigationProp>();
 
@@ -222,7 +222,7 @@ const PostItemCard = (props: PostItemCardProps) => {
 };
 
 // eslint-disable-next-line react/display-name
-PostItemCard.Pending = (props: CardElementProps) => {
+InnerPostItemCard.Pending = (props: CardElementProps) => {
   const aspectRatioIndex = generateRandomNumberBetween(0, ASPECT_RATIOS.length);
   return (
     <Card {...props}>

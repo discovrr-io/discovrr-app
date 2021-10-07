@@ -76,21 +76,32 @@ export namespace ProductApi {
   }
 
   export async function fetchProductById(productId: string): Promise<Product> {
-    const $FUNC = '[ProductApi.fetchProductById]';
-    const profile = await UserApi.getCurrentUserProfile();
-    const postQuery = new Parse.Query(Parse.Object.extend('Product'));
-    postQuery.equalTo('objectId', productId);
+    // const $FUNC = '[ProductApi.fetchProductById]';
+    // const profile = await UserApi.getCurrentUserProfile();
+    // const postQuery = new Parse.Query(Parse.Object.extend('Product'));
+    // postQuery.equalTo('objectId', productId);
 
-    const result = await postQuery.first();
-    if (result) {
-      return mapResultToProduct(result);
-    } else {
-      console.warn($FUNC, 'No profile found with id:', profile?.id);
-      throw new ProductApiError(
-        'NOT_FOUND',
-        `No product was found with the ID '${productId}'.`,
-      );
-    }
+    // const result = await postQuery.first();
+    // if (result) {
+    //   return mapResultToProduct(result);
+    // } else {
+    //   console.warn($FUNC, 'No profile found with id:', profile?.id);
+    //   throw new ProductApiError(
+    //     'NOT_FOUND',
+    //     `No product was found with the ID '${productId}'.`,
+    //   );
+    // }
+
+    const productQuery = new Parse.Query(Parse.Object.extend('Product'));
+    const result = await productQuery.include('statistics').get(productId);
+
+    // if (!result)
+    //   throw new ProductApiError(
+    //     'NOT_FOUND',
+    //     `No product was found with the ID '${productId}'`,
+    //   );
+
+    return mapResultToProduct(result);
   }
 
   export async function updateProductLikeStatus(

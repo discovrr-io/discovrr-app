@@ -1,34 +1,41 @@
 import React from 'react';
 import { StyleProp, View, ViewStyle } from 'react-native';
 
+import { layout } from 'src/constants';
+import { Spacing } from 'src/constants/layout';
+
 type SpacerProps = {
-  horizontal?: number;
-  vertical?: number;
+  horizontal?: number | keyof Spacing;
+  vertical?: number | keyof Spacing;
   style?: StyleProp<ViewStyle>;
 };
 
 const Spacer = (props: SpacerProps) => {
+  let horizontalSpacing: number | undefined = undefined;
+  let verticalSpacing: number | undefined = undefined;
+
+  if (typeof props.horizontal === 'number') {
+    horizontalSpacing = props.horizontal;
+  } else if (props.horizontal) {
+    horizontalSpacing = layout.spacing[props.horizontal];
+  }
+
+  if (typeof props.vertical === 'number') {
+    verticalSpacing = props.vertical;
+  } else if (props.vertical) {
+    verticalSpacing = layout.spacing[props.vertical];
+  }
+
   return (
     <View
       style={[
-        // (props.horizontal ?? -1 >= 0) || (props.vertical ?? -1 >= 0)
-        //   ? {
-        //       width: props.horizontal,
-        //       height: props.vertical,
-        //     }
-        //   : {
-        //       flexGrow: 1,
-        //       flexShrink: 1,
-        //     },
-        !!props.horizontal && {
-          width: props.horizontal,
+        !!horizontalSpacing && {
+          width: horizontalSpacing,
           height: '100%',
-          // backgroundColor: 'lightgreen',
         },
-        !!props.vertical && {
-          height: props.vertical,
+        !!verticalSpacing && {
+          height: verticalSpacing,
           width: '100%',
-          // backgroundColor: 'lightblue',
         },
         props.style,
       ]}
