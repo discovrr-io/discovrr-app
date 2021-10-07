@@ -9,8 +9,8 @@
 
 ### Fixed
 
-- Fix issue where the `Slider` in the `LocationQueryBottomSheet` doesn't
-  properly respond to gesture events on Android
+- Fix issue where `Slider` in `LocationQueryBottomSheet` doesn't properly
+  respond to gesture events on Android
 
 ## [v2.3.0.2] (2021-10-06)
 
