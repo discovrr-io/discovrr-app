@@ -14,12 +14,14 @@
 		038B7573270C108F009254F9 /* Rubik-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D884BA1806B441D6938CB325 /* Rubik-Regular.ttf */; };
 		03997AD3270C1D43001E8B6A /* DiscovrrIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 03997AD2270C1D43001E8B6A /* DiscovrrIcons.ttf */; };
 		039EAA60262DCEE80088184B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 039EAA5F262DCEE80088184B /* LaunchScreen.storyboard */; };
+		03B282EF270EB8ED002D8669 /* GoogleService-Info-Debug.plist in Resources */ = {isa = PBXBuildFile; fileRef = 03B282EE270EB8ED002D8669 /* GoogleService-Info-Debug.plist */; };
+		03B282F4270EBE9D002D8669 /* GoogleService-Info-Staging.plist in Resources */ = {isa = PBXBuildFile; fileRef = 03B282F3270EBE9D002D8669 /* GoogleService-Info-Staging.plist */; };
 		03D0FE0C2665B9BE00AD22DE /* Info-release.plist in Resources */ = {isa = PBXBuildFile; fileRef = 03D0FE0B2665B9BE00AD22DE /* Info-release.plist */; };
 		03DC1AE2262DDCF900A0D5C5 /* Discovrr.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03DC1AE1262DDCF900A0D5C5 /* Discovrr.swift */; };
 		03DC1B05262DE70600A0D5C5 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03DC1B04262DE70600A0D5C5 /* NotificationService.swift */; };
 		03DC1B09262DE70600A0D5C5 /* OneSignalNotificationServiceExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 03DC1B02262DE70600A0D5C5 /* OneSignalNotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		03ED367C26876304007B77D4 /* Info-staging.plist in Resources */ = {isa = PBXBuildFile; fileRef = 03ED367B26876304007B77D4 /* Info-staging.plist */; };
-		03FF2CAC26871DAF009DEEB0 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 03FF2CAB26871DAF009DEEB0 /* GoogleService-Info.plist */; };
+		03FF2CAC26871DAF009DEEB0 /* GoogleService-Info-Release.plist in Resources */ = {isa = PBXBuildFile; fileRef = 03FF2CAB26871DAF009DEEB0 /* GoogleService-Info-Release.plist */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
@@ -67,6 +69,8 @@
 		038584352665EA38005DECD2 /* Discovrr.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; name = Discovrr.entitlements; path = Discovrr/Discovrr.entitlements; sourceTree = "<group>"; };
 		03997AD2270C1D43001E8B6A /* DiscovrrIcons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = DiscovrrIcons.ttf; path = ../assets/fonts/DiscovrrIcons.ttf; sourceTree = "<group>"; };
 		039EAA5F262DCEE80088184B /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
+		03B282EE270EB8ED002D8669 /* GoogleService-Info-Debug.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info-Debug.plist"; sourceTree = "<group>"; };
+		03B282F3270EBE9D002D8669 /* GoogleService-Info-Staging.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info-Staging.plist"; sourceTree = "<group>"; };
 		03D0FE0B2665B9BE00AD22DE /* Info-release.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "Info-release.plist"; path = "Discovrr/Info-release.plist"; sourceTree = "<group>"; };
 		03DC1AE0262DDCF800A0D5C5 /* Discovrr-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Discovrr-Bridging-Header.h"; sourceTree = "<group>"; };
 		03DC1AE1262DDCF900A0D5C5 /* Discovrr.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Discovrr.swift; path = Discovrr/Discovrr.swift; sourceTree = "<group>"; };
@@ -75,7 +79,7 @@
 		03DC1B06262DE70600A0D5C5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		03ED367B26876304007B77D4 /* Info-staging.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "Info-staging.plist"; path = "Discovrr/Info-staging.plist"; sourceTree = "<group>"; };
 		03ED368F26876716007B77D4 /* OneSignalNotificationServiceExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = OneSignalNotificationServiceExtension.entitlements; sourceTree = "<group>"; };
-		03FF2CAB26871DAF009DEEB0 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		03FF2CAB26871DAF009DEEB0 /* GoogleService-Info-Release.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info-Release.plist"; sourceTree = "<group>"; };
 		10415AB7DB500DCD1D6C4948 /* Pods-Discovrr.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Discovrr.release.xcconfig"; path = "Target Support Files/Pods-Discovrr/Pods-Discovrr.release.xcconfig"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* Discovrr Debug.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Discovrr Debug.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = Discovrr/AppDelegate.h; sourceTree = "<group>"; tabWidth = 4; };
@@ -184,7 +188,9 @@
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				03ED367B26876304007B77D4 /* Info-staging.plist */,
 				03D0FE0B2665B9BE00AD22DE /* Info-release.plist */,
-				03FF2CAB26871DAF009DEEB0 /* GoogleService-Info.plist */,
+				03B282EE270EB8ED002D8669 /* GoogleService-Info-Debug.plist */,
+				03B282F3270EBE9D002D8669 /* GoogleService-Info-Staging.plist */,
+				03FF2CAB26871DAF009DEEB0 /* GoogleService-Info-Release.plist */,
 				038584352665EA38005DECD2 /* Discovrr.entitlements */,
 				008F07F21AC5B25A0029DE68 /* main.jsbundle */,
 				039EAA5F262DCEE80088184B /* LaunchScreen.storyboard */,
@@ -305,6 +311,7 @@
 			buildPhases = (
 				E82C00EC222E8D91167DDB58 /* [CP] Check Pods Manifest.lock */,
 				FD10A7F022414F080027D42C /* Start Packager */,
+				03B282F0270EB941002D8669 /* Copy GoogleService-Info.plist */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
@@ -390,8 +397,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				03B282EF270EB8ED002D8669 /* GoogleService-Info-Debug.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
-				03FF2CAC26871DAF009DEEB0 /* GoogleService-Info.plist in Resources */,
+				03FF2CAC26871DAF009DEEB0 /* GoogleService-Info-Release.plist in Resources */,
 				039EAA60262DCEE80088184B /* LaunchScreen.storyboard in Resources */,
 				03ED367C26876304007B77D4 /* Info-staging.plist in Resources */,
 				03D0FE0C2665B9BE00AD22DE /* Info-release.plist in Resources */,
@@ -399,6 +407,7 @@
 				038B7571270C108F009254F9 /* Rubik-Italic.ttf in Resources */,
 				038B7572270C108F009254F9 /* Rubik-Medium.ttf in Resources */,
 				038B7573270C108F009254F9 /* Rubik-Regular.ttf in Resources */,
+				03B282F4270EBE9D002D8669 /* GoogleService-Info-Staging.plist in Resources */,
 				03997AD3270C1D43001E8B6A /* DiscovrrIcons.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -419,6 +428,24 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "export NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh\n";
+		};
+		03B282F0270EB941002D8669 /* Copy GoogleService-Info.plist */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Copy GoogleService-Info.plist";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Path of the original GoogleService-Info-*.plist file\nCONFIG_SRC=$SRCROOT/GoogleService-Info-$CONFIGURATION.plist\n\n# New path of copied GoogleService-Info.plist file\nBUILT_APP_DIR=$BUILT_PRODUCTS_DIR/$PRODUCT_NAME.app\nFILENAME_IN_BUNDLE=GoogleService-Info.plist\nCONFIG_DEST=$BUILT_APP_DIR/$FILENAME_IN_BUNDLE\n\n# Copy files\necho Running \"cp $CONFIG_SRC $CONFIG_DEST\"\n# These paths may have spaces, so we'll surround them in quotes\ncp \"$CONFIG_SRC\" \"$CONFIG_DEST\"\n";
 		};
 		4C0B034EC44946FC0A6CD923 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1011,7 +1038,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.discovrr;
+				PRODUCT_BUNDLE_IDENTIFIER = com.discovrr.debug;
 				PRODUCT_NAME = "Discovrr Debug";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "Discovrr-Bridging-Header.h";
