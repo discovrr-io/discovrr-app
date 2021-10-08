@@ -48,7 +48,7 @@ import {
   signInWithCredential,
   registerNewAccount,
   RegisterNewAccountParams,
-} from './authSlice';
+} from './auth-slice';
 
 import { useAuthState } from './hooks';
 

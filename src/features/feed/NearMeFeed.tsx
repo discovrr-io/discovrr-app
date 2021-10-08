@@ -6,8 +6,8 @@ import Icon from 'react-native-vector-icons/Ionicons';
 
 import { color, font, layout } from 'src/constants';
 import { DEFAULT_TILE_SPACING } from 'src/constants/values';
-import { fetchAllMerchants } from 'src/features/merchants/merchantsSlice';
-import { fetchAllProducts } from 'src/features/products/productsSlice';
+import { fetchAllMerchants } from 'src/features/merchants/merchants-slice';
+import { fetchAllProducts } from 'src/features/products/products-slice';
 import { useAppDispatch, useAppSelector, useIsMounted } from 'src/hooks';
 import { MerchantId, NearMeItem, ProductId } from 'src/models';
 import { FeedTopTabScreenProps } from 'src/navigation';

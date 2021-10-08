@@ -5,7 +5,7 @@ import {
   fetchProductById,
   selectProductById,
   selectProductStatusById,
-} from './productsSlice';
+} from './products-slice';
 
 export const useProduct: TypedUseAsyncItem<ProductId, Product | undefined> =
   productId => {

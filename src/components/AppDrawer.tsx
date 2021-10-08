@@ -14,8 +14,8 @@ import {
 import { color, font, layout } from 'src/constants';
 import { DEFAULT_AVATAR } from 'src/constants/media';
 import { DEFAULT_ACTIVE_OPACITY } from 'src/constants/values';
-import { signOut } from 'src/features/authentication/authSlice';
-import { selectProfileById } from 'src/features/profiles/profilesSlice';
+import { signOut } from 'src/features/authentication/auth-slice';
+import { selectProfileById } from 'src/features/profiles/profiles-slice';
 import { useAppDispatch, useAppSelector } from 'src/hooks';
 
 import { RootStackNavigationProp, RootStackParamList } from 'src/navigation';

@@ -2,7 +2,7 @@ import { SerializedError } from '@reduxjs/toolkit';
 import { useSelector } from 'react-redux';
 
 import { RootState } from 'src/store';
-import { AuthLoadingStatus } from './authSlice';
+import { AuthLoadingStatus } from './auth-slice';
 
 type AuthState = readonly [AuthLoadingStatus, SerializedError | undefined];
 

@@ -47,7 +47,7 @@ import {
 } from 'src/components';
 import ActionBottomSheet, {
   ActionBottomSheetItem,
-} from 'src/components/bottomSheets/ActionBottomSheet';
+} from 'src/components/bottom-sheets/ActionBottomSheet';
 
 import { color, font, layout } from 'src/constants';
 import { DEFAULT_IMAGE_DIMENSIONS } from 'src/constants/media';
@@ -58,15 +58,15 @@ import {
 
 import CommentCell from 'src/features/comments/CommentCell';
 import { useIsMyProfile } from 'src/features/profiles/hooks';
-import { selectProfileById } from 'src/features/profiles/profilesSlice';
+import { selectProfileById } from 'src/features/profiles/profiles-slice';
 import {
   addCommentForPost,
   fetchCommentsForPost,
   selectCommentsForPost,
-} from 'src/features/comments/commentsSlice';
+} from 'src/features/comments/comment-slice';
 
 import { usePost } from './hooks';
-import { deletePost, fetchPostById } from './postsSlice';
+import { deletePost, fetchPostById } from './posts-slice';
 import { PostItemCardFooter } from './PostItemCard';
 
 const COMMENT_REPLY_INDICATOR_HEIGHT = 50;

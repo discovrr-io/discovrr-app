@@ -5,7 +5,7 @@ import {
   fetchPostById,
   selectPostById,
   selectPostStatusById,
-} from './postsSlice';
+} from './posts-slice';
 
 export const usePost: TypedUseAsyncItem<PostId, Post | undefined> = postId => {
   return useAsyncItem(

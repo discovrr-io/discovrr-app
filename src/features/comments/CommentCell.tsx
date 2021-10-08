@@ -19,20 +19,20 @@ import { useNavigation } from '@react-navigation/core';
 import { AsyncGate, Spacer } from 'src/components';
 import ActionBottomSheet, {
   ActionBottomSheetItem,
-} from 'src/components/bottomSheets/ActionBottomSheet';
+} from 'src/components/bottom-sheets/ActionBottomSheet';
 
 import * as values from 'src/constants/values';
 import { color, font, layout } from 'src/constants';
 import { DEFAULT_AVATAR } from 'src/constants/media';
 
 import { useIsMyProfile, useProfile } from 'src/features/profiles/hooks';
-import { selectIsCurrentUserProfile } from 'src/features/authentication/authSlice';
+import { selectIsCurrentUserProfile } from 'src/features/authentication/auth-slice';
 import { useAppDispatch, useAppSelector, useIsMounted } from 'src/hooks';
 import { Comment, CommentId, Profile } from 'src/models';
 import { RootStackNavigationProp } from 'src/navigation';
 import { alertSomethingWentWrong, shortenLargeNumber } from 'src/utilities';
 
-import { deleteComment, updateCommentLikeStatus } from './commentsSlice';
+import { deleteComment, updateCommentLikeStatus } from './comment-slice';
 import { useComment } from './hooks';
 
 const AVATAR_DIAMETER = 32;

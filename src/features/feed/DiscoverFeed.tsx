@@ -3,8 +3,8 @@ import { Alert, RefreshControl } from 'react-native';
 
 import { color } from 'src/constants';
 import { SOMETHING_WENT_WRONG } from 'src/constants/strings';
-import { fetchAllPosts, selectPostIds } from 'src/features/posts/postsSlice';
-import { fetchProfileById } from 'src/features/profiles/profilesSlice';
+import { fetchAllPosts, selectPostIds } from 'src/features/posts/posts-slice';
+import { fetchProfileById } from 'src/features/profiles/profiles-slice';
 import { useAppDispatch, useAppSelector, useIsMounted } from 'src/hooks';
 import { PostId } from 'src/models';
 import { Pagination } from 'src/models/common';

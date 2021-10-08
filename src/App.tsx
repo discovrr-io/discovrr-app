@@ -27,8 +27,8 @@ import store from './store';
 import { LoadingContainer } from './components';
 import { color } from './constants';
 import { useAppDispatch } from './hooks';
-import { resetAppState } from './globalActions';
-import { signOut } from './features/authentication/authSlice';
+import { resetAppState } from './global-actions';
+import { signOut } from './features/authentication/auth-slice';
 
 Parse.setAsyncStorage(AsyncStorage);
 Parse.User.enableUnsafeCurrentUser();

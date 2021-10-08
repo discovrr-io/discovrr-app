@@ -10,7 +10,7 @@ import {
 import { BaseThunkAPI } from '@reduxjs/toolkit/dist/createAsyncThunk';
 
 import { ApiFetchStatus, ApiFetchStatuses, CommentApi } from 'src/api';
-import { resetAppState } from 'src/globalActions';
+import { resetAppState } from 'src/global-actions';
 import { Comment, CommentId, PostId } from 'src/models';
 import { RootState } from 'src/store';
 

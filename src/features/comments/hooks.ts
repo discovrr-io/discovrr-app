@@ -5,7 +5,7 @@ import {
   fetchCommentById,
   selectCommentById,
   selectCommentStatusById,
-} from './commentsSlice';
+} from './comment-slice';
 
 export const useComment: TypedUseAsyncItem<CommentId, Comment | undefined> =
   commentId => {

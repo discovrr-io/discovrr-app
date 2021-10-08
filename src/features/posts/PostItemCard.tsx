@@ -32,7 +32,7 @@ import {
 } from 'src/utilities';
 
 import { usePost } from './hooks';
-import { updatePostLikeStatus } from './postsSlice';
+import { updatePostLikeStatus } from './posts-slice';
 
 const ASPECT_RATIOS = [
   1 / 1, // 1:1 (Square)

@@ -7,7 +7,7 @@ export type { default as Profile, ProfileId } from './profile';
 export type { default as User, UserId } from './user';
 
 export type { SessionId } from './common';
-export type { NearMeItem } from './nearMe';
+export type { NearMeItem } from './near-me';
 
 export type {
   default as Comment,

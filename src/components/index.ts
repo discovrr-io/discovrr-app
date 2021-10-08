@@ -1,9 +1,9 @@
-export * from './bottomSheets';
+export * from './bottom-sheets';
 export * from './buttons';
 export * from './cards';
 export * from './containers';
 export * from './inputs';
-export * from './masonry';
+export * from './masonries';
 
 export { default as AppDrawer } from './AppDrawer';
 export { default as AsyncGate } from './AsyncGate';

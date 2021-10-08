@@ -17,7 +17,7 @@ import { useNavigation } from '@react-navigation/core';
 
 import { Button, Spacer } from 'src/components';
 import { color, font, layout } from 'src/constants';
-import { createPost } from 'src/features/posts/postsSlice';
+import { createPost } from 'src/features/posts/posts-slice';
 import { useAppDispatch } from 'src/hooks';
 import { PostLocation, PostType } from 'src/models/post';
 import { alertSomethingWentWrong } from 'src/utilities';

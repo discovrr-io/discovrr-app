@@ -35,7 +35,7 @@ import {
 } from 'src/navigation';
 
 import { useIsMyProfile, useProfile } from './hooks';
-import { fetchProfileById } from './profilesSlice';
+import { fetchProfileById } from './profiles-slice';
 
 const AVATAR_DIAMETER = 45;
 

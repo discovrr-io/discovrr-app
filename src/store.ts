@@ -17,27 +17,27 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import autoMergeLevel2 from 'redux-persist/lib/stateReconciler/autoMergeLevel2';
 
-import authReducer from './features/authentication/authSlice';
-import commentRepliesReducer from './features/comments/commentRepliesSlice';
-import commentsReducer from './features/comments/commentsSlice';
-import merchantsReducer from './features/merchants/merchantsSlice';
-import notesReducer from './features/notes/notesSlice';
-import notificationsReducer from './features/notifications/notificationsSlice';
-import postsReducer from './features/posts/postsSlice';
-import productsReducer from './features/products/productsSlice';
-import profilesReducer from './features/profiles/profilesSlice';
-import settingsReducer from './features/settings/settingsSlice';
+import authReducer from './features/authentication/auth-slice';
+import commentRepliesReducer from './features/comments/comment-replies-slice';
+import commentsReducer from './features/comments/comment-slice';
+import merchantsReducer from './features/merchants/merchants-slice';
+import notesReducer from './features/notes/notes-slice';
+import notificationsReducer from './features/notifications/notifications-slice';
+import postsReducer from './features/posts/posts-slice';
+import productsReducer from './features/products/products-slice';
+import profilesReducer from './features/profiles/profiles-slice';
+import settingsReducer from './features/settings/settings-slice';
 
-import { AuthState } from './features/authentication/authSlice';
-import { CommentRepliesState } from './features/comments/commentRepliesSlice';
-import { CommentsState } from './features/comments/commentsSlice';
-import { MerchantsState } from './features/merchants/merchantsSlice';
-import { NotesState } from './features/notes/notesSlice';
-import { NotificationsState } from './features/notifications/notificationsSlice';
-import { PostsState } from './features/posts/postsSlice';
-import { ProductsState } from './features/products/productsSlice';
-import { ProfilesState } from './features/profiles/profilesSlice';
-import { SettingsState } from './features/settings/settingsSlice';
+import { AuthState } from './features/authentication/auth-slice';
+import { CommentRepliesState } from './features/comments/comment-replies-slice';
+import { CommentsState } from './features/comments/comment-slice';
+import { MerchantsState } from './features/merchants/merchants-slice';
+import { NotesState } from './features/notes/notes-slice';
+import { NotificationsState } from './features/notifications/notifications-slice';
+import { PostsState } from './features/posts/posts-slice';
+import { ProductsState } from './features/products/products-slice';
+import { ProfilesState } from './features/profiles/profiles-slice';
+import { SettingsState } from './features/settings/settings-slice';
 
 type AppState = {
   auth: AuthState;

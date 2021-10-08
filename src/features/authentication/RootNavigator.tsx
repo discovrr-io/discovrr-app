@@ -6,7 +6,7 @@ import { useLinkTo } from '@react-navigation/native';
 
 import { HeaderIcon, PlaceholderScreen, RouteError } from 'src/components';
 import { color, font } from 'src/constants';
-import { setFCMRegistrationTokenForSession } from 'src/features/notifications/notificationsSlice';
+import { setFCMRegistrationTokenForSession } from 'src/features/notifications/notifications-slice';
 import { useAppDispatch, useAppSelector } from 'src/hooks';
 import { RootStack } from 'src/navigation';
 

@@ -8,7 +8,7 @@ import { useNavigation } from '@react-navigation/core';
 import { ProfileApi } from 'src/api';
 import { SOMETHING_WENT_WRONG } from 'src/constants/strings';
 import { color, layout } from 'src/constants';
-import { updateProfile } from 'src/features/profiles/profilesSlice';
+import { updateProfile } from 'src/features/profiles/profiles-slice';
 import { useMyProfileId, useProfile } from 'src/features/profiles/hooks';
 import { useAppDispatch } from 'src/hooks';
 import { Profile, ProfileId } from 'src/models';

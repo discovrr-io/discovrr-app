@@ -6,8 +6,8 @@ import { useNavigation } from '@react-navigation/native';
 import { Button, ToggleButton } from 'src/components';
 import { color, layout } from 'src/constants';
 import { SOMETHING_WENT_WRONG } from 'src/constants/strings';
-import { selectCurrentUserProfileId } from 'src/features/authentication/authSlice';
-import { selectPostsByProfile } from 'src/features/posts/postsSlice';
+import { selectCurrentUserProfileId } from 'src/features/authentication/auth-slice';
+import { selectPostsByProfile } from 'src/features/posts/posts-slice';
 import { useAppDispatch, useAppSelector } from 'src/hooks';
 import { Profile } from 'src/models';
 import { RootStackNavigationProp } from 'src/navigation';
@@ -17,7 +17,7 @@ import {
   updateProfileFollowStatus,
   selectIsUserFollowingProfile,
   selectProfileById,
-} from 'src/features/profiles/profilesSlice';
+} from 'src/features/profiles/profiles-slice';
 
 import ProfileHeader from './ProfileHeader';
 // import { useIsMyProfile } from './hooks';

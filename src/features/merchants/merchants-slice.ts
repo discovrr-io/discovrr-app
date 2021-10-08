@@ -8,7 +8,7 @@ import {
 import { BaseThunkAPI } from '@reduxjs/toolkit/dist/createAsyncThunk';
 
 import { ApiFetchStatus, ApiFetchStatuses, MerchantApi } from 'src/api';
-import { resetAppState } from 'src/globalActions';
+import { resetAppState } from 'src/global-actions';
 import { Merchant, MerchantId } from 'src/models';
 import { Pagination } from 'src/models/common';
 import { RootState } from 'src/store';

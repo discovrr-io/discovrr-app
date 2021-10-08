@@ -1,8 +1,8 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
 import { NotificationApi } from 'src/api';
-import { abortSignOut, signOut } from 'src/features/authentication/authSlice';
-import { resetAppState } from 'src/globalActions';
+import { abortSignOut, signOut } from 'src/features/authentication/auth-slice';
+import { resetAppState } from 'src/global-actions';
 
 //#region Notifications Async Thunks
 

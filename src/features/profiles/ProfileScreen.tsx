@@ -27,13 +27,13 @@ import { Profile } from 'src/models';
 import { ProfileStackScreenProps } from 'src/navigation';
 
 import UserProfileHeader from './UserProfileHeader';
-import { fetchProfileById } from './profilesSlice';
+import { fetchProfileById } from './profiles-slice';
 import { useIsMyProfile, useProfile } from './hooks';
 
 import {
   fetchPostsForProfile,
   selectPostsByProfile,
-} from 'src/features/posts/postsSlice';
+} from 'src/features/posts/posts-slice';
 
 import {
   ActionBottomSheet,
@@ -43,7 +43,7 @@ import {
   PostMasonryList,
   RouteError,
 } from 'src/components';
-import { ActionBottomSheetItem } from 'src/components/bottomSheets/ActionBottomSheet';
+import { ActionBottomSheetItem } from 'src/components/bottom-sheets/ActionBottomSheet';
 
 type ProfileScreenProps = ProfileStackScreenProps<'ProfileDetails'>;
 

@@ -4,7 +4,7 @@ import {
   fetchMerchantById,
   selectMerchantById,
   selectMerchantStatusById,
-} from './merchantsSlice';
+} from './merchants-slice';
 
 export const useMerchant: TypedUseAsyncItem<MerchantId, Merchant | undefined> =
   merchantId => {

@@ -8,7 +8,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 
 import { LoadingOverlay } from 'src/components';
 import { color } from 'src/constants';
-import { fetchProfileById } from 'src/features/profiles/profilesSlice';
+import { fetchProfileById } from 'src/features/profiles/profiles-slice';
 import { useAppDispatch, useAppSelector } from 'src/hooks';
 import { User } from 'src/models';
 import { AuthStackParamList } from 'src/navigation';
@@ -21,7 +21,7 @@ import {
   abortSignOut,
   didDismissAbortSignOutAlert,
   didDismissInfoModal,
-} from './authSlice';
+} from './auth-slice';
 
 const AuthStack = createStackNavigator<AuthStackParamList>();
 

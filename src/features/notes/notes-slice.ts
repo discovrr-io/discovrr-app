@@ -6,7 +6,7 @@ import {
 } from '@reduxjs/toolkit';
 
 import { ApiFetchStatus, NoteApi } from 'src/api';
-import { resetAppState } from 'src/globalActions';
+import { resetAppState } from 'src/global-actions';
 import { Note } from 'src/models';
 import { RootState } from 'src/store';
 

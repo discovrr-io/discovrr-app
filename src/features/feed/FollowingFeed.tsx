@@ -5,8 +5,8 @@ import { layout } from 'src/constants';
 
 import PostItemCard from 'src/features/posts/PostItemCard';
 
-import { selectCurrentUserProfileId } from 'src/features/authentication/authSlice';
-import { selectFollowingPosts } from 'src/features/posts/postsSlice';
+import { selectCurrentUserProfileId } from 'src/features/authentication/auth-slice';
+import { selectFollowingPosts } from 'src/features/posts/posts-slice';
 import { useAppSelector } from 'src/hooks';
 
 const TILE_SPACING = layout.defaultScreenMargins.horizontal;

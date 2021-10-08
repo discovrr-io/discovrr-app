@@ -10,8 +10,8 @@ import {
 import { BaseThunkAPI } from '@reduxjs/toolkit/dist/createAsyncThunk';
 
 import { ApiFetchStatus, ApiFetchStatuses, ProfileApi } from 'src/api';
-import { selectCurrentUserProfileId } from 'src/features/authentication/authSlice';
-import { resetAppState } from 'src/globalActions';
+import { selectCurrentUserProfileId } from 'src/features/authentication/auth-slice';
+import { resetAppState } from 'src/global-actions';
 import { Profile, ProfileId } from 'src/models';
 import { Pagination } from 'src/models/common';
 import { RootState } from 'src/store';

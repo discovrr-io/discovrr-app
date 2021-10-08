@@ -8,7 +8,7 @@ import {
 } from '@reduxjs/toolkit';
 
 import { ApiFetchStatus, ApiFetchStatuses, ProductApi } from 'src/api';
-import { resetAppState } from 'src/globalActions';
+import { resetAppState } from 'src/global-actions';
 import { MerchantId, Product, ProductId } from 'src/models';
 import { Pagination } from 'src/models/common';
 import { RootState } from 'src/store';

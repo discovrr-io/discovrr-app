@@ -4,13 +4,13 @@ import { TypedUseAsyncItem, useAppSelector, useAsyncItem } from 'src/hooks';
 import {
   selectCurrentUserProfileId,
   selectIsCurrentUserProfile,
-} from 'src/features/authentication/authSlice';
+} from 'src/features/authentication/auth-slice';
 
 import {
   fetchProfileById,
   selectProfileById,
   selectProfileStatusById,
-} from './profilesSlice';
+} from './profiles-slice';
 
 export const useProfile: TypedUseAsyncItem<ProfileId, Profile | undefined> =
   profileId => {
