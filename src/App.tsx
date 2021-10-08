@@ -58,14 +58,16 @@ const navigationTheme: Theme = {
   },
 };
 
-// TODO: Should we apply modulus 100 to each value to ensure it doesn't overflow
-// into the next version segment? At the moment, if we passed `[2, 3, 100, 0]`,
-// the function will return `"2040000"`, as if we passed `[2, 3, 4, 0]` instead.
 function createVersionString(
   version: readonly [number, number, number, number],
 ): string {
   const [major, minor, patch, build] = version;
-  return String(major * 10 ** 6 + minor * 10 ** 4 + patch * 10 ** 2 + build);
+  return String(
+    major * 10 ** 6 +
+      (minor % 100) * 10 ** 4 +
+      (patch % 100) * 10 ** 2 +
+      (build % 100),
+  );
 }
 
 function App() {
@@ -116,6 +118,8 @@ function PersistedApp() {
           shouldResetFCMRegistrationToken: SIGN_OUT_USER,
         });
 
+        // FIXME: Even if we don't sign out the user, the profile associated
+        // with it will be purged
         dispatch(resetAction);
 
         // User will only be signed out if the version has changed. Subsequent
