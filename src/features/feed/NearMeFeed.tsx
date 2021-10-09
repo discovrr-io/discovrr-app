@@ -240,9 +240,7 @@ export default function NearMeFeed(_: NearMeFeedProps) {
         refreshControl={
           !isInitialRender ? (
             <RefreshControl
-              title="Loading activity near you..."
               tintColor={color.gray500}
-              titleColor={color.gray700}
               refreshing={!isInitialRender && !shouldFetchMore && shouldRefresh}
               onRefresh={handleRefresh}
             />
@@ -307,7 +305,7 @@ export default function NearMeFeed(_: NearMeFeedProps) {
 }
 
 function SearchLocationOptions() {
-  const queryPrefs = useAppSelector(state => state.settings.locationQueryPrefs);
+  const _ = useAppSelector(state => state.settings.locationQueryPrefs);
   const bottomSheetRef = useRef<BottomSheet>(null);
 
   return (

@@ -111,13 +111,13 @@ function ProfileFollowActivityScreen(props: ProfileFollowActivityScreenProps) {
         keyExtractor={item => String(item)}
         contentContainerStyle={{ flexGrow: 1 }}
         refreshControl={
-          <RefreshControl
-            tintColor={color.gray500}
-            titleColor={color.gray700}
-            // We don't want to see the refreshing logo on initial mount
-            refreshing={!isInitialRender && shouldRefresh}
-            onRefresh={handleRefresh}
-          />
+          !isInitialRender ? (
+            <RefreshControl
+              tintColor={color.gray500}
+              refreshing={!isInitialRender && shouldRefresh}
+              onRefresh={handleRefresh}
+            />
+          ) : undefined
         }
         ItemSeparatorComponent={() => (
           <View

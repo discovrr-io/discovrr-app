@@ -433,13 +433,13 @@ function PostDetailsScreen({ post }: PostDetailsScreenProps) {
           }
           ListFooterComponentStyle={postDetailsScreenStyles.listFooter}
           refreshControl={
-            <RefreshControl
-              title="Refreshing post..."
-              tintColor={color.gray500}
-              titleColor={color.gray700}
-              refreshing={shouldRefresh}
-              onRefresh={handleRefresh}
-            />
+            !isInitialRender ? (
+              <RefreshControl
+                tintColor={color.gray500}
+                refreshing={!isInitialRender && shouldRefresh}
+                onRefresh={handleRefresh}
+              />
+            ) : undefined
           }
           renderItem={({ item: commentId, index }) => (
             <CommentCell

@@ -252,9 +252,7 @@ export default function LandingScreen(_: LandingScreenProps) {
       data={homeFeedData?.featuredProductIds ?? []}
       refreshControl={
         <RefreshControl
-          title="Loading..."
           tintColor={color.gray500}
-          titleColor={color.gray700}
           refreshing={!isInitialRender && shouldRefresh}
           onRefresh={handleRefresh}
         />

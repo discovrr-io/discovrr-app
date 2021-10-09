@@ -85,9 +85,7 @@ export default function DiscoverFeed() {
       refreshControl={
         !isInitialRender ? (
           <RefreshControl
-            title="Loading your personalised feed..."
             tintColor={color.gray500}
-            titleColor={color.gray700}
             refreshing={!isInitialRender && shouldRefresh}
             onRefresh={handleRefresh}
           />
