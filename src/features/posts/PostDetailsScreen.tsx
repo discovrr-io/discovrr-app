@@ -63,7 +63,7 @@ import {
   addCommentForPost,
   fetchCommentsForPost,
   selectCommentsForPost,
-} from 'src/features/comments/comment-slice';
+} from 'src/features/comments/comments-slice';
 
 import { usePost } from './hooks';
 import { deletePost, fetchPostById } from './posts-slice';

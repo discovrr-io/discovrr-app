@@ -32,7 +32,7 @@ import { Comment, CommentId, Profile } from 'src/models';
 import { RootStackNavigationProp } from 'src/navigation';
 import { alertSomethingWentWrong, shortenLargeNumber } from 'src/utilities';
 
-import { deleteComment, updateCommentLikeStatus } from './comment-slice';
+import { deleteComment, updateCommentLikeStatus } from './comments-slice';
 import { useComment } from './hooks';
 
 const AVATAR_DIAMETER = 32;
