@@ -5,14 +5,14 @@ import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import { MediaSource } from './common';
 import { ProfileId, SessionId, User, UserId } from 'src/models';
 import { DEFAULT_AVATAR_DIMENSIONS } from 'src/constants/media';
-
-const MAX_ATTEMPTS = 3;
+import { ApiError, CommonApiErrorCode } from '.';
 
 export namespace AuthApi {
-  export enum AuthApiError {
-    NO_PROFILE_FOUND = '1000',
-    USERNAME_ALREADY_TAKEN = '2000',
-  }
+  export type AuthApiErrorCode =
+    | CommonApiErrorCode
+    | 'USERNAME_TAKEN'
+    | 'NO_PROFILE_FOUND';
+  export class AuthApiError extends ApiError<AuthApiErrorCode> {}
 
   export type AuthenticatedResult = readonly [User, SessionId];
 
@@ -87,6 +87,7 @@ export namespace AuthApi {
     currentUser: Parse.User,
   ): Promise<Parse.Object | undefined> {
     const $FUNC = '[AuthApi.attemptToFetchProfileForUser]';
+    const MAX_ATTEMPTS = 3;
 
     console.log($FUNC, 'Querying profile...');
     const query = new Parse.Query(Parse.Object.extend('Profile'));
@@ -143,10 +144,11 @@ export namespace AuthApi {
         'No profile was found with user ID:',
         currentUser.id,
       );
-      throw {
-        code: AuthApiError.NO_PROFILE_FOUND,
-        message: 'No profile was found with the given user ID.',
-      };
+
+      throw new AuthApiError(
+        'NO_PROFILE_FOUND',
+        'No profile was found with the given user ID.',
+      );
     }
 
     return await syncAndConstructUser(currentUser.id, profile, firebaseUser);
@@ -258,10 +260,10 @@ export namespace AuthApi {
 
       if (!(await checkUsernameAvailable(username))) {
         // This will be handled by LoginScreen
-        throw {
-          code: AuthApiError.USERNAME_ALREADY_TAKEN,
-          message: 'The provided username is already taken.',
-        };
+        throw new AuthApiError(
+          'USERNAME_TAKEN',
+          'The provided username is already taken.',
+        );
       }
 
       console.log($FUNC, 'Creating new user via Firebase...');
@@ -289,10 +291,11 @@ export namespace AuthApi {
           'No profile was found with user ID',
           newParseUser.id,
         );
-        throw {
-          code: AuthApiError.NO_PROFILE_FOUND,
-          message: 'No profile was found with the given user ID.',
-        };
+
+        throw new AuthApiError(
+          'NO_PROFILE_FOUND',
+          'No profile was found with the given user ID.',
+        );
       }
 
       // newProfile.set('fullName', fullName);

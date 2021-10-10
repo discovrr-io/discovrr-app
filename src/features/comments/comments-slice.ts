@@ -9,18 +9,25 @@ import {
 
 import { BaseThunkAPI } from '@reduxjs/toolkit/dist/createAsyncThunk';
 
-import { ApiFetchStatus, ApiFetchStatuses, CommentApi } from 'src/api';
 import { resetAppState } from 'src/global-actions';
 import { Comment, CommentId, PostId } from 'src/models';
 import { RootState } from 'src/store';
 
+import {
+  ApiFetchStatus,
+  ApiFetchStatuses,
+  CommentApi,
+  Reloadable,
+} from 'src/api';
+
 //#region Comment Adapter Initialization
 
-export type CommentsState = EntityState<Comment> & ApiFetchStatuses<CommentId>;
+type CommentApiFetchStatuses = ApiFetchStatuses<CommentId>;
+export type CommentsState = EntityState<Comment> & CommentApiFetchStatuses;
 
 const commentsAdapter = createEntityAdapter<Comment>();
 
-const initialState = commentsAdapter.getInitialState<ApiFetchStatuses>({
+const initialState = commentsAdapter.getInitialState<CommentApiFetchStatuses>({
   statuses: {},
 });
 
@@ -28,30 +35,21 @@ const initialState = commentsAdapter.getInitialState<ApiFetchStatuses>({
 
 //#region Comment Async Thunks
 
-type FetchCommentByIdParams = {
-  commentId: CommentId;
-  reload?: boolean;
-};
-
-export const fetchCommentById = createAsyncThunk(
-  'comments/fetchCommentById',
-  async ({ commentId }: FetchCommentByIdParams) =>
-    CommentApi.fetchCommentById(String(commentId)),
-  {
-    condition: (
-      { commentId, reload = false },
-      { getState }: BaseThunkAPI<RootState, unknown>,
-    ) => {
-      if (reload) return true;
-      const { status } = selectCommentStatusById(getState(), commentId);
-      return (
-        status !== 'fulfilled' &&
-        status !== 'pending' &&
-        status !== 'refreshing'
-      );
-    },
+export const fetchCommentById = createAsyncThunk<
+  Comment,
+  Reloadable<CommentApi.FetchCommentByIdParams>
+>('comments/fetchCommentById', CommentApi.fetchCommentById, {
+  condition: (
+    { commentId, reload = false },
+    { getState }: BaseThunkAPI<RootState, unknown>,
+  ) => {
+    if (reload) return true;
+    const { status } = selectCommentStatusById(getState(), commentId);
+    return (
+      status !== 'fulfilled' && status !== 'pending' && status !== 'refreshing'
+    );
   },
-);
+});
 
 type FetchCommentsForPostParams = {
   postId: PostId;
@@ -61,34 +59,22 @@ type FetchCommentsForPostParams = {
 export const fetchCommentsForPost = createAsyncThunk(
   'comments/fetchCommentsForPost',
   async ({ postId }: FetchCommentsForPostParams) =>
-    CommentApi.fetchCommentsForPost(String(postId)),
+    CommentApi.fetchCommentsForPost({ postId }),
 );
-
-type AddCommentForPostParams = {
-  postId: PostId;
-  message: string;
-};
 
 export const addCommentForPost = createAsyncThunk(
   'comments/addCommentForPost',
-  async ({ postId, message }: AddCommentForPostParams) =>
-    CommentApi.addCommentForPost(String(postId), message),
+  CommentApi.addCommentForPost,
 );
-
-type UpdateCommentLikeStatusParams = {
-  commentId: CommentId;
-  didLike: boolean;
-};
 
 export const updateCommentLikeStatus = createAsyncThunk(
   'comments/updateCommentLikeStatus',
-  async ({ commentId, didLike }: UpdateCommentLikeStatusParams) =>
-    CommentApi.updateCommentLikeStatus(String(commentId), didLike),
+  CommentApi.updateCommentLikeStatus,
 );
 
 export const deleteComment = createAsyncThunk(
   'comments/deleteComment',
-  async (commentId: CommentId) => CommentApi.deleteComment(String(commentId)),
+  CommentApi.deleteComment,
 );
 
 //#endregion Comment Async Thunks
@@ -101,7 +87,7 @@ const commentsSlice = createSlice({
   reducers: {
     commentLikeStatusChanged: (
       state,
-      action: PayloadAction<UpdateCommentLikeStatusParams>,
+      action: PayloadAction<CommentApi.UpdateCommentLikeStatusParams>,
     ) => {
       const { commentId, didLike } = action.payload;
       const selectedComment = state.entities[commentId];
@@ -125,18 +111,18 @@ const commentsSlice = createSlice({
       // -- fetchCommentById --
       .addCase(fetchCommentById.pending, (state, action) => {
         const { commentId, reload } = action.meta.arg;
-        state.statuses[String(commentId)] = {
+        state.statuses[commentId] = {
           status: reload ? 'refreshing' : 'pending',
         };
       })
       .addCase(fetchCommentById.fulfilled, (state, action) => {
         if (action.payload) commentsAdapter.upsertOne(state, action.payload);
-        state.statuses[String(action.meta.arg.commentId)] = {
+        state.statuses[action.meta.arg.commentId] = {
           status: 'fulfilled',
         };
       })
       .addCase(fetchCommentById.rejected, (state, action) => {
-        state.statuses[String(action.meta.arg.commentId)] = {
+        state.statuses[action.meta.arg.commentId] = {
           status: 'rejected',
           error: action.error,
         };
@@ -156,13 +142,13 @@ const commentsSlice = createSlice({
         // Finally, upsert the new comments
         commentsAdapter.upsertMany(state, action.payload);
         for (const commentId of Object.keys(state.statuses)) {
-          state.statuses[commentId] = { status: 'fulfilled' };
+          state.statuses[commentId as CommentId] = { status: 'fulfilled' };
         }
       })
       // -- addCommentForPost --
       .addCase(addCommentForPost.fulfilled, (state, action) => {
         if (action.payload) commentsAdapter.upsertOne(state, action.payload);
-        state.statuses[String(action.payload.id)] = { status: 'fulfilled' };
+        state.statuses[action.payload.id] = { status: 'fulfilled' };
       })
       // -- updateCommentLikeStatus --
       .addCase(updateCommentLikeStatus.pending, (state, action) => {
@@ -180,8 +166,8 @@ const commentsSlice = createSlice({
       })
       // -- deleteComment --
       .addCase(deleteComment.fulfilled, (state, action) => {
-        commentsAdapter.removeOne(state, action.meta.arg);
-        delete state.statuses[action.meta.arg];
+        commentsAdapter.removeOne(state, action.meta.arg.commentId);
+        delete state.statuses[action.meta.arg.commentId];
       });
   },
 });

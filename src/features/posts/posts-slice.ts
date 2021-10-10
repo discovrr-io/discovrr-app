@@ -9,16 +9,16 @@ import {
 
 import { BaseThunkAPI } from '@reduxjs/toolkit/dist/createAsyncThunk';
 
-import { ApiFetchStatus, ApiFetchStatuses, PostApi } from 'src/api';
+import { ApiFetchStatus, ApiFetchStatuses, PostApi, Reloadable } from 'src/api';
 import { selectProfileById } from 'src/features/profiles/profiles-slice';
 import { resetAppState } from 'src/global-actions';
 import { Post, PostId, ProfileId } from 'src/models';
-import { Pagination } from 'src/models/common';
 import { RootState } from 'src/store';
 
 //#region Post Adapter Initialization
 
-export type PostsState = EntityState<Post> & ApiFetchStatuses<PostId>;
+type PostApiFetchStatuses = ApiFetchStatuses<PostId>;
+export type PostsState = EntityState<Post> & PostApiFetchStatuses;
 
 const postsAdapter = createEntityAdapter<Post>({
   // Sort by newest post (this probably shouldn't be needed)
@@ -26,7 +26,7 @@ const postsAdapter = createEntityAdapter<Post>({
 });
 
 // TODO: Only cache the first N number of posts
-const initialState = postsAdapter.getInitialState<ApiFetchStatuses>({
+const initialState = postsAdapter.getInitialState<PostApiFetchStatuses>({
   statuses: {},
 });
 
@@ -36,82 +36,48 @@ const initialState = postsAdapter.getInitialState<ApiFetchStatuses>({
 
 export const createPost = createAsyncThunk(
   'posts/createPost',
-  async (contents: PostApi.CreatePostParams) => PostApi.createPost(contents),
+  PostApi.createPost,
 );
 
-type FetchPostByIdParams = {
-  postId: PostId;
-  reload?: boolean;
-};
-
-export const fetchPostById = createAsyncThunk(
-  'posts/fetchPostById',
-  async ({ postId }: FetchPostByIdParams) =>
-    PostApi.fetchPostById(String(postId)),
-  {
-    condition: (
-      { postId, reload = false },
-      { getState }: BaseThunkAPI<RootState, unknown>,
-    ) => {
-      if (reload) return true;
-      const { status } = selectPostStatusById(getState(), postId);
-      return (
-        status !== 'fulfilled' &&
-        status !== 'pending' &&
-        status !== 'refreshing'
-      );
-    },
+export const fetchPostById = createAsyncThunk<
+  Post,
+  Reloadable<PostApi.FetchPostByIdParams>
+>('posts/fetchPostById', PostApi.fetchPostById, {
+  condition: (
+    { postId, reload = false },
+    { getState }: BaseThunkAPI<RootState, unknown>,
+  ) => {
+    if (reload) return true;
+    const { status } = selectPostStatusById(getState(), postId);
+    return (
+      status !== 'fulfilled' && status !== 'pending' && status !== 'refreshing'
+    );
   },
-);
+});
 
-type FetchAllPostsParams = {
-  pagination?: Pagination;
-  reload?: boolean;
-};
-
-export const fetchAllPosts = createAsyncThunk(
-  'posts/fetchAllPosts',
-  async ({ pagination }: FetchAllPostsParams = {}) =>
-    PostApi.fetchAllPosts(pagination),
-);
-
-type FetchPostsForProfileParams = {
-  profileId: ProfileId;
-  reload?: boolean;
-};
+export const fetchAllPosts = createAsyncThunk<
+  Post[],
+  Reloadable<PostApi.FetchAllPostsParams>
+>('posts/fetchAllPosts', PostApi.fetchAllPosts);
 
 export const fetchPostsForProfile = createAsyncThunk(
   'posts/fetchPostsForProfile',
-  async ({ profileId }: FetchPostsForProfileParams) =>
-    PostApi.fetchPostsForProfile(String(profileId)),
+  PostApi.fetchPostsForProfile,
 );
-
-type UpdatePostLikeStatusParams = {
-  postId: PostId;
-  didLike: boolean;
-  sendNotification?: boolean;
-};
 
 export const updatePostLikeStatus = createAsyncThunk(
   'posts/updatePostLikeStatus',
-  async ({ postId, didLike, sendNotification }: UpdatePostLikeStatusParams) =>
-    PostApi.updatePostLikeStatus(String(postId), didLike, sendNotification),
+  PostApi.updatePostLikeStatus,
 );
-
-type UpdatePostViewCounterParams = {
-  postId: PostId;
-  lastViewed?: string;
-};
 
 export const updatePostViewCounter = createAsyncThunk(
   'posts/updatePostViewCounter',
-  async ({ postId }: UpdatePostViewCounterParams) =>
-    PostApi.updatePostViewCounter(String(postId)),
+  PostApi.updatePostViewCounter,
 );
 
 export const deletePost = createAsyncThunk(
   'posts/deletePost',
-  async (postId: PostId) => PostApi.deletePost(String(postId)),
+  PostApi.deletePost,
 );
 
 //#endregion Post Async Thunks
@@ -124,7 +90,7 @@ const postsSlice = createSlice({
   reducers: {
     postLikeStatusChanged: (
       state,
-      action: PayloadAction<UpdatePostLikeStatusParams>,
+      action: PayloadAction<PostApi.UpdatePostLikeStatusParams>,
     ) => {
       const { postId, didLike } = action.payload;
       const selectedPost = state.entities[postId];
@@ -154,11 +120,32 @@ const postsSlice = createSlice({
           error: undefined,
         };
       })
+      // -- fetchPostById --
+      .addCase(fetchPostById.pending, (state, action) => {
+        const { postId, reload } = action.meta.arg;
+        state.statuses[postId] = {
+          status: reload ? 'refreshing' : 'pending',
+          error: undefined,
+        };
+      })
+      .addCase(fetchPostById.fulfilled, (state, action) => {
+        if (action.payload) postsAdapter.upsertOne(state, action.payload);
+        state.statuses[action.meta.arg.postId] = {
+          status: 'fulfilled',
+          error: undefined,
+        };
+      })
+      .addCase(fetchPostById.rejected, (state, action) => {
+        state.statuses[action.meta.arg.postId] = {
+          status: 'rejected',
+          error: action.error,
+        };
+      })
       // -- fetchAllPosts --
       .addCase(fetchAllPosts.pending, (state, action) => {
         const { reload = false } = action.meta.arg ?? {};
         for (const postId of Object.keys(state.statuses)) {
-          state.statuses[postId] = {
+          state.statuses[postId as PostId] = {
             status: reload ? 'refreshing' : 'pending',
             error: undefined,
           };
@@ -175,63 +162,26 @@ const postsSlice = createSlice({
 
         state.statuses = {};
         for (const postId of action.payload.map(post => post.id)) {
-          state.statuses[String(postId)] = { status: 'fulfilled' };
+          state.statuses[postId] = { status: 'fulfilled' };
         }
       })
       .addCase(fetchAllPosts.rejected, (state, action) => {
         for (const postId of Object.keys(state.statuses)) {
-          state.statuses[postId] = {
+          state.statuses[postId as PostId] = {
             status: 'rejected',
             error: action.error,
           };
         }
       })
       // -- fetchPostsForProfile --
-      // .addCase(fetchPostsForProfile.pending, (state, action) => {
-      //   const { reload = false } = action.meta.arg;
-      //   for (const postId of Object.keys(state.statuses)) {
-      //     state.statuses[postId] = {
-      //       status: reload ? 'refreshing' : 'pending',
-      //     };
-      //   }
-      // })
       .addCase(fetchPostsForProfile.fulfilled, (state, action) => {
         postsAdapter.upsertMany(state, action.payload);
         for (const postId of action.payload.map(postId => postId.id)) {
-          state.statuses[String(postId)] = {
+          state.statuses[postId] = {
             status: 'fulfilled',
             error: undefined,
           };
         }
-      })
-      // .addCase(fetchPostsForProfile.rejected, (state, action) => {
-      //   for (const postId of Object.keys(state.statuses)) {
-      //     state.statuses[postId] = {
-      //       status: 'rejected',
-      //       error: action.error,
-      //     };
-      //   }
-      // })
-      // -- fetchPostById --
-      .addCase(fetchPostById.pending, (state, action) => {
-        const { postId, reload } = action.meta.arg;
-        state.statuses[String(postId)] = {
-          status: reload ? 'refreshing' : 'pending',
-          error: undefined,
-        };
-      })
-      .addCase(fetchPostById.fulfilled, (state, action) => {
-        if (action.payload) postsAdapter.upsertOne(state, action.payload);
-        state.statuses[String(action.meta.arg.postId)] = {
-          status: 'fulfilled',
-          error: undefined,
-        };
-      })
-      .addCase(fetchPostById.rejected, (state, action) => {
-        state.statuses[String(action.meta.arg.postId)] = {
-          status: 'rejected',
-          error: action.error,
-        };
       })
       // -- updatePostLikeStatus --
       .addCase(updatePostLikeStatus.pending, (state, action) => {
@@ -248,27 +198,28 @@ const postsSlice = createSlice({
         });
       })
       // -- updatePostViewCounter --
-      .addCase(updatePostViewCounter.fulfilled, (state, action) => {
-        const { postId, lastViewed = new Date().toJSON() } = action.meta.arg;
-        const selectedPost = state.entities[postId];
-        if (selectedPost) {
-          if (selectedPost.statistics) {
-            selectedPost.statistics.totalViews += 1;
-            selectedPost.statistics.lastViewed = lastViewed;
-          } else {
-            selectedPost.statistics = {
-              didSave: false,
-              didLike: false,
-              totalLikes: 0,
-              totalViews: 1,
-              lastViewed: lastViewed,
-            };
-          }
-        }
-      })
+      // .addCase(updatePostViewCounter.fulfilled, (state, action) => {
+      //   const { postId, lastViewed = new Date().toJSON() } = action.meta.arg;
+      //   const selectedPost = state.entities[postId];
+      //   if (selectedPost) {
+      //     if (selectedPost.statistics) {
+      //       selectedPost.statistics.totalViews += 1;
+      //       selectedPost.statistics.lastViewed = lastViewed;
+      //     } else {
+      //       selectedPost.statistics = {
+      //         didSave: false,
+      //         didLike: false,
+      //         totalLikes: 0,
+      //         totalViews: 1,
+      //         lastViewed: lastViewed,
+      //       };
+      //     }
+      //   }
+      // })
       // -- deletePost --
       .addCase(deletePost.fulfilled, (state, action) => {
-        postsAdapter.removeOne(state, action.meta.arg);
+        postsAdapter.removeOne(state, action.meta.arg.postId);
+        delete state.statuses[action.meta.arg.postId];
       });
   },
 });

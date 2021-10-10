@@ -52,7 +52,7 @@ export type MediaSource = {
  * NOTE: Keep this in sync with the backend.
  */
 
-export enum InternalObjectStatus {
+export enum ApiObjectStatus {
   /** This object is ready for tasks. */
   READY = 0,
   /** This object is in the middle of a task. */
@@ -64,3 +64,5 @@ export enum InternalObjectStatus {
   /** This object is deleted (and may be scheduled to be removed). */
   DELETED = 9,
 }
+
+export type Reloadable<T> = T & { reload?: boolean };

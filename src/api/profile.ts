@@ -2,6 +2,7 @@ import Parse from 'parse/react-native';
 
 import { Profile, ProfileId } from 'src/models';
 import { Pagination } from 'src/models/common';
+import { ApiObjectStatus } from '.';
 
 import { ApiError, CommonApiErrorCode } from './common';
 
@@ -12,28 +13,36 @@ export namespace ProfileApi {
   function mapResultToProfile(result: Parse.Object): Profile {
     return {
       id: result.id as ProfileId,
-      displayName:
-        result.get('displayName') ||
-        result.get('fullName') ||
-        result.get('name') ||
-        'Anonymous',
-      username: result.get('username') ?? '',
+      kind: result.get('kind') ?? 'personal',
       email: result.get('email') ?? '',
-      isVendor: false, // TODO: Determine if profile is vendor
+      displayName: result.get('displayName') || 'Anonymous',
+      username: result.get('username') ?? '',
+      biography: result.get('biography') || result.get('description'),
       avatar: result.get('avatar'),
       coverPhoto: result.get('coverPhoto'),
-      description: result.get('description'),
-      biography: result.get('biography') || result.get('description'),
       followers: result.get('followersArray'),
       following: result.get('followingArray'),
+      blocked: result.get('blockedArray'),
+      status: result.get('status') ?? ApiObjectStatus.READY,
     };
   }
 
-  export async function fetchProfileById(profileId: string): Promise<Profile> {
-    const query = new Parse.Query('Profile');
-    query.equalTo('objectId', profileId);
+  export async function generateRandomUsername(): Promise<string> {
+    return await Parse.Cloud.run('generateRandomUsername');
+  }
 
-    const result = await query.first();
+  //#region READ OPERATIONS
+
+  export type FetchProfileByIdParams = {
+    profileId: ProfileId;
+  };
+
+  export async function fetchProfileById(
+    params: FetchProfileByIdParams,
+  ): Promise<Profile> {
+    const { profileId } = params;
+    const query = new Parse.Query('Profile');
+    const result = await query.get(String(profileId));
     if (!result) {
       throw new ProfileApiError(
         'PROFILE_NOT_FOUND',
@@ -44,9 +53,14 @@ export namespace ProfileApi {
     return mapResultToProfile(result);
   }
 
+  export type FetchAllProfilesParams = {
+    pagination?: Pagination;
+  };
+
   export async function fetchAllProfiles(
-    pagination?: Pagination,
+    params: FetchAllProfilesParams = {},
   ): Promise<Profile[]> {
+    const { pagination } = params;
     const query = new Parse.Query('Profile');
 
     if (pagination) {
@@ -58,32 +72,48 @@ export namespace ProfileApi {
     return results.map(mapResultToProfile);
   }
 
+  //#endregion READ OPERATIONS
+
+  //#region UPDATE OPERATIONS
+
   export type ProfileChanges = Partial<
-    Omit<Profile, 'id' | 'followers' | 'following'>
+    Pick<
+      Profile,
+      | 'displayName'
+      | 'email'
+      | 'username'
+      | 'biography'
+      | 'avatar'
+      | 'coverPhoto'
+    >
   >;
 
-  export async function updateProfile(
-    profileId: string,
-    changes: ProfileChanges,
-  ) {
-    const profileQuery = new Parse.Query(Parse.Object.extend('Profile'));
-    profileQuery.equalTo('objectId', profileId);
+  export type UpdateProfileParams = {
+    profileId: ProfileId;
+    changes: ProfileChanges;
+  };
 
-    const profile = await profileQuery.first();
+  export async function updateProfile(params: UpdateProfileParams) {
+    const { profileId, changes } = params;
+    const profileQuery = new Parse.Query(Parse.Object.extend('Profile'));
+    const profile = await profileQuery.get(String(profileId));
     await profile?.save(changes);
   }
 
+  export type UpdateProfileFollowStatusParams = {
+    profileId: ProfileId;
+    didFollow: boolean;
+  };
+
   export async function updateProfileFollowStatus(
-    profileId: string,
-    didFollow: boolean,
+    params: UpdateProfileFollowStatusParams,
   ) {
+    const { profileId, didFollow } = params;
     await Parse.Cloud.run('updateProfileFollowStatus', {
-      followeeId: profileId,
+      followeeId: String(profileId),
       didFollow,
     });
   }
 
-  export async function generateRandomUsername(): Promise<string> {
-    return await Parse.Cloud.run('generateRandomUsername');
-  }
+  //#endregion UPDATE OPERATIONS
 }

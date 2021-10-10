@@ -6,23 +6,28 @@ import {
   EntityState,
   PayloadAction,
 } from '@reduxjs/toolkit';
-
 import { BaseThunkAPI } from '@reduxjs/toolkit/dist/createAsyncThunk';
 
-import { ApiFetchStatus, ApiFetchStatuses, ProfileApi } from 'src/api';
 import { selectCurrentUserProfileId } from 'src/features/authentication/auth-slice';
 import { resetAppState } from 'src/global-actions';
 import { Profile, ProfileId } from 'src/models';
-import { Pagination } from 'src/models/common';
 import { RootState } from 'src/store';
+
+import {
+  ApiFetchStatus,
+  ApiFetchStatuses,
+  ProfileApi,
+  Reloadable,
+} from 'src/api';
 
 //#region Profile Adapter Initialization
 
-export type ProfilesState = EntityState<Profile> & ApiFetchStatuses<ProfileId>;
+type ProfileApiFetchStatuses = ApiFetchStatuses<ProfileId>;
+export type ProfilesState = EntityState<Profile> & ProfileApiFetchStatuses;
 
 const profilesAdapter = createEntityAdapter<Profile>();
 
-const initialState = profilesAdapter.getInitialState<ApiFetchStatuses>({
+const initialState = profilesAdapter.getInitialState<ProfileApiFetchStatuses>({
   statuses: {},
 });
 
@@ -30,51 +35,30 @@ const initialState = profilesAdapter.getInitialState<ApiFetchStatuses>({
 
 //#region Profile Async Thunks
 
-type FetchAllProfilesParams = {
-  pagination?: Pagination;
-  reload?: boolean;
-};
-
-export const fetchAllProfiles = createAsyncThunk(
-  'profiles/fetchAllProfiles',
-  async ({ pagination }: FetchAllProfilesParams = {}) =>
-    ProfileApi.fetchAllProfiles(pagination),
-);
-
-type FetchProfileByIdParams = {
-  profileId: ProfileId;
-  reload?: boolean;
-};
-
-export const fetchProfileById = createAsyncThunk(
-  'profiles/fetchProfileById',
-  async ({ profileId }: FetchProfileByIdParams) =>
-    ProfileApi.fetchProfileById(String(profileId)),
-  {
-    condition: (
-      { profileId, reload = false },
-      { getState }: BaseThunkAPI<RootState, unknown>,
-    ) => {
-      if (reload) return true;
-      const { status } = selectProfileStatusById(getState(), profileId);
-      return (
-        status !== 'fulfilled' &&
-        status !== 'pending' &&
-        status !== 'refreshing'
-      );
-    },
+export const fetchProfileById = createAsyncThunk<
+  Profile,
+  Reloadable<ProfileApi.FetchProfileByIdParams>
+>('profiles/fetchProfileById', ProfileApi.fetchProfileById, {
+  condition: (
+    { profileId, reload = false },
+    { getState }: BaseThunkAPI<RootState, unknown>,
+  ) => {
+    if (reload) return true;
+    const { status } = selectProfileStatusById(getState(), profileId);
+    return (
+      status !== 'fulfilled' && status !== 'pending' && status !== 'refreshing'
+    );
   },
-);
+});
 
-type UpdateProfileParams = {
-  profileId: ProfileId;
-  changes: ProfileApi.ProfileChanges;
-};
+export const fetchAllProfiles = createAsyncThunk<
+  Profile[],
+  Reloadable<ProfileApi.FetchAllProfilesParams>
+>('profiles/fetchAllProfiles', ProfileApi.fetchAllProfiles);
 
 export const updateProfile = createAsyncThunk(
   'profiles/updateProfile',
-  async ({ profileId, changes }: UpdateProfileParams) =>
-    ProfileApi.updateProfile(profileId.toString(), changes),
+  ProfileApi.updateProfile,
 );
 
 type UpdateProfileFollowStatusParams = {
@@ -86,7 +70,7 @@ type UpdateProfileFollowStatusParams = {
 export const updateProfileFollowStatus = createAsyncThunk(
   'profiles/updateProfileFollowStatus',
   async ({ followeeId, didFollow }: UpdateProfileFollowStatusParams) =>
-    ProfileApi.updateProfileFollowStatus(followeeId.toString(), didFollow),
+    ProfileApi.updateProfileFollowStatus({ profileId: followeeId, didFollow }),
 );
 
 //#endregion Profile Async Thunks
@@ -143,14 +127,6 @@ const profilesSlice = createSlice({
         Object.assign(state, initialState);
       })
       // -- fetchAllProfiles --
-      // .addCase(fetchAllProfiles.pending, (state, action) => {
-      //   const { reload = false } = action.meta.arg ?? {};
-      //   for (const profileId of Object.keys(state.statuses)) {
-      //     state.statuses[profileId] = {
-      //       status: reload ? 'refreshing' : 'pending',
-      //     };
-      //   }
-      // })
       .addCase(fetchAllProfiles.fulfilled, (state, action) => {
         const { reload = false } = action.meta.arg ?? {};
 
@@ -162,32 +138,24 @@ const profilesSlice = createSlice({
 
         state.statuses = {};
         for (const profileId of action.payload.map(profile => profile.id)) {
-          state.statuses[String(profileId)] = { status: 'fulfilled' };
+          state.statuses[profileId] = { status: 'fulfilled' };
         }
       })
-      // .addCase(fetchAllProfiles.rejected, (state, action) => {
-      //   for (const profileId of Object.keys(state.statuses)) {
-      //     state.statuses[profileId] = {
-      //       status: 'rejected',
-      //       error: action.error,
-      //     };
-      //   }
-      // })
       // -- fetchProfileById --
       .addCase(fetchProfileById.pending, (state, action) => {
         const { profileId, reload = false } = action.meta.arg;
-        state.statuses[String(profileId)] = {
+        state.statuses[profileId] = {
           status: reload ? 'refreshing' : 'pending',
         };
       })
       .addCase(fetchProfileById.fulfilled, (state, action) => {
         if (action.payload) profilesAdapter.upsertOne(state, action.payload);
-        state.statuses[String(action.meta.arg.profileId)] = {
+        state.statuses[action.meta.arg.profileId] = {
           status: 'fulfilled',
         };
       })
       .addCase(fetchProfileById.rejected, (state, action) => {
-        state.statuses[String(action.meta.arg.profileId)] = {
+        state.statuses[action.meta.arg.profileId] = {
           status: 'rejected',
           error: action.error,
         };
@@ -237,8 +205,9 @@ export const selectIsUserFollowingProfile = createSelector(
   [selectProfileById, selectCurrentUserProfileId],
   (profile, userProfileId) => {
     if (!profile || !userProfileId) return false;
+    if (!profile.followers) return false;
     if (profile.id === userProfileId) return false;
-    return (profile.followers ?? []).includes(userProfileId);
+    return profile.followers.includes(userProfileId);
   },
 );
 

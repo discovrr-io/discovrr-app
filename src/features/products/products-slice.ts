@@ -7,19 +7,25 @@ import {
   PayloadAction,
 } from '@reduxjs/toolkit';
 
-import { ApiFetchStatus, ApiFetchStatuses, ProductApi } from 'src/api';
 import { resetAppState } from 'src/global-actions';
 import { MerchantId, Product, ProductId } from 'src/models';
-import { Pagination } from 'src/models/common';
 import { RootState } from 'src/store';
+
+import {
+  ApiFetchStatus,
+  ApiFetchStatuses,
+  ProductApi,
+  Reloadable,
+} from 'src/api';
 
 //#region Product Adapter Initialization
 
-export type ProductsState = EntityState<Product> & ApiFetchStatuses<ProductId>;
+type ProductApiFetchStatuses = ApiFetchStatuses<ProductId>;
+export type ProductsState = EntityState<Product> & ProductApiFetchStatuses;
 
 const productsAdapter = createEntityAdapter<Product>();
 
-const initialState = productsAdapter.getInitialState<ApiFetchStatuses>({
+const initialState = productsAdapter.getInitialState<ProductApiFetchStatuses>({
   statuses: {},
 });
 
@@ -27,60 +33,30 @@ const initialState = productsAdapter.getInitialState<ApiFetchStatuses>({
 
 //#region Product Async Thunks
 
-type FetchAllProductsParams = {
-  pagination?: Pagination;
-  reload?: boolean;
-};
+export const fetchProductById = createAsyncThunk<
+  Product,
+  Reloadable<ProductApi.FetchProductByIdParams>
+>('products/fetchProductById', ProductApi.fetchProductById);
 
-export const fetchAllProducts = createAsyncThunk(
-  'products/fetchAllProducts',
-  async ({ pagination }: FetchAllProductsParams = {}) =>
-    ProductApi.fetchAllProducts(pagination),
-);
-
-type FetchProductsForMerchantParams = {
-  merchantId: MerchantId;
-  reload?: boolean;
-};
+export const fetchAllProducts = createAsyncThunk<
+  Product[],
+  Reloadable<ProductApi.FetchAllProductsParams>
+>('products/fetchAllProducts', ProductApi.fetchAllProducts);
 
 export const fetchProductsForMerchant = createAsyncThunk(
   'products/fetchProductsForMerchant',
-  async ({ merchantId }: FetchProductsForMerchantParams) =>
-    ProductApi.fetchProductsForMerchant(String(merchantId)),
+  ProductApi.fetchProductsForMerchant,
 );
 
-type FetchProductByIdParams = {
-  productId: ProductId;
-  reload?: boolean;
-};
+// export const updateProductLikeStatus = createAsyncThunk(
+//   'products/updateProductLikeStatus',
+//   ProductApi.updateProductLikeStatus,
+// );
 
-export const fetchProductById = createAsyncThunk(
-  'products/fetchProductById',
-  async ({ productId }: FetchProductByIdParams) =>
-    ProductApi.fetchProductById(String(productId)),
-);
-
-type UpdateProductLikeStatusParams = {
-  productId: ProductId;
-  didLike: boolean;
-};
-
-export const updateProductLikeStatus = createAsyncThunk(
-  'products/updateProductLikeStatus',
-  async ({ productId, didLike }: UpdateProductLikeStatusParams) =>
-    ProductApi.updateProductLikeStatus(String(productId), didLike),
-);
-
-type UpdateProductViewCounterParams = {
-  productId: ProductId;
-  lastViewed?: string;
-};
-
-export const updateProductViewCounter = createAsyncThunk(
-  'products/updateProductViewCounter',
-  async ({ productId }: UpdateProductViewCounterParams) =>
-    ProductApi.updateProductViewCounter(String(productId)),
-);
+// export const updateProductViewCounter = createAsyncThunk(
+//   'products/updateProductViewCounter',
+//   ProductApi.updateProductViewCounter,
+// );
 
 //#endregion Product Async Thunks
 
@@ -112,33 +88,25 @@ const productsSlice = createSlice({
       // -- fetchProductById --
       .addCase(fetchProductById.pending, (state, action) => {
         const { productId, reload } = action.meta.arg;
-        state.statuses[String(productId)] = {
+        state.statuses[productId] = {
           status: reload ? 'refreshing' : 'pending',
           error: undefined,
         };
       })
       .addCase(fetchProductById.fulfilled, (state, action) => {
         if (action.payload) productsAdapter.upsertOne(state, action.payload);
-        state.statuses[String(action.meta.arg.productId)] = {
+        state.statuses[action.meta.arg.productId] = {
           status: 'fulfilled',
           error: undefined,
         };
       })
       .addCase(fetchProductById.rejected, (state, action) => {
-        state.statuses[String(action.meta.arg.productId)] = {
+        state.statuses[action.meta.arg.productId] = {
           status: 'rejected',
           error: action.error,
         };
       })
       // -- fetchAllProducts --
-      // .addCase(fetchAllProducts.pending, (state, action) => {
-      //   const { reload = false } = action.meta.arg ?? {}; // `??` may not be necessary
-      //   for (const productId of Object.keys(state.statuses)) {
-      //     state.statuses[productId] = {
-      //       status: reload ? 'refreshing' : 'pending',
-      //     };
-      //   }
-      // })
       .addCase(fetchAllProducts.fulfilled, (state, action) => {
         const { reload = false } = action.meta.arg ?? {};
 
@@ -150,73 +118,49 @@ const productsSlice = createSlice({
 
         state.statuses = {};
         for (const productId of action.payload.map(product => product.id)) {
-          state.statuses[String(productId)] = { status: 'fulfilled' };
+          state.statuses[productId] = { status: 'fulfilled' };
         }
       })
-      // .addCase(fetchAllProducts.rejected, (state, action) => {
-      //   for (const productId of Object.keys(state.statuses)) {
-      //     state.statuses[productId] = {
-      //       status: 'rejected',
-      //       error: action.error,
-      //     };
-      //   }
-      // })
       // -- fetchProductsForMerchant --
-      // .addCase(fetchProductsForMerchant.pending, (state, action) => {
-      //   const { reload = false } = action.meta.arg ?? {};
-      //   for (const productId of Object.keys(state.statuses)) {
-      //     state.statuses[productId] = {
-      //       status: reload ? 'refreshing' : 'pending',
-      //     };
-      //   }
-      // })
       .addCase(fetchProductsForMerchant.fulfilled, (state, action) => {
         productsAdapter.upsertMany(state, action.payload);
         for (const productId of action.payload.map(productId => productId.id)) {
-          state.statuses[String(productId)] = { status: 'fulfilled' };
-        }
-      })
-      // .addCase(fetchProductsForMerchant.rejected, (state, action) => {
-      //   for (const productId of Object.keys(state.statuses)) {
-      //     state.statuses[productId] = {
-      //       status: 'rejected',
-      //       error: action.error,
-      //     };
-      //   }
-      // })
-      // -- updateProductLikeStatus --
-      .addCase(updateProductLikeStatus.pending, (state, action) => {
-        productsSlice.caseReducers.productLikeStatusChanged(state, {
-          ...action,
-          payload: action.meta.arg,
-        });
-      })
-      .addCase(updateProductLikeStatus.rejected, (state, action) => {
-        const oldLike = !action.meta.arg.didLike;
-        productsSlice.caseReducers.productLikeStatusChanged(state, {
-          ...action,
-          payload: { ...action.meta.arg, didLike: oldLike },
-        });
-      })
-      // -- updateProductViewCounter --
-      .addCase(updateProductViewCounter.fulfilled, (state, action) => {
-        const { productId, lastViewed = new Date().toJSON() } = action.meta.arg;
-        const selectedProduct = state.entities[productId];
-        if (selectedProduct) {
-          if (selectedProduct.statistics) {
-            selectedProduct.statistics.totalViews += 1;
-            selectedProduct.statistics.lastViewed = lastViewed;
-          } else {
-            selectedProduct.statistics = {
-              didSave: false,
-              didLike: false,
-              totalLikes: 0,
-              totalViews: 1,
-              lastViewed: lastViewed,
-            };
-          }
+          state.statuses[productId] = { status: 'fulfilled' };
         }
       });
+    // -- updateProductLikeStatus --
+    // .addCase(updateProductLikeStatus.pending, (state, action) => {
+    //   productsSlice.caseReducers.productLikeStatusChanged(state, {
+    //     ...action,
+    //     payload: action.meta.arg,
+    //   });
+    // })
+    // .addCase(updateProductLikeStatus.rejected, (state, action) => {
+    //   const oldLike = !action.meta.arg.didLike;
+    //   productsSlice.caseReducers.productLikeStatusChanged(state, {
+    //     ...action,
+    //     payload: { ...action.meta.arg, didLike: oldLike },
+    //   });
+    // })
+    // -- updateProductViewCounter --
+    // .addCase(updateProductViewCounter.fulfilled, (state, action) => {
+    //   const { productId, lastViewed = new Date().toJSON() } = action.meta.arg;
+    //   const selectedProduct = state.entities[productId];
+    //   if (selectedProduct) {
+    //     if (selectedProduct.statistics) {
+    //       selectedProduct.statistics.totalViews += 1;
+    //       selectedProduct.statistics.lastViewed = lastViewed;
+    //     } else {
+    //       selectedProduct.statistics = {
+    //         didSave: false,
+    //         didLike: false,
+    //         totalLikes: 0,
+    //         totalViews: 1,
+    //         lastViewed: lastViewed,
+    //       };
+    //     }
+    //   }
+    // });
   },
 });
 
@@ -240,10 +184,7 @@ export function selectProductStatusById(
 }
 
 export const selectProductsForMerchant = createSelector(
-  [
-    selectAllProducts,
-    (_state: RootState, merchantId: MerchantId) => merchantId,
-  ],
+  [selectAllProducts, (_: RootState, merchantId: MerchantId) => merchantId],
   (products, merchantId) => {
     return products.filter(product => product.merchantId === merchantId);
   },

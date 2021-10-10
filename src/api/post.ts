@@ -1,13 +1,13 @@
 import Parse from 'parse/react-native';
 
-import { Post } from 'src/models';
+import { Post, ProfileId } from 'src/models';
 import { PostContents, PostId, PostLocation, PostType } from 'src/models/post';
 import { Pagination } from 'src/models/common';
 
 import {
   ApiError,
   CommonApiErrorCode,
-  InternalObjectStatus,
+  ApiObjectStatus,
   MediaSource,
 } from './common';
 import { UserApi } from './user';
@@ -110,28 +110,30 @@ export namespace PostApi {
 
   //#region READ OPERATIONS
 
-  export async function fetchPostById(postId: string): Promise<Post> {
+  export type FetchPostByIdParams = {
+    postId: PostId;
+  };
+
+  export async function fetchPostById(
+    params: FetchPostByIdParams,
+  ): Promise<Post> {
+    const { postId } = params;
     const myProfile = await UserApi.getCurrentUserProfile();
     const postQuery = new Parse.Query(Parse.Object.extend('Post'));
-    postQuery.equalTo('objectId', postId);
     postQuery.include('statistics');
 
-    const result = await postQuery.first();
-    if (!result)
-      throw new PostApiError(
-        'NOT_FOUND',
-        `No post was found with the ID '${postId}'.`,
-      );
-
+    const result = await postQuery.get(String(postId));
     return mapResultToPost(result, myProfile?.id);
   }
 
-  /**
-   * Fetches every single post in the database.
-   */
+  export type FetchAllPostsParams = {
+    pagination?: Pagination;
+  };
+
   export async function fetchAllPosts(
-    pagination?: Pagination,
+    params: FetchAllPostsParams,
   ): Promise<Post[]> {
+    const { pagination } = params;
     const myProfile = await UserApi.getCurrentUserProfile();
     const postsQuery = new Parse.Query(Parse.Object.extend('Post'));
 
@@ -139,7 +141,7 @@ export namespace PostApi {
       .include('profile', 'statistics')
       .greaterThanOrEqualTo('createdAt', EARLIEST_DATE)
       .descending('createdAt')
-      .notEqualTo('status', InternalObjectStatus.DELETED);
+      .notEqualTo('status', ApiObjectStatus.DELETED);
 
     if (pagination) {
       postsQuery
@@ -152,19 +154,24 @@ export namespace PostApi {
     return results.map(post => mapResultToPost(post, myProfile?.id));
   }
 
+  export type FetchPostsForProfileParams = {
+    profileId: ProfileId;
+  };
+
   export async function fetchPostsForProfile(
-    profileId: string,
+    params: FetchPostsForProfileParams,
   ): Promise<Post[]> {
+    const { profileId } = params;
     const profilePointer: Parse.Pointer = {
       __type: 'Pointer',
       className: 'Profile',
-      objectId: profileId,
+      objectId: String(profileId),
     };
 
     const myProfile = await UserApi.getCurrentUserProfile();
     const query = new Parse.Query(Parse.Object.extend('Post'));
     query.equalTo('profile', profilePointer);
-    query.notEqualTo('status', InternalObjectStatus.DELETED);
+    query.notEqualTo('status', ApiObjectStatus.DELETED);
 
     const results = await query.find();
     return results.map(result => mapResultToPost(result, myProfile?.id));
@@ -174,71 +181,40 @@ export namespace PostApi {
 
   //#region UPDATE OPERATIONS
 
+  export type UpdatePostLikeStatusParams = {
+    postId: PostId;
+    didLike: boolean;
+    sendNotification?: boolean;
+  };
+
   export async function updatePostLikeStatus(
-    postId: string,
-    didLike: boolean,
-    sendNotification?: boolean,
+    params: UpdatePostLikeStatusParams,
   ) {
+    const { postId, ...restParams } = params;
     await Parse.Cloud.run('updatePostLikeStatus', {
-      postId,
-      didLike,
-      sendNotification,
+      postId: String(postId),
+      ...restParams,
     });
   }
 
-  export async function updatePostViewCounter(_postId: string) {
+  export type UpdatePostViewCounterParams = {
+    postId: PostId;
+  };
+
+  export async function updatePostViewCounter(_: UpdatePostViewCounterParams) {
     throw new Error('Unimplemented: PostApi.updatePostViewCounter');
-
-    /*
-    const $FUNC = '[PostApi.updatePostViewCounter]';
-
-    const myProfile = await UserApi.getCurrentUserProfile();
-    if (!myProfile) throw new UserApi.UserNotFoundApiError();
-
-    const query = new Parse.Query(Parse.Object.extend('Post'));
-    query.equalTo('objectId', postId);
-
-    const post = await query.first();
-    if (!post)
-      throw new PostApiError(
-        'NOT_FOUND',
-        `No post was found with the ID '${postId}'.`,
-      );
-
-    const profileViewedPostsRelation = myProfile.relation('viewedPosts');
-    const profileViewedPostsArray = myProfile.get('viewedPostsArray') ?? [];
-    const profileViewedPostsSet = new Set<string>(profileViewedPostsArray);
-
-    console.log($FUNC, 'Adding viewed post...');
-    profileViewedPostsRelation.add(post);
-    profileViewedPostsSet.add(post.id);
-    myProfile.set('viewedPostsArray', [...profileViewedPostsSet]);
-    myProfile.set('viewedPostsCount', profileViewedPostsSet.size);
-
-    const postViewersRelation = post.relation('viewers');
-    const postViewersArray = post.get('viewersArray') ?? [];
-    const postViewersSet = new Set<string>(postViewersArray);
-
-    console.log($FUNC, 'Adding viewer profile...');
-    postViewersRelation.add(myProfile);
-    post.set('viewersArray', [...postViewersSet.add(myProfile.id)]);
-    // A "view" is counted as the number of times a user has visited the
-    // product's page spaced out in 5 minute intervals. If the last visit was
-    // less than 5 minutes ago, it will NOT be counted as a view.
-    post.increment('viewersCount');
-
-    console.log($FUNC, 'Saving changes...');
-    await Promise.all([myProfile.save(), post.save()]);
-    console.log($FUNC, 'Successfully saved');
-    */
   }
 
   //#endregion UPDATE OPERATIONS
 
   //#region DELETE OPERATIONS
 
-  export async function deletePost(postId: string) {
-    await Parse.Cloud.run('deletePost', { postId });
+  export type DeletePostParams = {
+    postId: PostId;
+  };
+
+  export async function deletePost(params: DeletePostParams) {
+    await Parse.Cloud.run('deletePost', { postId: String(params.postId) });
   }
 
   //#endregion DELETE OPERATIONS

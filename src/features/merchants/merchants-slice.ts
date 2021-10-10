@@ -3,88 +3,57 @@ import {
   createEntityAdapter,
   createSlice,
   EntityState,
-  PayloadAction,
 } from '@reduxjs/toolkit';
 import { BaseThunkAPI } from '@reduxjs/toolkit/dist/createAsyncThunk';
 
-import { ApiFetchStatus, ApiFetchStatuses, MerchantApi } from 'src/api';
 import { resetAppState } from 'src/global-actions';
 import { Merchant, MerchantId } from 'src/models';
-import { Pagination } from 'src/models/common';
 import { RootState } from 'src/store';
+
+import {
+  ApiFetchStatus,
+  ApiFetchStatuses,
+  MerchantApi,
+  Reloadable,
+} from 'src/api';
 
 //#region Merchant Adapter Initialization
 
-export type MerchantsState = EntityState<Merchant> &
-  ApiFetchStatuses<MerchantId>;
+type MerchantApiFetchStatuses = ApiFetchStatuses<MerchantId>;
+export type MerchantsState = EntityState<Merchant> & MerchantApiFetchStatuses;
 
 const merchantsAdapter = createEntityAdapter<Merchant>();
 
-const initialState = merchantsAdapter.getInitialState<ApiFetchStatuses>({
-  statuses: {},
-});
+const initialState = merchantsAdapter.getInitialState<MerchantApiFetchStatuses>(
+  {
+    statuses: {},
+  },
+);
 
 //#endregion Merchant Adapter Initialization
 
 //#region Merchant Async Thunks
 
-type FetchMerchantByIdParams = {
-  merchantId: MerchantId;
-  reload?: boolean;
-};
-
-export const fetchMerchantById = createAsyncThunk(
-  'merchants/fetchMerchantById',
-  async ({ merchantId }: FetchMerchantByIdParams) =>
-    MerchantApi.fetchMerchantById(String(merchantId)),
-  {
-    condition: (
-      { merchantId, reload = false },
-      { getState }: BaseThunkAPI<RootState, unknown>,
-    ) => {
-      if (reload) return true;
-      const { status } = selectMerchantStatusById(getState(), merchantId);
-      return (
-        status !== 'fulfilled' &&
-        status !== 'pending' &&
-        status !== 'refreshing'
-      );
-    },
+export const fetchMerchantById = createAsyncThunk<
+  Merchant,
+  Reloadable<MerchantApi.FetchMerchantByIdParams>
+>('merchants/fetchMerchantById', MerchantApi.fetchMerchantById, {
+  condition: (
+    { merchantId, reload = false },
+    { getState }: BaseThunkAPI<RootState, unknown>,
+  ) => {
+    if (reload) return true;
+    const { status } = selectMerchantStatusById(getState(), merchantId);
+    return (
+      status !== 'fulfilled' && status !== 'pending' && status !== 'refreshing'
+    );
   },
-);
+});
 
-type FetchAllMerchantsParams = {
-  pagination?: Pagination;
-  reload?: boolean;
-};
-
-export const fetchAllMerchants = createAsyncThunk(
-  'merchants/fetchAllMerchants',
-  async ({ pagination }: FetchAllMerchantsParams = {}) =>
-    MerchantApi.fetchAllMerchants(pagination),
-);
-
-type UpdateMerchantLikeStatusParams = {
-  merchantId: MerchantId;
-  didLike: boolean;
-};
-
-export const updateMerchantLikeStatus = createAsyncThunk(
-  'merchants/updateMerchantLikeStatus',
-  async ({ merchantId, didLike }: UpdateMerchantLikeStatusParams) =>
-    MerchantApi.updateMerchantLikeStatus(String(merchantId), didLike),
-);
-
-type UpdateMerchantViewCountParams = {
-  merchantId: MerchantId;
-  lastViewed?: string;
-};
-
-export const updateMerchantViewCounter = createAsyncThunk(
-  'products/updateMerchantViewCounter',
-  async ({ merchantId }: UpdateMerchantViewCountParams) =>
-    MerchantApi.updateMerchantViewCounter(String(merchantId)),
-);
+export const fetchAllMerchants = createAsyncThunk<
+  Merchant[],
+  Reloadable<MerchantApi.FetchAllMerchantsParams>
+>('merchants/fetchAllMerchants', MerchantApi.fetchAllMerchants);
 
 //#endregion Merchant Async Thunks
 
@@ -94,17 +63,17 @@ const merchantsSlice = createSlice({
   name: 'merchants',
   initialState,
   reducers: {
-    merchantLikeStatusChanged: (
-      state,
-      action: PayloadAction<{ merchantId: MerchantId; didLike: boolean }>,
-    ) => {
-      const { merchantId, didLike } = action.payload;
-      const existingMerchant = state.entities[merchantId];
-      if (existingMerchant && existingMerchant.statistics) {
-        existingMerchant.statistics.didLike = didLike;
-        existingMerchant.statistics.totalLikes += didLike ? 1 : -1;
-      }
-    },
+    // merchantLikeStatusChanged: (
+    //   state,
+    //   action: PayloadAction<{ merchantId: MerchantId; didLike: boolean }>,
+    // ) => {
+    //   const { merchantId, didLike } = action.payload;
+    //   const existingMerchant = state.entities[merchantId];
+    //   if (existingMerchant && existingMerchant.statistics) {
+    //     existingMerchant.statistics.didLike = didLike;
+    //     existingMerchant.statistics.totalLikes += didLike ? 1 : -1;
+    //   }
+    // },
   },
   extraReducers: builder => {
     builder
@@ -113,14 +82,6 @@ const merchantsSlice = createSlice({
         Object.assign(state, initialState);
       })
       // -- fetchAllMerchants --
-      // .addCase(fetchAllMerchants.pending, (state, action) => {
-      //   const { reload = false } = action.meta.arg ?? {};
-      //   for (const merchantId of Object.keys(state.statuses)) {
-      //     state.statuses[merchantId] = {
-      //       status: reload ? 'refreshing' : 'pending',
-      //     };
-      //   }
-      // })
       .addCase(fetchAllMerchants.fulfilled, (state, action) => {
         const { reload = false } = action.meta.arg ?? {};
 
@@ -132,69 +93,27 @@ const merchantsSlice = createSlice({
 
         state.statuses = {};
         for (const merchantId of action.payload.map(merchant => merchant.id)) {
-          state.statuses[String(merchantId)] = { status: 'fulfilled' };
+          state.statuses[merchantId] = { status: 'fulfilled' };
         }
       })
-      // .addCase(fetchAllMerchants.rejected, (state, action) => {
-      //   for (const merchantId of Object.keys(state.statuses)) {
-      //     state.statuses[merchantId] = {
-      //       status: 'rejected',
-      //       error: action.error,
-      //     };
-      //   }
-      // })
       // -- fetchMerchantById --
       .addCase(fetchMerchantById.pending, (state, action) => {
         const { merchantId, reload } = action.meta.arg;
-        state.statuses[String(merchantId)] = {
+        state.statuses[merchantId] = {
           status: reload ? 'refreshing' : 'pending',
         };
       })
       .addCase(fetchMerchantById.fulfilled, (state, action) => {
         if (action.payload) merchantsAdapter.upsertOne(state, action.payload);
-        state.statuses[String(action.meta.arg.merchantId)] = {
+        state.statuses[action.meta.arg.merchantId] = {
           status: 'fulfilled',
         };
       })
       .addCase(fetchMerchantById.rejected, (state, action) => {
-        state.statuses[String(action.meta.arg.merchantId)] = {
+        state.statuses[action.meta.arg.merchantId] = {
           status: 'rejected',
           error: action.error,
         };
-      })
-      // -- updateMerchantLikeStatus --
-      .addCase(updateMerchantLikeStatus.pending, (state, action) => {
-        merchantsSlice.caseReducers.merchantLikeStatusChanged(state, {
-          ...action,
-          payload: action.meta.arg,
-        });
-      })
-      .addCase(updateMerchantLikeStatus.rejected, (state, action) => {
-        const oldLike = !action.meta.arg.didLike;
-        merchantsSlice.caseReducers.merchantLikeStatusChanged(state, {
-          ...action,
-          payload: { ...action.meta.arg, didLike: oldLike },
-        });
-      })
-      // -- updateMerchantViewCounter --
-      .addCase(updateMerchantViewCounter.fulfilled, (state, action) => {
-        const { merchantId, lastViewed = new Date().toJSON() } =
-          action.meta.arg;
-        const selectedMerchant = state.entities[merchantId];
-        if (selectedMerchant) {
-          if (selectedMerchant.statistics) {
-            selectedMerchant.statistics.totalViews += 1;
-            selectedMerchant.statistics.lastViewed = lastViewed;
-          } else {
-            selectedMerchant.statistics = {
-              didSave: false,
-              didLike: false,
-              totalLikes: 0,
-              totalViews: 1,
-              lastViewed: lastViewed,
-            };
-          }
-        }
       });
   },
 });
