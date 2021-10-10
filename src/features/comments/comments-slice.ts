@@ -16,7 +16,7 @@ import { RootState } from 'src/store';
 
 //#region Comment Adapter Initialization
 
-export type CommentsState = EntityState<Comment> & ApiFetchStatuses;
+export type CommentsState = EntityState<Comment> & ApiFetchStatuses<CommentId>;
 
 const commentsAdapter = createEntityAdapter<Comment>();
 
@@ -202,7 +202,7 @@ export function selectCommentStatusById(
   state: RootState,
   commentId: CommentId,
 ): ApiFetchStatus {
-  return state.comments.statuses[String(commentId)] ?? { status: 'idle' };
+  return state.comments.statuses[commentId] ?? { status: 'idle' };
 }
 
 export const selectCommentsForPost = createSelector(

@@ -41,8 +41,8 @@ if (__DEV__) {
   Parse.serverURL = PARSE_SERVER_URL || '';
 }
 
-// Version 2.3.0.1 (2030001)
-const STORE_VERSION = [2, 3, 0, 1] as const;
+// Store version 2.3.0.2 (2030002)
+const STORE_VERSION = [2, 3, 0, 2] as const;
 // Set this to the appropriate option any time the `STORE_VERSION` is changed
 const SIGN_OUT_USER = true;
 
@@ -122,8 +122,8 @@ function PersistedApp() {
         // with it will be purged
         dispatch(resetAction);
 
-        // User will only be signed out if the version has changed. Subsequent
-        // app launches will not be affected.
+        // NOTE: User will only be signed out if the version has changed.
+        // Subsequent app launches will not be affected.
         if (SIGN_OUT_USER) await dispatch(signOut()).unwrap();
       }
     } catch (error) {

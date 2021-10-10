@@ -18,7 +18,7 @@ import { RootState } from 'src/store';
 
 //#region Post Adapter Initialization
 
-export type PostsState = EntityState<Post> & ApiFetchStatuses;
+export type PostsState = EntityState<Post> & ApiFetchStatuses<PostId>;
 
 const postsAdapter = createEntityAdapter<Post>({
   // Sort by newest post (this probably shouldn't be needed)
@@ -289,10 +289,9 @@ export function selectPostStatusById(
   state: RootState,
   postId: PostId,
 ): ApiFetchStatus {
-  return state.posts.statuses[String(postId)] ?? { status: 'idle' };
+  return state.posts.statuses[postId] ?? { status: 'idle' };
 }
 
-// Memoized: selectPostsByProfile(state, postId)
 export const selectPostsByProfile = createSelector(
   [selectAllPosts, (_state: RootState, profileId: ProfileId) => profileId],
   (posts, postId) => posts.filter(post => post.profileId === postId),

@@ -18,7 +18,7 @@ import { RootState } from 'src/store';
 
 //#region Profile Adapter Initialization
 
-export type ProfilesState = EntityState<Profile> & ApiFetchStatuses;
+export type ProfilesState = EntityState<Profile> & ApiFetchStatuses<ProfileId>;
 
 const profilesAdapter = createEntityAdapter<Profile>();
 
@@ -230,7 +230,7 @@ export function selectProfileStatusById(
   state: RootState,
   profileId: ProfileId,
 ): ApiFetchStatus {
-  return state.profiles.statuses[String(profileId)] ?? { status: 'idle' };
+  return state.profiles.statuses[profileId] ?? { status: 'idle' };
 }
 
 export const selectIsUserFollowingProfile = createSelector(

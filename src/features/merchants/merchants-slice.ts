@@ -15,7 +15,8 @@ import { RootState } from 'src/store';
 
 //#region Merchant Adapter Initialization
 
-export type MerchantsState = EntityState<Merchant> & ApiFetchStatuses;
+export type MerchantsState = EntityState<Merchant> &
+  ApiFetchStatuses<MerchantId>;
 
 const merchantsAdapter = createEntityAdapter<Merchant>();
 
@@ -214,7 +215,7 @@ export function selectMerchantStatusById(
   state: RootState,
   merchantId: MerchantId,
 ): ApiFetchStatus {
-  return state.posts.statuses[String(merchantId)] ?? { status: 'idle' };
+  return state.merchants.statuses[merchantId] ?? { status: 'idle' };
 }
 
 //#endregion Custom Merchant Selectors

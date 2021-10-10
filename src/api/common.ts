@@ -1,4 +1,4 @@
-import { SerializedError } from '@reduxjs/toolkit';
+import { EntityId, SerializedError } from '@reduxjs/toolkit';
 
 export type CommonApiErrorCode = 'PARSE_ERROR' | 'NOT_FOUND' | 'UNKNOWN_ERROR';
 
@@ -31,8 +31,8 @@ export type ApiFetchStatus = {
   error?: SerializedError;
 };
 
-export type ApiFetchStatuses = {
-  statuses: { [entityId: string]: ApiFetchStatus };
+export type ApiFetchStatuses<Id extends EntityId = string> = {
+  statuses: Record<Id, ApiFetchStatus>;
 };
 
 export type MediaSource = {

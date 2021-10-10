@@ -15,7 +15,7 @@ import { RootState } from 'src/store';
 
 //#region Product Adapter Initialization
 
-export type ProductsState = EntityState<Product> & ApiFetchStatuses;
+export type ProductsState = EntityState<Product> & ApiFetchStatuses<ProductId>;
 
 const productsAdapter = createEntityAdapter<Product>();
 
@@ -236,7 +236,7 @@ export function selectProductStatusById(
   state: RootState,
   productId: ProductId,
 ): ApiFetchStatus {
-  return state.products.statuses[String(productId)] ?? { status: 'idle' };
+  return state.products.statuses[productId] ?? { status: 'idle' };
 }
 
 export const selectProductsForMerchant = createSelector(
