@@ -1,13 +1,14 @@
 import React from 'react';
 
-import { InfoContainer } from './containers';
+import InfoContainer, { InfoContainerProps } from './containers/InfoContainer';
 
-export default function PlaceholderScreen() {
+export default function PlaceholderScreen(props: InfoContainerProps) {
   return (
     <InfoContainer
       emoji="🚧"
       title="Under Construction"
       message="We're working on this page at the moment. We'll notify you when it's done!"
+      {...props}
     />
   );
 }

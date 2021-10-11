@@ -1,10 +1,17 @@
 import React from 'react';
-import { Platform, Text, TouchableHighlight, View } from 'react-native';
+import {
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableHighlight,
+  View,
+} from 'react-native';
 
 import Icon from 'react-native-vector-icons/Ionicons';
 import MapView, { Region } from 'react-native-maps';
 import Slider from '@react-native-community/slider';
 import { Portal } from '@gorhom/portal';
+import { BlurView } from '@react-native-community/blur';
 
 import BottomSheet, {
   BottomSheetBackdrop,
@@ -35,7 +42,7 @@ type LocationQueryBottomSheetProps = {};
 const LocationQueryBottomSheet = React.forwardRef<
   BottomSheet,
   LocationQueryBottomSheetProps
->((props: LocationQueryBottomSheetProps, ref) => {
+>((_: LocationQueryBottomSheetProps, ref) => {
   const queryPrefs = useAppSelector(state => state.settings.locationQueryPrefs);
   const snapPoints = React.useMemo(() => ['95%'], []);
 
@@ -82,15 +89,15 @@ const LocationQueryBottomSheet = React.forwardRef<
         backdropComponent={renderBackdrop}>
         <LocationQueryBottomSheetHeader onPressClose={handleCloseBottomSheet} />
         <BottomSheetScrollView
-          contentContainerStyle={{ paddingHorizontal: layout.spacing.lg }}>
-          <View style={{ overflow: 'hidden', borderRadius: layout.radius.md }}>
+          contentContainerStyle={bottomSheetStyles.scrollView}>
+          <View style={bottomSheetStyles.mapView}>
             <MapView
               initialRegion={searchRegion}
               onRegionChange={setSearchRegion}
               style={{ height: 300 }}
             />
           </View>
-          <Spacer.Vertical value={layout.spacing.md} />
+          <Spacer.Vertical value="md" />
           <Slider
             step={1}
             minimumValue={MIN_SEARCH_RADIUS}
@@ -102,12 +109,7 @@ const LocationQueryBottomSheet = React.forwardRef<
             })}
           />
         </BottomSheetScrollView>
-        <View
-          style={{
-            flexDirection: 'row',
-            paddingVertical: layout.spacing.lg,
-            paddingHorizontal: layout.spacing.lg,
-          }}>
+        <View style={bottomSheetStyles.buttonFooterContainer}>
           <Button
             title="Reset"
             type="secondary"
@@ -115,7 +117,7 @@ const LocationQueryBottomSheet = React.forwardRef<
             onPress={() => alertUnavailableFeature()}
             containerStyle={{ flex: 1 }}
           />
-          <Spacer.Horizontal value={layout.spacing.md} />
+          <Spacer.Horizontal value="md" />
           <Button
             title="Apply"
             type="primary"
@@ -124,9 +126,58 @@ const LocationQueryBottomSheet = React.forwardRef<
             containerStyle={{ flex: 1 }}
           />
         </View>
+        <BlurView blurType="light" style={bottomSheetStyles.blurView} />
+        <View
+          style={[
+            bottomSheetStyles.blurView,
+            {
+              alignItems: 'center',
+              justifyContent: 'center',
+              paddingHorizontal: layout.spacing.xl,
+            },
+          ]}>
+          <Text style={[font.largeBold, { textAlign: 'center' }]}>
+            Feature Not Yet Available
+          </Text>
+          <Spacer.Vertical value="xs" />
+          <Text style={[font.medium, { textAlign: 'center' }]}>
+            We&apos;re still working on this feature. We&apos;ll let you know
+            when it&apos;s ready!
+          </Text>
+          <Spacer.Vertical value="md" />
+          <Button
+            title="Close"
+            type="primary"
+            size="small"
+            variant="contained"
+            onPress={handleCloseBottomSheet}
+          />
+        </View>
       </BottomSheet>
     </Portal>
   );
+});
+
+const bottomSheetStyles = StyleSheet.create({
+  scrollView: {
+    paddingHorizontal: layout.spacing.lg,
+  },
+  mapView: {
+    overflow: 'hidden',
+    borderRadius: layout.radius.md,
+  },
+  buttonFooterContainer: {
+    flexDirection: 'row',
+    paddingVertical: layout.spacing.lg,
+    paddingHorizontal: layout.spacing.lg,
+  },
+  blurView: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
 });
 
 type LocationQueryBottomSheetHeaderProps = {

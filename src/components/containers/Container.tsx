@@ -22,7 +22,7 @@ export default function Container(props: InnerContainerProps) {
   const {
     children,
     justifyContentToCenter = true,
-    containerStyle,
+    containerStyle: givenStyles,
     ...restProps
   } = props;
 
@@ -32,7 +32,7 @@ export default function Container(props: InnerContainerProps) {
       style={[
         containerStyles.container,
         { justifyContent: justifyContentToCenter ? 'center' : 'flex-start' },
-        containerStyle,
+        givenStyles,
       ]}>
       {children}
     </View>
