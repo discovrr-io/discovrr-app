@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, RefreshControl } from 'react-native';
+import { RefreshControl } from 'react-native';
 
 import { color } from 'src/constants';
-import { SOMETHING_WENT_WRONG } from 'src/constants/strings';
 import { fetchAllPosts, selectPostIds } from 'src/features/posts/posts-slice';
 import { fetchProfileById } from 'src/features/profiles/profiles-slice';
 import { useAppDispatch, useAppSelector, useIsMounted } from 'src/hooks';
 import { PostId } from 'src/models';
 import { Pagination } from 'src/models/common';
+import { alertSomethingWentWrong } from 'src/utilities';
 
 import {
   EmptyContainer,
@@ -28,9 +28,8 @@ export default function DiscoverFeed() {
 
   const [isInitialRender, setIsInitialRender] = useState(true);
   const [shouldRefresh, setShouldRefresh] = useState(false);
-  const [_shouldFetchMore, _setShouldFetchMore] = useState(false);
-  const [_currentPage, setCurrentPage] = useState(0);
-  const [_didReachEnd, setDidReachEnd] = useState(false);
+  const [_, setCurrentPage] = useState(0);
+  const [didReachEnd, setDidReachEnd] = useState(false);
 
   useEffect(() => {
     if (isInitialRender || shouldRefresh)
@@ -58,14 +57,14 @@ export default function DiscoverFeed() {
               dispatch(fetchProfileById({ profileId, reload: true })).unwrap(),
             ),
           );
+
+          console.log($FUNC, 'Finished refreshing posts');
         } catch (error) {
           console.error($FUNC, 'Failed to refresh posts:', error);
-          Alert.alert(
-            SOMETHING_WENT_WRONG.title,
-            "We couldn't refresh your posts for you. Please try again later.",
+          alertSomethingWentWrong(
+            "We weren't able to refresh this page. Please try again later.",
           );
         } finally {
-          console.log($FUNC, 'Finished refreshing posts');
           if (isMounted.current) {
             if (isInitialRender) setIsInitialRender(false);
             if (shouldRefresh) setShouldRefresh(false);
@@ -86,7 +85,7 @@ export default function DiscoverFeed() {
         !isInitialRender ? (
           <RefreshControl
             tintColor={color.gray500}
-            refreshing={!isInitialRender && shouldRefresh}
+            refreshing={postIds.length > 0 && shouldRefresh}
             onRefresh={handleRefresh}
           />
         ) : undefined
@@ -98,9 +97,7 @@ export default function DiscoverFeed() {
           <EmptyContainer message="No one has posted anything yet. Be the first one!" />
         )
       }
-      ListFooterComponent={
-        postIds.length > 0 ? <FeedFooter didReachEnd /> : null
-      }
+      ListFooterComponent={<FeedFooter didReachEnd={didReachEnd} />}
     />
   );
 }

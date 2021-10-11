@@ -47,7 +47,7 @@ type HomeFeedData = {
 
 async function fetchHomeFeedData(): Promise<HomeFeedData> {
   const homeFeedQuery = new Parse.Query(Parse.Object.extend('HomeFeed'));
-  homeFeedQuery.ascending('createdAt');
+  homeFeedQuery.descending('createdAt');
   homeFeedQuery.equalTo('active', true);
 
   const homeFeedData = await homeFeedQuery.first();

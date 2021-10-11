@@ -312,7 +312,7 @@ const CommentCellContent = (props: CommentCellContentProps) => {
       const commitDeleteComment = async () => {
         try {
           console.log($FUNC, 'Deleting comment...');
-          await dispatch(deleteComment(comment.id)).unwrap();
+          await dispatch(deleteComment({ commentId: comment.id })).unwrap();
         } catch (error) {
           console.error($FUNC, 'Failed to delete comment:', error);
           alertSomethingWentWrong(

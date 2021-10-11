@@ -241,7 +241,9 @@ export default function NearMeFeed(_: NearMeFeedProps) {
           !isInitialRender ? (
             <RefreshControl
               tintColor={color.gray500}
-              refreshing={!isInitialRender && !shouldFetchMore && shouldRefresh}
+              refreshing={
+                nearMeItems.length > 0 && !shouldFetchMore && shouldRefresh
+              }
               onRefresh={handleRefresh}
             />
           ) : undefined

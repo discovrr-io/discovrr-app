@@ -36,6 +36,7 @@ type ActionBottomSheetProps = {
 
 const ActionBottomSheet = React.forwardRef<BottomSheet, ActionBottomSheetProps>(
   (props: ActionBottomSheetProps, ref) => {
+    const $FUNC = '[ActionBottomSheet]';
     const {
       items = [],
       footerButtonTitle = 'Cancel',
@@ -53,6 +54,10 @@ const ActionBottomSheet = React.forwardRef<BottomSheet, ActionBottomSheetProps>(
       handleContentLayout,
     } = useBottomSheetDynamicSnapPoints(initialSnapPoints);
 
+    React.useEffect(() => {
+      console.log($FUNC, 'REF', ref);
+    }, [ref]);
+
     const renderBackdrop = React.useCallback(
       (props: BottomSheetBackdropProps) => {
         return (
@@ -69,7 +74,7 @@ const ActionBottomSheet = React.forwardRef<BottomSheet, ActionBottomSheetProps>(
 
     const handleCloseBottomSheet = () => {
       if (typeof ref === 'function') {
-        console.warn('REF IS FUNCTION');
+        console.warn($FUNC, 'Ref is a function');
       } else {
         ref?.current?.close();
       }
@@ -77,7 +82,7 @@ const ActionBottomSheet = React.forwardRef<BottomSheet, ActionBottomSheetProps>(
 
     const handleSelectItem = async (item: string) => {
       handleCloseBottomSheet();
-      console.log('[ActionBottomSheet]', item);
+      console.log($FUNC, item);
       await onSelectItem?.(item);
     };
 

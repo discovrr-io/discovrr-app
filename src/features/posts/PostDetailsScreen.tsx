@@ -144,7 +144,7 @@ const PostHeaderComponent = ({ post }: { post: Post }) => {
         try {
           setIsDeletingPost(true);
           console.log($FUNC, `Deleting post '${post.id}'...`);
-          await dispatch(deletePost(post.id)).unwrap();
+          await dispatch(deletePost({ postId: post.id })).unwrap();
           console.log($FUNC, 'Successfully deleted post');
           navigation.goBack();
         } catch (error: any) {

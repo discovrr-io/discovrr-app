@@ -122,7 +122,7 @@ function alertMessageFromFirebaseError(
   defaultMessage?: string,
 ) {
   switch (authError.code) {
-    case AuthApi.AuthApiError.USERNAME_ALREADY_TAKEN:
+    case 'USERNAME_TAKEN' as AuthApi.AuthApiErrorCode:
       return {
         title: 'Username Taken',
         message:

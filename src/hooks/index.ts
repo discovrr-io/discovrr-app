@@ -88,9 +88,8 @@ export function useAsyncItem<ItemId, Item, AsyncThunkReturned, AsyncThunkArg>(
   selectItemStatus: AsyncItemStatusSelector<ItemId>,
 ): UseAsyncItemReturn<Item> {
   const $FUNC = '[useAsyncItem]';
-  const description = `${itemName} with ID '${itemId}'`;
-
   const dispatch = useAppDispatch();
+  const description = `${itemName} with ID '${itemId}'`;
 
   useEffect(
     () => {
