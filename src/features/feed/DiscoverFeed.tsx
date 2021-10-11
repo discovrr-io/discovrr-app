@@ -28,6 +28,7 @@ export default function DiscoverFeed() {
 
   const [isInitialRender, setIsInitialRender] = useState(true);
   const [shouldRefresh, setShouldRefresh] = useState(false);
+
   const [_, setCurrentPage] = useState(0);
   const [didReachEnd, setDidReachEnd] = useState(false);
 
@@ -66,6 +67,7 @@ export default function DiscoverFeed() {
           );
         } finally {
           if (isMounted.current) {
+            setDidReachEnd(true); // TEMPORARY
             if (isInitialRender) setIsInitialRender(false);
             if (shouldRefresh) setShouldRefresh(false);
           }
@@ -74,7 +76,7 @@ export default function DiscoverFeed() {
   }, [dispatch, isMounted, isInitialRender, shouldRefresh]);
 
   const handleRefresh = () => {
-    if (!shouldRefresh) setShouldRefresh(true);
+    if (!isInitialRender && !shouldRefresh) setShouldRefresh(true);
   };
 
   return (
@@ -82,13 +84,11 @@ export default function DiscoverFeed() {
       smallContent
       postIds={postIds}
       refreshControl={
-        !isInitialRender ? (
-          <RefreshControl
-            tintColor={color.gray500}
-            refreshing={postIds.length > 0 && shouldRefresh}
-            onRefresh={handleRefresh}
-          />
-        ) : undefined
+        <RefreshControl
+          tintColor={color.gray500}
+          refreshing={postIds.length > 0 && !isInitialRender && shouldRefresh}
+          onRefresh={handleRefresh}
+        />
       }
       ListEmptyComponent={
         isInitialRender ? (
@@ -97,7 +97,11 @@ export default function DiscoverFeed() {
           <EmptyContainer message="No one has posted anything yet. Be the first one!" />
         )
       }
-      ListFooterComponent={<FeedFooter didReachEnd={didReachEnd} />}
+      ListFooterComponent={
+        !isInitialRender && postIds.length > 0 ? (
+          <FeedFooter didReachEnd={didReachEnd} />
+        ) : undefined
+      }
     />
   );
 }

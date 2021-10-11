@@ -345,7 +345,7 @@ function PostDetailsScreen({ post }: PostDetailsScreenProps) {
   );
 
   const handleRefresh = async () => {
-    if (!shouldRefresh) setShouldRefresh(true);
+    if (!isInitialRender && !shouldRefresh) setShouldRefresh(true);
   };
 
   const handleCommentPressReply = async (
@@ -433,13 +433,11 @@ function PostDetailsScreen({ post }: PostDetailsScreenProps) {
           }
           ListFooterComponentStyle={postDetailsScreenStyles.listFooter}
           refreshControl={
-            !isInitialRender ? (
-              <RefreshControl
-                tintColor={color.gray500}
-                refreshing={!isInitialRender && shouldRefresh}
-                onRefresh={handleRefresh}
-              />
-            ) : undefined
+            <RefreshControl
+              tintColor={color.gray500}
+              refreshing={!isInitialRender && shouldRefresh}
+              onRefresh={handleRefresh}
+            />
           }
           renderItem={({ item: commentId, index }) => (
             <CommentCell

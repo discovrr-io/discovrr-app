@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
-  Alert,
   FlatList,
   RefreshControl,
   SafeAreaView,
@@ -16,8 +15,7 @@ import { useNavigation } from '@react-navigation/core';
 
 import { color, font, layout } from 'src/constants';
 import { DEFAULT_AVATAR } from 'src/constants/media';
-import { SOMETHING_WENT_WRONG } from 'src/constants/strings';
-import { useAppDispatch, useIsInitialRender } from 'src/hooks';
+import { useAppDispatch, useIsMounted } from 'src/hooks';
 import { Profile, ProfileId } from 'src/models';
 
 import {
@@ -36,6 +34,7 @@ import {
 
 import { useIsMyProfile, useProfile } from './hooks';
 import { fetchProfileById } from './profiles-slice';
+import { alertSomethingWentWrong } from 'src/utilities';
 
 const AVATAR_DIAMETER = 45;
 
@@ -78,7 +77,9 @@ function ProfileFollowActivityScreen(props: ProfileFollowActivityScreenProps) {
   }, [profile.followers, profile.following, selector]);
 
   const isMyProfile = useIsMyProfile(profile.id);
-  const isInitialRender = useIsInitialRender();
+  const isMounted = useIsMounted();
+
+  const [isInitialRender, setIsInitialRender] = useState(true);
   const [shouldRefresh, setShouldRefresh] = useState(false);
 
   useEffect(() => {
@@ -90,18 +91,20 @@ function ProfileFollowActivityScreen(props: ProfileFollowActivityScreenProps) {
           ).unwrap();
         } catch (error) {
           console.error($FUNC, 'Failed to refresh profile:', error);
-          Alert.alert(
-            SOMETHING_WENT_WRONG.title,
-            "We weren't able to refresh this profile. Please try again later.",
+          alertSomethingWentWrong(
+            "We weren't able to refresh this profile. Please try again.",
           );
         } finally {
-          if (shouldRefresh) setShouldRefresh(false);
+          if (isMounted.current) {
+            if (isInitialRender) setIsInitialRender(false);
+            if (shouldRefresh) setShouldRefresh(false);
+          }
         }
       })();
-  }, [dispatch, isInitialRender, shouldRefresh, profile.id]);
+  }, [dispatch, isMounted, isInitialRender, shouldRefresh, profile.id]);
 
   const handleRefresh = () => {
-    if (!shouldRefresh) setShouldRefresh(true);
+    if (!isInitialRender && !shouldRefresh) setShouldRefresh(true);
   };
 
   return (
@@ -111,13 +114,11 @@ function ProfileFollowActivityScreen(props: ProfileFollowActivityScreenProps) {
         keyExtractor={item => String(item)}
         contentContainerStyle={{ flexGrow: 1 }}
         refreshControl={
-          !isInitialRender ? (
-            <RefreshControl
-              tintColor={color.gray500}
-              refreshing={!isInitialRender && shouldRefresh}
-              onRefresh={handleRefresh}
-            />
-          ) : undefined
+          <RefreshControl
+            tintColor={color.gray500}
+            refreshing={!isInitialRender && shouldRefresh}
+            onRefresh={handleRefresh}
+          />
         }
         ItemSeparatorComponent={() => (
           <View

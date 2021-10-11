@@ -216,23 +216,23 @@ function LimitedOffer(props: LimitedOfferProps) {
 type LandingScreenProps = HomeStackScreenProps<'Landing'>;
 
 export default function LandingScreen(_: LandingScreenProps) {
+  const $FUNC = '[LandingScreen]';
   const isMounted = useIsMounted();
 
+  const [homeFeedData, setHomeFeedData] = useState<HomeFeedData | null>(null);
   const [isInitialRender, setIsInitialRender] = useState(true);
   const [shouldRefresh, setShouldRefresh] = useState(false);
-
-  const [homeFeedData, setHomeFeedData] = useState<HomeFeedData | null>(null);
 
   useEffect(() => {
     if (isInitialRender || shouldRefresh)
       (async () => {
         try {
-          console.log('Fetching home feed data...');
+          console.log($FUNC, 'Fetching home feed data...');
           const homeFeedData = await fetchHomeFeedData();
           setHomeFeedData(homeFeedData);
-          console.log('Successfully fetched home feed data');
+          console.log($FUNC, 'Successfully fetched home feed data');
         } catch (error) {
-          console.error('Failed to load home feed data:', error);
+          console.error($FUNC, 'Failed to load home feed data:', error);
           alertSomethingWentWrong();
         } finally {
           if (isMounted.current) {

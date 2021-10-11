@@ -222,11 +222,13 @@ export default function NearMeFeed(_: NearMeFeedProps) {
   );
 
   const handleRefresh = () => {
-    if (!shouldRefresh && !shouldFetchMore) setShouldRefresh(true);
+    if (!isInitialRender && !shouldFetchMore && !shouldRefresh)
+      setShouldRefresh(true);
   };
 
   const handleFetchMore = () => {
-    if (!shouldFetchMore && !shouldFetchMore) setShouldFetchMore(true);
+    if (!isInitialRender && !shouldFetchMore && !shouldFetchMore)
+      setShouldFetchMore(true);
   };
 
   return (
@@ -238,15 +240,16 @@ export default function NearMeFeed(_: NearMeFeedProps) {
         onEndReachedThreshold={0}
         contentContainerStyle={{ flexGrow: 1 }}
         refreshControl={
-          !isInitialRender ? (
-            <RefreshControl
-              tintColor={color.gray500}
-              refreshing={
-                nearMeItems.length > 0 && !shouldFetchMore && shouldRefresh
-              }
-              onRefresh={handleRefresh}
-            />
-          ) : undefined
+          <RefreshControl
+            tintColor={color.gray500}
+            refreshing={
+              nearMeItems.length > 0 &&
+              !isInitialRender &&
+              !shouldFetchMore &&
+              shouldRefresh
+            }
+            onRefresh={handleRefresh}
+          />
         }
         ListEmptyComponent={
           isInitialRender ? (
@@ -292,14 +295,14 @@ export default function NearMeFeed(_: NearMeFeedProps) {
           }
         }}
         ListFooterComponent={
-          nearMeItems.length > 0 ? (
+          !isInitialRender && nearMeItems.length > 0 ? (
             <FeedFooter
               didReachEnd={
                 currentMerchantsPage.didReachEnd &&
                 currentProductsPage.didReachEnd
               }
             />
-          ) : null
+          ) : undefined
         }
       />
     </View>
