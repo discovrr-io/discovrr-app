@@ -11,6 +11,7 @@ module.exports = {
         whitelist: [
           'PARSE_APP_ID',
           'PARSE_SERVER_URL',
+          'PARSE_SERVER_URL_DEV',
           'PARSE_SERVER_TERMS_URL',
         ],
         safe: false,

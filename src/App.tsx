@@ -1,5 +1,5 @@
 // @ts-ignore
-import { PARSE_APP_ID, PARSE_SERVER_URL } from '@env';
+import { PARSE_APP_ID, PARSE_SERVER_URL, PARSE_SERVER_URL_DEV } from '@env';
 
 import React, { useEffect, useRef } from 'react';
 
@@ -35,14 +35,14 @@ Parse.User.enableUnsafeCurrentUser();
 
 if (__DEV__) {
   Parse.initialize('discovrr-dev-server');
-  Parse.serverURL = 'http://192.168.0.4:1337/parse';
+  Parse.serverURL = PARSE_SERVER_URL_DEV;
 } else {
-  Parse.initialize(PARSE_APP_ID || '');
-  Parse.serverURL = PARSE_SERVER_URL || '';
+  Parse.initialize(PARSE_APP_ID);
+  Parse.serverURL = PARSE_SERVER_URL;
 }
 
 // Store version 2.3.0.2 (2030002)
-const STORE_VERSION = [2, 3, 0, 2] as const;
+const STORE_VERSION = [2, 3, 0, 3] as const;
 // Set this to the appropriate option any time the `STORE_VERSION` is changed
 const SIGN_OUT_USER = true;
 

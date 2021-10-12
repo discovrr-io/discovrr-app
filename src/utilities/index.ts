@@ -29,7 +29,7 @@ export function shortenLargeNumber(count: number): string {
   } else if (count < 10 ** 12) {
     return `${(count / 10 ** 9).toFixed(1)}${ShortenedNumberSuffix.BILLION}`;
   } else {
-    // This number is way to large to appropriately format in the UI.
+    // This number is way too large to appropriately format in the UI.
     return '∞';
   }
 }
