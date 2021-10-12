@@ -62,7 +62,7 @@ export default function CellSwitch(props: CellSwitchProps) {
           Platform.OS === 'ios'
             ? { true: color.green500 }
             : {
-                true: isDisabled ? color.blue200 : color.accentDisabled,
+                true: color.blue200,
                 false: isDisabled ? color.gray200 : color.gray300,
               }
         }

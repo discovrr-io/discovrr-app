@@ -23,42 +23,30 @@
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.discovrr.Discovrr</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
-			<key>CFBundleURLIconFile</key>
-			<string></string>
-			<key>CFBundleURLName</key>
-			<string>com.discovrr</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>discovrr</string>
 			</array>
 		</dict>
 		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.discovrr.Discovrr</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
-			<key>CFBundleURLName</key>
-			<string>com.discovrr</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>com.googleusercontent.apps.930461821085-9oi5tufovr4ertfgiac4ducje18kbqmo</string>
+				<string>com.googleusercontent.apps.401222439990-6dpbmvbrbqt76l9cc7q6g16l8b483rjq</string>
 			</array>
 		</dict>
 		<dict>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string>com.discovrr</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>com.googleusercontent.apps.930461821085-r4k2pg3flbloaqthi5ereeep4tscqdnf</string>
-			</array>
-		</dict>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>CFBundleURLName</key>
-			<string>com.discovrr</string>
+			<string>com.discovrr.Discovrr</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>fb691371558227281</string>

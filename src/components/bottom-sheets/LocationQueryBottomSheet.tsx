@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 
 import Icon from 'react-native-vector-icons/Ionicons';
-import MapView, { Region } from 'react-native-maps';
+// import MapView, { Region } from 'react-native-maps';
 import Slider from '@react-native-community/slider';
 import { Portal } from '@gorhom/portal';
 import { BlurView } from '@react-native-community/blur';
@@ -42,15 +42,15 @@ type LocationQueryBottomSheetProps = {};
 const LocationQueryBottomSheet = React.forwardRef<
   BottomSheet,
   LocationQueryBottomSheetProps
->((_: LocationQueryBottomSheetProps, ref) => {
-  const queryPrefs = useAppSelector(state => state.settings.locationQueryPrefs);
+>((_props: LocationQueryBottomSheetProps, ref) => {
+  const _ = useAppSelector(state => state.settings.locationQueryPrefs);
   const snapPoints = React.useMemo(() => ['95%'], []);
 
-  const [searchRegion, setSearchRegion] = React.useState<Region>(() => ({
-    ...(queryPrefs?.coordinates ?? DEFAULT_COORDINATES),
-    latitudeDelta: 1.0,
-    longitudeDelta: 1.0,
-  }));
+  // const [searchRegion, setSearchRegion] = React.useState<Region>(() => ({
+  //   ...(queryPrefs?.coordinates ?? DEFAULT_COORDINATES),
+  //   latitudeDelta: 1.0,
+  //   longitudeDelta: 1.0,
+  // }));
 
   const renderBackdrop = React.useCallback(
     (props: BottomSheetBackdropProps) => {
@@ -91,11 +91,12 @@ const LocationQueryBottomSheet = React.forwardRef<
         <BottomSheetScrollView
           contentContainerStyle={bottomSheetStyles.scrollView}>
           <View style={bottomSheetStyles.mapView}>
-            <MapView
+            {/* <MapView
               initialRegion={searchRegion}
               onRegionChange={setSearchRegion}
               style={{ height: 300 }}
-            />
+            /> */}
+            <View style={{ width: 300, backgroundColor: color.placeholder }} />
           </View>
           <Spacer.Vertical value="md" />
           <Slider
@@ -126,7 +127,11 @@ const LocationQueryBottomSheet = React.forwardRef<
             containerStyle={{ flex: 1 }}
           />
         </View>
-        <BlurView blurType="light" style={bottomSheetStyles.blurView} />
+        <BlurView
+          blurType="light"
+          blurRadius={20}
+          style={bottomSheetStyles.blurView}
+        />
         <View
           style={[
             bottomSheetStyles.blurView,

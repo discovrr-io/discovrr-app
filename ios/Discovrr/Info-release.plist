@@ -23,35 +23,23 @@
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>CFBundleURLIconFile</key>
-			<string></string>
 			<key>CFBundleURLName</key>
 			<string>com.discovrr.Discovrr</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>discovrr</string>
 			</array>
 		</dict>
 		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
 			<key>CFBundleURLName</key>
 			<string>com.discovrr.Discovrr</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>com.googleusercontent.apps.930461821085-9oi5tufovr4ertfgiac4ducje18kbqmo</string>
-			</array>
-		</dict>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>CFBundleURLName</key>
-			<string>com.discovrr.Discovrr</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>com.googleusercontent.apps.930461821085-r4k2pg3flbloaqthi5ereeep4tscqdnf</string>
 			</array>
 		</dict>
 		<dict>
@@ -99,7 +87,7 @@
 	<key>NSCameraUsageDescription</key>
 	<string>To capture images and video for posts you share and to customise your profile avatar</string>
 	<key>LSApplicationCategoryType</key>
-	<string></string>
+	<string>public.app-category.shopping</string>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>To show points of interest near you and to geotag posts you share</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
