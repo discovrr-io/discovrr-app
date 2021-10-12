@@ -24,7 +24,7 @@ import { useAppSelector } from 'src/hooks';
 import { alertUnavailableFeature } from 'src/utilities';
 
 import {
-  DEFAULT_COORDINATES,
+  // DEFAULT_COORDINATES,
   MAX_SEARCH_RADIUS,
   MIN_SEARCH_RADIUS,
 } from 'src/models/common';

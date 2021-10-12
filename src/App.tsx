@@ -1,5 +1,10 @@
-// @ts-ignore
-import { PARSE_APP_ID, PARSE_SERVER_URL, PARSE_SERVER_URL_DEV } from '@env';
+import {
+  PARSE_APP_ID,
+  PARSE_APP_ID_DEV,
+  PARSE_SERVER_URL,
+  PARSE_SERVER_URL_DEV,
+  // @ts-expect-error Module `@env` has no TypeScript definitions
+} from '@env';
 
 import React, { useEffect, useRef } from 'react';
 
@@ -22,23 +27,24 @@ import {
   Theme,
 } from '@react-navigation/native';
 
-import AuthGate from './features/authentication/AuthGate';
 import store from './store';
-import { LoadingContainer } from './components';
 import { color } from './constants';
+import { LoadingContainer } from './components';
 import { useAppDispatch } from './hooks';
 import { resetAppState } from './global-actions';
+
+import AuthGate from './features/authentication/AuthGate';
 import { signOut } from './features/authentication/auth-slice';
 
 Parse.setAsyncStorage(AsyncStorage);
 Parse.User.enableUnsafeCurrentUser();
 
 if (__DEV__) {
-  Parse.initialize('discovrr-dev-server');
-  Parse.serverURL = PARSE_SERVER_URL_DEV;
+  Parse.initialize(PARSE_APP_ID_DEV || 'discovrr-dev-server');
+  Parse.serverURL = PARSE_SERVER_URL_DEV || 'https://api.discovrr.com/parse';
 } else {
-  Parse.initialize(PARSE_APP_ID);
-  Parse.serverURL = PARSE_SERVER_URL;
+  Parse.initialize(PARSE_APP_ID || 'discovrr-server');
+  Parse.serverURL = PARSE_SERVER_URL || 'https://api.discovrr.com/parse';
 }
 
 // Store version 2.3.0.2 (2030002)

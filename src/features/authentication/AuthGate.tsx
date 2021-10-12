@@ -7,7 +7,7 @@ import inAppMessaging from '@react-native-firebase/in-app-messaging';
 import { createStackNavigator } from '@react-navigation/stack';
 
 import { LoadingOverlay } from 'src/components';
-import { color } from 'src/constants';
+import { color, font } from 'src/constants';
 import { fetchProfileById } from 'src/features/profiles/profiles-slice';
 import { useAppDispatch, useAppSelector } from 'src/hooks';
 import { User } from 'src/models';
@@ -27,7 +27,13 @@ const AuthStack = createStackNavigator<AuthStackParamList>();
 
 function AuthNavigator() {
   return (
-    <AuthStack.Navigator initialRouteName="Auth">
+    <AuthStack.Navigator
+      initialRouteName="Auth"
+      screenOptions={{
+        headerTintColor: color.black,
+        headerBackTitleVisible: false,
+        headerTitleStyle: font.defaultHeaderTitleStyle,
+      }}>
       <AuthStack.Screen
         name="Auth"
         component={AuthScreen}
@@ -38,8 +44,6 @@ function AuthNavigator() {
         component={TermsAndConditionsScreen}
         options={{
           title: 'Terms & Conditions',
-          headerBackTitleVisible: false,
-          headerTintColor: color.black,
         }}
       />
     </AuthStack.Navigator>
