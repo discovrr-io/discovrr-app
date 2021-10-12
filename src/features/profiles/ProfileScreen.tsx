@@ -47,7 +47,7 @@ import { ActionBottomSheetItem } from 'src/components/bottom-sheets/ActionBottom
 
 type ProfileScreenProps = ProfileStackScreenProps<'ProfileDetails'>;
 
-export default function ProfileScreenWrapper(props: ProfileScreenProps) {
+export default function ProfileScreen(props: ProfileScreenProps) {
   const { profileId } = props.route.params;
   const profileData = useProfile(profileId);
 
@@ -65,14 +65,14 @@ export default function ProfileScreenWrapper(props: ProfileScreenProps) {
       )}
       onFulfilled={profile => {
         if (!profile) return renderRouteError();
-        return <ProfileScreen profile={profile} />;
+        return <LoadedProfileScreen profile={profile} />;
       }}
       onRejected={renderRouteError}
     />
   );
 }
 
-function ProfileScreen(props: { profile: Profile }) {
+function LoadedProfileScreen(props: { profile: Profile }) {
   const $FUNC = '[UserProfileScreen]';
   const { profile } = props;
 

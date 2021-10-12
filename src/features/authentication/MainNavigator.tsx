@@ -7,9 +7,10 @@ import { BottomTabHeaderProps } from '@react-navigation/bottom-tabs/lib/typescri
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { getDefaultHeaderHeight } from '@react-navigation/elements';
 
-import HomeNavigator from 'src/features/home/HomeNavigator';
 import FeedNavigator from 'src/features/feed/FeedNavigator';
-import ProfileScreenWrapper from 'src/features/profiles/ProfileScreen';
+import HomeNavigator from 'src/features/home/HomeNavigator';
+import NotificationsScreen from 'src/features/notifications/NotificationsScreen';
+import ProfileScreen from 'src/features/profiles/ProfileScreen';
 
 import { color, font, layout } from 'src/constants';
 import { DEFAULT_MIN_BOTTOM_TAB_BAR_HEIGHT } from 'src/constants/values';
@@ -156,11 +157,11 @@ function FacadeNavigator() {
       />
       <FacadeBottomTab.Screen
         name="Notifications"
-        component={PlaceholderScreen}
+        component={NotificationsScreen}
       />
       <FacadeBottomTab.Screen
         name="__MyProfile"
-        component={ProfileScreenWrapper}
+        component={ProfileScreen}
         options={{ title: 'My Profile' }}
         listeners={({
           navigation,

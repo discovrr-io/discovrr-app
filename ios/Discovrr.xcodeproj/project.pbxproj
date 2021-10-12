@@ -62,7 +62,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		008F07F21AC5B25A0029DE68 /* main.jsbundle */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = main.jsbundle; sourceTree = "<group>"; };
 		00E356EE1AD99517003FC87E /* DiscovrrTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DiscovrrTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* DiscovrrTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DiscovrrTests.m; sourceTree = "<group>"; };
@@ -192,7 +191,6 @@
 				03B282F3270EBE9D002D8669 /* GoogleService-Info-Staging.plist */,
 				03FF2CAB26871DAF009DEEB0 /* GoogleService-Info-Release.plist */,
 				038584352665EA38005DECD2 /* Discovrr.entitlements */,
-				008F07F21AC5B25A0029DE68 /* main.jsbundle */,
 				039EAA5F262DCEE80088184B /* LaunchScreen.storyboard */,
 				13B07FB71A68108700A75B9A /* main.m */,
 				03DC1AE1262DDCF900A0D5C5 /* Discovrr.swift */,

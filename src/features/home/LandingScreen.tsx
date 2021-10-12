@@ -83,13 +83,10 @@ function CallToAction(props: CallToActionProps) {
         />
       )}
       <Text style={[font.h2, { color: color.absoluteWhite }]}>
-        {/* Get inspired by local, Australian creativity */}
         {props.title}
       </Text>
       <Spacer.Vertical value="md" />
       <Text style={[font.large, { color: color.absoluteWhite }]}>
-        {/* Explore our carefully curated catalogue of products made by our
-            local makers */}
         {props.caption}
       </Text>
       <Spacer.Vertical value="lg" />

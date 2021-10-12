@@ -60,10 +60,10 @@ export const fetchAllPosts = createAsyncThunk<
   Reloadable<PostApi.FetchAllPostsParams>
 >('posts/fetchAllPosts', PostApi.fetchAllPosts);
 
-export const fetchPostsForProfile = createAsyncThunk(
-  'posts/fetchPostsForProfile',
-  PostApi.fetchPostsForProfile,
-);
+export const fetchPostsForProfile = createAsyncThunk<
+  Post[],
+  Reloadable<PostApi.FetchPostsForProfileParams>
+>('posts/fetchPostsForProfile', PostApi.fetchPostsForProfile);
 
 export const updatePostLikeStatus = createAsyncThunk(
   'posts/updatePostLikeStatus',

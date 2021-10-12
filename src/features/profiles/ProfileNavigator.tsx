@@ -2,7 +2,7 @@ import React from 'react';
 
 import { RootStack } from 'src/navigation';
 
-import ProfileScreenWrapper from './ProfileScreen';
+import ProfileScreen from './ProfileScreen';
 import ProfileFollowActivityScreenWrappr from './ProfileFollowActivityScreen';
 
 export default function renderProfileNavigator() {
@@ -10,7 +10,7 @@ export default function renderProfileNavigator() {
     <RootStack.Group>
       <RootStack.Screen
         name="ProfileDetails"
-        component={ProfileScreenWrapper}
+        component={ProfileScreen}
         options={({ route }) => ({
           title: route.params.profileDisplayName || 'Profile',
           headerShown: !route.params.hideHeader ?? true,
