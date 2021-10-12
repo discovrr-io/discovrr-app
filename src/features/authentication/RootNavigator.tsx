@@ -1,14 +1,18 @@
 import React, { useEffect } from 'react';
-import { Alert } from 'react-native';
 
 import messaging from '@react-native-firebase/messaging';
-import { useLinkTo } from '@react-navigation/native';
+import { nanoid } from '@reduxjs/toolkit';
 
 import { HeaderIcon, PlaceholderScreen, RouteError } from 'src/components';
 import { color, font } from 'src/constants';
-import { setFCMRegistrationTokenForSession } from 'src/features/notifications/notifications-slice';
 import { useAppDispatch, useAppSelector } from 'src/hooks';
+import { NotificationId } from 'src/models';
 import { RootStack } from 'src/navigation';
+
+import {
+  didReceiveNotification,
+  setFCMRegistrationTokenForSession,
+} from 'src/features/notifications/notifications-slice';
 
 import MainNavigator from './MainNavigator';
 import CreateItemNavigator from 'src/features/create/CreateItemNavigator';
@@ -33,7 +37,7 @@ async function getFCMToken(): Promise<string> {
 export default function RootNavigator() {
   const $FUNC = '[RootNavigator]';
   const dispatch = useAppDispatch();
-  const linkTo = useLinkTo();
+  // const linkTo = useLinkTo();
 
   const sessionId = useAppSelector(state => state.auth.sessionId);
   const didRegisterFCMToken = useAppSelector(state => {
@@ -47,24 +51,32 @@ export default function RootNavigator() {
       const alertTitle = remoteMessage.notification?.title ?? 'New Message';
       const alertMessage = remoteMessage.notification?.body ?? 'No body';
 
-      if (remoteMessage.data?.destination) {
-        const handleOnPress = () => {
-          /* eslint-disable @typescript-eslint/no-non-null-assertion */
-          console.log(`Navigating to ${remoteMessage.data!.destination}...`);
-          linkTo(remoteMessage.data!.destination);
-          /* eslint-enable @typescript-eslint/no-non-null-assertion */
-        };
+      dispatch(
+        didReceiveNotification({
+          id: nanoid() as NotificationId,
+          title: alertTitle,
+          message: alertMessage,
+        }),
+      );
 
-        Alert.alert(alertTitle, alertMessage, [
-          { text: 'View', onPress: handleOnPress },
-        ]);
-      } else {
-        Alert.alert(alertTitle, alertMessage);
-      }
+      // if (remoteMessage.data?.destination) {
+      //   const handleOnPress = () => {
+      //     /* eslint-disable @typescript-eslint/no-non-null-assertion */
+      //     console.log(`Navigating to ${remoteMessage.data!.destination}...`);
+      //     linkTo(remoteMessage.data!.destination);
+      //     /* eslint-enable @typescript-eslint/no-non-null-assertion */
+      //   };
+
+      //   Alert.alert(alertTitle, alertMessage, [
+      //     { text: 'View', onPress: handleOnPress },
+      //   ]);
+      // } else {
+      //   Alert.alert(alertTitle, alertMessage);
+      // }
     });
 
     return unsubscribe;
-  }, [linkTo]);
+  }, [dispatch]);
 
   useEffect(() => {
     console.log($FUNC, 'Did register FCM token?', didRegisterFCMToken);

@@ -30,6 +30,8 @@ import {
   RootStackNavigationProp,
   MainDrawerParamList,
 } from 'src/navigation';
+import { useAppSelector } from 'src/hooks';
+import { selectUnreadNotificationsCount } from '../notifications/notifications-slice';
 
 const RootDrawer = createDrawerNavigator<MainDrawerParamList>();
 const FacadeBottomTab = createBottomTabNavigator<FacadeBottomTabParamList>();
@@ -68,6 +70,7 @@ function FeedHeader(props: BottomTabHeaderProps) {
 function FacadeNavigator() {
   const $FUNC = '[FacadeNavigator]';
   const myProfileId = useMyProfileId();
+  const unreadCount = useAppSelector(selectUnreadNotificationsCount);
 
   return (
     <FacadeBottomTab.Navigator
@@ -130,6 +133,11 @@ function FacadeNavigator() {
           backgroundColor: color.white,
           minHeight: DEFAULT_MIN_BOTTOM_TAB_BAR_HEIGHT,
         },
+        tabBarBadgeStyle: {
+          fontFamily: font.small.fontFamily,
+          fontSize: font.small.fontSize,
+          backgroundColor: color.red500,
+        },
       })}>
       <FacadeBottomTab.Screen name="Home" component={HomeNavigator} />
       <FacadeBottomTab.Screen
@@ -158,6 +166,7 @@ function FacadeNavigator() {
       <FacadeBottomTab.Screen
         name="Notifications"
         component={NotificationsScreen}
+        options={{ tabBarBadge: unreadCount > 0 ? unreadCount : undefined }}
       />
       <FacadeBottomTab.Screen
         name="__MyProfile"

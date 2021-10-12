@@ -54,10 +54,6 @@ const ActionBottomSheet = React.forwardRef<BottomSheet, ActionBottomSheetProps>(
       handleContentLayout,
     } = useBottomSheetDynamicSnapPoints(initialSnapPoints);
 
-    React.useEffect(() => {
-      console.log($FUNC, 'REF', ref);
-    }, [ref]);
-
     const renderBackdrop = React.useCallback(
       (props: BottomSheetBackdropProps) => {
         return (
@@ -82,7 +78,6 @@ const ActionBottomSheet = React.forwardRef<BottomSheet, ActionBottomSheetProps>(
 
     const handleSelectItem = async (item: string) => {
       handleCloseBottomSheet();
-      console.log($FUNC, item);
       await onSelectItem?.(item);
     };
 

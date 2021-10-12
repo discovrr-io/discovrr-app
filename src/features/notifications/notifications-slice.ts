@@ -1,8 +1,10 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 import { NotificationApi } from 'src/api';
 import { abortSignOut, signOut } from 'src/features/authentication/auth-slice';
 import { resetAppState } from 'src/global-actions';
+import { Notification } from 'src/models';
+import { RootState } from 'src/store';
 
 //#region Notifications Async Thunks
 
@@ -17,10 +19,12 @@ export const setFCMRegistrationTokenForSession = createAsyncThunk(
 
 export type NotificationsState = {
   didRegisterFCMToken: boolean;
+  allNotifications: Notification[];
 };
 
 const initialState: NotificationsState = {
   didRegisterFCMToken: false,
+  allNotifications: [],
 };
 
 //#endregion Notifications Adapter Initialization
@@ -30,7 +34,20 @@ const initialState: NotificationsState = {
 const notificationsSlice = createSlice({
   name: 'notifications',
   initialState,
-  reducers: {},
+  reducers: {
+    didReceiveNotification: (
+      state,
+      action: PayloadAction<Pick<Notification, 'id' | 'title' | 'message'>>,
+    ) => {
+      const newNotification = action.payload;
+      state.allNotifications.push({ ...newNotification, read: false });
+    },
+    markAllNotificationsAsRead: state => {
+      for (const notification of state.allNotifications) {
+        notification.read = true;
+      }
+    },
+  },
   extraReducers: builder => {
     builder
       .addCase(resetAppState, (state, action) => {
@@ -56,7 +73,12 @@ const notificationsSlice = createSlice({
   },
 });
 
-export const {} = notificationsSlice.actions;
+export const { didReceiveNotification, markAllNotificationsAsRead } =
+  notificationsSlice.actions;
+
+export function selectUnreadNotificationsCount(state: RootState) {
+  return state.notifications.allNotifications.filter(it => !it.read).length;
+}
 
 //#endregion Notifications Slice
 
