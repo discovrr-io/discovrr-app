@@ -6,6 +6,7 @@
 
 - Add `LocationQueryBottomSheet` component with basic UI
 - Display Parse server URL on the settings page for ease of troubleshooting
+- Add placeholder `NotificationsScreen`
 
 ### Fixed
 

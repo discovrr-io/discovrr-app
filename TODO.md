@@ -9,8 +9,8 @@
 - [x] Fix _My Profile_ tab to properly navigate to current profile
 - [x] Use [branded types][] as `EntityId`s to enforce type checking.
 - [x] Migrate `@gorhom/bottom-sheet` package to `^4.0.3`
-- [ ] Use `ApiFetchStatuses` for other Redux slices
-- [ ] Clean up Redux slices and API code
+- [x] Use `ApiFetchStatuses` for other Redux slices
+- [x] Clean up Redux slices and API code
 - [ ] Add a splash screen for both iOS and Android
 - [ ] Add `error` prop to `RouteError` to visually display the error message
 - [ ] Fix issue in `ProfileSettingsScreen` where the unsaved changes alert
