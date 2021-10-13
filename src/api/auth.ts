@@ -224,7 +224,7 @@ export namespace AuthApi {
 
       const setUserId = async () => {
         if (authenticatedUser.profileId)
-          await analytics().setUserId(authenticatedUser.profileId.toString());
+          await analytics().setUserId(String(authenticatedUser.profileId));
       };
 
       analyticsPromise

@@ -111,6 +111,7 @@ const PostHeaderComponent = ({ post }: { post: Post }) => {
   const $FUNC = '[PostHeaderComponent]';
   const dispatch = useAppDispatch();
   const navigation = useNavigation<PostStackNavigationProp>();
+  const isMounted = useIsMounted();
 
   const isMyProfile = useIsMyProfile(post.profileId);
   const posterProfile = useAppSelector(state => {
@@ -157,7 +158,7 @@ const PostHeaderComponent = ({ post }: { post: Post }) => {
             );
           }
         } finally {
-          setIsDeletingPost(false);
+          if (isMounted) setIsDeletingPost(false);
         }
       };
 

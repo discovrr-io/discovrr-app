@@ -299,6 +299,7 @@ export default function LandingScreen(_: LandingScreenProps) {
       }
       renderItem={({ item: productId, column, index }) => (
         <ProductItemCard
+          key={productId}
           productId={productId}
           elementOptions={{ smallContent: true }}
           style={{

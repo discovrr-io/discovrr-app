@@ -146,13 +146,8 @@ export namespace CommentApi {
   export async function addCommentForPost(
     params: AddCommentForPostParams,
   ): Promise<Comment> {
-    const { postId, message } = params;
     const myProfile = await UserApi.getCurrentUserProfile();
-    const result = await Parse.Cloud.run('createComment', {
-      postId: String(postId),
-      message,
-    });
-
+    const result = await Parse.Cloud.run('createComment', params);
     return mapResultToComment(result, myProfile?.id);
   }
 
@@ -164,11 +159,7 @@ export namespace CommentApi {
   export async function updateCommentLikeStatus(
     params: UpdateCommentLikeStatusParams,
   ) {
-    const { commentId, didLike } = params;
-    await Parse.Cloud.run('updateCommentLikeStatus', {
-      commentId: String(commentId),
-      didLike,
-    });
+    await Parse.Cloud.run('updateCommentLikeStatus', params);
   }
 
   //#endregion CREATE OPERATIONS

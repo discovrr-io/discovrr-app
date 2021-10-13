@@ -41,15 +41,8 @@ export namespace ProfileApi {
     params: FetchProfileByIdParams,
   ): Promise<Profile> {
     const { profileId } = params;
-    const query = new Parse.Query('Profile');
+    const query = new Parse.Query(Parse.Object.extend('Profile'));
     const result = await query.get(String(profileId));
-    if (!result) {
-      throw new ProfileApiError(
-        'PROFILE_NOT_FOUND',
-        `No profile was found with the ID '${profileId}'.`,
-      );
-    }
-
     return mapResultToProfile(result);
   }
 
@@ -61,7 +54,7 @@ export namespace ProfileApi {
     params: FetchAllProfilesParams = {},
   ): Promise<Profile[]> {
     const { pagination } = params;
-    const query = new Parse.Query('Profile');
+    const query = new Parse.Query(Parse.Object.extend('Profile'));
 
     if (pagination) {
       query.limit(pagination.limit);
@@ -108,10 +101,10 @@ export namespace ProfileApi {
   export async function updateProfileFollowStatus(
     params: UpdateProfileFollowStatusParams,
   ) {
-    const { profileId, didFollow } = params;
+    const { profileId, ...restParams } = params;
     await Parse.Cloud.run('updateProfileFollowStatus', {
+      ...restParams,
       followeeId: String(profileId),
-      didFollow,
     });
   }
 

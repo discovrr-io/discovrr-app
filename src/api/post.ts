@@ -190,11 +190,7 @@ export namespace PostApi {
   export async function updatePostLikeStatus(
     params: UpdatePostLikeStatusParams,
   ) {
-    const { postId, ...restParams } = params;
-    await Parse.Cloud.run('updatePostLikeStatus', {
-      postId: String(postId),
-      ...restParams,
-    });
+    await Parse.Cloud.run('updatePostLikeStatus', params);
   }
 
   export type UpdatePostViewCounterParams = {
@@ -214,7 +210,7 @@ export namespace PostApi {
   };
 
   export async function deletePost(params: DeletePostParams) {
-    await Parse.Cloud.run('deletePost', { postId: String(params.postId) });
+    await Parse.Cloud.run('deletePost', params);
   }
 
   //#endregion DELETE OPERATIONS

@@ -10,9 +10,6 @@ export namespace NotificationApi {
   export async function setFCMRegistrationTokenForSession(
     params: SetFCMRegistrationTokenForSessionParams,
   ) {
-    await Parse.Cloud.run('setFCMRegistrationTokenForSession', {
-      ...params,
-      sessionId: String(params.sessionId),
-    });
+    await Parse.Cloud.run('setFCMRegistrationTokenForSession', params);
   }
 }
