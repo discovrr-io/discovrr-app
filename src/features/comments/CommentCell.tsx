@@ -313,10 +313,11 @@ const CommentCellContent = (props: CommentCellContentProps) => {
         try {
           console.log($FUNC, 'Deleting comment...');
           await dispatch(deleteComment({ commentId: comment.id })).unwrap();
-        } catch (error) {
+        } catch (error: any) {
           console.error($FUNC, 'Failed to delete comment:', error);
           alertSomethingWentWrong(
-            "We weren't able to delete this comment. Please try again later.",
+            error.message ??
+              "We weren't able to delete this comment. Please try again later.",
           );
         }
       };

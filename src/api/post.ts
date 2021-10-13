@@ -184,6 +184,15 @@ export namespace PostApi {
   export type UpdatePostLikeStatusParams = {
     postId: PostId;
     didLike: boolean;
+    /**
+     * Whether or not to send a notification to the owner of the post.
+     *
+     * If the owner of the post is the same user as the one who liked the post
+     * (i.e. the current user has liked their own post), no notification will be
+     * sent, even if this property is set to `true`.
+     *
+     * @default false
+     */
     sendNotification?: boolean;
   };
 
@@ -214,4 +223,17 @@ export namespace PostApi {
   }
 
   //#endregion DELETE OPERATIONS
+
+  //#region MISCELLANEOUS OPERATIONS
+
+  export type ReportPostParams = {
+    postId: PostId;
+    reason?: string;
+  };
+
+  export async function reportPost(params: ReportPostParams) {
+    await Parse.Cloud.run('reportPost', params);
+  }
+
+  //#endregion MISCELLANEOUS OPERATIONS
 }

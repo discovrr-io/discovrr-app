@@ -171,10 +171,7 @@ export namespace CommentApi {
   };
 
   export async function deleteComment(params: DeleteCommentParams) {
-    const commentId = params.commentId;
-    const commentQuery = new Parse.Query(Parse.Object.extend('PostComment'));
-    const comment = await commentQuery.get(String(commentId));
-    await comment.save({ status: ApiObjectStatus.DELETED });
+    await Parse.Cloud.run('deleteComment', params);
   }
 
   //#endregion DELETE OPERATIONS

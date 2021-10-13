@@ -150,13 +150,10 @@ const PostHeaderComponent = ({ post }: { post: Post }) => {
           navigation.goBack();
         } catch (error: any) {
           console.error($FUNC, 'Failed to delete post:', error);
-          if (error.message) {
-            alertSomethingWentWrong(error.message);
-          } else {
-            alertSomethingWentWrong(
+          alertSomethingWentWrong(
+            error.message ??
               "We weren't able to delete this post. Please try again later.",
-            );
-          }
+          );
         } finally {
           if (isMounted) setIsDeletingPost(false);
         }
