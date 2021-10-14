@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
-// import Video from 'react-native-video';
+import Video from 'react-native-video';
 import { useNavigation } from '@react-navigation/core';
 
 import { AsyncGate, Card } from 'src/components';
@@ -104,8 +104,8 @@ const InnerPostItemCard = (props: InnerPostItemCardProps) => {
     ) => {
       const imagePreviewSource = sources[0];
       const {
-        width: imageWidth = DEFAULT_IMAGE_DIMENSIONS.width,
-        height: imageHeight = DEFAULT_IMAGE_DIMENSIONS.height,
+        width: imageWidth = DEFAULT_IMAGE_DIMENSIONS.height,
+        height: imageHeight = DEFAULT_IMAGE_DIMENSIONS.width,
       } = imagePreviewSource;
 
       return (
@@ -157,38 +157,32 @@ const InnerPostItemCard = (props: InnerPostItemCardProps) => {
         case PostType.VIDEO:
           return (
             <View>
-              <View
+              {/* <View
                 style={{
-                  minHeight: 200,
+                  height: 200,
                   alignItems: 'center',
                   justifyContent: 'center',
-                  backgroundColor: 'lightblue',
                 }}>
                 <Text style={font.medium}>[VIDEO]</Text>
-              </View>
+              </View> */}
+              <Video
+                repeat
+                playWhenInactive
+                resizeMode="cover"
+                source={{
+                  uri: post.contents.source.url,
+                  type: post.contents.source.type,
+                }}
+                style={{
+                  width: '100%',
+                  aspectRatio:
+                    (post.contents.source.height ?? 1) /
+                    (post.contents.source.width ?? 1),
+                  backgroundColor: color.placeholder,
+                }}
+              />
               <PostItemCardCaption caption={post.contents.caption} />
             </View>
-            // <View>
-            //   <Video
-            //     repeat
-            //     // paused
-            //     playWhenInactive
-            //     resizeMode="cover"
-            //     source={{
-            //       // uri: post.contents.source.url,
-            //       uri: 'https://firebasestorage.googleapis.com/v0/b/discovrr-dev.appspot.com/o/__test%2FVIDEO-2021-05-18-13-36-06.mp4?alt=media&token=ff57ab82-3a32-4898-95a0-01141d8cde8c',
-            //       // type: post.contents.source.type,
-            //     }}
-            //     style={{
-            //       backgroundColor: 'lightgreen',
-            //       width: '100%',
-            //       // height: '100%',
-            //       // aspectRatio: 820 / 700,
-            //       aspectRatio: 3 / 4,
-            //     }}
-            //   />
-            //   <PostItemCardCaption caption={post.contents.caption} />
-            // </View>
           );
         case PostType.TEXT:
           return (

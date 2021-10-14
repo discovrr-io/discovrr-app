@@ -62,8 +62,6 @@ export namespace MerchantApi {
         result.get('about'),
       coordinates: merchantCoordinates,
       address: {
-        addressLine1: result.get('addressLine1'),
-        addressLine2: result.get('addressLine2'),
         street: result.get('street'),
         city: result.get('city'),
         postCode: result.get('postCode'),
@@ -101,8 +99,8 @@ export namespace MerchantApi {
     const myProfile = await UserApi.getCurrentUserProfile();
     const merchantQuery = new Parse.Query(Parse.Object.extend('Vendor'));
 
-    const pointOfInterest = new Parse.GeoPoint(DEFAULT_COORDINATES);
-    merchantQuery.withinKilometers('geoPoint', pointOfInterest, 50);
+    // const pointOfInterest = new Parse.GeoPoint(DEFAULT_COORDINATES);
+    // merchantQuery.withinKilometers('geoPoint', pointOfInterest, 50);
 
     if (pagination) {
       merchantQuery.limit(pagination.limit);
