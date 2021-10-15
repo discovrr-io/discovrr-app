@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [v2.3.0.3] (2021-10-15)
+
 ### Added
 
 - Add `LocationQueryBottomSheet` component with basic UI
@@ -36,8 +38,9 @@
   - Discover tab (previously Home tab)
   - Notifications tab (previously in drawer)
 
-[unreleased]: https://github.com/discovrr-io/discovrr-app/compare/v2.3.0.2...HEAD
-[v2.3.0.2]: https://github.com/discovrr-io/discovrr-app/releases/tag/v2.3.0.2
+[unreleased]: https://github.com/discovrr-io/discovrr-app/compare/v2.3.0.3...HEAD
+[v2.3.0.3]: https://github.com/discovrr-io/discovrr-app/compare/v2.3.0.2...v2.3.0.3
+[v2.3.0.2]: https://github.com/discovrr-io/discovrr-app/compare/v2.3.0.1...v2.3.0.2
 [v2.3.0.1]: https://github.com/discovrr-io/discovrr-app/releases/tag/v2.3.0.1
 
 <!-- ## [2021.09.18.00] - 2021-19-01
