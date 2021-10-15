@@ -93,17 +93,17 @@ export default function NearMeFeed(_: NearMeFeedProps) {
           setCurrentProductsPage({ index: 0, didReachEnd: false });
 
           const fetchMerchantsAction = fetchAllMerchants({
-            pagination: {
-              limit: MERCHANT_PAGINATION_LIMIT,
-              currentPage: currentMerchantsPage.index,
-            },
+            // pagination: {
+            //   limit: MERCHANT_PAGINATION_LIMIT,
+            //   currentPage: currentMerchantsPage.index,
+            // },
           });
 
           const fetchProductsAction = fetchAllProducts({
-            pagination: {
-              limit: PRODUCT_PAGINATION_LIMIT,
-              currentPage: currentProductsPage.index,
-            },
+            // pagination: {
+            //   limit: PRODUCT_PAGINATION_LIMIT,
+            //   currentPage: currentProductsPage.index,
+            // },
           });
 
           const [merchants, products] = await Promise.all([
@@ -120,11 +120,13 @@ export default function NearMeFeed(_: NearMeFeedProps) {
           setNearMeItems(newNearMeItems);
           setCurrentMerchantsPage({
             index: 1,
-            didReachEnd: merchants.length === 0,
+            // didReachEnd: merchants.length === 0,
+            didReachEnd: true,
           });
           setCurrentProductsPage({
             index: 1,
-            didReachEnd: products.length === 0,
+            // didReachEnd: products.length === 0,
+            didReachEnd: true,
           });
 
           console.log($FUNC, 'Finished fetching near me items');
@@ -147,97 +149,97 @@ export default function NearMeFeed(_: NearMeFeedProps) {
     [dispatch, isInitialRender, shouldRefresh],
   );
 
-  useEffect(
-    () => {
-      async function fetchMoreMerchantsAndProducts() {
-        console.log(
-          $FUNC,
-          `Fetching more merchants (page ${currentMerchantsPage.index}) and`,
-          `products (page ${currentProductsPage.index})...`,
-        );
-
-        // We don't want to update these just yet...
-        const nextMerchantsPage = currentMerchantsPage.index + 1;
-        const nextProductsPage = currentProductsPage.index + 1;
-
-        try {
-          const fetchMerchantsAction = fetchAllMerchants({
-            pagination: {
-              limit: MERCHANT_PAGINATION_LIMIT,
-              currentPage: nextMerchantsPage,
-            },
-          });
-
-          const fetchProductsAction = fetchAllProducts({
-            pagination: {
-              limit: PRODUCT_PAGINATION_LIMIT,
-              currentPage: nextProductsPage,
-            },
-          });
-
-          const [merchants, products] = await Promise.all([
-            currentMerchantsPage.didReachEnd
-              ? Promise.resolve([])
-              : dispatch(fetchMerchantsAction).unwrap(),
-            currentProductsPage.didReachEnd
-              ? Promise.resolve([])
-              : dispatch(fetchProductsAction).unwrap(),
-          ]);
-
-          // Sometimes an `undefined` creeps up here
-          const newNearMeItems = shuffleMerchantsAndProducts(
-            merchants.map(it => it.id).filter(Boolean),
-            products.map(it => it.id).filter(Boolean),
-          );
-
-          setNearMeItems(prev => prev.concat(newNearMeItems));
-          setCurrentMerchantsPage({
-            index: 1,
-            didReachEnd: merchants.length === 0,
-          });
-          setCurrentProductsPage({
-            index: 1,
-            didReachEnd: products.length === 0,
-          });
-
-          console.log($FUNC, 'Finished fetching more near me items');
-        } catch (error) {
-          console.error(
-            $FUNC,
-            'Failed to fetch more merchants and products:',
-            error,
-          );
-          alertSomethingWentWrong();
-        } finally {
-          if (isMounted.current && shouldFetchMore) setShouldFetchMore(false);
-        }
-      }
-
-      if (shouldFetchMore) fetchMoreMerchantsAndProducts();
-    },
-    // We only want to run this effect if `shouldFetchMore` changes. The other
-    // dependencies rely on the result of this effect anyway.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [dispatch, shouldFetchMore],
-  );
+  // useEffect(
+  //   () => {
+  //     async function fetchMoreMerchantsAndProducts() {
+  //       console.log(
+  //         $FUNC,
+  //         `Fetching more merchants (page ${currentMerchantsPage.index}) and`,
+  //         `products (page ${currentProductsPage.index})...`,
+  //       );
+  //
+  //       // We don't want to update these just yet...
+  //       const nextMerchantsPage = currentMerchantsPage.index + 1;
+  //       const nextProductsPage = currentProductsPage.index + 1;
+  //
+  //       try {
+  //         const fetchMerchantsAction = fetchAllMerchants({
+  //           pagination: {
+  //             limit: MERCHANT_PAGINATION_LIMIT,
+  //             currentPage: nextMerchantsPage,
+  //           },
+  //         });
+  //
+  //         const fetchProductsAction = fetchAllProducts({
+  //           pagination: {
+  //             limit: PRODUCT_PAGINATION_LIMIT,
+  //             currentPage: nextProductsPage,
+  //           },
+  //         });
+  //
+  //         const [merchants, products] = await Promise.all([
+  //           currentMerchantsPage.didReachEnd
+  //             ? Promise.resolve([])
+  //             : dispatch(fetchMerchantsAction).unwrap(),
+  //           currentProductsPage.didReachEnd
+  //             ? Promise.resolve([])
+  //             : dispatch(fetchProductsAction).unwrap(),
+  //         ]);
+  //
+  //         // Sometimes an `undefined` creeps up here
+  //         const newNearMeItems = shuffleMerchantsAndProducts(
+  //           merchants.map(it => it.id).filter(Boolean),
+  //           products.map(it => it.id).filter(Boolean),
+  //         );
+  //
+  //         setNearMeItems(prev => prev.concat(newNearMeItems));
+  //         setCurrentMerchantsPage({
+  //           index: 1,
+  //           didReachEnd: merchants.length === 0,
+  //         });
+  //         setCurrentProductsPage({
+  //           index: 1,
+  //           didReachEnd: products.length === 0,
+  //         });
+  //
+  //         console.log($FUNC, 'Finished fetching more near me items');
+  //       } catch (error) {
+  //         console.error(
+  //           $FUNC,
+  //           'Failed to fetch more merchants and products:',
+  //           error,
+  //         );
+  //         alertSomethingWentWrong();
+  //       } finally {
+  //         if (isMounted.current && shouldFetchMore) setShouldFetchMore(false);
+  //       }
+  //     }
+  //
+  //     if (shouldFetchMore) fetchMoreMerchantsAndProducts();
+  //   },
+  //   // We only want to run this effect if `shouldFetchMore` changes. The other
+  //   // dependencies rely on the result of this effect anyway.
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  //   [dispatch, shouldFetchMore],
+  // );
 
   const handleRefresh = () => {
     if (!isInitialRender && !shouldFetchMore && !shouldRefresh)
       setShouldRefresh(true);
   };
 
-  const handleFetchMore = () => {
-    if (!isInitialRender && !shouldFetchMore && !shouldFetchMore)
-      setShouldFetchMore(true);
-  };
+  // const handleFetchMore = () => {
+  //   if (!isInitialRender && !shouldFetchMore && !shouldFetchMore)
+  //     setShouldFetchMore(true);
+  // };
 
   return (
     <View style={{ flex: 1 }}>
       <SearchLocationOptions />
       <MasonryList
         data={nearMeItems}
-        onEndReached={handleFetchMore}
-        onEndReachedThreshold={0}
+        // onEndReached={handleFetchMore}
+        // onEndReachedThreshold={0}
         contentContainerStyle={{ flexGrow: 1 }}
         refreshControl={
           <RefreshControl
