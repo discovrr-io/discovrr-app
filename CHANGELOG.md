@@ -6,6 +6,7 @@
 
 ### Added
 
+- Implement Home tab with dynamically updated content
 - Add `LocationQueryBottomSheet` component with basic UI
 - Display Parse server URL on the settings page for ease of troubleshooting
 - Add basic support for notifications with a `NotificationsScreen` component
