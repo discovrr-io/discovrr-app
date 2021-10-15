@@ -1,6 +1,16 @@
-import React from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import {
+  Alert,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
+import * as Animatable from 'react-native-animatable';
+import codePush from 'react-native-code-push';
 import Parse from 'parse/react-native';
 
 import * as constants from 'src/constants';
@@ -10,6 +20,8 @@ import { SettingsStackScreenProps } from 'src/navigation';
 
 import Cell from './components';
 import { CELL_GROUP_VERTICAL_SPACING } from './components/CellGroup';
+
+const UPDATE_INDICATOR_DIAMETER = 9;
 
 type MainSettingsScreenProps = SettingsStackScreenProps<'MainSettings'>;
 
@@ -61,18 +73,60 @@ export default function MainSettingsScreen(_: MainSettingsScreenProps) {
 }
 
 export function MainSettingsScreenFooter() {
+  const [hasUpdateAvailable, setHasUpdateAvailable] = useState(false);
+
+  useEffect(() => {
+    codePush
+      .checkForUpdate()
+      .then(update => update && setHasUpdateAvailable(true))
+      .catch(() => {}); // Do nothing
+  }, []);
+
   return (
     <View>
-      <View style={footerStyles.container}>
-        <Text style={[constants.font.small, footerStyles.text]}>
-          <Text style={[constants.font.smallBold, footerStyles.text]}>
-            Discovrr {values.APP_VERSION}
+      {hasUpdateAvailable ? (
+        <TouchableOpacity
+          onPress={() =>
+            Alert.alert(
+              'New Update Available',
+              'This update will be installed the next time you restart ' +
+                'Discovrr.\n\n' +
+                `You are currently on version ${values.APP_VERSION}.`,
+            )
+          }
+          style={[footerStyles.container, { flexDirection: 'row' }]}>
+          <Animatable.View
+            iterationCount="infinite"
+            iterationDelay={1500}
+            animation="flash"
+            style={{
+              backgroundColor: constants.color.orange500,
+              width: UPDATE_INDICATOR_DIAMETER,
+              height: UPDATE_INDICATOR_DIAMETER,
+              borderRadius: UPDATE_INDICATOR_DIAMETER / 2,
+            }}
+          />
+          <Spacer.Horizontal value="sm" />
+          <Text
+            style={[
+              constants.font.smallBold,
+              footerStyles.text,
+              { color: constants.color.orange500 },
+            ]}>
+            An update is available
           </Text>
-          <Text> </Text> {/* Empty space character */}
-          <Text>(Build {values.APP_BUILD})</Text>
-        </Text>
-      </View>
-      <Spacer.Vertical value={constants.layout.spacing.sm} />
+        </TouchableOpacity>
+      ) : (
+        <View style={footerStyles.container}>
+          <Text style={[constants.font.small, footerStyles.text]}>
+            <Text style={[constants.font.smallBold, footerStyles.text]}>
+              Discovrr {values.APP_VERSION}
+            </Text>
+            <Text>&nbsp;(Build {values.APP_BUILD})</Text>
+          </Text>
+        </View>
+      )}
+      <Spacer.Vertical value="sm" />
       <Text style={[constants.font.small, footerStyles.text]}>
         {Parse.serverURL}
       </Text>
@@ -83,6 +137,7 @@ export function MainSettingsScreenFooter() {
 const footerStyles = StyleSheet.create({
   container: {
     alignItems: 'center',
+    justifyContent: 'center',
     textAlign: 'center',
   },
   text: {

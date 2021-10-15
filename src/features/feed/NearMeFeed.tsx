@@ -82,7 +82,7 @@ export default function NearMeFeed(_: NearMeFeedProps) {
 
   const [isInitialRender, setIsInitialRender] = useState(true);
   const [shouldRefresh, setShouldRefresh] = useState(false);
-  const [shouldFetchMore, setShouldFetchMore] = useState(false);
+  const [shouldFetchMore, _setShouldFetchMore] = useState(false);
 
   useEffect(
     () => {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   useWindowDimensions,
   Alert,
@@ -17,6 +17,7 @@ import {
 
 import * as yup from 'yup';
 import auth from '@react-native-firebase/auth';
+import codePush from 'react-native-code-push';
 import crashlytics from '@react-native-firebase/crashlytics';
 import Video from 'react-native-video';
 
@@ -117,6 +118,16 @@ const resetPasswordFormSchema = yup.object({
 
 GoogleSignin.configure();
 
+function useDisallowCodePushRestarts(isProcessing: boolean) {
+  const $FUNC = '[useDisallowCodePushRestarts]';
+  useEffect(() => {
+    if (isProcessing) {
+      console.log($FUNC, 'Temporarily disallowing CodePush restarts');
+      codePush.disallowRestart();
+    }
+  }, [isProcessing]);
+}
+
 function alertMessageFromFirebaseError(
   authError: any,
   defaultMessage?: string,
@@ -198,8 +209,10 @@ function LoginForm({ setFormType }: LoginFormProps) {
   const dispatch = useAppDispatch();
 
   const isMounted = useIsMounted();
-  const [_, setIsProcessing] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const initialFormValues: LoginFormValues = { email: '', password: '' };
+
+  useDisallowCodePushRestarts(isProcessing);
 
   const handleLogin = async (form: LoginFormValues) => {
     try {
@@ -302,15 +315,17 @@ function RegisterForm({ setFormType }: RegisterFormProps) {
   const $FUNC = '[RegisterForm]';
   const dispatch = useAppDispatch();
   const navigation = useNavigation<AuthStackNavigationProp>();
-
   const isMounted = useIsMounted();
-  const [_, setIsProcessing] = useState(false);
+
+  const [isProcessing, setIsProcessing] = useState(false);
   const initialFormValues: RegisterFormValues = {
     fullName: '',
     username: '',
     email: '',
     password: '',
   };
+
+  useDisallowCodePushRestarts(isProcessing);
 
   const handleRegisterAccount = async (form: RegisterFormValues) => {
     try {
@@ -443,6 +458,8 @@ function ForgotPasswordForm({ setFormType }: ForgotPasswordFormProps) {
   const [isProcessing, setIsProcessing] = useState(false);
   const initialFormValues: ForgotPasswordFormValues = { email: '' };
 
+  useDisallowCodePushRestarts(isProcessing);
+
   const handleResetPassword = async ({ email }: ForgotPasswordFormValues) => {
     try {
       console.info($FUNC, 'Sending reset link...');
@@ -533,6 +550,8 @@ export default function AuthScreen() {
   const [formType, setFormType] = useState<FormType>('login');
 
   const [status, _error] = useAuthState();
+
+  useDisallowCodePushRestarts(isProcessing);
 
   const handleSignInWithApple = async () => {
     try {

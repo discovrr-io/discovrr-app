@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 
+import codePush from 'react-native-code-push';
 import messaging from '@react-native-firebase/messaging';
 import { nanoid } from '@reduxjs/toolkit';
 
@@ -43,6 +44,13 @@ export default function RootNavigator() {
   const didRegisterFCMToken = useAppSelector(state => {
     return state.notifications.didRegisterFCMToken;
   });
+
+  useEffect(() => {
+    // Allow restarts from this point on. If there is an update available, it'll
+    // restart the app, otherwise nothing will happen.
+    console.log($FUNC, 'Allowing CodePush restarts');
+    codePush.allowRestart();
+  }, []);
 
   useEffect(() => {
     const unsubscribe = messaging().onMessage(remoteMessage => {
