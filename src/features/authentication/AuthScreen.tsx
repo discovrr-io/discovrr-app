@@ -43,14 +43,7 @@ import { APP_VERSION } from 'src/constants/values';
 import { useAppDispatch, useIsMounted } from 'src/hooks';
 import { AuthStackNavigationProp } from 'src/navigation';
 
-import {
-  SignInWithEmailAndPasswordParams,
-  signInWithEmailAndPassword,
-  signInWithCredential,
-  registerNewAccount,
-  RegisterNewAccountParams,
-} from './auth-slice';
-
+import * as authSlice from './auth-slice';
 import { useAuthState } from './hooks';
 
 const DISCOVRR_LOGO = require('../../../assets/images/logo-horizontal.png');
@@ -83,7 +76,7 @@ const loginFormSchema = yup.object({
 });
 
 const registerFormSchema = yup.object({
-  fullName: yup
+  displayName: yup
     .string()
     .trim()
     .required('Please enter your name')
@@ -155,7 +148,7 @@ function alertMessageFromFirebaseError(
       return {
         title: 'Email already taken',
         message:
-          'The email address you provided is already registered with Discovrr. Did you mean to sign in?',
+          'The email address you provided is already registered with Discovrr. Did you mean to sign in instead?',
       };
     case 'auth/username-taken':
       return {
@@ -199,7 +192,7 @@ function createReportMessage(
 
 type FormType = 'login' | 'register' | 'forgot-password';
 
-type LoginFormValues = SignInWithEmailAndPasswordParams;
+type LoginFormValues = AuthApi.SignInWithEmailAndPasswordParams;
 type LoginFormProps = {
   setFormType: React.Dispatch<React.SetStateAction<FormType>>;
 };
@@ -218,7 +211,7 @@ function LoginForm({ setFormType }: LoginFormProps) {
     try {
       console.log($FUNC, 'Will login with email and password...');
       setIsProcessing(true);
-      await dispatch(signInWithEmailAndPassword(form)).unwrap();
+      await dispatch(authSlice.signInWithEmailAndPassword(form)).unwrap();
     } catch (error) {
       console.error($FUNC, 'Failed to login with email and password:', error);
       const { title, message } = alertMessageFromFirebaseError(error);
@@ -306,7 +299,7 @@ const formStyles = StyleSheet.create({
   },
 });
 
-type RegisterFormValues = RegisterNewAccountParams;
+type RegisterFormValues = AuthApi.RegisterNewAccountParams;
 type RegisterFormProps = {
   setFormType: React.Dispatch<React.SetStateAction<FormType>>;
 };
@@ -319,7 +312,8 @@ function RegisterForm({ setFormType }: RegisterFormProps) {
 
   const [isProcessing, setIsProcessing] = useState(false);
   const initialFormValues: RegisterFormValues = {
-    fullName: '',
+    kind: 'personal',
+    displayName: '',
     username: '',
     email: '',
     password: '',
@@ -331,7 +325,7 @@ function RegisterForm({ setFormType }: RegisterFormProps) {
     try {
       console.info($FUNC, 'Starting registration process...');
       setIsProcessing(true);
-      await dispatch(registerNewAccount(form)).unwrap();
+      await dispatch(authSlice.registerNewAccount(form)).unwrap();
     } catch (error) {
       const { title, message } = alertMessageFromFirebaseError(
         error,
@@ -370,8 +364,8 @@ function RegisterForm({ setFormType }: RegisterFormProps) {
           <View style={{ marginBottom: layout.spacing.md }}>
             <FormikInput
               formikProps={props}
-              formikField="fullName"
-              placeholder="Display Name"
+              formikField="displayName"
+              placeholder="Name"
               autoCapitalize="words"
               // editable={!isProcessing}
               containerStyle={formStyles.textInput}
@@ -573,14 +567,14 @@ export default function AuthScreen() {
       }
 
       const { identityToken, nonce } = appleAuthRequestResponse;
-      const appleCredential = auth.AppleAuthProvider.credential(
+      const credential = auth.AppleAuthProvider.credential(
         identityToken,
         nonce,
       );
 
       crashlytics().log('Dispatching credential sign in action...');
       console.log($FUNC, "Dispatching 'auth/signInWithCredential'...");
-      await dispatch(signInWithCredential(appleCredential)).unwrap();
+      await dispatch(authSlice.signInWithCredential({ credential })).unwrap();
     } catch (error: any) {
       if (error.code === appleAuth.Error.CANCELED) {
         console.warn($FUNC, 'Apple authentication cancelled');
@@ -607,14 +601,14 @@ export default function AuthScreen() {
 
       const { idToken } = await GoogleSignin.signIn();
       const { accessToken } = await GoogleSignin.getTokens();
-      const googleCredential = auth.GoogleAuthProvider.credential(
+      const credential = auth.GoogleAuthProvider.credential(
         idToken,
         accessToken,
       );
 
       crashlytics().log('Dispatching credential sign in action...');
       console.log($FUNC, "Dispatching 'auth/signInWithCredential'...");
-      await dispatch(signInWithCredential(googleCredential)).unwrap();
+      await dispatch(authSlice.signInWithCredential({ credential })).unwrap();
     } catch (error: any) {
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
         console.info($FUNC, 'Google authentication cancelled');

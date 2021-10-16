@@ -1,11 +1,11 @@
-import Parse from 'parse/react-native';
-import analytics from '@react-native-firebase/analytics';
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
+import analytics from '@react-native-firebase/analytics';
+import Parse from 'parse/react-native';
 
-import { MediaSource } from './common';
-import { ProfileId, SessionId, User, UserId } from 'src/models';
+import { SessionId, User, UserId } from 'src/models';
+import { ProfileId, ProfileKind } from 'src/models/profile';
 import { DEFAULT_AVATAR_DIMENSIONS } from 'src/constants/media';
-import { ApiError, CommonApiErrorCode } from '.';
+import { ApiError, CommonApiErrorCode, MediaSource } from '.';
 
 export namespace AuthApi {
   export type AuthApiErrorCode =
@@ -13,28 +13,40 @@ export namespace AuthApi {
     | 'USERNAME_TAKEN'
     | 'NO_PROFILE_FOUND';
   export class AuthApiError extends ApiError<AuthApiErrorCode> {}
-
   export type AuthenticatedResult = readonly [User, SessionId];
 
-  async function syncAndConstructUser(
+  const $PREFIX = 'AuthApi';
+
+  async function syncAndContructUser(
     currentUserId: string,
     profile: Parse.Object,
     firebaseUser: FirebaseAuthTypes.User,
   ): Promise<User> {
-    const $FUNC = '[AuthApi.syncAndConstructUser]';
+    const $FUNC = `[${$PREFIX}.syncAndConstructUser]`;
     let syncProfile = false;
 
-    const displayName: string | undefined =
-      profile.get('fullName') ||
-      profile.get('displayName') ||
-      profile.get('name');
+    const displayName: string | undefined = profile.get('displayName');
     if (!displayName && firebaseUser.displayName) {
-      // profile.set('fullName', firebaseUser.displayName);
       profile.set('displayName', firebaseUser.displayName);
       syncProfile = true;
     } else if (displayName /* && !firebaseUser.displayName */) {
       console.log($FUNC, 'Updating Firebase display name...');
       await firebaseUser.updateProfile({ displayName });
+    }
+
+    const avatar: MediaSource | undefined = profile.get('avatar');
+    if (!avatar && firebaseUser.photoURL) {
+      profile.set('avatar', {
+        url: firebaseUser.photoURL,
+        ...DEFAULT_AVATAR_DIMENSIONS,
+      });
+      syncProfile = true;
+    }
+
+    const email: string | undefined = profile.get('email');
+    if (!email && firebaseUser.email) {
+      profile.set('email', firebaseUser.email);
+      syncProfile = true;
     }
 
     const provider: string | undefined = profile.get('provider');
@@ -47,21 +59,6 @@ export namespace AuthApi {
     const phone: string | undefined = profile.get('phone');
     if (!phone && firebaseUser.phoneNumber) {
       profile.set('phone', firebaseUser.phoneNumber);
-      syncProfile = true;
-    }
-
-    const email: string | undefined = profile.get('email');
-    if (!email && firebaseUser.email) {
-      profile.set('email', firebaseUser.email);
-      syncProfile = true;
-    }
-
-    const avatar: MediaSource | undefined = profile.get('avatar');
-    if (!avatar && firebaseUser.photoURL) {
-      profile.set('avatar', {
-        url: firebaseUser.photoURL,
-        ...DEFAULT_AVATAR_DIMENSIONS,
-      });
       syncProfile = true;
     }
 
@@ -86,7 +83,7 @@ export namespace AuthApi {
   async function attemptToFetchProfileForUser(
     currentUser: Parse.User,
   ): Promise<Parse.Object | undefined> {
-    const $FUNC = '[AuthApi.attemptToFetchProfileForUser]';
+    const $FUNC = `[${$PREFIX}.attemptToFetchProfileForUser]`;
     const MAX_ATTEMPTS = 3;
 
     console.log($FUNC, 'Querying profile...');
@@ -116,7 +113,7 @@ export namespace AuthApi {
   async function authenticateViaParse(
     firebaseUser: FirebaseAuthTypes.User,
   ): Promise<User> {
-    const $FUNC = '[AuthApi.authenticateViaParse]';
+    const $FUNC = `[${$PREFIX}.authenticateViaParse]`;
 
     const authData = {
       access_token: await firebaseUser.getIdToken(),
@@ -125,10 +122,7 @@ export namespace AuthApi {
 
     let currentUser = await Parse.User.currentAsync();
     if (!currentUser) {
-      console.info(
-        $FUNC,
-        'Current user not found. Logging in with Firebase...',
-      );
+      console.log($FUNC, 'Current user not found. Logging in with Firebase...');
       currentUser = await Parse.User.logInWith('firebase', { authData });
       console.log(
         $FUNC,
@@ -151,24 +145,32 @@ export namespace AuthApi {
       );
     }
 
-    return await syncAndConstructUser(currentUser.id, profile, firebaseUser);
+    return await syncAndContructUser(currentUser.id, profile, firebaseUser);
   }
 
+  //#region SIGN IN WITH EMAIL AND PASSWORD
+
+  export type SignInWithEmailAndPasswordParams = {
+    email: string;
+    password: string;
+  };
+
   export async function signInWithEmailAndPassword(
-    email: string,
-    password: string,
+    params: SignInWithEmailAndPasswordParams,
   ): Promise<AuthenticatedResult> {
-    const $FUNC = '[AuthApi.signInWithEmailAndPassword]';
+    const $FUNC = `[${$PREFIX}.signInWithEmailAndPassword]`;
+    const { email, password } = params;
+
     let didLoginViaFirebase = false;
     let didLoginViaParse = false;
 
     try {
       console.log($FUNC, 'Authenticating via Firebase...');
-      const cred = await auth().signInWithEmailAndPassword(email, password);
-      const firebaseUser = cred.user;
+      const { user: firebaseUser, additionalUserInfo } =
+        await auth().signInWithEmailAndPassword(email, password);
       didLoginViaFirebase = true;
 
-      if (cred.additionalUserInfo?.isNewUser) {
+      if (additionalUserInfo?.isNewUser) {
         console.warn(
           $FUNC,
           'A new user has bypassed registration and is attempting to sign in',
@@ -182,84 +184,88 @@ export namespace AuthApi {
       const currentSession = await Parse.Session.current();
       didLoginViaParse = true;
 
-      // We won't await for analytics, nor do we care if it fails.
-      console.log($FUNC, 'Sending analytics...');
-      analytics()
-        .logLogin({ method: 'email' })
-        .then(() => analytics().setUserId(String(authenticatedUser.profileId)))
-        .catch(err => console.error($FUNC, 'Failed to send analytics:', err));
-
       return [authenticatedUser, currentSession.id as SessionId];
     } catch (error) {
       console.warn($FUNC, 'Aborting authentication. Signing out...');
-      await signOut(didLoginViaParse, didLoginViaFirebase);
-      console.error($FUNC, 'Failed to sign in with email and password:', error);
-      throw error;
-    }
-  }
+      await signOut({
+        logoutParse: didLoginViaParse,
+        logoutFirebase: didLoginViaFirebase,
+      });
 
-  export async function signInWithCredential(
-    credential: FirebaseAuthTypes.AuthCredential,
-  ): Promise<AuthenticatedResult> {
-    const $FUNC = '[AuthApi.signInWithCredential]';
-    let didLoginViaFirebase = false;
-    let didLoginViaParse = false;
-
-    try {
-      console.log($FUNC, 'Authenticating via Firebase...');
-      const cred = await auth().signInWithCredential(credential);
-      const firebaseUser = cred.user;
-      didLoginViaFirebase = true;
-
-      const authenticatedUser = await authenticateViaParse(firebaseUser);
-      const currentSession = await Parse.Session.current();
-      didLoginViaParse = true;
-
-      // We won't await for analytics, nor do we care if it fails.
-      console.log($FUNC, 'Sending analytics...');
-      const eventParams = { method: credential.providerId };
-      const analyticsPromise = cred.additionalUserInfo?.isNewUser
-        ? analytics().logSignUp(eventParams)
-        : analytics().logLogin(eventParams);
-
-      const setUserId = async () => {
-        if (authenticatedUser.profileId)
-          await analytics().setUserId(String(authenticatedUser.profileId));
-      };
-
-      analyticsPromise
-        .then(setUserId)
-        .then(() => console.log($FUNC, 'Successfully sent analytics'))
-        .catch(err => console.error($FUNC, 'Failed to send analytics:', err));
-
-      return [authenticatedUser, currentSession.id as SessionId];
-    } catch (error) {
-      console.warn($FUNC, 'Aborting authentication. Signing out...');
-      await signOut(didLoginViaParse, didLoginViaFirebase);
       console.error($FUNC, 'Failed to sign in with credential:', error);
       throw error;
     }
   }
 
-  export async function registerNewAccount(
-    displayName: string,
-    username: string,
-    email: string,
-    password: string,
+  //#endregion SIGN IN WITH EMAIL AND PASSWORD
+
+  //#region SIGN IN WITH CREDENTIAL
+
+  export type SignInWithCredentialParams = {
+    credential: FirebaseAuthTypes.AuthCredential;
+  };
+
+  export async function signInWithCredential(
+    params: SignInWithCredentialParams,
   ): Promise<AuthenticatedResult> {
-    const $FUNC = '[AuthApi.registerNewAccount]';
+    const $FUNC = `[${$PREFIX}.signInWithCredential]`;
+    const { credential } = params;
+
     let didLoginViaFirebase = false;
     let didLoginViaParse = false;
 
     try {
-      const checkUsernameAvailable = async (username: string) => {
-        const query = new Parse.Query(Parse.Object.extend('Profile'));
-        query.equalTo('username', username);
-        return (await query.findAll()).length === 0;
-      };
+      console.log($FUNC, 'Authenticating via Firebase...');
+      const { user } = await auth().signInWithCredential(credential);
+      didLoginViaFirebase = true;
 
-      if (!(await checkUsernameAvailable(username))) {
-        // This will be handled by LoginScreen
+      console.log($FUNC, 'Authenticating via Parse...');
+      const authenticatedUser = await authenticateViaParse(user);
+      const currentSession = await Parse.Session.current();
+      didLoginViaParse = true;
+
+      return [authenticatedUser, currentSession.id as SessionId];
+    } catch (error) {
+      console.warn($FUNC, 'Aborting authentication. Signing out...');
+      await signOut({
+        logoutParse: didLoginViaParse,
+        logoutFirebase: didLoginViaFirebase,
+      });
+
+      console.error($FUNC, 'Failed to sign in with credential:', error);
+      throw error;
+    }
+  }
+
+  //#endregion SIGN IN WITH CREDENTIAL
+
+  //#region REGISTER
+
+  async function checkIfUsernameAvailable(username: string): Promise<boolean> {
+    const query = new Parse.Query(Parse.Object.extend('Profile'));
+    const results = await query.equalTo('username', username).findAll();
+    return results.length === 0;
+  }
+
+  export type RegisterNewAccountParams = {
+    kind: ProfileKind;
+    displayName: string;
+    username: string;
+    email: string;
+    password: string;
+  };
+
+  export async function registerNewAccount(
+    params: RegisterNewAccountParams,
+  ): Promise<AuthenticatedResult> {
+    const $FUNC = `[${$PREFIX}.registerNewAccount]`;
+    const { kind, displayName, username, email, password } = params;
+
+    let didLoginViaFirebase = false;
+    let didLoginViaParse = false;
+
+    try {
+      if (!(await checkIfUsernameAvailable(username))) {
         throw new AuthApiError(
           'USERNAME_TAKEN',
           'The provided username is already taken.',
@@ -271,7 +277,7 @@ export namespace AuthApi {
         await auth().createUserWithEmailAndPassword(email, password);
       didLoginViaFirebase = true;
 
-      console.log($FUNC, 'Updating Firebase profile...');
+      console.log($FUNC, 'Updating Firebase profile');
       await firebaseUser.updateProfile({ displayName });
 
       const authData = {
@@ -279,74 +285,67 @@ export namespace AuthApi {
         id: firebaseUser.uid,
       };
 
-      console.log($FUNC, 'Authenticating via Parse...');
-      const newParseUser = await Parse.User.logInWith('firebase', { authData });
-      console.log($FUNC, 'Successfully logged in via Parse:', newParseUser.id);
+      console.log($FUNC, 'Authenticating user via Parse...');
+      const parseUser = await Parse.User.logInWith('firebase', { authData });
+      console.log($FUNC, 'Successfully logged in via Parse:', parseUser.id);
       didLoginViaParse = true;
 
-      const newProfile = await attemptToFetchProfileForUser(newParseUser);
-      if (!newProfile) {
-        console.error(
-          $FUNC,
-          'No profile was found with user ID',
-          newParseUser.id,
-        );
+      const provider: string | undefined =
+        firebaseUser.providerData[0]?.providerId;
 
-        throw new AuthApiError(
-          'NO_PROFILE_FOUND',
-          'No profile was found with the given user ID.',
-        );
-      }
-
-      // newProfile.set('fullName', fullName);
-      newProfile.set('displayName', displayName);
-      newProfile.set('username', username);
-      newProfile.set('email', email);
-
-      const providerId = firebaseUser.providerData[0]?.providerId;
-      if (providerId) {
-        newProfile.set('provider', providerId);
-      }
-
-      console.log($FUNC, 'Saving new profile details...');
-      await newProfile.save();
-
-      // // We won't await for analytics, nor do we care if it fails.
-      // console.log($FUNC, 'Sending analytics...');
-      // analytics()
-      //   .logSignUp({ method: 'email' })
-      //   .then(() => analytics().setUserId(newProfile.id))
-      //   .catch(err => console.error($FUNC, 'Failed to send analytics:', err));
+      const newProfile: Parse.Object = await Parse.Cloud.run('createProfile', {
+        kind,
+        email,
+        displayName,
+        username,
+        provider,
+      });
 
       const user: User = {
-        id: newParseUser.id as UserId,
-        provider: providerId,
+        provider,
+        id: parseUser.id as UserId,
         profileId: newProfile.id as ProfileId,
       };
 
       const currentSession = await Parse.Session.current();
 
-      return [user, currentSession.id as SessionId];
+      return [user, currentSession.id as SessionId] as const;
     } catch (error) {
       console.warn($FUNC, 'Aborting authentication. Signing out...');
-      await signOut(didLoginViaParse, didLoginViaFirebase);
+      await signOut({
+        logoutParse: didLoginViaParse,
+        logoutFirebase: didLoginViaFirebase,
+      });
+
       console.error($FUNC, 'Failed to register account:', error);
       throw error;
     }
   }
 
-  export async function signOut(logoutParse = true, logoutFirebase = true) {
-    const $FUNC = '[AuthApi.signOut]';
+  //#endregion REGISTER
+
+  //#region SIGN OUT
+
+  export type SignOutParams = {
+    logoutParse?: boolean;
+    logoutFirebase?: boolean;
+  };
+
+  export async function signOut(params: SignOutParams = {}) {
+    const $FUNC = `[${$PREFIX}.signOut]`;
+    const { logoutParse = true, logoutFirebase = true } = params;
 
     if (logoutParse) {
-      console.log($FUNC, 'Signing out via Parse...');
+      console.log($FUNC, 'Signing out of Parse...');
       await Parse.User.logOut();
     }
 
     if (logoutFirebase) {
-      console.log($FUNC, 'Signing out via Firebase...');
+      console.log($FUNC, 'Signing out of Firebase...');
       await auth().signOut();
       await analytics().setUserId(null);
     }
   }
+
+  //#endregion SIGN OUT
 }

@@ -41,15 +41,9 @@ const initialState: AuthState = {
 
 //#region Authentication Async Thunks
 
-export type SignInWithEmailAndPasswordParams = {
-  email: string;
-  password: string;
-};
-
 export const signInWithEmailAndPassword = createAsyncThunk(
   'auth/signInWithEmailAndPassword',
-  async ({ email, password }: SignInWithEmailAndPasswordParams) =>
-    AuthApi.signInWithEmailAndPassword(email, password),
+  AuthApi.signInWithEmailAndPassword,
 );
 
 export const signInWithCredential = createAsyncThunk(
@@ -57,29 +51,16 @@ export const signInWithCredential = createAsyncThunk(
   AuthApi.signInWithCredential,
 );
 
-export type RegisterNewAccountParams = {
-  fullName: string;
-  username: string;
-  email: string;
-  password: string;
-};
-
 export const registerNewAccount = createAsyncThunk(
   'auth/registerNewAccount',
-  async ({ fullName, username, email, password }: RegisterNewAccountParams) =>
-    AuthApi.registerNewAccount(fullName, username, email, password),
+  AuthApi.registerNewAccount,
 );
-
-type SignOutParams = {
-  logoutParse?: boolean;
-  logoutFirebase?: boolean;
-};
 
 export const signOut = createAsyncThunk(
   'auth/signOut',
-  async ({ logoutParse = true, logoutFirebase = true }: SignOutParams = {}) => {
+  async (params: AuthApi.SignOutParams = {}) => {
     try {
-      await AuthApi.signOut(logoutParse, logoutFirebase);
+      await AuthApi.signOut(params);
     } catch (error: any) {
       if (error.code === 'auth/no-current-user') {
         console.warn("User doesn't exist. Skipping sign out...");
@@ -101,6 +82,7 @@ export const abortSignOut = createAsyncThunk(
   },
   {
     condition: (_, { getState }: BaseThunkAPI<RootState, unknown>) => {
+      // Only run this thunk if we haven't already aborted sign out
       return !getState().auth.didAbortSignOut;
     },
   },

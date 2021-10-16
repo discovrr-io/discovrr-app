@@ -22,6 +22,7 @@ function CreateItemDetailsNavigator() {
       initialRouteName="CreateText"
       tabBarPosition="bottom"
       screenOptions={{
+        tabBarScrollEnabled: true,
         tabBarLabelStyle: {
           textTransform: 'none',
           fontFamily: font.FONT_FAMILY_REGULAR,

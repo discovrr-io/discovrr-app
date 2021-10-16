@@ -3,7 +3,6 @@ import { Alert, Text, TouchableOpacity, View } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
 import Icon from 'react-native-vector-icons/Ionicons';
-import OneSignal from 'react-native-onesignal';
 
 import {
   DrawerContentComponentProps,
@@ -93,11 +92,8 @@ function AppDrawer(props: AppDrawerProps & { profileId: ProfileId }) {
   const handleLogOut = () => {
     const commitLogOut = async () => {
       try {
+        console.log($FUNC, 'Signing out...');
         await dispatch(signOut()).unwrap();
-        console.log($FUNC, 'Removing OneSignal external user ID...');
-        OneSignal.removeExternalUserId(results => {
-          console.log($FUNC, 'Successfully removed external user id:', results);
-        });
       } catch (error) {
         console.error($FUNC, 'Failed to log out user:', error);
         throw error;
