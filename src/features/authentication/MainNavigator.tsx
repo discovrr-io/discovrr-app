@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Platform, SafeAreaView, View } from 'react-native';
 
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -37,6 +37,46 @@ const RootDrawer = createDrawerNavigator<MainDrawerParamList>();
 const FacadeBottomTab = createBottomTabNavigator<FacadeBottomTabParamList>();
 
 const HEADER_HORIZONTAL_PADDING = layout.defaultScreenMargins.horizontal;
+const HEADER_TEXT_INPUT_ICON_SIZE = 24;
+
+function FeedHeaderTextInput() {
+  const [searchText, setSearchText] = useState('');
+
+  const handleSearchQuery = () => {
+    const query = searchText.trim();
+    if (query.length > 0) {
+      console.log(`Searching '${query}'...`);
+    }
+  };
+
+  return (
+    <TextInput
+      size="medium"
+      placeholder="Search for anything..."
+      value={searchText}
+      onChangeText={setSearchText}
+      onSubmitEditing={handleSearchQuery}
+      returnKeyType="search"
+      autoCompleteType="off"
+      autoCorrect={false}
+      suffix={
+        searchText.length > 0 ? (
+          <TextInput.Icon
+            name="close"
+            size={HEADER_TEXT_INPUT_ICON_SIZE}
+            color={color.black}
+            onPress={() => setSearchText('')}
+          />
+        ) : undefined
+      }
+      containerStyle={{
+        flexGrow: 1,
+        flexShrink: 1,
+        marginLeft: HEADER_HORIZONTAL_PADDING,
+      }}
+    />
+  );
+}
 
 function FeedHeader(props: BottomTabHeaderProps) {
   const headerHeight = getDefaultHeaderHeight(props.layout, false, 0);
@@ -50,18 +90,7 @@ function FeedHeader(props: BottomTabHeaderProps) {
           paddingHorizontal: HEADER_HORIZONTAL_PADDING,
         }}>
         <HeaderIcon.Menu />
-        <TextInput
-          size="medium"
-          placeholder="Search for anything..."
-          suffix={
-            <TextInput.Icon name="search" size={24} color={color.black} />
-          }
-          containerStyle={{
-            flexGrow: 1,
-            flexShrink: 1,
-            marginLeft: HEADER_HORIZONTAL_PADDING,
-          }}
-        />
+        <FeedHeaderTextInput />
       </View>
     </SafeAreaView>
   );
