@@ -52,7 +52,6 @@ function SearchResultsTabWrapper<ItemT>(
         try {
           console.log(`WILL SEARCH '${query}'`);
           const data = await fetchData(query);
-          console.log('DONE:', data);
           setData(data);
         } catch (error) {
           console.error('Failed to fetch item:', error);

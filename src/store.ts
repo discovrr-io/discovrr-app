@@ -25,6 +25,7 @@ import notificationsReducer from './features/notifications/notifications-slice';
 import postsReducer from './features/posts/posts-slice';
 import productsReducer from './features/products/products-slice';
 import profilesReducer from './features/profiles/profiles-slice';
+import searchReducer from './features/search/search-slice';
 import settingsReducer from './features/settings/settings-slice';
 
 import { AuthState } from './features/authentication/auth-slice';
@@ -35,6 +36,7 @@ import { NotificationsState } from './features/notifications/notifications-slice
 import { PostsState } from './features/posts/posts-slice';
 import { ProductsState } from './features/products/products-slice';
 import { ProfilesState } from './features/profiles/profiles-slice';
+import { SearchState } from './features/search/search-slice';
 import { SettingsState } from './features/settings/settings-slice';
 
 type AppState = {
@@ -46,6 +48,7 @@ type AppState = {
   posts: PostsState;
   products: ProductsState;
   profiles: ProfilesState;
+  search: SearchState;
   settings: SettingsState;
 };
 
@@ -60,6 +63,7 @@ export const rootReducer = combineReducers<AppState>({
   posts: postsReducer,
   products: productsReducer,
   profiles: profilesReducer,
+  search: searchReducer,
   settings: settingsReducer,
 });
 

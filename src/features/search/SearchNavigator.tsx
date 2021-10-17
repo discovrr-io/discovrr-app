@@ -7,26 +7,36 @@ import {
   Text,
   View,
   TouchableHighlight,
+  Platform,
 } from 'react-native';
 
-import { createStackNavigator } from '@react-navigation/stack';
+import Icon from 'react-native-vector-icons/Ionicons';
+import {
+  CardStyleInterpolators,
+  createStackNavigator,
+  HeaderStyleInterpolators,
+} from '@react-navigation/stack';
 import { getDefaultHeaderHeight } from '@react-navigation/elements';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { StackHeaderProps } from '@react-navigation/stack';
 
 import { color, font, layout } from 'src/constants';
-import { SearchStackParamList } from 'src/navigation';
 import { Button, HeaderIcon, Spacer, TextInput } from 'src/components';
-import { SearchStackNavigationProp } from 'src/navigation';
+import { useAppDispatch } from 'src/hooks';
+import {
+  SearchStackNavigationProp,
+  SearchStackParamList,
+} from 'src/navigation';
 
 import SearchQueryScreen from './SearchQueryScreen';
 import SearchResultsNavigator from './SearchResultsNavigator';
-import Icon from 'react-native-vector-icons/Ionicons';
+import { addToSearchQueryHistory } from './search-slice';
 
 const HEADER_HORIZONTAL_PADDING = layout.defaultScreenMargins.horizontal;
 const HEADER_TEXT_INPUT_ICON_SIZE = 24;
 
 function SearchHeaderContent() {
+  const dispatch = useAppDispatch();
   const navigation = useNavigation<SearchStackNavigationProp>();
 
   const textInputRef = useRef<RNTextInput>(null);
@@ -48,6 +58,7 @@ function SearchHeaderContent() {
   const handleSearchQuery = () => {
     const query = searchText.trim();
     if (query.length > 0) {
+      dispatch(addToSearchQueryHistory(query));
       navigation.navigate('Results', {
         screen: 'SearchResultsUsers',
         params: { query },
@@ -63,6 +74,7 @@ function SearchHeaderContent() {
       value={searchText}
       onChangeText={setSearchText}
       onSubmitEditing={handleSearchQuery}
+      selectTextOnFocus
       returnKeyType="search"
       autoCapitalize="none"
       autoCompleteType="off"
@@ -175,6 +187,14 @@ export default function SearchNavigator() {
         headerTintColor: color.black,
         headerBackTitleVisible: false,
         headerTitleStyle: font.defaultHeaderTitleStyle,
+        headerStyleInterpolator: Platform.select({
+          android: HeaderStyleInterpolators.forFade,
+          default: undefined,
+        }),
+        cardStyleInterpolator: Platform.select({
+          android: CardStyleInterpolators.forFadeFromCenter,
+          default: undefined,
+        }),
       }}>
       <SearchStack.Screen
         name="Query"
@@ -186,15 +206,12 @@ export default function SearchNavigator() {
       <SearchStack.Screen
         name="Results"
         component={SearchResultsNavigator}
-        options={({ route }) => {
-          route.params;
-          return {
-            header: SearchResultsHeader,
-            headerStyle: {
-              elevation: 0,
-              shadowOpacity: 0,
-            },
-          };
+        options={{
+          header: SearchResultsHeader,
+          headerStyle: {
+            elevation: 0,
+            shadowOpacity: 0,
+          },
         }}
       />
     </SearchStack.Navigator>

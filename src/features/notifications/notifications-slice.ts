@@ -15,7 +15,7 @@ export const setFCMRegistrationTokenForSession = createAsyncThunk(
 
 //#endregion Notifications Async Thunks
 
-//#region Notifications Adapter Initialization
+//#region Notifications State Initialization
 
 export type NotificationsState = {
   didRegisterFCMToken: boolean;
@@ -27,7 +27,7 @@ const initialState: NotificationsState = {
   allNotifications: [],
 };
 
-//#endregion Notifications Adapter Initialization
+//#endregion Notifications State Initialization
 
 //#region Notifications Slice
 

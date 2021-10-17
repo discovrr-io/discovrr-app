@@ -54,7 +54,6 @@ function FacadeNavigator() {
         headerTintColor: color.black,
         headerTitleStyle: font.defaultHeaderTitleStyle,
         tabBarShowLabel: false,
-        tabBarHideOnKeyboard: Platform.OS === 'android',
         tabBarIcon: ({ focused, color, size: _ }) => {
           let iconName: string;
           let iconSize = 26;
@@ -68,7 +67,6 @@ function FacadeNavigator() {
               iconName = focused ? 'home' : 'home-outline';
               break;
             case 'Explore':
-              // iconName = focused ? 'chatbubbles' : 'chatbubbles-outline';
               iconName = focused ? 'compass' : 'compass-outline';
               iconSize *= 1.1;
               break;
@@ -106,6 +104,18 @@ function FacadeNavigator() {
         name="Explore"
         component={ExploreNavigator}
         options={{ headerShown: false }}
+        listeners={({
+          navigation,
+        }: {
+          navigation: FacadeBottomTabNavigationProp;
+        }) => ({
+          tabLongPress: _ => {
+            navigation.navigate('Explore', {
+              screen: 'Search',
+              params: { screen: 'Query' },
+            });
+          },
+        })}
       />
       <FacadeBottomTab.Screen
         name="__Create"

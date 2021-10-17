@@ -110,8 +110,7 @@ export type MainDrawerScreenProps<K extends keyof MainDrawerParamList> =
 
 export type FacadeBottomTabParamList = {
   Home: NavigatorScreenParams<HomeStackParamList>;
-  // Feed: NavigatorScreenParams<FeedTopTabParamList>;
-  Explore: NavigatorScreenParams<ExploreStackNavigationProp>;
+  Explore: NavigatorScreenParams<ExploreStackParamList>;
   Notifications: undefined;
   // -- Placeholder Tabs --
   __Create: undefined;
