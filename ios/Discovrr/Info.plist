@@ -23,20 +23,20 @@
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
-			<key>CFBundleURLName</key>
-			<string>com.discovrr.Discovrr</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.discovrr.Discovrr</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>discovrr</string>
 			</array>
 		</dict>
 		<dict>
-			<key>CFBundleURLName</key>
-			<string>com.discovrr.Discovrr</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.discovrr.Discovrr</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>com.googleusercontent.apps.401222439990-6dpbmvbrbqt76l9cc7q6g16l8b483rjq</string>
