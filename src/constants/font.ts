@@ -104,5 +104,11 @@ export const extraSmallBold: TextStyle = {
   ...mediumFontTextStyles,
 };
 
-const { color: _, ...defaultHeaderTitleStyleWithoutColor } = largeBold;
+const { color: _1, ...defaultHeaderTitleStyleWithoutColor } = largeBold;
 export const defaultHeaderTitleStyle = defaultHeaderTitleStyleWithoutColor;
+
+const { color: _2, ...defaultTabBarLabelStyleWithoutColor } = medium;
+export const defaultTabBarLabelStyle: TextStyle = {
+  ...defaultTabBarLabelStyleWithoutColor,
+  textTransform: 'none',
+};

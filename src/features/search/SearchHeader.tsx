@@ -1,11 +1,11 @@
-import React, { useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { TextInput as RNTextInput, SafeAreaView, View } from 'react-native';
 
 import { getDefaultHeaderHeight } from '@react-navigation/elements';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { StackHeaderProps } from '@react-navigation/stack';
 
-import { HeaderIcon, TextInput } from 'src/components';
+import { Button, Spacer, TextInput } from 'src/components';
 import { color, layout } from 'src/constants';
 import { SearchStackNavigationProp } from 'src/navigation';
 
@@ -18,6 +18,13 @@ function SearchHeaderContent() {
   const textInputRef = useRef<RNTextInput>(null);
   const [searchText, setSearchText] = useState('');
 
+  // Focus the text input when the screen with the header is focused
+  useFocusEffect(
+    useCallback(() => {
+      textInputRef.current?.focus();
+    }, []),
+  );
+
   const handleClearQuery = () => {
     setSearchText('');
     navigation.navigate('Query');
@@ -27,8 +34,10 @@ function SearchHeaderContent() {
   const handleSearchQuery = () => {
     const query = searchText.trim();
     if (query.length > 0) {
-      console.log(`Searching '${query}'...`);
-      navigation.navigate('Results', { query });
+      navigation.navigate('Results', {
+        screen: 'SearchResultsUsers',
+        params: { query },
+      });
     }
   };
 
@@ -41,8 +50,15 @@ function SearchHeaderContent() {
       onChangeText={setSearchText}
       onSubmitEditing={handleSearchQuery}
       returnKeyType="search"
+      autoCapitalize="none"
       autoCompleteType="off"
       autoCorrect={false}
+      prefix={
+        <TextInput.Icon
+          name="search"
+          size={HEADER_TEXT_INPUT_ICON_SIZE * 0.9}
+        />
+      }
       suffix={
         searchText.length > 0 ? (
           <TextInput.Icon
@@ -70,10 +86,16 @@ export default function SearchHeader(props: StackHeaderProps) {
           flexDirection: 'row',
           minHeight: headerHeight,
           alignItems: 'center',
-          paddingRight: HEADER_HORIZONTAL_PADDING,
+          paddingHorizontal: HEADER_HORIZONTAL_PADDING,
         }}>
-        <HeaderIcon.Back />
         <SearchHeaderContent />
+        <Spacer.Horizontal value="md" />
+        <Button
+          title="Cancel"
+          size="medium"
+          onPress={() => props.navigation.goBack()}
+          containerStyle={{ alignItems: 'flex-end', paddingHorizontal: 0 }}
+        />
       </View>
     </SafeAreaView>
   );

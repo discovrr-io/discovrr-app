@@ -1,10 +1,13 @@
 import React from 'react';
 
-import { createStackNavigator } from '@react-navigation/stack';
+import {
+  CardStyleInterpolators,
+  createStackNavigator,
+  HeaderStyleInterpolators,
+} from '@react-navigation/stack';
 
 import FeedNavigator from 'src/features/feed/FeedNavigator';
 import SearchNavigator from 'src/features/search/SearchNavigator';
-import SearchHeader from 'src/features/search/SearchHeader';
 
 import { color, font, layout } from 'src/constants';
 import { HeaderIcon } from 'src/components';
@@ -21,15 +24,12 @@ export default function ExploreNavigator() {
   return (
     <ExploreStack.Navigator
       initialRouteName="Feed"
-      screenOptions={({ route }) => ({
+      screenOptions={{
         headerTintColor: color.black,
         headerBackTitleVisible: false,
         headerTitleStyle: font.defaultHeaderTitleStyle,
-        headerStyle: [
-          { backgroundColor: color.white },
-          route.name === 'Feed' && { elevation: 0, shadowOpacity: 0 },
-        ],
-      })}>
+        headerStyle: { backgroundColor: color.white },
+      }}>
       <ExploreStack.Screen
         name="Feed"
         component={FeedNavigator}
@@ -39,6 +39,10 @@ export default function ExploreNavigator() {
           navigation: ExploreStackNavigationProp;
         }) => ({
           title: 'Explore',
+          headerStyle: {
+            elevation: 0,
+            shadowOpacity: 0,
+          },
           headerLeft: props => (
             <HeaderIcon.Menu
               {...props}
@@ -55,7 +59,6 @@ export default function ExploreNavigator() {
               {...props}
               name="search"
               size={24}
-              // onPress={() => navigation.navigate('SearchQuery')}
               onPress={() => navigation.navigate('Search', { screen: 'Query' })}
             />
           ),
@@ -71,7 +74,10 @@ export default function ExploreNavigator() {
         name="Search"
         component={SearchNavigator}
         options={{
-          header: SearchHeader,
+          headerShown: false,
+          headerStyleInterpolator: HeaderStyleInterpolators.forFade,
+          cardStyleInterpolator: CardStyleInterpolators.forFadeFromCenter,
+          // gestureEnabled: false,
         }}
       />
     </ExploreStack.Navigator>

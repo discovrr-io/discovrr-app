@@ -187,7 +187,7 @@ export type FeedTopTabScreenProps<K extends keyof FeedTopTabParamList> =
 
 export type SearchStackParamList = {
   Query: undefined;
-  Results: { query: string };
+  Results: NavigatorScreenParams<SearchResultsTopTabParamList>;
 };
 
 export type SearchStackNavigationProp = StackNavigationProp<
@@ -199,6 +199,34 @@ export type SearchStackScreenProps<K extends keyof SearchStackParamList> =
   StackScreenProps<SearchStackParamList, K>;
 
 //#endregion SEARCH STACK
+
+//#region SEARCH RESULTS TOP TAB
+
+export const SearchResultsTopTabNames = [
+  'SearchResultsUsers',
+  'SearchResultsMakers',
+  'SearchResultsProducts',
+  'SearchResultsPosts',
+] as const;
+
+type SearchResultsTopTabKeyUnion = typeof SearchResultsTopTabNames[number];
+type SearchResultsQueryParams = { query: string };
+
+export type SearchResultsTopTabParamList = Record<
+  SearchResultsTopTabKeyUnion,
+  SearchResultsQueryParams
+>;
+
+export type SearchResultsTopTabNavigationProp = StackNavigationProp<
+  SearchResultsTopTabParamList,
+  'SearchResultsUsers'
+>;
+
+export type SearchResultsTopTabScreenProps<
+  K extends keyof SearchResultsTopTabParamList,
+> = StackScreenProps<SearchResultsTopTabParamList, K>;
+
+//#endregion SEARCH RESULTS TOP TAB
 
 //#region CREATE ITEM STACK
 
@@ -339,7 +367,12 @@ Root = Stack {
         }
         Search = Stack {
           Search
-          Results
+          Results = TopTab {
+            Users
+            Makers
+            Products
+            Posts
+          }
         }
       }
       Notifications

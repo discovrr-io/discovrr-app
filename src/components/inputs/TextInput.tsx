@@ -92,7 +92,11 @@ export const __TextInput = React.forwardRef<RNTextInput, TextInputProps>(
         ]}>
         {React.isValidElement(prefix)
           ? React.cloneElement(prefix, {
-              containerStyle: { marginRight: layout.spacing.sm },
+              containerStyle: {
+                marginRight:
+                  commonTextInputContainerStyle.paddingHorizontal ??
+                  layout.spacing.sm,
+              },
             })
           : prefix}
         <RNTextInput
@@ -110,7 +114,11 @@ export const __TextInput = React.forwardRef<RNTextInput, TextInputProps>(
         />
         {React.isValidElement(suffix)
           ? React.cloneElement(suffix, {
-              containerStyle: { marginLeft: layout.spacing.sm },
+              containerStyle: {
+                marginLeft:
+                  commonTextInputContainerStyle.paddingHorizontal ??
+                  layout.spacing.sm,
+              },
             })
           : suffix}
       </View>

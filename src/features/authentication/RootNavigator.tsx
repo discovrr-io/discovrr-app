@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import codePush from 'react-native-code-push';
 import messaging from '@react-native-firebase/messaging';
 import { nanoid } from '@reduxjs/toolkit';
+import { CardStyleInterpolators } from '@react-navigation/stack';
 
 import { HeaderIcon, PlaceholderScreen, RouteError } from 'src/components';
 import { color, font } from 'src/constants';
@@ -122,7 +123,11 @@ export default function RootNavigator() {
         <RootStack.Screen
           name="Create"
           component={CreateItemNavigator}
-          options={{ presentation: 'modal' }}
+          // options={{ presentation: 'modal' }}
+          options={{
+            cardStyleInterpolator:
+              CardStyleInterpolators.forModalPresentationIOS,
+          }}
         />
       </RootStack.Group>
 
