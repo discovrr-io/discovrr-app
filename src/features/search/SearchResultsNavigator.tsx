@@ -7,7 +7,7 @@ import { createMaterialTopTabNavigator } from '@react-navigation/material-top-ta
 
 import ProfileListItem from 'src/features/profiles/ProfileListItem';
 import { font } from 'src/constants';
-import { EmptyContainer } from 'src/components';
+import { EmptyContainer, PlaceholderScreen } from 'src/components';
 import { useIsMounted } from 'src/hooks';
 import { ProfileId } from 'src/models';
 import { alertSomethingWentWrong } from 'src/utilities';
@@ -102,9 +102,7 @@ export default function SearchResultsNavigator(_: SearchResultsNavigatorProps) {
       initialRouteName="SearchResultsUsers"
       screenOptions={{
         lazy: true,
-        tabBarScrollEnabled: true,
         tabBarLabelStyle: font.defaultTabBarLabelStyle,
-        tabBarItemStyle: { width: 100 },
       }}>
       <SearchResultsTopTab.Screen
         name="SearchResultsUsers"
@@ -118,6 +116,21 @@ export default function SearchResultsNavigator(_: SearchResultsNavigatorProps) {
           />
         )}
       </SearchResultsTopTab.Screen>
+      <SearchResultsTopTab.Screen
+        name="SearchResultsMakers"
+        component={PlaceholderScreen}
+        options={{ title: 'Makers' }}
+      />
+      <SearchResultsTopTab.Screen
+        name="SearchResultsProducts"
+        component={PlaceholderScreen}
+        options={{ title: 'Products' }}
+      />
+      <SearchResultsTopTab.Screen
+        name="SearchResultsPosts"
+        component={PlaceholderScreen}
+        options={{ title: 'Posts' }}
+      />
     </SearchResultsTopTab.Navigator>
   );
 }
