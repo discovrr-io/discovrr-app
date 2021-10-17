@@ -33,8 +33,6 @@ import {
 const RootDrawer = createDrawerNavigator<MainDrawerParamList>();
 const FacadeBottomTab = createBottomTabNavigator<FacadeBottomTabParamList>();
 
-const HEADER_HORIZONTAL_PADDING = layout.defaultScreenMargins.horizontal;
-
 function FacadeNavigator() {
   const $FUNC = '[FacadeNavigator]';
   const myProfileId = useMyProfileId();
@@ -46,16 +44,12 @@ function FacadeNavigator() {
       screenOptions={({ route }) => ({
         lazy: true,
         headerBackTitleVisible: false,
-        headerLeft: props => <HeaderIcon.Menu {...props} />,
+        headerLeft: HeaderIcon.Menu,
         headerLeftContainerStyle: {
-          paddingLeft: HEADER_HORIZONTAL_PADDING,
+          paddingLeft: layout.defaultScreenMargins.horizontal,
         },
         headerStyle: {
           backgroundColor: color.white,
-          ...(route.name === 'Explore' && {
-            elevation: 0,
-            shadowOpacity: 0,
-          }),
         },
         headerTintColor: color.black,
         headerTitleStyle: font.defaultHeaderTitleStyle,

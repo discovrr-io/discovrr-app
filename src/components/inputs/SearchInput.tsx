@@ -1,9 +1,8 @@
 import React from 'react';
 import Icon from 'react-native-vector-icons/Ionicons';
 
+import TextInput, { TextInputProps } from './TextInput';
 import { color } from 'src/constants';
-
-import { TextInput, TextInputProps } from './TextInput';
 
 type SearchInputProps = Omit<TextInputProps, 'suffix'> & {
   variant?: 'filled' | 'outlined';

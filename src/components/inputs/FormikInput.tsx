@@ -3,8 +3,8 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { FormikProps } from 'formik';
 
+import TextInput, { TextInputProps } from './TextInput';
 import { color, font, layout } from 'src/constants';
-import { TextInput, TextInputProps } from './TextInput';
 
 type FormikInputProps<FormValues> = TextInputProps & {
   formikProps: FormikProps<FormValues>;

@@ -2,7 +2,6 @@ import React from 'react';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
 import { color, font } from 'src/constants';
-// import { PlaceholderScreen } from 'src/components';
 import { FeedTopTabParamList } from 'src/navigation';
 
 import DiscoverFeed from './DiscoverFeed';
