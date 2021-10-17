@@ -110,7 +110,8 @@ export type MainDrawerScreenProps<K extends keyof MainDrawerParamList> =
 
 export type FacadeBottomTabParamList = {
   Home: NavigatorScreenParams<HomeStackParamList>;
-  Feed: NavigatorScreenParams<FeedTopTabParamList>;
+  // Feed: NavigatorScreenParams<FeedTopTabParamList>;
+  Explore: NavigatorScreenParams<ExploreStackNavigationProp>;
   Notifications: undefined;
   // -- Placeholder Tabs --
   __Create: undefined;
@@ -145,6 +146,23 @@ export type HomeStackScreenProps<K extends keyof HomeStackParamList> =
 
 //#endregion HOME STACK
 
+//#region EXPLORE STACK
+
+export type ExploreStackParamList = {
+  Feed: NavigatorScreenParams<FeedTopTabParamList>;
+  Search: NavigatorScreenParams<SearchStackNavigationProp>;
+};
+
+export type ExploreStackNavigationProp = StackNavigationProp<
+  ExploreStackParamList,
+  'Feed'
+>;
+
+export type ExploreStackScreenProps<K extends keyof ExploreStackParamList> =
+  StackScreenProps<ExploreStackParamList, K>;
+
+//#endregion EXPLORE STACK
+
 //#region FEED TOP TAB
 
 export type FeedTopTabParamList = {
@@ -164,6 +182,23 @@ export type FeedTopTabScreenProps<K extends keyof FeedTopTabParamList> =
   MaterialTopTabScreenProps<FeedTopTabParamList, K>;
 
 //#endregion
+
+//#region SEARCH STACK
+
+export type SearchStackParamList = {
+  Search: { query: string } | undefined;
+  Results: undefined;
+};
+
+export type SearchStackNavigationProp = StackNavigationProp<
+  SearchStackParamList,
+  'Search'
+>;
+
+export type SearchStackScreenProps<K extends keyof SearchStackParamList> =
+  StackScreenProps<SearchStackParamList, K>;
+
+//#endregion SEARCH STACK
 
 //#region CREATE ITEM STACK
 
@@ -296,10 +331,16 @@ Root = Stack {
         Landing
         Filter
       }
-      Feed = TopTab {
-        Discover
-        NearMe
-        Following
+      Explore = Stack {
+        Feed = TopTab {
+          Discover
+          NearMe
+          Following
+        }
+        Search = Stack {
+          Search
+          Results
+        }
       }
       Notifications
       __Create

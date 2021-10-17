@@ -1,27 +1,26 @@
-import React, { useState } from 'react';
-import { Platform, SafeAreaView, View } from 'react-native';
+import React from 'react';
+import { Platform } from 'react-native';
 
 import Icon from 'react-native-vector-icons/Ionicons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { BottomTabHeaderProps } from '@react-navigation/bottom-tabs/lib/typescript/src/types';
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import { getDefaultHeaderHeight } from '@react-navigation/elements';
 
-import FeedNavigator from 'src/features/feed/FeedNavigator';
 import HomeNavigator from 'src/features/home/HomeNavigator';
+import ExploreNavigator from 'src/features/explore/ExploreNavigator';
 import NotificationsScreen from 'src/features/notifications/NotificationsScreen';
 import ProfileScreen from 'src/features/profiles/ProfileScreen';
 
 import { color, font, layout } from 'src/constants';
 import { DEFAULT_MIN_BOTTOM_TAB_BAR_HEIGHT } from 'src/constants/values';
 import { useMyProfileId } from 'src/features/profiles/hooks';
+import { selectUnreadNotificationsCount } from 'src/features/notifications/notifications-slice';
+import { useAppSelector } from 'src/hooks';
 
 import {
   AppDrawer,
   DiscovrrIcon,
   HeaderIcon,
   PlaceholderScreen,
-  TextInput,
 } from 'src/components';
 
 import {
@@ -30,71 +29,11 @@ import {
   RootStackNavigationProp,
   MainDrawerParamList,
 } from 'src/navigation';
-import { useAppSelector } from 'src/hooks';
-import { selectUnreadNotificationsCount } from '../notifications/notifications-slice';
 
 const RootDrawer = createDrawerNavigator<MainDrawerParamList>();
 const FacadeBottomTab = createBottomTabNavigator<FacadeBottomTabParamList>();
 
 const HEADER_HORIZONTAL_PADDING = layout.defaultScreenMargins.horizontal;
-const HEADER_TEXT_INPUT_ICON_SIZE = 24;
-
-function FeedHeaderTextInput() {
-  const [searchText, setSearchText] = useState('');
-
-  const handleSearchQuery = () => {
-    const query = searchText.trim();
-    if (query.length > 0) {
-      console.log(`Searching '${query}'...`);
-    }
-  };
-
-  return (
-    <TextInput
-      size="medium"
-      placeholder="Search for anything..."
-      value={searchText}
-      onChangeText={setSearchText}
-      onSubmitEditing={handleSearchQuery}
-      returnKeyType="search"
-      autoCompleteType="off"
-      autoCorrect={false}
-      suffix={
-        searchText.length > 0 ? (
-          <TextInput.Icon
-            name="close"
-            size={HEADER_TEXT_INPUT_ICON_SIZE}
-            color={color.black}
-            onPress={() => setSearchText('')}
-          />
-        ) : undefined
-      }
-      containerStyle={{
-        flexGrow: 1,
-        flexShrink: 1,
-        marginLeft: HEADER_HORIZONTAL_PADDING,
-      }}
-    />
-  );
-}
-
-function FeedHeader(props: BottomTabHeaderProps) {
-  const headerHeight = getDefaultHeaderHeight(props.layout, false, 0);
-  return (
-    <SafeAreaView>
-      <View
-        style={{
-          flexDirection: 'row',
-          minHeight: headerHeight,
-          alignItems: 'center',
-          paddingHorizontal: HEADER_HORIZONTAL_PADDING,
-        }}>
-        <HeaderIcon.Menu />
-        <FeedHeaderTextInput />
-      </View>
-    </SafeAreaView>
-  );
-}
 
 function FacadeNavigator() {
   const $FUNC = '[FacadeNavigator]';
@@ -113,7 +52,7 @@ function FacadeNavigator() {
         },
         headerStyle: {
           backgroundColor: color.white,
-          ...(route.name === 'Feed' && {
+          ...(route.name === 'Explore' && {
             elevation: 0,
             shadowOpacity: 0,
           }),
@@ -134,7 +73,7 @@ function FacadeNavigator() {
             case 'Home':
               iconName = focused ? 'home' : 'home-outline';
               break;
-            case 'Feed':
+            case 'Explore':
               // iconName = focused ? 'chatbubbles' : 'chatbubbles-outline';
               iconName = focused ? 'compass' : 'compass-outline';
               iconSize *= 1.1;
@@ -170,9 +109,9 @@ function FacadeNavigator() {
       })}>
       <FacadeBottomTab.Screen name="Home" component={HomeNavigator} />
       <FacadeBottomTab.Screen
-        name="Feed"
-        component={FeedNavigator}
-        options={{ header: FeedHeader }}
+        name="Explore"
+        component={ExploreNavigator}
+        options={{ headerShown: false }}
       />
       <FacadeBottomTab.Screen
         name="__Create"
