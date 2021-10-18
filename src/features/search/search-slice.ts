@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 //#region Search State Initialization
 
-const MAX_QUERY_HISTORY = 5;
+const QUERY_HISTORY_CAPACITY = 5;
 
 export type SearchState = {
   queryHistory: string[];
@@ -24,24 +24,35 @@ const searchSlice = createSlice({
       state.queryHistory = [];
     },
     addToSearchQueryHistory: (state, action: PayloadAction<string>) => {
-      // console.log('OLD STATE', state.queryHistory);
-      // // TODO: Move item if it already exists in the queue
-      // if (state.queryHistory.length >= MAX_QUERY_HISTORY) {
-      //   console.log('SLICING...');
-      //   state.queryHistory = [
-      //     action.payload,
-      //     ...state.queryHistory.slice(0, MAX_QUERY_HISTORY - 1),
-      //   ];
-      // } else {
-      //   state.queryHistory.unshift(action.payload);
-      // }
-      // console.log('NEW STATE', state.queryHistory);
+      // If the given query already exists in the stack, we'll remove it from
+      // its existing position first.
+      const existingIndex = state.queryHistory.indexOf(action.payload);
+      if (existingIndex > -1) state.queryHistory.splice(existingIndex, 1);
+
+      // Then, we'll insert the most recent query at the beginning of the stack.
+      state.queryHistory.splice(0, 0, action.payload);
+      // Next, we'll check if the stack has exceeded passed the capacity. Note
+      // that it is should be smaller or equal to QUERY_HISTORY_CAPACITY.
+      if (state.queryHistory.length > QUERY_HISTORY_CAPACITY) {
+        // If the length has exceeded the capacity, we'll manually set the
+        // stack's length to remove search terms that are out-of-bounds.
+        state.queryHistory.length = QUERY_HISTORY_CAPACITY;
+      }
+    },
+    removeByIndexFromSearchQueryHistory: (
+      state,
+      action: PayloadAction<number>,
+    ) => {
+      state.queryHistory.splice(action.payload, 1);
     },
   },
 });
 
-export const { addToSearchQueryHistory, clearSearchQueryHistory } =
-  searchSlice.actions;
+export const {
+  addToSearchQueryHistory,
+  clearSearchQueryHistory,
+  removeByIndexFromSearchQueryHistory,
+} = searchSlice.actions;
 
 //#endregion Search Slice
 

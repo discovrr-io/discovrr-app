@@ -205,7 +205,9 @@ export const SearchResultsTopTabNames = [
   'SearchResultsUsers',
   'SearchResultsMakers',
   'SearchResultsProducts',
+  'SearchResultsWorkshops',
   'SearchResultsPosts',
+  'SearchResultsHashtags',
 ] as const;
 
 type SearchResultsTopTabKeyUnion = typeof SearchResultsTopTabNames[number];

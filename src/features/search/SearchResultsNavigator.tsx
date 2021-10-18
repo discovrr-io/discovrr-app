@@ -7,10 +7,15 @@ import { createMaterialTopTabNavigator } from '@react-navigation/material-top-ta
 
 import ProfileListItem from 'src/features/profiles/ProfileListItem';
 import { font } from 'src/constants';
-import { EmptyContainer, PlaceholderScreen } from 'src/components';
 import { useIsMounted } from 'src/hooks';
 import { ProfileId } from 'src/models';
 import { alertSomethingWentWrong } from 'src/utilities';
+
+import {
+  EmptyContainer,
+  LoadingContainer,
+  PlaceholderScreen,
+} from 'src/components';
 
 import {
   SearchResultsTopTabParamList,
@@ -44,10 +49,11 @@ function SearchResultsTabWrapper<ItemT>(
   const isMounted = useIsMounted();
 
   const [data, setData] = useState<ItemT[]>([]);
-  const [shouldRefresh, setShouldRefresh] = useState(true);
+  const [isInitialRender, setIsInitialRender] = useState(true);
+  const [shouldRefresh, setShouldRefresh] = useState(false);
 
   useEffect(() => {
-    if (shouldRefresh)
+    if (isInitialRender || shouldRefresh)
       (async () => {
         try {
           console.log(`WILL SEARCH '${query}'`);
@@ -57,13 +63,16 @@ function SearchResultsTabWrapper<ItemT>(
           console.error('Failed to fetch item:', error);
           alertSomethingWentWrong();
         } finally {
-          if (isMounted && shouldRefresh) setShouldRefresh(false);
+          if (isMounted) {
+            if (isInitialRender) setIsInitialRender(false);
+            if (shouldRefresh) setShouldRefresh(false);
+          }
         }
       })();
-  }, [query, fetchData, isMounted, shouldRefresh]);
+  }, [query, fetchData, isInitialRender, shouldRefresh, isMounted]);
 
   const handleRefresh = () => {
-    if (!shouldRefresh) setShouldRefresh(true);
+    if (!isInitialRender && !shouldRefresh) setShouldRefresh(true);
   };
 
   return (
@@ -74,16 +83,22 @@ function SearchResultsTabWrapper<ItemT>(
         renderItem={renderItem}
         contentContainerStyle={{ flexGrow: 1 }}
         refreshControl={
-          <RefreshControl
-            refreshing={shouldRefresh}
-            onRefresh={handleRefresh}
-          />
+          !isInitialRender ? (
+            <RefreshControl
+              refreshing={shouldRefresh}
+              onRefresh={handleRefresh}
+            />
+          ) : undefined
         }
         ListEmptyComponent={
-          <EmptyContainer
-            title={`We couldn't find anything for '${query}'`}
-            message="Try refining your search to something more specific"
-          />
+          isInitialRender ? (
+            <LoadingContainer />
+          ) : (
+            <EmptyContainer
+              title={`We couldn't find anything for '${query}'`}
+              message="Try refining your search to something more specific"
+            />
+          )
         }
       />
     </SafeAreaView>
@@ -101,7 +116,9 @@ export default function SearchResultsNavigator(_: SearchResultsNavigatorProps) {
       initialRouteName="SearchResultsUsers"
       screenOptions={{
         lazy: true,
+        tabBarScrollEnabled: true,
         tabBarLabelStyle: font.defaultTabBarLabelStyle,
+        tabBarItemStyle: { width: 120 },
       }}>
       <SearchResultsTopTab.Screen
         name="SearchResultsUsers"
@@ -126,9 +143,19 @@ export default function SearchResultsNavigator(_: SearchResultsNavigatorProps) {
         options={{ title: 'Products' }}
       />
       <SearchResultsTopTab.Screen
+        name="SearchResultsWorkshops"
+        component={PlaceholderScreen}
+        options={{ title: 'Workshops' }}
+      />
+      <SearchResultsTopTab.Screen
         name="SearchResultsPosts"
         component={PlaceholderScreen}
         options={{ title: 'Posts' }}
+      />
+      <SearchResultsTopTab.Screen
+        name="SearchResultsHashtags"
+        component={PlaceholderScreen}
+        options={{ title: 'Hashtags' }}
       />
     </SearchResultsTopTab.Navigator>
   );

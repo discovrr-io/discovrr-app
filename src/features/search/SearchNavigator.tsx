@@ -70,7 +70,7 @@ function SearchHeaderContent() {
     <TextInput
       ref={textInputRef}
       size="medium"
-      placeholder="Search for anything..."
+      placeholder="Search for anything…"
       value={searchText}
       onChangeText={setSearchText}
       onSubmitEditing={handleSearchQuery}
@@ -143,16 +143,21 @@ function SearchQueryHeader(props: StackHeaderProps) {
   );
 }
 
-function SearchResultsHeader(props: StackHeaderProps) {
+type SearchResultsHeaderProps = StackHeaderProps & {
+  query?: string;
+};
+
+function SearchResultsHeader(props: SearchResultsHeaderProps) {
+  const { query, ...restProps } = props;
   return (
     <SearchHeader
-      {...props}
+      {...restProps}
       containerStyle={{ paddingRight: HEADER_HORIZONTAL_PADDING }}>
       <HeaderIcon.Back />
       <TouchableHighlight
         underlayColor={color.gray200}
-        onPress={() => props.navigation.goBack()}
-        onLongPress={() => props.navigation.goBack()}
+        onPress={() => restProps.navigation.goBack()}
+        onLongPress={() => restProps.navigation.goBack()}
         style={{
           flexGrow: 1,
           justifyContent: 'center',
@@ -170,7 +175,7 @@ function SearchResultsHeader(props: StackHeaderProps) {
           }}>
           <Icon name="search" size={18} />
           <Spacer.Horizontal value="sm" />
-          <Text style={font.medium}>QUERY</Text>
+          <Text style={font.medium}>{query ?? 'Search for anything…'}</Text>
         </View>
       </TouchableHighlight>
     </SearchHeader>
@@ -206,12 +211,15 @@ export default function SearchNavigator() {
       <SearchStack.Screen
         name="Results"
         component={SearchResultsNavigator}
-        options={{
-          header: SearchResultsHeader,
-          headerStyle: {
-            elevation: 0,
-            shadowOpacity: 0,
-          },
+        options={({ route }) => {
+          const query = route.params.params?.query;
+          return {
+            header: props => <SearchResultsHeader {...props} query={query} />,
+            headerStyle: {
+              elevation: 0,
+              shadowOpacity: 0,
+            },
+          };
         }}
       />
     </SearchStack.Navigator>
