@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+- Implement basic search functionality (WIP)
+  - [x] Search query UI
+  - [x] Save search history
+  - [x] Ability to search users
+  - [ ] Ability to search makers
+  - [ ] Ability to search products
+  - [ ] Ability to search workshops
+  - [ ] Ability to search posts
+
 ## [v2.3.0.3] (2021-10-15)
 
 ### Added
