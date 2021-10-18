@@ -96,6 +96,7 @@ function LoadedProfileScreen(props: { profile: Profile }) {
         {
           label: `Block ${profile.displayName}`,
           iconName: 'hand-right-outline',
+          destructive: true,
         },
         { label: `Report ${profile.displayName}`, iconName: 'flag-outline' },
       );

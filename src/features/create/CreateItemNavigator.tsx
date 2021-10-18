@@ -23,11 +23,7 @@ function CreateItemDetailsNavigator() {
       tabBarPosition="bottom"
       screenOptions={{
         tabBarScrollEnabled: true,
-        tabBarLabelStyle: {
-          textTransform: 'none',
-          fontFamily: font.FONT_FAMILY_REGULAR,
-          fontSize: font.size.md,
-        },
+        tabBarLabelStyle: font.defaultTabBarLabelStyle,
       }}>
       <CreateItemDetailsTopTab.Screen
         name="CreateText"

@@ -38,82 +38,93 @@ export type TextInputProps = Omit<
   suffix?: React.ReactNode;
 };
 
-export const TextInput = (props: TextInputProps) => {
-  const {
-    size = 'medium',
-    mode = 'filled',
-    containerStyle,
-    innerTextInputStyle,
-    prefix,
-    suffix,
-    ...restProps
-  } = props;
+export const __TextInput = React.forwardRef<RNTextInput, TextInputProps>(
+  (props: TextInputProps, ref) => {
+    const {
+      size = 'medium',
+      mode = 'filled',
+      containerStyle,
+      innerTextInputStyle,
+      prefix,
+      suffix,
+      ...restProps
+    } = props;
 
-  const [isFocused, setIsFocused] = useState(false);
+    const [isFocused, setIsFocused] = useState(false);
 
-  const textInputVariantStyles: ViewStyle[] = useMemo(() => {
-    switch (mode) {
-      case 'outlined':
-        return [
-          outlinedTextInputStyles.container,
-          isFocused
-            ? outlinedTextInputStyles.focused
-            : outlinedTextInputStyles.default,
-        ];
-      case 'filled':
-      default:
-        return [
-          filledTextInputStyles.container,
-          isFocused
-            ? filledTextInputStyles.focused
-            : filledTextInputStyles.default,
-        ];
-    }
-  }, [mode, isFocused]);
+    const textInputVariantStyles: ViewStyle[] = useMemo(() => {
+      switch (mode) {
+        case 'outlined':
+          return [
+            outlinedTextInputStyles.container,
+            isFocused
+              ? outlinedTextInputStyles.focused
+              : outlinedTextInputStyles.default,
+          ];
+        case 'filled':
+        default:
+          return [
+            filledTextInputStyles.container,
+            isFocused
+              ? filledTextInputStyles.focused
+              : filledTextInputStyles.default,
+          ];
+      }
+    }, [mode, isFocused]);
 
-  const textInputHeight = useMemo(() => {
-    switch (size) {
-      case 'large':
-        return layout.buttonSizes.lg;
-      case 'medium':
-        return layout.buttonSizes.md;
-      case 'small':
-        return layout.buttonSizes.sm;
-    }
-  }, [size]);
+    const textInputHeight = useMemo(() => {
+      switch (size) {
+        case 'large':
+          return layout.buttonSizes.lg;
+        case 'medium':
+          return layout.buttonSizes.md;
+        case 'small':
+          return layout.buttonSizes.sm;
+      }
+    }, [size]);
 
-  return (
-    <View
-      style={[
-        textInputVariantStyles,
-        { height: textInputHeight },
-        containerStyle,
-      ]}>
-      {React.isValidElement(prefix)
-        ? React.cloneElement(prefix, {
-            containerStyle: { marginRight: layout.spacing.sm },
-          })
-        : prefix}
-      <RNTextInput
-        {...restProps}
-        placeholderTextColor={color.gray500}
-        onPressIn={() => setIsFocused(true)}
-        onPressOut={() => setIsFocused(false)}
-        selectionColor={Platform.OS === 'ios' ? color.accent : undefined}
+    return (
+      <View
         style={[
-          font.medium,
-          innerTextInputStyle,
-          { flexGrow: 1, flexShrink: 1, padding: 0 },
-        ]}
-      />
-      {React.isValidElement(suffix)
-        ? React.cloneElement(suffix, {
-            containerStyle: { marginLeft: layout.spacing.sm },
-          })
-        : suffix}
-    </View>
-  );
-};
+          textInputVariantStyles,
+          { height: textInputHeight },
+          containerStyle,
+        ]}>
+        {React.isValidElement(prefix)
+          ? React.cloneElement(prefix, {
+              containerStyle: {
+                marginRight:
+                  commonTextInputContainerStyle.paddingHorizontal ??
+                  layout.spacing.sm,
+              },
+            })
+          : prefix}
+        <RNTextInput
+          {...restProps}
+          ref={ref}
+          placeholderTextColor={color.gray500}
+          onPressIn={() => setIsFocused(true)}
+          onPressOut={() => setIsFocused(false)}
+          selectionColor={Platform.OS === 'ios' ? color.accent : undefined}
+          style={[
+            font.medium,
+            innerTextInputStyle,
+            { flexGrow: 1, flexShrink: 1, padding: 0 },
+          ]}
+        />
+        {React.isValidElement(suffix)
+          ? React.cloneElement(suffix, {
+              containerStyle: {
+                marginLeft:
+                  commonTextInputContainerStyle.paddingHorizontal ??
+                  layout.spacing.sm,
+              },
+            })
+          : suffix}
+      </View>
+    );
+  },
+);
 
 const commonTextInputContainerStyle: ViewStyle = {
   flexGrow: 1,
@@ -186,5 +197,12 @@ const TextInputIcon = (props: TextInputIconProps) => {
   );
 };
 
+const TextInput = __TextInput as typeof __TextInput & {
+  Affix: typeof TextInputAffix;
+  Icon: typeof TextInputIcon;
+};
+
 TextInput.Affix = TextInputAffix;
 TextInput.Icon = TextInputIcon;
+
+export default TextInput;

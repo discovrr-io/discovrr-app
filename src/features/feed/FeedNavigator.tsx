@@ -2,7 +2,6 @@ import React from 'react';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
 import { color, font } from 'src/constants';
-// import { PlaceholderScreen } from 'src/components';
 import { FeedTopTabParamList } from 'src/navigation';
 
 import DiscoverFeed from './DiscoverFeed';
@@ -18,7 +17,7 @@ export default function FeedNavigator() {
       screenOptions={{
         lazy: true,
         tabBarStyle: { backgroundColor: color.white },
-        tabBarActiveTintColor: color.black,
+        tabBarActiveTintColor: color.accent,
         tabBarInactiveTintColor: color.gray500,
         tabBarPressColor: color.gray200,
         tabBarBounces: true,

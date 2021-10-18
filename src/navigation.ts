@@ -110,7 +110,7 @@ export type MainDrawerScreenProps<K extends keyof MainDrawerParamList> =
 
 export type FacadeBottomTabParamList = {
   Home: NavigatorScreenParams<HomeStackParamList>;
-  Feed: NavigatorScreenParams<FeedTopTabParamList>;
+  Explore: NavigatorScreenParams<ExploreStackParamList>;
   Notifications: undefined;
   // -- Placeholder Tabs --
   __Create: undefined;
@@ -145,6 +145,23 @@ export type HomeStackScreenProps<K extends keyof HomeStackParamList> =
 
 //#endregion HOME STACK
 
+//#region EXPLORE STACK
+
+export type ExploreStackParamList = {
+  Feed: NavigatorScreenParams<FeedTopTabParamList>;
+  Search: NavigatorScreenParams<SearchStackParamList>;
+};
+
+export type ExploreStackNavigationProp = StackNavigationProp<
+  ExploreStackParamList,
+  'Feed'
+>;
+
+export type ExploreStackScreenProps<K extends keyof ExploreStackParamList> =
+  StackScreenProps<ExploreStackParamList, K>;
+
+//#endregion EXPLORE STACK
+
 //#region FEED TOP TAB
 
 export type FeedTopTabParamList = {
@@ -164,6 +181,53 @@ export type FeedTopTabScreenProps<K extends keyof FeedTopTabParamList> =
   MaterialTopTabScreenProps<FeedTopTabParamList, K>;
 
 //#endregion
+
+//#region SEARCH STACK
+
+export type SearchStackParamList = {
+  Query: undefined;
+  Results: NavigatorScreenParams<SearchResultsTopTabParamList>;
+};
+
+export type SearchStackNavigationProp = StackNavigationProp<
+  SearchStackParamList,
+  'Query'
+>;
+
+export type SearchStackScreenProps<K extends keyof SearchStackParamList> =
+  StackScreenProps<SearchStackParamList, K>;
+
+//#endregion SEARCH STACK
+
+//#region SEARCH RESULTS TOP TAB
+
+export const SearchResultsTopTabNames = [
+  'SearchResultsUsers',
+  'SearchResultsMakers',
+  'SearchResultsProducts',
+  'SearchResultsWorkshops',
+  'SearchResultsPosts',
+  'SearchResultsHashtags',
+] as const;
+
+type SearchResultsTopTabKeyUnion = typeof SearchResultsTopTabNames[number];
+type SearchResultsQueryParams = { query: string };
+
+export type SearchResultsTopTabParamList = Record<
+  SearchResultsTopTabKeyUnion,
+  SearchResultsQueryParams
+>;
+
+export type SearchResultsTopTabNavigationProp = StackNavigationProp<
+  SearchResultsTopTabParamList,
+  'SearchResultsUsers'
+>;
+
+export type SearchResultsTopTabScreenProps<
+  K extends keyof SearchResultsTopTabParamList,
+> = StackScreenProps<SearchResultsTopTabParamList, K>;
+
+//#endregion SEARCH RESULTS TOP TAB
 
 //#region CREATE ITEM STACK
 
@@ -296,10 +360,21 @@ Root = Stack {
         Landing
         Filter
       }
-      Feed = TopTab {
-        Discover
-        NearMe
-        Following
+      Explore = Stack {
+        Feed = TopTab {
+          Discover
+          NearMe
+          Following
+        }
+        Search = Stack {
+          Search
+          Results = TopTab {
+            Users
+            Makers
+            Products
+            Posts
+          }
+        }
       }
       Notifications
       __Create

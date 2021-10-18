@@ -1,27 +1,26 @@
 import React from 'react';
-import { Platform, SafeAreaView, View } from 'react-native';
+import { Platform } from 'react-native';
 
 import Icon from 'react-native-vector-icons/Ionicons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { BottomTabHeaderProps } from '@react-navigation/bottom-tabs/lib/typescript/src/types';
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import { getDefaultHeaderHeight } from '@react-navigation/elements';
 
-import FeedNavigator from 'src/features/feed/FeedNavigator';
 import HomeNavigator from 'src/features/home/HomeNavigator';
+import ExploreNavigator from 'src/features/explore/ExploreNavigator';
 import NotificationsScreen from 'src/features/notifications/NotificationsScreen';
 import ProfileScreen from 'src/features/profiles/ProfileScreen';
 
 import { color, font, layout } from 'src/constants';
 import { DEFAULT_MIN_BOTTOM_TAB_BAR_HEIGHT } from 'src/constants/values';
 import { useMyProfileId } from 'src/features/profiles/hooks';
+import { selectUnreadNotificationsCount } from 'src/features/notifications/notifications-slice';
+import { useAppSelector } from 'src/hooks';
 
 import {
   AppDrawer,
   DiscovrrIcon,
   HeaderIcon,
   PlaceholderScreen,
-  TextInput,
 } from 'src/components';
 
 import {
@@ -30,42 +29,9 @@ import {
   RootStackNavigationProp,
   MainDrawerParamList,
 } from 'src/navigation';
-import { useAppSelector } from 'src/hooks';
-import { selectUnreadNotificationsCount } from '../notifications/notifications-slice';
 
 const RootDrawer = createDrawerNavigator<MainDrawerParamList>();
 const FacadeBottomTab = createBottomTabNavigator<FacadeBottomTabParamList>();
-
-const HEADER_HORIZONTAL_PADDING = layout.defaultScreenMargins.horizontal;
-
-function FeedHeader(props: BottomTabHeaderProps) {
-  const headerHeight = getDefaultHeaderHeight(props.layout, false, 0);
-  return (
-    <SafeAreaView>
-      <View
-        style={{
-          flexDirection: 'row',
-          minHeight: headerHeight,
-          alignItems: 'center',
-          paddingHorizontal: HEADER_HORIZONTAL_PADDING,
-        }}>
-        <HeaderIcon.Menu />
-        <TextInput
-          size="medium"
-          placeholder="Search for anything..."
-          suffix={
-            <TextInput.Icon name="search" size={24} color={color.black} />
-          }
-          containerStyle={{
-            flexGrow: 1,
-            flexShrink: 1,
-            marginLeft: HEADER_HORIZONTAL_PADDING,
-          }}
-        />
-      </View>
-    </SafeAreaView>
-  );
-}
 
 function FacadeNavigator() {
   const $FUNC = '[FacadeNavigator]';
@@ -78,21 +44,16 @@ function FacadeNavigator() {
       screenOptions={({ route }) => ({
         lazy: true,
         headerBackTitleVisible: false,
-        headerLeft: props => <HeaderIcon.Menu {...props} />,
+        headerLeft: HeaderIcon.Menu,
         headerLeftContainerStyle: {
-          paddingLeft: HEADER_HORIZONTAL_PADDING,
+          paddingLeft: layout.defaultScreenMargins.horizontal,
         },
         headerStyle: {
           backgroundColor: color.white,
-          ...(route.name === 'Feed' && {
-            elevation: 0,
-            shadowOpacity: 0,
-          }),
         },
         headerTintColor: color.black,
         headerTitleStyle: font.defaultHeaderTitleStyle,
         tabBarShowLabel: false,
-        tabBarHideOnKeyboard: Platform.OS === 'android',
         tabBarIcon: ({ focused, color, size: _ }) => {
           let iconName: string;
           let iconSize = 26;
@@ -105,8 +66,7 @@ function FacadeNavigator() {
             case 'Home':
               iconName = focused ? 'home' : 'home-outline';
               break;
-            case 'Feed':
-              // iconName = focused ? 'chatbubbles' : 'chatbubbles-outline';
+            case 'Explore':
               iconName = focused ? 'compass' : 'compass-outline';
               iconSize *= 1.1;
               break;
@@ -141,9 +101,21 @@ function FacadeNavigator() {
       })}>
       <FacadeBottomTab.Screen name="Home" component={HomeNavigator} />
       <FacadeBottomTab.Screen
-        name="Feed"
-        component={FeedNavigator}
-        options={{ header: FeedHeader }}
+        name="Explore"
+        component={ExploreNavigator}
+        options={{ headerShown: false }}
+        listeners={({
+          navigation,
+        }: {
+          navigation: FacadeBottomTabNavigationProp;
+        }) => ({
+          tabLongPress: _ => {
+            navigation.navigate('Explore', {
+              screen: 'Search',
+              params: { screen: 'Query' },
+            });
+          },
+        })}
       />
       <FacadeBottomTab.Screen
         name="__Create"
