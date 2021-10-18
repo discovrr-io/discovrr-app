@@ -11,18 +11,20 @@ import {
 } from 'react-native';
 
 import Icon from 'react-native-vector-icons/Ionicons';
+import { getDefaultHeaderHeight } from '@react-navigation/elements';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+
 import {
   CardStyleInterpolators,
   createStackNavigator,
   HeaderStyleInterpolators,
+  StackHeaderProps,
 } from '@react-navigation/stack';
-import { getDefaultHeaderHeight } from '@react-navigation/elements';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { StackHeaderProps } from '@react-navigation/stack';
 
 import { color, font, layout } from 'src/constants';
 import { Button, HeaderIcon, Spacer, TextInput } from 'src/components';
 import { useAppDispatch } from 'src/hooks';
+
 import {
   SearchStackNavigationProp,
   SearchStackParamList,
