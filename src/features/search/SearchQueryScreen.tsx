@@ -63,7 +63,7 @@ type SearchHistoryItemProps = TouchableHighlightProps & {
 function SearchHistoryItem(props: SearchHistoryItemProps) {
   const { label, onPressRemove, ...restProps } = props;
   return (
-    <TouchableHighlight {...restProps} underlayColor={color.gray200}>
+    <TouchableHighlight {...restProps} underlayColor={color.gray100}>
       <View
         style={[
           {

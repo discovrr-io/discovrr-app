@@ -17,7 +17,7 @@ export default function FeedNavigator() {
       screenOptions={{
         lazy: true,
         tabBarStyle: { backgroundColor: color.white },
-        tabBarActiveTintColor: color.black,
+        tabBarActiveTintColor: color.accent,
         tabBarInactiveTintColor: color.gray500,
         tabBarPressColor: color.gray200,
         tabBarBounces: true,

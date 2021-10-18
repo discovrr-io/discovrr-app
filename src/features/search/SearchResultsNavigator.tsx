@@ -6,7 +6,7 @@ import { FlatList } from 'react-native-gesture-handler';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
 import ProfileListItem from 'src/features/profiles/ProfileListItem';
-import { font } from 'src/constants';
+import { color, font } from 'src/constants';
 import { useIsMounted } from 'src/hooks';
 import { ProfileId } from 'src/models';
 import { alertSomethingWentWrong } from 'src/utilities';
@@ -117,8 +117,11 @@ export default function SearchResultsNavigator(_: SearchResultsNavigatorProps) {
       screenOptions={{
         lazy: true,
         tabBarScrollEnabled: true,
-        tabBarLabelStyle: font.defaultTabBarLabelStyle,
         tabBarItemStyle: { width: 120 },
+        tabBarLabelStyle: font.defaultTabBarLabelStyle,
+        tabBarActiveTintColor: color.accent,
+        tabBarInactiveTintColor: color.gray500,
+        tabBarPressColor: color.gray200,
       }}>
       <SearchResultsTopTab.Screen
         name="SearchResultsUsers"
