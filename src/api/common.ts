@@ -1,6 +1,10 @@
 import { EntityId, SerializedError } from '@reduxjs/toolkit';
 
-export type CommonApiErrorCode = 'PARSE_ERROR' | 'NOT_FOUND' | 'UNKNOWN_ERROR';
+export type CommonApiErrorCode =
+  | 'PARSE_ERROR'
+  | 'NOT_FOUND'
+  | 'UNKNOWN_ERROR'
+  | 'UNIMPLEMENTED';
 
 export class ApiError<
   ApiErrorCode extends string = CommonApiErrorCode,
