@@ -1,30 +1,97 @@
 import Parse from 'parse/react-native';
+import { EntityId } from '@reduxjs/toolkit';
 
 import { Profile, ProfileId } from 'src/models';
 import { Pagination } from 'src/models/common';
-import { ApiObjectStatus } from '.';
+import {
+  CommonProfileDetails,
+  PersonalProfileId,
+  SharedProfileDetails,
+  VendorProfileId,
+} from 'src/models/profile';
 
+import { ApiObjectStatus } from '.';
 import { ApiError, CommonApiErrorCode } from './common';
 
 export namespace ProfileApi {
-  export type ProfileApiErrorCode = CommonApiErrorCode | 'PROFILE_NOT_FOUND';
+  export type ProfileApiErrorCode =
+    | CommonApiErrorCode
+    | 'PROFILE_NOT_FOUND'
+    | 'INVALID_PROFILE_KIND';
   export class ProfileApiError extends ApiError<ProfileApiErrorCode> {}
 
-  function mapResultToProfile(result: Parse.Object): Profile {
+  function constructCommonProfileDetails<Id extends EntityId>(
+    profileId: Parse.Object['id'],
+    object: Parse.Object,
+  ): CommonProfileDetails<Id> {
     return {
-      id: result.id as ProfileId,
-      kind: result.get('kind') ?? 'personal',
-      email: result.get('email') ?? '',
-      displayName: result.get('displayName') || 'Anonymous',
-      username: result.get('username') ?? '',
-      biography: result.get('biography') || result.get('description'),
-      avatar: result.get('avatar'),
-      coverPhoto: result.get('coverPhoto'),
-      followers: result.get('followersArray'),
-      following: result.get('followingArray'),
-      blocked: result.get('blockedArray'),
-      status: result.get('status') ?? ApiObjectStatus.READY,
+      id: object.id as Id,
+      profileId: profileId as ProfileId,
+      status: object.get('status') ?? ApiObjectStatus.READY,
+      avatar: object.get('avatar'),
+      coverPhoto: object.get('coverPhoto'),
     };
+  }
+
+  function mapResultToProfile(result: Parse.Object): Profile {
+    const kind: string = result.get('kind');
+
+    const sharedProfileDetails: SharedProfileDetails = {
+      email: result.get('email') ?? '',
+      username: result.get('username') ?? '',
+      displayName: result.get('displayName') ?? '',
+      biography: result.get('biography'),
+      // TODO: Compute this through a query instead
+      followers: result.get('followersArray') ?? [],
+      following: result.get('followingArray') ?? [],
+      blocked: result.get('blockedArray') ?? [],
+    };
+
+    if (kind === 'personal') {
+      const personalProfile: Parse.Object = result.get('personalProfile');
+      if (!personalProfile)
+        throw new ProfileApiError(
+          'PROFILE_NOT_FOUND',
+          `No personal profile was found for profile '${result.id}'.`,
+        );
+
+      const commonProfileDetails =
+        constructCommonProfileDetails<PersonalProfileId>(
+          result.id,
+          personalProfile,
+        );
+
+      return {
+        kind: 'personal',
+        ...commonProfileDetails,
+        ...sharedProfileDetails,
+      };
+    } else if (kind === 'vendor') {
+      const vendorProfile: Parse.Object = result.get('vendorProfile');
+      if (!vendorProfile)
+        throw new ProfileApiError(
+          'PROFILE_NOT_FOUND',
+          `No vendor profile was found for profile '${result.id}'.`,
+        );
+
+      const commonProfileDetails =
+        constructCommonProfileDetails<VendorProfileId>(
+          result.id,
+          vendorProfile,
+        );
+
+      return {
+        kind: 'vendor',
+        ...commonProfileDetails,
+        ...sharedProfileDetails,
+      };
+    }
+
+    // We don't know how to handle this profile kind, so we'll throw an error.
+    throw new ProfileApiError(
+      'INVALID_PROFILE_KIND',
+      `Invalid profile kind '${kind}'.`,
+    );
   }
 
   export async function generateRandomUsername(): Promise<string> {
@@ -42,6 +109,9 @@ export namespace ProfileApi {
   ): Promise<Profile> {
     const { profileId } = params;
     const query = new Parse.Query(Parse.Object.extend('Profile'));
+    query.include('personalProfile', 'vendorProfile');
+    query.notEqualTo('status', ApiObjectStatus.DELETED);
+
     const result = await query.get(String(profileId));
     return mapResultToProfile(result);
   }
@@ -55,6 +125,8 @@ export namespace ProfileApi {
   ): Promise<Profile[]> {
     const { pagination } = params;
     const query = new Parse.Query(Parse.Object.extend('Profile'));
+    query.include('personalProfile', 'vendorProfile');
+    query.notEqualTo('status', ApiObjectStatus.DELETED);
 
     if (pagination) {
       query.limit(pagination.limit);
@@ -86,11 +158,15 @@ export namespace ProfileApi {
     changes: ProfileChanges;
   };
 
-  export async function updateProfile(params: UpdateProfileParams) {
-    const { profileId, changes } = params;
-    const profileQuery = new Parse.Query(Parse.Object.extend('Profile'));
-    const profile = await profileQuery.get(String(profileId));
-    await profile?.save(changes);
+  export async function updateProfile(_params: UpdateProfileParams) {
+    // const { profileId, changes } = params;
+    // const profileQuery = new Parse.Query(Parse.Object.extend('Profile'));
+    // const profile = await profileQuery.get(String(profileId));
+    // await profile?.save(changes);
+    throw new ProfileApiError(
+      'UNIMPLEMENTED',
+      'Not implemented: `ProfileAPi.updateProfile`.',
+    );
   }
 
   export type UpdateProfileFollowStatusParams = {

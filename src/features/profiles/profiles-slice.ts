@@ -137,7 +137,7 @@ const profilesSlice = createSlice({
         }
 
         state.statuses = {};
-        for (const profileId of action.payload.map(profile => profile.id)) {
+        for (const profileId of action.payload.map(p => p.profileId)) {
           state.statuses[profileId] = { status: 'fulfilled' };
         }
       })
@@ -206,7 +206,7 @@ export const selectIsUserFollowingProfile = createSelector(
   (profile, userProfileId) => {
     if (!profile || !userProfileId) return false;
     if (!profile.followers) return false;
-    if (profile.id === userProfileId) return false;
+    if (profile.profileId === userProfileId) return false;
     return profile.followers.includes(userProfileId);
   },
 );

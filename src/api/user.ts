@@ -3,14 +3,7 @@ import { ApiError, CommonApiErrorCode } from './common';
 
 export namespace UserApi {
   export type UserApiErrorCode = CommonApiErrorCode | 'USER_NOT_FOUND';
-
   export class UserApiError extends ApiError<UserApiErrorCode> {}
-
-  export class UserNotFoundApiError extends UserApiError {
-    constructor() {
-      super('USER_NOT_FOUND', `Failed to find the current user's profile`);
-    }
-  }
 
   export async function getCurrentUserProfile(): Promise<Parse.Object | null> {
     const $FUNC = '[UserApi.getCurrentUserProfile]';
@@ -22,10 +15,15 @@ export namespace UserApi {
       return null;
     }
 
-    const profileQuery = new Parse.Query(Parse.Object.extend('Profile'));
-    profileQuery.equalTo('owner', currentUser);
+    const profileQueryForUser = new Parse.Query('Profile');
+    const profileQueryForOwner = new Parse.Query('Profile');
+    profileQueryForUser.equalTo('user', currentUser);
+    profileQueryForOwner.equalTo('owner', currentUser);
 
-    const profile = await profileQuery.first();
+    const profile = await Parse.Query.or(
+      profileQueryForUser,
+      profileQueryForOwner,
+    ).first();
     if (!profile) {
       const message = 'Failed to find profile for the current user.';
       console.error($FUNC, message);
