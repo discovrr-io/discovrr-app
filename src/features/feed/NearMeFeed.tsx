@@ -9,7 +9,7 @@ import { DEFAULT_TILE_SPACING } from 'src/constants/values';
 import { fetchAllMerchants } from 'src/features/merchants/merchants-slice';
 import { fetchAllProducts } from 'src/features/products/products-slice';
 import { useAppDispatch, useAppSelector, useIsMounted } from 'src/hooks';
-import { MerchantId, NearMeItem, ProductId } from 'src/models';
+import { MerchantId, NearMeItem, Product, ProductId } from 'src/models';
 import { FeedTopTabScreenProps } from 'src/navigation';
 import { alertSomethingWentWrong } from 'src/utilities';
 
@@ -99,16 +99,17 @@ export default function NearMeFeed(_: NearMeFeedProps) {
             // },
           });
 
-          const fetchProductsAction = fetchAllProducts({
-            // pagination: {
-            //   limit: PRODUCT_PAGINATION_LIMIT,
-            //   currentPage: currentProductsPage.index,
-            // },
-          });
+          // const fetchProductsAction = fetchAllProducts({
+          //   // pagination: {
+          //   //   limit: PRODUCT_PAGINATION_LIMIT,
+          //   //   currentPage: currentProductsPage.index,
+          //   // },
+          // });
 
           const [merchants, products] = await Promise.all([
             dispatch(fetchMerchantsAction).unwrap(),
-            dispatch(fetchProductsAction).unwrap(),
+            // dispatch(fetchProductsAction).unwrap(),
+            [] as Product[],
           ] as const);
 
           // Sometimes an `undefined` creeps up here
@@ -129,7 +130,11 @@ export default function NearMeFeed(_: NearMeFeedProps) {
             didReachEnd: true,
           });
 
-          console.log($FUNC, 'Finished fetching near me items');
+          console.log(
+            $FUNC,
+            `Fetched ${merchants.length} merchant(s) and ${products.length}`,
+            `product(s)`,
+          );
         } catch (error) {
           console.error($FUNC, 'Failed to fetch near me items:', error);
           alertSomethingWentWrong();

@@ -107,11 +107,10 @@ function LoadedProfileSettingsScreen(props: LoadedAccountSettingsScreenProps) {
   const handleSaveChanges = async (changes: ProfileApi.ProfileChanges) => {
     try {
       const updateProfileAction = updateProfile({
-        profileId: profile.id,
+        profileId: profile.profileId,
         changes: {
           displayName: changes.displayName?.trim(),
           username: changes.username?.trim(),
-          // description: changes.description?.trim(),
           biography: changes.biography?.trim(),
           email: changes.email?.trim(),
         },

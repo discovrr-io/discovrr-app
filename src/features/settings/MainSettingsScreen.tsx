@@ -117,14 +117,22 @@ export function MainSettingsScreenFooter() {
           </Text>
         </TouchableOpacity>
       ) : (
-        <View style={footerStyles.container}>
-          <Text style={[constants.font.small, footerStyles.text]}>
-            <Text style={[constants.font.smallBold, footerStyles.text]}>
-              Discovrr {values.APP_VERSION}
+        <TouchableOpacity
+          onPress={() =>
+            Alert.alert(
+              'You’re Up to Date',
+              "You're currently on the latest version of Discovrr. Awesome!",
+            )
+          }>
+          <View style={footerStyles.container}>
+            <Text style={[constants.font.small, footerStyles.text]}>
+              <Text style={[constants.font.smallBold, footerStyles.text]}>
+                Discovrr {values.APP_VERSION}
+              </Text>
+              <Text>&nbsp;(Build {values.APP_BUILD})</Text>
             </Text>
-            <Text>&nbsp;(Build {values.APP_BUILD})</Text>
-          </Text>
-        </View>
+          </View>
+        </TouchableOpacity>
       )}
       <Spacer.Vertical value="sm" />
       <Text style={[constants.font.small, footerStyles.text]}>

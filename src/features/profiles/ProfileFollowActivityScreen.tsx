@@ -19,8 +19,11 @@ import ProfileListItem from './ProfileListItem';
 import { useIsMyProfile, useProfile } from './hooks';
 import { fetchProfileById } from './profiles-slice';
 
-export default function ProfileFollowActivityScreenWrapper(
-  props: ProfileStackScreenProps<'ProfileFollowActivity'>,
+type ProfileFollowActivityScreen =
+  ProfileStackScreenProps<'ProfileFollowActivity'>;
+
+export default function ProfileFollowActivityScreen(
+  props: ProfileFollowActivityScreen,
 ) {
   const { profileId, selector } = props.route.params;
   const profileData = useProfile(profileId);
@@ -32,7 +35,10 @@ export default function ProfileFollowActivityScreenWrapper(
       onFulfilled={profile => {
         if (!profile) return <RouteError />;
         return (
-          <ProfileFollowActivityScreen profile={profile} selector={selector} />
+          <LoadedProfileFollowActivityScreen
+            profile={profile}
+            selector={selector}
+          />
         );
       }}
       onRejected={_ => <RouteError />}
@@ -40,12 +46,14 @@ export default function ProfileFollowActivityScreenWrapper(
   );
 }
 
-type ProfileFollowActivityScreenProps = {
+type LoadedProfileFollowActivityScreenProps = {
   profile: Profile;
   selector: ProfileStackParamList['ProfileFollowActivity']['selector'];
 };
 
-function ProfileFollowActivityScreen(props: ProfileFollowActivityScreenProps) {
+function LoadedProfileFollowActivityScreen(
+  props: LoadedProfileFollowActivityScreenProps,
+) {
   const $FUNC = '[ProfileFollowActivityScreen]';
   const { profile, selector } = props;
   const dispatch = useAppDispatch();
@@ -57,7 +65,7 @@ function ProfileFollowActivityScreen(props: ProfileFollowActivityScreenProps) {
       : profile.following?.slice().reverse() ?? [];
   }, [profile.followers, profile.following, selector]);
 
-  const isMyProfile = useIsMyProfile(profile.id);
+  const isMyProfile = useIsMyProfile(profile.profileId);
   const isMounted = useIsMounted();
 
   const [isInitialRender, setIsInitialRender] = useState(true);
@@ -68,7 +76,7 @@ function ProfileFollowActivityScreen(props: ProfileFollowActivityScreenProps) {
       (async () => {
         try {
           await dispatch(
-            fetchProfileById({ profileId: profile.id, reload: true }),
+            fetchProfileById({ profileId: profile.profileId, reload: true }),
           ).unwrap();
         } catch (error) {
           console.error($FUNC, 'Failed to refresh profile:', error);
@@ -82,7 +90,7 @@ function ProfileFollowActivityScreen(props: ProfileFollowActivityScreenProps) {
           }
         }
       })();
-  }, [dispatch, isMounted, isInitialRender, shouldRefresh, profile.id]);
+  }, [dispatch, isMounted, isInitialRender, shouldRefresh, profile.profileId]);
 
   const handleRefresh = () => {
     if (!isInitialRender && !shouldRefresh) setShouldRefresh(true);

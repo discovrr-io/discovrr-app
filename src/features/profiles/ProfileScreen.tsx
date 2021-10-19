@@ -26,15 +26,6 @@ import { useAppDispatch, useAppSelector, useIsMounted } from 'src/hooks';
 import { Profile } from 'src/models';
 import { ProfileStackScreenProps } from 'src/navigation';
 
-import UserProfileHeader from './UserProfileHeader';
-import { fetchProfileById } from './profiles-slice';
-import { useIsMyProfile, useProfile } from './hooks';
-
-import {
-  fetchPostsForProfile,
-  selectPostsByProfile,
-} from 'src/features/posts/posts-slice';
-
 import {
   ActionBottomSheet,
   AsyncGate,
@@ -44,6 +35,16 @@ import {
   RouteError,
 } from 'src/components';
 import { ActionBottomSheetItem } from 'src/components/bottom-sheets/ActionBottomSheet';
+
+import {
+  fetchPostsForProfile,
+  selectPostsByProfile,
+} from 'src/features/posts/posts-slice';
+
+import PersonalProfileHeader from './personal/PersonalProfileHeader';
+import VendorProfileHeader from './vendor/VendorProfileHeader';
+import { fetchProfileById } from './profiles-slice';
+import { useIsMyProfile, useProfile } from './hooks';
 
 type ProfileScreenProps = ProfileStackScreenProps<'ProfileDetails'>;
 
@@ -83,8 +84,8 @@ function LoadedProfileScreen(props: { profile: Profile }) {
   const [isInitialRender, setIsInitialRender] = useState(true);
   const [shouldRefresh, setShouldRefresh] = useState(false);
 
-  const isMyProfile = useIsMyProfile(profile.id);
-  const posts = useAppSelector(s => selectPostsByProfile(s, profile.id));
+  const isMyProfile = useIsMyProfile(profile.profileId);
+  const posts = useAppSelector(s => selectPostsByProfile(s, profile.profileId));
   const postIds = posts.map(post => post.id);
 
   const actionBottomSheetRef = useRef<BottomSheet>(null);
@@ -92,9 +93,17 @@ function LoadedProfileScreen(props: { profile: Profile }) {
     const items: ActionBottomSheetItem[] = [];
 
     if (!isMyProfile) {
+      const displayName = (() => {
+        if (profile.kind === 'vendor') {
+          return profile.businessName || profile.displayName;
+        } else {
+          return profile.displayName;
+        }
+      })();
+
       items.push(
         {
-          label: `Block ${profile.displayName}`,
+          label: `Block ${displayName}`,
           iconName: 'hand-right-outline',
           destructive: true,
         },
@@ -106,7 +115,7 @@ function LoadedProfileScreen(props: { profile: Profile }) {
       ...items,
       { label: 'Share Profile', iconName: 'share-social-outline' },
     ];
-  }, [isMyProfile, profile.displayName]);
+  }, [isMyProfile, profile]);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -133,20 +142,23 @@ function LoadedProfileScreen(props: { profile: Profile }) {
     if (isInitialRender || shouldRefresh)
       (async () => {
         try {
-          console.log($FUNC, `Refreshing profile with ID '${profile.id}'...`);
+          console.log(
+            $FUNC,
+            `Refreshing profile with ID '${profile.profileId}'...`,
+          );
 
           const fetchProfileAction = fetchProfileById({
-            profileId: profile.id,
+            profileId: profile.profileId,
             reload: true,
           });
 
           const fetchPostsAction = fetchPostsForProfile({
-            profileId: profile.id,
+            profileId: profile.profileId,
             reload: true,
           });
 
           await Promise.all([
-            dispatch(fetchProfileAction),
+            dispatch(fetchProfileAction).unwrap(),
             dispatch(fetchPostsAction).unwrap(),
           ]);
         } catch (error) {
@@ -162,7 +174,7 @@ function LoadedProfileScreen(props: { profile: Profile }) {
           }
         }
       })();
-  }, [dispatch, isInitialRender, isMounted, shouldRefresh, profile.id]);
+  }, [dispatch, isInitialRender, isMounted, shouldRefresh, profile.profileId]);
 
   // const handleRefresh = () => {
   //   if (!shouldRefresh) setShouldRefresh(true);
@@ -176,7 +188,13 @@ function LoadedProfileScreen(props: { profile: Profile }) {
         snapThreshold={0.25}
         headerHeight={HEADER_MAX_HEIGHT}
         containerStyle={{ backgroundColor: color.gray100 }}
-        HeaderComponent={() => <UserProfileHeader profile={profile} />}
+        HeaderComponent={() =>
+          profile.kind === 'personal' ? (
+            <PersonalProfileHeader personalProfile={profile} />
+          ) : (
+            <VendorProfileHeader vendorProfile={profile} />
+          )
+        }
         TabBarComponent={props => (
           <MaterialTabBar
             {...props}

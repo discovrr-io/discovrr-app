@@ -312,7 +312,7 @@ function PostItemCardAuthor(props: PostItemCardAuthorProps) {
     }
 
     navigation.navigate('ProfileDetails', {
-      profileId: profile.id,
+      profileId: profile.profileId,
       profileDisplayName: profile.displayName,
     });
   };

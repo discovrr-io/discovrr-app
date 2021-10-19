@@ -7,7 +7,7 @@ export default function PlaceholderScreen(props: InfoContainerProps) {
     <InfoContainer
       emoji="🚧"
       title="Under Construction"
-      message="We're working on this page at the moment. We'll notify you when it's done!"
+      message="We're working on this page at the moment."
       {...props}
     />
   );

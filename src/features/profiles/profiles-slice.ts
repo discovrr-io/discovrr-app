@@ -25,7 +25,11 @@ import {
 type ProfileApiFetchStatuses = ApiFetchStatuses<ProfileId>;
 export type ProfilesState = EntityState<Profile> & ProfileApiFetchStatuses;
 
-const profilesAdapter = createEntityAdapter<Profile>();
+const profilesAdapter = createEntityAdapter<Profile>({
+  // We do NOT want to index by `profile.id` as it represents either a
+  // `PersonalProfileId` or a `VendorProfileId`
+  selectId: profile => profile.profileId,
+});
 
 const initialState = profilesAdapter.getInitialState<ProfileApiFetchStatuses>({
   statuses: {},

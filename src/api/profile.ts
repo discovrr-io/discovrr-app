@@ -30,6 +30,7 @@ export namespace ProfileApi {
       status: object.get('status') ?? ApiObjectStatus.READY,
       avatar: object.get('avatar'),
       coverPhoto: object.get('coverPhoto'),
+      biography: object.get('biography'),
     };
   }
 
@@ -40,7 +41,6 @@ export namespace ProfileApi {
       email: result.get('email') ?? '',
       username: result.get('username') ?? '',
       displayName: result.get('displayName') ?? '',
-      biography: result.get('biography'),
       // TODO: Compute this through a query instead
       followers: result.get('followersArray') ?? [],
       following: result.get('followingArray') ?? [],
@@ -60,6 +60,10 @@ export namespace ProfileApi {
           result.id,
           personalProfile,
         );
+
+      if (!commonProfileDetails.profileId) {
+        console.error('NO PROFILE ID SET:', result.id);
+      }
 
       return {
         kind: 'personal',

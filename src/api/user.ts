@@ -15,15 +15,8 @@ export namespace UserApi {
       return null;
     }
 
-    const profileQueryForUser = new Parse.Query('Profile');
-    const profileQueryForOwner = new Parse.Query('Profile');
-    profileQueryForUser.equalTo('user', currentUser);
-    profileQueryForOwner.equalTo('owner', currentUser);
-
-    const profile = await Parse.Query.or(
-      profileQueryForUser,
-      profileQueryForOwner,
-    ).first();
+    const profileQuery = new Parse.Query('Profile');
+    const profile = await profileQuery.equalTo('user', currentUser).first();
     if (!profile) {
       const message = 'Failed to find profile for the current user.';
       console.error($FUNC, message);

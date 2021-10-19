@@ -14,7 +14,6 @@ export interface SharedProfileDetails {
   readonly email: string;
   readonly username: string;
   readonly displayName: string;
-  readonly biography?: string;
   readonly followers?: ProfileId[];
   readonly following?: ProfileId[];
   readonly blocked?: ProfileId[];
@@ -31,6 +30,7 @@ export interface CommonProfileDetails<Id extends EntityId> {
   readonly status: ApiObjectStatus;
   readonly avatar?: MediaSource;
   readonly coverPhoto?: MediaSource;
+  readonly biography?: string;
 }
 
 export interface PersonalProfile
@@ -62,5 +62,7 @@ export interface VendorProfile
 type Profile =
   | ({ kind: 'personal' } & PersonalProfile)
   | ({ kind: 'vendor' } & VendorProfile);
+
+export type ProfileKind = Profile['kind'];
 
 export default Profile;

@@ -95,6 +95,11 @@ export function useAsyncItem<ItemId, Item, AsyncThunkReturned, AsyncThunkArg>(
     () => {
       (async () => {
         try {
+          if (!itemId)
+            throw new Error(
+              `Item ID for ${itemName} is not defined, which is unexpected.`,
+            );
+
           console.log($FUNC, `Fetching ${description}...`);
           // NOTE: Native promises don't have cancellation, so we can't return a
           // cleanup function to abort this async action.

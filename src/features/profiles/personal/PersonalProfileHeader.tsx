@@ -1,17 +1,18 @@
 import React from 'react';
-import { Alert, View } from 'react-native';
 
 import { useNavigation } from '@react-navigation/native';
 
-import { Button, ToggleButton } from 'src/components';
-import { color, layout } from 'src/constants';
-import { SOMETHING_WENT_WRONG } from 'src/constants/strings';
+import { Button, Spacer, ToggleButton } from 'src/components';
+import { color } from 'src/constants';
 import { selectCurrentUserProfileId } from 'src/features/authentication/auth-slice';
 import { selectPostsByProfile } from 'src/features/posts/posts-slice';
 import { useAppDispatch, useAppSelector } from 'src/hooks';
-import { Profile } from 'src/models';
+import { PersonalProfile } from 'src/models/profile';
 import { RootStackNavigationProp } from 'src/navigation';
-import { alertUnavailableFeature } from 'src/utilities';
+import {
+  alertSomethingWentWrong,
+  alertUnavailableFeature,
+} from 'src/utilities';
 
 import {
   updateProfileFollowStatus,
@@ -19,34 +20,37 @@ import {
   selectProfileById,
 } from 'src/features/profiles/profiles-slice';
 
-import ProfileHeader from './ProfileHeader';
-// import { useIsMyProfile } from './hooks';
+import ProfileHeader from '../ProfileHeader';
 
 type UserProfileHeaderProps = {
-  profile: Profile;
+  personalProfile: PersonalProfile;
 };
 
-export default function UserProfileHeader({ profile }: UserProfileHeaderProps) {
+export default function UserProfileHeader(props: UserProfileHeaderProps) {
   const $FUNC = '[UserProfileHeader]';
+  const { personalProfile } = props;
 
   const dispatch = useAppDispatch();
   const navigation = useNavigation<RootStackNavigationProp>();
 
   const currentUserProfileId = useAppSelector(selectCurrentUserProfileId);
-  const isMyProfile = profile.id === currentUserProfileId;
+  const isMyProfile = personalProfile.profileId === currentUserProfileId;
 
-  const isFollowing = useAppSelector(state =>
-    selectIsUserFollowingProfile(state, profile.id),
-  );
+  const isFollowing = useAppSelector(state => {
+    return selectIsUserFollowingProfile(state, personalProfile.id);
+  });
 
   const isFollowed = useAppSelector(state => {
     if (!currentUserProfileId) return false;
     const myProfile = selectProfileById(state, currentUserProfileId);
-    return myProfile?.followers?.some(id => id === profile.id) ?? false;
+    return (
+      myProfile?.followers?.some(id => id === personalProfile.profileId) ??
+      false
+    );
   });
 
   const totalLikes = useAppSelector(state => {
-    return selectPostsByProfile(state, profile.id)
+    return selectPostsByProfile(state, personalProfile.profileId)
       .map(post => post.statistics?.totalLikes ?? 0)
       .reduce((acc, curr) => acc + curr, 0);
   });
@@ -55,8 +59,8 @@ export default function UserProfileHeader({ profile }: UserProfileHeaderProps) {
     selector: 'followers' | 'following',
   ) => {
     navigation.push('ProfileFollowActivity', {
-      profileId: profile.id,
-      profileDisplayName: profile.displayName,
+      profileId: personalProfile.profileId,
+      profileDisplayName: personalProfile.displayName,
       selector,
     });
   };
@@ -65,8 +69,7 @@ export default function UserProfileHeader({ profile }: UserProfileHeaderProps) {
     navigation.navigate('ProfileSettings');
   };
 
-  const handlePressFollow = async () => {
-    const didFollow = !isFollowing;
+  const handlePressFollow = async (didFollow: boolean) => {
     const description = didFollow ? 'follow' : 'unfollow';
 
     try {
@@ -74,7 +77,7 @@ export default function UserProfileHeader({ profile }: UserProfileHeaderProps) {
         console.warn(
           $FUNC,
           'No profile ID was found for the current user, which is unexpected.',
-          'Aborting `changeProfileFollowStatus` action...',
+          'Aborting `updateProfileFollowStatus` action...',
         );
         throw new Error('Failed to find profile for the current user');
       }
@@ -83,7 +86,7 @@ export default function UserProfileHeader({ profile }: UserProfileHeaderProps) {
 
       const updateProfileFollowStatusAction = updateProfileFollowStatus({
         didFollow,
-        followeeId: profile.id,
+        followeeId: personalProfile.profileId,
         followerId: currentUserProfileId,
       });
 
@@ -91,24 +94,27 @@ export default function UserProfileHeader({ profile }: UserProfileHeaderProps) {
       console.log($FUNC, `Successfully ${description}ed profile`);
     } catch (error) {
       console.error($FUNC, `Failed to ${description} user:`, error);
-      Alert.alert(SOMETHING_WENT_WRONG.title, SOMETHING_WENT_WRONG.message);
+      alertSomethingWentWrong();
       throw error; // Rethrow the error to toggle the button back
     }
   };
 
   return (
     <ProfileHeader
-      profileDetails={{ ...profile, displayName: profile.displayName }}
+      profileDetails={{
+        ...personalProfile,
+        displayName: personalProfile.displayName,
+      }}
       renderStatistics={() => (
         <>
           <ProfileHeader.Statistic
             label="Followers"
-            count={profile.followers?.length ?? 0}
+            count={personalProfile.followers?.length ?? 0}
             onPress={() => handleNavigateToFollowActivity('followers')}
           />
           <ProfileHeader.Statistic
             label="Following"
-            count={profile.following?.length ?? 0}
+            count={personalProfile.following?.length ?? 0}
             onPress={() => handleNavigateToFollowActivity('following')}
           />
           <ProfileHeader.Statistic label="Likes" count={totalLikes} />
@@ -129,23 +135,31 @@ export default function UserProfileHeader({ profile }: UserProfileHeaderProps) {
           ) : (
             <>
               <ToggleButton
-                size="small"
                 type="primary"
+                size="small"
                 initialState={isFollowing}
-                titles={{
-                  on: 'Following',
-                  off: isFollowed ? 'Follow Back' : 'Follow',
-                }}
-                onStateUnderlayColor={color.accentFocused}
-                offStateUnderlayColor={color.gray700}
-                onStateLoadingIndicatorColor={color.white}
-                offStateLoadingIndicatorColor={color.white}
-                offStateStyle={{ borderColor: color.white }}
-                offStateTextStyle={{ color: color.white }}
-                containerStyle={{ width: '50%' }}
+                title={isToggled =>
+                  isToggled
+                    ? 'Following'
+                    : isFollowed
+                    ? 'Follow Back'
+                    : 'Follow'
+                }
+                underlayColor={isToggled =>
+                  isToggled ? color.accentFocused : color.gray700
+                }
+                loadingIndicatorColor={_ => color.white}
+                containerStyle={isToggled =>
+                  isToggled
+                    ? { width: '50%' }
+                    : { borderColor: color.white, width: '50%' }
+                }
+                textStyle={isToggled =>
+                  isToggled ? {} : { color: color.white }
+                }
                 onPress={handlePressFollow}
               />
-              <View style={{ width: layout.spacing.sm * 1.5 }} />
+              <Spacer.Horizontal value="sm" />
               <Button
                 size="small"
                 variant="outlined"

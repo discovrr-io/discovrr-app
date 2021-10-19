@@ -1,55 +1,64 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { ColorValue, StyleProp, TextStyle, ViewStyle } from 'react-native';
 
 import { CommonButtonProps } from './buttonStyles';
 import Button from './Button';
 
+type ToggleButtonStateProp<T> = (currentToggleState: boolean) => T;
+
 export type ToggleButtonProps = Pick<
   CommonButtonProps,
   'size' | 'type' | 'disabled'
 > & {
-  titles: { on: string; off: string };
   initialState?: boolean;
+  title: ToggleButtonStateProp<string>;
+  underlayColor?: ToggleButtonStateProp<ColorValue | undefined>;
+  loadingIndicatorColor?: ToggleButtonStateProp<ColorValue | undefined>;
+  containerStyle?: ToggleButtonStateProp<StyleProp<ViewStyle>>;
+  textStyle?: ToggleButtonStateProp<StyleProp<TextStyle>>;
   /**
-   * The function to call when the toggle button is pressed.
+   * The function to invoke when the toggle button is pressed.
    *
    * This function will be passed the new toggled state and will await for its
    * completion if required. To signify an error (and thus toggle the button
    * back to the previous state), throw an error inside this function.
    */
   onPress?: (newToggleState: boolean) => void | Promise<void>;
-  containerStyle?: StyleProp<ViewStyle>;
-  onStateUnderlayColor?: ColorValue | undefined;
-  offStateUnderlayColor?: ColorValue | undefined;
-  onStateLoadingIndicatorColor?: ColorValue | undefined;
-  offStateLoadingIndicatorColor?: ColorValue | undefined;
-  onStateStyle?: StyleProp<ViewStyle>;
-  offStateStyle?: StyleProp<ViewStyle>;
-  onStateTextStyle?: StyleProp<TextStyle>;
-  offStateTextStyle?: StyleProp<TextStyle>;
 };
 
 export default function ToggleButton(props: ToggleButtonProps) {
   const $FUNC = '[ToggleButton]';
 
   const {
-    titles,
     initialState = false,
-    containerStyle,
-    onStateUnderlayColor,
-    offStateUnderlayColor,
-    onStateLoadingIndicatorColor,
-    offStateLoadingIndicatorColor,
-    onStateStyle,
-    offStateStyle,
-    onStateTextStyle,
-    offStateTextStyle,
+    title: makeTitle,
+    underlayColor: makeUnderlayColor,
+    loadingIndicatorColor: makeLoadingIndicatorColor,
+    containerStyle: makeContainerStyle,
+    textStyle: makeTextStyle,
     onPress,
     ...restProps
   } = props;
 
   const [toggleState, setToggleState] = useState(initialState);
   const [isLoading, setIsLoading] = useState(false);
+
+  const buttonProps = useMemo(() => {
+    return {
+      title: makeTitle(toggleState),
+      underlayColor: makeUnderlayColor?.(toggleState),
+      loadingIndicatorColor: makeLoadingIndicatorColor?.(toggleState),
+      containerStyle: makeContainerStyle?.(toggleState),
+      textStyle: makeTextStyle?.(toggleState),
+    };
+  }, [
+    toggleState,
+    makeTitle,
+    makeUnderlayColor,
+    makeLoadingIndicatorColor,
+    makeContainerStyle,
+    makeTextStyle,
+  ]);
 
   const handleOnPress = async () => {
     try {
@@ -67,21 +76,10 @@ export default function ToggleButton(props: ToggleButtonProps) {
   return (
     <Button
       {...restProps}
-      title={toggleState ? titles.on : titles.off}
-      variant={toggleState ? 'contained' : 'outlined'}
+      {...buttonProps}
       loading={isLoading}
-      loadingIndicatorColor={
-        toggleState
-          ? onStateLoadingIndicatorColor
-          : offStateLoadingIndicatorColor
-      }
-      underlayColor={toggleState ? onStateUnderlayColor : offStateUnderlayColor}
+      variant={toggleState ? 'contained' : 'outlined'}
       onPress={handleOnPress}
-      containerStyle={[
-        containerStyle,
-        toggleState ? onStateStyle : offStateStyle,
-      ]}
-      textStyle={[toggleState ? onStateTextStyle : offStateTextStyle]}
     />
   );
 }

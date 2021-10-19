@@ -82,7 +82,7 @@ export namespace MerchantApi {
   ): Promise<Merchant> {
     const { merchantId } = params;
     const myProfile = await UserApi.getCurrentUserProfile();
-    const merchantQuery = new Parse.Query(Parse.Object.extend('Vendor'));
+    const merchantQuery = new Parse.Query(Parse.Object.extend('VendorProfile'));
 
     const result = await merchantQuery.get(String(merchantId));
     return mapResultToMerchant(result, myProfile?.id);
@@ -97,7 +97,7 @@ export namespace MerchantApi {
   ): Promise<Merchant[]> {
     const { pagination } = params;
     const myProfile = await UserApi.getCurrentUserProfile();
-    const merchantQuery = new Parse.Query(Parse.Object.extend('Vendor'));
+    const merchantQuery = new Parse.Query(Parse.Object.extend('VendorProfile'));
 
     // const pointOfInterest = new Parse.GeoPoint(DEFAULT_COORDINATES);
     // merchantQuery.withinKilometers('geoPoint', pointOfInterest, 50);
@@ -132,7 +132,7 @@ export namespace MerchantApi {
     });
 
     const myProfile = await UserApi.getCurrentUserProfile();
-    const merchantQuery = new Parse.Query(Parse.Object.extend('Vendor'));
+    const merchantQuery = new Parse.Query(Parse.Object.extend('VendorProfile'));
 
     const pointOfInterest = new Parse.GeoPoint(latitude, longitude);
     merchantQuery.withinKilometers('geoPoint', pointOfInterest, searchRadius);

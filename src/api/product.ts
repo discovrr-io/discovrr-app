@@ -84,15 +84,15 @@ export namespace ProductApi {
     params: FetchProductsForMerchantParams,
   ): Promise<Product[]> {
     const merchantId = String(params.merchantId);
-    const vendorPointer: Parse.Pointer = {
+    const vendorProfilePointer: Parse.Pointer = {
       __type: 'Pointer',
-      className: 'Vendor',
+      className: 'VendorProfile',
       objectId: merchantId,
     };
 
     const currentProfile = await UserApi.getCurrentUserProfile();
     const query = new Parse.Query(Parse.Object.extend('Product'));
-    query.equalTo('owner', vendorPointer);
+    query.equalTo('vendor', vendorProfilePointer);
 
     const results = await query.find();
     return results.map(result =>
