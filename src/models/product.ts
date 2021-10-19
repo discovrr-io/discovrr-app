@@ -1,17 +1,18 @@
 import { EntityId } from '@reduxjs/toolkit';
+import { MediaSource } from 'src/api';
 
 import { Statistics } from './common';
-import { MerchantId } from './merchant';
+import { VendorProfileId } from './profile';
 
 export type ProductId = EntityId & { __productIdBrand: any };
 
 export default interface Product {
   readonly id: ProductId;
-  readonly merchantId: MerchantId;
+  readonly vendorId: VendorProfileId;
+  readonly squareSpaceId?: string;
   readonly name: string;
   readonly description: string;
   readonly price: number;
-  readonly squareSpaceUrl: string;
-  readonly imageUrl: string;
+  readonly media: MediaSource[];
   readonly statistics: Statistics;
 }

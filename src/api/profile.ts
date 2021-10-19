@@ -141,6 +141,33 @@ export namespace ProfileApi {
     return results.map(mapResultToProfile);
   }
 
+  export type FetchProfileByVendorProfileIdParams = {
+    vendorProfileId: VendorProfileId;
+  };
+
+  export async function fetchProfileByVendorProfileId(
+    params: FetchProfileByVendorProfileIdParams,
+  ): Promise<Profile> {
+    const { vendorProfileId } = params;
+    const vendorQuery = new Parse.Query(Parse.Object.extend('VendorProfile'));
+    vendorQuery.include('profile');
+    vendorQuery.notEqualTo('status', ApiObjectStatus.DELETED);
+
+    const result = await vendorQuery.get(String(vendorProfileId));
+    const profile: Parse.Object = result.get('profile');
+
+    return {
+      kind: 'vendor',
+      email: profile.get('email') ?? '',
+      username: profile.get('username') ?? '',
+      displayName: profile.get('displayName') ?? '',
+      followers: profile.get('followersArray') ?? '',
+      following: profile.get('followingArray') ?? '',
+      blocked: profile.get('blockedArray') ?? '',
+      ...constructCommonProfileDetails<VendorProfileId>(profile.id, result),
+    };
+  }
+
   //#endregion READ OPERATIONS
 
   //#region UPDATE OPERATIONS

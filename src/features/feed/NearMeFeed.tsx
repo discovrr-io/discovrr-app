@@ -9,7 +9,7 @@ import { DEFAULT_TILE_SPACING } from 'src/constants/values';
 import { fetchAllMerchants } from 'src/features/merchants/merchants-slice';
 import { fetchAllProducts } from 'src/features/products/products-slice';
 import { useAppDispatch, useAppSelector, useIsMounted } from 'src/hooks';
-import { MerchantId, NearMeItem, Product, ProductId } from 'src/models';
+import { MerchantId, NearMeItem, ProductId } from 'src/models';
 import { FeedTopTabScreenProps } from 'src/navigation';
 import { alertSomethingWentWrong } from 'src/utilities';
 
@@ -99,17 +99,16 @@ export default function NearMeFeed(_: NearMeFeedProps) {
             // },
           });
 
-          // const fetchProductsAction = fetchAllProducts({
-          //   // pagination: {
-          //   //   limit: PRODUCT_PAGINATION_LIMIT,
-          //   //   currentPage: currentProductsPage.index,
-          //   // },
-          // });
+          const fetchProductsAction = fetchAllProducts({
+            // pagination: {
+            //   limit: PRODUCT_PAGINATION_LIMIT,
+            //   currentPage: currentProductsPage.index,
+            // },
+          });
 
           const [merchants, products] = await Promise.all([
             dispatch(fetchMerchantsAction).unwrap(),
-            // dispatch(fetchProductsAction).unwrap(),
-            [] as Product[],
+            dispatch(fetchProductsAction).unwrap(),
           ] as const);
 
           // Sometimes an `undefined` creeps up here

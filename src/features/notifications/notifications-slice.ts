@@ -51,7 +51,7 @@ const notificationsSlice = createSlice({
   extraReducers: builder => {
     builder
       .addCase(resetAppState, (state, action) => {
-        const { shouldResetFCMRegistrationToken } = action.payload;
+        const { shouldResetFCMRegistrationToken = false } = action.payload;
         console.log('Purging notifications...');
         console.log('Should reset FCM token?', shouldResetFCMRegistrationToken);
         Object.assign(state, {

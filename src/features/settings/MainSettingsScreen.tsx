@@ -20,12 +20,37 @@ import { SettingsStackScreenProps } from 'src/navigation';
 
 import Cell from './components';
 import { CELL_GROUP_VERTICAL_SPACING } from './components/CellGroup';
+import { useAppDispatch } from 'src/hooks';
+import { resetAppState } from 'src/global-actions';
 
 const UPDATE_INDICATOR_DIAMETER = 9;
 
 type MainSettingsScreenProps = SettingsStackScreenProps<'MainSettings'>;
 
 export default function MainSettingsScreen(_: MainSettingsScreenProps) {
+  const dispatch = useAppDispatch();
+
+  const handlePressClearCache = () => {
+    const commitClearCache = () => {
+      dispatch(resetAppState());
+    };
+
+    Alert.alert(
+      'Clear Cache?',
+      'You may experience slow load times after you clear the cache. ' +
+        'This will improve in time the more you use the Discovrr app.' +
+        '\n\nAre you sure you want to clear cache anyway?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Clear Cache',
+          style: 'destructive',
+          onPress: commitClearCache,
+        },
+      ],
+    );
+  };
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <ScrollView
@@ -53,6 +78,15 @@ export default function MainSettingsScreen(_: MainSettingsScreenProps) {
         <Cell.Group label="Display">
           <Cell.Navigator label="Dark mode" iconName="moon-outline" />
           <Cell.Navigator label="Font size" iconName="text-outline" />
+        </Cell.Group>
+        <Spacer.Vertical value={CELL_GROUP_VERTICAL_SPACING} />
+        <Cell.Group label="Advanced">
+          <Cell.Button
+            label="Clear Cache"
+            iconName="trash-outline"
+            onPress={handlePressClearCache}
+          />
+          <Cell.Button label="Reset App" iconName="sync-outline" />
         </Cell.Group>
         <Spacer.Vertical value={CELL_GROUP_VERTICAL_SPACING} />
         <Cell.Group label="About">
