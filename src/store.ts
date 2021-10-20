@@ -16,6 +16,7 @@ import {
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import autoMergeLevel2 from 'redux-persist/lib/stateReconciler/autoMergeLevel2';
+import createDebugger from 'redux-flipper';
 
 import authReducer from './features/authentication/auth-slice';
 import commentRepliesReducer from './features/comments/comment-replies-slice';
@@ -79,12 +80,20 @@ const persistedReducer = persistReducer<CombinedAppState>(
 
 const store = configureStore({
   reducer: persistedReducer,
-  middleware: getDefaultMiddleware =>
-    getDefaultMiddleware({
+  middleware: getDefaultMiddleware => {
+    const defaultMiddleware = getDefaultMiddleware({
       serializableCheck: {
         ignoredActions: [FLUSH, PAUSE, PERSIST, PURGE, REGISTER, REHYDRATE],
       },
-    }),
+    });
+
+    if (__DEV__) {
+      console.log('Attaching Redux Flipper debugger');
+      return defaultMiddleware.concat(createDebugger());
+    }
+
+    return defaultMiddleware;
+  },
 });
 
 export type RootState = ReturnType<typeof store.getState>;

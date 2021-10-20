@@ -26,6 +26,7 @@ import {
   NavigationContainerRef,
   Theme,
 } from '@react-navigation/native';
+import { useFlipper } from '@react-navigation/devtools';
 
 import store from './store';
 import { color } from './constants';
@@ -102,6 +103,8 @@ function PersistedApp() {
 
   const routeNameRef = useRef<string>();
   const navigationRef = useRef<NavigationContainerRef<any>>(null);
+
+  useFlipper(navigationRef);
 
   const handleBeforeLift = async () => {
     try {
@@ -183,7 +186,6 @@ function PersistedApp() {
             screens: {
               Main: '',
               PostDetails: 'post/:postId',
-              NoteDetails: 'note/:noteId',
               ProfileDetails: 'profile/:profileId',
               ProductDetails: 'product/:productId',
               MainSettings: 'settings',
