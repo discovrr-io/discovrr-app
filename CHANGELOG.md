@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+### Added
+
 - Implement basic search functionality (WIP)
   - [x] Search query UI
   - [x] Save search history
@@ -10,6 +12,12 @@
   - [ ] Ability to search products
   - [ ] Ability to search workshops
   - [ ] Ability to search posts
+- Add ability to clear app cache from Settings
+
+### Fixed
+
+- Fixed issue where cancelling a search after holding the Explore tab will take
+  you to your last viewed tab instead of the Explore feed.
 
 ## [v2.3.0.3] (2021-10-15)
 
