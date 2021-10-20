@@ -156,7 +156,7 @@ function MakerOfTheWeek(props: MakerOfTheWeekProps) {
       <SectionTitle title="Maker of the Week" />
       <FastImage
         resizeMode="cover"
-        source={props.coverImageUrl ? { uri: props.coverImageUrl } : {}}
+        source={{ uri: props.coverImageUrl }}
         style={makerOfTheWeekStyles.coverImage}
       />
       <Spacer.Vertical value="md" />

@@ -1,6 +1,6 @@
-import { MerchantId } from './merchant';
+import { ProfileId } from './profile';
 import { ProductId } from './product';
 
 export type NearMeItem =
-  | { type: 'merchant'; item: MerchantId }
+  | { type: 'profile'; item: ProfileId }
   | { type: 'product'; item: ProductId };

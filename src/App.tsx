@@ -48,8 +48,8 @@ if (__DEV__) {
   Parse.serverURL = PARSE_SERVER_URL || 'https://api.discovrr.com/parse';
 }
 
-// Store version 3.0.0.0 (3000000)
-const STORE_VERSION = [3, 0, 0, 0] as const;
+// Store version 3.0.0.1 (3000001)
+const STORE_VERSION = [3, 0, 0, 1] as const;
 // Set this to the appropriate option any time the `STORE_VERSION` is changed
 const SIGN_OUT_USER = true;
 

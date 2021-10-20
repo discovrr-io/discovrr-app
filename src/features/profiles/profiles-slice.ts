@@ -92,6 +92,11 @@ export const fetchProfileByVendorProfileId = createAsyncThunk<
   },
 );
 
+export const fetchAllProfilesByKind = createAsyncThunk(
+  'profiles/fetchAllProfilesByKind',
+  ProfileApi.fetchAllProfilesByKind,
+);
+
 export const updateProfile = createAsyncThunk(
   'profiles/updateProfile',
   ProfileApi.updateProfile,
@@ -195,6 +200,13 @@ const profilesSlice = createSlice({
           status: 'rejected',
           error: action.error,
         };
+      })
+      // -- fetchAllProfilesByKind --
+      .addCase(fetchAllProfilesByKind.fulfilled, (state, action) => {
+        profilesAdapter.upsertMany(state, action.payload);
+        for (const profileId of action.payload.map(p => p.profileId)) {
+          state.statuses[profileId] = { status: 'fulfilled' };
+        }
       })
       // -- fetchProfileForVendorProfileId --
       .addCase(fetchProfileByVendorProfileId.fulfilled, (state, action) => {

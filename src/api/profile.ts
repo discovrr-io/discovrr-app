@@ -6,6 +6,7 @@ import { Pagination } from 'src/models/common';
 import {
   CommonProfileDetails,
   PersonalProfileId,
+  ProfileKind,
   SharedProfileDetails,
   VendorProfileId,
 } from 'src/models/profile';
@@ -127,7 +128,7 @@ export namespace ProfileApi {
   export async function fetchAllProfiles(
     params: FetchAllProfilesParams = {},
   ): Promise<Profile[]> {
-    const { pagination } = params;
+    const pagination = params.pagination;
     const query = new Parse.Query(Parse.Object.extend('Profile'));
     query.include('personalProfile', 'vendorProfile');
     query.notEqualTo('status', ApiObjectStatus.DELETED);
@@ -144,6 +145,30 @@ export namespace ProfileApi {
   export type FetchProfileByVendorProfileIdParams = {
     vendorProfileId: VendorProfileId;
   };
+
+  export type FetchAllProfilesByKindParams = {
+    kind: ProfileKind;
+    pagination?: Pagination;
+  };
+
+  export async function fetchAllProfilesByKind(
+    params: FetchAllProfilesByKindParams,
+  ): Promise<Profile[]> {
+    const { kind, pagination } = params;
+
+    const query = new Parse.Query(Parse.Object.extend('Profile'));
+    query.include('personalProfile', 'vendorProfile');
+    query.equalTo('kind', kind);
+    query.notEqualTo('status', ApiObjectStatus.DELETED);
+
+    if (pagination) {
+      query.limit(pagination.limit);
+      query.skip(pagination.limit * pagination.currentPage);
+    }
+
+    const results = await query.findAll();
+    return results.map(mapResultToProfile);
+  }
 
   export async function fetchProfileByVendorProfileId(
     params: FetchProfileByVendorProfileIdParams,
