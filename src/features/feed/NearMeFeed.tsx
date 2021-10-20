@@ -6,10 +6,9 @@ import Icon from 'react-native-vector-icons/Ionicons';
 
 import { color, font, layout } from 'src/constants';
 import { DEFAULT_TILE_SPACING } from 'src/constants/values';
-import { fetchAllMerchants } from 'src/features/merchants/merchants-slice';
 import { fetchAllProducts } from 'src/features/products/products-slice';
 import { useAppDispatch, useAppSelector, useIsMounted } from 'src/hooks';
-import { MerchantId, NearMeItem, ProductId } from 'src/models';
+import { NearMeItem, ProductId, ProfileId } from 'src/models';
 import { FeedTopTabScreenProps } from 'src/navigation';
 import { alertSomethingWentWrong } from 'src/utilities';
 
@@ -23,41 +22,49 @@ import {
 } from 'src/components';
 
 import FeedFooter from './FeedFooter';
-import MerchantItemCard from 'src/features/merchants/MerchantItemCard';
 import ProductItemCard from 'src/features/products/ProductItemCard';
+import VendorProfileItemCard from 'src/features/profiles/vendor/VendorProfileItemCard';
+import { fetchAllProfilesByKind } from '../profiles/profiles-slice';
 
-const MERCHANT_PAGINATION_LIMIT = 5;
-const PRODUCT_PAGINATION_LIMIT = 8;
+// const MERCHANT_PAGINATION_LIMIT = 5;
+// const VENDOR_PAGINATION_LIMIT = 5;
+// const PRODUCT_PAGINATION_LIMIT = 8;
 const TILE_SPACING = DEFAULT_TILE_SPACING;
 
-function shuffleMerchantsAndProducts(
-  merchantIds: MerchantId[],
+function shuffleVendorsAndProducts(
+  profileIds: ProfileId[],
   productIds: ProductId[],
 ): NearMeItem[] {
-  // The current merchant index
-  let curr = 0;
+  const totalLength = profileIds.length + productIds.length;
+  const nearMeItems: NearMeItem[] = new Array(totalLength);
 
-  // Here we shuffle by the product IDs, which are random enough anyway. Sorting
-  // like this should provide a good enough randomised result.
   const shuffledProductIds = productIds
-    .slice() // We don't want to mutate the original array
+    .slice()
     .sort((a, b) => String(a).localeCompare(String(b)));
 
-  const nearMeItems = shuffledProductIds.flatMap((productId, index) => {
-    if (index % 2 === 0) {
-      const merchantId = merchantIds[curr];
-      if (curr < merchantIds.length) curr += 1;
+  let currVendorIndex = 0;
+  for (let i = 0; i < shuffledProductIds.length; i++) {
+    const productId = shuffledProductIds[i];
 
-      return [
-        { type: 'product', item: productId } as NearMeItem,
-        { type: 'merchant', item: merchantId } as NearMeItem,
-      ];
+    if (currVendorIndex % 2 === 0) {
+      const merchantId = profileIds[currVendorIndex];
+      if (currVendorIndex < profileIds.length) currVendorIndex++;
+
+      nearMeItems.push(
+        { type: 'product', item: productId },
+        { type: 'profile', item: merchantId },
+      );
     } else {
-      return { type: 'product', item: productId } as NearMeItem;
+      nearMeItems.push({ type: 'product', item: productId });
     }
-  });
+  }
 
-  return nearMeItems;
+  // Get the remaining profile IDs of vendors and convert them to `NearMeItem`s
+  const restProfileIds = profileIds
+    .slice(currVendorIndex)
+    .map((item): NearMeItem => ({ type: 'profile', item }));
+
+  return [...nearMeItems, ...restProfileIds];
 }
 
 type CurrentPage = {
@@ -86,34 +93,25 @@ export default function NearMeFeed(_: NearMeFeedProps) {
 
   useEffect(
     () => {
-      async function fetchMerchantsAndProducts() {
+      async function fetchVendorsAndProducts() {
         try {
           console.log($FUNC, 'Fetching merchants and products...');
           setCurrentMerchantsPage({ index: 0, didReachEnd: false });
           setCurrentProductsPage({ index: 0, didReachEnd: false });
 
-          const fetchMerchantsAction = fetchAllMerchants({
-            // pagination: {
-            //   limit: MERCHANT_PAGINATION_LIMIT,
-            //   currentPage: currentMerchantsPage.index,
-            // },
-          });
-
+          const fetchVendorsAction = fetchAllProfilesByKind({ kind: 'vendor' });
           const fetchProductsAction = fetchAllProducts({
-            // pagination: {
-            //   limit: PRODUCT_PAGINATION_LIMIT,
-            //   currentPage: currentProductsPage.index,
-            // },
+            reload: shouldRefresh,
           });
 
-          const [merchants, products] = await Promise.all([
-            dispatch(fetchMerchantsAction).unwrap(),
+          const [vendors, products] = await Promise.all([
+            dispatch(fetchVendorsAction).unwrap(),
             dispatch(fetchProductsAction).unwrap(),
           ] as const);
 
           // Sometimes an `undefined` creeps up here
-          const newNearMeItems = shuffleMerchantsAndProducts(
-            merchants.map(it => it.id).filter(Boolean),
+          const newNearMeItems = shuffleVendorsAndProducts(
+            vendors.map(it => it.profileId).filter(Boolean),
             products.map(it => it.id).filter(Boolean),
           );
 
@@ -131,8 +129,8 @@ export default function NearMeFeed(_: NearMeFeedProps) {
 
           console.log(
             $FUNC,
-            `Fetched ${merchants.length} merchant(s) and ${products.length}`,
-            `product(s)`,
+            `Fetched ${vendors.length} vendor profile(s)`,
+            `and ${products.length} product(s)`,
           );
         } catch (error) {
           console.error($FUNC, 'Failed to fetch near me items:', error);
@@ -145,87 +143,13 @@ export default function NearMeFeed(_: NearMeFeedProps) {
         }
       }
 
-      if (isInitialRender || shouldRefresh) fetchMerchantsAndProducts();
+      if (isInitialRender || shouldRefresh) fetchVendorsAndProducts();
     },
     // We only want to run this effect if `inInitialRender` or `shouldRefresh`
     // changes. The other dependencies rely on the result of this effect anyway.
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [dispatch, isInitialRender, shouldRefresh],
   );
-
-  // useEffect(
-  //   () => {
-  //     async function fetchMoreMerchantsAndProducts() {
-  //       console.log(
-  //         $FUNC,
-  //         `Fetching more merchants (page ${currentMerchantsPage.index}) and`,
-  //         `products (page ${currentProductsPage.index})...`,
-  //       );
-  //
-  //       // We don't want to update these just yet...
-  //       const nextMerchantsPage = currentMerchantsPage.index + 1;
-  //       const nextProductsPage = currentProductsPage.index + 1;
-  //
-  //       try {
-  //         const fetchMerchantsAction = fetchAllMerchants({
-  //           pagination: {
-  //             limit: MERCHANT_PAGINATION_LIMIT,
-  //             currentPage: nextMerchantsPage,
-  //           },
-  //         });
-  //
-  //         const fetchProductsAction = fetchAllProducts({
-  //           pagination: {
-  //             limit: PRODUCT_PAGINATION_LIMIT,
-  //             currentPage: nextProductsPage,
-  //           },
-  //         });
-  //
-  //         const [merchants, products] = await Promise.all([
-  //           currentMerchantsPage.didReachEnd
-  //             ? Promise.resolve([])
-  //             : dispatch(fetchMerchantsAction).unwrap(),
-  //           currentProductsPage.didReachEnd
-  //             ? Promise.resolve([])
-  //             : dispatch(fetchProductsAction).unwrap(),
-  //         ]);
-  //
-  //         // Sometimes an `undefined` creeps up here
-  //         const newNearMeItems = shuffleMerchantsAndProducts(
-  //           merchants.map(it => it.id).filter(Boolean),
-  //           products.map(it => it.id).filter(Boolean),
-  //         );
-  //
-  //         setNearMeItems(prev => prev.concat(newNearMeItems));
-  //         setCurrentMerchantsPage({
-  //           index: 1,
-  //           didReachEnd: merchants.length === 0,
-  //         });
-  //         setCurrentProductsPage({
-  //           index: 1,
-  //           didReachEnd: products.length === 0,
-  //         });
-  //
-  //         console.log($FUNC, 'Finished fetching more near me items');
-  //       } catch (error) {
-  //         console.error(
-  //           $FUNC,
-  //           'Failed to fetch more merchants and products:',
-  //           error,
-  //         );
-  //         alertSomethingWentWrong();
-  //       } finally {
-  //         if (isMounted.current && shouldFetchMore) setShouldFetchMore(false);
-  //       }
-  //     }
-  //
-  //     if (shouldFetchMore) fetchMoreMerchantsAndProducts();
-  //   },
-  //   // We only want to run this effect if `shouldFetchMore` changes. The other
-  //   // dependencies rely on the result of this effect anyway.
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  //   [dispatch, shouldFetchMore],
-  // );
 
   const handleRefresh = () => {
     if (!isInitialRender && !shouldFetchMore && !shouldRefresh)
@@ -265,11 +189,11 @@ export default function NearMeFeed(_: NearMeFeedProps) {
           )
         }
         renderItem={({ item: nearMeItem, column }) => {
-          if (nearMeItem.type === 'merchant') {
+          if (nearMeItem.type === 'profile') {
             return (
-              <MerchantItemCard
+              <VendorProfileItemCard
                 key={nearMeItem.item}
-                merchantId={nearMeItem.item}
+                profileId={nearMeItem.item}
                 elementOptions={{ smallContent: true }}
                 style={{
                   marginTop: TILE_SPACING,

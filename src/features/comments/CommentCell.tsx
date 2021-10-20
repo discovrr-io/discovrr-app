@@ -158,7 +158,7 @@ const CommentCellAvatar = (props: { profile?: Profile }) => {
       <FastImage
         source={
           !profile
-            ? {}
+            ? {} // No source if there is no profile (i.e. when it is loading)
             : profile.avatar
             ? { uri: profile.avatar.url }
             : DEFAULT_AVATAR

@@ -157,16 +157,8 @@ const InnerPostItemCard = (props: InnerPostItemCardProps) => {
         case PostType.VIDEO:
           return (
             <View>
-              {/* <View
-                style={{
-                  height: 200,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}>
-                <Text style={font.medium}>[VIDEO]</Text>
-              </View> */}
               <Video
-                // TODO: Don't play audio
+                muted
                 repeat
                 playWhenInactive
                 resizeMode="cover"

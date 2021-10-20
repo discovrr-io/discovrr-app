@@ -54,7 +54,7 @@ const InnerProductItemCard = (props: InnerProductItemCardProps) => {
               <Card.Indicator iconName="pricetags" position="top-right" />
               <FastImage
                 resizeMode="cover"
-                source={product.media[0] ? { uri: product.media[0].url } : {}}
+                source={{ uri: product.media[0]?.url }}
                 style={{
                   width: '100%',
                   aspectRatio: 1,
