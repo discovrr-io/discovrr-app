@@ -1,9 +1,9 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
 import Video from 'react-native-video';
-import { useNavigation } from '@react-navigation/core';
+import { useIsFocused, useNavigation } from '@react-navigation/core';
 
 import { AsyncGate, Card } from 'src/components';
 import { CardActionsProps } from 'src/components/cards/CardActions';
@@ -91,10 +91,13 @@ type InnerPostItemCardProps = CardElementProps & {
 const InnerPostItemCard = (props: InnerPostItemCardProps) => {
   const { post, ...cardElementProps } = props;
   const navigation = useNavigation<RootStackNavigationProp>();
+  const isFocused = useIsFocused();
 
-  const handlePressPost = () => {
-    navigation.push('PostDetails', { postId: post.id });
-  };
+  const [isVideoPaused, setIsVideoPaused] = useState(false);
+
+  useEffect(() => {
+    setIsVideoPaused(!isFocused);
+  }, [isFocused]);
 
   const renderImageGallery = useCallback(
     (
@@ -161,6 +164,7 @@ const InnerPostItemCard = (props: InnerPostItemCardProps) => {
                 muted
                 repeat
                 playWhenInactive
+                paused={isVideoPaused}
                 resizeMode="cover"
                 source={{
                   uri: post.contents.source.url,
@@ -195,8 +199,12 @@ const InnerPostItemCard = (props: InnerPostItemCardProps) => {
           );
       }
     },
-    [post, renderImageGallery],
+    [isVideoPaused, post.contents, renderImageGallery],
   );
+
+  const handlePressPost = () => {
+    navigation.push('PostDetails', { postId: post.id });
+  };
 
   return (
     <Card {...cardElementProps}>
