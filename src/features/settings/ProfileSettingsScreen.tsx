@@ -5,6 +5,7 @@ import {
   KeyboardAvoidingView,
   SafeAreaView,
   ScrollView,
+  StyleSheet,
   Text,
   TouchableOpacity,
   TouchableWithoutFeedback,
@@ -256,33 +257,16 @@ function ProfileSettingsForm({ profile }: { profile: Profile }) {
         <TouchableOpacity
           activeOpacity={DEFAULT_ACTIVE_OPACITY}
           onPress={() => alertUnavailableFeature()}
-          style={{
-            overflow: 'hidden',
-            borderRadius: AVATAR_DIAMETER / 2,
-          }}>
+          style={editProfileAvatarStyles.touchableContainer}>
           <FastImage
+            resizeMode="cover"
+            style={editProfileAvatarStyles.image}
             source={
               profile.avatar ? { uri: profile.avatar.url } : DEFAULT_AVATAR
             }
-            style={{
-              width: AVATAR_DIAMETER,
-              height: AVATAR_DIAMETER,
-              backgroundColor: color.placeholder,
-            }}
           />
-          <View
-            style={{
-              position: 'absolute',
-              bottom: 0,
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: color.gray700,
-              opacity: 0.7,
-              width: AVATAR_DIAMETER,
-              paddingVertical: layout.spacing.xs * 1.5,
-            }}>
-            <Text
-              style={[font.large, { textAlign: 'center', color: color.white }]}>
+          <View style={editProfileAvatarStyles.editTextContainer}>
+            <Text style={[font.medium, editProfileAvatarStyles.editText]}>
               Edit
             </Text>
           </View>
@@ -354,3 +338,26 @@ function ProfileSettingsForm({ profile }: { profile: Profile }) {
     </>
   );
 }
+
+const editProfileAvatarStyles = StyleSheet.create({
+  touchableContainer: {
+    overflow: 'hidden',
+    borderRadius: AVATAR_DIAMETER / 2,
+  },
+  image: {
+    width: AVATAR_DIAMETER,
+    height: AVATAR_DIAMETER,
+    backgroundColor: color.placeholder,
+  },
+  editTextContainer: {
+    position: 'absolute',
+    bottom: 0,
+    width: AVATAR_DIAMETER,
+    paddingVertical: layout.spacing.xs * 1.5,
+    backgroundColor: '#4E4E4E88',
+  },
+  editText: {
+    textAlign: 'center',
+    color: color.white,
+  },
+});

@@ -142,7 +142,7 @@ const LocationQueryBottomSheet = React.forwardRef<
             },
           ]}>
           <Text style={[font.largeBold, { textAlign: 'center' }]}>
-            Feature Not Yet Available
+            Feature Not Available Yet
           </Text>
           <Spacer.Vertical value="xs" />
           <Text style={[font.medium, { textAlign: 'center' }]}>
