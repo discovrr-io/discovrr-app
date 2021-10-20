@@ -166,6 +166,7 @@ const InnerPostItemCard = (props: InnerPostItemCardProps) => {
                 <Text style={font.medium}>[VIDEO]</Text>
               </View> */}
               <Video
+                // TODO: Don't play audio
                 repeat
                 playWhenInactive
                 resizeMode="cover"

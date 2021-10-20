@@ -18,6 +18,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/core';
 import { Tabs, MaterialTabBar } from 'react-native-collapsible-tab-view';
 
+import PostMasonryList from 'src/features/posts/PostMasonryList';
 import { color, font, layout } from 'src/constants';
 import { SOMETHING_WENT_WRONG } from 'src/constants/strings';
 import { DEFAULT_ACTIVE_OPACITY } from 'src/constants/values';
@@ -31,7 +32,6 @@ import {
   AsyncGate,
   EmptyContainer,
   LoadingContainer,
-  PostMasonryList,
   RouteError,
 } from 'src/components';
 import { ActionBottomSheetItem } from 'src/components/bottom-sheets/ActionBottomSheet';
