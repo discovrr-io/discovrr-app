@@ -82,11 +82,14 @@ export default function MainSettingsScreen(_: MainSettingsScreenProps) {
         <Spacer.Vertical value={CELL_GROUP_VERTICAL_SPACING} />
         <Cell.Group label="Advanced">
           <Cell.Button
-            label="Clear Cache"
+            label="Clear cache"
             iconName="trash-outline"
             onPress={handlePressClearCache}
           />
-          <Cell.Button label="Reset App" iconName="sync-outline" />
+          <Cell.Button
+            label="Reset to default settings"
+            iconName="sync-outline"
+          />
         </Cell.Group>
         <Spacer.Vertical value={CELL_GROUP_VERTICAL_SPACING} />
         <Cell.Group label="About">

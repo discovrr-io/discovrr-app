@@ -196,14 +196,12 @@ const ProductItemCardAuthor = (props: ProductItemCardAuthorProps) => {
     (async () => {
       try {
         setStatus({ status: 'pending' });
-        const fetchAction = fetchProfileByVendorProfileId({
-          vendorProfileId,
-        });
+        const fetchAction = fetchProfileByVendorProfileId({ vendorProfileId });
         const profile = await dispatch(fetchAction).unwrap();
-        // if (isMounted.current) {
-        setStatus({ status: 'fulfilled' });
-        setFoundProfile(profile);
-        // }
+        if (isMounted.current) {
+          setStatus({ status: 'fulfilled' });
+          setFoundProfile(profile);
+        }
       } catch (error: any) {
         if (error.name !== 'ConditionError') {
           console.error(
@@ -212,9 +210,9 @@ const ProductItemCardAuthor = (props: ProductItemCardAuthorProps) => {
             `ID '${vendorProfileId}':`,
             error,
           );
-          // if (isMounted.current) {
-          setStatus({ status: 'rejected', error });
-          // }
+          if (isMounted.current) {
+            setStatus({ status: 'rejected', error });
+          }
         }
       }
     })();

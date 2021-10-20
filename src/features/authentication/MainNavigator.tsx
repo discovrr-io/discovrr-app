@@ -110,10 +110,20 @@ function FacadeNavigator() {
           navigation: FacadeBottomTabNavigationProp;
         }) => ({
           tabLongPress: _ => {
+            // Navigate to the Feed first, and then to Search - this will allow
+            // `navigation.goBack()` to behave as intended when we're in the
+            // `Query` screen
             navigation.navigate('Explore', {
-              screen: 'Search',
-              params: { screen: 'Query' },
+              screen: 'Feed',
+              params: { screen: 'DiscoverFeed' },
             });
+            // We'll wait for a short period of time to minimise jittering
+            setTimeout(() => {
+              navigation.navigate('Explore', {
+                screen: 'Search',
+                params: { screen: 'Query' },
+              });
+            }, 80);
           },
         })}
       />

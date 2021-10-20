@@ -33,8 +33,7 @@ type ProfileApiFetchStatuses = ApiFetchStatuses<ProfileId>;
 export type ProfilesState = EntityState<Profile> & ProfileApiFetchStatuses;
 
 const profilesAdapter = createEntityAdapter<Profile>({
-  // We do NOT want to index by `profile.id` as it represents either a
-  // `PersonalProfileId` or a `VendorProfileId`
+  // We DO NOT want to index by `profile.id`
   selectId: profile => profile.profileId,
 });
 
@@ -73,7 +72,7 @@ export const fetchProfileByVendorProfileId = createAsyncThunk<
   { dispatch: AppDispatch; state: RootState }
 >(
   'profiles/fetchProfileByVendorProfileId',
-  async ({ vendorProfileId }, thunkApi) => {
+  async ({ vendorProfileId /* reload */ }, thunkApi) => {
     const vendorProfiles = selectAllVendorProfiles(thunkApi.getState());
     const maybeVendor = vendorProfiles.find(v => v.id === vendorProfileId);
 
@@ -81,6 +80,12 @@ export const fetchProfileByVendorProfileId = createAsyncThunk<
       const maybeProfile =
         thunkApi.getState().profiles.entities[maybeVendor.profileId];
       if (maybeProfile) return maybeProfile;
+
+      // const fetchProfileAction = fetchProfileById({
+      //   profileId: maybeVendor.profileId,
+      //   reload,
+      // });
+      // return await thunkApi.dispatch(fetchProfileAction).unwrap();
     }
 
     return await ProfileApi.fetchProfileByVendorProfileId({ vendorProfileId });
