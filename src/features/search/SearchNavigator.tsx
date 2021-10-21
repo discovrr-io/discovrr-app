@@ -8,6 +8,7 @@ import {
   View,
   TouchableHighlight,
   Platform,
+  Keyboard,
 } from 'react-native';
 
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -127,6 +128,11 @@ function SearchHeader(
 }
 
 function SearchQueryHeader(props: StackHeaderProps) {
+  const handleCancelSearch = () => {
+    Keyboard.dismiss();
+    props.navigation.goBack();
+  };
+
   return (
     <SearchHeader
       {...props}
@@ -136,7 +142,7 @@ function SearchQueryHeader(props: StackHeaderProps) {
       <Button
         title="Cancel"
         size="medium"
-        onPress={() => props.navigation.goBack()}
+        onPress={handleCancelSearch}
         containerStyle={{ alignItems: 'flex-end', paddingHorizontal: 0 }}
       />
     </SearchHeader>

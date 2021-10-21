@@ -102,7 +102,7 @@ const LoadedPostItemCard = (props: LoadedPostItemCardProps) => {
   const navigation = useNavigation<RootStackNavigationProp>();
   const isFocused = useIsFocused();
 
-  const [, /* isVideoPaused */ setIsVideoPaused] = useState(false);
+  const [_isVideoPaused, setIsVideoPaused] = useState(false);
 
   useEffect(() => {
     setIsVideoPaused(!isFocused);
