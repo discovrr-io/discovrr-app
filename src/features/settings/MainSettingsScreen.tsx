@@ -104,6 +104,16 @@ export default function MainSettingsScreen(props: MainSettingsScreenProps) {
             }}
           />
           <Cell.Navigator
+            label="Privacy policy"
+            iconName="key-outline"
+            onPress={() => {
+              props.navigation.navigate('InAppWebView', {
+                title: 'Privacy Policy',
+                destination: 'privacy-policy',
+              });
+            }}
+          />
+          <Cell.Navigator
             label="Terms and Conditions"
             iconName="receipt-outline"
             onPress={() => {

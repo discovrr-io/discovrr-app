@@ -5,13 +5,15 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Animated, SafeAreaView, useWindowDimensions } from 'react-native';
 
 import WebView from 'react-native-webview';
-import { RootStackScreenProps } from 'src/navigation';
 import { WebViewSource } from 'react-native-webview/lib/WebViewTypes';
 import { StackNavigationOptions } from '@react-navigation/stack';
+
+import { RootStackScreenProps } from 'src/navigation';
 import { color } from 'src/constants';
 
 type InAppWebViewDestination =
   | 'about-discovrr'
+  | 'privacy-policy'
   | 'terms-and-conditions'
   | { uri: string };
 
@@ -34,6 +36,9 @@ export default function InAppWebView(props: InAppWebViewProps) {
     switch (destination) {
       case 'about-discovrr':
         resolvedDestination = 'https://discovrr.com.au/about';
+        break;
+      case 'privacy-policy':
+        resolvedDestination = 'https://discovrr.com.au/privacy';
         break;
       case 'terms-and-conditions':
         resolvedDestination =
@@ -58,23 +63,24 @@ export default function InAppWebView(props: InAppWebViewProps) {
 
   useEffect(
     () => {
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(colorAnimation, {
-            toValue: 1,
-            duration: 800,
-            useNativeDriver: false,
-          }),
-          Animated.timing(colorAnimation, {
-            toValue: 0,
-            duration: 800,
-            useNativeDriver: false,
-          }),
-        ]),
-      ).start();
+      if (isLoading)
+        Animated.loop(
+          Animated.sequence([
+            Animated.timing(colorAnimation, {
+              toValue: 1,
+              duration: 800,
+              useNativeDriver: false,
+            }),
+            Animated.timing(colorAnimation, {
+              toValue: 0,
+              duration: 800,
+              useNativeDriver: false,
+            }),
+          ]),
+        ).start();
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
+    [isLoading],
   );
 
   return (
@@ -82,6 +88,14 @@ export default function InAppWebView(props: InAppWebViewProps) {
       <WebView
         allowFileAccess
         source={source}
+        onLoadStart={() => {
+          setIsLoading(true);
+          Animated.timing(fadeAnimation, {
+            toValue: 1,
+            duration: 500,
+            useNativeDriver: false,
+          }).start();
+        }}
         onLoadProgress={({ nativeEvent }) => {
           progressAnimation.setValue(nativeEvent.progress);
         }}
