@@ -9,13 +9,10 @@ import { PostId } from 'src/models';
 import { Pagination } from 'src/models/common';
 import { alertSomethingWentWrong } from 'src/utilities';
 
-import {
-  EmptyContainer,
-  LoadingContainer,
-  PostMasonryList,
-} from 'src/components';
+import { EmptyContainer, LoadingContainer } from 'src/components';
 
 import FeedFooter from './FeedFooter';
+import PostMasonryList from 'src/features/posts/PostMasonryList';
 
 const PAGINATION_LIMIT = 25;
 

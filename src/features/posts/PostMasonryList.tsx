@@ -1,10 +1,10 @@
 import React from 'react';
 
-import MasonryList, { MasonryListProps } from './MasonryList';
 import { DEFAULT_TILE_SPACING } from 'src/constants/values';
+import { MasonryList, MasonryListProps } from 'src/components';
 import { PostId } from 'src/models';
 
-import PostItemCard from 'src/features/posts/PostItemCard';
+import PostItemCard from './PostItemCard';
 
 type PostMasonryListProps<ItemT> = Omit<
   MasonryListProps<ItemT>,

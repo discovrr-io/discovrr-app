@@ -1,10 +1,11 @@
 import Parse from 'parse/react-native';
 
 import { Pagination } from 'src/models/common';
-import { MerchantId, Product, ProductId } from 'src/models';
+import { Product, ProductId } from 'src/models';
 
 import { UserApi } from './user';
 import { ApiError, CommonApiErrorCode } from './common';
+import { VendorProfileId } from 'src/models/profile';
 
 export namespace ProductApi {
   export type ProductApiErrorCode = CommonApiErrorCode;
@@ -12,7 +13,7 @@ export namespace ProductApi {
 
   function mapResultToProduct(
     result: Parse.Object,
-    merchantId?: string,
+    vendorProfileId?: string,
     _myProfileId?: string,
   ): Product {
     // const likersArray: string[] = result.get('likersArray') ?? [];
@@ -23,13 +24,12 @@ export namespace ProductApi {
 
     return {
       id: result.id as ProductId,
-      merchantId: merchantId ?? result.get('owner').id,
-      name: result.get('name') || result.get('productName'),
-      description:
-        result.get('description') || result.get('productDescription'),
-      price: result.get('price') || result.get('productPrice'),
-      squareSpaceUrl: result.get('squareSpaceUrl'),
-      imageUrl: result.get('imageUrl'),
+      vendorId: vendorProfileId ?? result.get('vendor').id,
+      squareSpaceId: result.get('squareSpaceId'),
+      name: result.get('name'),
+      description: result.get('description'),
+      price: result.get('price'),
+      media: result.get('media'),
       statistics: {
         didSave: false,
         didLike: false,
@@ -76,27 +76,27 @@ export namespace ProductApi {
     );
   }
 
-  export type FetchProductsForMerchantParams = {
-    merchantId: MerchantId;
+  export type FetchProductsForVendorProfileParams = {
+    vendorProfileId: VendorProfileId;
   };
 
-  export async function fetchProductsForMerchant(
-    params: FetchProductsForMerchantParams,
+  export async function fetchProductsForVendorProfile(
+    params: FetchProductsForVendorProfileParams,
   ): Promise<Product[]> {
-    const merchantId = String(params.merchantId);
-    const vendorPointer: Parse.Pointer = {
+    const vendorProfileId = String(params.vendorProfileId);
+    const vendorProfilePointer: Parse.Pointer = {
       __type: 'Pointer',
-      className: 'Vendor',
-      objectId: merchantId,
+      className: 'VendorProfile',
+      objectId: vendorProfileId,
     };
 
     const currentProfile = await UserApi.getCurrentUserProfile();
     const query = new Parse.Query(Parse.Object.extend('Product'));
-    query.equalTo('owner', vendorPointer);
+    query.equalTo('vendor', vendorProfilePointer);
 
     const results = await query.find();
     return results.map(result =>
-      mapResultToProduct(result, merchantId, currentProfile?.id),
+      mapResultToProduct(result, vendorProfileId, currentProfile?.id),
     );
   }
 

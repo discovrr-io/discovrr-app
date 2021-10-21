@@ -1,6 +1,10 @@
 import { EntityId, SerializedError } from '@reduxjs/toolkit';
 
-export type CommonApiErrorCode = 'PARSE_ERROR' | 'NOT_FOUND' | 'UNKNOWN_ERROR';
+export type CommonApiErrorCode =
+  | 'PARSE_ERROR'
+  | 'NOT_FOUND'
+  | 'UNKNOWN_ERROR'
+  | 'UNIMPLEMENTED';
 
 export class ApiError<
   ApiErrorCode extends string = CommonApiErrorCode,
@@ -11,21 +15,24 @@ export class ApiError<
     Object.setPrototypeOf(this, new.target.prototype);
   }
 }
+
 /**
  * The current loading status of an async request.
+ *
+ * TODO: Do we need the `"idle"` state? We can just default to `"pending"` for
+ * all initial states.
  */
-
 export type LoadingStatus =
   | 'idle'
   | 'pending'
   | 'refreshing'
   | 'fulfilled'
   | 'rejected';
+
 /**
  * Used by Redux to indicate the current status of an async request to the Parse
  * server. Only the `status` field is required.
  */
-
 export type ApiFetchStatus = {
   status: LoadingStatus;
   error?: SerializedError;
@@ -45,13 +52,13 @@ export type MediaSource = {
   height?: number;
   filename?: string;
 };
+
 /**
  * Describes the current status of an object for any class that has a `status`
  * column.
  *
  * NOTE: Keep this in sync with the backend.
  */
-
 export enum ApiObjectStatus {
   /** This object is ready for tasks. */
   READY = 0,

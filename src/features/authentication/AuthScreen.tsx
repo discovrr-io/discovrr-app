@@ -658,7 +658,7 @@ export default function AuthScreen() {
       <ScrollView
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={authScreenStyles.scrollView}>
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <TouchableWithoutFeedback accessible={false} onPress={Keyboard.dismiss}>
           <KeyboardAvoidingView
             behavior="position"
             keyboardVerticalOffset={-135}

@@ -101,7 +101,7 @@ function SliderImage({ item: source }: SliderImageProps) {
         height: undefined,
         aspectRatio: width / height,
         borderRadius: layout.radius.md,
-        backgroundColor: color.gray200,
+        backgroundColor: color.placeholder,
       }}
     />
   );

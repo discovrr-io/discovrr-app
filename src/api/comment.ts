@@ -18,19 +18,6 @@ export namespace CommentApi {
     result: Parse.Object,
     myProfileId?: string | undefined,
   ): Comment {
-    // const owner: Parse.Object | undefined = result.get('owner');
-    // if (!owner) {
-    //   console.error(
-    //     `Comment with ID '${result.id}' has no profile associated with it.`,
-    //     'Aborting...',
-    //   );
-    //
-    //   throw new CommentApiError(
-    //     'INVALID_COMMENT',
-    //     'The provided comment had no owner associated with it.',
-    //   );
-    // }
-
     const statistics: Parse.Object | undefined = result.get('statistics');
     const likersArray: string[] = statistics?.get('likersArray') ?? [];
     const viewersArray: string[] = statistics?.get('viewersArray') ?? [];
@@ -42,7 +29,7 @@ export namespace CommentApi {
     return {
       id: result.id as CommentId,
       postId: result.get('post').id,
-      profileId: result.get('owner').id as ProfileId,
+      profileId: result.get('profile').id as ProfileId,
       // profileId: owner.id as ProfileId,
       createdAt: result.createdAt.toISOString(),
       message: result.get('message'),
@@ -99,7 +86,7 @@ export namespace CommentApi {
     const myProfile = await UserApi.getCurrentUserProfile();
     const query = new Parse.Query(Parse.Object.extend('PostComment'));
     query.equalTo('post', postPointer);
-    query.include('owner', 'statistics');
+    query.include('profile', 'statistics');
     query.notEqualTo('status', ApiObjectStatus.DELETED);
 
     const results = await query.find();

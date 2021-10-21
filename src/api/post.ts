@@ -44,7 +44,7 @@ export namespace PostApi {
 
     return {
       id: result.id as PostId,
-      profileId: result.get('owner')?.id,
+      profileId: result.get('profile')?.id,
       contents: postContents,
       createdAt: result.createdAt.toISOString(),
       location: result.get('location'),

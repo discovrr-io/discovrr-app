@@ -15,6 +15,8 @@
 - [ ] Add `error` prop to `RouteError` to visually display the error message
 - [ ] Fix issue in `ProfileSettingsScreen` where the unsaved changes alert
       still appears even if the form is saved
+- [ ] Fix issue where the bottom sheet does not provide enough space for the home
+      bar on iOS
 - [ ] Refactor API and UI code to separate yarn workspace packages
       (`@discovrr-api` and `@discovrr-ui` )
 

@@ -88,7 +88,7 @@ export namespace AuthApi {
 
     console.log($FUNC, 'Querying profile...');
     const query = new Parse.Query(Parse.Object.extend('Profile'));
-    query.equalTo('owner', currentUser.toPointer());
+    query.equalTo('user', currentUser.toPointer());
 
     let profile = await query.first();
     console.log($FUNC, 'Found Parse profile:', profile?.id);

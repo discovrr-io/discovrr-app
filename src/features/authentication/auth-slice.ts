@@ -96,10 +96,10 @@ const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    didDismissInfoModal: state => {
+    dismissInfoModal: state => {
       state.isFirstLogin = false;
     },
-    didDismissAbortSignOutAlert: state => {
+    dismissAbortSignOutAlert: state => {
       state.didAbortSignOut = false;
     },
   },
@@ -182,8 +182,7 @@ const authSlice = createSlice({
   },
 });
 
-export const { didDismissInfoModal, didDismissAbortSignOutAlert } =
-  authSlice.actions;
+export const { dismissInfoModal, dismissAbortSignOutAlert } = authSlice.actions;
 
 //#endregion Authentication Slice
 

@@ -33,6 +33,26 @@ async function fetchUsersBySearchQuery(query: string): Promise<ProfileId[]> {
   return results.map(it => it.id as ProfileId);
 }
 
+// async function fetchMakersBySearchQuery(query: string): Promise<ProfileId[]> {
+//   const businessNameQuery = new Parse.Query('VendorProfile');
+//   businessNameQuery.fullText('businessName', query);
+//   businessNameQuery.ascending('$score');
+//   businessNameQuery.select('$score');
+//
+//   const displayNameQuery = new Parse.Query('VendorProfile');
+//   displayNameQuery.include('profile');
+//   displayNameQuery.fullText('displayName', query);
+//   displayNameQuery.ascending('$score');
+//   displayNameQuery.select('$score');
+//
+//   const results = await Parse.Query.or(
+//     businessNameQuery,
+//     displayNameQuery,
+//   ).find();
+//
+//   return results.map(it => it.id as ProfileId);
+// }
+
 type SearchResultTabWrapperProps<ItemT> = SearchResultsTopTabScreenProps<
   keyof SearchResultsTopTabParamList
 > & {
@@ -44,6 +64,7 @@ type SearchResultTabWrapperProps<ItemT> = SearchResultsTopTabScreenProps<
 function SearchResultsTabWrapper<ItemT>(
   props: SearchResultTabWrapperProps<ItemT>,
 ) {
+  const $FUNC = '[SearchResultsTabWrapper]';
   const { keyExtractor, fetchData, renderItem } = props;
   const query = props.route.params.query;
   const isMounted = useIsMounted();
@@ -56,11 +77,11 @@ function SearchResultsTabWrapper<ItemT>(
     if (isInitialRender || shouldRefresh)
       (async () => {
         try {
-          console.log(`WILL SEARCH '${query}'`);
+          console.log($FUNC, `Searching '${query}'...`);
           const data = await fetchData(query);
           setData(data);
         } catch (error) {
-          console.error('Failed to fetch item:', error);
+          console.error($FUNC, 'Failed to fetch item:', error);
           alertSomethingWentWrong();
         } finally {
           if (isMounted) {
@@ -135,6 +156,18 @@ export default function SearchResultsNavigator(_: SearchResultsNavigatorProps) {
           />
         )}
       </SearchResultsTopTab.Screen>
+      {/* <SearchResultsTopTab.Screen
+        name="SearchResultsMakers"
+        options={{ title: 'Makers' }}>
+        {props => (
+          <SearchResultsTabWrapper
+            {...props}
+            keyExtractor={item => String(item)}
+            fetchData={fetchMakersBySearchQuery}
+            renderItem={({ item }) => <ProfileListItem profileId={item} />}
+          />
+        )}
+      </SearchResultsTopTab.Screen> */}
       <SearchResultsTopTab.Screen
         name="SearchResultsMakers"
         component={PlaceholderScreen}

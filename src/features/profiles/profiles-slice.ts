@@ -10,8 +10,7 @@ import { BaseThunkAPI } from '@reduxjs/toolkit/dist/createAsyncThunk';
 
 import { selectCurrentUserProfileId } from 'src/features/authentication/auth-slice';
 import { resetAppState } from 'src/global-actions';
-import { Profile, ProfileId } from 'src/models';
-import { RootState } from 'src/store';
+import { AppDispatch, RootState } from 'src/store';
 
 import {
   ApiFetchStatus,
@@ -20,12 +19,23 @@ import {
   Reloadable,
 } from 'src/api';
 
+import {
+  PersonalProfile,
+  Profile,
+  ProfileId,
+  VendorProfile,
+  VendorProfileId,
+} from 'src/models';
+
 //#region Profile Adapter Initialization
 
 type ProfileApiFetchStatuses = ApiFetchStatuses<ProfileId>;
 export type ProfilesState = EntityState<Profile> & ProfileApiFetchStatuses;
 
-const profilesAdapter = createEntityAdapter<Profile>();
+const profilesAdapter = createEntityAdapter<Profile>({
+  // We DO NOT want to index by `profile.id`
+  selectId: profile => profile.profileId,
+});
 
 const initialState = profilesAdapter.getInitialState<ProfileApiFetchStatuses>({
   statuses: {},
@@ -55,6 +65,37 @@ export const fetchAllProfiles = createAsyncThunk<
   Profile[],
   Reloadable<ProfileApi.FetchAllProfilesParams>
 >('profiles/fetchAllProfiles', ProfileApi.fetchAllProfiles);
+
+export const fetchProfileByVendorProfileId = createAsyncThunk<
+  Profile,
+  Reloadable<ProfileApi.FetchProfileByVendorProfileIdParams>,
+  { dispatch: AppDispatch; state: RootState }
+>(
+  'profiles/fetchProfileByVendorProfileId',
+  async ({ vendorProfileId /* reload */ }, thunkApi) => {
+    const vendorProfiles = selectAllVendorProfiles(thunkApi.getState());
+    const maybeVendor = vendorProfiles.find(v => v.id === vendorProfileId);
+
+    if (maybeVendor) {
+      const maybeProfile =
+        thunkApi.getState().profiles.entities[maybeVendor.profileId];
+      if (maybeProfile) return maybeProfile;
+
+      // const fetchProfileAction = fetchProfileById({
+      //   profileId: maybeVendor.profileId,
+      //   reload,
+      // });
+      // return await thunkApi.dispatch(fetchProfileAction).unwrap();
+    }
+
+    return await ProfileApi.fetchProfileByVendorProfileId({ vendorProfileId });
+  },
+);
+
+export const fetchAllProfilesByKind = createAsyncThunk(
+  'profiles/fetchAllProfilesByKind',
+  ProfileApi.fetchAllProfilesByKind,
+);
 
 export const updateProfile = createAsyncThunk(
   'profiles/updateProfile',
@@ -137,7 +178,7 @@ const profilesSlice = createSlice({
         }
 
         state.statuses = {};
-        for (const profileId of action.payload.map(profile => profile.id)) {
+        for (const profileId of action.payload.map(p => p.profileId)) {
           state.statuses[profileId] = { status: 'fulfilled' };
         }
       })
@@ -149,7 +190,7 @@ const profilesSlice = createSlice({
         };
       })
       .addCase(fetchProfileById.fulfilled, (state, action) => {
-        if (action.payload) profilesAdapter.upsertOne(state, action.payload);
+        profilesAdapter.upsertOne(state, action.payload);
         state.statuses[action.meta.arg.profileId] = {
           status: 'fulfilled',
         };
@@ -159,6 +200,18 @@ const profilesSlice = createSlice({
           status: 'rejected',
           error: action.error,
         };
+      })
+      // -- fetchAllProfilesByKind --
+      .addCase(fetchAllProfilesByKind.fulfilled, (state, action) => {
+        profilesAdapter.upsertMany(state, action.payload);
+        for (const profileId of action.payload.map(p => p.profileId)) {
+          state.statuses[profileId] = { status: 'fulfilled' };
+        }
+      })
+      // -- fetchProfileForVendorProfileId --
+      .addCase(fetchProfileByVendorProfileId.fulfilled, (state, action) => {
+        profilesAdapter.upsertOne(state, action.payload);
+        state.statuses[action.payload.profileId] = { status: 'fulfilled' };
       })
       // -- updateProfile --
       .addCase(updateProfile.fulfilled, (state, action) => {
@@ -206,8 +259,35 @@ export const selectIsUserFollowingProfile = createSelector(
   (profile, userProfileId) => {
     if (!profile || !userProfileId) return false;
     if (!profile.followers) return false;
-    if (profile.id === userProfileId) return false;
+    if (profile.profileId === userProfileId) return false;
     return profile.followers.includes(userProfileId);
+  },
+);
+
+export const selectAllPersonalProfiles = createSelector(
+  [selectAllProfiles],
+  profiles => {
+    const filtered = profiles.filter(profile => profile.kind === 'personal');
+    return filtered as PersonalProfile[];
+  },
+);
+
+export const selectAllVendorProfiles = createSelector(
+  [selectAllProfiles],
+  profiles => {
+    const filtered = profiles.filter(profile => profile.kind === 'vendor');
+    return filtered as VendorProfile[];
+  },
+);
+
+export const selectProfileIdByVendorProfileId = createSelector(
+  [
+    selectAllVendorProfiles,
+    (_state: RootState, vendorProfileId: VendorProfileId) => vendorProfileId,
+  ],
+  (vendorProfiles, vendorProfileId) => {
+    const match = vendorProfiles.find(vendor => vendor.id === vendorProfileId);
+    return match?.profileId;
   },
 );
 

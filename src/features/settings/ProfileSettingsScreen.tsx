@@ -1,18 +1,34 @@
 import React, { useLayoutEffect, useState } from 'react';
-import { Alert, SafeAreaView, ScrollView } from 'react-native';
+import {
+  Alert,
+  Keyboard,
+  KeyboardAvoidingView,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+} from 'react-native';
 
 import * as yup from 'yup';
+import FastImage from 'react-native-fast-image';
 import { Formik, useFormikContext } from 'formik';
 import { useNavigation } from '@react-navigation/core';
 
 import { ProfileApi } from 'src/api';
-import { SOMETHING_WENT_WRONG } from 'src/constants/strings';
-import { color, layout } from 'src/constants';
 import { updateProfile } from 'src/features/profiles/profiles-slice';
 import { useMyProfileId, useProfile } from 'src/features/profiles/hooks';
 import { useAppDispatch } from 'src/hooks';
 import { Profile, ProfileId } from 'src/models';
 import { SettingsStackScreenProps } from 'src/navigation';
+import { alertUnavailableFeature } from 'src/utilities';
+
+import { color, font, layout } from 'src/constants';
+import { DEFAULT_AVATAR } from 'src/constants/media';
+import { DEFAULT_ACTIVE_OPACITY } from 'src/constants/values';
+import { SOMETHING_WENT_WRONG } from 'src/constants/strings';
 
 import {
   AsyncGate,
@@ -28,6 +44,7 @@ import { CELL_ICON_SIZE } from './components/common';
 
 const MAX_INPUT_LENGTH = 30;
 const MAX_BIO_LENGTH = 140;
+const AVATAR_DIAMETER = 130;
 
 const profileChangesSchema = yup.object({
   displayName: yup
@@ -100,18 +117,16 @@ type LoadedAccountSettingsScreenProps = {
 
 function LoadedProfileSettingsScreen(props: LoadedAccountSettingsScreenProps) {
   const $FUNC = '[LoadedProfileSettingsScreen]';
-  const { profile } = props;
-
   const dispatch = useAppDispatch();
+  const profile = props.profile;
 
   const handleSaveChanges = async (changes: ProfileApi.ProfileChanges) => {
     try {
       const updateProfileAction = updateProfile({
-        profileId: profile.id,
+        profileId: profile.profileId,
         changes: {
           displayName: changes.displayName?.trim(),
           username: changes.username?.trim(),
-          // description: changes.description?.trim(),
           biography: changes.biography?.trim(),
           email: changes.email?.trim(),
         },
@@ -134,26 +149,31 @@ function LoadedProfileSettingsScreen(props: LoadedAccountSettingsScreenProps) {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <ScrollView contentContainerStyle={layout.defaultScreenStyle}>
-        <Formik
-          initialValues={{
-            displayName: profile.displayName,
-            username: profile.username,
-            biography: profile.biography,
-          }}
-          enableReinitialize={true}
-          validationSchema={profileChangesSchema}
-          onSubmit={handleSaveChanges}>
-          <ProfileSettingsForm />
-        </Formik>
+      <ScrollView
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={[layout.defaultScreenStyle, { flexGrow: 1 }]}>
+        <TouchableWithoutFeedback accessible={false} onPress={Keyboard.dismiss}>
+          <KeyboardAvoidingView behavior="position">
+            <Formik
+              initialValues={{
+                displayName: profile.displayName,
+                username: profile.username,
+                biography: profile.biography,
+              }}
+              enableReinitialize={true}
+              validationSchema={profileChangesSchema}
+              onSubmit={handleSaveChanges}>
+              <ProfileSettingsForm profile={profile} />
+            </Formik>
+          </KeyboardAvoidingView>
+        </TouchableWithoutFeedback>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
-function ProfileSettingsForm() {
+function ProfileSettingsForm({ profile }: { profile: Profile }) {
   const $FUNC = '[ProfileSettingsForm]';
-  // const navigation = useNavigation<SettingsStackNavigationProp>();
   const navigation = useNavigation<ProfileSettingsProps['navigation']>();
 
   const [selection, setSelection] = useState('user');
@@ -233,10 +253,29 @@ function ProfileSettingsForm() {
 
   return (
     <>
+      <View style={{ alignItems: 'center' }}>
+        <TouchableOpacity
+          activeOpacity={DEFAULT_ACTIVE_OPACITY}
+          onPress={() => alertUnavailableFeature()}
+          style={editProfileAvatarStyles.touchableContainer}>
+          <FastImage
+            resizeMode="cover"
+            style={editProfileAvatarStyles.image}
+            source={
+              profile.avatar ? { uri: profile.avatar.url } : DEFAULT_AVATAR
+            }
+          />
+          <View style={editProfileAvatarStyles.editTextContainer}>
+            <Text style={[font.medium, editProfileAvatarStyles.editText]}>
+              Edit
+            </Text>
+          </View>
+        </TouchableOpacity>
+      </View>
+      <Spacer.Vertical value={CELL_GROUP_VERTICAL_SPACING * 2} />
       <Cell.Group
         label="Profile details"
         elementOptions={{
-          // containerSpacingVertical: layout.spacing.md * 1.25,
           containerSpacingHorizontal: layout.spacing.md * 1.25,
         }}>
         <Cell.InputGroup labelFlex={1.1}>
@@ -299,3 +338,26 @@ function ProfileSettingsForm() {
     </>
   );
 }
+
+const editProfileAvatarStyles = StyleSheet.create({
+  touchableContainer: {
+    overflow: 'hidden',
+    borderRadius: AVATAR_DIAMETER / 2,
+  },
+  image: {
+    width: AVATAR_DIAMETER,
+    height: AVATAR_DIAMETER,
+    backgroundColor: color.placeholder,
+  },
+  editTextContainer: {
+    position: 'absolute',
+    bottom: 0,
+    width: AVATAR_DIAMETER,
+    paddingVertical: layout.spacing.xs * 1.5,
+    backgroundColor: '#4E4E4E88',
+  },
+  editText: {
+    textAlign: 'center',
+    color: color.white,
+  },
+});

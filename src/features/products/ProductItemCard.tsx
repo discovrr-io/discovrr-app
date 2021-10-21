@@ -1,18 +1,21 @@
-import React from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
 
 import * as constants from 'src/components/cards/constants';
+import { ApiFetchStatus } from 'src/api';
 import { AsyncGate, Card, Spacer } from 'src/components';
 import { CardElementProps } from 'src/components/cards/common';
 import { color, font, layout } from 'src/constants';
-import { useMerchant } from 'src/features/merchants/hooks';
-import { Merchant, MerchantId, Product, ProductId } from 'src/models';
+import { fetchProfileByVendorProfileId } from 'src/features/profiles/profiles-slice';
+import { useAppDispatch, useIsMounted } from 'src/hooks';
+import { Product, ProductId, Profile, VendorProfileId } from 'src/models';
 import { alertUnavailableFeature } from 'src/utilities';
 
 import { useProduct } from './hooks';
-import { DEFAULT_AVATAR } from 'src/constants/media';
+import { useNavigation } from '@react-navigation/core';
+import { RootStackNavigationProp } from 'src/navigation';
 
 type ProductItemCardProps = CardElementProps & {
   productId: ProductId;
@@ -51,7 +54,7 @@ const InnerProductItemCard = (props: InnerProductItemCardProps) => {
               <Card.Indicator iconName="pricetags" position="top-right" />
               <FastImage
                 resizeMode="cover"
-                source={{ uri: product.imageUrl }}
+                source={{ uri: product.media[0]?.url }}
                 style={{
                   width: '100%',
                   aspectRatio: 1,
@@ -91,7 +94,7 @@ const InnerProductItemCard = (props: InnerProductItemCardProps) => {
         )}
       </Card.Body>
       <Card.Footer>
-        <ProductItemCardAuthor merchantId={product.merchantId} />
+        <ProductItemCardAuthor vendorProfileId={product.vendorId} />
         <Card.Actions>
           <Card.HeartIconButton
             didLike={didLike}
@@ -160,40 +163,140 @@ InnerProductItemCard.Pending = (props: CardElementProps) => {
 };
 
 type ProductItemCardAuthorProps = CardElementProps & {
-  merchantId: MerchantId;
+  vendorProfileId: VendorProfileId;
 };
 
 const ProductItemCardAuthor = (props: ProductItemCardAuthorProps) => {
-  const { merchantId, ...cardElementProps } = props;
-  const merchantData = useMerchant(merchantId);
+  const $FUNC = '[ProductItemCardAuthor]';
+  const { vendorProfileId, ...cardElementProps } = props;
 
-  const handlePressAuthor = (merchant: Merchant | undefined) => {
-    if (!merchant) {
-      console.warn(`Cannot navigate to merchant with ID '${merchantId}'`);
+  const dispatch = useAppDispatch();
+  const navigation = useNavigation<RootStackNavigationProp>();
+  const isMounted = useIsMounted();
+
+  const [foundProfile, setFoundProfile] = useState<Profile>();
+  const [status, setStatus] = useState<ApiFetchStatus>({ status: 'idle' });
+
+  const getProfileDisplayName = useCallback((profile: Profile | undefined) => {
+    if (!profile) {
+      return 'Anonymous';
+    } else if (profile.kind === 'vendor') {
+      return profile.businessName || profile.displayName;
+    } else {
+      console.warn(
+        $FUNC,
+        'ProductItemCard found a profile that is NOT a vendor,',
+        'which is unexpected.',
+      );
+      return profile.displayName;
+    }
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        setStatus({ status: 'pending' });
+        const fetchAction = fetchProfileByVendorProfileId({ vendorProfileId });
+        const profile = await dispatch(fetchAction).unwrap();
+        if (isMounted.current) {
+          setStatus({ status: 'fulfilled' });
+          setFoundProfile(profile);
+        }
+      } catch (error: any) {
+        if (error.name !== 'ConditionError') {
+          console.error(
+            $FUNC,
+            'Failed to fetch profile by vendor profile with',
+            `ID '${vendorProfileId}':`,
+            error,
+          );
+          if (isMounted.current) {
+            setStatus({ status: 'rejected', error });
+          }
+        }
+      }
+    })();
+  }, [dispatch, isMounted, vendorProfileId]);
+
+  const handlePressAuthor = (profile: Profile | undefined) => {
+    if (!profile) {
+      console.warn(
+        `Cannot navigate to vendor profile with ID '${vendorProfileId}'`,
+      );
       return;
     }
 
-    alertUnavailableFeature();
+    navigation.navigate('ProfileDetails', {
+      profileId: profile.profileId,
+      profileDisplayName: getProfileDisplayName(profile),
+    });
   };
 
   return (
     <AsyncGate
-      data={merchantData}
+      data={[foundProfile, status]}
       onPending={() => <Card.Author.Pending {...cardElementProps} />}
       onRejected={() => (
         <Card.Author displayName="Anonymous" {...cardElementProps} />
       )}
-      onFulfilled={merchant => (
+      onFulfilled={profile => (
         <Card.Author
-          avatar={merchant?.avatar ?? DEFAULT_AVATAR}
-          displayName={merchant?.shortName ?? 'Anonymous'}
-          onPress={() => handlePressAuthor(merchant)}
+          avatar={profile?.avatar}
+          displayName={getProfileDisplayName(profile)}
+          onPress={() => handlePressAuthor(profile)}
           {...cardElementProps}
         />
       )}
     />
   );
 };
+
+// const ProductItemCardAuthor = (props: ProductItemCardAuthorProps) => {
+//   const { vendorProfileId, ...cardElementProps } = props;
+//   // const profileData = useProfile(profileId);
+//
+//   const handlePressAuthor = (profileId: Profile | undefined) => {
+//     if (!profileId) {
+//       console.warn(`Cannot navigate to vendor profile with ID '${profileId}'`);
+//       return;
+//     }
+//
+//     alertUnavailableFeature();
+//   };
+//
+//   return (
+//     <AsyncGate
+//       data={profileData}
+//       onPending={() => <Card.Author.Pending {...cardElementProps} />}
+//       onRejected={() => (
+//         <Card.Author displayName="Anonymous" {...cardElementProps} />
+//       )}
+//       onFulfilled={profile => {
+//         const profileDisplayName = (() => {
+//           if (!profile) {
+//             return 'Anonymous';
+//           } else if (profile.kind === 'vendor') {
+//             return profile.businessName || profile.displayName;
+//           } else {
+//             console.warn(
+//               'ProductItemCard found a profile that is NOT a vendor, which is unexpected.',
+//             );
+//             return profile.displayName;
+//           }
+//         })();
+//
+//         return (
+//           <Card.Author
+//             avatar={profile?.avatar ?? DEFAULT_AVATAR}
+//             displayName={profileDisplayName}
+//             onPress={() => handlePressAuthor(profile)}
+//             {...cardElementProps}
+//           />
+//         );
+//       }}
+//     />
+//   );
+// };
 
 const productItemCardStyles = StyleSheet.create({
   cardBodyPlaceholder: {

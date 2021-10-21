@@ -1,9 +1,10 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import Video from 'react-native-video';
-import { useNavigation } from '@react-navigation/core';
+import { useIsFocused, useNavigation } from '@react-navigation/core';
 
 import { AsyncGate, Card } from 'src/components';
 import { CardActionsProps } from 'src/components/cards/CardActions';
@@ -40,6 +41,10 @@ const ASPECT_RATIOS = [
   2 / 3, // 2:3 (Portrait Tall)
 ];
 
+const PLAY_BUTTON_SIZE_SMALL = 80;
+const PLAY_BUTTON_SIZE_LARGE = 120;
+const PLAY_BUTTON_COLOR = color.gray100;
+
 type PostItemCardHandlers = {
   showMenuIcon?: boolean;
   showShareIcon?: boolean;
@@ -49,6 +54,8 @@ type PostItemCardHandlers = {
 
 export const PostItemCardHandlersContext =
   React.createContext<PostItemCardHandlers>({});
+
+//#region PostItemCard ---------------------------------------------------------
 
 type PostItemCardProps = CardElementProps &
   PostItemCardHandlers & {
@@ -72,29 +79,34 @@ export default function PostItemCard(props: PostItemCardProps) {
       value={{ showMenuIcon, showShareIcon, onPressMenu, onPressShare }}>
       <AsyncGate
         data={postData}
-        onPending={() => <InnerPostItemCard.Pending {...cardElementProps} />}
+        onPending={() => <LoadedPostItemCard.Pending {...cardElementProps} />}
         onFulfilled={post => {
           if (!post) return null;
-          return <InnerPostItemCard post={post} {...cardElementProps} />;
+          return <LoadedPostItemCard post={post} {...cardElementProps} />;
         }}
       />
     </PostItemCardHandlersContext.Provider>
   );
 }
 
-//#region PostItemCard ---------------------------------------------------------
+//#endregion PostItemCard
 
-type InnerPostItemCardProps = CardElementProps & {
+//#region LoadedPostItemCard ----------------------------------------------------
+
+type LoadedPostItemCardProps = CardElementProps & {
   post: Post;
 };
 
-const InnerPostItemCard = (props: InnerPostItemCardProps) => {
+const LoadedPostItemCard = (props: LoadedPostItemCardProps) => {
   const { post, ...cardElementProps } = props;
   const navigation = useNavigation<RootStackNavigationProp>();
+  const isFocused = useIsFocused();
 
-  const handlePressPost = () => {
-    navigation.push('PostDetails', { postId: post.id });
-  };
+  const [_isVideoPaused, setIsVideoPaused] = useState(false);
+
+  useEffect(() => {
+    setIsVideoPaused(!isFocused);
+  }, [isFocused]);
 
   const renderImageGallery = useCallback(
     (
@@ -142,7 +154,7 @@ const InnerPostItemCard = (props: InnerPostItemCardProps) => {
         </View>
       );
     },
-    [post.statistics.totalViews],
+    [post],
   );
 
   const renderCardBody = useCallback(
@@ -157,30 +169,46 @@ const InnerPostItemCard = (props: InnerPostItemCardProps) => {
         case PostType.VIDEO:
           return (
             <View>
-              {/* <View
-                style={{
-                  height: 200,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}>
-                <Text style={font.medium}>[VIDEO]</Text>
-              </View> */}
-              <Video
-                repeat
-                playWhenInactive
-                resizeMode="cover"
-                source={{
-                  uri: post.contents.source.url,
-                  type: post.contents.source.type,
-                }}
-                style={{
-                  width: '100%',
-                  aspectRatio:
-                    (post.contents.source.height ?? 1) /
-                    (post.contents.source.width ?? 1),
-                  backgroundColor: color.placeholder,
-                }}
-              />
+              <View>
+                <Video
+                  muted
+                  repeat
+                  playWhenInactive
+                  resizeMode="cover"
+                  // paused={isVideoPaused}
+                  paused={true}
+                  source={{
+                    uri: post.contents.source.url,
+                    type: post.contents.source.type,
+                  }}
+                  style={{
+                    width: '100%',
+                    aspectRatio:
+                      (post.contents.source.height ?? 1) /
+                      (post.contents.source.width ?? 1),
+                    backgroundColor: color.placeholder,
+                  }}
+                />
+                <View
+                  style={{
+                    position: 'absolute',
+                    width: '100%',
+                    height: '100%',
+                    backgroundColor: '#00000044',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                  <Ionicons
+                    name="play"
+                    size={
+                      elementOptions.smallContent
+                        ? PLAY_BUTTON_SIZE_SMALL
+                        : PLAY_BUTTON_SIZE_LARGE
+                    }
+                    color={PLAY_BUTTON_COLOR}
+                  />
+                </View>
+              </View>
               <PostItemCardCaption caption={post.contents.caption} />
             </View>
           );
@@ -202,8 +230,12 @@ const InnerPostItemCard = (props: InnerPostItemCardProps) => {
           );
       }
     },
-    [post, renderImageGallery],
+    [/* isVideoPaused, */ post.contents, renderImageGallery],
   );
+
+  const handlePressPost = () => {
+    navigation.push('PostDetails', { postId: post.id });
+  };
 
   return (
     <Card {...cardElementProps}>
@@ -216,7 +248,7 @@ const InnerPostItemCard = (props: InnerPostItemCardProps) => {
 };
 
 // eslint-disable-next-line react/display-name
-InnerPostItemCard.Pending = (props: CardElementProps) => {
+LoadedPostItemCard.Pending = (props: CardElementProps) => {
   const aspectRatioIndex = generateRandomNumberBetween(0, ASPECT_RATIOS.length);
   return (
     <Card {...props}>
@@ -239,7 +271,7 @@ InnerPostItemCard.Pending = (props: CardElementProps) => {
   );
 };
 
-//#endregion PostItemCard
+//#endregion LoadedPostItemCard
 
 //#region PostItemCardCaption --------------------------------------------------
 
@@ -312,7 +344,7 @@ function PostItemCardAuthor(props: PostItemCardAuthorProps) {
     }
 
     navigation.navigate('ProfileDetails', {
-      profileId: profile.id,
+      profileId: profile.profileId,
       profileDisplayName: profile.displayName,
     });
   };

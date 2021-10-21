@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { StyleSheet, Text, TouchableHighlight, View } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
@@ -40,11 +40,21 @@ type InnerProfileListItemProps = {
 const InnerProfileListItem = (props: InnerProfileListItemProps) => {
   const { profile } = props;
   const navigation = useNavigation<RootStackNavigationProp>();
-  const isMyProfile = useIsMyProfile(profile.id);
+  const isMyProfile = useIsMyProfile(profile.profileId);
+
+  const profileDisplayName = useMemo(() => {
+    if (isMyProfile) {
+      return 'You';
+    } else if (profile.kind === 'vendor') {
+      return profile.businessName || profile.displayName;
+    } else {
+      return profile.displayName;
+    }
+  }, [profile, isMyProfile]);
 
   const handlePressProfile = () => {
     navigation.push('ProfileDetails', {
-      profileId: profile.id,
+      profileId: profile.profileId,
       profileDisplayName: profile.displayName,
     });
   };
@@ -60,15 +70,18 @@ const InnerProfileListItem = (props: InnerProfileListItemProps) => {
         />
         <View style={profileListItemStyles.innerContainer}>
           <Text
+            numberOfLines={1}
             style={[
               isMyProfile
                 ? [font.mediumBold, { color: color.accent }]
                 : font.medium,
             ]}>
-            {isMyProfile ? 'You' : profile.displayName}
+            {profileDisplayName}
           </Text>
           <Spacer.Vertical value={layout.spacing.xs} />
-          <Text style={[font.small, { color: color.gray500 }]}>
+          <Text
+            numberOfLines={2}
+            style={[font.small, { color: color.gray500 }]}>
             {profile.biography || 'No biography'}
           </Text>
         </View>

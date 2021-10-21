@@ -13,15 +13,10 @@ import { useAppDispatch, useAppSelector } from 'src/hooks';
 import { User } from 'src/models';
 import { AuthStackParamList } from 'src/navigation';
 
+import * as authSlice from './auth-slice';
 import AuthScreen from './AuthScreen';
 import TermsAndConditionsScreen from './TermsAndConditions';
 import RootNavigator from './RootNavigator';
-
-import {
-  abortSignOut,
-  didDismissAbortSignOutAlert,
-  didDismissInfoModal,
-} from './auth-slice';
 
 const AuthStack = createStackNavigator<AuthStackParamList>();
 
@@ -66,7 +61,7 @@ export default function AuthGate() {
         [
           {
             text: 'Dismiss',
-            onPress: () => dispatch(didDismissAbortSignOutAlert()),
+            onPress: () => dispatch(authSlice.dismissAbortSignOutAlert()),
           },
         ],
       );
@@ -111,7 +106,7 @@ export default function AuthGate() {
         // Ideally this should be set when the user has gone through onboarding,
         // but since that isn't set up yet we'll manually call it here. This'll
         // also prevent the Firebase calls above to be called on every launch.
-        dispatch(didDismissInfoModal());
+        dispatch(authSlice.dismissInfoModal());
       } catch (error) {
         const reportedError =
           error instanceof Error ? error : new Error(String(error));
@@ -120,7 +115,7 @@ export default function AuthGate() {
 
         // TODO: Handle this gracefully
         console.warn($FUNC, 'Aborting operation. Signing out...');
-        await dispatch(abortSignOut(error)).unwrap();
+        await dispatch(authSlice.abortSignOut(error)).unwrap();
       }
     }
 

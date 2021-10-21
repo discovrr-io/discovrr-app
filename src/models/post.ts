@@ -20,18 +20,10 @@ export enum PostType {
   VIDEO = 'video',
 }
 
-/**
- * The source of a given post's media item.
- *
- * A given post may contain any number of media with its source as an explicit
- * URI or a number (returned by `require`) as its location.
- */
-export type PostSource = MediaSource;
-
 export type PostContents =
   | { type: PostType.TEXT; text: string }
-  | { type: PostType.GALLERY; sources: PostSource[]; caption: string }
-  | { type: PostType.VIDEO; source: PostSource; caption: string };
+  | { type: PostType.GALLERY; sources: MediaSource[]; caption: string }
+  | { type: PostType.VIDEO; source: MediaSource; caption: string };
 
 export type PostLocation = {
   /**

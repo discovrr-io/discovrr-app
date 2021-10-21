@@ -8,7 +8,7 @@ import {
 } from '@reduxjs/toolkit';
 
 import { resetAppState } from 'src/global-actions';
-import { MerchantId, Product, ProductId } from 'src/models';
+import { Product, ProductId, VendorProfileId } from 'src/models';
 import { RootState } from 'src/store';
 
 import {
@@ -43,9 +43,9 @@ export const fetchAllProducts = createAsyncThunk<
   Reloadable<ProductApi.FetchAllProductsParams>
 >('products/fetchAllProducts', ProductApi.fetchAllProducts);
 
-export const fetchProductsForMerchant = createAsyncThunk(
-  'products/fetchProductsForMerchant',
-  ProductApi.fetchProductsForMerchant,
+export const fetchProductsForVendorProfile = createAsyncThunk(
+  'products/fetchProductsForVendorProfile',
+  ProductApi.fetchProductsForVendorProfile,
 );
 
 // export const updateProductLikeStatus = createAsyncThunk(
@@ -121,8 +121,8 @@ const productsSlice = createSlice({
           state.statuses[productId] = { status: 'fulfilled' };
         }
       })
-      // -- fetchProductsForMerchant --
-      .addCase(fetchProductsForMerchant.fulfilled, (state, action) => {
+      // -- fetchProductsForVendorProfile --
+      .addCase(fetchProductsForVendorProfile.fulfilled, (state, action) => {
         productsAdapter.upsertMany(state, action.payload);
         for (const productId of action.payload.map(productId => productId.id)) {
           state.statuses[productId] = { status: 'fulfilled' };
@@ -184,9 +184,9 @@ export function selectProductStatusById(
 }
 
 export const selectProductsForMerchant = createSelector(
-  [selectAllProducts, (_: RootState, merchantId: MerchantId) => merchantId],
-  (products, merchantId) => {
-    return products.filter(product => product.merchantId === merchantId);
+  [selectAllProducts, (_: RootState, id: VendorProfileId) => id],
+  (products, vendorProfileId) => {
+    return products.filter(product => product.vendorId === vendorProfileId);
   },
 );
 

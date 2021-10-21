@@ -16,11 +16,11 @@ import {
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import autoMergeLevel2 from 'redux-persist/lib/stateReconciler/autoMergeLevel2';
+import createDebugger from 'redux-flipper';
 
 import authReducer from './features/authentication/auth-slice';
 import commentRepliesReducer from './features/comments/comment-replies-slice';
 import commentsReducer from './features/comments/comments-slice';
-import merchantsReducer from './features/merchants/merchants-slice';
 import notificationsReducer from './features/notifications/notifications-slice';
 import postsReducer from './features/posts/posts-slice';
 import productsReducer from './features/products/products-slice';
@@ -31,7 +31,6 @@ import settingsReducer from './features/settings/settings-slice';
 import { AuthState } from './features/authentication/auth-slice';
 import { CommentRepliesState } from './features/comments/comment-replies-slice';
 import { CommentsState } from './features/comments/comments-slice';
-import { MerchantsState } from './features/merchants/merchants-slice';
 import { NotificationsState } from './features/notifications/notifications-slice';
 import { PostsState } from './features/posts/posts-slice';
 import { ProductsState } from './features/products/products-slice';
@@ -43,7 +42,6 @@ type AppState = {
   auth: AuthState;
   comments: CommentsState;
   commentReplies: CommentRepliesState;
-  merchants: MerchantsState;
   notifications: NotificationsState;
   posts: PostsState;
   products: ProductsState;
@@ -58,7 +56,6 @@ export const rootReducer = combineReducers<AppState>({
   auth: authReducer,
   comments: commentsReducer,
   commentReplies: commentRepliesReducer,
-  merchants: merchantsReducer,
   notifications: notificationsReducer,
   posts: postsReducer,
   products: productsReducer,
@@ -79,12 +76,20 @@ const persistedReducer = persistReducer<CombinedAppState>(
 
 const store = configureStore({
   reducer: persistedReducer,
-  middleware: getDefaultMiddleware =>
-    getDefaultMiddleware({
+  middleware: getDefaultMiddleware => {
+    const defaultMiddleware = getDefaultMiddleware({
       serializableCheck: {
         ignoredActions: [FLUSH, PAUSE, PERSIST, PURGE, REGISTER, REHYDRATE],
       },
-    }),
+    });
+
+    if (__DEV__) {
+      console.log('Attaching Redux Flipper debugger');
+      return defaultMiddleware.concat(createDebugger());
+    }
+
+    return defaultMiddleware;
+  },
 });
 
 export type RootState = ReturnType<typeof store.getState>;

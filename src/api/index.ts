@@ -1,8 +1,6 @@
 export * from './common';
 export { AuthApi } from './auth';
 export { CommentApi } from './comment';
-export { MerchantApi } from './merchant';
-export { NoteApi } from './note';
 export { NotificationApi } from './notification';
 export { PostApi } from './post';
 export { ProductApi } from './product';

@@ -145,7 +145,7 @@ const CommentCellAvatar = (props: { profile?: Profile }) => {
     }
 
     navigation.push('ProfileDetails', {
-      profileId: profile.id,
+      profileId: profile.profileId,
       profileDisplayName: profile.displayName,
     });
   };
@@ -158,7 +158,7 @@ const CommentCellAvatar = (props: { profile?: Profile }) => {
       <FastImage
         source={
           !profile
-            ? {}
+            ? {} // No source if there is no profile (i.e. when it is loading)
             : profile.avatar
             ? { uri: profile.avatar.url }
             : DEFAULT_AVATAR
@@ -179,7 +179,7 @@ const CommentCellAuthor = (props: { profile?: Profile }) => {
 
   const isMyProfileId = useAppSelector(state => {
     if (!profile) return false;
-    return selectIsCurrentUserProfile(state, profile.id);
+    return selectIsCurrentUserProfile(state, profile.profileId);
   });
 
   const handlePressAuthor = () => {
@@ -189,7 +189,7 @@ const CommentCellAuthor = (props: { profile?: Profile }) => {
     }
 
     navigation.push('ProfileDetails', {
-      profileId: profile.id,
+      profileId: profile.profileId,
       profileDisplayName: profile.displayName,
     });
   };
