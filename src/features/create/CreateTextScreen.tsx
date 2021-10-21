@@ -266,8 +266,8 @@ function AttachLocationButton() {
           android: 'high',
           ios: 'best',
         },
-        timeout: 15_000,
-        maximumAge: 10_000,
+        timeout: 15000,
+        maximumAge: 10000,
       },
     );
   };
