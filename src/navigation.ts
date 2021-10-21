@@ -185,13 +185,13 @@ export type FeedTopTabScreenProps<K extends keyof FeedTopTabParamList> =
 //#region SEARCH STACK
 
 export type SearchStackParamList = {
-  Query: undefined;
-  Results: NavigatorScreenParams<SearchResultsTopTabParamList>;
+  SearchQuery: undefined;
+  SearchResults: NavigatorScreenParams<SearchResultsTopTabParamList>;
 };
 
 export type SearchStackNavigationProp = StackNavigationProp<
   SearchStackParamList,
-  'Query'
+  'SearchQuery'
 >;
 
 export type SearchStackScreenProps<K extends keyof SearchStackParamList> =

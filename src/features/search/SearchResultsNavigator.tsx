@@ -126,7 +126,7 @@ function SearchResultsTabWrapper<ItemT>(
   );
 }
 
-type SearchResultsNavigatorProps = SearchStackScreenProps<'Results'>;
+type SearchResultsNavigatorProps = SearchStackScreenProps<'SearchResults'>;
 
 const SearchResultsTopTab =
   createMaterialTopTabNavigator<SearchResultsTopTabParamList>();

@@ -54,7 +54,7 @@ function SearchHeaderContent() {
 
   const handleClearQuery = () => {
     setSearchText('');
-    navigation.navigate('Query');
+    navigation.navigate('SearchQuery');
     textInputRef.current?.focus();
   };
 
@@ -62,7 +62,7 @@ function SearchHeaderContent() {
     const query = searchText.trim();
     if (query.length > 0) {
       dispatch(addToSearchQueryHistory(query));
-      navigation.navigate('Results', {
+      navigation.navigate('SearchResults', {
         screen: 'SearchResultsUsers',
         params: { query },
       });
@@ -195,7 +195,7 @@ const SearchStack = createStackNavigator<SearchStackParamList>();
 export default function SearchNavigator() {
   return (
     <SearchStack.Navigator
-      initialRouteName="Query"
+      initialRouteName="SearchQuery"
       screenOptions={{
         headerTintColor: color.black,
         headerBackTitleVisible: false,
@@ -210,14 +210,14 @@ export default function SearchNavigator() {
         }),
       }}>
       <SearchStack.Screen
-        name="Query"
+        name="SearchQuery"
         component={SearchQueryScreen}
         options={{
           header: SearchQueryHeader,
         }}
       />
       <SearchStack.Screen
-        name="Results"
+        name="SearchResults"
         component={SearchResultsNavigator}
         options={({ route }) => {
           const query = route.params.params?.query;

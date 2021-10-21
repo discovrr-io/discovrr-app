@@ -19,7 +19,7 @@ import { color, font, layout } from 'src/constants';
 import { useAppDispatch, useAppSelector } from 'src/hooks';
 import { SearchStackScreenProps } from 'src/navigation';
 
-type SearchQueryScreenProps = SearchStackScreenProps<'Query'>;
+type SearchQueryScreenProps = SearchStackScreenProps<'SearchQuery'>;
 
 export default function SearchQueryScreen(props: SearchQueryScreenProps) {
   const dispatch = useAppDispatch();
@@ -27,7 +27,7 @@ export default function SearchQueryScreen(props: SearchQueryScreenProps) {
 
   const handlePressSearchHistoryItem = (query: string) => {
     dispatch(searchSlice.addToSearchQueryHistory(query));
-    props.navigation.push('Results', {
+    props.navigation.push('SearchResults', {
       screen: 'SearchResultsUsers',
       params: { query },
     });

@@ -29,8 +29,8 @@ import {
 import { useFlipper } from '@react-navigation/devtools';
 
 import store from './store';
+import SplashScreen from './SplashScreen';
 import { color } from './constants';
-import { LoadingContainer } from './components';
 import { useAppDispatch } from './hooks';
 import { resetAppState } from './global-actions';
 
@@ -106,6 +106,12 @@ function PersistedApp() {
 
   useFlipper(navigationRef);
 
+  useEffect(() => {
+    RNBootSplash.hide({ fade: true }).catch(error => {
+      console.error($FUNC, 'Failed to hide boot splash screen:', error);
+    });
+  }, []);
+
   const handleBeforeLift = async () => {
     try {
       const currVersion = createVersionString(STORE_VERSION);
@@ -137,10 +143,6 @@ function PersistedApp() {
       }
     } catch (error) {
       console.error($FUNC, 'Failed to configure persistor', error);
-    } finally {
-      await RNBootSplash.hide({ fade: true }).catch(error =>
-        console.log($FUNC, error),
-      );
     }
   };
 
@@ -168,7 +170,7 @@ function PersistedApp() {
   return (
     <PersistGate
       persistor={persistor}
-      loading={<LoadingContainer />}
+      loading={<SplashScreen />}
       onBeforeLift={handleBeforeLift}>
       <NavigationContainer
         ref={navigationRef}
