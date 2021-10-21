@@ -1,16 +1,22 @@
-import React, { useLayoutEffect } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import {
+  Alert,
   Keyboard,
   KeyboardAvoidingView,
-  SafeAreaView,
+  Linking,
+  PermissionsAndroid,
+  Platform,
   Text,
   TextInput as RNTextInput,
   TextInputProps as RNTextInputProps,
+  ToastAndroid,
+  TouchableOpacity,
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
 
 import * as yup from 'yup';
+import Geolocation from 'react-native-geolocation-service';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { Formik, useField, useFormikContext } from 'formik';
 import { useNavigation } from '@react-navigation/core';
@@ -79,31 +85,12 @@ export default function CreateTextScreen(props: CreateTextScreenProps) {
   };
 
   return (
-    <SafeAreaView
-      style={[
-        layout.defaultScreenStyle,
-        {
-          flex: 1,
-          // backgroundColor: 'pink'
-        },
-      ]}>
-      <TouchableWithoutFeedback
-        onPress={Keyboard.dismiss}
-        style={[
-          {
-            // backgroundColor: 'lightgreen'
-          },
-        ]}>
-        <KeyboardAvoidingView style={{ flex: 1 }}>
-          <Formik
-            initialValues={{ text: '' } as TextPostForm}
-            validationSchema={textPostSchema}
-            onSubmit={handleCreatePost}>
-            <NewTextPostFormikForm />
-          </Formik>
-        </KeyboardAvoidingView>
-      </TouchableWithoutFeedback>
-    </SafeAreaView>
+    <Formik
+      initialValues={{ text: '' } as TextPostForm}
+      validationSchema={textPostSchema}
+      onSubmit={handleCreatePost}>
+      <NewTextPostFormikForm />
+    </Formik>
   );
 }
 
@@ -138,25 +125,26 @@ function NewTextPostFormikForm() {
   }, [navigation, dirty, isSubmitting, isValid, handleSubmit]);
 
   return (
-    <>
-      <TextArea
-        placeholder="What's on your mind?"
-        onBlur={handleBlur('text')}
-        onChangeText={handleChange('text')}
-        style={{ flex: 1 }}
-      />
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          paddingVertical: layout.spacing.md,
-          // backgroundColor: 'lightgreen',
-        }}>
-        <Icon name="location" size={24} color={color.black} />
-        <Spacer.Horizontal value={layout.spacing.sm} />
-        <Text style={[font.medium]}>Select your location…</Text>
-      </View>
-    </>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <KeyboardAvoidingView
+        behavior="padding"
+        keyboardVerticalOffset={100}
+        style={{ flex: 1 }}>
+        <View
+          style={[
+            layout.defaultScreenStyle,
+            { flexGrow: 1, justifyContent: 'space-between' },
+          ]}>
+          <TextArea
+            placeholder="What's on your mind?"
+            onBlur={handleBlur('text')}
+            onChangeText={handleChange('text')}
+            style={{ minHeight: 120 }}
+          />
+          <AttachLocationButton />
+        </View>
+      </KeyboardAvoidingView>
+    </TouchableWithoutFeedback>
   );
 }
 
@@ -174,14 +162,131 @@ function TextArea(props: TextAreaProps) {
       autoFocus
       multiline
       placeholderTextColor={color.gray500}
-      style={[
-        font.large,
-        {
-          textAlignVertical: 'top',
-          // backgroundColor: 'lightblue',
-        },
-        props.style,
-      ]}
+      style={[font.extraLarge, { textAlignVertical: 'top' }, props.style]}
     />
+  );
+}
+
+async function hasPermissionIOS(): Promise<boolean> {
+  const status = await Geolocation.requestAuthorization('whenInUse');
+
+  if (status === 'granted') {
+    return true;
+  }
+
+  if (status === 'denied') {
+    Alert.alert('You have denied location permissions');
+  }
+
+  if (status === 'disabled') {
+    Alert.alert(
+      `Turn on Location Services to allow "Discovrr" to determine your location.`,
+      undefined,
+      [
+        {
+          text: 'Go to Settings',
+          onPress: () =>
+            Linking.openSettings().catch(() =>
+              Alert.alert('Unable to open settings', 'Please try again later.'),
+            ),
+        },
+        { text: "Don't Use Location", onPress: () => {} },
+      ],
+    );
+  }
+
+  return false;
+}
+
+async function hasLocationPermission(): Promise<boolean> {
+  if (Platform.OS === 'ios') {
+    return await hasPermissionIOS();
+  }
+
+  if (Platform.OS === 'android' && Platform.Version < 23) {
+    return true;
+  }
+
+  const hasPermission = await PermissionsAndroid.check(
+    PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+  );
+
+  if (hasPermission) {
+    return true;
+  }
+
+  const status = await PermissionsAndroid.request(
+    PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+  );
+
+  if (status === PermissionsAndroid.RESULTS.GRANTED) {
+    return true;
+  }
+
+  if (status === PermissionsAndroid.RESULTS.DENIED) {
+    ToastAndroid.show('Location permission denied by user.', ToastAndroid.LONG);
+  } else if (status === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN) {
+    ToastAndroid.show(
+      'Location permission revoked by user.',
+      ToastAndroid.LONG,
+    );
+  }
+
+  return false;
+}
+
+function AttachLocationButton() {
+  const [location, setLocation] = useState<Geolocation.GeoPosition | null>(
+    null,
+  );
+
+  useEffect(() => {
+    return () => {
+      console.log('Stopping Geolocation observation…');
+      Geolocation.stopObserving();
+    };
+  }, []);
+
+  const getCurrentLocation = async () => {
+    const hasPermission = await hasLocationPermission();
+    if (!hasPermission) return;
+
+    Geolocation.getCurrentPosition(
+      position => {
+        console.log('CURRENT LOCATION:', position);
+        setLocation(position);
+      },
+      error => {
+        console.error('ERROR:', error);
+        Alert.alert('Failed to get current location', error.message);
+        setLocation(null);
+      },
+      {
+        accuracy: {
+          android: 'high',
+          ios: 'best',
+        },
+        timeout: 15_000,
+        maximumAge: 10_000,
+      },
+    );
+  };
+
+  return (
+    <TouchableOpacity
+      onPress={getCurrentLocation}
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: layout.spacing.md,
+      }}>
+      <Icon name="location" size={24} color={color.black} />
+      <Spacer.Horizontal value={layout.spacing.sm} />
+      <Text style={[font.medium]}>
+        {location
+          ? `(${location.coords.latitude},${location.coords.longitude})`
+          : 'Get my current location…'}
+      </Text>
+    </TouchableOpacity>
   );
 }

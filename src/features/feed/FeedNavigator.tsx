@@ -16,20 +16,13 @@ export default function FeedNavigator() {
       initialRouteName="DiscoverFeed"
       screenOptions={{
         lazy: true,
-        tabBarStyle: { backgroundColor: color.white },
+        tabBarLabelStyle: font.defaultTabBarLabelStyle,
         tabBarActiveTintColor: color.accent,
         tabBarInactiveTintColor: color.gray500,
         tabBarPressColor: color.gray200,
-        tabBarBounces: true,
-        tabBarLabelStyle: {
-          textTransform: 'none',
-          fontFamily: font.FONT_FAMILY_REGULAR,
-          fontSize: font.size.md,
-        },
       }}
       sceneContainerStyle={{
         backgroundColor: color.gray100,
-        // backgroundColor: color.white,
       }}>
       <FeedTopTab.Screen
         name="DiscoverFeed"
@@ -39,7 +32,6 @@ export default function FeedNavigator() {
       <FeedTopTab.Screen
         name="NearMeFeed"
         component={NearMeFeed}
-        // component={PlaceholderScreen}
         options={{ title: 'Near Me' }}
       />
       <FeedTopTab.Screen

@@ -11,7 +11,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   RefreshControl,
-  SafeAreaView,
   Share,
   StyleSheet,
   Text,
@@ -27,7 +26,10 @@ import BottomSheet from '@gorhom/bottom-sheet';
 import FastImage from 'react-native-fast-image';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/core';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 
 import { MediaSource } from 'src/api';
 import { Comment, CommentId, Post, Profile } from 'src/models';
@@ -253,7 +255,9 @@ export default function PostDetailsScreenWrapper(
     <AsyncGate
       data={postData}
       onPending={() => (
-        <SafeAreaView style={{ flexGrow: 1, justifyContent: 'center' }}>
+        <SafeAreaView
+          edges={['bottom', 'left', 'right']}
+          style={{ flexGrow: 1, justifyContent: 'center' }}>
           <LoadingContainer message="Loading post..." />
         </SafeAreaView>
       )}
@@ -402,7 +406,9 @@ function PostDetailsScreen({ post }: PostDetailsScreenProps) {
   }, [replyContext]);
 
   return (
-    <SafeAreaView style={{ flexGrow: 1 }}>
+    <SafeAreaView
+      edges={['left', 'right']}
+      style={{ flexGrow: 1, marginBottom: bottomInset }}>
       <KeyboardAvoidingView
         behavior="padding"
         keyboardVerticalOffset={

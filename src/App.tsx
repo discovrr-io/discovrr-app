@@ -19,6 +19,7 @@ import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import { persistStore } from 'redux-persist';
 import { PortalProvider } from '@gorhom/portal';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import {
   DefaultTheme,
@@ -89,11 +90,13 @@ function App() {
   }, []);
 
   return (
-    <PortalProvider>
-      <Provider store={store}>
-        <PersistedApp />
-      </Provider>
-    </PortalProvider>
+    <SafeAreaProvider>
+      <PortalProvider>
+        <Provider store={store}>
+          <PersistedApp />
+        </Provider>
+      </PortalProvider>
+    </SafeAreaProvider>
   );
 }
 

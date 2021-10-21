@@ -2,6 +2,7 @@ import React from 'react';
 
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import CreateTextScreen from './CreateTextScreen';
 import { HeaderIcon, PlaceholderScreen } from 'src/components';
@@ -17,6 +18,8 @@ const CreateItemDetailsTopTab =
   createMaterialTopTabNavigator<CreateItemDetailsTopTabParamList>();
 
 function CreateItemDetailsNavigator() {
+  const insets = useSafeAreaInsets();
+
   return (
     <CreateItemDetailsTopTab.Navigator
       initialRouteName="CreateText"
@@ -24,6 +27,15 @@ function CreateItemDetailsNavigator() {
       screenOptions={{
         tabBarScrollEnabled: true,
         tabBarLabelStyle: font.defaultTabBarLabelStyle,
+        tabBarActiveTintColor: color.accent,
+        tabBarInactiveTintColor: color.gray500,
+        tabBarPressColor: color.gray200,
+        tabBarContentContainerStyle: {
+          paddingBottom: insets.bottom,
+        },
+        tabBarIndicatorStyle: {
+          top: 0,
+        },
       }}>
       <CreateItemDetailsTopTab.Screen
         name="CreateText"
