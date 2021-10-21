@@ -22,6 +22,7 @@ import {
 } from '@react-navigation/material-top-tabs';
 
 import { NoteId, PostId, ProfileId } from './models';
+import { InAppWebViewNavigationScreenParams } from './components/InAppWebView';
 
 declare global {
   namespace ReactNavigation {
@@ -75,6 +76,7 @@ export type RootStackParamList = {
   LocationAccuracySettings: SettingsStackParamList['LocationAccuracySettings'];
   NotificationSettings: SettingsStackParamList['NotificationSettings'];
   // -- Miscellaneous --
+  InAppWebView: InAppWebViewNavigationScreenParams;
   RouteError: undefined;
 };
 

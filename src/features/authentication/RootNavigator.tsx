@@ -4,7 +4,12 @@ import codePush from 'react-native-code-push';
 import messaging from '@react-native-firebase/messaging';
 import { nanoid } from '@reduxjs/toolkit';
 
-import { HeaderIcon, PlaceholderScreen, RouteError } from 'src/components';
+import {
+  HeaderIcon,
+  InAppWebView,
+  PlaceholderScreen,
+  RouteError,
+} from 'src/components';
 import { color, font } from 'src/constants';
 import { useAppDispatch, useAppSelector } from 'src/hooks';
 import { NotificationId } from 'src/models';
@@ -141,6 +146,21 @@ export default function RootNavigator() {
       {renderSettingsNavigator()}
 
       {/* -- Miscellaneous -- */}
+      <RootStack.Screen
+        name="InAppWebView"
+        component={InAppWebView}
+        options={({ route }) => {
+          const { title, presentation } = route.params;
+          return {
+            title,
+            presentation,
+            headerLeft:
+              presentation === 'modal' || presentation === 'transparentModal'
+                ? HeaderIcon.Close
+                : HeaderIcon.Back,
+          };
+        }}
+      />
       <RootStack.Screen
         name="RouteError"
         component={RouteError}

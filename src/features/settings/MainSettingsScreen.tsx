@@ -16,7 +16,7 @@ import Parse from 'parse/react-native';
 import * as constants from 'src/constants';
 import * as values from 'src/constants/values';
 import { Spacer } from 'src/components';
-import { SettingsStackScreenProps } from 'src/navigation';
+import { RootStackScreenProps } from 'src/navigation';
 
 import Cell from './components';
 import { CELL_GROUP_VERTICAL_SPACING } from './components/CellGroup';
@@ -25,9 +25,9 @@ import { resetAppState } from 'src/global-actions';
 
 const UPDATE_INDICATOR_DIAMETER = 9;
 
-type MainSettingsScreenProps = SettingsStackScreenProps<'MainSettings'>;
+type MainSettingsScreenProps = RootStackScreenProps<'MainSettings'>;
 
-export default function MainSettingsScreen(_: MainSettingsScreenProps) {
+export default function MainSettingsScreen(props: MainSettingsScreenProps) {
   const dispatch = useAppDispatch();
 
   const handlePressClearCache = () => {
@@ -96,10 +96,22 @@ export default function MainSettingsScreen(_: MainSettingsScreenProps) {
           <Cell.Navigator
             label="About Discovrr"
             iconName="information-circle-outline"
+            onPress={() => {
+              props.navigation.navigate('InAppWebView', {
+                title: 'About Discovrr',
+                destination: 'about-discovrr',
+              });
+            }}
           />
           <Cell.Navigator
             label="Terms and Conditions"
             iconName="receipt-outline"
+            onPress={() => {
+              props.navigation.navigate('InAppWebView', {
+                title: 'Terms and Conditions',
+                destination: 'terms-and-conditions',
+              });
+            }}
           />
         </Cell.Group>
         <Spacer.Vertical value={CELL_GROUP_VERTICAL_SPACING} />
