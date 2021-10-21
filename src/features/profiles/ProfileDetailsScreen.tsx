@@ -46,9 +46,9 @@ import VendorProfileHeader from './vendor/VendorProfileHeader';
 import { fetchProfileById } from './profiles-slice';
 import { useIsMyProfile, useProfile } from './hooks';
 
-type ProfileScreenProps = ProfileStackScreenProps<'ProfileDetails'>;
+type ProfileDetailsScreenProps = ProfileStackScreenProps<'ProfileDetails'>;
 
-export default function ProfileScreen(props: ProfileScreenProps) {
+export default function ProfileDetailsScreen(props: ProfileDetailsScreenProps) {
   const { profileId } = props.route.params;
   const profileData = useProfile(profileId);
 
@@ -66,19 +66,19 @@ export default function ProfileScreen(props: ProfileScreenProps) {
       )}
       onFulfilled={profile => {
         if (!profile) return renderRouteError();
-        return <LoadedProfileScreen profile={profile} />;
+        return <LoadedProfileDetailsScreen profile={profile} />;
       }}
       onRejected={renderRouteError}
     />
   );
 }
 
-function LoadedProfileScreen(props: { profile: Profile }) {
-  const $FUNC = '[UserProfileScreen]';
+function LoadedProfileDetailsScreen(props: { profile: Profile }) {
+  const $FUNC = '[LoadedProfileDetailsScreen]';
   const { profile } = props;
 
   const dispatch = useAppDispatch();
-  const navigation = useNavigation<ProfileScreenProps['navigation']>();
+  const navigation = useNavigation<ProfileDetailsScreenProps['navigation']>();
   const isMounted = useIsMounted();
 
   const [isInitialRender, setIsInitialRender] = useState(true);
@@ -219,7 +219,7 @@ function LoadedProfileScreen(props: { profile: Profile }) {
                     ? "You haven't"
                     : (profile.displayName || 'This user') + " hasn't"
                 } posted anything yet.`}
-                containerStyle={userProfileScreenStyles.emptyContainer}
+                containerStyle={profileDetailsScreenStyles.emptyContainer}
               />
             }
           />
@@ -234,7 +234,7 @@ function LoadedProfileScreen(props: { profile: Profile }) {
                   ? "You haven't"
                   : (profile.displayName || 'This user') + " hasn't"
               } shared any public notes.`}
-              containerStyle={userProfileScreenStyles.emptyContainer}
+              containerStyle={profileDetailsScreenStyles.emptyContainer}
             />
           </Tabs.ScrollView>
         </Tabs.Tab>
@@ -247,7 +247,7 @@ function LoadedProfileScreen(props: { profile: Profile }) {
   );
 }
 
-const userProfileScreenStyles = StyleSheet.create({
+const profileDetailsScreenStyles = StyleSheet.create({
   emptyContainer: {
     paddingTop: layout.spacing.huge,
   },

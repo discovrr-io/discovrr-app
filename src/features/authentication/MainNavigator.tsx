@@ -8,7 +8,7 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 import HomeNavigator from 'src/features/home/HomeNavigator';
 import ExploreNavigator from 'src/features/explore/ExploreNavigator';
 import NotificationsScreen from 'src/features/notifications/NotificationsScreen';
-import ProfileScreen from 'src/features/profiles/ProfileScreen';
+import ProfileDetailsScreen from 'src/features/profiles/ProfileDetailsScreen';
 
 import { color, font, layout } from 'src/constants';
 import { DEFAULT_MIN_BOTTOM_TAB_BAR_HEIGHT } from 'src/constants/values';
@@ -121,7 +121,7 @@ function FacadeNavigator() {
             setTimeout(() => {
               navigation.navigate('Explore', {
                 screen: 'Search',
-                params: { screen: 'Query' },
+                params: { screen: 'SearchQuery' },
               });
             }, 80);
           },
@@ -152,7 +152,7 @@ function FacadeNavigator() {
       />
       <FacadeBottomTab.Screen
         name="__MyProfile"
-        component={ProfileScreen}
+        component={ProfileDetailsScreen}
         options={{ title: 'My Profile' }}
         listeners={({
           navigation,

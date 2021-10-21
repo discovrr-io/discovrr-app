@@ -59,7 +59,9 @@ export default function ExploreNavigator() {
               {...props}
               name="search"
               size={24}
-              onPress={() => navigation.navigate('Search', { screen: 'Query' })}
+              onPress={() =>
+                navigation.navigate('Search', { screen: 'SearchQuery' })
+              }
             />
           ),
           headerLeftContainerStyle: {

@@ -2,7 +2,7 @@ import React from 'react';
 
 import { RootStack } from 'src/navigation';
 
-import ProfileDetailsScreen from './ProfileScreen';
+import ProfileDetailsScreen from './ProfileDetailsScreen';
 import ProfileFollowActivityScreen from './ProfileFollowActivityScreen';
 
 export default function renderProfileNavigator() {
