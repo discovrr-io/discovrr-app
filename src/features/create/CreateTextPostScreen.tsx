@@ -1,8 +1,8 @@
-import React, { useLayoutEffect } from 'react';
+import React, { useCallback } from 'react';
 import {
   Keyboard,
+  Text,
   TextInput as RNTextInput,
-  TextInputProps as RNTextInputProps,
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
@@ -10,6 +10,7 @@ import {
 import * as yup from 'yup';
 import { Formik, useField, useFormikContext } from 'formik';
 import { useNavigation } from '@react-navigation/core';
+import { useFocusEffect } from '@react-navigation/native';
 
 import { Button } from 'src/components';
 import { color, font, layout } from 'src/constants';
@@ -31,7 +32,7 @@ const textPostSchema = yup.object({
     .max(280, 'Your post is too long! Please enter at most 280 characters.')
     .test('has at least 3 words', 'Please enter at least 3 words', value => {
       if (!value) return false;
-      return value.trim().split(' ').length >= 3;
+      return value.trim().split(/\s/).length >= 3;
     }),
 });
 
@@ -87,62 +88,55 @@ export default function CreateTextPostScreen(props: CreateTextPostScreenProps) {
 
 function NewTextPostFormikForm() {
   const navigation = useNavigation<CreateTextPostScreenProps['navigation']>();
-  const {
-    dirty,
-    isSubmitting,
-    isValid,
-    handleBlur,
-    handleChange,
-    handleSubmit,
-  } = useFormikContext<TextPostForm>();
+  const { handleSubmit } = useFormikContext<TextPostForm>();
 
-  useLayoutEffect(() => {
-    navigation.getParent<CreateItemStackNavigationProp>().setOptions({
-      headerRight: () => {
-        const canSubmit = dirty && isValid && !isSubmitting;
-        return (
+  useFocusEffect(
+    useCallback(() => {
+      navigation.getParent<CreateItemStackNavigationProp>().setOptions({
+        headerRight: () => (
           <Button
             title="Next"
             type="primary"
             size="medium"
-            disabled={!canSubmit}
-            // loading={isSubmitting}
             onPress={handleSubmit}
           />
-        );
-      },
-    });
-  }, [navigation, dirty, isSubmitting, isValid, handleSubmit]);
+        ),
+      });
+    }, [navigation, handleSubmit]),
+  );
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={[layout.defaultScreenStyle, { flex: 1 }]}>
-        <TextArea
-          autoFocus
-          placeholder="What's on your mind?"
-          onBlur={handleBlur('text')}
-          onChangeText={handleChange('text')}
-          style={{ minHeight: '25%' /* backgroundColor: 'pink' */ }}
-        />
+        <TextArea fieldName="text" placeholder="What's on your mind?" />
       </View>
     </TouchableWithoutFeedback>
   );
 }
 
-type TextAreaProps = RNTextInputProps;
+type TextAreaProps = {
+  fieldName: string;
+  placeholder?: string;
+};
 
 function TextArea(props: TextAreaProps) {
-  const [_field, _meta, _helpers] = useField({
-    name: 'text-area',
-    type: 'text',
-  });
-
+  const [field, meta, _helpers] = useField(props.fieldName);
   return (
-    <RNTextInput
-      {...props}
-      multiline
-      placeholderTextColor={color.gray500}
-      style={[font.h3, { textAlignVertical: 'top' }, props.style]}
-    />
+    <>
+      <RNTextInput
+        multiline
+        placeholder={props.placeholder}
+        placeholderTextColor={color.gray500}
+        value={field.value}
+        onChangeText={field.onChange('text')}
+        onBlur={field.onBlur('text')}
+        style={[font.h3, { textAlignVertical: 'top', minHeight: '25%' }]}
+      />
+      {meta.touched && meta.error && (
+        <Text style={[font.smallBold, { color: color.danger }]}>
+          {meta.error}
+        </Text>
+      )}
+    </>
   );
 }

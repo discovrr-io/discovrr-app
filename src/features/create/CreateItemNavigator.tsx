@@ -6,15 +6,16 @@ import { createMaterialTopTabNavigator } from '@react-navigation/material-top-ta
 import { createStackNavigator } from '@react-navigation/stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import CreateTextPostScreen from './CreateTextPostScreen';
-import CreateItemPreviewScreen from './CreateItemPreviewScreen';
 import { HeaderIcon, PlaceholderScreen } from 'src/components';
 import { color, font, layout } from 'src/constants';
-
 import {
   CreateItemDetailsTopTabParamList,
   CreateItemStackParamList,
 } from 'src/navigation';
+
+import CreateTextPostScreen from './CreateTextPostScreen';
+import CreateGalleryPostScreen from './CreateGalleryPostScreen';
+import CreateItemPreviewScreen from './CreateItemPreviewScreen';
 
 const TAB_ICON_SIZE = 24;
 
@@ -30,7 +31,8 @@ type TabBarIconProps = {
 
 const TabBarIcon = (props: TabBarIconProps) => (
   <Icon
-    name={props.name}
+    name={`${props.name}-outline`}
+    // name={props.focused ? props.name : props.name + '-outline'}
     color={props.focused ? props.color : color.gray500}
     size={props.size ?? TAB_ICON_SIZE}
   />
@@ -75,15 +77,15 @@ function CreateItemDetailsNavigator() {
         component={CreateTextPostScreen}
         options={{
           title: 'Text',
-          tabBarIcon: props => <TabBarIcon name="text-outline" {...props} />,
+          tabBarIcon: props => <TabBarIcon name="text" {...props} />,
         }}
       />
       <CreateItemDetailsTopTab.Screen
         name="CreateGalleryPost"
-        component={PlaceholderScreen}
+        component={CreateGalleryPostScreen}
         options={{
           title: 'Gallery',
-          tabBarIcon: props => <TabBarIcon name="images-outline" {...props} />,
+          tabBarIcon: props => <TabBarIcon name="images" {...props} />,
         }}
       />
       <CreateItemDetailsTopTab.Screen
@@ -91,7 +93,7 @@ function CreateItemDetailsNavigator() {
         component={PlaceholderScreen}
         options={{
           title: 'Video',
-          tabBarIcon: props => <TabBarIcon name="film-outline" {...props} />,
+          tabBarIcon: props => <TabBarIcon name="film" {...props} />,
         }}
       />
       {__IS_VENDOR && (
@@ -100,7 +102,7 @@ function CreateItemDetailsNavigator() {
           component={PlaceholderScreen}
           options={{
             title: 'Product',
-            tabBarIcon: props => <TabBarIcon name="gift-outline" {...props} />,
+            tabBarIcon: props => <TabBarIcon name="gift" {...props} />,
           }}
         />
       )}
@@ -110,7 +112,7 @@ function CreateItemDetailsNavigator() {
           component={PlaceholderScreen}
           options={{
             title: 'Workshop',
-            tabBarIcon: props => <TabBarIcon name="brush-outline" {...props} />,
+            tabBarIcon: props => <TabBarIcon name="brush" {...props} />,
           }}
         />
       )}

@@ -180,7 +180,7 @@ export function MainSettingsScreenFooter() {
           onPress={() =>
             Alert.alert(
               'You’re Up to Date',
-              "You're currently on the latest version of Discovrr. Awesome!",
+              "You're currently on the latest version of Discovrr.",
             )
           }>
           <View style={footerStyles.container}>
