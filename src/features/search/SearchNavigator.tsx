@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   TextInput as RNTextInput,
   SafeAreaView,
@@ -38,23 +38,26 @@ import { addToSearchQueryHistory } from './search-slice';
 const HEADER_HORIZONTAL_PADDING = layout.defaultScreenMargins.horizontal;
 const HEADER_TEXT_INPUT_ICON_SIZE = 24;
 
-function SearchHeaderContent() {
+function SearchHeaderContent(props: { initialText?: string }) {
   const dispatch = useAppDispatch();
   const navigation = useNavigation<SearchStackNavigationProp>();
 
   const textInputRef = useRef<RNTextInput>(null);
   const [searchText, setSearchText] = useState('');
 
-  // Focus the text input when the screen with the header is focused
+  // Focus the text input when the navigation is focused
   useFocusEffect(
     useCallback(() => {
       textInputRef.current?.focus();
     }, []),
   );
 
+  useEffect(() => {
+    if (props.initialText) setSearchText(props.initialText);
+  }, [props.initialText]);
+
   const handleClearQuery = () => {
     setSearchText('');
-    navigation.navigate('SearchQuery');
     textInputRef.current?.focus();
   };
 
@@ -62,10 +65,7 @@ function SearchHeaderContent() {
     const query = searchText.trim();
     if (query.length > 0) {
       dispatch(addToSearchQueryHistory(query));
-      navigation.navigate('SearchResults', {
-        screen: 'SearchResultsUsers',
-        params: { query },
-      });
+      navigation.navigate('SearchResults', { query });
     }
   };
 
@@ -129,7 +129,13 @@ function SearchHeader(
   );
 }
 
-function SearchQueryHeader(props: StackHeaderProps) {
+type SearchQueryHeaderProps = StackHeaderProps & {
+  query?: string;
+};
+
+function SearchQueryHeader(props: SearchQueryHeaderProps) {
+  const { query, ...restProps } = props;
+
   const handleCancelSearch = () => {
     Keyboard.dismiss();
     props.navigation.goBack();
@@ -137,9 +143,9 @@ function SearchQueryHeader(props: StackHeaderProps) {
 
   return (
     <SearchHeader
-      {...props}
+      {...restProps}
       containerStyle={{ paddingHorizontal: HEADER_HORIZONTAL_PADDING }}>
-      <SearchHeaderContent />
+      <SearchHeaderContent initialText={query} />
       <Spacer.Horizontal value="md" />
       <Button
         title="Cancel"
@@ -157,15 +163,20 @@ type SearchResultsHeaderProps = StackHeaderProps & {
 
 function SearchResultsHeader(props: SearchResultsHeaderProps) {
   const { query, ...restProps } = props;
+
+  const handleNavigateBackToQueryScreen = () => {
+    restProps.navigation.navigate('SearchQuery', { query });
+  };
+
   return (
     <SearchHeader
       {...restProps}
       containerStyle={{ paddingRight: HEADER_HORIZONTAL_PADDING }}>
-      <HeaderIcon.Back />
+      <HeaderIcon.Back onPress={handleNavigateBackToQueryScreen} />
       <TouchableHighlight
         underlayColor={color.gray200}
-        onPress={() => restProps.navigation.goBack()}
-        onLongPress={() => restProps.navigation.goBack()}
+        onPress={handleNavigateBackToQueryScreen}
+        onLongPress={handleNavigateBackToQueryScreen}
         style={{
           flexGrow: 1,
           justifyContent: 'center',
@@ -197,6 +208,7 @@ export default function SearchNavigator() {
     <SearchStack.Navigator
       initialRouteName="SearchQuery"
       screenOptions={{
+        // headerShown: false,
         headerTintColor: color.black,
         headerBackTitleVisible: false,
         headerTitleStyle: font.defaultHeaderTitleStyle,
@@ -212,15 +224,18 @@ export default function SearchNavigator() {
       <SearchStack.Screen
         name="SearchQuery"
         component={SearchQueryScreen}
-        options={{
-          header: SearchQueryHeader,
+        options={({ route }) => {
+          const query = route.params?.query;
+          return {
+            header: props => <SearchQueryHeader {...props} query={query} />,
+          };
         }}
       />
       <SearchStack.Screen
         name="SearchResults"
         component={SearchResultsNavigator}
         options={({ route }) => {
-          const query = route.params.params?.query;
+          const query = route.params.query;
           return {
             header: props => <SearchResultsHeader {...props} query={query} />,
             headerStyle: {

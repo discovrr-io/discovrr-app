@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { FlatListProps, RefreshControl, SafeAreaView } from 'react-native';
 
+import _ from 'lodash';
 import Parse from 'parse/react-native';
 import { FlatList } from 'react-native-gesture-handler';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
@@ -23,39 +24,100 @@ import {
   SearchStackScreenProps,
 } from 'src/navigation';
 
-async function fetchUsersBySearchQuery(query: string): Promise<ProfileId[]> {
-  const displayNameQuery = new Parse.Query(Parse.Object.extend('Profile'));
-  displayNameQuery.fullText('displayName', query);
-  displayNameQuery.ascending('$score');
-  displayNameQuery.select('$score');
-
-  const results = await displayNameQuery.find();
-  return results.map(it => it.id as ProfileId);
+function sortProfileIdsByOccurrence(profileIds: string[]): ProfileId[] {
+  return _.chain(profileIds)
+    .countBy() // Count all the occurrences
+    .toPairs() // Map to a [profileId, occurrence] tuple pair
+    .sortBy(1) // Sort by the second index of the tuple (the occurrence)
+    .reverse() // Reverse the result - descending order
+    .map(([id]) => id as ProfileId) // Map out all the profileIds
+    .value();
 }
 
-// async function fetchMakersBySearchQuery(query: string): Promise<ProfileId[]> {
-//   const businessNameQuery = new Parse.Query('VendorProfile');
-//   businessNameQuery.fullText('businessName', query);
-//   businessNameQuery.ascending('$score');
-//   businessNameQuery.select('$score');
-//
-//   const displayNameQuery = new Parse.Query('VendorProfile');
-//   displayNameQuery.include('profile');
-//   displayNameQuery.fullText('displayName', query);
-//   displayNameQuery.ascending('$score');
-//   displayNameQuery.select('$score');
-//
-//   const results = await Parse.Query.or(
-//     businessNameQuery,
-//     displayNameQuery,
-//   ).find();
-//
-//   return results.map(it => it.id as ProfileId);
-// }
+async function fetchUsersBySearchQuery(query: string): Promise<ProfileId[]> {
+  const displayNameQuery = new Parse.Query('Profile')
+    .fullText('displayName', query)
+    .ascending('$score')
+    .select('$score');
+
+  const biographyQuery = new Parse.Query('PersonalProfile')
+    .include('profile')
+    .fullText('biography', query)
+    .ascending('$score')
+    .select('$score', 'profile');
+
+  const [displayNameResults, biographyResults] = await Promise.all([
+    displayNameQuery.find(),
+    biographyQuery.find(),
+  ]);
+
+  const getProfileId = (item: Parse.Object): string => item.get('profile').id;
+  const displayNameResultsProfileIds = displayNameResults.map(it => it.id);
+  const biographyResultsProfileIds = biographyResults.map(getProfileId);
+
+  console.log({
+    displayNameResultsProfileIds,
+    biographyResultsProfileIds,
+  });
+
+  const allProfileIds = [
+    ...displayNameResultsProfileIds,
+    ...biographyResultsProfileIds,
+  ];
+
+  return sortProfileIdsByOccurrence(allProfileIds);
+}
+
+async function fetchMakersBySearchQuery(query: string): Promise<ProfileId[]> {
+  const businessNameQuery = new Parse.Query('VendorProfile')
+    .include('profile')
+    .fullText('businessName', query)
+    .ascending('$score')
+    .select('$score', 'profile');
+
+  const displayNameQuery = new Parse.Query(Parse.Object.extend('Profile'))
+    .equalTo('kind', 'vendor')
+    .fullText('displayName', query)
+    .ascending('$score')
+    .select('$score');
+
+  const biographyQuery = new Parse.Query(Parse.Object.extend('VendorProfile'))
+    .include('profile')
+    .fullText('biography', query)
+    .ascending('$score')
+    .select('$score', 'profile');
+
+  const [businessNameResults, displayNameResults, biographyResults] =
+    await Promise.all([
+      businessNameQuery.find(),
+      displayNameQuery.find(),
+      biographyQuery.find(),
+    ]);
+
+  const getProfileId = (item: Parse.Object): string => item.get('profile').id;
+  const businessNameResultsProfileIds = businessNameResults.map(getProfileId);
+  const biographyResultsProfileIds = biographyResults.map(getProfileId);
+  const displayNameResultsProfileIds = displayNameResults.map(item => item.id);
+
+  console.log({
+    businessNameResultsProfileIds,
+    displayNameResultsProfileIds,
+    biographyResultsProfileIds,
+  });
+
+  const allProfileIds = [
+    ...businessNameResultsProfileIds,
+    ...displayNameResultsProfileIds,
+    ...biographyResultsProfileIds,
+  ];
+
+  return sortProfileIdsByOccurrence(allProfileIds);
+}
 
 type SearchResultTabWrapperProps<ItemT> = SearchResultsTopTabScreenProps<
   keyof SearchResultsTopTabParamList
 > & {
+  query: string;
   fetchData: (query: string) => ItemT[] | Promise<ItemT[]>;
   renderItem: FlatListProps<ItemT>['renderItem'];
   keyExtractor?: FlatListProps<ItemT>['keyExtractor'];
@@ -65,8 +127,7 @@ function SearchResultsTabWrapper<ItemT>(
   props: SearchResultTabWrapperProps<ItemT>,
 ) {
   const $FUNC = '[SearchResultsTabWrapper]';
-  const { keyExtractor, fetchData, renderItem } = props;
-  const query = props.route.params.query;
+  const { query, fetchData, renderItem, keyExtractor } = props;
   const isMounted = useIsMounted();
 
   const [data, setData] = useState<ItemT[]>([]);
@@ -131,7 +192,10 @@ type SearchResultsNavigatorProps = SearchStackScreenProps<'SearchResults'>;
 const SearchResultsTopTab =
   createMaterialTopTabNavigator<SearchResultsTopTabParamList>();
 
-export default function SearchResultsNavigator(_: SearchResultsNavigatorProps) {
+export default function SearchResultsNavigator(
+  props: SearchResultsNavigatorProps,
+) {
+  const query = props.route.params.query;
   return (
     <SearchResultsTopTab.Navigator
       initialRouteName="SearchResultsUsers"
@@ -150,29 +214,26 @@ export default function SearchResultsNavigator(_: SearchResultsNavigatorProps) {
         {props => (
           <SearchResultsTabWrapper
             {...props}
-            keyExtractor={item => String(item)}
+            query={query}
             fetchData={fetchUsersBySearchQuery}
             renderItem={({ item }) => <ProfileListItem profileId={item} />}
+            keyExtractor={item => String(item)}
           />
         )}
       </SearchResultsTopTab.Screen>
-      {/* <SearchResultsTopTab.Screen
+      <SearchResultsTopTab.Screen
         name="SearchResultsMakers"
         options={{ title: 'Makers' }}>
         {props => (
           <SearchResultsTabWrapper
             {...props}
-            keyExtractor={item => String(item)}
+            query={query}
             fetchData={fetchMakersBySearchQuery}
             renderItem={({ item }) => <ProfileListItem profileId={item} />}
+            keyExtractor={item => String(item)}
           />
         )}
-      </SearchResultsTopTab.Screen> */}
-      <SearchResultsTopTab.Screen
-        name="SearchResultsMakers"
-        component={PlaceholderScreen}
-        options={{ title: 'Makers' }}
-      />
+      </SearchResultsTopTab.Screen>
       <SearchResultsTopTab.Screen
         name="SearchResultsProducts"
         component={PlaceholderScreen}

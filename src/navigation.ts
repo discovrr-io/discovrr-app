@@ -187,8 +187,8 @@ export type FeedTopTabScreenProps<K extends keyof FeedTopTabParamList> =
 //#region SEARCH STACK
 
 export type SearchStackParamList = {
-  SearchQuery: undefined;
-  SearchResults: NavigatorScreenParams<SearchResultsTopTabParamList>;
+  SearchQuery: { query: string } | undefined;
+  SearchResults: { query: string };
 };
 
 export type SearchStackNavigationProp = StackNavigationProp<
@@ -213,11 +213,10 @@ export const SearchResultsTopTabNames = [
 ] as const;
 
 type SearchResultsTopTabKeyUnion = typeof SearchResultsTopTabNames[number];
-type SearchResultsQueryParams = { query: string };
 
 export type SearchResultsTopTabParamList = Record<
   SearchResultsTopTabKeyUnion,
-  SearchResultsQueryParams
+  undefined
 >;
 
 export type SearchResultsTopTabNavigationProp = StackNavigationProp<
