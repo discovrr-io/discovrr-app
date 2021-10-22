@@ -33,7 +33,6 @@ import {
 
 import { MediaSource } from 'src/api';
 import { Comment, CommentId, Post, Profile } from 'src/models';
-import { PostType } from 'src/models/post';
 import { useAppDispatch, useAppSelector, useIsMounted } from 'src/hooks';
 import { PostStackNavigationProp, PostStackScreenProps } from 'src/navigation';
 import { alertSomethingWentWrong } from 'src/utilities';
@@ -585,7 +584,7 @@ function PostDetailsContent(props: PostDetailsContentProps) {
 
   const renderPostContent = useCallback(() => {
     switch (post.contents.type) {
-      case PostType.GALLERY:
+      case 'gallery':
         return (
           <View>
             <Carousel
@@ -626,11 +625,11 @@ function PostDetailsContent(props: PostDetailsContentProps) {
             </Text>
           </View>
         );
-      case PostType.VIDEO:
+      case 'video':
         return (
           <Text style={[font.large, { textAlign: 'center' }]}>[VIDEO]</Text>
         );
-      case PostType.TEXT: /* FALLTHROUGH */
+      case 'text': /* FALLTHROUGH */
       default:
         return (
           <View style={postDetailsContentStyles.dialogBox}>

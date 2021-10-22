@@ -5,6 +5,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import CreateTextScreen from './CreateTextScreen';
+import CreateItemPreviewScreen from './CreateItemPreviewScreen';
 import { HeaderIcon, PlaceholderScreen } from 'src/components';
 import { color, font, layout } from 'src/constants';
 
@@ -60,25 +61,29 @@ export default function CreateNavigator() {
   return (
     <CreateItemStack.Navigator
       initialRouteName="CreateItemDetails"
-      screenOptions={{
-        headerLeft: props => <HeaderIcon.Close {...props} />,
+      screenOptions={({ route }) => ({
+        headerTintColor: color.black,
+        headerBackTitleVisible: false,
+        headerTitleStyle: font.defaultHeaderTitleStyle,
+        headerLeft: props =>
+          route.name === 'CreateItemDetails' ? (
+            <HeaderIcon.Close {...props} />
+          ) : (
+            <HeaderIcon.Back {...props} />
+          ),
         headerLeftContainerStyle: {
           paddingLeft: layout.defaultScreenMargins.horizontal,
         },
-      }}>
+      })}>
       <CreateItemStack.Screen
         name="CreateItemDetails"
         component={CreateItemDetailsNavigator}
-        options={{
-          title: 'New Post',
-          headerTintColor: color.black,
-          headerBackTitleVisible: false,
-          headerTitleStyle: font.defaultHeaderTitleStyle,
-        }}
+        options={{ title: 'New Post' }}
       />
       <CreateItemStack.Screen
         name="CreateItemPreview"
-        component={PlaceholderScreen}
+        component={CreateItemPreviewScreen}
+        options={{ title: 'Preview' }}
       />
     </CreateItemStack.Navigator>
   );

@@ -9,21 +9,10 @@ import { ProfileId } from './profile';
  */
 export type PostId = EntityId & { __postIdBrand: any };
 
-/**
- * The type of a given post.
- *
- * A post is either just text, a gallery of images or a video.
- */
-export enum PostType {
-  TEXT = 'text',
-  GALLERY = 'gallery',
-  VIDEO = 'video',
-}
-
 export type PostContents =
-  | { type: PostType.TEXT; text: string }
-  | { type: PostType.GALLERY; sources: MediaSource[]; caption: string }
-  | { type: PostType.VIDEO; source: MediaSource; caption: string };
+  | { type: 'text'; text: string }
+  | { type: 'gallery'; sources: MediaSource[]; caption: string }
+  | { type: 'video'; source: MediaSource; caption: string };
 
 export type PostLocation = {
   /**

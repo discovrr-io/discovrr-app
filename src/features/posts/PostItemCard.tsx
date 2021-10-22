@@ -1,10 +1,10 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Video from 'react-native-video';
-import { useIsFocused, useNavigation } from '@react-navigation/core';
+import { useNavigation } from '@react-navigation/core';
 
 import { AsyncGate, Card } from 'src/components';
 import { CardActionsProps } from 'src/components/cards/CardActions';
@@ -16,7 +16,6 @@ import { RootStackNavigationProp } from 'src/navigation';
 
 import { MediaSource } from 'src/api';
 import { Post, PostId, Profile, ProfileId } from 'src/models';
-import { PostType } from 'src/models/post';
 
 import { useIsMyProfile, useProfile } from 'src/features/profiles/hooks';
 import { useAppDispatch, useOverridableContextOptions } from 'src/hooks';
@@ -34,6 +33,7 @@ import {
 
 import { usePost } from './hooks';
 import { updatePostLikeStatus } from './posts-slice';
+import { CardAuthorProps } from 'src/components/cards/CardAuthor';
 
 const ASPECT_RATIOS = [
   1 / 1, // 1:1 (Square)
@@ -91,22 +91,21 @@ export default function PostItemCard(props: PostItemCardProps) {
 
 //#endregion PostItemCard
 
-//#region LoadedPostItemCard ----------------------------------------------------
+//#region PostItemCardBody -----------------------------------------------------
 
-type LoadedPostItemCardProps = CardElementProps & {
-  post: Post;
+type PostItemCardBodyProps = CardElementOptions & {
+  postBody: Pick<Post, 'contents' | 'statistics'>;
 };
 
-const LoadedPostItemCard = (props: LoadedPostItemCardProps) => {
-  const { post, ...cardElementProps } = props;
-  const navigation = useNavigation<RootStackNavigationProp>();
-  const isFocused = useIsFocused();
+function PostItemCardBody(props: PostItemCardBodyProps) {
+  const { postBody, ...cardElementProps } = props;
 
-  const [_isVideoPaused, setIsVideoPaused] = useState(false);
+  // const isFocused = useIsFocused();
+  // const [isVideoPaused, setIsVideoPaused] = useState(false);
 
-  useEffect(() => {
-    setIsVideoPaused(!isFocused);
-  }, [isFocused]);
+  // useEffect(() => {
+  //   setIsVideoPaused(!isFocused);
+  // }, [isFocused]);
 
   const renderImageGallery = useCallback(
     (
@@ -131,11 +130,11 @@ const LoadedPostItemCard = (props: LoadedPostItemCardProps) => {
                 elementOptions={elementOptions}
               />
             )}
-            {post.statistics.totalViews > 1 && (
+            {postBody.statistics.totalViews > 1 && (
               <Card.Indicator
                 iconName="eye"
                 position="bottom-left"
-                label={shortenLargeNumber(post.statistics.totalViews)}
+                label={shortenLargeNumber(postBody.statistics.totalViews)}
                 elementOptions={elementOptions}
               />
             )}
@@ -154,84 +153,92 @@ const LoadedPostItemCard = (props: LoadedPostItemCardProps) => {
         </View>
       );
     },
-    [post],
+    [postBody],
   );
 
-  const renderCardBody = useCallback(
-    (elementOptions: CardElementOptions) => {
-      switch (post.contents.type) {
-        case PostType.GALLERY:
-          return renderImageGallery(
-            post.contents.sources,
-            post.contents.caption,
-            elementOptions,
-          );
-        case PostType.VIDEO:
-          return (
-            <View>
-              <View>
-                <Video
-                  muted
-                  repeat
-                  playWhenInactive
-                  resizeMode="cover"
-                  // paused={isVideoPaused}
-                  paused={true}
-                  source={{
-                    uri: post.contents.source.url,
-                    type: post.contents.source.type,
-                  }}
-                  style={{
-                    width: '100%',
-                    aspectRatio:
-                      (post.contents.source.height ?? 1) /
-                      (post.contents.source.width ?? 1),
-                    backgroundColor: color.placeholder,
-                  }}
-                />
-                <View
-                  style={{
-                    position: 'absolute',
-                    width: '100%',
-                    height: '100%',
-                    backgroundColor: '#00000044',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}>
-                  <Ionicons
-                    name="play"
-                    size={
-                      elementOptions.smallContent
-                        ? PLAY_BUTTON_SIZE_SMALL
-                        : PLAY_BUTTON_SIZE_LARGE
-                    }
-                    color={PLAY_BUTTON_COLOR}
-                  />
-                </View>
-              </View>
-              <PostItemCardCaption caption={post.contents.caption} />
-            </View>
-          );
-        case PostType.TEXT:
-          return (
+  switch (postBody.contents.type) {
+    case 'gallery':
+      return renderImageGallery(
+        postBody.contents.sources,
+        postBody.contents.caption,
+        cardElementProps,
+      );
+    case 'video':
+      return (
+        <View>
+          <View>
+            <Video
+              muted
+              repeat
+              playWhenInactive
+              resizeMode="cover"
+              // paused={isVideoPaused}
+              paused={true}
+              source={{
+                uri: postBody.contents.source.url,
+                type: postBody.contents.source.type,
+              }}
+              style={{
+                width: '100%',
+                aspectRatio:
+                  (postBody.contents.source.height ?? 1) /
+                  (postBody.contents.source.width ?? 1),
+                backgroundColor: color.placeholder,
+              }}
+            />
             <View
               style={{
-                paddingVertical: elementOptions.insetVertical,
-                paddingHorizontal: elementOptions.insetHorizontal,
+                position: 'absolute',
+                width: '100%',
+                height: '100%',
+                backgroundColor: '#00000044',
+                alignItems: 'center',
+                justifyContent: 'center',
               }}>
-              <Text
-                numberOfLines={elementOptions.smallContent ? 4 : 8}
-                style={
-                  elementOptions.smallContent ? font.medium : font.extraLarge
-                }>
-                {post.contents.text}
-              </Text>
+              <Ionicons
+                name="play"
+                size={
+                  cardElementProps.smallContent
+                    ? PLAY_BUTTON_SIZE_SMALL
+                    : PLAY_BUTTON_SIZE_LARGE
+                }
+                color={PLAY_BUTTON_COLOR}
+              />
             </View>
-          );
-      }
-    },
-    [/* isVideoPaused, */ post.contents, renderImageGallery],
-  );
+          </View>
+          <PostItemCardCaption caption={postBody.contents.caption} />
+        </View>
+      );
+    case 'text':
+      return (
+        <View
+          style={{
+            paddingVertical: cardElementProps.insetVertical,
+            paddingHorizontal: cardElementProps.insetHorizontal,
+          }}>
+          <Text
+            numberOfLines={cardElementProps.smallContent ? 4 : 8}
+            style={
+              cardElementProps.smallContent ? font.medium : font.extraLarge
+            }>
+            {postBody.contents.text}
+          </Text>
+        </View>
+      );
+  }
+}
+
+//#endregion PostItemCardBody
+
+//#region LoadedPostItemCard ---------------------------------------------------
+
+type LoadedPostItemCardProps = CardElementProps & {
+  post: Post;
+};
+
+const LoadedPostItemCard = (props: LoadedPostItemCardProps) => {
+  const { post, ...cardElementProps } = props;
+  const navigation = useNavigation<RootStackNavigationProp>();
 
   const handlePressPost = () => {
     navigation.push('PostDetails', { postId: post.id });
@@ -240,7 +247,9 @@ const LoadedPostItemCard = (props: LoadedPostItemCardProps) => {
   return (
     <Card {...cardElementProps}>
       <Card.Body onPress={handlePressPost}>
-        {elementOptions => renderCardBody(elementOptions)}
+        {elementOptions => (
+          <PostItemCardBody {...elementOptions} postBody={post} />
+        )}
       </Card.Body>
       <PostItemCardFooter post={post} />
     </Card>
@@ -428,6 +437,57 @@ function PostItemCardActions(props: PostItemCardActionsProps) {
 }
 
 //#endregion PostItemCardActions
+
+//#region PostItemCardPreview --------------------------------------------------
+
+// type PostItemCardPreviewProps = CardElementProps & {
+//   post: Pick<Post, 'contents'> & Pick<Partial<Post>, 'statistics'>;
+// };
+
+type PostItemCardPreviewProps = CardElementProps & {
+  contents: Post['contents'];
+  author: CardAuthorProps;
+  statistics?: Partial<Post['statistics']>;
+};
+
+export function PostItemCardPreview(props: PostItemCardPreviewProps) {
+  const { contents, author, statistics, elementOptions, style } = props;
+  const newElementOptions = { ...elementOptions, disabled: true };
+
+  return (
+    <Card elementOptions={newElementOptions} style={style}>
+      <Card.Body elementOptions={{ disabled: true }}>
+        {elementOptions => (
+          <PostItemCardBody
+            {...elementOptions}
+            postBody={{
+              contents: contents,
+              statistics: {
+                didLike: false,
+                didSave: false,
+                totalLikes: 0,
+                totalViews: 0,
+                ...statistics,
+              },
+            }}
+          />
+        )}
+      </Card.Body>
+      <Card.Footer elementOptions={newElementOptions}>
+        <Card.Author {...author} />
+        <Card.Actions>
+          <Card.HeartIconButton
+            didLike={statistics?.didLike ?? false}
+            totalLikes={statistics?.totalLikes ?? 0}
+            onToggleLike={() => {}}
+          />
+        </Card.Actions>
+      </Card.Footer>
+    </Card>
+  );
+}
+
+//#endregion PostItemCardPreview
 
 //#region Styles ---------------------------------------------------------------
 

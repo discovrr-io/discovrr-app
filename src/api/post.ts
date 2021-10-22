@@ -1,7 +1,7 @@
 import Parse from 'parse/react-native';
 
 import { Post, ProfileId } from 'src/models';
-import { PostContents, PostId, PostLocation, PostType } from 'src/models/post';
+import { PostContents, PostId, PostLocation } from 'src/models/post';
 import { Pagination } from 'src/models/common';
 
 import {
@@ -27,11 +27,11 @@ export namespace PostApi {
     const caption: string = result.get('caption') ?? '';
 
     if (media.length === 0) {
-      postContents = { type: PostType.TEXT, text: caption };
+      postContents = { type: 'text', text: caption };
     } else if (media.length === 1 && media[0].mime.includes('video')) {
-      postContents = { type: PostType.VIDEO, source: media[0], caption };
+      postContents = { type: 'video', source: media[0], caption };
     } else {
-      postContents = { type: PostType.GALLERY, sources: media, caption };
+      postContents = { type: 'gallery', sources: media, caption };
     }
 
     const statistics: Parse.Object | undefined = result.get('statistics');
@@ -65,7 +65,7 @@ export namespace PostApi {
 
   export async function createPost(contents: CreatePostParams): Promise<Post> {
     type CreatePostPayload = {
-      kind: 'text' | 'gallery' | 'video';
+      kind: Post['contents']['type'];
       caption: string;
       media?: MediaSource[];
       location?: PostLocation;
@@ -74,21 +74,21 @@ export namespace PostApi {
     // TODO: Upload media
     let payload: CreatePostPayload;
     switch (contents.type) {
-      case PostType.GALLERY:
+      case 'gallery':
         payload = {
           kind: 'gallery',
           caption: contents.caption,
           media: contents.sources.map(it => it),
         };
         break;
-      case PostType.VIDEO:
+      case 'video':
         payload = {
           kind: 'video',
           caption: contents.caption,
           media: undefined,
         };
         break;
-      case PostType.TEXT: /* FALLTHROUGH */
+      case 'text': /* FALLTHROUGH */
       default:
         payload = { kind: 'text', caption: contents.text };
         break;
