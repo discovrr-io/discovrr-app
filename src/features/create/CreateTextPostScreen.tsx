@@ -13,7 +13,6 @@ import { useNavigation } from '@react-navigation/core';
 
 import { Button } from 'src/components';
 import { color, font, layout } from 'src/constants';
-import { PostLocation } from 'src/models/post';
 
 import {
   CreateItemDetailsTopTabScreenProps,
@@ -22,7 +21,6 @@ import {
 
 type TextPostForm = {
   text: string;
-  location?: PostLocation;
 };
 
 const textPostSchema = yup.object({
@@ -37,10 +35,10 @@ const textPostSchema = yup.object({
     }),
 });
 
-type CreateTextScreenProps =
+type CreateTextPostScreenProps =
   CreateItemDetailsTopTabScreenProps<'CreateTextPost'>;
 
-export default function CreateTextScreen(props: CreateTextScreenProps) {
+export default function CreateTextPostScreen(props: CreateTextPostScreenProps) {
   // const $FUNC = '[CreateTextScreen]';
   // const dispatch = useAppDispatch();
   const navigation = props.navigation;
@@ -88,7 +86,7 @@ export default function CreateTextScreen(props: CreateTextScreenProps) {
 }
 
 function NewTextPostFormikForm() {
-  const navigation = useNavigation<CreateTextScreenProps['navigation']>();
+  const navigation = useNavigation<CreateTextPostScreenProps['navigation']>();
   const {
     dirty,
     isSubmitting,
@@ -118,24 +116,13 @@ function NewTextPostFormikForm() {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      {/* <KeyboardAvoidingView
-        behavior="padding"
-        keyboardVerticalOffset={100}
-        style={[layout.defaultScreenStyle,{ flex: 1 }]}>
-        <View
-          style={[
-            layout.defaultScreenStyle,
-            { flexGrow: 1, justifyContent: 'space-between' },
-          ]}>
-        </View>
-      </KeyboardAvoidingView> */}
       <View style={[layout.defaultScreenStyle, { flex: 1 }]}>
         <TextArea
           autoFocus
           placeholder="What's on your mind?"
           onBlur={handleBlur('text')}
           onChangeText={handleChange('text')}
-          style={{ minHeight: '25%', backgroundColor: 'pink' }}
+          style={{ minHeight: '25%' /* backgroundColor: 'pink' */ }}
         />
       </View>
     </TouchableWithoutFeedback>
@@ -155,7 +142,7 @@ function TextArea(props: TextAreaProps) {
       {...props}
       multiline
       placeholderTextColor={color.gray500}
-      style={[font.extraLarge, { textAlignVertical: 'top' }, props.style]}
+      style={[font.h3, { textAlignVertical: 'top' }, props.style]}
     />
   );
 }

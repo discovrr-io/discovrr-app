@@ -255,8 +255,8 @@ export type CreateItemDetailsTopTabParamList = {
   CreateTextPost: undefined;
   CreateGalleryPost: undefined;
   CreateVideoPost: undefined;
-  // CreateProduct: undefined;
-  // CreateWorkshop: undefined;
+  CreateProduct: undefined;
+  CreateWorkshop: undefined;
 };
 
 export type CreateItemDetailsTopTabNavigationProp =
