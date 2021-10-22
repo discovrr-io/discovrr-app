@@ -22,7 +22,7 @@ function CreateItemDetailsNavigator() {
 
   return (
     <CreateItemDetailsTopTab.Navigator
-      initialRouteName="CreateText"
+      initialRouteName="CreateTextPost"
       tabBarPosition="bottom"
       screenOptions={{
         tabBarScrollEnabled: true,
@@ -38,17 +38,17 @@ function CreateItemDetailsNavigator() {
         },
       }}>
       <CreateItemDetailsTopTab.Screen
-        name="CreateText"
+        name="CreateTextPost"
         component={CreateTextScreen}
         options={{ title: 'Text' }}
       />
       <CreateItemDetailsTopTab.Screen
-        name="CreateGallery"
+        name="CreateGalleryPost"
         component={PlaceholderScreen}
         options={{ title: 'Gallery' }}
       />
       <CreateItemDetailsTopTab.Screen
-        name="CreateVideo"
+        name="CreateVideoPost"
         component={PlaceholderScreen}
         options={{ title: 'Video' }}
       />

@@ -23,6 +23,7 @@ import {
 
 import { NoteId, PostId, ProfileId } from './models';
 import { InAppWebViewNavigationScreenParams } from './components/InAppWebView';
+import { CreateItemPreviewNavigationScreenParams } from './features/create/CreateItemPreviewScreen';
 
 declare global {
   namespace ReactNavigation {
@@ -234,7 +235,7 @@ export type SearchResultsTopTabScreenProps<
 
 export type CreateItemStackParamList = {
   CreateItemDetails: NavigatorScreenParams<CreateItemDetailsTopTabParamList>;
-  CreateItemPreview: undefined;
+  CreateItemPreview: CreateItemPreviewNavigationScreenParams;
 };
 
 export type CreateItemStackNavigationProp = StackNavigationProp<
@@ -251,15 +252,18 @@ export type CreateItemStackScreenProps<
 //#region CREATE ITEM DETAILS TOP TAB
 
 export type CreateItemDetailsTopTabParamList = {
-  CreateText: undefined;
-  CreateGallery: undefined;
-  CreateVideo: undefined;
+  CreateTextPost: undefined;
+  CreateGalleryPost: undefined;
+  CreateVideoPost: undefined;
   // CreateProduct: undefined;
   // CreateWorkshop: undefined;
 };
 
 export type CreateItemDetailsTopTabNavigationProp =
-  MaterialTopTabNavigationProp<CreateItemDetailsTopTabParamList, 'CreateText'>;
+  MaterialTopTabNavigationProp<
+    CreateItemDetailsTopTabParamList,
+    'CreateTextPost'
+  >;
 
 export type CreateItemDetailsTopTabScreenProps<
   K extends keyof CreateItemDetailsTopTabParamList,
@@ -368,13 +372,8 @@ Root = Stack {
           Following
         }
         Search = Stack {
-          Search
-          Results = TopTab {
-            Users
-            Makers
-            Products
-            Posts
-          }
+          SearchQuery
+          SearchResults
         }
       }
       Notifications
@@ -382,15 +381,15 @@ Root = Stack {
       __MyProfile
     }
   }
-  Create = Stack {
-    CreateDetails = TopTab {
-      CreateText
-      CreateGallery
-      CreateVideo
+  CreateItem = Stack {
+    CreateItemDetails = TopTab {
+      CreateTextPost
+      CreateGalleryPost
+      CreateVideoPost
       // CreateProduct
       // CreateWorkshop
     }
-    CreatePreview
+    CreateItemPreview
   }
   // -- Item Navigators --
   (Post) = Group {
@@ -421,6 +420,7 @@ Root = Stack {
     NotificationSettings
   }
   // -- Miscellaneous --
+  InAppWebView
   RouteError
 }
 

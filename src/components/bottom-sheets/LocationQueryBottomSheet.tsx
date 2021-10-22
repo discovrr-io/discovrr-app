@@ -12,6 +12,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import Slider from '@react-native-community/slider';
 import { Portal } from '@gorhom/portal';
 import { BlurView } from '@react-native-community/blur';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import BottomSheet, {
   BottomSheetBackdrop,
@@ -87,77 +88,83 @@ const LocationQueryBottomSheet = React.forwardRef<
         failOffsetX={[-5, 5]}
         snapPoints={snapPoints}
         backdropComponent={renderBackdrop}>
-        <LocationQueryBottomSheetHeader onPressClose={handleCloseBottomSheet} />
-        <BottomSheetScrollView
-          contentContainerStyle={bottomSheetStyles.scrollView}>
-          <View style={bottomSheetStyles.mapView}>
-            {/* <MapView
+        <SafeAreaView edges={['bottom', 'left', 'right']} style={{ flex: 1 }}>
+          <LocationQueryBottomSheetHeader
+            onPressClose={handleCloseBottomSheet}
+          />
+          <BottomSheetScrollView
+            contentContainerStyle={bottomSheetStyles.scrollView}>
+            <View style={bottomSheetStyles.mapView}>
+              {/* <MapView
               initialRegion={searchRegion}
               onRegionChange={setSearchRegion}
               style={{ height: 300 }}
             /> */}
-            <View style={{ width: 300, backgroundColor: color.placeholder }} />
+              <View
+                style={{ width: 300, backgroundColor: color.placeholder }}
+              />
+            </View>
+            <Spacer.Vertical value="md" />
+            <Slider
+              step={1}
+              minimumValue={MIN_SEARCH_RADIUS}
+              maximumValue={MAX_SEARCH_RADIUS}
+              minimumTrackTintColor={color.accent}
+              thumbTintColor={Platform.select({
+                android: color.accent,
+                default: undefined,
+              })}
+            />
+          </BottomSheetScrollView>
+          <View style={bottomSheetStyles.buttonFooterContainer}>
+            <Button
+              title="Reset"
+              type="secondary"
+              variant="contained"
+              onPress={() => alertUnavailableFeature()}
+              containerStyle={{ flex: 1 }}
+            />
+            <Spacer.Horizontal value="md" />
+            <Button
+              title="Apply"
+              type="primary"
+              variant="contained"
+              onPress={() => alertUnavailableFeature()}
+              containerStyle={{ flex: 1 }}
+            />
           </View>
-          <Spacer.Vertical value="md" />
-          <Slider
-            step={1}
-            minimumValue={MIN_SEARCH_RADIUS}
-            maximumValue={MAX_SEARCH_RADIUS}
-            minimumTrackTintColor={color.accent}
-            thumbTintColor={Platform.select({
-              android: color.accent,
-              default: undefined,
-            })}
+          <BlurView
+            blurType="light"
+            blurRadius={20}
+            style={bottomSheetStyles.blurView}
           />
-        </BottomSheetScrollView>
-        <View style={bottomSheetStyles.buttonFooterContainer}>
-          <Button
-            title="Reset"
-            type="secondary"
-            variant="contained"
-            onPress={() => alertUnavailableFeature()}
-            containerStyle={{ flex: 1 }}
-          />
-          <Spacer.Horizontal value="md" />
-          <Button
-            title="Apply"
-            type="primary"
-            variant="contained"
-            onPress={() => alertUnavailableFeature()}
-            containerStyle={{ flex: 1 }}
-          />
-        </View>
-        <BlurView
-          blurType="light"
-          blurRadius={20}
-          style={bottomSheetStyles.blurView}
-        />
-        <View
-          style={[
-            bottomSheetStyles.blurView,
-            {
-              alignItems: 'center',
-              justifyContent: 'center',
-              paddingHorizontal: layout.spacing.xl,
-            },
-          ]}>
-          <Text style={[font.largeBold, { textAlign: 'center' }]}>
-            Feature Not Available Yet
-          </Text>
-          <Spacer.Vertical value="xs" />
-          <Text style={[font.medium, { textAlign: 'center' }]}>
-            We&apos;re still working on this feature. We&apos;ll let you know
-            when it&apos;s ready!
-          </Text>
-          <Spacer.Vertical value="md" />
-          <Button
-            title="Close"
-            type="primary"
-            size="small"
-            variant="contained"
-            onPress={handleCloseBottomSheet}
-          />
-        </View>
+          <View
+            style={[
+              bottomSheetStyles.blurView,
+              {
+                alignItems: 'center',
+                justifyContent: 'center',
+                paddingHorizontal: layout.spacing.xl,
+              },
+            ]}>
+            <Text style={[font.largeBold, { textAlign: 'center' }]}>
+              Feature Not Available Yet
+            </Text>
+            <Spacer.Vertical value="xs" />
+            <Text style={[font.medium, { textAlign: 'center' }]}>
+              We&apos;re still working on this feature. We&apos;ll let you know
+              when it&apos;s ready!
+            </Text>
+            <Spacer.Vertical value="md" />
+            <Button
+              title="Close"
+              type="primary"
+              size="small"
+              variant="contained"
+              onPress={handleCloseBottomSheet}
+            />
+          </View>
+        </SafeAreaView>
       </BottomSheet>
     </Portal>
   );

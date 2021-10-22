@@ -51,7 +51,8 @@ const textPostSchema = yup.object({
     }),
 });
 
-type CreateTextScreenProps = CreateItemDetailsTopTabScreenProps<'CreateText'>;
+type CreateTextScreenProps =
+  CreateItemDetailsTopTabScreenProps<'CreateTextPost'>;
 
 export default function CreateTextScreen(props: CreateTextScreenProps) {
   const $FUNC = '[CreateTextScreen]';

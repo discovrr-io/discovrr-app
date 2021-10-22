@@ -140,7 +140,7 @@ function FacadeNavigator() {
             e.preventDefault();
             navigation.getParent<RootStackNavigationProp>().navigate('Create', {
               screen: 'CreateItemDetails',
-              params: { screen: 'CreateText' },
+              params: { screen: 'CreateTextPost' },
             });
           },
         })}
