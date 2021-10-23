@@ -26,6 +26,7 @@ import { HEADER_MAX_HEIGHT } from 'src/features/profiles/ProfileHeader';
 import { useAppDispatch, useAppSelector, useIsMounted } from 'src/hooks';
 import { Profile } from 'src/models';
 import { RootStackScreenProps } from 'src/navigation';
+import { alertUnavailableFeature } from 'src/utilities';
 
 import {
   ActionBottomSheet,
@@ -76,7 +77,7 @@ export default function ProfileDetailsScreen(props: ProfileDetailsScreenProps) {
 
 function LoadedProfileDetailsScreen(props: { profile: Profile }) {
   const $FUNC = '[LoadedProfileDetailsScreen]';
-  const { profile } = props;
+  const profile = props.profile;
 
   const dispatch = useAppDispatch();
   const navigation = useNavigation<ProfileDetailsScreenProps['navigation']>();
@@ -181,6 +182,27 @@ function LoadedProfileDetailsScreen(props: { profile: Profile }) {
   //   if (!shouldRefresh) setShouldRefresh(true);
   // };
 
+  const handleSelectActionItem = (selectedItem: string) => {
+    switch (selectedItem) {
+      case `Block ${profile.displayName}`:
+        alertUnavailableFeature({
+          title: "We're still working on this",
+          message:
+            'In the meantime, you may report this profile. Your report will be anonymous.',
+        });
+        break;
+      case `Report ${profile.displayName}`:
+        navigation.navigate('ReportItem', {
+          screen: 'ReportItemReason',
+          params: { type: 'profile' },
+        });
+        break;
+      default:
+        actionBottomSheetRef.current?.close();
+        break;
+    }
+  };
+
   // TODO: Add pull to refresh
   return (
     <>
@@ -243,6 +265,7 @@ function LoadedProfileDetailsScreen(props: { profile: Profile }) {
       <ActionBottomSheet
         ref={actionBottomSheetRef}
         items={actionBottomSheetItems}
+        onSelectItem={handleSelectActionItem}
       />
     </>
   );

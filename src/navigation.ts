@@ -74,6 +74,7 @@ export type RootStackParamList = {
   LocationAccuracySettings: SettingsStackParamList['LocationAccuracySettings'];
   NotificationSettings: SettingsStackParamList['NotificationSettings'];
   // -- Miscellaneous --
+  ReportItem: NavigatorScreenParams<ReportItemStackParamList>;
   InAppWebView: InAppWebViewNavigationScreenParams;
   RouteError: undefined;
 };
@@ -328,6 +329,24 @@ export type SettingsStackParamList = {
 //   StackScreenProps<SettingsStackParamList, K>;
 
 //#endregion
+
+//#region REPORT ITEM STACK
+
+export type ReportItemStackParamList = {
+  ReportItemReason: { type: 'post' | 'profile' };
+  ReportItemSuccess: undefined;
+};
+
+export type ReportItemStackNavigationProp = StackNavigationProp<
+  ReportItemStackParamList,
+  'ReportItemReason'
+>;
+
+export type ReportItemStackScreenParams<
+  K extends keyof ReportItemStackParamList,
+> = StackScreenProps<ReportItemStackParamList, K>;
+
+//#endregion REPORT ITEM STACK
 
 /*
 

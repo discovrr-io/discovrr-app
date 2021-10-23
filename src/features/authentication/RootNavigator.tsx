@@ -22,6 +22,8 @@ import {
 
 import MainNavigator from './MainNavigator';
 import CreateItemNavigator from 'src/features/create/CreateItemNavigator';
+import ReportItemNavigator from 'src/features/reporting/ReportItemNavigator';
+
 import renderPostNavigator from 'src/features/posts/PostNavigator';
 import renderProfileNavigator from 'src/features/profiles/ProfileNavigator';
 import renderSettingsNavigator from 'src/features/settings/SettingsNavigator';
@@ -146,6 +148,11 @@ export default function RootNavigator() {
       {renderSettingsNavigator()}
 
       {/* -- Miscellaneous -- */}
+      <RootStack.Screen
+        name="ReportItem"
+        component={ReportItemNavigator}
+        options={{ headerShown: false, presentation: 'modal' }}
+      />
       <RootStack.Screen
         name="InAppWebView"
         component={InAppWebView}

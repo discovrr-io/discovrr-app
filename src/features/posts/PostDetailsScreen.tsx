@@ -140,7 +140,7 @@ const PostHeaderComponent = ({ post }: { post: Post }) => {
     return items;
   }, [isMyProfile]);
 
-  const handleSelectItem = async (selectedItem: string) => {
+  const handleSelectActionItem = async (selectedItem: string) => {
     const handleDeletePost = async () => {
       const commitDeletePost = async () => {
         try {
@@ -178,15 +178,13 @@ const PostHeaderComponent = ({ post }: { post: Post }) => {
         navigation.push('EditPost', { postId: post.id });
         break;
       case 'Report Post':
-        // navigation.navigate('InAppWebView', {
-        //   title: 'Report',
-        //   destination: {
-        //     uri: `https://api.discovrrio.com/report?item=post&id=${post.id}`,
-        //   },
-        //   presentation: 'modal',
-        // });
-        // break;
-      case 'Suggest Less Like This':
+        navigation.navigate('ReportItem', {
+          screen: 'ReportItemReason',
+          params: { type: 'post' },
+        });
+        break;
+      case 'Suggest Less Like This': /* FALLTHROUGH */
+      default:
         actionBottomSheetRef.current?.close();
         break;
     }
@@ -232,7 +230,7 @@ const PostHeaderComponent = ({ post }: { post: Post }) => {
       <ActionBottomSheet
         ref={actionBottomSheetRef}
         items={actionBottomSheetItems}
-        onSelectItem={handleSelectItem}
+        onSelectItem={handleSelectActionItem}
       />
       {isDeletingPost && <LoadingOverlay message="Deleting post..." />}
     </View>

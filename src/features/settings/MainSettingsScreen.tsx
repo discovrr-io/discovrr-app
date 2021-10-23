@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Alert,
   SafeAreaView,
@@ -21,6 +21,7 @@ import { RootStackScreenProps } from 'src/navigation';
 
 import { useAppDispatch } from 'src/hooks';
 import { resetAppState } from 'src/global-actions';
+import { alertUnavailableFeature } from 'src/utilities';
 
 const UPDATE_INDICATOR_DIAMETER = 9;
 
@@ -28,6 +29,15 @@ type MainSettingsScreenProps = RootStackScreenProps<'MainSettings'>;
 
 export default function MainSettingsScreen(props: MainSettingsScreenProps) {
   const dispatch = useAppDispatch();
+  const scrollViewRef = useRef<ScrollView>(null);
+
+  useEffect(() => {
+    scrollViewRef.current?.flashScrollIndicators();
+  }, []);
+
+  const handleAlertNotAvailable = () => {
+    alertUnavailableFeature();
+  };
 
   const handlePressClearCache = () => {
     const commitClearCache = () => {
@@ -38,7 +48,7 @@ export default function MainSettingsScreen(props: MainSettingsScreenProps) {
       'Clear Cache?',
       'You may experience slow load times after you clear the cache. ' +
         'This will improve in time the more you use the Discovrr app.' +
-        '\n\nAre you sure you want to clear cache anyway?',
+        '\n\nAre you sure you want to clear the cache anyway?',
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -53,6 +63,7 @@ export default function MainSettingsScreen(props: MainSettingsScreenProps) {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <ScrollView
+        ref={scrollViewRef}
         contentContainerStyle={{
           paddingVertical: constants.layout.defaultScreenMargins.vertical,
           paddingHorizontal: constants.layout.defaultScreenMargins.horizontal,
@@ -66,6 +77,7 @@ export default function MainSettingsScreen(props: MainSettingsScreenProps) {
           <Cell.Navigator
             label="Location accuracy"
             iconName="location-outline"
+            onPress={handleAlertNotAvailable}
           />
           <Cell.Navigator
             label="Notifications"
@@ -75,8 +87,16 @@ export default function MainSettingsScreen(props: MainSettingsScreenProps) {
         </Cell.Group>
         <Spacer.Vertical value={CELL_GROUP_VERTICAL_SPACING} />
         <Cell.Group label="Display">
-          <Cell.Navigator label="Dark mode" iconName="moon-outline" />
-          <Cell.Navigator label="Font size" iconName="text-outline" />
+          <Cell.Navigator
+            label="Dark mode"
+            iconName="moon-outline"
+            onPress={handleAlertNotAvailable}
+          />
+          <Cell.Navigator
+            label="Font size"
+            iconName="text-outline"
+            onPress={handleAlertNotAvailable}
+          />
         </Cell.Group>
         <Spacer.Vertical value={CELL_GROUP_VERTICAL_SPACING} />
         <Cell.Group label="Advanced">
@@ -88,6 +108,7 @@ export default function MainSettingsScreen(props: MainSettingsScreenProps) {
           <Cell.Button
             label="Reset to default settings"
             iconName="sync-outline"
+            onPress={handleAlertNotAvailable}
           />
         </Cell.Group>
         <Spacer.Vertical value={CELL_GROUP_VERTICAL_SPACING} />

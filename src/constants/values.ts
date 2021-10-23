@@ -8,5 +8,5 @@ export const DEFAULT_MIN_BOTTOM_TAB_BAR_HEIGHT = 55;
 
 export const DEFAULT_ICON_LIKE_ANIMATION: Animation = 'rubberBand';
 
-export const APP_VERSION = `${getVersion()}.1`;
-export const APP_BUILD = '2021.10.22.00';
+export const APP_VERSION = `${getVersion()}.0`;
+export const APP_BUILD = '2021.10.24.00';

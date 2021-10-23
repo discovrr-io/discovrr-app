@@ -21,7 +21,7 @@ import {
 export const CELL_GROUP_VERTICAL_SPACING = layout.spacing.md;
 
 type CellGroupProps = CellElementProps & {
-  label: string;
+  label?: string;
   labelStyle?: StyleProp<TextStyle>;
   containerStyle?: StyleProp<ViewStyle>;
   children?: React.ReactNode;
@@ -29,18 +29,19 @@ type CellGroupProps = CellElementProps & {
 
 export default function CellGroup(props: CellGroupProps) {
   const cellElementOptions = useCellElementContext(props.elementOptions);
-
   return (
     <CellElementContext.Provider value={cellElementOptions}>
-      <Text
-        style={[
-          font.smallBold,
-          styles.label,
-          cellElementOptions.disabled && { color: disabledDarkTextColor },
-          props.labelStyle,
-        ]}>
-        {props.label}
-      </Text>
+      {props.label && (
+        <Text
+          style={[
+            font.smallBold,
+            styles.label,
+            cellElementOptions.disabled && { color: disabledDarkTextColor },
+            props.labelStyle,
+          ]}>
+          {props.label}
+        </Text>
+      )}
       <View
         style={[
           styles.contentContainer,

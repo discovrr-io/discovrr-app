@@ -1,13 +1,18 @@
 import React from 'react';
-import { Dimensions, useWindowDimensions } from 'react-native';
+import { Platform, useWindowDimensions } from 'react-native';
 
 import Icon from 'react-native-vector-icons/Ionicons';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { createStackNavigator } from '@react-navigation/stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import {
+  CardStyleInterpolators,
+  createStackNavigator,
+} from '@react-navigation/stack';
 
 import { HeaderIcon, PlaceholderScreen } from 'src/components';
 import { color, font, layout } from 'src/constants';
+
 import {
   CreateItemDetailsTopTabParamList,
   CreateItemStackParamList,
@@ -50,7 +55,7 @@ function CreateItemDetailsNavigator() {
     <CreateItemDetailsTopTab.Navigator
       initialRouteName="CreateTextPost"
       tabBarPosition="bottom"
-      initialLayout={{ width: Dimensions.get('window').width }}
+      initialLayout={{ width: screenWidth }}
       screenOptions={{
         tabBarShowIcon: true,
         tabBarScrollEnabled: true,
@@ -123,7 +128,7 @@ function CreateItemDetailsNavigator() {
   );
 }
 
-export default function CreateNavigator() {
+export default function CreateItemNavigator() {
   return (
     <CreateItemStack.Navigator
       initialRouteName="CreateItemDetails"
@@ -149,7 +154,13 @@ export default function CreateNavigator() {
       <CreateItemStack.Screen
         name="CreateItemPreview"
         component={CreateItemPreviewScreen}
-        options={{ title: 'Preview' }}
+        options={{
+          title: 'Preview',
+          cardStyleInterpolator: Platform.select({
+            android: CardStyleInterpolators.forHorizontalIOS,
+            default: undefined,
+          }),
+        }}
       />
     </CreateItemStack.Navigator>
   );

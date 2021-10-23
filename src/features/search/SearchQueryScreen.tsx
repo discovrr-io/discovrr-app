@@ -52,7 +52,7 @@ export default function SearchQueryScreen(props: SearchQueryScreenProps) {
             </Text>
           }
           ListHeaderComponentStyle={{
-            paddingTop: layout.defaultScreenMargins.vertical,
+            paddingVertical: layout.defaultScreenMargins.vertical,
             paddingHorizontal: layout.defaultScreenMargins.horizontal,
           }}
           renderItem={({ item: query, index }) => (
