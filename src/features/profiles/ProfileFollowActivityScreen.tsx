@@ -4,6 +4,7 @@ import { FlatList, RefreshControl, SafeAreaView, View } from 'react-native';
 import { color, layout } from 'src/constants';
 import { useAppDispatch, useIsMounted } from 'src/hooks';
 import { Profile } from 'src/models';
+import { ProfileStackParamList, RootStackScreenProps } from 'src/navigation';
 import { alertSomethingWentWrong } from 'src/utilities';
 
 import {
@@ -13,14 +14,13 @@ import {
   RouteError,
 } from 'src/components';
 
-import { ProfileStackParamList, ProfileStackScreenProps } from 'src/navigation';
-
 import ProfileListItem from './ProfileListItem';
 import { useIsMyProfile, useProfile } from './hooks';
 import { fetchProfileById } from './profiles-slice';
 
+// type ProfileFollowActivityScreen = ProfileStackScreenProps<'ProfileFollowActivity'>;
 type ProfileFollowActivityScreen =
-  ProfileStackScreenProps<'ProfileFollowActivity'>;
+  RootStackScreenProps<'ProfileFollowActivity'>;
 
 export default function ProfileFollowActivityScreen(
   props: ProfileFollowActivityScreen,

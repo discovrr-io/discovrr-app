@@ -34,7 +34,7 @@ import {
 import { MediaSource } from 'src/api';
 import { Comment, CommentId, Post, Profile } from 'src/models';
 import { useAppDispatch, useAppSelector, useIsMounted } from 'src/hooks';
-import { PostStackNavigationProp, PostStackScreenProps } from 'src/navigation';
+import { RootStackNavigationProp, RootStackScreenProps } from 'src/navigation';
 import { alertSomethingWentWrong } from 'src/utilities';
 
 import {
@@ -111,7 +111,7 @@ function SliderImage({ item: source }: SliderImageProps) {
 const PostHeaderComponent = ({ post }: { post: Post }) => {
   const $FUNC = '[PostHeaderComponent]';
   const dispatch = useAppDispatch();
-  const navigation = useNavigation<PostStackNavigationProp>();
+  const navigation = useNavigation<RootStackNavigationProp>();
   const isMounted = useIsMounted();
 
   const isMyProfile = useIsMyProfile(post.profileId);
@@ -178,6 +178,14 @@ const PostHeaderComponent = ({ post }: { post: Post }) => {
         navigation.push('EditPost', { postId: post.id });
         break;
       case 'Report Post':
+        // navigation.navigate('InAppWebView', {
+        //   title: 'Report',
+        //   destination: {
+        //     uri: `https://api.discovrrio.com/report?item=post&id=${post.id}`,
+        //   },
+        //   presentation: 'modal',
+        // });
+        // break;
       case 'Suggest Less Like This':
         actionBottomSheetRef.current?.close();
         break;
@@ -242,7 +250,7 @@ const AddCommentComponent = () => (
   </View>
 );
 
-type PostDetailsScreenWrapperProps = PostStackScreenProps<'PostDetails'>;
+type PostDetailsScreenWrapperProps = RootStackScreenProps<'PostDetails'>;
 
 export default function PostDetailsScreenWrapper(
   props: PostDetailsScreenWrapperProps,

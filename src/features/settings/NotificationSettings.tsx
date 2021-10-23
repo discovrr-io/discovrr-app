@@ -3,7 +3,7 @@ import { SafeAreaView, ScrollView } from 'react-native';
 
 import { Spacer } from 'src/components';
 import { layout } from 'src/constants';
-import { SettingsStackScreenProps } from 'src/navigation';
+import { RootStackScreenProps } from 'src/navigation';
 
 import Cell from './components';
 import { CELL_GROUP_VERTICAL_SPACING } from './components/CellGroup';
@@ -24,8 +24,10 @@ const defaultNotificationSettings = {
   profileMessage: true,
 };
 
+// type NotificationsSettingsScreenProps =
+//   SettingsStackScreenProps<'NotificationSettings'>;
 type NotificationsSettingsScreenProps =
-  SettingsStackScreenProps<'NotificationSettings'>;
+  RootStackScreenProps<'NotificationSettings'>;
 
 export default function NotificationsSettingsScreen(
   _: NotificationsSettingsScreenProps,

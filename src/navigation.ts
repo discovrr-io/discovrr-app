@@ -21,7 +21,7 @@ import {
   MaterialTopTabScreenProps,
 } from '@react-navigation/material-top-tabs';
 
-import { NoteId, PostId, ProfileId } from './models';
+import { PostId, ProfileId } from './models';
 import { InAppWebViewNavigationScreenParams } from './components/InAppWebView';
 import { CreateItemPreviewNavigationScreenParams } from './features/create/CreateItemPreviewScreen';
 
@@ -58,9 +58,6 @@ export type RootStackParamList = {
   // -- Post Screens --
   PostDetails: PostStackParamList['PostDetails'];
   EditPost: PostStackParamList['EditPost'];
-  // -- Note Screens --
-  NoteDetails: NoteStackParamList['NoteDetails'];
-  EditNote: NoteStackParamList['EditNote'];
   // -- Profile Screens --
   ProfileDetails: ProfileStackParamList['ProfileDetails'];
   ProfileFollowActivity: ProfileStackParamList['ProfileFollowActivity'];
@@ -278,30 +275,13 @@ export type PostStackParamList = {
   EditPost: { postId: PostId };
 };
 
-export type PostStackNavigationProp = StackNavigationProp<
-  PostStackParamList,
-  'PostDetails'
->;
+// export type PostStackNavigationProp = StackNavigationProp<
+//   PostStackParamList,
+//   'PostDetails'
+// >;
 
-export type PostStackScreenProps<K extends keyof PostStackParamList> =
-  StackScreenProps<PostStackParamList, K>;
-
-//#endregion
-
-//#region NOTE STACK
-
-export type NoteStackParamList = {
-  NoteDetails: { noteId: NoteId; noteTitle?: string };
-  EditNote: { noteId: NoteId; noteTitle?: string };
-};
-
-export type NoteStackNavigationProp = StackNavigationProp<
-  NoteStackParamList,
-  'NoteDetails'
->;
-
-export type NoteStackScreenProps<K extends keyof NoteStackParamList> =
-  StackScreenProps<NoteStackParamList, K>;
+// export type PostStackScreenProps<K extends keyof PostStackParamList> =
+//   StackScreenProps<PostStackParamList, K>;
 
 //#endregion
 
@@ -320,13 +300,13 @@ export type ProfileStackParamList = {
   };
 };
 
-export type ProfileStackNavigationProp = StackNavigationProp<
-  ProfileStackParamList,
-  'ProfileDetails'
->;
+// export type ProfileStackNavigationProp = StackNavigationProp<
+//   ProfileStackParamList,
+//   'ProfileDetails'
+// >;
 
-export type ProfileStackScreenProps<K extends keyof ProfileStackParamList> =
-  StackScreenProps<ProfileStackParamList, K>;
+// export type ProfileStackScreenProps<K extends keyof ProfileStackParamList> =
+//   StackScreenProps<ProfileStackParamList, K>;
 
 //#endregion
 
@@ -339,13 +319,13 @@ export type SettingsStackParamList = {
   LocationAccuracySettings: undefined;
 };
 
-export type SettingsStackNavigationProp = StackNavigationProp<
-  SettingsStackParamList,
-  'MainSettings'
->;
+// export type SettingsStackNavigationProp = StackNavigationProp<
+//   SettingsStackParamList,
+//   'MainSettings'
+// >;
 
-export type SettingsStackScreenProps<K extends keyof SettingsStackParamList> =
-  StackScreenProps<SettingsStackParamList, K>;
+// export type SettingsStackScreenProps<K extends keyof SettingsStackParamList> =
+//   StackScreenProps<SettingsStackParamList, K>;
 
 //#endregion
 
@@ -395,10 +375,6 @@ Root = Stack {
   (Post) = Group {
     PostDetails
     EditPost
-  }
-  (Note) = Group {
-    NoteDetails
-    EditNote
   }
   (Profile) = Group {
     ProfileDetails

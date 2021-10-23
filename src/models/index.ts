@@ -1,5 +1,4 @@
 export type { default as AppSettings } from './settings';
-export type { default as Note, NoteId } from './note';
 export type { default as Notification, NotificationId } from './notification';
 export type { default as Post, PostId } from './post';
 export type { default as Product, ProductId } from './product';

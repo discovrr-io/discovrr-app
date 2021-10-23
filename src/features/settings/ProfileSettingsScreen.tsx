@@ -22,7 +22,7 @@ import { updateProfile } from 'src/features/profiles/profiles-slice';
 import { useMyProfileId, useProfile } from 'src/features/profiles/hooks';
 import { useAppDispatch } from 'src/hooks';
 import { Profile, ProfileId } from 'src/models';
-import { SettingsStackScreenProps } from 'src/navigation';
+import { RootStackScreenProps } from 'src/navigation';
 import { alertUnavailableFeature } from 'src/utilities';
 
 import { color, font, layout } from 'src/constants';
@@ -71,9 +71,8 @@ const profileChangesSchema = yup.object({
   biography: yup.string().trim().max(MAX_BIO_LENGTH),
 });
 
-// const ProfileSettingsContext = React.createContext({ hasSyncedChanges: true });
-
-type ProfileSettingsProps = SettingsStackScreenProps<'ProfileSettings'>;
+// type ProfileSettingsProps = SettingsStackScreenProps<'ProfileSettings'>;
+type ProfileSettingsProps = RootStackScreenProps<'ProfileSettings'>;
 
 export default function ProfileSettingsScreenWrapper(
   props: ProfileSettingsProps,

@@ -25,7 +25,7 @@ import { DEFAULT_ACTIVE_OPACITY } from 'src/constants/values';
 import { HEADER_MAX_HEIGHT } from 'src/features/profiles/ProfileHeader';
 import { useAppDispatch, useAppSelector, useIsMounted } from 'src/hooks';
 import { Profile } from 'src/models';
-import { ProfileStackScreenProps } from 'src/navigation';
+import { RootStackScreenProps } from 'src/navigation';
 
 import {
   ActionBottomSheet,
@@ -46,7 +46,8 @@ import VendorProfileHeader from './vendor/VendorProfileHeader';
 import { fetchProfileById } from './profiles-slice';
 import { useIsMyProfile, useProfile } from './hooks';
 
-type ProfileDetailsScreenProps = ProfileStackScreenProps<'ProfileDetails'>;
+// type ProfileDetailsScreenProps = ProfileStackScreenProps<'ProfileDetails'>;
+type ProfileDetailsScreenProps = RootStackScreenProps<'ProfileDetails'>;
 
 export default function ProfileDetailsScreen(props: ProfileDetailsScreenProps) {
   const { profileId } = props.route.params;

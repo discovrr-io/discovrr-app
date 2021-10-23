@@ -5,6 +5,7 @@ import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetBackdropProps,
   BottomSheetView,
+  useBottomSheet,
   useBottomSheetDynamicSnapPoints,
 } from '@gorhom/bottom-sheet';
 import { Portal } from '@gorhom/portal';
@@ -36,16 +37,6 @@ type ActionBottomSheetProps = {
 
 const ActionBottomSheet = React.forwardRef<BottomSheet, ActionBottomSheetProps>(
   (props: ActionBottomSheetProps, ref) => {
-    const $FUNC = '[ActionBottomSheet]';
-    const {
-      items = [],
-      footerButtonTitle = 'Cancel',
-      footerButtonType = 'secondary',
-      footerButtonVariant = 'contained',
-      footerButtonOnPress,
-      onSelectItem,
-    } = props;
-
     const initialSnapPoints = React.useMemo(() => ['CONTENT_HEIGHT'], []);
     const {
       animatedHandleHeight,
@@ -68,19 +59,6 @@ const ActionBottomSheet = React.forwardRef<BottomSheet, ActionBottomSheetProps>(
       [],
     );
 
-    const handleCloseBottomSheet = () => {
-      if (typeof ref === 'function') {
-        console.warn($FUNC, 'Ref is a function');
-      } else {
-        ref?.current?.close();
-      }
-    };
-
-    const handleSelectItem = async (item: string) => {
-      handleCloseBottomSheet();
-      await onSelectItem?.(item);
-    };
-
     return (
       <Portal>
         <BottomSheet
@@ -95,45 +73,7 @@ const ActionBottomSheet = React.forwardRef<BottomSheet, ActionBottomSheetProps>(
           <BottomSheetView
             onLayout={handleContentLayout}
             style={styles.container}>
-            <View>
-              {items.map((props: ActionBottomSheetItem, index) => (
-                <View key={`action-bottom-sheet-item-${index}`}>
-                  <TouchableHighlight
-                    underlayColor={color.gray100}
-                    onPress={async () => await handleSelectItem(props.label)}
-                    style={styles.actionItemTouchableContainer}>
-                    <View style={styles.actionItemContainer}>
-                      <Icon
-                        name={props.iconName}
-                        size={props.iconSize ?? ICON_SIZE}
-                        color={props.destructive ? color.danger : color.black}
-                        style={{ width: ICON_SIZE }}
-                      />
-                      <Spacer.Horizontal value={layout.spacing.lg} />
-                      <Text
-                        numberOfLines={1}
-                        style={[
-                          styles.actionItemLabel,
-                          font.large,
-                          props.destructive && { color: color.danger },
-                        ]}>
-                        {props.label}
-                      </Text>
-                    </View>
-                  </TouchableHighlight>
-                  {index < items.length - 1 && (
-                    <Spacer.Vertical value={ITEM_SPACING} />
-                  )}
-                </View>
-              ))}
-            </View>
-            <Spacer.Vertical value={layout.spacing.md} />
-            <Button
-              title={footerButtonTitle}
-              type={footerButtonType}
-              variant={footerButtonVariant}
-              onPress={footerButtonOnPress ?? handleCloseBottomSheet}
-            />
+            <ActionBottomSheetContents {...props} />
           </BottomSheetView>
         </BottomSheet>
       </Portal>
@@ -141,7 +81,67 @@ const ActionBottomSheet = React.forwardRef<BottomSheet, ActionBottomSheetProps>(
   },
 );
 
-ActionBottomSheet.displayName = 'ActionBottomSheet';
+function ActionBottomSheetContents(props: ActionBottomSheetProps) {
+  const {
+    items = [],
+    footerButtonTitle = 'Cancel',
+    footerButtonType = 'secondary',
+    footerButtonVariant = 'contained',
+    footerButtonOnPress,
+    onSelectItem,
+  } = props;
+
+  const { close } = useBottomSheet();
+
+  const handleSelectItem = async (item: string) => {
+    close();
+    await onSelectItem?.(item);
+  };
+
+  return (
+    <>
+      <View>
+        {items.map((props: ActionBottomSheetItem, index) => (
+          <View key={`action-bottom-sheet-item-${index}`}>
+            <TouchableHighlight
+              underlayColor={color.gray100}
+              onPress={async () => await handleSelectItem(props.label)}
+              style={styles.actionItemTouchableContainer}>
+              <View style={styles.actionItemContainer}>
+                <Icon
+                  name={props.iconName}
+                  size={props.iconSize ?? ICON_SIZE}
+                  color={props.destructive ? color.danger : color.black}
+                  style={{ width: ICON_SIZE }}
+                />
+                <Spacer.Horizontal value={layout.spacing.lg} />
+                <Text
+                  numberOfLines={1}
+                  style={[
+                    styles.actionItemLabel,
+                    font.large,
+                    props.destructive && { color: color.danger },
+                  ]}>
+                  {props.label}
+                </Text>
+              </View>
+            </TouchableHighlight>
+            {index < items.length - 1 && (
+              <Spacer.Vertical value={ITEM_SPACING} />
+            )}
+          </View>
+        ))}
+      </View>
+      <Spacer.Vertical value={layout.spacing.md} />
+      <Button
+        title={footerButtonTitle}
+        type={footerButtonType}
+        variant={footerButtonVariant}
+        onPress={footerButtonOnPress ?? (() => close())}
+      />
+    </>
+  );
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -163,5 +163,7 @@ const styles = StyleSheet.create({
     flexShrink: 1,
   },
 });
+
+ActionBottomSheet.displayName = 'ActionBottomSheet';
 
 export default ActionBottomSheet;
