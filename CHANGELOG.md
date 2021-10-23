@@ -2,17 +2,29 @@
 
 ## [Unreleased]
 
+## [v3.0.0.0] (2021-10-24)
+
 ### Added
 
 - Implement basic search functionality (WIP)
   - [x] Search query UI
   - [x] Save search history
   - [x] Ability to search users
-  - [ ] Ability to search makers
+  - [x] Ability to search makers
   - [ ] Ability to search products
   - [ ] Ability to search workshops
   - [ ] Ability to search posts
 - Add ability to clear app cache from Settings
+- Add placeholder UI for reporting posts and profiles
+- Add new experience to create items with preview (WIP)
+  - [x] Create text post
+  - [ ] Create gallery post
+  - [ ] Create video post
+  - [ ] Create product
+  - [ ] Create workshop
+
+### Changed
+
 - Merge `Vendor`s and `Personal` profiles into one common interface
 
 ### Fixed
@@ -57,7 +69,8 @@
   - Discover tab (previously Home tab)
   - Notifications tab (previously in drawer)
 
-[unreleased]: https://github.com/discovrr-io/discovrr-app/compare/v2.3.0.3...HEAD
+[unreleased]: https://github.com/discovrr-io/discovrr-app/compare/v3.0.0.0...HEAD
+[v3.0.0.0]: https://github.com/discovrr-io/discovrr-app/compare/v2.3.0.3...v3.0.0.0
 [v2.3.0.3]: https://github.com/discovrr-io/discovrr-app/compare/v2.3.0.2...v2.3.0.3
 [v2.3.0.2]: https://github.com/discovrr-io/discovrr-app/compare/v2.3.0.1...v2.3.0.2
 [v2.3.0.1]: https://github.com/discovrr-io/discovrr-app/releases/tag/v2.3.0.1
