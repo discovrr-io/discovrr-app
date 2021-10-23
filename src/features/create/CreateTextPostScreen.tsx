@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 import {
   Keyboard,
+  KeyboardAvoidingView,
   Text,
   TextInput as RNTextInput,
   TouchableWithoutFeedback,
@@ -20,6 +21,8 @@ import {
   CreateItemStackNavigationProp,
 } from 'src/navigation';
 
+const MAX_TEXT_POST_LENGTH = 280;
+
 type TextPostForm = {
   text: string;
 };
@@ -29,7 +32,10 @@ const textPostSchema = yup.object({
     .string()
     .trim()
     .required('Please enter at least 3 words')
-    .max(280, 'Your post is too long! Please enter at most 280 characters.')
+    .max(
+      MAX_TEXT_POST_LENGTH,
+      'Your post is too long! Please enter at most 280 characters.',
+    )
     .test('has at least 3 words', 'Please enter at least 3 words', value => {
       if (!value) return false;
       return value.trim().split(/\s/).length >= 3;
@@ -98,6 +104,7 @@ function NewTextPostFormikForm() {
             title="Next"
             type="primary"
             size="medium"
+            // variant="contained"
             onPress={handleSubmit}
           />
         ),
@@ -122,21 +129,25 @@ type TextAreaProps = {
 function TextArea(props: TextAreaProps) {
   const [field, meta, _helpers] = useField(props.fieldName);
   return (
-    <>
-      <RNTextInput
-        multiline
-        placeholder={props.placeholder}
-        placeholderTextColor={color.gray500}
-        value={field.value}
-        onChangeText={field.onChange('text')}
-        onBlur={field.onBlur('text')}
-        style={[font.h3, { textAlignVertical: 'top', minHeight: '25%' }]}
-      />
+    <KeyboardAvoidingView behavior="height" style={{ flex: 1 }}>
       {meta.touched && meta.error && (
         <Text style={[font.smallBold, { color: color.danger }]}>
           {meta.error}
         </Text>
       )}
-    </>
+      <RNTextInput
+        multiline
+        placeholder={props.placeholder}
+        placeholderTextColor={color.gray500}
+        maxLength={MAX_TEXT_POST_LENGTH}
+        value={field.value}
+        onChangeText={field.onChange('text')}
+        onBlur={field.onBlur('text')}
+        style={[
+          font.h3,
+          { textAlignVertical: 'top', minHeight: '25%', maxHeight: '75%' },
+        ]}
+      />
+    </KeyboardAvoidingView>
   );
 }

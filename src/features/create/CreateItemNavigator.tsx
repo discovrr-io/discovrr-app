@@ -1,5 +1,5 @@
 import React from 'react';
-import { useWindowDimensions } from 'react-native';
+import { Dimensions, useWindowDimensions } from 'react-native';
 
 import Icon from 'react-native-vector-icons/Ionicons';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
@@ -50,26 +50,29 @@ function CreateItemDetailsNavigator() {
     <CreateItemDetailsTopTab.Navigator
       initialRouteName="CreateTextPost"
       tabBarPosition="bottom"
+      initialLayout={{ width: Dimensions.get('window').width }}
       screenOptions={{
         tabBarShowIcon: true,
         tabBarScrollEnabled: true,
-        tabBarLabelStyle: {
-          ...font.defaultTabBarLabelStyle,
-          fontSize: font.size.sm,
-        },
         tabBarActiveTintColor: color.accent,
         tabBarInactiveTintColor: color.gray500,
         tabBarPressColor: color.gray200,
-        tabBarItemStyle: {
-          width: screenWidth / __TAB_COUNT,
-          // paddingVertical: layout.spacing.md,
-          paddingHorizontal: 0,
+        tabBarStyle: {
+          backgroundColor: color.absoluteWhite,
         },
         tabBarContentContainerStyle: {
           paddingBottom: insets.bottom,
         },
+        tabBarItemStyle: {
+          width: screenWidth / __TAB_COUNT,
+          paddingHorizontal: 0,
+        },
         tabBarIndicatorStyle: {
           top: 0,
+        },
+        tabBarLabelStyle: {
+          ...font.defaultTabBarLabelStyle,
+          fontSize: font.size.sm,
         },
       }}>
       <CreateItemDetailsTopTab.Screen
@@ -141,7 +144,7 @@ export default function CreateNavigator() {
       <CreateItemStack.Screen
         name="CreateItemDetails"
         component={CreateItemDetailsNavigator}
-        options={{ title: 'New Post' }}
+        options={{ title: 'Create' }}
       />
       <CreateItemStack.Screen
         name="CreateItemPreview"
