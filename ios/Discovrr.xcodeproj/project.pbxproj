@@ -398,15 +398,15 @@
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				03ED367C26876304007B77D4 /* Info-staging.plist in Resources */,
 				03D0FE0C2665B9BE00AD22DE /* Info-release.plist in Resources */,
-				038D071E2721582000CE5B10 /* BootSplash.storyboard in Resources */,
 				038B7570270C108F009254F9 /* Rubik-Bold.ttf in Resources */,
 				038B7571270C108F009254F9 /* Rubik-Italic.ttf in Resources */,
 				038B7572270C108F009254F9 /* Rubik-Medium.ttf in Resources */,
 				038B7573270C108F009254F9 /* Rubik-Regular.ttf in Resources */,
-				038D0719272157B500CE5B10 /* GoogleService-Info-Release.plist in Resources */,
 				03997AD3270C1D43001E8B6A /* DiscovrrIcons.ttf in Resources */,
-				038D071C272157B500CE5B10 /* GoogleService-Info-Staging.plist in Resources */,
 				038D071A272157B500CE5B10 /* GoogleService-Info-Debug.plist in Resources */,
+				038D071C272157B500CE5B10 /* GoogleService-Info-Staging.plist in Resources */,
+				038D0719272157B500CE5B10 /* GoogleService-Info-Release.plist in Resources */,
+				038D071E2721582000CE5B10 /* BootSplash.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

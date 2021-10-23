@@ -65,7 +65,8 @@ export default function MainSettingsScreen(props: MainSettingsScreenProps) {
       <ScrollView
         ref={scrollViewRef}
         contentContainerStyle={{
-          paddingVertical: constants.layout.defaultScreenMargins.vertical,
+          paddingTop: constants.layout.defaultScreenMargins.vertical,
+          paddingBottom: constants.layout.spacing.huge,
           paddingHorizontal: constants.layout.defaultScreenMargins.horizontal,
         }}>
         <Cell.Group label="General">
