@@ -1,11 +1,12 @@
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import analytics from '@react-native-firebase/analytics';
 import Parse from 'parse/react-native';
+import { Image } from 'react-native';
 
-import { ApiError, CommonApiErrorCode, MediaSource } from './common';
+import { ApiError, CommonApiErrorCode } from './common';
 import { SessionId, User, UserId } from 'src/models';
 import { ProfileId, ProfileKind } from 'src/models/profile';
-import { DEFAULT_AVATAR_DIMENSIONS } from 'src/constants/media';
+import { MediaSource } from '.';
 
 export namespace AuthApi {
   export type AuthApiErrorCode =
@@ -17,13 +18,32 @@ export namespace AuthApi {
 
   const $PREFIX = 'AuthApi';
 
-  async function syncAndContructUser(
+  type ImageSize = { width: number; height: number };
+
+  function getImageSize(uri: string): Promise<ImageSize> {
+    return new Promise<ImageSize>((resolve, reject) => {
+      Image.getSize(
+        uri,
+        (width, height) => resolve({ width, height }),
+        error => reject(error),
+      );
+    });
+  }
+
+  async function syncAndConstructUser(
     currentUserId: string,
     profile: Parse.Object,
     firebaseUser: FirebaseAuthTypes.User,
   ): Promise<User> {
     const $FUNC = `[${$PREFIX}.syncAndConstructUser]`;
     let syncProfile = false;
+
+    const provider: string | undefined = profile.get('provider');
+    const firebaseProviderId = firebaseUser.providerData[0]?.providerId;
+    if (!provider && firebaseProviderId) {
+      profile.set('provider', firebaseProviderId);
+      syncProfile = true;
+    }
 
     const displayName: string | undefined = profile.get('displayName');
     if (!displayName && firebaseUser.displayName) {
@@ -34,25 +54,58 @@ export namespace AuthApi {
       await firebaseUser.updateProfile({ displayName });
     }
 
-    const avatar: MediaSource | undefined = profile.get('avatar');
-    if (!avatar && firebaseUser.photoURL) {
-      profile.set('avatar', {
-        url: firebaseUser.photoURL,
-        ...DEFAULT_AVATAR_DIMENSIONS,
-      });
+    // const avatar: MediaSource | undefined = profile.get('avatar');
+    // if (!avatar && firebaseUser.photoURL) {
+    //   profile.set('avatar', {
+    //     url: firebaseUser.photoURL,
+    //     ...DEFAULT_AVATAR_DIMENSIONS,
+    //   });
+    //   syncProfile = true;
+    // }
+
+    // We want to update the avatar every time we log in
+    if (firebaseUser.photoURL) {
+      let avatar: MediaSource;
+
+      if (firebaseProviderId.includes('google')) {
+        console.log($FUNC, 'Updating avatar...');
+
+        // Replace the URL to the avatar with one of a higher resolution
+        const photoURL = firebaseUser.photoURL.replace('s96-c', 's300-c');
+        avatar = {
+          mime: 'image/jpeg',
+          type: 'image/jpeg',
+          url: photoURL,
+          width: 300,
+          height: 300,
+        };
+
+        await firebaseUser.updateProfile({ photoURL });
+      } else {
+        let imageSize: ImageSize;
+
+        try {
+          imageSize = await getImageSize(firebaseUser.photoURL);
+        } catch (error) {
+          console.error($FUNC, 'Failed to get image size of photo URL:', error);
+          imageSize = { width: 100, height: 100 };
+        }
+
+        avatar = {
+          mime: 'image/jpeg',
+          type: 'image/jpeg',
+          url: firebaseUser.photoURL,
+          ...imageSize,
+        };
+      }
+
+      profile.set('avatar', avatar);
       syncProfile = true;
     }
 
     const email: string | undefined = profile.get('email');
     if (!email && firebaseUser.email) {
       profile.set('email', firebaseUser.email);
-      syncProfile = true;
-    }
-
-    const provider: string | undefined = profile.get('provider');
-    const firebaseProviderId = firebaseUser.providerData[0]?.providerId;
-    if (!provider && firebaseProviderId) {
-      profile.set('provider', firebaseProviderId);
       syncProfile = true;
     }
 
@@ -145,7 +198,7 @@ export namespace AuthApi {
       );
     }
 
-    return await syncAndContructUser(currentUser.id, profile, firebaseUser);
+    return await syncAndConstructUser(currentUser.id, profile, firebaseUser);
   }
 
   //#region SIGN IN WITH EMAIL AND PASSWORD
@@ -293,13 +346,16 @@ export namespace AuthApi {
       const provider: string | undefined =
         firebaseUser.providerData[0]?.providerId;
 
-      const newProfile: Parse.Object = await Parse.Cloud.run('createProfile', {
-        kind,
-        email,
-        displayName,
-        username,
-        provider,
-      });
+      const newProfile: Parse.Object = await Parse.Cloud.run(
+        'createProfileForNewUser',
+        {
+          kind,
+          email,
+          displayName,
+          username,
+          provider,
+        },
+      );
 
       const user: User = {
         provider,
