@@ -333,7 +333,7 @@ export type SettingsStackParamList = {
 //#region REPORT ITEM STACK
 
 export type ReportItemStackParamList = {
-  ReportItemReason: { type: 'post' | 'profile' };
+  ReportItemReason: { type: 'comment' | 'post' | 'profile' };
   ReportItemSuccess: undefined;
 };
 

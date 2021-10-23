@@ -28,9 +28,6 @@ export namespace ProfileApi {
       id: object.id as Id,
       profileId: profileId as ProfileId,
       status: object.get('status') ?? ApiObjectStatus.READY,
-      avatar: object.get('avatar'),
-      coverPhoto: object.get('coverPhoto'),
-      biography: object.get('biography'),
     };
   }
 
@@ -41,6 +38,9 @@ export namespace ProfileApi {
       email: result.get('email') ?? '',
       username: result.get('username') ?? '',
       displayName: result.get('displayName') ?? '',
+      avatar: result.get('avatar'),
+      coverPhoto: result.get('coverPhoto'),
+      biography: result.get('biography'),
       // TODO: Compute this through a query instead
       followers: result.get('followersArray') ?? [],
       following: result.get('followingArray') ?? [],
@@ -185,9 +185,12 @@ export namespace ProfileApi {
       email: profile.get('email') ?? '',
       username: profile.get('username') ?? '',
       displayName: profile.get('displayName') ?? '',
-      followers: profile.get('followersArray') ?? '',
-      following: profile.get('followingArray') ?? '',
-      blocked: profile.get('blockedArray') ?? '',
+      avatar: result.get('avatar'),
+      coverPhoto: result.get('coverPhoto'),
+      biography: result.get('biography'),
+      followers: profile.get('followersArray') ?? [],
+      following: profile.get('followingArray') ?? [],
+      blocked: profile.get('blockedArray') ?? [],
       ...constructCommonProfileDetails<VendorProfileId>(profile.id, result),
     };
   }

@@ -243,6 +243,8 @@ const CommentCellContent = (props: CommentCellContentProps) => {
   const { didLike, totalLikes } = comment.statistics;
 
   const dispatch = useAppDispatch();
+  const navigation = useNavigation<RootStackNavigationProp>();
+
   const isMounted = useIsMounted();
   const cellContext = useContext(CommentCellContext);
   const isMyProfile = useIsMyProfile(comment.profileId);
@@ -307,7 +309,7 @@ const CommentCellContent = (props: CommentCellContentProps) => {
     await cellContext.onPressReply?.(comment, profile);
   };
 
-  const handleSelectItem = async (selectedItem: string) => {
+  const handleSelectActionItem = async (selectedItem: string) => {
     const handleDeleteComment = async () => {
       const commitDeleteComment = async () => {
         try {
@@ -341,6 +343,11 @@ const CommentCellContent = (props: CommentCellContentProps) => {
         await handleDeleteComment();
         break;
       case 'Report Comment':
+        navigation.navigate('ReportItem', {
+          screen: 'ReportItemReason',
+          params: { type: 'comment' },
+        });
+        break;
       default:
         actionBottomSheetRef.current?.close();
         break;
@@ -392,7 +399,7 @@ const CommentCellContent = (props: CommentCellContentProps) => {
       <ActionBottomSheet
         ref={actionBottomSheetRef}
         items={actionBottomSheetItems}
-        onSelectItem={handleSelectItem}
+        onSelectItem={handleSelectActionItem}
       />
     </View>
   );

@@ -15,7 +15,7 @@
   - [ ] Ability to search workshops
   - [ ] Ability to search posts
 - Add ability to clear app cache from Settings
-- Add placeholder UI for reporting posts and profiles
+- Add placeholder UI for reporting comments, posts and profiles
 - Add new experience to create items with preview (WIP)
   - [x] Create text post
   - [ ] Create gallery post

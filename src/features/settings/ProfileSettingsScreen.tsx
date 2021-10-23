@@ -1,5 +1,6 @@
 import React, { useLayoutEffect, useState } from 'react';
 import {
+  ActivityIndicator,
   Alert,
   Keyboard,
   KeyboardAvoidingView,
@@ -20,7 +21,7 @@ import { useNavigation } from '@react-navigation/core';
 import { ProfileApi } from 'src/api';
 import { updateProfile } from 'src/features/profiles/profiles-slice';
 import { useMyProfileId, useProfile } from 'src/features/profiles/hooks';
-import { useAppDispatch } from 'src/hooks';
+import { useAppDispatch, useIsMounted } from 'src/hooks';
 import { Profile, ProfileId } from 'src/models';
 import { RootStackScreenProps } from 'src/navigation';
 import { alertUnavailableFeature } from 'src/utilities';
@@ -173,8 +174,10 @@ function LoadedProfileSettingsScreen(props: LoadedAccountSettingsScreenProps) {
 function ProfileSettingsForm({ profile }: { profile: Profile }) {
   const $FUNC = '[ProfileSettingsForm]';
   const navigation = useNavigation<ProfileSettingsProps['navigation']>();
+  const isMounted = useIsMounted();
 
   const [selection, setSelection] = useState('user');
+  const [isGeneratingUsername, setIsGeneratingUsername] = useState(false);
 
   const {
     dirty,
@@ -190,6 +193,7 @@ function ProfileSettingsForm({ profile }: { profile: Profile }) {
 
   const handleGenerateRandomUsername = async () => {
     try {
+      setIsGeneratingUsername(true);
       const username = await ProfileApi.generateRandomUsername();
       setFieldValue('username', username);
     } catch (error) {
@@ -198,6 +202,8 @@ function ProfileSettingsForm({ profile }: { profile: Profile }) {
         SOMETHING_WENT_WRONG.title,
         "We weren't able to generate a username for you. Please try again later.",
       );
+    } finally {
+      if (isMounted.current) setIsGeneratingUsername(false);
     }
   };
 
@@ -294,13 +300,25 @@ function ProfileSettingsForm({ profile }: { profile: Profile }) {
             onBlur={handleBlur('username')}
             onChangeText={handleChange('username')}
             error={errors.username}
-            // prefix={<Cell.Input.Affix text="@" />}
+            prefix={
+              values.username?.length && values.username.length > 0 ? (
+                <Cell.Input.Affix text="@" />
+              ) : null
+            }
             suffix={
-              <Cell.Input.Icon
-                name="reload-outline"
-                color={color.accent}
-                onPress={handleGenerateRandomUsername}
-              />
+              isGeneratingUsername ? (
+                <ActivityIndicator
+                  size="small"
+                  color={color.accent}
+                  style={{ width: 24 }}
+                />
+              ) : (
+                <Cell.Input.Icon
+                  name="reload-outline"
+                  color={color.accent}
+                  onPress={handleGenerateRandomUsername}
+                />
+              )
             }
           />
           <Cell.Input
