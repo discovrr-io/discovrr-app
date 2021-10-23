@@ -18,11 +18,11 @@ import { IconProps } from 'react-native-vector-icons/Icon';
 import { color, font, layout } from 'src/constants';
 import { DEFAULT_ACTIVE_OPACITY } from 'src/constants/values';
 
+import Spacer from '../Spacer';
 import CellContainer from './CellContainer';
 import { CellInputGroupContext } from './CellInputGroup';
 import { CellElementProps, defaultCellElementOptions } from './common';
 import { useCellElementContext } from './hooks';
-import { Spacer } from 'src/components';
 
 type CellInputProps = CellElementProps &
   Pick<

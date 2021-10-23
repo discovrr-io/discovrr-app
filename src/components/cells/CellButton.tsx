@@ -3,7 +3,7 @@ import { StyleSheet, Text, TouchableHighlight, View } from 'react-native';
 
 import Icon from 'react-native-vector-icons/Ionicons';
 
-import { Spacer } from 'src/components';
+import Spacer from '../Spacer';
 import { color } from 'src/constants';
 
 import CellContainer from './CellContainer';

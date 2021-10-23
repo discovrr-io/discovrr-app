@@ -1,6 +1,7 @@
 export * from './bottom-sheets';
 export * from './buttons';
 export * from './cards';
+export * from './cells';
 export * from './containers';
 export * from './inputs';
 

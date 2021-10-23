@@ -11,8 +11,7 @@ import {
   VendorProfileId,
 } from 'src/models/profile';
 
-import { ApiObjectStatus } from '.';
-import { ApiError, CommonApiErrorCode } from './common';
+import { ApiError, ApiObjectStatus, CommonApiErrorCode } from './common';
 
 export namespace ProfileApi {
   export type ProfileApiErrorCode =

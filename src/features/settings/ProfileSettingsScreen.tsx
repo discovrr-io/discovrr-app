@@ -33,14 +33,13 @@ import { SOMETHING_WENT_WRONG } from 'src/constants/strings';
 import {
   AsyncGate,
   Button,
+  Cell,
   LoadingContainer,
   RouteError,
   Spacer,
 } from 'src/components';
-
-import Cell from './components';
-import { CELL_GROUP_VERTICAL_SPACING } from './components/CellGroup';
-import { CELL_ICON_SIZE } from './components/common';
+import { CELL_GROUP_VERTICAL_SPACING } from 'src/components/cells/CellGroup';
+import { CELL_ICON_SIZE } from 'src/components/cells/common';
 
 const MAX_INPUT_LENGTH = 30;
 const MAX_BIO_LENGTH = 140;

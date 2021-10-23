@@ -15,11 +15,10 @@ import Parse from 'parse/react-native';
 
 import * as constants from 'src/constants';
 import * as values from 'src/constants/values';
-import { Spacer } from 'src/components';
+import { Cell, Spacer } from 'src/components';
+import { CELL_GROUP_VERTICAL_SPACING } from 'src/components/cells/CellGroup';
 import { RootStackScreenProps } from 'src/navigation';
 
-import Cell from './components';
-import { CELL_GROUP_VERTICAL_SPACING } from './components/CellGroup';
 import { useAppDispatch } from 'src/hooks';
 import { resetAppState } from 'src/global-actions';
 

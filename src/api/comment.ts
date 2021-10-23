@@ -1,6 +1,6 @@
 import Parse from 'parse/react-native';
 
-import { UserApi } from '.';
+import { UserApi } from './user';
 import { ApiError, CommonApiErrorCode, ApiObjectStatus } from './common';
 import {
   Comment,

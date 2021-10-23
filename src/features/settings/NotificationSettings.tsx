@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
 import { SafeAreaView, ScrollView } from 'react-native';
 
-import { Spacer } from 'src/components';
+import { Cell, Spacer } from 'src/components';
+import { CELL_GROUP_VERTICAL_SPACING } from 'src/components/cells/CellGroup';
 import { layout } from 'src/constants';
 import { RootStackScreenProps } from 'src/navigation';
-
-import Cell from './components';
-import { CELL_GROUP_VERTICAL_SPACING } from './components/CellGroup';
 
 type NotificationSettings = {
   postLike: boolean;

@@ -2,10 +2,10 @@ import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import analytics from '@react-native-firebase/analytics';
 import Parse from 'parse/react-native';
 
+import { ApiError, CommonApiErrorCode, MediaSource } from './common';
 import { SessionId, User, UserId } from 'src/models';
 import { ProfileId, ProfileKind } from 'src/models/profile';
 import { DEFAULT_AVATAR_DIMENSIONS } from 'src/constants/media';
-import { ApiError, CommonApiErrorCode, MediaSource } from '.';
 
 export namespace AuthApi {
   export type AuthApiErrorCode =
