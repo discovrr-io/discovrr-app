@@ -146,6 +146,7 @@ function AppDrawer(props: AppDrawerProps & { profileId: ProfileId }) {
                 width: AVATAR_DIAMETER,
                 height: AVATAR_DIAMETER,
                 borderRadius: AVATAR_DIAMETER / 2,
+                backgroundColor: color.placeholder,
               }}
             />
             <Text

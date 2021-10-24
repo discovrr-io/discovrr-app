@@ -3,10 +3,10 @@ import analytics from '@react-native-firebase/analytics';
 import Parse from 'parse/react-native';
 import { Image } from 'react-native';
 
+import { ApiObjectStatus, MediaSource } from '.';
 import { ApiError, CommonApiErrorCode } from './common';
 import { SessionId, User, UserId } from 'src/models';
 import { ProfileId, ProfileKind } from 'src/models/profile';
-import { MediaSource } from '.';
 
 export namespace AuthApi {
   export type AuthApiErrorCode =
@@ -141,6 +141,7 @@ export namespace AuthApi {
 
     console.log($FUNC, 'Querying profile...');
     const query = new Parse.Query(Parse.Object.extend('Profile'));
+    query.notEqualTo('status', ApiObjectStatus.DELETED);
     query.equalTo('user', currentUser.toPointer());
 
     let profile = await query.first();

@@ -37,8 +37,8 @@ Parse.User.enableUnsafeCurrentUser();
 Parse.initialize(Config.PARSE_APP_ID || 'local-discovrr-dev-server');
 Parse.serverURL = Config.PARSE_SERVER_URL || 'http://localhost:1337/parse';
 
-// Store version 3.0.0.4 (3000004)
-const STORE_VERSION = [3, 0, 0, 4] as const;
+// Store version 3.0.0.5 (3000005)
+const STORE_VERSION = [3, 0, 0, 5] as const;
 // Set this to the appropriate option any time the `STORE_VERSION` is changed
 const SIGN_OUT_USER = true;
 
