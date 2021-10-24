@@ -99,7 +99,7 @@ const InnerProductItemCard = (props: InnerProductItemCardProps) => {
           <Card.HeartIconButton
             didLike={didLike}
             totalLikes={totalLikes}
-            onToggleLike={() => alertUnavailableFeature()}
+            onToggleLike={() => {}}
           />
         </Card.Actions>
       </Card.Footer>

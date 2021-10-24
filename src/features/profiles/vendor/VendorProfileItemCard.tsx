@@ -5,15 +5,15 @@ import FastImage from 'react-native-fast-image';
 import { useNavigation } from '@react-navigation/core';
 
 import { color } from 'src/constants';
+import { useProfile } from 'src/features/profiles/hooks';
+import { ProfileId, VendorProfile } from 'src/models';
+import { RootStackNavigationProp } from 'src/navigation';
+
 import { AsyncGate, Card } from 'src/components';
 import {
   CardElementOptions,
   CardElementProps,
 } from 'src/components/cards/common';
-import { useProfile } from 'src/features/profiles/hooks';
-import { ProfileId, VendorProfile } from 'src/models';
-import { RootStackNavigationProp } from 'src/navigation';
-import { alertUnavailableFeature } from 'src/utilities';
 
 type VendorProfileItemCardProps = CardElementProps & {
   profileId: ProfileId;
@@ -119,7 +119,8 @@ const InnerVendorProfileItemCard = (props: InnerVendorProfileItemCardProps) => {
           <Card.HeartIconButton
             didLike={false}
             totalLikes={0}
-            onToggleLike={() => alertUnavailableFeature()}
+            // onToggleLike={() => alertUnavailableFeature()}
+            onToggleLike={() => {}}
           />
         </Card.Actions>
       </Card.Footer>
