@@ -1,8 +1,10 @@
-# Discovrr App
+<p align="center">
+  <img src="assets/bootsplash_logo.png" alt="logo" align="center">
+</p>
+
+# Discovrr [![CI][badge]][ci]
+
 Local, visual search tool helping you find great deals in your own backyard
 
-
-### Todo
-- [ ] Migrate to Flutter v2 for better and performant native
-  - Staggered/mansory grid lists (Most app lists)
-  - Collapsible app bar (Profile screen)
+[badge]: https://github.com/discovrr-io/discovrr-app/workflows/CI/badge.svg
+[ci]: https://github.com/discovrr-io/discovrr-app/actions?query=workflow:%22CI%22

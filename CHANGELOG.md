@@ -25,9 +25,9 @@
 
 ### Changed
 
-- Merge `Vendor`s and `Personal` profiles into one common interface
-- Change `APP_VERSION` to be set to the node package version with a fall back to
-  the device version
+- Merge `"personal"` and `"vendor"` profile kinds into one common interface
+- Change `APP_VERSION` to be set to the node package version, falling back to
+  the device version if it could not be found
 
 ### Fixed
 
