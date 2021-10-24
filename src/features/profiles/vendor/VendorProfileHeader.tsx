@@ -1,5 +1,6 @@
 import React from 'react';
-import { Text, View } from 'react-native';
+
+import ProfileHeader from '../ProfileHeader';
 import { VendorProfile } from 'src/models/profile';
 
 type VendorProfileHeaderProps = {
@@ -7,9 +8,13 @@ type VendorProfileHeaderProps = {
 };
 
 export default function VendorProfileHeader(props: VendorProfileHeaderProps) {
+  const vendorProfile = props.vendorProfile;
   return (
-    <View>
-      <Text>{JSON.stringify(props.vendorProfile)}</Text>
-    </View>
+    <ProfileHeader
+      profileDetails={{
+        ...vendorProfile,
+        displayName: vendorProfile.businessName || vendorProfile.displayName,
+      }}
+    />
   );
 }

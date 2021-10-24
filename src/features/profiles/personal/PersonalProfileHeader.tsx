@@ -28,7 +28,7 @@ type UserProfileHeaderProps = {
 
 export default function UserProfileHeader(props: UserProfileHeaderProps) {
   const $FUNC = '[UserProfileHeader]';
-  const { personalProfile } = props;
+  const personalProfile = props.personalProfile;
 
   const dispatch = useAppDispatch();
   const navigation = useNavigation<RootStackNavigationProp>();
@@ -101,10 +101,7 @@ export default function UserProfileHeader(props: UserProfileHeaderProps) {
 
   return (
     <ProfileHeader
-      profileDetails={{
-        ...personalProfile,
-        displayName: personalProfile.displayName,
-      }}
+      profileDetails={personalProfile}
       renderStatistics={() => (
         <>
           <ProfileHeader.Statistic

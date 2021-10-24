@@ -40,8 +40,7 @@ async function fetchUsersBySearchQuery(query: string): Promise<ProfileId[]> {
     .ascending('$score')
     .select('$score');
 
-  const biographyQuery = new Parse.Query('PersonalProfile')
-    .include('profile')
+  const biographyQuery = new Parse.Query('Profile')
     .fullText('biography', query)
     .ascending('$score')
     .select('$score', 'profile');
@@ -51,9 +50,8 @@ async function fetchUsersBySearchQuery(query: string): Promise<ProfileId[]> {
     biographyQuery.find(),
   ]);
 
-  const getProfileId = (item: Parse.Object): string => item.get('profile').id;
-  const displayNameResultsProfileIds = displayNameResults.map(it => it.id);
-  const biographyResultsProfileIds = biographyResults.map(getProfileId);
+  const displayNameResultsProfileIds = displayNameResults.map(item => item.id);
+  const biographyResultsProfileIds = biographyResults.map(item => item.id);
 
   console.log({
     displayNameResultsProfileIds,
@@ -69,7 +67,7 @@ async function fetchUsersBySearchQuery(query: string): Promise<ProfileId[]> {
 }
 
 async function fetchMakersBySearchQuery(query: string): Promise<ProfileId[]> {
-  const businessNameQuery = new Parse.Query('VendorProfile')
+  const businessNameQuery = new Parse.Query('ProfileVendor')
     .include('profile')
     .fullText('businessName', query)
     .ascending('$score')
@@ -81,8 +79,7 @@ async function fetchMakersBySearchQuery(query: string): Promise<ProfileId[]> {
     .ascending('$score')
     .select('$score');
 
-  const biographyQuery = new Parse.Query(Parse.Object.extend('VendorProfile'))
-    .include('profile')
+  const biographyQuery = new Parse.Query(Parse.Object.extend('Profile'))
     .fullText('biography', query)
     .ascending('$score')
     .select('$score', 'profile');
@@ -96,7 +93,7 @@ async function fetchMakersBySearchQuery(query: string): Promise<ProfileId[]> {
 
   const getProfileId = (item: Parse.Object): string => item.get('profile').id;
   const businessNameResultsProfileIds = businessNameResults.map(getProfileId);
-  const biographyResultsProfileIds = biographyResults.map(getProfileId);
+  const biographyResultsProfileIds = biographyResults.map(item => item.id);
   const displayNameResultsProfileIds = displayNameResults.map(item => item.id);
 
   console.log({

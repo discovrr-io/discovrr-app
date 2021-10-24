@@ -48,8 +48,8 @@ export namespace ProfileApi {
     };
 
     if (kind === 'personal') {
-      const personalProfile: Parse.Object = result.get('personalProfile');
-      if (!personalProfile)
+      const profilePersonal: Parse.Object = result.get('profilePersonal');
+      if (!profilePersonal)
         throw new ProfileApiError(
           'PROFILE_NOT_FOUND',
           `No personal profile was found for profile '${result.id}'.`,
@@ -58,7 +58,7 @@ export namespace ProfileApi {
       const commonProfileDetails =
         constructCommonProfileDetails<PersonalProfileId>(
           result.id,
-          personalProfile,
+          profilePersonal,
         );
 
       if (!commonProfileDetails.profileId) {
@@ -71,8 +71,8 @@ export namespace ProfileApi {
         ...sharedProfileDetails,
       };
     } else if (kind === 'vendor') {
-      const vendorProfile: Parse.Object = result.get('vendorProfile');
-      if (!vendorProfile)
+      const profileVendor: Parse.Object = result.get('profileVendor');
+      if (!profileVendor)
         throw new ProfileApiError(
           'PROFILE_NOT_FOUND',
           `No vendor profile was found for profile '${result.id}'.`,
@@ -81,7 +81,7 @@ export namespace ProfileApi {
       const commonProfileDetails =
         constructCommonProfileDetails<VendorProfileId>(
           result.id,
-          vendorProfile,
+          profileVendor,
         );
 
       return {
@@ -113,7 +113,7 @@ export namespace ProfileApi {
   ): Promise<Profile> {
     const { profileId } = params;
     const query = new Parse.Query(Parse.Object.extend('Profile'));
-    query.include('personalProfile', 'vendorProfile');
+    query.include('profilePersonal', 'profileVendor');
     query.notEqualTo('status', ApiObjectStatus.DELETED);
 
     const result = await query.get(String(profileId));
@@ -129,7 +129,7 @@ export namespace ProfileApi {
   ): Promise<Profile[]> {
     const pagination = params.pagination;
     const query = new Parse.Query(Parse.Object.extend('Profile'));
-    query.include('personalProfile', 'vendorProfile');
+    query.include('profilePersonal', 'profileVendor');
     query.notEqualTo('status', ApiObjectStatus.DELETED);
 
     if (pagination) {
@@ -154,9 +154,8 @@ export namespace ProfileApi {
     params: FetchAllProfilesByKindParams,
   ): Promise<Profile[]> {
     const { kind, pagination } = params;
-
     const query = new Parse.Query(Parse.Object.extend('Profile'));
-    query.include('personalProfile', 'vendorProfile');
+    query.include('profilePersonal', 'profileVendor');
     query.equalTo('kind', kind);
     query.notEqualTo('status', ApiObjectStatus.DELETED);
 
@@ -172,12 +171,12 @@ export namespace ProfileApi {
   export async function fetchProfileByVendorProfileId(
     params: FetchProfileByVendorProfileIdParams,
   ): Promise<Profile> {
-    const { vendorProfileId } = params;
-    const vendorQuery = new Parse.Query(Parse.Object.extend('VendorProfile'));
+    const vendorId = String(params.vendorProfileId);
+    const vendorQuery = new Parse.Query(Parse.Object.extend('ProfileVendor'));
     vendorQuery.include('profile');
     vendorQuery.notEqualTo('status', ApiObjectStatus.DELETED);
 
-    const result = await vendorQuery.get(String(vendorProfileId));
+    const result = await vendorQuery.get(vendorId);
     const profile: Parse.Object = result.get('profile');
 
     return {

@@ -9,10 +9,10 @@ import {
 
 import FastImage from 'react-native-fast-image';
 
+import Profile, { VendorProfileAddress } from 'src/models/profile';
 import { color, font, layout } from 'src/constants';
 import { DEFAULT_AVATAR } from 'src/constants/media';
 import { DEFAULT_ACTIVE_OPACITY } from 'src/constants/values';
-import { Merchant, Profile } from 'src/models';
 import { shortenLargeNumber } from 'src/utilities';
 
 const DEFAULT_BACKGROUND = require('../../../assets/images/backdrop.png');
@@ -21,11 +21,12 @@ export const HEADER_MAX_HEIGHT = 265;
 const AVATAR_IMAGE_RADIUS = 80;
 
 type ProfileDetails = Pick<
-  Profile & Merchant,
-  'username' | 'avatar' | 'coverPhoto' | 'biography' | 'address'
+  Profile,
+  'username' | 'avatar' | 'coverPhoto' | 'biography'
 > & {
   displayName: string;
   username?: string | undefined;
+  address?: VendorProfileAddress;
 };
 
 type RenderProfileDetailsChildren = (

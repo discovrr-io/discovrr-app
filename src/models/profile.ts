@@ -25,7 +25,7 @@ export interface SharedProfileDetails {
 /**
  * Properties that are present in personal and vendor profiles, but are not
  * shared. These properties are simply duplicated between personal and vendor
- * profiles but represent two different things.
+ * profiles and are not meant to be shared.
  */
 export interface CommonProfileDetails<Id extends EntityId> {
   readonly id: Id;
@@ -37,7 +37,7 @@ export interface PersonalProfile
   extends CommonProfileDetails<PersonalProfileId>,
     SharedProfileDetails {}
 
-type VendorProfileAddress = {
+export type VendorProfileAddress = {
   readonly street?: string;
   readonly city?: string;
   readonly postcode?: string;

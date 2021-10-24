@@ -34,15 +34,13 @@ import { signOut } from './features/authentication/auth-slice';
 Parse.setAsyncStorage(AsyncStorage);
 Parse.User.enableUnsafeCurrentUser();
 
-Parse.initialize(Config.PARSE_APP_ID || 'discovrr-dev-server');
+Parse.initialize(Config.PARSE_APP_ID || 'local-discovrr-dev-server');
 Parse.serverURL = Config.PARSE_SERVER_URL || 'http://localhost:1337/parse';
 
-// Store version 3.0.0.2 (3000002)
-const STORE_VERSION = [3, 0, 0, 3] as const;
+// Store version 3.0.0.4 (3000004)
+const STORE_VERSION = [3, 0, 0, 4] as const;
 // Set this to the appropriate option any time the `STORE_VERSION` is changed
 const SIGN_OUT_USER = true;
-
-const persistor = persistStore(store);
 
 const navigationTheme: Theme = {
   ...DefaultTheme,
@@ -53,6 +51,8 @@ const navigationTheme: Theme = {
     card: color.white,
   },
 };
+
+const persistor = persistStore(store);
 
 function createVersionString(
   version: readonly [number, number, number, number],

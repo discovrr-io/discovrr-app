@@ -24,7 +24,7 @@ export namespace ProductApi {
 
     return {
       id: result.id as ProductId,
-      vendorId: vendorProfileId ?? result.get('vendor').id,
+      vendorId: vendorProfileId ?? result.get('profileVendor').id,
       squareSpaceId: result.get('squareSpaceId'),
       name: result.get('name'),
       description: result.get('description'),
@@ -83,20 +83,20 @@ export namespace ProductApi {
   export async function fetchProductsForVendorProfile(
     params: FetchProductsForVendorProfileParams,
   ): Promise<Product[]> {
-    const vendorProfileId = String(params.vendorProfileId);
-    const vendorProfilePointer: Parse.Pointer = {
+    const profileVendorId = String(params.vendorProfileId);
+    const profileVendorPointer: Parse.Pointer = {
       __type: 'Pointer',
-      className: 'VendorProfile',
-      objectId: vendorProfileId,
+      className: 'ProfileVendor',
+      objectId: profileVendorId,
     };
 
     const currentProfile = await UserApi.getCurrentUserProfile();
     const query = new Parse.Query(Parse.Object.extend('Product'));
-    query.equalTo('vendor', vendorProfilePointer);
+    query.equalTo('profileVendor', profileVendorPointer);
 
     const results = await query.find();
     return results.map(result =>
-      mapResultToProduct(result, vendorProfileId, currentProfile?.id),
+      mapResultToProduct(result, profileVendorId, currentProfile?.id),
     );
   }
 
