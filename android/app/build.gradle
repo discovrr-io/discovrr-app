@@ -3,6 +3,7 @@ apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
 apply plugin: 'com.google.firebase.firebase-perf'
 apply plugin: 'com.onesignal.androidsdk.onesignal-gradle-plugin'
+apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"
 
 import com.android.build.OutputFile
 
@@ -11,9 +12,6 @@ project.ext.envConfigFiles = [
     releaseStaging: ".env.staging",
     release: ".env.release",
 ]
-
-// This must be called immediately after setting project.ext.envConfigFiles
-apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"
 
 project.ext.react = [
     enableHermes: true, // clean and rebuild if changed
@@ -88,7 +86,9 @@ android {
         versionName "${versionMajor}.${versionMinor}.${versionPatch}"
         multiDexEnabled true
         vectorDrawables.useSupportLibrary = true
+        resValue "string", "build_config_package", "com.discovrr.discovrr_app"
     }
+
     splits {
         abi {
             reset()
@@ -97,6 +97,7 @@ android {
             include "armeabi-v7a", "x86", "arm64-v8a", "x86_64"
         }
     }
+
     signingConfigs {
         release {
             if (project.hasProperty('DISCOVRR_UPLOAD_STORE_FILE')) {
@@ -113,6 +114,7 @@ android {
             keyPassword 'android'
         }
     }
+
     buildTypes {
         debug {
             applicationIdSuffix ".debug"
@@ -120,6 +122,7 @@ android {
             resValue "string", "CodePushDeploymentKey", '""'
             // resValue "string", "fbProviderId", "com.facebook.app.FacebookContentProvider759877634893854"
         }
+
         // This should be named "releaseStaging" as that naming convention is significant for CodePush
         releaseStaging {
             initWith release
@@ -133,6 +136,7 @@ android {
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
+
         release {
             // Caution! In production, you need to generate your own keystore file.
             // see https://reactnative.dev/docs/signed-apk-android.
@@ -165,7 +169,7 @@ android {
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     // noinspection GradleDynamicVersion
-    implementation "com.facebook.react:react-native:+"  // From node_modules
+    implementation "com.facebook.react:react-native:+" // From node_modules
 
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
 
