@@ -572,8 +572,8 @@ export default function AuthScreen() {
         nonce,
       );
 
-      crashlytics().log('Dispatching credential sign in action...');
-      console.log($FUNC, "Dispatching 'auth/signInWithCredential'...");
+      crashlytics().log('Signing in with credential...');
+      console.log($FUNC, 'Signing in with credential...');
       await dispatch(authSlice.signInWithCredential({ credential })).unwrap();
     } catch (error: any) {
       if (error.code === appleAuth.Error.CANCELED) {
@@ -606,8 +606,8 @@ export default function AuthScreen() {
         accessToken,
       );
 
-      crashlytics().log('Dispatching credential sign in action...');
-      console.log($FUNC, "Dispatching 'auth/signInWithCredential'...");
+      crashlytics().log('Signing in with credential...');
+      console.log($FUNC, 'Signing in with credential...');
       await dispatch(authSlice.signInWithCredential({ credential })).unwrap();
     } catch (error: any) {
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {

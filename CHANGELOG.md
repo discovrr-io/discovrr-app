@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 
-## [v3.0.0.0] (2021-10-24)
+## [v3.0.0] (2021-10-24)
 
 ### Added
 
@@ -14,23 +14,26 @@
   - [ ] Ability to search products
   - [ ] Ability to search workshops
   - [ ] Ability to search posts
-- Add ability to clear app cache from Settings
-- Add placeholder UI for reporting comments, posts and profiles
 - Add new experience to create items with preview (WIP)
   - [x] Create text post
   - [ ] Create gallery post
   - [ ] Create video post
   - [ ] Create product
   - [ ] Create workshop
+- Add ability to clear app cache from Settings
+- Add placeholder UI for reporting comments, posts and profiles
 
 ### Changed
 
 - Merge `Vendor`s and `Personal` profiles into one common interface
+- Change `APP_VERSION` to be set to the node package version with a fall back to
+  the device version
 
 ### Fixed
 
 - Fixed issue where cancelling a search after holding the Explore tab will take
   you to your last viewed tab instead of the Explore feed
+- Searching by makers should only bring up makers and not regular users
 
 ## [v2.3.0.3] (2021-10-15)
 
@@ -69,8 +72,8 @@
   - Discover tab (previously Home tab)
   - Notifications tab (previously in drawer)
 
-[unreleased]: https://github.com/discovrr-io/discovrr-app/compare/v3.0.0.0...HEAD
-[v3.0.0.0]: https://github.com/discovrr-io/discovrr-app/compare/v2.3.0.3...v3.0.0.0
+[unreleased]: https://github.com/discovrr-io/discovrr-app/compare/v3.0.0...HEAD
+[v3.0.0]: https://github.com/discovrr-io/discovrr-app/compare/v2.3.0.3...v3.0.0
 [v2.3.0.3]: https://github.com/discovrr-io/discovrr-app/compare/v2.3.0.2...v2.3.0.3
 [v2.3.0.2]: https://github.com/discovrr-io/discovrr-app/compare/v2.3.0.1...v2.3.0.2
 [v2.3.0.1]: https://github.com/discovrr-io/discovrr-app/releases/tag/v2.3.0.1

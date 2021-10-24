@@ -80,6 +80,7 @@ async function fetchMakersBySearchQuery(query: string): Promise<ProfileId[]> {
     .select('$score');
 
   const biographyQuery = new Parse.Query(Parse.Object.extend('Profile'))
+    .equalTo('kind', 'vendor')
     .fullText('biography', query)
     .ascending('$score')
     .select('$score', 'profile');

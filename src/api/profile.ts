@@ -49,7 +49,7 @@ export namespace ProfileApi {
     const kind: string | undefined = result.get('kind');
 
     if (!migrated || !kind) {
-      console.warn(`Detected legacy profile with ID '${result.id}'.`);
+      console.log(`Detected legacy profile with ID '${result.id}'.`);
       return {
         kind: 'personal',
         ...sharedProfileDetails,
