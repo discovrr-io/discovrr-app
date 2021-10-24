@@ -32,8 +32,6 @@ export namespace ProfileApi {
   }
 
   function mapResultToProfile(result: Parse.Object): Profile {
-    const kind: string = result.get('kind');
-
     const sharedProfileDetails: SharedProfileDetails = {
       email: result.get('email') ?? '',
       username: result.get('username') ?? '',
@@ -46,6 +44,18 @@ export namespace ProfileApi {
       following: result.get('followingArray') ?? [],
       blocked: result.get('blockedArray') ?? [],
     };
+
+    const migrated: boolean | undefined = result.get('migrated');
+    const kind: string | undefined = result.get('kind');
+
+    if (!migrated || !kind) {
+      console.warn(`Detected legacy profile with ID '${result.id}'.`);
+      return {
+        kind: 'personal',
+        ...sharedProfileDetails,
+        ...constructCommonProfileDetails<PersonalProfileId>(result.id, result),
+      };
+    }
 
     if (kind === 'personal') {
       const profilePersonal: Parse.Object = result.get('profilePersonal');

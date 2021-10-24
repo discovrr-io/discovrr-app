@@ -24,7 +24,7 @@ import { useFlipper } from '@react-navigation/devtools';
 
 import store from './store';
 import SplashScreen from './SplashScreen';
-import { color } from './constants';
+import { color, values } from './constants';
 import { useAppDispatch } from './hooks';
 import { resetAppState } from './global-actions';
 
@@ -37,11 +37,6 @@ Parse.User.enableUnsafeCurrentUser();
 Parse.initialize(Config.PARSE_APP_ID || 'local-discovrr-dev-server');
 Parse.serverURL = Config.PARSE_SERVER_URL || 'http://localhost:1337/parse';
 
-// Store version 3.0.0.5 (3000005)
-const STORE_VERSION = [3, 0, 0, 5] as const;
-// Set this to the appropriate option any time the `STORE_VERSION` is changed
-const SIGN_OUT_USER = true;
-
 const navigationTheme: Theme = {
   ...DefaultTheme,
   colors: {
@@ -53,18 +48,6 @@ const navigationTheme: Theme = {
 };
 
 const persistor = persistStore(store);
-
-function createVersionString(
-  version: readonly [number, number, number, number],
-): string {
-  const [major, minor, patch, build] = version;
-  return String(
-    major * 10 ** 6 +
-      (minor % 100) * 10 ** 4 +
-      (patch % 100) * 10 ** 2 +
-      (build % 100),
-  );
-}
 
 function App() {
   const $FUNC = '[App]';
@@ -105,7 +88,7 @@ function PersistedApp() {
 
   const handleBeforeLift = async () => {
     try {
-      const currVersion = createVersionString(STORE_VERSION);
+      const currVersion = values.STORE_VERSION;
       console.log($FUNC, 'Current store version:', currVersion);
 
       const [[_, prevVersion]] = await AsyncStorage.multiGet(['storeVersion']);
@@ -121,7 +104,7 @@ function PersistedApp() {
           // Only reset the FCM registration token if we actually signed the
           // user out (and thus their associated Parse.Session object has been
           // deleted)
-          shouldResetFCMRegistrationToken: SIGN_OUT_USER,
+          shouldResetFCMRegistrationToken: values.STORE_SHOULD_SIGN_OUT,
         });
 
         // FIXME: Even if we don't sign out the user, the profile associated
@@ -130,7 +113,7 @@ function PersistedApp() {
 
         // NOTE: User will only be signed out if the version has changed.
         // Subsequent app launches will not be affected.
-        if (SIGN_OUT_USER) await dispatch(signOut()).unwrap();
+        if (values.STORE_SHOULD_SIGN_OUT) await dispatch(signOut()).unwrap();
       }
     } catch (error) {
       console.error($FUNC, 'Failed to configure persistor', error);

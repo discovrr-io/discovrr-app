@@ -198,6 +198,7 @@ export function MainSettingsScreenFooter() {
         </TouchableOpacity>
       ) : (
         <TouchableOpacity
+          activeOpacity={values.DEFAULT_ACTIVE_OPACITY}
           onPress={() =>
             Alert.alert(
               'You’re Up to Date',
@@ -209,7 +210,7 @@ export function MainSettingsScreenFooter() {
               <Text style={[constants.font.smallBold, footerStyles.text]}>
                 Discovrr {values.APP_VERSION}
               </Text>
-              <Text>&nbsp;(Build {values.APP_BUILD})</Text>
+              <Text>&nbsp;({values.STORE_VERSION})</Text>
             </Text>
           </View>
         </TouchableOpacity>
