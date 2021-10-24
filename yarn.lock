@@ -8737,6 +8737,10 @@ react-native-collapsible-tab-view@^4.3.0:
   dependencies:
     use-deep-compare "^1.1.0"
 
+"react-native-config@https://github.com/luggit/react-native-config.git":
+  version "1.4.5"
+  resolved "https://github.com/luggit/react-native-config.git#2a915d37ba196313f6f8541dcdf621934c63057a"
+
 react-native-crypto-js@1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/react-native-crypto-js/-/react-native-crypto-js-1.0.0.tgz#e677e022e147f41b35614416c92d655f87e2450a"

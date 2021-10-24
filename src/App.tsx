@@ -1,11 +1,3 @@
-import {
-  PARSE_APP_ID,
-  PARSE_APP_ID_DEV,
-  PARSE_SERVER_URL,
-  PARSE_SERVER_URL_DEV,
-  // @ts-expect-error Module `@env` has no TypeScript definitions
-} from '@env';
-
 import React, { useEffect, useRef } from 'react';
 
 import analytics from '@react-native-firebase/analytics';
@@ -13,6 +5,7 @@ import inAppMessaging from '@react-native-firebase/in-app-messaging';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import codePush, { CodePushOptions } from 'react-native-code-push';
+import Config from 'react-native-config';
 import Parse from 'parse/react-native';
 import RNBootSplash from 'react-native-bootsplash';
 import { Provider } from 'react-redux';
@@ -41,16 +34,11 @@ import { signOut } from './features/authentication/auth-slice';
 Parse.setAsyncStorage(AsyncStorage);
 Parse.User.enableUnsafeCurrentUser();
 
-if (__DEV__) {
-  Parse.initialize(PARSE_APP_ID_DEV || 'discovrr-dev-server');
-  Parse.serverURL = PARSE_SERVER_URL_DEV || 'https://api.discovrr.com/parse';
-} else {
-  Parse.initialize(PARSE_APP_ID || 'discovrr-server');
-  Parse.serverURL = PARSE_SERVER_URL || 'https://api.discovrr.com/parse';
-}
+Parse.initialize(Config.PARSE_APP_ID || 'discovrr-dev-server');
+Parse.serverURL = Config.PARSE_SERVER_URL || 'http://localhost:1337/parse';
 
 // Store version 3.0.0.2 (3000002)
-const STORE_VERSION = [3, 0, 0, 2] as const;
+const STORE_VERSION = [3, 0, 0, 3] as const;
 // Set this to the appropriate option any time the `STORE_VERSION` is changed
 const SIGN_OUT_USER = true;
 

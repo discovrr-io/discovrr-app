@@ -1,6 +1,3 @@
-// @ts-ignore
-import { PARSE_SERVER_TERMS_URL } from '@env';
-
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, SafeAreaView, useWindowDimensions } from 'react-native';
 
@@ -41,8 +38,7 @@ export default function InAppWebView(props: InAppWebViewProps) {
         resolvedDestination = 'https://discovrr.com.au/privacy';
         break;
       case 'terms-and-conditions':
-        resolvedDestination =
-          PARSE_SERVER_TERMS_URL || 'https://api.discovrr.com/terms';
+        resolvedDestination = 'https://api.discovrrio.com/terms';
         break;
       default:
         console.warn('Received invalid destination:', destination);

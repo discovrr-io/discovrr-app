@@ -1,6 +1,3 @@
-// @ts-ignore
-import { PARSE_SERVER_TERMS_URL } from '@env';
-
 import React from 'react';
 
 import WebView from 'react-native-webview';
@@ -13,9 +10,7 @@ export default function TermsAndConditionsScreen() {
       <SafeAreaView style={{ flex: 1 }}>
         <WebView
           allowFileAccess
-          source={{
-            uri: PARSE_SERVER_TERMS_URL || 'https://api.discovrr.com/terms',
-          }}
+          source={{ uri: 'https://api.discovrrio.com/terms' }}
           style={{ width: '100%' }}
         />
       </SafeAreaView>
