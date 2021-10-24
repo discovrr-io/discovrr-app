@@ -789,6 +789,7 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODEPUSH_KEY = vYu7b5Dg8cXZFg7RbIRSrSJjQCkKGOQFPrE03;
 				COPY_PHASE_STRIP = NO;
 				DEVELOPMENT_TEAM = K9APN5C6Z2;
 				INFOPLIST_FILE = DiscovrrTests/Info.plist;
@@ -805,7 +806,7 @@
 			};
 			name = Release;
 		};
-		03B0BE3E2654B24B00477F85 /* Staging */ = {
+		03B7BDE8272573B6000C1736 /* Staging */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -834,7 +835,7 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODEPUSH_KEY = _JCHhgZ_hiHd4FkHB4t0nO5q8S0IWxF6nBh1k;
+				CODEPUSH_KEY = "0vWpGJryvPCPsJJd48Eva71PtB8gIYZU-lE_W";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
 				ENABLE_NS_ASSERTIONS = NO;
@@ -856,16 +857,16 @@
 					"\"$(inherited)\"",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
-				MULTI_DEPLOYMENT_CONFIG = "$(BUILD_DIR)/Release$(EFFECTIVE_PLATFORM_NAME)";
+				MULTI_DEPLOYMENT_CONFIG = "$(BUILD_DIR)/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)";
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Staging;
 		};
-		03B0BE3F2654B24B00477F85 /* Staging */ = {
+		03B7BDE9272573B6000C1736 /* Staging */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 25E30185216EE2F23A6F2CBA /* Pods-Discovrr.staging.xcconfig */;
+			baseConfigurationReference = 10415AB7DB500DCD1D6C4948 /* Pods-Discovrr.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -894,12 +895,13 @@
 			};
 			name = Staging;
 		};
-		03B0BE402654B24B00477F85 /* Staging */ = {
+		03B7BDEA272573B6000C1736 /* Staging */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = DF95F2E265D50C6E5EDC5F4B /* Pods-Discovrr-DiscovrrTests.staging.xcconfig */;
+			baseConfigurationReference = F51BA83EFA181C8FD96A36C3 /* Pods-Discovrr-DiscovrrTests.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODEPUSH_KEY = "JifUNCwdHstktjVKrZxx3KE-eE9hE2QaetqKk";
 				COPY_PHASE_STRIP = NO;
 				DEVELOPMENT_TEAM = K9APN5C6Z2;
 				INFOPLIST_FILE = DiscovrrTests/Info.plist;
@@ -916,9 +918,9 @@
 			};
 			name = Staging;
 		};
-		03B0BE412654B24B00477F85 /* Staging */ = {
+		03B7BDEB272573B6000C1736 /* Staging */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 19AEE43D14618FC9A9689C9B /* Pods-OneSignalNotificationServiceExtension.staging.xcconfig */;
+			baseConfigurationReference = 156C92B444013D1483893ED4 /* Pods-OneSignalNotificationServiceExtension.release.xcconfig */;
 			buildSettings = {
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -927,6 +929,7 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODEPUSH_KEY = "JifUNCwdHstktjVKrZxx3KE-eE9hE2QaetqKk";
 				CODE_SIGN_ENTITLEMENTS = OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
@@ -992,6 +995,7 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODEPUSH_KEY = vYu7b5Dg8cXZFg7RbIRSrSJjQCkKGOQFPrE03;
 				CODE_SIGN_ENTITLEMENTS = OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
@@ -1207,7 +1211,7 @@
 			buildConfigurations = (
 				00E356F61AD99517003FC87E /* Debug */,
 				00E356F71AD99517003FC87E /* Release */,
-				03B0BE402654B24B00477F85 /* Staging */,
+				03B7BDEA272573B6000C1736 /* Staging */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -1217,7 +1221,7 @@
 			buildConfigurations = (
 				03DC1B0B262DE70600A0D5C5 /* Debug */,
 				03DC1B0C262DE70600A0D5C5 /* Release */,
-				03B0BE412654B24B00477F85 /* Staging */,
+				03B7BDEB272573B6000C1736 /* Staging */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -1227,7 +1231,7 @@
 			buildConfigurations = (
 				13B07F941A680F5B00A75B9A /* Debug */,
 				13B07F951A680F5B00A75B9A /* Release */,
-				03B0BE3F2654B24B00477F85 /* Staging */,
+				03B7BDE9272573B6000C1736 /* Staging */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -1237,7 +1241,7 @@
 			buildConfigurations = (
 				83CBBA201A601CBA00E9B192 /* Debug */,
 				83CBBA211A601CBA00E9B192 /* Release */,
-				03B0BE3E2654B24B00477F85 /* Staging */,
+				03B7BDE8272573B6000C1736 /* Staging */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
