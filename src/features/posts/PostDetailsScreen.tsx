@@ -156,7 +156,7 @@ const PostHeaderComponent = ({ post }: { post: Post }) => {
               "We weren't able to delete this post. Please try again later.",
           );
         } finally {
-          if (isMounted) setIsDeletingPost(false);
+          if (isMounted.current) setIsDeletingPost(false);
         }
       };
 

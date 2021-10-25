@@ -1,11 +1,11 @@
 import Parse from 'parse/react-native';
 
 import { Pagination } from 'src/models/common';
-import { Product, ProductId } from 'src/models';
+import { Product, ProductId, VendorProfileId } from 'src/models';
 
-import { UserApi } from './user';
+import { ApiObjectStatus } from '.';
 import { ApiError, CommonApiErrorCode } from './common';
-import { VendorProfileId } from 'src/models/profile';
+import { UserApi } from './user';
 
 export namespace ProductApi {
   export type ProductApiErrorCode = CommonApiErrorCode;
@@ -50,7 +50,10 @@ export namespace ProductApi {
   ): Promise<Product> {
     const productId = String(params.productId);
     const productQuery = new Parse.Query(Parse.Object.extend('Product'));
-    const result = await productQuery.include('statistics').get(productId);
+    const result = await productQuery
+      .include('statistics')
+      .notEqualTo('status', ApiObjectStatus.DELETED)
+      .get(productId);
     return mapResultToProduct(result);
   }
 
@@ -64,6 +67,7 @@ export namespace ProductApi {
     const { pagination } = params;
     const profile = await UserApi.getCurrentUserProfile();
     const query = new Parse.Query(Parse.Object.extend('Product'));
+    query.notEqualTo('status', ApiObjectStatus.DELETED);
 
     if (pagination) {
       query.limit(pagination.limit);
@@ -92,7 +96,9 @@ export namespace ProductApi {
 
     const currentProfile = await UserApi.getCurrentUserProfile();
     const query = new Parse.Query(Parse.Object.extend('Product'));
-    query.equalTo('profileVendor', profileVendorPointer);
+    query
+      .notEqualTo('status', ApiObjectStatus.DELETED)
+      .equalTo('profileVendor', profileVendorPointer);
 
     const results = await query.find();
     return results.map(result =>

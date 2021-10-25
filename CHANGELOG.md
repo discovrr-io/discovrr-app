@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Polished up `CreateItemPreview` screen
+
 ## [v3.0.0] (2021-10-24)
 
 ### Added

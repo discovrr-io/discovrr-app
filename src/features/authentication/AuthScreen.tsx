@@ -209,6 +209,7 @@ function LoginForm({ setFormType }: LoginFormProps) {
 
   const handleLogin = async (form: LoginFormValues) => {
     try {
+      Keyboard.dismiss();
       console.log($FUNC, 'Will login with email and password...');
       setIsProcessing(true);
       await dispatch(authSlice.signInWithEmailAndPassword(form)).unwrap();
@@ -323,6 +324,7 @@ function RegisterForm({ setFormType }: RegisterFormProps) {
 
   const handleRegisterAccount = async (form: RegisterFormValues) => {
     try {
+      Keyboard.dismiss();
       console.info($FUNC, 'Starting registration process...');
       setIsProcessing(true);
       await dispatch(authSlice.registerNewAccount(form)).unwrap();
@@ -456,6 +458,7 @@ function ForgotPasswordForm({ setFormType }: ForgotPasswordFormProps) {
 
   const handleResetPassword = async ({ email }: ForgotPasswordFormValues) => {
     try {
+      Keyboard.dismiss();
       console.info($FUNC, 'Sending reset link...');
       setIsProcessing(true);
       await auth().sendPasswordResetEmail(email);

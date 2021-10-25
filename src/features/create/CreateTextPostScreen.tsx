@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   Keyboard,
   KeyboardAvoidingView,
@@ -38,7 +38,7 @@ const textPostSchema = yup.object({
     )
     .test('has at least 3 words', 'Please enter at least 3 words', value => {
       if (!value) return false;
-      return value.trim().split(/\s/).length >= 3;
+      return value.trim().split(/\s/).filter(Boolean).length >= 3;
     }),
 });
 
@@ -46,40 +46,15 @@ type CreateTextPostScreenProps =
   CreateItemDetailsTopTabScreenProps<'CreateTextPost'>;
 
 export default function CreateTextPostScreen(props: CreateTextPostScreenProps) {
-  // const $FUNC = '[CreateTextScreen]';
-  // const dispatch = useAppDispatch();
   const navigation = props.navigation;
-
-  // const handleCreatePost = async (values: TextPostForm) => {
-  //   try {
-  //     console.log($FUNC, 'Publishing text post...');
-  //
-  //     const createPostAction = createPost({
-  //       type: 'text',
-  //       text: values.text.trim(),
-  //       location: values.location,
-  //     });
-  //
-  //     const newPost = await dispatch(createPostAction).unwrap();
-  //     console.log($FUNC, 'Successfully published text post', newPost.id);
-  //
-  //     navigation.goBack(); // Remove the Create Post pop-up
-  //     navigation
-  //       .getParent<CreateItemStackNavigationProp>()
-  //       .getParent<RootStackNavigationProp>()
-  //       .navigate('PostDetails', { postId: newPost.id });
-  //   } catch (error) {
-  //     console.error($FUNC, 'Failed to create text post:', error);
-  //     alertSomethingWentWrong(
-  //       "We weren't able to publish your post at the moment. Please try again later.",
-  //     );
-  //   }
-  // };
 
   const handleNavigateToPreview = (values: TextPostForm) => {
     navigation
       .getParent<CreateItemStackNavigationProp>()
-      .navigate('CreateItemPreview', { type: 'text', ...values });
+      .navigate('CreateItemPreview', {
+        type: 'post',
+        contents: { type: 'text', ...values },
+      });
   };
 
   return (
@@ -104,7 +79,6 @@ function NewTextPostFormikForm() {
             title="Next"
             type="primary"
             size="medium"
-            // variant="contained"
             onPress={handleSubmit}
           />
         ),
@@ -113,11 +87,9 @@ function NewTextPostFormikForm() {
   );
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View style={[layout.defaultScreenStyle, { flex: 1 }]}>
-        <TextArea fieldName="text" placeholder="What's on your mind?" />
-      </View>
-    </TouchableWithoutFeedback>
+    <View style={[layout.defaultScreenStyle, { flex: 1 }]}>
+      <TextArea fieldName="text" placeholder="What's on your mind?" />
+    </View>
   );
 }
 
@@ -129,25 +101,36 @@ type TextAreaProps = {
 function TextArea(props: TextAreaProps) {
   const [field, meta, _helpers] = useField(props.fieldName);
   return (
-    <KeyboardAvoidingView behavior="height" style={{ flex: 1 }}>
-      {meta.touched && meta.error && (
-        <Text style={[font.smallBold, { color: color.danger }]}>
-          {meta.error}
-        </Text>
-      )}
-      <RNTextInput
-        multiline
-        placeholder={props.placeholder}
-        placeholderTextColor={color.gray500}
-        maxLength={MAX_TEXT_POST_LENGTH}
-        value={field.value}
-        onChangeText={field.onChange('text')}
-        onBlur={field.onBlur('text')}
-        style={[
-          font.h3,
-          { textAlignVertical: 'top', minHeight: '25%', maxHeight: '75%' },
-        ]}
-      />
-    </KeyboardAvoidingView>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <KeyboardAvoidingView
+        behavior="height"
+        keyboardVerticalOffset={90}
+        style={{ flex: 1 }}>
+        {meta.touched && meta.error && (
+          <Text style={[font.smallBold, { color: color.danger }]}>
+            {meta.error}
+          </Text>
+        )}
+        <RNTextInput
+          multiline
+          numberOfLines={8}
+          placeholder={props.placeholder}
+          placeholderTextColor={color.gray500}
+          maxLength={MAX_TEXT_POST_LENGTH}
+          value={field.value}
+          onChangeText={field.onChange('text')}
+          onBlur={field.onBlur('text')}
+          style={[
+            font.h3,
+            {
+              flexGrow: 1,
+              textAlignVertical: 'top',
+              minHeight: '30%',
+              maxHeight: '75%',
+            },
+          ]}
+        />
+      </KeyboardAvoidingView>
+    </TouchableWithoutFeedback>
   );
 }

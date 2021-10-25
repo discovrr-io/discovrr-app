@@ -11,10 +11,10 @@ import {
 
 import * as Animatable from 'react-native-animatable';
 import codePush from 'react-native-code-push';
+import Config from 'react-native-config';
 import Parse from 'parse/react-native';
 
 import * as constants from 'src/constants';
-import * as values from 'src/constants/values';
 import { Cell, Spacer } from 'src/components';
 import { CELL_GROUP_VERTICAL_SPACING } from 'src/components/cells/CellGroup';
 import { RootStackScreenProps } from 'src/navigation';
@@ -71,7 +71,7 @@ export default function MainSettingsScreen(props: MainSettingsScreenProps) {
         }}>
         <Cell.Group label="General">
           <Cell.Navigator
-            label="Profile"
+            label="My profile"
             iconName="person-outline"
             onPress={navigation => navigation.push('ProfileSettings')}
           />
@@ -171,7 +171,7 @@ export function MainSettingsScreenFooter() {
               'New Update Available',
               'This update will be installed the next time you restart ' +
                 'Discovrr.\n\n' +
-                `You are currently on version ${values.APP_VERSION}.`,
+                `You are currently on version ${constants.values.APP_VERSION}.`,
             )
           }
           style={[footerStyles.container, { flexDirection: 'row' }]}>
@@ -198,7 +198,7 @@ export function MainSettingsScreenFooter() {
         </TouchableOpacity>
       ) : (
         <TouchableOpacity
-          activeOpacity={values.DEFAULT_ACTIVE_OPACITY}
+          activeOpacity={constants.values.DEFAULT_ACTIVE_OPACITY}
           onPress={() =>
             Alert.alert(
               'You’re Up to Date',
@@ -208,9 +208,14 @@ export function MainSettingsScreenFooter() {
           <View style={footerStyles.container}>
             <Text style={[constants.font.small, footerStyles.text]}>
               <Text style={[constants.font.smallBold, footerStyles.text]}>
-                Discovrr {values.APP_VERSION}
+                Discovrr {constants.values.APP_VERSION}
               </Text>
-              <Text>&nbsp;({values.STORE_VERSION})</Text>
+              <Text>&nbsp;({constants.values.STORE_VERSION})</Text>
+              {Config.ENV !== 'production' && (
+                <Text style={[constants.font.small, footerStyles.text]}>
+                  &nbsp;[{Config.ENV}]
+                </Text>
+              )}
             </Text>
           </View>
         </TouchableOpacity>
