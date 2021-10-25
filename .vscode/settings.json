@@ -3,6 +3,9 @@
   "editor.formatOnSave": true,
   "editor.tabSize": 2,
   "emmet.showExpandedAbbreviation": "never",
+  "files.associations": {
+    ".env.*": "dotenv",
+  },
   "files.autoSave": "off",
   "files.exclude": {
     "**/._*": true,

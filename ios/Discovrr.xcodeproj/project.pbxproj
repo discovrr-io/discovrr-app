@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		00E356F31AD99517003FC87E /* DiscovrrTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* DiscovrrTests.m */; };
+		036F753F27264FE9008001F7 /* Info-testing.plist in Resources */ = {isa = PBXBuildFile; fileRef = 036F753E27264FE9008001F7 /* Info-testing.plist */; };
+		036F75472726565F008001F7 /* GoogleService-Info-Testing.plist in Resources */ = {isa = PBXBuildFile; fileRef = 036F75462726565F008001F7 /* GoogleService-Info-Testing.plist */; };
 		038B7570270C108F009254F9 /* Rubik-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A89AF5D403EB4EE99C8FE135 /* Rubik-Bold.ttf */; };
 		038B7571270C108F009254F9 /* Rubik-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 55A5083853CC448D9C114EBB /* Rubik-Italic.ttf */; };
 		038B7572270C108F009254F9 /* Rubik-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 940759826B744C8B9A60048C /* Rubik-Medium.ttf */; };
@@ -65,6 +67,8 @@
 		00E356EE1AD99517003FC87E /* DiscovrrTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DiscovrrTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* DiscovrrTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DiscovrrTests.m; sourceTree = "<group>"; };
+		036F753E27264FE9008001F7 /* Info-testing.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "Info-testing.plist"; path = "Discovrr/Info-testing.plist"; sourceTree = "<group>"; };
+		036F75462726565F008001F7 /* GoogleService-Info-Testing.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info-Testing.plist"; path = "Discovrr/GoogleService-Info-Testing.plist"; sourceTree = "<group>"; };
 		038584352665EA38005DECD2 /* Discovrr.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; name = Discovrr.entitlements; path = Discovrr/Discovrr.entitlements; sourceTree = "<group>"; };
 		038D0715272157B500CE5B10 /* GoogleService-Info-Release.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info-Release.plist"; path = "Discovrr/GoogleService-Info-Release.plist"; sourceTree = "<group>"; };
 		038D0716272157B500CE5B10 /* GoogleService-Info-Debug.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info-Debug.plist"; path = "Discovrr/GoogleService-Info-Debug.plist"; sourceTree = "<group>"; };
@@ -80,13 +84,14 @@
 		03ED367B26876304007B77D4 /* Info-staging.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "Info-staging.plist"; path = "Discovrr/Info-staging.plist"; sourceTree = "<group>"; };
 		03ED368F26876716007B77D4 /* OneSignalNotificationServiceExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = OneSignalNotificationServiceExtension.entitlements; sourceTree = "<group>"; };
 		10415AB7DB500DCD1D6C4948 /* Pods-Discovrr.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Discovrr.release.xcconfig"; path = "Target Support Files/Pods-Discovrr/Pods-Discovrr.release.xcconfig"; sourceTree = "<group>"; };
-		13B07F961A680F5B00A75B9A /* Discovrr Debug.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Discovrr Debug.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		13B07F961A680F5B00A75B9A /* Discovrr D.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Discovrr D.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = Discovrr/AppDelegate.h; sourceTree = "<group>"; tabWidth = 4; };
 		13B07FB01A68108700A75B9A /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = Discovrr/AppDelegate.m; sourceTree = "<group>"; tabWidth = 4; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = Discovrr/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = Discovrr/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = Discovrr/main.m; sourceTree = "<group>"; tabWidth = 4; };
 		156C92B444013D1483893ED4 /* Pods-OneSignalNotificationServiceExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OneSignalNotificationServiceExtension.release.xcconfig"; path = "Target Support Files/Pods-OneSignalNotificationServiceExtension/Pods-OneSignalNotificationServiceExtension.release.xcconfig"; sourceTree = "<group>"; };
+		17D25EEF24D31996F7D51B92 /* Pods-Discovrr.testing.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Discovrr.testing.xcconfig"; path = "Target Support Files/Pods-Discovrr/Pods-Discovrr.testing.xcconfig"; sourceTree = "<group>"; };
 		19AEE43D14618FC9A9689C9B /* Pods-OneSignalNotificationServiceExtension.staging.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OneSignalNotificationServiceExtension.staging.xcconfig"; path = "Target Support Files/Pods-OneSignalNotificationServiceExtension/Pods-OneSignalNotificationServiceExtension.staging.xcconfig"; sourceTree = "<group>"; };
 		1C5C06E0FFD78F1455E2A672 /* libPods-Discovrr-DiscovrrTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Discovrr-DiscovrrTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1DEFB0483F7BCB30B6BAA12D /* libPods-Discovrr.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Discovrr.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -94,6 +99,8 @@
 		44B9A8AFB24247519B7FF1F3 /* MaterialCommunityIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = MaterialCommunityIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf"; sourceTree = "<group>"; };
 		55A5083853CC448D9C114EBB /* Rubik-Italic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-Italic.ttf"; path = "../assets/fonts/Rubik-Italic.ttf"; sourceTree = "<group>"; };
 		940759826B744C8B9A60048C /* Rubik-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-Medium.ttf"; path = "../assets/fonts/Rubik-Medium.ttf"; sourceTree = "<group>"; };
+		9D0E56BADA639FA7263571C6 /* Pods-OneSignalNotificationServiceExtension.testing.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OneSignalNotificationServiceExtension.testing.xcconfig"; path = "Target Support Files/Pods-OneSignalNotificationServiceExtension/Pods-OneSignalNotificationServiceExtension.testing.xcconfig"; sourceTree = "<group>"; };
+		A7CEB5C8B529BCD249C1B8CD /* Pods-Discovrr-DiscovrrTests.testing.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Discovrr-DiscovrrTests.testing.xcconfig"; path = "Target Support Files/Pods-Discovrr-DiscovrrTests/Pods-Discovrr-DiscovrrTests.testing.xcconfig"; sourceTree = "<group>"; };
 		A89AF5D403EB4EE99C8FE135 /* Rubik-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-Bold.ttf"; path = "../assets/fonts/Rubik-Bold.ttf"; sourceTree = "<group>"; };
 		AFAA6F5BC1342DBCE5924A88 /* libPods-OneSignalNotificationServiceExtension.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-OneSignalNotificationServiceExtension.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B402E75D12184583A6F1494C /* Ionicons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Ionicons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Ionicons.ttf"; sourceTree = "<group>"; };
@@ -186,11 +193,13 @@
 				038D071D2721582000CE5B10 /* BootSplash.storyboard */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
+				036F753E27264FE9008001F7 /* Info-testing.plist */,
 				03ED367B26876304007B77D4 /* Info-staging.plist */,
 				03D0FE0B2665B9BE00AD22DE /* Info-release.plist */,
 				038D0716272157B500CE5B10 /* GoogleService-Info-Debug.plist */,
-				038D0715272157B500CE5B10 /* GoogleService-Info-Release.plist */,
+				036F75462726565F008001F7 /* GoogleService-Info-Testing.plist */,
 				038D0718272157B500CE5B10 /* GoogleService-Info-Staging.plist */,
+				038D0715272157B500CE5B10 /* GoogleService-Info-Release.plist */,
 				038584352665EA38005DECD2 /* Discovrr.entitlements */,
 				13B07FB71A68108700A75B9A /* main.m */,
 				03DC1AE1262DDCF900A0D5C5 /* Discovrr.swift */,
@@ -223,6 +232,9 @@
 				BCBFF7C25E6B59310E3A8066 /* Pods-OneSignalNotificationServiceExtension.debug.xcconfig */,
 				156C92B444013D1483893ED4 /* Pods-OneSignalNotificationServiceExtension.release.xcconfig */,
 				19AEE43D14618FC9A9689C9B /* Pods-OneSignalNotificationServiceExtension.staging.xcconfig */,
+				17D25EEF24D31996F7D51B92 /* Pods-Discovrr.testing.xcconfig */,
+				A7CEB5C8B529BCD249C1B8CD /* Pods-Discovrr-DiscovrrTests.testing.xcconfig */,
+				9D0E56BADA639FA7263571C6 /* Pods-OneSignalNotificationServiceExtension.testing.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -254,7 +266,7 @@
 		83CBBA001A601CBA00E9B192 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				13B07F961A680F5B00A75B9A /* Discovrr Debug.app */,
+				13B07F961A680F5B00A75B9A /* Discovrr D.app */,
 				00E356EE1AD99517003FC87E /* DiscovrrTests.xctest */,
 				03DC1B02262DE70600A0D5C5 /* OneSignalNotificationServiceExtension.appex */,
 			);
@@ -327,7 +339,7 @@
 			);
 			name = Discovrr;
 			productName = Discovrr;
-			productReference = 13B07F961A680F5B00A75B9A /* Discovrr Debug.app */;
+			productReference = 13B07F961A680F5B00A75B9A /* Discovrr D.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -398,12 +410,14 @@
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				03ED367C26876304007B77D4 /* Info-staging.plist in Resources */,
 				03D0FE0C2665B9BE00AD22DE /* Info-release.plist in Resources */,
+				036F753F27264FE9008001F7 /* Info-testing.plist in Resources */,
 				038B7570270C108F009254F9 /* Rubik-Bold.ttf in Resources */,
 				038B7571270C108F009254F9 /* Rubik-Italic.ttf in Resources */,
 				038B7572270C108F009254F9 /* Rubik-Medium.ttf in Resources */,
 				038B7573270C108F009254F9 /* Rubik-Regular.ttf in Resources */,
 				03997AD3270C1D43001E8B6A /* DiscovrrIcons.ttf in Resources */,
 				038D071A272157B500CE5B10 /* GoogleService-Info-Debug.plist in Resources */,
+				036F75472726565F008001F7 /* GoogleService-Info-Testing.plist in Resources */,
 				038D071C272157B500CE5B10 /* GoogleService-Info-Staging.plist in Resources */,
 				038D0719272157B500CE5B10 /* GoogleService-Info-Release.plist in Resources */,
 				038D071E2721582000CE5B10 /* BootSplash.storyboard in Resources */,
@@ -806,6 +820,161 @@
 			};
 			name = Release;
 		};
+		036F754027265168008001F7 /* Testing */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODEPUSH_KEY = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = "arm64 ";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
+				LD_RUNPATH_SEARCH_PATHS = "/usr/lib/swift $(inherited)";
+				LIBRARY_SEARCH_PATHS = (
+					"\"$(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)\"",
+					"\"$(TOOLCHAIN_DIR)/usr/lib/swift-5.0/$(PLATFORM_NAME)\"",
+					"\"$(inherited)\"",
+				);
+				MTL_ENABLE_DEBUG_INFO = YES;
+				MULTI_DEPLOYMENT_CONFIG = "";
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Testing;
+		};
+		036F754127265168008001F7 /* Testing */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 17D25EEF24D31996F7D51B92 /* Pods-Discovrr.testing.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				CODEPUSH_KEY = "";
+				CODE_SIGN_ENTITLEMENTS = Discovrr/Discovrr.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 4;
+				DEVELOPMENT_TEAM = K9APN5C6Z2;
+				ENABLE_BITCODE = NO;
+				INFOPLIST_FILE = "Discovrr/Info-testing.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 3.0.0;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+					"-lc++",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.discovrr.testing;
+				PRODUCT_NAME = "Discovrr T";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "$(PROJECT_NAME)/$(PROJECT_NAME)-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = Testing;
+		};
+		036F754227265168008001F7 /* Testing */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = A7CEB5C8B529BCD249C1B8CD /* Pods-Discovrr-DiscovrrTests.testing.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				DEVELOPMENT_TEAM = K9APN5C6Z2;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = DiscovrrTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-lc++",
+					"$(inherited)",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Discovrr.app/Discovrr";
+			};
+			name = Testing;
+		};
+		036F754327265168008001F7 /* Testing */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9D0E56BADA639FA7263571C6 /* Pods-OneSignalNotificationServiceExtension.testing.xcconfig */;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 4;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = K9APN5C6Z2;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = OneSignalNotificationServiceExtension/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				MARKETING_VERSION = 3.0.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.discovrr.testing.OneSignalNotificationServiceExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Testing;
+		};
 		03B7BDE8272573B6000C1736 /* Staging */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -866,7 +1035,7 @@
 		};
 		03B7BDE9272573B6000C1736 /* Staging */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 10415AB7DB500DCD1D6C4948 /* Pods-Discovrr.release.xcconfig */;
+			baseConfigurationReference = 25E30185216EE2F23A6F2CBA /* Pods-Discovrr.staging.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -875,7 +1044,7 @@
 				CODE_SIGN_ENTITLEMENTS = Discovrr/Discovrr.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = K9APN5C6Z2;
 				INFOPLIST_FILE = "Discovrr/Info-staging.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
@@ -887,7 +1056,7 @@
 					"-lc++",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.discovrr.staging;
-				PRODUCT_NAME = "Discovrr Staging";
+				PRODUCT_NAME = "Discovrr S";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "$(PROJECT_NAME)/$(PROJECT_NAME)-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
@@ -897,7 +1066,7 @@
 		};
 		03B7BDEA272573B6000C1736 /* Staging */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = F51BA83EFA181C8FD96A36C3 /* Pods-Discovrr-DiscovrrTests.release.xcconfig */;
+			baseConfigurationReference = DF95F2E265D50C6E5EDC5F4B /* Pods-Discovrr-DiscovrrTests.staging.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -920,7 +1089,7 @@
 		};
 		03B7BDEB272573B6000C1736 /* Staging */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 156C92B444013D1483893ED4 /* Pods-OneSignalNotificationServiceExtension.release.xcconfig */;
+			baseConfigurationReference = 19AEE43D14618FC9A9689C9B /* Pods-OneSignalNotificationServiceExtension.staging.xcconfig */;
 			buildSettings = {
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -933,7 +1102,7 @@
 				CODE_SIGN_ENTITLEMENTS = OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = K9APN5C6Z2;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -964,7 +1133,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = K9APN5C6Z2;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -999,7 +1168,7 @@
 				CODE_SIGN_ENTITLEMENTS = OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = K9APN5C6Z2;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -1028,7 +1197,7 @@
 				CODE_SIGN_ENTITLEMENTS = Discovrr/Discovrr.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = K9APN5C6Z2;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Discovrr/Info.plist;
@@ -1041,7 +1210,7 @@
 					"-lc++",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.discovrr.debug;
-				PRODUCT_NAME = "Discovrr Debug";
+				PRODUCT_NAME = "Discovrr D";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "$(PROJECT_NAME)/$(PROJECT_NAME)-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -1061,7 +1230,7 @@
 				CODE_SIGN_ENTITLEMENTS = Discovrr/Discovrr.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = K9APN5C6Z2;
 				INFOPLIST_FILE = "Discovrr/Info-release.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
@@ -1210,8 +1379,9 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				00E356F61AD99517003FC87E /* Debug */,
-				00E356F71AD99517003FC87E /* Release */,
+				036F754227265168008001F7 /* Testing */,
 				03B7BDEA272573B6000C1736 /* Staging */,
+				00E356F71AD99517003FC87E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -1220,8 +1390,9 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				03DC1B0B262DE70600A0D5C5 /* Debug */,
-				03DC1B0C262DE70600A0D5C5 /* Release */,
+				036F754327265168008001F7 /* Testing */,
 				03B7BDEB272573B6000C1736 /* Staging */,
+				03DC1B0C262DE70600A0D5C5 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -1230,8 +1401,9 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				13B07F941A680F5B00A75B9A /* Debug */,
-				13B07F951A680F5B00A75B9A /* Release */,
+				036F754127265168008001F7 /* Testing */,
 				03B7BDE9272573B6000C1736 /* Staging */,
+				13B07F951A680F5B00A75B9A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -1240,8 +1412,9 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				83CBBA201A601CBA00E9B192 /* Debug */,
-				83CBBA211A601CBA00E9B192 /* Release */,
+				036F754027265168008001F7 /* Testing */,
 				03B7BDE8272573B6000C1736 /* Staging */,
+				83CBBA211A601CBA00E9B192 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
