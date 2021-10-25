@@ -9,7 +9,7 @@
 - Manually replace all contents of `.env` with `.env.release` for the release
   build
   - This should not have been required but it seems to be an [active issue for
-    on the `react-native-config` repository](https://github.com/luggit/react-native-config/issues/616)
+    `react-native-config`](https://github.com/luggit/react-native-config/issues/616)
 
 ### Added
 
