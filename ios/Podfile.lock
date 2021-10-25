@@ -462,7 +462,7 @@ PODS:
     - react-native-config/App (= 1.4.5)
   - react-native-config/App (1.4.5):
     - React-Core
-  - react-native-flipper (0.115.0):
+  - react-native-flipper (0.116.0):
     - React-Core
   - react-native-geolocation-service (5.2.0):
     - React
@@ -979,7 +979,7 @@ SPEC CHECKSUMS:
   React-jsinspector: cc614ec18a9ca96fd275100c16d74d62ee11f0ae
   react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
   react-native-config: 6502b1879f97ed5ac570a029961fc35ea606cd14
-  react-native-flipper: 64bca5153bca1b90cbec7ed49f495aaf1facf14b
+  react-native-flipper: bc0286688e9bff709f2cf53f0ae9c032fc06afa1
   react-native-geolocation-service: 7c9436da6dfdecd9526c62eac62ea2bc3f0cc8ea
   react-native-maps: 41d01d8e0afcebe32bec9eea3bd945adc1b18f7a
   react-native-onesignal: d8d59d8df1e47231aec95e6392fea53eb0bcbac1
@@ -1028,6 +1028,6 @@ SPEC CHECKSUMS:
   Yoga: 575c581c63e0d35c9a83f4b46d01d63abc1100ac
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: 9563968b9447e5c4b21af0a7ded631787002cc7f
+PODFILE CHECKSUM: 7844cfc7d247fdebd5df6efca9eafe9e871e254f
 
 COCOAPODS: 1.11.2
