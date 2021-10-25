@@ -8,6 +8,13 @@
 
 ## [v3.0.0] (2021-10-24)
 
+### Hotfix
+
+- Manually replace all contents of `.env` with `.env.release` for the release
+  build
+  - This should not have been required but it seems to be an [active issue for
+    `react-native-config`](https://github.com/luggit/react-native-config/issues/616)
+
 ### Added
 
 - Implement basic search functionality (WIP)
