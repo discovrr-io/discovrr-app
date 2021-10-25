@@ -7,8 +7,12 @@ apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.grad
 
 import com.android.build.OutputFile
 
+// NOTE: This isn't working at the moment. Setting the ENVFILE environment
+// variable also doesn't work. As a workaround, replace all contents of the
+// `.env` file with the appropriate `.env.*` file.
+// https://github.com/luggit/react-native-config/issues/616#issuecomment-947623280
 project.ext.envConfigFiles = [
-    debug: ".env",
+    debug: ".env.debug",
     releaseStaging: ".env.staging",
     release: ".env.release",
 ]
@@ -68,7 +72,7 @@ def enableHermes = project.ext.react.get("enableHermes", false);
 def versionMajor = 3 // Can be more than 2 digits
 def versionMinor = 0 // Must be between 0 and 99
 def versionPatch = 0 // Must be between 0 and 99
-def versionBuild = 0 // Must be between 0 and 99
+def versionBuild = 1 // Must be between 0 and 99
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
