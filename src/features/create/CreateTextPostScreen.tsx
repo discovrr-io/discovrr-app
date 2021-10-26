@@ -16,6 +16,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import * as utilities from 'src/utilities';
 import { Button } from 'src/components';
 import { color, font, layout } from 'src/constants';
+import { useNavigationAlertUnsavedChangesOnRemove } from 'src/hooks';
 
 import {
   CreateItemDetailsTopTabScreenProps,
@@ -66,7 +67,11 @@ export default function CreateTextPostScreen(props: CreateTextPostScreenProps) {
 
 function TextPostFormikForm() {
   const navigation = useNavigation<CreateTextPostScreenProps['navigation']>();
-  const { handleSubmit } = useFormikContext<TextPostForm>();
+  const { dirty, handleSubmit } = useFormikContext<TextPostForm>();
+
+  // FIXME: This will still show an alert if the user has switched tabs from a
+  // dirty text form and then presses the close button.
+  useNavigationAlertUnsavedChangesOnRemove(dirty);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -120,11 +125,10 @@ function TextArea(props: TextAreaProps) {
           style={[
             font.h3,
             {
-              flexGrow: 1,
               textAlignVertical: 'top',
               minHeight: '30%',
-              maxHeight: '75%',
             },
+            // <{ backgroundColor: 'pink' },
           ]}
         />
       </KeyboardAvoidingView>

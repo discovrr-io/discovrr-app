@@ -1,7 +1,10 @@
-import React, { useContext, useEffect, useRef } from 'react';
-import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
+import * as React from 'react';
+import { Alert } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { AsyncThunkAction } from '@reduxjs/toolkit';
+import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 
+import * as constants from 'src/constants';
 import { ApiFetchStatus } from 'src/api';
 import { AppDispatch, RootState } from 'src/store';
 
@@ -28,9 +31,9 @@ export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
  * unmounted component"` error you may see.
  */
 export function useIsMounted(): React.MutableRefObject<boolean> {
-  const isMounted = useRef(true);
+  const isMounted = React.useRef(true);
 
-  useEffect(() => {
+  React.useEffect(() => {
     return () => {
       isMounted.current = false;
     };
@@ -44,9 +47,9 @@ export function useIsMounted(): React.MutableRefObject<boolean> {
  * the component.
  */
 export function useIsInitialRender(): React.MutableRefObject<boolean> {
-  const isInitialRender = useRef(true);
+  const isInitialRender = React.useRef(true);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (isInitialRender.current) {
       isInitialRender.current = false;
     }
@@ -91,7 +94,7 @@ export function useAsyncItem<ItemId, Item, AsyncThunkReturned, AsyncThunkArg>(
   const dispatch = useAppDispatch();
   const description = `${itemName} with ID '${itemId}'`;
 
-  useEffect(
+  React.useEffect(
     () => {
       (async () => {
         try {
@@ -130,6 +133,30 @@ export function useOverridableContextOptions<T>(
   context: React.Context<T>,
   overrides?: Partial<T>,
 ): T {
-  const contextOptions = useContext(context);
+  const contextOptions = React.useContext(context);
   return { ...contextOptions, ...overrides };
+}
+
+export function useNavigationAlertUnsavedChangesOnRemove(dirty: boolean) {
+  const navigation = useNavigation();
+  React.useEffect(() => {
+    navigation.addListener('beforeRemove', e => {
+      if (!dirty) return;
+
+      e.preventDefault();
+
+      Alert.alert(
+        constants.strings.DISCARD_CHANGES.title,
+        constants.strings.DISCARD_CHANGES.message,
+        [
+          {
+            text: 'Discard Changes',
+            style: 'destructive',
+            onPress: () => navigation.dispatch(e.data.action),
+          },
+          { text: "Don't Leave", style: 'cancel' },
+        ],
+      );
+    });
+  }, [dirty, navigation]);
 }

@@ -1,19 +1,15 @@
 import { Alert } from 'react-native';
-import {
-  AlertMessage,
-  FEATURE_UNAVAILABLE,
-  SOMETHING_WENT_WRONG,
-} from 'src/constants/strings';
+import * as strings from 'src/constants/strings';
 
 export function alertSomethingWentWrong(message?: string) {
   Alert.alert(
-    SOMETHING_WENT_WRONG.title,
-    message ?? SOMETHING_WENT_WRONG.message,
+    strings.SOMETHING_WENT_WRONG.title,
+    message ?? strings.SOMETHING_WENT_WRONG.message,
   );
 }
 
 export function alertUnavailableFeature(
-  options: AlertMessage = FEATURE_UNAVAILABLE,
+  options: strings.AlertMessage = strings.FEATURE_UNAVAILABLE,
 ) {
   Alert.alert(options.title, options.message);
 }

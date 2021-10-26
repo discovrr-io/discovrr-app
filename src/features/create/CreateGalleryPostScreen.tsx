@@ -1,9 +1,11 @@
 import * as React from 'react';
 import {
+  Alert,
   FlatList,
   ImageStyle,
   Keyboard,
   KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StyleProp,
   StyleSheet,
@@ -20,6 +22,7 @@ import {
 import * as yup from 'yup';
 import { Formik, useField, useFormikContext } from 'formik';
 
+import BottomSheet from '@gorhom/bottom-sheet';
 import FastImage from 'react-native-fast-image';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useFocusEffect, useNavigation } from '@react-navigation/core';
@@ -29,9 +32,15 @@ import ImageCropPicker, {
 } from 'react-native-image-crop-picker';
 
 import * as utilities from 'src/utilities';
-import { Button, Card, Spacer } from 'src/components';
-import { color, font, layout, values } from 'src/constants';
-import { alertSomethingWentWrong } from 'src/utilities';
+import { color, font, layout, strings, values } from 'src/constants';
+import { useNavigationAlertUnsavedChangesOnRemove } from 'src/hooks';
+
+import {
+  ActionBottomSheet,
+  ActionBottomSheetItem,
+  Button,
+  Spacer,
+} from 'src/components';
 
 import {
   CreateItemDetailsTopTabScreenProps,
@@ -55,6 +64,34 @@ const galleyPostSchema = yup.object({
       return utilities.getWordCount(input) >= 3;
     }),
 });
+
+function constructAlertFromImageCropPickerError(error: any): {
+  title: string;
+  message: string;
+} {
+  let title: string;
+  let message: string;
+
+  switch (error.code as PickerErrorCode) {
+    case 'E_NO_LIBRARY_PERMISSION':
+      title = 'No Library Permissions';
+      message =
+        "You haven't allowed Discovrr access to your photo library. Please enable this in Settings and try again.";
+      break;
+    case 'E_NO_CAMERA_PERMISSION':
+      title = 'No Camera Permissions';
+      message =
+        "You haven't allowed Discovrr access to your camera. Please enable this in Settings and try again.";
+    default:
+      //  Also handles the case when error.code is undefined
+      console.warn('Unhandled error:', error);
+      title = strings.SOMETHING_WENT_WRONG.title;
+      message = strings.SOMETHING_WENT_WRONG.message;
+      break;
+  }
+
+  return { title, message };
+}
 
 type GalleryPostForm = Omit<yup.InferType<typeof galleyPostSchema>, 'media'> & {
   media: Image[];
@@ -101,9 +138,14 @@ export default function CreateGalleryPostScreen(
 function GalleryPostFormikForm() {
   const navigation =
     useNavigation<CreateGalleryPostScreenProps['navigation']>();
-  const { handleSubmit } = useFormikContext<GalleryPostForm>();
+
+  const { dirty, handleSubmit } = useFormikContext<GalleryPostForm>();
 
   const [field, meta, _] = useField<GalleryPostForm['caption']>('caption');
+
+  // FIXME: This will still show an alert if the user has switched tabs from a
+  // dirty gallery form and then pressed the close button.
+  useNavigationAlertUnsavedChangesOnRemove(dirty);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -119,6 +161,7 @@ function GalleryPostFormikForm() {
       });
     }, [navigation, handleSubmit]),
   );
+
   return (
     <ScrollView
       keyboardShouldPersistTaps="handled"
@@ -130,7 +173,7 @@ function GalleryPostFormikForm() {
             { paddingTop: layout.spacing.lg },
           ]}>
           <Text style={[font.medium, { color: color.gray500 }]}>
-            Start creating your gallery post by uploading your photos below:
+            Start creating your gallery post by uploading your photos below
           </Text>
         </View>
         <ImagePreviewPicker />
@@ -169,63 +212,59 @@ const galleryPostFormikFormStyles = StyleSheet.create({
 function ImagePreviewPicker() {
   const $FUNC = '[ImagePreviewPicker]';
   const [_, meta, helpers] = useField<GalleryPostForm['media']>('media');
-  const { width: windowWidth } = useWindowDimensions();
+
+  // React.useEffect(() => {
+  //   console.log(meta.value);
+  // }, [meta.value]);
 
   const flatListRef = React.useRef<FlatList>(null);
+  const actionBottomSheetRef = React.useRef<BottomSheet>(null);
+
+  const actionBottomSheetItems = React.useMemo(() => {
+    return [
+      { id: 'camera', label: 'Take a Photo', iconName: 'camera-outline' },
+      {
+        id: 'library',
+        label: 'Select from Photo Library',
+        iconName: 'albums-outline',
+      },
+    ] as ActionBottomSheetItem[];
+  }, []);
+
+  const { width: windowWidth } = useWindowDimensions();
   const imageItemWidth = React.useMemo(() => windowWidth / 2, [windowWidth]);
-
-  const handleAddImages = async () => {
-    try {
-      const images = await ImageCropPicker.openPicker({
-        mediaType: 'photo',
-        cropping: true,
-        multiple: true,
-        width: 1,
-        height: 1,
-      });
-      helpers.setValue([...meta.value, ...images]);
-
-      flatListRef.current?.scrollToEnd({ animated: true });
-    } catch (error: any) {
-      if (error.code === ('E_PICKER_CANCELLED' as PickerErrorCode)) {
-        console.log($FUNC, 'User cancelled image picker');
-        return;
-      }
-
-      console.error($FUNC, 'Failed to add images:', error);
-      alertSomethingWentWrong(
-        `We weren't able to add your photo. Please report the following error to the Discovrr development team:\n\n${
-          error.code || error.message || JSON.stringify(error)
-        }`,
-      );
-    }
-  };
 
   const handlePressImageAtIndex = async (index: number) => {
     try {
-      console.log(meta.value[index]);
-      // return;
-
       if (index < 0 || index >= meta.value.length) {
-        console.warn('Invalid index:', index);
+        console.warn($FUNC, 'Invalid index:', index);
         return;
       }
 
       const image = await ImageCropPicker.openCropper({
         mediaType: 'photo',
-        path: meta.value[index].path,
-        width: 4,
-        height: 5,
+        path: Platform.select({
+          // Prefer sourceURL as that is the original high-quality image path
+          ios: meta.value[index].sourceURL ?? meta.value[index].path,
+          default: meta.value[index].path,
+        }),
       });
 
-      console.log('Setting new image:', image);
-      helpers.setValue([
+      console.log($FUNC, 'Setting new image:', image);
+      const newImagesArray = [
         ...meta.value.slice(0, index),
-        image,
+        {
+          ...image,
+          width: image.cropRect?.width ?? image.width,
+          height: image.cropRect?.height ?? image.height,
+        } as Image,
         ...meta.value.slice(index + 1),
-      ]);
-    } catch (error) {
-      console.warn('ERROR:', error);
+      ];
+      helpers.setValue(newImagesArray);
+    } catch (err: any) {
+      if (err.code === ('E_PICKER_CANCELLED' as PickerErrorCode)) return;
+      const { title, message } = constructAlertFromImageCropPickerError(err);
+      Alert.alert(title, message);
     }
   };
 
@@ -237,55 +276,118 @@ function ImagePreviewPicker() {
     helpers.setValue(newImageArray);
   };
 
+  const handleSelectActionItem = async (selectedItemId: string) => {
+    const handleTakePhoto = async () => {
+      try {
+        const image = await ImageCropPicker.openCamera({
+          mediaType: 'photo',
+          cropping: true,
+        });
+        console.log($FUNC, 'PHOTO:', image);
+        helpers.setValue([...meta.value, image]);
+        // flatListRef.current?.scrollToEnd({ animated: true });
+        flatListRef.current?.scrollToIndex({
+          animated: true,
+          index: meta.value.length - 1,
+        });
+      } catch (err: any) {
+        if (err.code === ('E_PICKER_CANCELLED' as PickerErrorCode)) return;
+        const { title, message } = constructAlertFromImageCropPickerError(err);
+        Alert.alert(title, message);
+      }
+    };
+
+    const handleSelectFromPhotoLibrary = async () => {
+      try {
+        const images = await ImageCropPicker.openPicker({
+          mediaType: 'photo',
+          cropping: true,
+          multiple: true,
+        });
+        helpers.setValue([...meta.value, ...images]);
+        flatListRef.current?.scrollToEnd({ animated: true });
+      } catch (err: any) {
+        if (err.code === ('E_PICKER_CANCELLED' as PickerErrorCode)) return;
+        const { title, message } = constructAlertFromImageCropPickerError(err);
+        Alert.alert(title, message);
+      }
+    };
+
+    switch (selectedItemId) {
+      case 'camera':
+        setTimeout(async () => {
+          await handleTakePhoto();
+        }, 80);
+        break;
+      case 'library':
+        // We'll wait a short period of time to let the bottom sheet fully close
+        setTimeout(async () => {
+          await handleSelectFromPhotoLibrary();
+        }, 80);
+        break;
+      default:
+        actionBottomSheetRef.current?.close();
+        break;
+    }
+  };
+
   return (
-    <View style={{ paddingVertical: layout.spacing.sm }}>
-      {meta.touched && meta.error && (
-        <Text
-          style={[
-            font.smallBold,
-            { color: color.danger, paddingHorizontal: layout.spacing.lg },
-          ]}>
-          {meta.error}
-        </Text>
-      )}
-      <FlatList<Image>
-        horizontal
-        ref={flatListRef}
-        data={meta.value}
-        keyExtractor={(_, index) => `image-item-${index}`}
-        keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{
-          flexGrow: 1,
-          paddingHorizontal: layout.spacing.sm * 1.5,
-          paddingVertical: layout.spacing.lg,
-          justifyContent: 'center',
-        }}
-        ItemSeparatorComponent={() => <Spacer.Horizontal value="md" />}
-        renderItem={({ item, index }) => (
-          <ImagePickerItem
-            item={item}
-            onPressItem={() => handlePressImageAtIndex(index)}
-            onPressRemove={() => handleRemoveImageAtIndex(index)}
-            style={{ width: imageItemWidth }}
-          />
-        )}
-        ListFooterComponent={() => (
-          <TouchableHighlight
-            underlayColor={color.gray100}
-            onPress={handleAddImages}
+    <>
+      <View style={{ paddingVertical: layout.spacing.sm }}>
+        {meta.touched && meta.error && (
+          <Text
             style={[
-              imagePreviewPickerStyles.item,
-              imagePreviewPickerStyles.addImage,
-              { width: imageItemWidth },
+              font.smallBold,
+              { color: color.danger, paddingHorizontal: layout.spacing.lg },
             ]}>
-            <Icon name="add-outline" color={color.accent} size={60} />
-          </TouchableHighlight>
+            {meta.error}
+          </Text>
         )}
-        ListFooterComponentStyle={{
-          paddingLeft: meta.value.length > 0 ? layout.spacing.md : undefined,
-        }}
+        <FlatList<Image>
+          horizontal
+          ref={flatListRef}
+          data={meta.value}
+          keyExtractor={(_, index) => `image-item-${index}`}
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={{
+            flexGrow: 1,
+            paddingHorizontal: layout.spacing.lg,
+            paddingVertical: layout.spacing.lg,
+            justifyContent: 'center',
+          }}
+          ItemSeparatorComponent={() => <Spacer.Horizontal value="md" />}
+          renderItem={({ item, index }) => (
+            <ImagePickerItem
+              item={item}
+              onPressItem={() => handlePressImageAtIndex(index)}
+              onPressRemove={() => handleRemoveImageAtIndex(index)}
+              style={{ width: imageItemWidth }}
+            />
+          )}
+          ListFooterComponent={() => (
+            <TouchableHighlight
+              underlayColor={color.gray100}
+              // onPress={handleAddImages}
+              onPress={() => actionBottomSheetRef.current?.expand()}
+              style={[
+                imagePreviewPickerStyles.item,
+                imagePreviewPickerStyles.addImage,
+                { width: imageItemWidth },
+              ]}>
+              <Icon name="add-outline" color={color.accent} size={60} />
+            </TouchableHighlight>
+          )}
+          ListFooterComponentStyle={{
+            paddingLeft: meta.value.length > 0 ? layout.spacing.md : undefined,
+          }}
+        />
+      </View>
+      <ActionBottomSheet
+        ref={actionBottomSheetRef}
+        items={actionBottomSheetItems}
+        onSelectItem={handleSelectActionItem}
       />
-    </View>
+    </>
   );
 }
 
@@ -307,15 +409,15 @@ function ImagePickerItem(props: ImagePickerItemProps) {
       <TouchableOpacity
         activeOpacity={values.DEFAULT_ACTIVE_OPACITY}
         onPress={props.onPressRemove}
-        style={{ zIndex: 1 }}>
-        <Card.Indicator
-          iconName="close"
-          elementOptions={{ smallContent: true }}
-        />
+        style={imagePreviewPickerStyles.removeIconContainer}>
+        <Icon name="close" size={24} color={color.white} />
       </TouchableOpacity>
       <FastImage
         source={{ uri: props.item.path }}
-        style={[imagePreviewPickerStyles.item, { width: itemWidth }]}
+        style={[
+          imagePreviewPickerStyles.item,
+          { width: itemWidth, backgroundColor: color.placeholder },
+        ]}
       />
     </TouchableOpacity>
   );
@@ -333,5 +435,17 @@ const imagePreviewPickerStyles = StyleSheet.create({
     borderStyle: 'dashed',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  removeIconContainer: {
+    zIndex: 10,
+    position: 'absolute',
+    top: layout.spacing.md,
+    right: layout.spacing.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: layout.spacing.xs,
+    paddingHorizontal: layout.spacing.xs,
+    borderRadius: layout.radius.sm,
+    backgroundColor: 'rgba(0, 0, 0, 0.55)',
   },
 });

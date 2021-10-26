@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useState } from 'react';
+import * as React from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -21,7 +21,6 @@ import { useNavigation } from '@react-navigation/core';
 import { ProfileApi } from 'src/api';
 import { updateProfile } from 'src/features/profiles/profiles-slice';
 import { useMyProfileId, useProfile } from 'src/features/profiles/hooks';
-import { useAppDispatch, useIsMounted } from 'src/hooks';
 import { Profile, ProfileId } from 'src/models';
 import { RootStackScreenProps } from 'src/navigation';
 import { alertUnavailableFeature } from 'src/utilities';
@@ -30,6 +29,8 @@ import { color, font, layout } from 'src/constants';
 import { DEFAULT_AVATAR } from 'src/constants/media';
 import { DEFAULT_ACTIVE_OPACITY } from 'src/constants/values';
 import { SOMETHING_WENT_WRONG } from 'src/constants/strings';
+import { CELL_GROUP_VERTICAL_SPACING } from 'src/components/cells/CellGroup';
+import { CELL_ICON_SIZE } from 'src/components/cells/common';
 
 import {
   AsyncGate,
@@ -39,8 +40,12 @@ import {
   RouteError,
   Spacer,
 } from 'src/components';
-import { CELL_GROUP_VERTICAL_SPACING } from 'src/components/cells/CellGroup';
-import { CELL_ICON_SIZE } from 'src/components/cells/common';
+
+import {
+  useAppDispatch,
+  useIsMounted,
+  useNavigationAlertUnsavedChangesOnRemove,
+} from 'src/hooks';
 
 const MAX_INPUT_LENGTH = 30;
 const MAX_BIO_LENGTH = 140;
@@ -176,8 +181,8 @@ function ProfileSettingsForm({ profile }: { profile: Profile }) {
   const navigation = useNavigation<ProfileSettingsProps['navigation']>();
   const isMounted = useIsMounted();
 
-  const [selection, setSelection] = useState('user');
-  const [isGeneratingUsername, setIsGeneratingUsername] = useState(false);
+  const [selection, setSelection] = React.useState('user');
+  const [isGeneratingUsername, setIsGeneratingUsername] = React.useState(false);
 
   const {
     dirty,
@@ -207,7 +212,9 @@ function ProfileSettingsForm({ profile }: { profile: Profile }) {
     }
   };
 
-  useLayoutEffect(() => {
+  useNavigationAlertUnsavedChangesOnRemove(dirty);
+
+  React.useLayoutEffect(() => {
     navigation.setOptions({
       // eslint-disable-next-line react/display-name
       headerRight: () => {
@@ -232,28 +239,6 @@ function ProfileSettingsForm({ profile }: { profile: Profile }) {
       },
     });
   }, [navigation, dirty, isSubmitting, isValid, handleSubmit]);
-
-  // FIXME: This doesn't work if we've already saved the form
-  // ---
-  // useEffect(() => {
-  //   navigation.addListener('beforeRemove', e => {
-  //     if (!dirty) return;
-  //
-  //     e.preventDefault();
-  //     Alert.alert(
-  //       'Discard changes?',
-  //       'You have unsaved changes. Are you sure you want to discard them?',
-  //       [
-  //         { text: "Don't Leave", style: 'cancel' },
-  //         {
-  //           text: 'Discard Changes',
-  //           style: 'destructive',
-  //           onPress: () => navigation.dispatch(e.data.action),
-  //         },
-  //       ],
-  //     );
-  //   });
-  // }, [navigation, dirty]);
 
   return (
     <>

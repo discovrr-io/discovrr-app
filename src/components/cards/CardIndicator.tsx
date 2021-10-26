@@ -103,7 +103,7 @@ const CardIndicator = (props: CardIndicatorProps) => {
 
 const cardIndicatorStyles = StyleSheet.create({
   container: {
-    zIndex: 1,
+    zIndex: 10,
     position: 'absolute',
     flexDirection: 'row',
     alignItems: 'center',

@@ -42,7 +42,7 @@ const HeaderIconMenu = (props: HeaderIconHelperProps) => {
 };
 
 const HeaderIconClose = (props: HeaderIconHelperProps) => {
-  return <HeaderIcon name="close-outline" {...props} />;
+  return <HeaderIcon name="close" {...props} />;
 };
 
 const HeaderIconBack = (props: HeaderIconHelperProps) => {

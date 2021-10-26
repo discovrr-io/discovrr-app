@@ -124,7 +124,7 @@ function useDisallowCodePushRestarts(isProcessing: boolean) {
 function alertMessageFromFirebaseError(
   authError: any,
   defaultMessage?: string,
-) {
+): { title: string; message: string } {
   switch (authError.code) {
     case 'USERNAME_TAKEN' as AuthApi.AuthApiErrorCode:
       return {
@@ -164,7 +164,7 @@ function alertMessageFromFirebaseError(
       };
 
     default:
-      /* Also handles the case when error.code is undefined */
+      // Also handles the case when error.code is undefined
       console.error('Unhandled error:', authError);
       return {
         title: DEFAULT_ERROR_TITLE,
