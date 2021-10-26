@@ -20,6 +20,7 @@ const ICON_SIZE = 24;
 const ITEM_SPACING = layout.spacing.sm;
 
 export type ActionBottomSheetItem = {
+  id: string;
   label: string;
   iconName: string;
   iconSize?: number;
@@ -32,7 +33,7 @@ type ActionBottomSheetProps = {
   footerButtonType?: ButtonProps['type'];
   footerButtonVariant?: ButtonProps['variant'];
   footerButtonOnPress?: ButtonProps['onPress'];
-  onSelectItem?: (item: string) => void | Promise<void>;
+  onSelectItem?: (id: string) => void | Promise<void>;
 };
 
 const ActionBottomSheet = React.forwardRef<BottomSheet, ActionBottomSheetProps>(
@@ -93,9 +94,9 @@ function ActionBottomSheetContents(props: ActionBottomSheetProps) {
 
   const { close } = useBottomSheet();
 
-  const handleSelectItem = async (item: string) => {
+  const handleSelectItem = async (id: string) => {
     close();
-    await onSelectItem?.(item);
+    await onSelectItem?.(id);
   };
 
   return (
@@ -105,7 +106,7 @@ function ActionBottomSheetContents(props: ActionBottomSheetProps) {
           <View key={`action-bottom-sheet-item-${index}`}>
             <TouchableHighlight
               underlayColor={color.gray100}
-              onPress={async () => await handleSelectItem(props.label)}
+              onPress={async () => await handleSelectItem(props.id)}
               style={styles.actionItemTouchableContainer}>
               <View style={styles.actionItemContainer}>
                 <Icon
@@ -163,7 +164,5 @@ const styles = StyleSheet.create({
     flexShrink: 1,
   },
 });
-
-ActionBottomSheet.displayName = 'ActionBottomSheet';
 
 export default ActionBottomSheet;

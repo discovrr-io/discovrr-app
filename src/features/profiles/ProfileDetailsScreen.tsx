@@ -30,12 +30,12 @@ import { alertUnavailableFeature } from 'src/utilities';
 
 import {
   ActionBottomSheet,
+  ActionBottomSheetItem,
   AsyncGate,
   EmptyContainer,
   LoadingContainer,
   RouteError,
 } from 'src/components';
-import { ActionBottomSheetItem } from 'src/components/bottom-sheets/ActionBottomSheet';
 
 import {
   fetchPostsForProfile,
@@ -105,17 +105,22 @@ function LoadedProfileDetailsScreen(props: { profile: Profile }) {
 
       items.push(
         {
+          id: 'block',
           label: `Block ${displayName}`,
           iconName: 'hand-right-outline',
           destructive: true,
         },
-        { label: `Report ${profile.displayName}`, iconName: 'flag-outline' },
+        {
+          id: 'report',
+          label: `Report ${profile.displayName}`,
+          iconName: 'flag-outline',
+        },
       );
     }
 
     return [
       ...items,
-      { label: 'Share Profile', iconName: 'share-social-outline' },
+      { id: 'share', label: 'Share Profile', iconName: 'share-social-outline' },
     ];
   }, [isMyProfile, profile]);
 
@@ -182,16 +187,16 @@ function LoadedProfileDetailsScreen(props: { profile: Profile }) {
   //   if (!shouldRefresh) setShouldRefresh(true);
   // };
 
-  const handleSelectActionItem = (selectedItem: string) => {
-    switch (selectedItem) {
-      case `Block ${profile.displayName}`:
+  const handleSelectActionItem = (selectedItemId: string) => {
+    switch (selectedItemId) {
+      case 'block':
         alertUnavailableFeature({
           title: "We're still working on this",
           message:
             'In the meantime, you may report this profile. Your report will be anonymous.',
         });
         break;
-      case `Report ${profile.displayName}`:
+      case 'report':
         navigation.navigate('ReportItem', {
           screen: 'ReportItemReason',
           params: { type: 'profile' },

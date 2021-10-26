@@ -38,6 +38,8 @@ import { RootStackNavigationProp, RootStackScreenProps } from 'src/navigation';
 import { alertSomethingWentWrong } from 'src/utilities';
 
 import {
+  ActionBottomSheet,
+  ActionBottomSheetItem,
   AsyncGate,
   Button,
   EmptyContainer,
@@ -46,9 +48,6 @@ import {
   LoadingOverlay,
   RouteError,
 } from 'src/components';
-import ActionBottomSheet, {
-  ActionBottomSheetItem,
-} from 'src/components/bottom-sheets/ActionBottomSheet';
 
 import { color, font, layout } from 'src/constants';
 import { DEFAULT_IMAGE_DIMENSIONS } from 'src/constants/media';
@@ -127,20 +126,29 @@ const PostHeaderComponent = ({ post }: { post: Post }) => {
 
     if (isMyProfile) {
       items = [
-        { label: 'Delete Post', iconName: 'trash-outline', destructive: true },
-        { label: 'Edit Post', iconName: 'create-outline' },
+        {
+          id: 'delete',
+          label: 'Delete Post',
+          iconName: 'trash-outline',
+          destructive: true,
+        },
+        { id: 'edit', label: 'Edit Post', iconName: 'create-outline' },
       ];
     } else {
       items = [
-        { label: 'Report Post', iconName: 'flag-outline' },
-        { label: 'Suggest Less Like This', iconName: 'thumbs-down-outline' },
+        { id: 'report', label: 'Report Post', iconName: 'flag-outline' },
+        {
+          id: 'suggest',
+          label: 'Suggest Less Like This',
+          iconName: 'thumbs-down-outline',
+        },
       ];
     }
 
     return items;
   }, [isMyProfile]);
 
-  const handleSelectActionItem = async (selectedItem: string) => {
+  const handleSelectActionItem = async (selectedItemId: string) => {
     const handleDeletePost = async () => {
       const commitDeletePost = async () => {
         try {
@@ -170,20 +178,20 @@ const PostHeaderComponent = ({ post }: { post: Post }) => {
       );
     };
 
-    switch (selectedItem) {
-      case 'Delete Post':
+    switch (selectedItemId) {
+      case 'delete':
         await handleDeletePost();
         break;
-      case 'Edit Post':
+      case 'edit':
         navigation.push('EditPost', { postId: post.id });
         break;
-      case 'Report Post':
+      case 'report':
         navigation.navigate('ReportItem', {
           screen: 'ReportItemReason',
           params: { type: 'post' },
         });
         break;
-      case 'Suggest Less Like This': /* FALLTHROUGH */
+      case 'suggest': /* FALLTHROUGH */
       default:
         actionBottomSheetRef.current?.close();
         break;

@@ -16,21 +16,22 @@ import FastImage from 'react-native-fast-image';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/core';
 
-import { AsyncGate, Spacer } from 'src/components';
-import ActionBottomSheet, {
-  ActionBottomSheetItem,
-} from 'src/components/bottom-sheets/ActionBottomSheet';
-
 import * as values from 'src/constants/values';
 import { color, font, layout } from 'src/constants';
 import { DEFAULT_AVATAR } from 'src/constants/media';
-
 import { useIsMyProfile, useProfile } from 'src/features/profiles/hooks';
 import { selectIsCurrentUserProfile } from 'src/features/authentication/auth-slice';
 import { useAppDispatch, useAppSelector, useIsMounted } from 'src/hooks';
 import { Comment, CommentId, Profile } from 'src/models';
 import { RootStackNavigationProp } from 'src/navigation';
 import { alertSomethingWentWrong, shortenLargeNumber } from 'src/utilities';
+
+import {
+  ActionBottomSheet,
+  ActionBottomSheetItem,
+  AsyncGate,
+  Spacer,
+} from 'src/components';
 
 import { deleteComment, updateCommentLikeStatus } from './comments-slice';
 import { useComment } from './hooks';
@@ -257,14 +258,17 @@ const CommentCellContent = (props: CommentCellContentProps) => {
     if (isMyProfile) {
       items = [
         {
+          id: 'delete',
           label: 'Delete Comment',
           iconName: 'trash-outline',
           destructive: true,
         },
-        // { label: 'Edit Comment', iconName: 'create-outline' },
+        // { id: 'edit', label: 'Edit Comment', iconName: 'create-outline' },
       ];
     } else {
-      items = [{ label: 'Report Comment', iconName: 'flag-outline' }];
+      items = [
+        { id: 'report', label: 'Report Comment', iconName: 'flag-outline' },
+      ];
     }
 
     return items;
@@ -309,7 +313,7 @@ const CommentCellContent = (props: CommentCellContentProps) => {
     await cellContext.onPressReply?.(comment, profile);
   };
 
-  const handleSelectActionItem = async (selectedItem: string) => {
+  const handleSelectActionItem = async (selectedItemId: string) => {
     const handleDeleteComment = async () => {
       const commitDeleteComment = async () => {
         try {
@@ -338,11 +342,11 @@ const CommentCellContent = (props: CommentCellContentProps) => {
       );
     };
 
-    switch (selectedItem) {
-      case 'Delete Comment':
+    switch (selectedItemId) {
+      case 'delete':
         await handleDeleteComment();
         break;
-      case 'Report Comment':
+      case 'report':
         navigation.navigate('ReportItem', {
           screen: 'ReportItemReason',
           params: { type: 'comment' },
