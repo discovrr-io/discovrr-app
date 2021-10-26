@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Platform,
   RefreshControl,
+  ScrollView,
   StyleProp,
   StyleSheet,
   Text,
@@ -28,6 +29,7 @@ import {
   MasonryList,
   Spacer,
 } from 'src/components';
+import { useScrollToTop } from '@react-navigation/native';
 
 const TILE_SPACING = DEFAULT_TILE_SPACING;
 
@@ -220,6 +222,9 @@ export default function LandingScreen(_: LandingScreenProps) {
   const [isInitialRender, setIsInitialRender] = useState(true);
   const [shouldRefresh, setShouldRefresh] = useState(false);
 
+  const masonryListScrollViewRef = useRef<ScrollView>(null);
+  useScrollToTop(masonryListScrollViewRef);
+
   useEffect(() => {
     if (isInitialRender || shouldRefresh)
       (async () => {
@@ -246,6 +251,7 @@ export default function LandingScreen(_: LandingScreenProps) {
 
   return (
     <MasonryList
+      ref={masonryListScrollViewRef}
       data={homeFeedData?.featuredProductIds ?? []}
       refreshControl={
         <RefreshControl

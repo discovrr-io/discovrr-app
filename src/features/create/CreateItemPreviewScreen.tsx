@@ -119,13 +119,20 @@ export default function CreateItemPreviewScreen(
   }, [props.navigation, handleSubmit, isSubmitting]);
 
   return (
-    <SafeAreaView style={[layout.defaultScreenStyle, { flex: 1 }]}>
+    <SafeAreaView
+      style={[
+        {
+          flex: 1,
+          paddingVertical: layout.spacing.lg,
+          paddingHorizontal: layout.spacing.lg,
+        },
+      ]}>
       <View style={{ flexGrow: 1, justifyContent: 'space-between' }}>
         <View
           style={{
             flexGrow: 1,
-            paddingHorizontal: layout.spacing.md,
-            paddingTop: layout.spacing.md,
+            // paddingHorizontal: layout.spacing.md,
+            // paddingTop: layout.spacing.md,
           }}>
           <Text style={[font.medium, { color: color.gray700 }]}>
             Here&apos;s a preview of what your {props.route.params.type} post

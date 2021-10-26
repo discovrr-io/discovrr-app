@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import * as React from 'react';
 import {
   Keyboard,
   KeyboardAvoidingView,
@@ -30,7 +30,7 @@ const textPostSchema = yup.object({
     .required('Please enter at least 3 words')
     .max(
       MAX_TEXT_POST_LENGTH,
-      'Your post is too long! Please enter at most 280 characters.',
+      `Your post is too long! Please enter at most ${MAX_TEXT_POST_LENGTH} characters`,
     )
     .test('has at least 3 words', 'Please enter at least 3 words', value => {
       if (!value) return false;
@@ -68,7 +68,7 @@ function TextPostFormikForm() {
   const { handleSubmit } = useFormikContext<TextPostForm>();
 
   useFocusEffect(
-    useCallback(() => {
+    React.useCallback(() => {
       navigation.getParent<CreateItemStackNavigationProp>().setOptions({
         headerRight: () => (
           <Button
@@ -110,9 +110,9 @@ function TextArea(props: TextAreaProps) {
         <RNTextInput
           multiline
           numberOfLines={8}
+          maxLength={MAX_TEXT_POST_LENGTH}
           placeholder={props.placeholder}
           placeholderTextColor={color.gray500}
-          maxLength={MAX_TEXT_POST_LENGTH}
           value={field.value}
           onChangeText={field.onChange('text')}
           onBlur={field.onBlur('text')}

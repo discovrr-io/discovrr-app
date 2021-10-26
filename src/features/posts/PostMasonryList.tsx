@@ -5,6 +5,7 @@ import { MasonryList, MasonryListProps } from 'src/components';
 import { PostId } from 'src/models';
 
 import PostItemCard from './PostItemCard';
+import { ScrollView } from 'react-native';
 
 type PostMasonryListProps<ItemT> = Omit<
   MasonryListProps<ItemT>,
@@ -15,8 +16,9 @@ type PostMasonryListProps<ItemT> = Omit<
   smallContent?: boolean;
 };
 
-export default function PostMasonryList<ItemT>(
+function PostMasonryListInner<ItemT>(
   props: PostMasonryListProps<ItemT>,
+  ref: React.ForwardedRef<ScrollView>,
 ) {
   const {
     postIds,
@@ -29,6 +31,7 @@ export default function PostMasonryList<ItemT>(
   return (
     <MasonryList
       {...restProps}
+      ref={ref}
       data={postIds}
       contentContainerStyle={[
         postIds.length === 0 && { flexGrow: 1 },
@@ -49,3 +52,7 @@ export default function PostMasonryList<ItemT>(
     />
   );
 }
+
+const PostMasonryList = React.forwardRef(PostMasonryListInner);
+
+export default PostMasonryList;
