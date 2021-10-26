@@ -23,10 +23,6 @@ import {
 
 const MAX_TEXT_POST_LENGTH = 280;
 
-type TextPostForm = {
-  text: string;
-};
-
 const textPostSchema = yup.object({
   text: yup
     .string()
@@ -42,14 +38,14 @@ const textPostSchema = yup.object({
     }),
 });
 
+type TextPostForm = yup.InferType<typeof textPostSchema>;
+
 type CreateTextPostScreenProps =
   CreateItemDetailsTopTabScreenProps<'CreateTextPost'>;
 
 export default function CreateTextPostScreen(props: CreateTextPostScreenProps) {
-  const navigation = props.navigation;
-
   const handleNavigateToPreview = (values: TextPostForm) => {
-    navigation
+    props.navigation
       .getParent<CreateItemStackNavigationProp>()
       .navigate('CreateItemPreview', {
         type: 'post',
@@ -58,16 +54,16 @@ export default function CreateTextPostScreen(props: CreateTextPostScreenProps) {
   };
 
   return (
-    <Formik
-      initialValues={{ text: '' } as TextPostForm}
+    <Formik<TextPostForm>
+      initialValues={{ text: '' }}
       validationSchema={textPostSchema}
       onSubmit={handleNavigateToPreview}>
-      <NewTextPostFormikForm />
+      <TextPostFormikForm />
     </Formik>
   );
 }
 
-function NewTextPostFormikForm() {
+function TextPostFormikForm() {
   const navigation = useNavigation<CreateTextPostScreenProps['navigation']>();
   const { handleSubmit } = useFormikContext<TextPostForm>();
 

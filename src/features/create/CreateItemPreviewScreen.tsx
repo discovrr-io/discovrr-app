@@ -142,7 +142,7 @@ export default function CreateItemPreviewScreen(
           </ScrollView>
         </View>
       </View>
-      <Cell.Group label="Post Options">
+      <Cell.Group label="Options">
         <Cell.Navigator
           label="Add location"
           caption="No location set"
