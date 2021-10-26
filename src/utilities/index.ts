@@ -1,9 +1,4 @@
-import { Alert } from 'react-native';
-import {
-  AlertMessage,
-  FEATURE_UNAVAILABLE,
-  SOMETHING_WENT_WRONG,
-} from 'src/constants/strings';
+export * from './alert';
 
 // For now, this is okay for English localisations
 export enum ShortenedNumberSuffix {
@@ -44,15 +39,17 @@ export function generateRandomNumberBetween(min: number, max: number) {
   return Math.floor(Math.random() * (max - min) + min);
 }
 
-export function alertSomethingWentWrong(message?: string) {
-  Alert.alert(
-    SOMETHING_WENT_WRONG.title,
-    message ?? SOMETHING_WENT_WRONG.message,
-  );
-}
-
-export function alertUnavailableFeature(
-  options: AlertMessage = FEATURE_UNAVAILABLE,
-) {
-  Alert.alert(options.title, options.message);
+/**
+ * Calculates the number of words in a given string. This uses Regex internally.
+ *
+ * NOTE: This won't work as expected for scripts that don't have a notion of a
+ * space character to separate words (such as Chinese, Japanese or Thai). For
+ * most other scripts though, it's good enough.
+ *
+ * @param input A string to get the word count of.
+ * @returns The number of words found in the input string (precisely, the number
+ * of elements that are not a whitespace character).
+ */
+export function getWordCount(input: string): number {
+  return (input.trim().match(/\S+/g) ?? []).length;
 }

@@ -57,6 +57,7 @@ function CreateItemDetailsNavigator() {
       tabBarPosition="bottom"
       initialLayout={{ width: screenWidth }}
       screenOptions={{
+        swipeEnabled: false,
         tabBarShowIcon: true,
         tabBarScrollEnabled: true,
         tabBarActiveTintColor: color.accent,

@@ -1,14 +1,17 @@
 import * as React from 'react';
 import {
   FlatList,
+  ImageStyle,
   Keyboard,
   KeyboardAvoidingView,
   ScrollView,
+  StyleProp,
   StyleSheet,
   Text,
   TextInput,
   TouchableHighlight,
   TouchableOpacity,
+  TouchableOpacityProps,
   TouchableWithoutFeedback,
   useWindowDimensions,
   View,
@@ -25,6 +28,7 @@ import ImageCropPicker, {
   PickerErrorCode,
 } from 'react-native-image-crop-picker';
 
+import * as utilities from 'src/utilities';
 import { Button, Card, Spacer } from 'src/components';
 import { color, font, layout, values } from 'src/constants';
 import { alertSomethingWentWrong } from 'src/utilities';
@@ -46,9 +50,9 @@ const galleyPostSchema = yup.object({
       MAX_CAPTION_LENGTH,
       `Your caption is too long! Please enter at most ${MAX_CAPTION_LENGTH} characters`,
     )
-    .test('has at least 3 words', 'Please enter at least 3 words', value => {
-      if (!value) return false;
-      return value.trim().split(/\s/).filter(Boolean).length >= 3;
+    .test('has at least 3 words', 'Please enter at least 3 words', input => {
+      if (!input) return false;
+      return utilities.getWordCount(input) >= 3;
     }),
 });
 
@@ -65,6 +69,24 @@ export default function CreateGalleryPostScreen(
   const handleNavigateToPreview = (values: GalleryPostForm) => {
     console.log('GALLERY POST:', values);
   };
+
+  // React.useEffect(() => {
+  //   return () => {
+  //     console.log('Cleaning temporary images from image picker...');
+  //     ImageCropPicker.clean()
+  //       .then(() =>
+  //         console.log(
+  //           'Successfully cleaned temporary images from image picker',
+  //         ),
+  //       )
+  //       .catch(error =>
+  //         console.warn(
+  //           'Failed to clean temporary files from image picker:',
+  //           error,
+  //         ),
+  //       );
+  //   };
+  // }, []);
 
   return (
     <Formik<GalleryPostForm>
@@ -155,11 +177,14 @@ function ImagePreviewPicker() {
   const handleAddImages = async () => {
     try {
       const images = await ImageCropPicker.openPicker({
-        cropping: true,
         mediaType: 'photo',
+        cropping: true,
         multiple: true,
+        width: 1,
+        height: 1,
       });
       helpers.setValue([...meta.value, ...images]);
+
       flatListRef.current?.scrollToEnd({ animated: true });
     } catch (error: any) {
       if (error.code === ('E_PICKER_CANCELLED' as PickerErrorCode)) {
@@ -173,6 +198,34 @@ function ImagePreviewPicker() {
           error.code || error.message || JSON.stringify(error)
         }`,
       );
+    }
+  };
+
+  const handlePressImageAtIndex = async (index: number) => {
+    try {
+      console.log(meta.value[index]);
+      // return;
+
+      if (index < 0 || index >= meta.value.length) {
+        console.warn('Invalid index:', index);
+        return;
+      }
+
+      const image = await ImageCropPicker.openCropper({
+        mediaType: 'photo',
+        path: meta.value[index].path,
+        width: 4,
+        height: 5,
+      });
+
+      console.log('Setting new image:', image);
+      helpers.setValue([
+        ...meta.value.slice(0, index),
+        image,
+        ...meta.value.slice(index + 1),
+      ]);
+    } catch (error) {
+      console.warn('ERROR:', error);
     }
   };
 
@@ -208,22 +261,13 @@ function ImagePreviewPicker() {
           justifyContent: 'center',
         }}
         ItemSeparatorComponent={() => <Spacer.Horizontal value="md" />}
-        renderItem={({ item: imageItem, index }) => (
-          <View>
-            <TouchableOpacity
-              activeOpacity={values.DEFAULT_ACTIVE_OPACITY}
-              onPress={() => handleRemoveImageAtIndex(index)}
-              style={{ zIndex: 1 }}>
-              <Card.Indicator
-                iconName="close"
-                elementOptions={{ smallContent: true }}
-              />
-            </TouchableOpacity>
-            <FastImage
-              source={{ uri: imageItem.path }}
-              style={[imagePreviewPickerStyles.item, { width: imageItemWidth }]}
-            />
-          </View>
+        renderItem={({ item, index }) => (
+          <ImagePickerItem
+            item={item}
+            onPressItem={() => handlePressImageAtIndex(index)}
+            onPressRemove={() => handleRemoveImageAtIndex(index)}
+            style={{ width: imageItemWidth }}
+          />
         )}
         ListFooterComponent={() => (
           <TouchableHighlight
@@ -242,6 +286,38 @@ function ImagePreviewPicker() {
         }}
       />
     </View>
+  );
+}
+
+type ImagePickerItemProps = {
+  item: Image;
+  onPressItem?: TouchableOpacityProps['onPress'];
+  onPressRemove?: TouchableOpacityProps['onPress'];
+  style?: StyleProp<ImageStyle>;
+};
+
+function ImagePickerItem(props: ImagePickerItemProps) {
+  const { width: windowWidth } = useWindowDimensions();
+  const itemWidth = React.useMemo(() => windowWidth / 2, [windowWidth]);
+
+  return (
+    <TouchableOpacity
+      activeOpacity={values.DEFAULT_ACTIVE_OPACITY}
+      onPress={props.onPressItem}>
+      <TouchableOpacity
+        activeOpacity={values.DEFAULT_ACTIVE_OPACITY}
+        onPress={props.onPressRemove}
+        style={{ zIndex: 1 }}>
+        <Card.Indicator
+          iconName="close"
+          elementOptions={{ smallContent: true }}
+        />
+      </TouchableOpacity>
+      <FastImage
+        source={{ uri: props.item.path }}
+        style={[imagePreviewPickerStyles.item, { width: itemWidth }]}
+      />
+    </TouchableOpacity>
   );
 }
 

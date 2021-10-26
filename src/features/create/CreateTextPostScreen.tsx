@@ -13,6 +13,7 @@ import { Formik, useField, useFormikContext } from 'formik';
 import { useNavigation } from '@react-navigation/core';
 import { useFocusEffect } from '@react-navigation/native';
 
+import * as utilities from 'src/utilities';
 import { Button } from 'src/components';
 import { color, font, layout } from 'src/constants';
 
@@ -32,9 +33,9 @@ const textPostSchema = yup.object({
       MAX_TEXT_POST_LENGTH,
       `Your post is too long! Please enter at most ${MAX_TEXT_POST_LENGTH} characters`,
     )
-    .test('has at least 3 words', 'Please enter at least 3 words', value => {
-      if (!value) return false;
-      return value.trim().split(/\s/).filter(Boolean).length >= 3;
+    .test('has at least 3 words', 'Please enter at least 3 words', input => {
+      if (!input) return false;
+      return utilities.getWordCount(input) >= 3;
     }),
 });
 

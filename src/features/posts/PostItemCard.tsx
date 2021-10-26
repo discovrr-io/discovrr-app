@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import Icon from 'react-native-vector-icons/Ionicons';
 import Video from 'react-native-video';
 import { useNavigation } from '@react-navigation/core';
 
@@ -195,7 +195,7 @@ function PostItemCardBody(props: PostItemCardBodyProps) {
                 alignItems: 'center',
                 justifyContent: 'center',
               }}>
-              <Ionicons
+              <Icon
                 name="play"
                 size={
                   cardElementProps.smallContent
