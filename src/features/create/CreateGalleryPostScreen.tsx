@@ -50,7 +50,7 @@ import {
 const MAX_CAPTION_LENGTH = 280;
 
 const galleyPostSchema = yup.object({
-  media: yup.array().required().min(1, 'Please upload at least one photo.'),
+  media: yup.array().required().min(1, 'Please upload at least one photo'),
   caption: yup
     .string()
     .trim()
@@ -288,7 +288,7 @@ function ImagePreviewPicker() {
         // flatListRef.current?.scrollToEnd({ animated: true });
         flatListRef.current?.scrollToIndex({
           animated: true,
-          index: meta.value.length - 1,
+          index: Math.max(0, meta.value.length - 1),
         });
       } catch (err: any) {
         if (err.code === ('E_PICKER_CANCELLED' as PickerErrorCode)) return;

@@ -79,7 +79,6 @@ export default function ExploreNavigator() {
           headerShown: false,
           headerStyleInterpolator: HeaderStyleInterpolators.forFade,
           cardStyleInterpolator: CardStyleInterpolators.forFadeFromCenter,
-          // gestureEnabled: false,
         }}
       />
     </ExploreStack.Navigator>

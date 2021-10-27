@@ -3,8 +3,7 @@ import Parse from 'parse/react-native';
 import { Pagination } from 'src/models/common';
 import { Product, ProductId, VendorProfileId } from 'src/models';
 
-import { ApiObjectStatus } from '.';
-import { ApiError, CommonApiErrorCode } from './common';
+import { ApiError, ApiObjectStatus, CommonApiErrorCode } from './common';
 import { UserApi } from './user';
 
 export namespace ProductApi {

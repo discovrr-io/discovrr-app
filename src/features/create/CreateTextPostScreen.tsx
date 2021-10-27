@@ -122,14 +122,7 @@ function TextArea(props: TextAreaProps) {
           value={field.value}
           onChangeText={field.onChange('text')}
           onBlur={field.onBlur('text')}
-          style={[
-            font.h3,
-            {
-              textAlignVertical: 'top',
-              minHeight: '30%',
-            },
-            // <{ backgroundColor: 'pink' },
-          ]}
+          style={[font.h3, { textAlignVertical: 'top', minHeight: '20%' }]}
         />
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>

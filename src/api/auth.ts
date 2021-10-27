@@ -3,8 +3,12 @@ import analytics from '@react-native-firebase/analytics';
 import Parse from 'parse/react-native';
 import { Image } from 'react-native';
 
-import { ApiObjectStatus, MediaSource } from '.';
-import { ApiError, CommonApiErrorCode } from './common';
+import {
+  ApiError,
+  ApiObjectStatus,
+  CommonApiErrorCode,
+  MediaSource,
+} from './common';
 import { SessionId, User, UserId } from 'src/models';
 import { ProfileId, ProfileKind } from 'src/models/profile';
 

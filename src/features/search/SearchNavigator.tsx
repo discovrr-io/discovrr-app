@@ -208,7 +208,6 @@ export default function SearchNavigator() {
     <SearchStack.Navigator
       initialRouteName="SearchQuery"
       screenOptions={{
-        // headerShown: false,
         headerTintColor: color.black,
         headerBackTitleVisible: false,
         headerTitleStyle: font.defaultHeaderTitleStyle,
