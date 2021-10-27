@@ -23,7 +23,7 @@ import Animated, {
 import * as utilities from 'src/utilities';
 import { Button } from 'src/components';
 import { color, font, layout } from 'src/constants';
-import { useNavigationAlertUnsavedChangesOnRemove } from 'src/hooks';
+// import { useNavigationAlertUnsavedChangesOnRemove } from 'src/hooks';
 
 import {
   CreateItemDetailsTopTabScreenProps,
@@ -74,11 +74,11 @@ export default function CreateTextPostScreen(props: CreateTextPostScreenProps) {
 
 function TextPostFormikForm() {
   const navigation = useNavigation<CreateTextPostScreenProps['navigation']>();
-  const { dirty, handleSubmit } = useFormikContext<TextPostForm>();
+  const { /* dirty, */ handleSubmit } = useFormikContext<TextPostForm>();
 
   // FIXME: This will still show an alert if the user has switched tabs from a
   // dirty text form and then presses the close button.
-  useNavigationAlertUnsavedChangesOnRemove(dirty);
+  // useNavigationAlertUnsavedChangesOnRemove(dirty);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -114,11 +114,11 @@ function TextArea(props: TextAreaProps) {
   }, [field.value]);
 
   const characterCountColor = useDerivedValue(() => {
-    // We'll clamp the value at 0%, 80% and 100%
+    // We'll clamp the value at 0%, 85% and 95%
     const percent = characterCount / MAX_TEXT_POST_LENGTH;
-    if (percent < 0.8) {
+    if (percent < 0.9) {
       return withTiming(0.0);
-    } else if (percent < 1.0) {
+    } else if (percent < 0.98) {
       return withTiming(0.5);
     } else {
       return withTiming(1.0);

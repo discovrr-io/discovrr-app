@@ -33,7 +33,7 @@ import ImageCropPicker, {
 import * as utilities from 'src/utilities';
 import { MediaSource } from 'src/api';
 import { color, font, layout, strings, values } from 'src/constants';
-import { useNavigationAlertUnsavedChangesOnRemove } from 'src/hooks';
+// import { useNavigationAlertUnsavedChangesOnRemove } from 'src/hooks';
 
 import {
   ActionBottomSheet,
@@ -144,13 +144,13 @@ function GalleryPostFormikForm() {
   const navigation =
     useNavigation<CreateGalleryPostScreenProps['navigation']>();
 
-  const { dirty, handleSubmit } = useFormikContext<GalleryPostForm>();
+  const { /* dirty, */ handleSubmit } = useFormikContext<GalleryPostForm>();
 
   const [field, meta, _] = useField<GalleryPostForm['caption']>('caption');
 
   // FIXME: This will still show an alert if the user has switched tabs from a
   // dirty gallery form and then pressed the close button.
-  useNavigationAlertUnsavedChangesOnRemove(dirty);
+  // useNavigationAlertUnsavedChangesOnRemove(dirty);
 
   useFocusEffect(
     React.useCallback(() => {

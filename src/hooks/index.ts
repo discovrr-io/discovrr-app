@@ -158,5 +158,5 @@ export function useNavigationAlertUnsavedChangesOnRemove(dirty: boolean) {
         ],
       );
     });
-  }, [dirty, navigation]);
+  }, [navigation, dirty]);
 }

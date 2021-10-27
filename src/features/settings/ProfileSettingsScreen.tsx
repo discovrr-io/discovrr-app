@@ -44,7 +44,7 @@ import {
 import {
   useAppDispatch,
   useIsMounted,
-  useNavigationAlertUnsavedChangesOnRemove,
+  // useNavigationAlertUnsavedChangesOnRemove,
 } from 'src/hooks';
 
 const MAX_INPUT_LENGTH = 30;
@@ -212,11 +212,10 @@ function ProfileSettingsForm({ profile }: { profile: Profile }) {
     }
   };
 
-  useNavigationAlertUnsavedChangesOnRemove(dirty);
+  // useNavigationAlertUnsavedChangesOnRemove(dirty);
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      // eslint-disable-next-line react/display-name
       headerRight: () => {
         const canSubmit = dirty && isValid && !isSubmitting;
         return (
