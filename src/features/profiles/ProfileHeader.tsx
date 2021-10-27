@@ -41,7 +41,7 @@ export type ProfileHeaderProps = {
 
 export default function ProfileHeader(props: ProfileHeaderProps) {
   const { profileDetails, renderStatistics, renderActions } = props;
-  const { width: screenWidth } = useWindowDimensions();
+  const { width: windowWidth } = useWindowDimensions();
 
   return (
     <View pointerEvents="box-none">
@@ -53,7 +53,7 @@ export default function ProfileHeader(props: ProfileHeaderProps) {
             : DEFAULT_BACKGROUND
         }
         style={{
-          width: screenWidth,
+          width: windowWidth,
           height: HEADER_MAX_HEIGHT,
           backgroundColor: color.gray100,
         }}

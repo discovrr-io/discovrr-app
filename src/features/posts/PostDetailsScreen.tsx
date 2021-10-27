@@ -591,7 +591,7 @@ type PostDetailsContentProps = ViewProps & {
 
 function PostDetailsContent(props: PostDetailsContentProps) {
   const { post, ...restProps } = props;
-  const { width: screenWidth } = useWindowDimensions();
+  const { width: windowWidth } = useWindowDimensions();
 
   const carouselRef = useRef<Carousel<MediaSource> | null>(null);
   const [activeMediaIndex, setActiveMediaIndex] = useState(0);
@@ -608,8 +608,8 @@ function PostDetailsContent(props: PostDetailsContentProps) {
               // render on initial mount for iOS, so we'll use the ScrollView
               // implementation instead. This isn't required for Android.
               useScrollView={Platform.OS === 'ios'}
-              sliderWidth={screenWidth}
-              itemWidth={screenWidth * 0.85}
+              sliderWidth={windowWidth}
+              itemWidth={windowWidth * 0.85}
               onSnapToItem={setActiveMediaIndex}
               contentContainerCustomStyle={{ alignItems: 'center' }}
               renderItem={({ item }) => <SliderImage item={item} />}
@@ -653,7 +653,7 @@ function PostDetailsContent(props: PostDetailsContentProps) {
           </View>
         );
     }
-  }, [activeMediaIndex, screenWidth, post]);
+  }, [activeMediaIndex, windowWidth, post]);
 
   return (
     <View style={[restProps.style]}>

@@ -540,7 +540,7 @@ function ForgotPasswordForm({ setFormType }: ForgotPasswordFormProps) {
 export default function AuthScreen() {
   const $FUNC = '[AuthScreen]';
   const dispatch = useAppDispatch();
-  const { width: screenWidth } = useWindowDimensions();
+  const { width: windowWidth } = useWindowDimensions();
 
   const isMounted = useIsMounted();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -669,14 +669,14 @@ export default function AuthScreen() {
             <View
               style={[
                 authScreenStyles.formContainer,
-                { width: screenWidth * 0.9 },
+                { width: windowWidth * 0.9 },
               ]}>
               <Image
                 source={DISCOVRR_LOGO}
                 style={[
                   authScreenStyles.discovrrLogo,
                   {
-                    width: screenWidth * 0.62,
+                    width: windowWidth * 0.62,
                     height: undefined,
                     aspectRatio: 5105 / 1397,
                   },

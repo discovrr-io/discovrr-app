@@ -65,21 +65,27 @@ export default function InAppWebView(props: InAppWebViewProps) {
   const progress = useSharedValue(0);
   const progressColor = useSharedValue(0);
 
-  const progressWidth = useDerivedValue(() =>
-    withTiming(interpolate(progress.value, [0, 1], [0, windowWidth])),
-  );
+  const progressWidth = useDerivedValue(() => {
+    return withTiming(interpolate(progress.value, [0, 1], [0, windowWidth]));
+  });
 
-  const progressOpacity = useDerivedValue(() =>
-    loading.value ? withTiming(1) : withTiming(0),
-  );
+  const progressOpacity = useDerivedValue(() => {
+    return withTiming(loading.value ? 1 : 0);
+  });
 
-  React.useEffect(() => {
-    progressColor.value = withRepeat(
-      withTiming(1, { duration: 500 }),
-      -1, // Repeat indefinitely
-      true, // Reverse animation on repeat
-    );
-  }, [progressColor]);
+  React.useEffect(
+    () => {
+      progressColor.value = withRepeat(
+        withTiming(1, { duration: 500 }),
+        -1, // Repeat indefinitely
+        true, // Reverse animation on repeat
+      );
+    },
+    // NOTE: We just want to fire this effect once, so we won't include a
+    // dependency to `progressColor`. It probably doesn't even matter anyway.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
 
   const progressIndicatorStyle = useAnimatedStyle(() => {
     return {

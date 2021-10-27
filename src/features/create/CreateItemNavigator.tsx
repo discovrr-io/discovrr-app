@@ -49,13 +49,13 @@ const CreateItemDetailsTopTab =
 
 function CreateItemDetailsNavigator() {
   const insets = useSafeAreaInsets();
-  const { width: screenWidth } = useWindowDimensions();
+  const { width: windowWidth } = useWindowDimensions();
 
   return (
     <CreateItemDetailsTopTab.Navigator
       initialRouteName="CreateTextPost"
       tabBarPosition="bottom"
-      initialLayout={{ width: screenWidth }}
+      initialLayout={{ width: windowWidth }}
       screenOptions={{
         swipeEnabled: false,
         tabBarShowIcon: true,
@@ -70,7 +70,7 @@ function CreateItemDetailsNavigator() {
           paddingBottom: insets.bottom,
         },
         tabBarItemStyle: {
-          width: screenWidth / __TAB_COUNT,
+          width: windowWidth / __TAB_COUNT,
           paddingHorizontal: 0,
         },
         tabBarIndicatorStyle: {
