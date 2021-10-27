@@ -2,7 +2,6 @@ import * as React from 'react';
 import {
   Alert,
   FlatList,
-  ImageStyle,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
@@ -23,7 +22,7 @@ import * as yup from 'yup';
 import { Formik, useField, useFormikContext } from 'formik';
 
 import BottomSheet from '@gorhom/bottom-sheet';
-import FastImage from 'react-native-fast-image';
+import FastImage, { ImageStyle } from 'react-native-fast-image';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useFocusEffect, useNavigation } from '@react-navigation/core';
 import ImageCropPicker, {
@@ -221,10 +220,6 @@ function ImagePreviewPicker() {
   const $FUNC = '[ImagePreviewPicker]';
   const [_, meta, helpers] = useField<GalleryPostForm['media']>('media');
 
-  // React.useEffect(() => {
-  //   console.log(meta.value);
-  // }, [meta.value]);
-
   const flatListRef = React.useRef<FlatList>(null);
   const actionBottomSheetRef = React.useRef<BottomSheet>(null);
 
@@ -241,6 +236,11 @@ function ImagePreviewPicker() {
 
   const { width: windowWidth } = useWindowDimensions();
   const imageItemWidth = React.useMemo(() => windowWidth / 2, [windowWidth]);
+
+  const handleAddImage = () => {
+    Keyboard.dismiss();
+    actionBottomSheetRef.current?.expand();
+  };
 
   const handlePressImageAtIndex = async (index: number) => {
     try {
@@ -291,13 +291,10 @@ function ImagePreviewPicker() {
           mediaType: 'photo',
           cropping: true,
         });
-        console.log($FUNC, 'PHOTO:', image);
+
         helpers.setValue([...meta.value, image]);
-        // flatListRef.current?.scrollToEnd({ animated: true });
-        flatListRef.current?.scrollToIndex({
-          animated: true,
-          index: Math.max(0, meta.value.length - 1),
-        });
+        helpers.setTouched(true, true);
+        flatListRef.current?.scrollToEnd({ animated: true });
       } catch (err: any) {
         if (err.code === ('E_PICKER_CANCELLED' as PickerErrorCode)) return;
         const { title, message } = constructAlertFromImageCropPickerError(err);
@@ -313,7 +310,9 @@ function ImagePreviewPicker() {
           multiple: true,
           maxFiles: MAX_MEDIA_COUNT,
         });
+
         helpers.setValue([...meta.value, ...images]);
+        helpers.setTouched(true, true);
         flatListRef.current?.scrollToEnd({ animated: true });
       } catch (err: any) {
         if (err.code === ('E_PICKER_CANCELLED' as PickerErrorCode)) return;
@@ -356,6 +355,10 @@ function ImagePreviewPicker() {
           horizontal
           ref={flatListRef}
           data={meta.value}
+          getItemLayout={(_, index) => {
+            const itemLength = imageItemWidth + layout.spacing.md;
+            return { index, length: itemLength, offset: itemLength * index };
+          }}
           keyExtractor={(_, index) => `image-item-${index}`}
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={{
@@ -368,6 +371,7 @@ function ImagePreviewPicker() {
           renderItem={({ item, index }) => (
             <ImagePickerItem
               item={item}
+              isAboveLimit={index >= MAX_MEDIA_COUNT}
               onPressItem={() => handlePressImageAtIndex(index)}
               onPressRemove={() => handleRemoveImageAtIndex(index)}
               style={{ width: imageItemWidth }}
@@ -378,7 +382,7 @@ function ImagePreviewPicker() {
             return (
               <TouchableHighlight
                 underlayColor={color.gray100}
-                onPress={() => actionBottomSheetRef.current?.expand()}
+                onPress={handleAddImage}
                 style={[
                   imagePreviewPickerStyles.item,
                   imagePreviewPickerStyles.addImage,
@@ -407,6 +411,7 @@ function ImagePreviewPicker() {
 
 type ImagePickerItemProps = {
   item: Image;
+  isAboveLimit?: boolean;
   onPressItem?: TouchableOpacityProps['onPress'];
   onPressRemove?: TouchableOpacityProps['onPress'];
   style?: StyleProp<ImageStyle>;
@@ -431,6 +436,8 @@ function ImagePickerItem(props: ImagePickerItemProps) {
         style={[
           imagePreviewPickerStyles.item,
           { width: itemWidth, backgroundColor: color.placeholder },
+          props.isAboveLimit && { opacity: 0.25 },
+          props.style,
         ]}
       />
     </TouchableOpacity>
