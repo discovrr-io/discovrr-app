@@ -1,8 +1,8 @@
-import React, { useCallback, useLayoutEffect, useState } from 'react';
+import * as React from 'react';
 import { SafeAreaView, ScrollView, Text, View } from 'react-native';
 
 import { Button, Cell } from 'src/components';
-import { color, font, layout } from 'src/constants';
+import { font, layout } from 'src/constants';
 import { PostItemCardPreview } from 'src/features/posts/PostItemCard';
 import { createPost } from 'src/features/posts/posts-slice';
 import { useMyProfileId } from 'src/features/profiles/hooks';
@@ -43,9 +43,9 @@ export default function CreateItemPreviewScreen(
       return state.profiles.entities[myProfileId] ?? { displayName: 'My Name' };
     });
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-  const renderPostContents = useCallback(() => {
+  const renderPostContents = React.useCallback(() => {
     switch (previewContent.type) {
       case 'post':
         return (
@@ -63,7 +63,7 @@ export default function CreateItemPreviewScreen(
     }
   }, [myProfileDetails, previewContent.type, previewContent.contents]);
 
-  const handleSubmit = useCallback(async () => {
+  const handleSubmit = React.useCallback(async () => {
     const handleSubmitPost = async (postContents: PostContents) => {
       try {
         setIsSubmitting(true);
@@ -104,7 +104,7 @@ export default function CreateItemPreviewScreen(
     isMounted,
   ]);
 
-  useLayoutEffect(() => {
+  React.useLayoutEffect(() => {
     props.navigation.setOptions({
       headerRight: () => (
         <Button
@@ -119,48 +119,37 @@ export default function CreateItemPreviewScreen(
   }, [props.navigation, handleSubmit, isSubmitting]);
 
   return (
-    <SafeAreaView
-      style={[
-        {
-          flex: 1,
+    <SafeAreaView style={{ flex: 1 }}>
+      <ScrollView
+        contentContainerStyle={{
+          flexGrow: 1,
           paddingVertical: layout.spacing.lg,
           paddingHorizontal: layout.spacing.lg,
-        },
-      ]}>
-      <View style={{ flexGrow: 1, justifyContent: 'space-between' }}>
+        }}>
         <View
           style={{
             flexGrow: 1,
-            // paddingHorizontal: layout.spacing.md,
-            // paddingTop: layout.spacing.md,
+            alignContent: 'center',
+            justifyContent: 'center',
+            marginBottom: layout.spacing.md,
           }}>
-          <Text style={[font.medium, { color: color.gray700 }]}>
-            Here&apos;s a preview of what your {props.route.params.type} post
-            will look like to everyone:
-          </Text>
-          <ScrollView
-            style={{ marginVertical: layout.spacing.md }}
-            contentContainerStyle={{
-              flexGrow: 1,
-              alignContent: 'center',
-              justifyContent: 'center',
-            }}>
-            {renderPostContents()}
-          </ScrollView>
+          {renderPostContents()}
         </View>
-      </View>
-      <Cell.Group label="Options">
-        <Cell.Navigator
-          label="Add location"
-          caption="No location set"
-          onPress={() => alertUnavailableFeature()}
-        />
-        <Cell.Switch
-          label="Enable comments"
-          value={true}
-          onValueChange={() => alertUnavailableFeature()}
-        />
-      </Cell.Group>
+        <View>
+          <Cell.Group label="Options">
+            <Cell.Navigator
+              label="Add location"
+              caption="No location set"
+              onPress={() => alertUnavailableFeature()}
+            />
+            <Cell.Switch
+              label="Enable comments"
+              value={true}
+              onValueChange={() => alertUnavailableFeature()}
+            />
+          </Cell.Group>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }

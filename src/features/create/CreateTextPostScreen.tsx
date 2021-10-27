@@ -58,7 +58,7 @@ export default function CreateTextPostScreen(props: CreateTextPostScreenProps) {
       .getParent<CreateItemStackNavigationProp>()
       .navigate('CreateItemPreview', {
         type: 'post',
-        contents: { type: 'text', ...values },
+        contents: { type: 'text', text: values.text.trim() },
       });
   };
 
@@ -114,10 +114,7 @@ function TextArea(props: TextAreaProps) {
   }, [field.value]);
 
   const characterCountColor = useDerivedValue(() => {
-    // return withTiming(characterCount.value / MAX_TEXT_POST_LENGTH);
-
-    // We'll clamp the value such that only values of 0%, 80% and 100% will be
-    // used, with the rest ignored
+    // We'll clamp the value at 0%, 80% and 100%
     const percent = characterCount / MAX_TEXT_POST_LENGTH;
     if (percent < 0.8) {
       return withTiming(0.0);
@@ -133,17 +130,18 @@ function TextArea(props: TextAreaProps) {
       color: interpolateColor(
         characterCountColor.value,
         [0, 0.5, 1],
-        [color.gray500, color.orange500, color.red500],
+        [color.gray500, color.yellow500, color.red500],
       ),
     }),
     [],
   );
 
   return (
+    // TODO: Fix resizing text input when keyboard is active
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <KeyboardAvoidingView
         behavior="height"
-        keyboardVerticalOffset={90}
+        // keyboardVerticalOffset={90}
         style={{ flex: 1 }}>
         <View
           style={{

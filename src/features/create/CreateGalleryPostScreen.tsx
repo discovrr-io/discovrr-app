@@ -31,6 +31,7 @@ import ImageCropPicker, {
 } from 'react-native-image-crop-picker';
 
 import * as utilities from 'src/utilities';
+import { MediaSource } from 'src/api';
 import { color, font, layout, strings, values } from 'src/constants';
 import { useNavigationAlertUnsavedChangesOnRemove } from 'src/hooks';
 
@@ -108,29 +109,26 @@ type CreateGalleryPostScreenProps =
   CreateItemDetailsTopTabScreenProps<'CreateGalleryPost'>;
 
 export default function CreateGalleryPostScreen(
-  _: CreateGalleryPostScreenProps,
+  props: CreateGalleryPostScreenProps,
 ) {
   const handleNavigateToPreview = (values: GalleryPostForm) => {
-    console.log('GALLERY POST:', values);
-  };
+    const sources: MediaSource[] = values.media.map(item => ({
+      mime: item.mime,
+      url: item.sourceURL ?? item.path,
+      path: item.path,
+      size: item.size,
+      width: item.width,
+      height: item.height,
+      filename: item.filename,
+    }));
 
-  // React.useEffect(() => {
-  //   return () => {
-  //     console.log('Cleaning temporary images from image picker...');
-  //     ImageCropPicker.clean()
-  //       .then(() =>
-  //         console.log(
-  //           'Successfully cleaned temporary images from image picker',
-  //         ),
-  //       )
-  //       .catch(error =>
-  //         console.warn(
-  //           'Failed to clean temporary files from image picker:',
-  //           error,
-  //         ),
-  //       );
-  //   };
-  // }, []);
+    props.navigation
+      .getParent<CreateItemStackNavigationProp>()
+      .navigate('CreateItemPreview', {
+        type: 'post',
+        contents: { type: 'gallery', caption: values.caption.trim(), sources },
+      });
+  };
 
   return (
     <Formik<GalleryPostForm>
@@ -173,7 +171,13 @@ function GalleryPostFormikForm() {
     <ScrollView
       keyboardShouldPersistTaps="handled"
       contentContainerStyle={{ flexGrow: 1 }}>
-      <KeyboardAvoidingView behavior="position" style={{ flexGrow: 1 }}>
+      <KeyboardAvoidingView
+        behavior="position"
+        keyboardVerticalOffset={Platform.select({
+          ios: -80,
+          default: undefined,
+        })}
+        style={{ flexGrow: 1 }}>
         <View
           style={[
             galleryPostFormikFormStyles.container,
@@ -194,14 +198,16 @@ function GalleryPostFormikForm() {
             )}
             <TextInput
               multiline
-              numberOfLines={8}
               maxLength={MAX_CAPTION_LENGTH}
               placeholder="Write a caption…"
               placeholderTextColor={color.gray500}
               value={field.value}
               onChangeText={field.onChange('caption')}
               onBlur={field.onBlur('caption')}
-              style={[font.extraLarge, { textAlignVertical: 'top' }]}
+              style={[
+                font.extraLarge,
+                { textAlignVertical: 'top', minHeight: '20%' },
+              ]}
             />
           </View>
         </TouchableWithoutFeedback>
@@ -428,6 +434,7 @@ function ImagePickerItem(props: ImagePickerItemProps) {
       <TouchableOpacity
         activeOpacity={values.DEFAULT_ACTIVE_OPACITY}
         onPress={props.onPressRemove}
+        hitSlop={{ top: 30, right: 30, bottom: 30, left: 30 }}
         style={imagePreviewPickerStyles.removeIconContainer}>
         <Icon name="close" size={24} color={color.white} />
       </TouchableOpacity>

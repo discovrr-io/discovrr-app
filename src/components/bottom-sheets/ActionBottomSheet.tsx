@@ -11,10 +11,11 @@ import BottomSheet, {
 import { Portal } from '@gorhom/portal';
 
 import Icon from 'react-native-vector-icons/Ionicons';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import Spacer from '../Spacer';
-import { color, font, layout } from 'src/constants';
 import Button, { ButtonProps } from '../buttons/Button';
+import { color, font, layout } from 'src/constants';
 
 const ICON_SIZE = 24;
 const ITEM_SPACING = layout.spacing.sm;
@@ -74,7 +75,9 @@ const ActionBottomSheet = React.forwardRef<BottomSheet, ActionBottomSheetProps>(
           <BottomSheetView
             onLayout={handleContentLayout}
             style={styles.container}>
-            <ActionBottomSheetContents {...props} />
+            <SafeAreaView edges={['bottom', 'left', 'right']}>
+              <ActionBottomSheetContents {...props} />
+            </SafeAreaView>
           </BottomSheetView>
         </BottomSheet>
       </Portal>
