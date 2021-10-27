@@ -13,6 +13,13 @@ import { Formik, useField, useFormikContext } from 'formik';
 import { useNavigation } from '@react-navigation/core';
 import { useFocusEffect } from '@react-navigation/native';
 
+import Animated, {
+  interpolateColor,
+  useAnimatedStyle,
+  useDerivedValue,
+  withTiming,
+} from 'react-native-reanimated';
+
 import * as utilities from 'src/utilities';
 import { Button } from 'src/components';
 import { color, font, layout } from 'src/constants';
@@ -29,7 +36,7 @@ const textPostSchema = yup.object({
   text: yup
     .string()
     .trim()
-    .required('Please enter at least 3 words')
+    .required('Please fill in this field')
     .max(
       MAX_TEXT_POST_LENGTH,
       `Your post is too long! Please enter at most ${MAX_TEXT_POST_LENGTH} characters`,
@@ -90,32 +97,82 @@ function TextPostFormikForm() {
 
   return (
     <View style={[layout.defaultScreenStyle, { flex: 1 }]}>
-      <TextArea fieldName="text" placeholder="What's on your mind?" />
+      <TextArea placeholder="What's on your mind?" />
     </View>
   );
 }
 
 type TextAreaProps = {
-  fieldName: string;
   placeholder?: string;
 };
 
 function TextArea(props: TextAreaProps) {
-  const [field, meta, _helpers] = useField(props.fieldName);
+  const [field, meta, _helpers] = useField<TextPostForm['text']>('text');
+
+  const characterCount = React.useMemo(() => {
+    return field.value.length;
+  }, [field.value]);
+
+  const characterCountColor = useDerivedValue(() => {
+    // return withTiming(characterCount.value / MAX_TEXT_POST_LENGTH);
+
+    // We'll clamp the value such that only values of 0%, 80% and 100% will be
+    // used, with the rest ignored
+    const percent = characterCount / MAX_TEXT_POST_LENGTH;
+    if (percent < 0.8) {
+      return withTiming(0.0);
+    } else if (percent < 1.0) {
+      return withTiming(0.5);
+    } else {
+      return withTiming(1.0);
+    }
+  }, [characterCount]);
+
+  const characterCountStyle = useAnimatedStyle(
+    () => ({
+      color: interpolateColor(
+        characterCountColor.value,
+        [0, 0.5, 1],
+        [color.gray500, color.orange500, color.red500],
+      ),
+    }),
+    [],
+  );
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <KeyboardAvoidingView
         behavior="height"
         keyboardVerticalOffset={90}
         style={{ flex: 1 }}>
-        {meta.touched && meta.error && (
-          <Text style={[font.smallBold, { color: color.danger }]}>
-            {meta.error}
-          </Text>
-        )}
+        <View
+          style={{
+            flexDirection: 'row-reverse',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            paddingVertical: layout.spacing.md,
+          }}>
+          <Animated.Text
+            style={[
+              font.smallBold,
+              characterCountStyle,
+              { textAlign: 'right' },
+            ]}>
+            {characterCount}/280
+          </Animated.Text>
+          {meta.touched && meta.error && (
+            <Text
+              numberOfLines={2}
+              style={[
+                font.smallBold,
+                { flexGrow: 1, flexShrink: 1, color: color.danger },
+              ]}>
+              {meta.error}
+            </Text>
+          )}
+        </View>
         <RNTextInput
           multiline
-          numberOfLines={8}
           maxLength={MAX_TEXT_POST_LENGTH}
           placeholder={props.placeholder}
           placeholderTextColor={color.gray500}

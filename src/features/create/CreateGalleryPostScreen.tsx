@@ -48,9 +48,17 @@ import {
 } from 'src/navigation';
 
 const MAX_CAPTION_LENGTH = 280;
+const MAX_MEDIA_COUNT = 8;
 
 const galleyPostSchema = yup.object({
-  media: yup.array().required().min(1, 'Please upload at least one photo'),
+  media: yup
+    .array()
+    .required()
+    .min(1, 'Please upload at least one photo')
+    .max(
+      MAX_MEDIA_COUNT,
+      `You can only upload up to ${MAX_MEDIA_COUNT} photos`,
+    ),
   caption: yup
     .string()
     .trim()
@@ -303,6 +311,7 @@ function ImagePreviewPicker() {
           mediaType: 'photo',
           cropping: true,
           multiple: true,
+          maxFiles: MAX_MEDIA_COUNT,
         });
         helpers.setValue([...meta.value, ...images]);
         flatListRef.current?.scrollToEnd({ animated: true });
@@ -364,21 +373,26 @@ function ImagePreviewPicker() {
               style={{ width: imageItemWidth }}
             />
           )}
-          ListFooterComponent={() => (
-            <TouchableHighlight
-              underlayColor={color.gray100}
-              // onPress={handleAddImages}
-              onPress={() => actionBottomSheetRef.current?.expand()}
-              style={[
-                imagePreviewPickerStyles.item,
-                imagePreviewPickerStyles.addImage,
-                { width: imageItemWidth },
-              ]}>
-              <Icon name="add-outline" color={color.accent} size={60} />
-            </TouchableHighlight>
-          )}
+          ListFooterComponent={() => {
+            if (meta.value.length >= MAX_MEDIA_COUNT) return null;
+            return (
+              <TouchableHighlight
+                underlayColor={color.gray100}
+                onPress={() => actionBottomSheetRef.current?.expand()}
+                style={[
+                  imagePreviewPickerStyles.item,
+                  imagePreviewPickerStyles.addImage,
+                  { width: imageItemWidth },
+                ]}>
+                <Icon name="add-outline" color={color.accent} size={60} />
+              </TouchableHighlight>
+            );
+          }}
           ListFooterComponentStyle={{
-            paddingLeft: meta.value.length > 0 ? layout.spacing.md : undefined,
+            paddingLeft:
+              meta.value.length > 0 && meta.value.length < MAX_MEDIA_COUNT
+                ? layout.spacing.md
+                : undefined,
           }}
         />
       </View>

@@ -99,11 +99,7 @@ export default function InAppWebView(props: InAppWebViewProps) {
         <Animated.View
           style={[
             progressIndicatorStyle,
-            {
-              position: 'absolute',
-              height: 5,
-              zIndex: 10,
-            },
+            { position: 'absolute', height: 5, zIndex: 10 },
           ]}
         />
       )}

@@ -139,24 +139,28 @@ export function useOverridableContextOptions<T>(
 
 export function useNavigationAlertUnsavedChangesOnRemove(dirty: boolean) {
   const navigation = useNavigation();
+  const didAddListener = React.useRef(false);
+
   React.useEffect(() => {
-    navigation.addListener('beforeRemove', e => {
-      if (!dirty) return;
+    if (!didAddListener.current) {
+      navigation.addListener('beforeRemove', e => {
+        didAddListener.current = true;
+        if (!dirty) return;
 
-      e.preventDefault();
-
-      Alert.alert(
-        constants.strings.DISCARD_CHANGES.title,
-        constants.strings.DISCARD_CHANGES.message,
-        [
-          {
-            text: 'Discard Changes',
-            style: 'destructive',
-            onPress: () => navigation.dispatch(e.data.action),
-          },
-          { text: "Don't Leave", style: 'cancel' },
-        ],
-      );
-    });
+        e.preventDefault();
+        Alert.alert(
+          constants.strings.DISCARD_CHANGES.title,
+          constants.strings.DISCARD_CHANGES.message,
+          [
+            {
+              text: 'Discard Changes',
+              style: 'destructive',
+              onPress: () => navigation.dispatch(e.data.action),
+            },
+            { text: "Don't Leave", style: 'cancel' },
+          ],
+        );
+      });
+    }
   }, [dirty, navigation]);
 }
