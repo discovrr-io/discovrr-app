@@ -7,9 +7,9 @@
     "android": "react-native run-android --appIdSuffix debug",
     "android:staging": "react-native run-android --variant releaseStaging --appId com.discovrr.discovrr_app.releaseStaging",
     "android:release": "react-native run-android --variant release",
-    "ios": "react-native run-ios --scheme Debug",
-    "ios:staging": "react-native run-ios --scheme Staging",
-    "ios:release": "react-native run-ios --scheme Release",
+    "ios": "react-native run-ios --configuration Debug",
+    "ios:staging": "react-native run-ios --configuration Staging",
+    "ios:release": "react-native run-ios --configuration Release",
     "start": "react-native start",
     "test": "jest",
     "lint": "eslint ."
