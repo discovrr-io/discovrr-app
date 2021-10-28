@@ -71,21 +71,20 @@ export namespace PostApi {
       location?: PostLocation;
     };
 
-    // TODO: Upload media
     let payload: CreatePostPayload;
     switch (contents.type) {
       case 'gallery':
         payload = {
           kind: 'gallery',
           caption: contents.caption,
-          media: contents.sources.map(it => it),
+          media: contents.sources,
         };
         break;
       case 'video':
         payload = {
           kind: 'video',
           caption: contents.caption,
-          media: undefined,
+          media: [contents.source],
         };
         break;
       case 'text': /* FALLTHROUGH */

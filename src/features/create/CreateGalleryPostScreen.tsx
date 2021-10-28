@@ -50,6 +50,10 @@ import {
 const MAX_CAPTION_LENGTH = 280;
 const MAX_MEDIA_COUNT = 8;
 
+const IMAGE_COMPRESSION_QUALITY = 0.7;
+const IMAGE_COMPRESSION_MAX_WIDTH = 550;
+const IMAGE_COMPRESSION_MAX_HEIGHT = (IMAGE_COMPRESSION_MAX_WIDTH / 2) * 3;
+
 const galleyPostSchema = yup.object({
   media: yup
     .array()
@@ -113,20 +117,22 @@ export default function CreateGalleryPostScreen(
 ) {
   const handleNavigateToPreview = (values: GalleryPostForm) => {
     const sources: MediaSource[] = values.media.map(item => ({
-      mime: item.mime,
-      url: item.sourceURL ?? item.path,
-      path: item.path,
+      mime: 'image/jpeg',
+      url: item.path,
       size: item.size,
       width: item.width,
       height: item.height,
-      filename: item.filename,
     }));
 
     props.navigation
       .getParent<CreateItemStackNavigationProp>()
       .navigate('CreateItemPreview', {
         type: 'post',
-        contents: { type: 'gallery', caption: values.caption.trim(), sources },
+        contents: {
+          type: 'gallery',
+          caption: values.caption.trim(),
+          sources: sources,
+        },
       });
   };
 
@@ -257,11 +263,15 @@ function ImagePreviewPicker() {
 
       const image = await ImageCropPicker.openCropper({
         mediaType: 'photo',
-        path: Platform.select({
-          // Prefer sourceURL as that is the original high-quality image path
-          ios: meta.value[index].sourceURL ?? meta.value[index].path,
-          default: meta.value[index].path,
-        }),
+        path: meta.value[index].path,
+        // path: Platform.select({
+        //   // Prefer sourceURL as that is the original high-quality image path
+        //   ios: meta.value[index].sourceURL ?? meta.value[index].path,
+        //   default: meta.value[index].path,
+        // }),
+        compressImageQuality: IMAGE_COMPRESSION_QUALITY,
+        compressImageMaxWidth: IMAGE_COMPRESSION_MAX_WIDTH,
+        compressImageMaxHeight: IMAGE_COMPRESSION_MAX_HEIGHT,
       });
 
       console.log($FUNC, 'Setting new image:', image);
@@ -296,6 +306,10 @@ function ImagePreviewPicker() {
         const image = await ImageCropPicker.openCamera({
           mediaType: 'photo',
           cropping: true,
+          forceJpg: true,
+          compressImageQuality: IMAGE_COMPRESSION_QUALITY,
+          compressImageMaxWidth: IMAGE_COMPRESSION_MAX_WIDTH,
+          compressImageMaxHeight: IMAGE_COMPRESSION_MAX_HEIGHT,
         });
 
         helpers.setValue([...meta.value, image]);
@@ -315,6 +329,10 @@ function ImagePreviewPicker() {
           cropping: true,
           multiple: true,
           maxFiles: MAX_MEDIA_COUNT,
+          forceJpg: true,
+          compressImageQuality: IMAGE_COMPRESSION_QUALITY,
+          compressImageMaxWidth: IMAGE_COMPRESSION_MAX_WIDTH,
+          compressImageMaxHeight: IMAGE_COMPRESSION_MAX_HEIGHT,
         });
 
         helpers.setValue([...meta.value, ...images]);

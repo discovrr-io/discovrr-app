@@ -9,10 +9,10 @@ import { ProfileId } from './profile';
  */
 export type PostId = EntityId & { __postIdBrand: any };
 
-export type PostContents =
+export type PostContents<SourceItem = MediaSource> =
   | { type: 'text'; text: string }
-  | { type: 'gallery'; sources: MediaSource[]; caption: string }
-  | { type: 'video'; source: MediaSource; caption: string };
+  | { type: 'gallery'; sources: SourceItem[]; caption: string }
+  | { type: 'video'; source: SourceItem; caption: string };
 
 export type PostLocation = {
   /**

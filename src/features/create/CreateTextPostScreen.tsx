@@ -114,11 +114,9 @@ function TextArea(props: TextAreaProps) {
   }, [field.value]);
 
   const characterCountColor = useDerivedValue(() => {
-    // We'll clamp the value at 0%, 85% and 95%
-    const percent = characterCount / MAX_TEXT_POST_LENGTH;
-    if (percent < 0.9) {
+    if (characterCount < MAX_TEXT_POST_LENGTH - 50) {
       return withTiming(0.0);
-    } else if (percent < 0.98) {
+    } else if (characterCount < MAX_TEXT_POST_LENGTH - 10) {
       return withTiming(0.5);
     } else {
       return withTiming(1.0);
