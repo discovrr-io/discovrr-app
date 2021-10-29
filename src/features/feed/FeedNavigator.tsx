@@ -5,6 +5,7 @@ import { color, font } from 'src/constants';
 import { FeedTopTabParamList } from 'src/navigation';
 
 import DiscoverFeed from './DiscoverFeed';
+// import DiscoverFeed from './DiscoverFeed.new';
 import NearMeFeed from './NearMeFeed';
 import FollowingFeed from './FollowingFeed';
 

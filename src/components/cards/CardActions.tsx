@@ -256,7 +256,7 @@ export const CardActionsHeartIconButton = (
   );
 };
 
-CardActionsIconButton.displayName = 'CardActionsIconButton';
-CardActionsToggleIconButton.displayName = 'CardActionsToggleIconButton';
+// CardActionsIconButton.displayName = 'CardActionsIconButton';
+// CardActionsToggleIconButton.displayName = 'CardActionsToggleIconButton';
 
 export default CardActions;

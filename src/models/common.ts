@@ -32,6 +32,7 @@ export const DEFAULT_COORDINATES = {
 export type Pagination = {
   readonly limit: number;
   readonly currentPage: number;
+  readonly oldestDateFetched?: Date;
 };
 
 /**

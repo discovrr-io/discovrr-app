@@ -45,20 +45,19 @@ const PLAY_BUTTON_SIZE_SMALL = 80;
 const PLAY_BUTTON_SIZE_LARGE = 120;
 const PLAY_BUTTON_COLOR = color.gray100;
 
-type PostItemCardHandlers = {
+type PostItemCardContext = {
   showMenuIcon?: boolean;
   showShareIcon?: boolean;
   onPressMenu?: (post: Post) => void | Promise<void>;
   onPressShare?: (post: Post) => void | Promise<void>;
 };
 
-export const PostItemCardHandlersContext =
-  React.createContext<PostItemCardHandlers>({});
+export const PostItemCardContext = React.createContext<PostItemCardContext>({});
 
 //#region PostItemCard ---------------------------------------------------------
 
 type PostItemCardProps = CardElementProps &
-  PostItemCardHandlers & {
+  PostItemCardContext & {
     postId: PostId;
   };
 
@@ -75,7 +74,7 @@ export default function PostItemCard(props: PostItemCardProps) {
   const postData = usePost(postId);
 
   return (
-    <PostItemCardHandlersContext.Provider
+    <PostItemCardContext.Provider
       value={{ showMenuIcon, showShareIcon, onPressMenu, onPressShare }}>
       <AsyncGate
         data={postData}
@@ -85,7 +84,7 @@ export default function PostItemCard(props: PostItemCardProps) {
           return <LoadedPostItemCard post={post} {...cardElementProps} />;
         }}
       />
-    </PostItemCardHandlersContext.Provider>
+    </PostItemCardContext.Provider>
   );
 }
 
@@ -153,7 +152,7 @@ function PostItemCardBody(props: PostItemCardBodyProps) {
         </View>
       );
     },
-    [postBody],
+    [postBody.statistics.totalViews],
   );
 
   switch (postBody.contents.type) {
@@ -236,7 +235,7 @@ type LoadedPostItemCardProps = CardElementProps & {
   post: Post;
 };
 
-const LoadedPostItemCard = (props: LoadedPostItemCardProps) => {
+export const LoadedPostItemCard = (props: LoadedPostItemCardProps) => {
   const { post, ...cardElementProps } = props;
   const navigation = useNavigation<RootStackNavigationProp>();
 
@@ -308,7 +307,7 @@ function PostItemCardCaption(props: PostItemCardCaptionProps) {
 //#region PostItemCardFooter ---------------------------------------------------
 
 type PostItemCardFooterProps = CardElementProps &
-  Partial<PostItemCardHandlers> & {
+  Partial<PostItemCardContext> & {
     post: Post;
   };
 
@@ -383,7 +382,7 @@ function PostItemCardAuthor(props: PostItemCardAuthorProps) {
 //#region PostItemCardActions --------------------------------------------------
 
 type PostItemCardActionsProps = Omit<CardActionsProps, 'children'> &
-  Partial<PostItemCardHandlers> & {
+  Partial<PostItemCardContext> & {
     post: Post;
   };
 
@@ -393,7 +392,7 @@ function PostItemCardActions(props: PostItemCardActionsProps) {
 
   const dispatch = useAppDispatch();
   const handlersContext = useOverridableContextOptions(
-    PostItemCardHandlersContext,
+    PostItemCardContext,
     handlersProps,
   );
 

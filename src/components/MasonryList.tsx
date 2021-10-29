@@ -3,8 +3,8 @@
 
 import React from 'react';
 import {
-  ScrollView as ScrollView,
-  ScrollViewProps,
+  ScrollView as RNScrollView,
+  ScrollViewProps as RNScrollViewProps,
   View,
   NativeScrollEvent,
 } from 'react-native';
@@ -35,13 +35,14 @@ export type RenderItemInfo<ItemT> = {
   column: number;
 };
 
-export type MasonryListProps<ItemT> = ScrollViewProps & {
+export type MasonryListProps<ItemT> = RNScrollViewProps & {
   data: ItemT[];
   // keyExtractor?: ((item: ItemT, index: number) => string) ,
   numOfColumns?: number;
   onEndReached?: () => void;
   onEndReachedThreshold?: number;
   renderItem: (info: RenderItemInfo<ItemT>) => React.ReactElement | null;
+  ScrollViewComponent?: React.ComponentType<RNScrollViewProps> | null;
   ListHeaderComponent?: React.ComponentType<any> | React.ReactElement | null;
   ListEmptyComponent?: React.ComponentType<any> | React.ReactElement | null;
   ListFooterComponent?: React.ComponentType<any> | React.ReactElement | null;
@@ -49,7 +50,7 @@ export type MasonryListProps<ItemT> = ScrollViewProps & {
 
 function MasonryListInner<ItemT>(
   props: MasonryListProps<ItemT>,
-  ref: React.ForwardedRef<ScrollView>,
+  ref: React.ForwardedRef<RNScrollView>,
 ) {
   const {
     data,
@@ -57,15 +58,19 @@ function MasonryListInner<ItemT>(
     renderItem,
     onEndReached,
     onEndReachedThreshold,
+    ScrollViewComponent,
     ListHeaderComponent,
     ListEmptyComponent,
     ListFooterComponent,
     ...scrollViewProps
   } = props;
 
+  const ScrollView = ScrollViewComponent ?? RNScrollView;
+
   return (
     <ScrollView
       {...scrollViewProps}
+      // @ts-ignore For now, we won't care if we can't pass in ref
       ref={ref}
       indicatorStyle="black"
       removeClippedSubviews
