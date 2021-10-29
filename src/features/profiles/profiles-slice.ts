@@ -216,7 +216,14 @@ const profilesSlice = createSlice({
       // -- updateProfile --
       .addCase(updateProfile.fulfilled, (state, action) => {
         const { profileId, changes } = action.meta.arg;
-        profilesAdapter.updateOne(state, { id: profileId, changes });
+        profilesAdapter.updateOne(state, {
+          id: profileId,
+          changes: {
+            ...changes,
+            avatar: changes.avatar ?? undefined,
+            coverPhoto: changes.coverPhoto ?? undefined,
+          },
+        });
       })
       // -- updateProfileFollowStatus --
       .addCase(updateProfileFollowStatus.pending, (state, action) => {

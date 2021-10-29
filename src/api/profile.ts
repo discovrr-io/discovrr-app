@@ -209,31 +209,19 @@ export namespace ProfileApi {
   //#region UPDATE OPERATIONS
 
   export type ProfileChanges = Partial<
-    Pick<
-      Profile,
-      | 'displayName'
-      | 'email'
-      | 'username'
-      | 'biography'
-      | 'avatar'
-      | 'coverPhoto'
-    >
-  >;
+    Pick<Profile, 'displayName' | 'username' | 'biography'>
+  > & {
+    avatar?: Profile['avatar'] | null;
+    coverPhoto?: Profile['coverPhoto'] | null;
+  };
 
   export type UpdateProfileParams = {
     profileId: ProfileId;
     changes: ProfileChanges;
   };
 
-  export async function updateProfile(_params: UpdateProfileParams) {
-    // const { profileId, changes } = params;
-    // const profileQuery = new Parse.Query(Parse.Object.extend('Profile'));
-    // const profile = await profileQuery.get(String(profileId));
-    // await profile?.save(changes);
-    throw new ProfileApiError(
-      'UNIMPLEMENTED',
-      'Not implemented: `ProfileAPi.updateProfile`.',
-    );
+  export async function updateProfile(params: UpdateProfileParams) {
+    await Parse.Cloud.run('updateProfile', params);
   }
 
   export type UpdateProfileFollowStatusParams = {

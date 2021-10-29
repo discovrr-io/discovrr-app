@@ -13,17 +13,27 @@ import {
   View,
 } from 'react-native';
 
-import * as yup from 'yup';
-import FastImage from 'react-native-fast-image';
-import { Formik, useFormikContext } from 'formik';
-import { useNavigation } from '@react-navigation/core';
+import auth from '@react-native-firebase/auth';
+import storage from '@react-native-firebase/storage';
 
-import { ProfileApi } from 'src/api';
+import * as yup from 'yup';
+import BottomSheet from '@gorhom/bottom-sheet';
+import FastImage, { FastImageProps } from 'react-native-fast-image';
+import { Formik, useField, useFormikContext } from 'formik';
+import { useNavigation } from '@react-navigation/core';
+import { useSharedValue } from 'react-native-reanimated';
+
+import ImageCropPicker, {
+  Image,
+  PickerErrorCode,
+} from 'react-native-image-crop-picker';
+
+import * as utilities from 'src/utilities';
+import { MediaSource, ProfileApi } from 'src/api';
 import { updateProfile } from 'src/features/profiles/profiles-slice';
 import { useMyProfileId, useProfile } from 'src/features/profiles/hooks';
 import { Profile, ProfileId } from 'src/models';
 import { RootStackScreenProps } from 'src/navigation';
-import { alertUnavailableFeature } from 'src/utilities';
 
 import { color, font, layout } from 'src/constants';
 import { DEFAULT_AVATAR } from 'src/constants/media';
@@ -33,10 +43,13 @@ import { CELL_GROUP_VERTICAL_SPACING } from 'src/components/cells/CellGroup';
 import { CELL_ICON_SIZE } from 'src/components/cells/common';
 
 import {
+  ActionBottomSheet,
+  ActionBottomSheetItem,
   AsyncGate,
   Button,
   Cell,
   LoadingContainer,
+  LoadingOverlay,
   RouteError,
   Spacer,
 } from 'src/components';
@@ -51,7 +64,12 @@ const MAX_INPUT_LENGTH = 30;
 const MAX_BIO_LENGTH = 140;
 const AVATAR_DIAMETER = 130;
 
+const IMAGE_COMPRESSION_QUALITY = 0.7;
+const IMAGE_COMPRESSION_MAX_WIDTH = 200;
+const IMAGE_COMPRESSION_MAX_HEIGHT = 200;
+
 const profileChangesSchema = yup.object({
+  avatar: yup.object().nullable().notRequired(),
   displayName: yup
     .string()
     .trim()
@@ -76,7 +94,13 @@ const profileChangesSchema = yup.object({
   biography: yup.string().trim().max(MAX_BIO_LENGTH),
 });
 
-// type ProfileSettingsProps = SettingsStackScreenProps<'ProfileSettings'>;
+type ProfileChangesForm = Omit<
+  yup.InferType<typeof profileChangesSchema>,
+  'avatar'
+> & {
+  avatar?: Image | null;
+};
+
 type ProfileSettingsProps = RootStackScreenProps<'ProfileSettings'>;
 
 export default function ProfileSettingsScreenWrapper(
@@ -124,15 +148,119 @@ function LoadedProfileSettingsScreen(props: LoadedAccountSettingsScreenProps) {
   const dispatch = useAppDispatch();
   const profile = props.profile;
 
-  const handleSaveChanges = async (changes: ProfileApi.ProfileChanges) => {
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  // const [isUploading, setIsUploading] = React.useState(false);
+  // const [overlayMessage, setOverlayMessage] = React.useState<string>();
+  // const [overlayCaption, setOverlayCaption] = React.useState<string>();
+
+  const [overlayContent, setOverlayContent] = React.useState<{
+    message?: string;
+    caption?: string;
+    isUploading?: boolean;
+  }>({ caption: "This won't take long", isUploading: false });
+
+  const currentUploadProgress = useSharedValue(0);
+
+  const handleSaveChanges = async (changes: ProfileChangesForm) => {
     try {
+      setIsSubmitting(true);
+
+      let processedAvatar: MediaSource | null = null;
+      if (changes.avatar !== undefined) {
+        // We'll remove the current avatar even if we're uploading a new one
+        console.log($FUNC, 'Removing current avatar...');
+        setOverlayContent({ message: 'Processing changes…' });
+        await auth().currentUser?.updateProfile({ photoURL: null });
+
+        const oldProfileAvatarFilename = profile.avatar?.filename;
+        if (oldProfileAvatarFilename) {
+          console.log(
+            $FUNC,
+            'Deleting old profile avatar file:',
+            oldProfileAvatarFilename,
+          );
+
+          try {
+            const reference = storage().ref(
+              `/avatars/${oldProfileAvatarFilename}`,
+            );
+            await reference.delete();
+          } catch (error) {
+            console.error(
+              'Failed to delete old profile image from Firebase:',
+              error,
+            );
+          }
+        }
+
+        if (changes.avatar) {
+          console.log($FUNC, 'Uploading avatar...');
+          setOverlayContent({
+            message: 'Uploading avatar…',
+            caption: 'This may take a while',
+            isUploading: true,
+          });
+
+          const source: MediaSource = {
+            mime: changes.avatar.mime,
+            url: changes.avatar.path,
+            size: changes.avatar.size,
+            width: changes.avatar.width,
+            height: changes.avatar.height,
+          };
+
+          const [filename, task, reference] = utilities.uploadFileToFirebase(
+            source,
+            ({ filename }) => `/avatars/${filename}`,
+          );
+
+          task.on('state_changed', snapshot => {
+            currentUploadProgress.value =
+              snapshot.bytesTransferred / snapshot.totalBytes;
+          });
+
+          await task.then(() => {
+            console.log($FUNC, 'Successfully uploaded avatar');
+          });
+
+          const avatarDownloadURL = await reference.getDownloadURL();
+          const firebaseCurrentUser = auth().currentUser;
+
+          if (firebaseCurrentUser) {
+            setOverlayContent({
+              message: 'Applying avatar…',
+              isUploading: false,
+            });
+
+            await firebaseCurrentUser.updateProfile({
+              photoURL: avatarDownloadURL,
+            });
+          } else {
+            console.warn(
+              $FUNC,
+              'Firebase user is null, which is unexpected.',
+              'Skipping profile update...',
+            );
+          }
+
+          processedAvatar = {
+            ...source,
+            filename,
+            url: avatarDownloadURL,
+            path: undefined,
+          };
+        }
+      }
+
+      setOverlayContent({ message: 'Saving profile changes…' });
+
       const updateProfileAction = updateProfile({
         profileId: profile.profileId,
         changes: {
+          avatar: processedAvatar,
           displayName: changes.displayName?.trim(),
           username: changes.username?.trim(),
           biography: changes.biography?.trim(),
-          email: changes.email?.trim(),
         },
       });
 
@@ -144,10 +272,12 @@ function LoadedProfileSettingsScreen(props: LoadedAccountSettingsScreenProps) {
       );
     } catch (error) {
       console.error($FUNC, 'Failed to update profile:', error);
-      Alert.alert(
-        SOMETHING_WENT_WRONG.title,
+      utilities.alertSomethingWentWrong(
         "We weren't able to update your profile at the moment. Please try again later.",
       );
+    } finally {
+      setIsSubmitting(false);
+      currentUploadProgress.value = 0;
     }
   };
 
@@ -158,8 +288,9 @@ function LoadedProfileSettingsScreen(props: LoadedAccountSettingsScreenProps) {
         contentContainerStyle={[layout.defaultScreenStyle, { flexGrow: 1 }]}>
         <TouchableWithoutFeedback accessible={false} onPress={Keyboard.dismiss}>
           <KeyboardAvoidingView behavior="position">
-            <Formik
+            <Formik<ProfileChangesForm>
               initialValues={{
+                avatar: undefined,
                 displayName: profile.displayName,
                 username: profile.username,
                 biography: profile.biography,
@@ -172,6 +303,15 @@ function LoadedProfileSettingsScreen(props: LoadedAccountSettingsScreenProps) {
           </KeyboardAvoidingView>
         </TouchableWithoutFeedback>
       </ScrollView>
+      {isSubmitting && (
+        <LoadingOverlay
+          message={overlayContent.message}
+          caption={overlayContent.caption}
+          progress={
+            overlayContent.isUploading ? currentUploadProgress : undefined
+          }
+        />
+      )}
     </SafeAreaView>
   );
 }
@@ -242,23 +382,7 @@ function ProfileSettingsForm({ profile }: { profile: Profile }) {
   return (
     <>
       <View style={{ alignItems: 'center' }}>
-        <TouchableOpacity
-          activeOpacity={DEFAULT_ACTIVE_OPACITY}
-          onPress={() => alertUnavailableFeature()}
-          style={editProfileAvatarStyles.touchableContainer}>
-          <FastImage
-            resizeMode="cover"
-            style={editProfileAvatarStyles.image}
-            source={
-              profile.avatar ? { uri: profile.avatar.url } : DEFAULT_AVATAR
-            }
-          />
-          <View style={editProfileAvatarStyles.editTextContainer}>
-            <Text style={[font.medium, editProfileAvatarStyles.editText]}>
-              Edit
-            </Text>
-          </View>
-        </TouchableOpacity>
+        <ProfileAvatarPicker avatar={profile.avatar} />
       </View>
       <Spacer.Vertical value={CELL_GROUP_VERTICAL_SPACING * 2} />
       <Cell.Group
@@ -335,6 +459,111 @@ function ProfileSettingsForm({ profile }: { profile: Profile }) {
           />
         </Cell.Select>
       </Cell.Group>
+    </>
+  );
+}
+
+type ProfileAvatarPicker = {
+  avatar?: MediaSource;
+};
+
+function ProfileAvatarPicker(props: ProfileAvatarPicker) {
+  const $FUNC = '[ProfileAvatarPicker]';
+  const [_, meta, helpers] = useField<ProfileChangesForm['avatar']>('avatar');
+
+  React.useEffect(() => {
+    console.log($FUNC, 'AVATAR:', meta.value);
+  }, [meta.value]);
+
+  const avatarSource: FastImageProps['source'] = React.useMemo(() => {
+    if (meta.value === undefined) {
+      return props.avatar?.url ? { uri: props.avatar.url } : DEFAULT_AVATAR;
+    } else {
+      return meta.value ? { uri: meta.value.path } : DEFAULT_AVATAR;
+    }
+  }, [meta.value, props.avatar]);
+
+  const actionBottomSheetRef = React.useRef<BottomSheet>(null);
+  const actionBottomSheetItems = React.useMemo(() => {
+    return [
+      {
+        id: 'remove',
+        label: 'Remove Current Photo',
+        iconName: 'person-remove-outline',
+        disabled: meta.value === null,
+      },
+      { id: 'camera', label: 'Take a Photo', iconName: 'camera-outline' },
+      {
+        id: 'library',
+        label: 'Select from Photo Library',
+        iconName: 'albums-outline',
+      },
+    ] as ActionBottomSheetItem[];
+  }, [meta.value]);
+
+  const handleSelectActionItem = async (selectedItemId: string) => {
+    const handleSelectFromPhotoLibrary = async () => {
+      try {
+        const image = await ImageCropPicker.openPicker({
+          mediaType: 'photo',
+          cropping: true,
+          cropperCircleOverlay: true,
+          forceJpg: true,
+          width: IMAGE_COMPRESSION_MAX_WIDTH,
+          height: IMAGE_COMPRESSION_MAX_HEIGHT,
+          compressImageQuality: IMAGE_COMPRESSION_QUALITY,
+          compressImageMaxWidth: IMAGE_COMPRESSION_MAX_WIDTH,
+          compressImageMaxHeight: IMAGE_COMPRESSION_MAX_HEIGHT,
+        });
+
+        helpers.setValue(image);
+      } catch (error: any) {
+        if (error.code === ('E_PICKER_CANCELLED' as PickerErrorCode)) return;
+        const { title, message } =
+          utilities.constructAlertFromImageCropPickerError(error);
+        Alert.alert(title, message);
+      }
+    };
+
+    switch (selectedItemId) {
+      case 'remove':
+        helpers.setValue(null);
+        break;
+      // case 'camera':
+      //   break;
+      case 'library':
+        await handleSelectFromPhotoLibrary();
+        break;
+    }
+  };
+
+  const handlePressAvatar = () => {
+    Keyboard.dismiss();
+    actionBottomSheetRef.current?.expand();
+  };
+
+  return (
+    <>
+      <TouchableOpacity
+        activeOpacity={DEFAULT_ACTIVE_OPACITY}
+        onPress={handlePressAvatar}
+        style={editProfileAvatarStyles.touchableContainer}>
+        <FastImage
+          resizeMode="cover"
+          style={editProfileAvatarStyles.image}
+          source={avatarSource}
+        />
+        <View style={editProfileAvatarStyles.editTextContainer}>
+          <Text style={[font.medium, editProfileAvatarStyles.editText]}>
+            Edit
+          </Text>
+        </View>
+      </TouchableOpacity>
+      <ActionBottomSheet
+        ref={actionBottomSheetRef}
+        items={actionBottomSheetItems}
+        onSelectItem={handleSelectActionItem}
+      />
     </>
   );
 }
