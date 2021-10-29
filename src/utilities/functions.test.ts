@@ -1,4 +1,8 @@
-import { shortenLargeNumber, ShortenedNumberSuffix as S } from '.';
+import {
+  getWordCount,
+  shortenLargeNumber,
+  ShortenedNumberSuffix as S,
+} from './functions';
 
 describe('shortening a large number', () => {
   it('formats a small number as it is', () => {
@@ -57,5 +61,20 @@ describe('shortening a large number', () => {
     expect(shortenLargeNumber(123_456_789_876)).toBe(`123.5${S.BILLION}`);
     expect(shortenLargeNumber(155_555_555_555)).toBe(`155.6${S.BILLION}`);
     expect(shortenLargeNumber(199_999_999_999)).toBe(`200.0${S.BILLION}`);
+  });
+});
+
+describe('calculating word count', () => {
+  it('calculates the correct number of words in English', () => {
+    expect(getWordCount('')).toBe(0);
+    expect(getWordCount('\n')).toBe(0);
+    expect(getWordCount('Hello')).toBe(1);
+    expect(getWordCount('Hello\n')).toBe(1);
+    expect(getWordCount('Hello, world!')).toBe(2);
+    expect(getWordCount('Hello, world!\n')).toBe(2);
+    expect(getWordCount('Hello, world!\nHow are you guys?')).toBe(6);
+    expect(getWordCount('Hello, world!\nHow are you guys?\n')).toBe(6);
+    expect(getWordCount('Hello, world!\nHow are you guys?\n')).toBe(6);
+    expect(getWordCount('Hello\nworld\nHow\nare\nyou\nguys\n')).toBe(6);
   });
 });
