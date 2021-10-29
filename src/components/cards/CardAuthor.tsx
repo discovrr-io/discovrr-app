@@ -60,7 +60,7 @@ const CardAuthorWrapper = (props: CardAuthorWrapperProps) => {
 export type CardAuthorProps = CardElementProps & {
   displayName: string;
   isMyProfile?: boolean;
-  avatar?: MediaSource;
+  avatar?: MediaSource | null;
   onPress?: TouchableOpacityProps['onPress'];
 };
 
@@ -108,7 +108,7 @@ const CardAuthorPending = (props: CardAuthorPendingProps) => (
 //#region CardAuthorAvatar -----------------------------------------------------
 
 type CardAuthorAvatarProps = {
-  avatar?: MediaSource;
+  avatar?: MediaSource | null;
   elementOptions: CardElementOptions;
 };
 

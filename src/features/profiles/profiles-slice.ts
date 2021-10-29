@@ -216,13 +216,22 @@ const profilesSlice = createSlice({
       // -- updateProfile --
       .addCase(updateProfile.fulfilled, (state, action) => {
         const { profileId, changes } = action.meta.arg;
+
+        const processedChanges = changes;
+
+        // Explicitly set a defined or null value if the avatar was changed
+        if (changes.avatar !== undefined) {
+          processedChanges.avatar = changes.avatar;
+        }
+
+        // Explicitly set a defined or null value if the cover photo was changed
+        if (changes.coverPhoto !== undefined) {
+          processedChanges.coverPhoto = changes.coverPhoto;
+        }
+
         profilesAdapter.updateOne(state, {
           id: profileId,
-          changes: {
-            ...changes,
-            avatar: changes.avatar ?? undefined,
-            coverPhoto: changes.coverPhoto ?? undefined,
-          },
+          changes: processedChanges,
         });
       })
       // -- updateProfileFollowStatus --

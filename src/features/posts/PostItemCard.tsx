@@ -6,19 +6,16 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import Video from 'react-native-video';
 import { useNavigation } from '@react-navigation/core';
 
-import { AsyncGate, Card } from 'src/components';
-import { CardActionsProps } from 'src/components/cards/CardActions';
-import { useCardElementOptionsContext } from 'src/components/cards/hooks';
-
+import { MediaSource } from 'src/api';
 import { color, font } from 'src/constants';
 import { DEFAULT_IMAGE_DIMENSIONS } from 'src/constants/media';
+import { Post, PostId, Profile, ProfileId } from 'src/models';
 import { RootStackNavigationProp } from 'src/navigation';
 
-import { MediaSource } from 'src/api';
-import { Post, PostId, Profile, ProfileId } from 'src/models';
-
-import { useIsMyProfile, useProfile } from 'src/features/profiles/hooks';
-import { useAppDispatch, useOverridableContextOptions } from 'src/hooks';
+import { AsyncGate, Card } from 'src/components';
+import { CardActionsProps } from 'src/components/cards/CardActions';
+import { CardAuthorProps } from 'src/components/cards/CardAuthor';
+import { useCardElementOptionsContext } from 'src/components/cards/hooks';
 
 import {
   CardElementOptions,
@@ -31,9 +28,11 @@ import {
   shortenLargeNumber,
 } from 'src/utilities';
 
+import { useIsMyProfile, useProfile } from 'src/features/profiles/hooks';
+import { useAppDispatch, useOverridableContextOptions } from 'src/hooks';
+
 import { usePost } from './hooks';
 import { updatePostLikeStatus } from './posts-slice';
-import { CardAuthorProps } from 'src/components/cards/CardAuthor';
 
 const ASPECT_RATIOS = [
   1 / 1, // 1:1 (Square)

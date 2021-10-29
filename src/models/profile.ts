@@ -14,8 +14,8 @@ export interface SharedProfileDetails {
   readonly email: string;
   readonly username: string;
   readonly displayName: string;
-  readonly avatar?: MediaSource;
-  readonly coverPhoto?: MediaSource;
+  readonly avatar?: MediaSource | null;
+  readonly coverPhoto?: MediaSource | null;
   readonly biography?: string;
   readonly followers?: ProfileId[];
   readonly following?: ProfileId[];

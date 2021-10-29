@@ -9,11 +9,11 @@ import {
 
 import FastImage from 'react-native-fast-image';
 
+import * as utilities from 'src/utilities';
 import Profile, { VendorProfileAddress } from 'src/models/profile';
 import { color, font, layout } from 'src/constants';
 import { DEFAULT_AVATAR } from 'src/constants/media';
 import { DEFAULT_ACTIVE_OPACITY } from 'src/constants/values';
-import { shortenLargeNumber } from 'src/utilities';
 
 const DEFAULT_BACKGROUND = require('../../../assets/images/backdrop.png');
 
@@ -155,7 +155,7 @@ function ProfileHeaderStatistic(props: ProfileHeaderStatisticProps) {
         {label}
       </Text>
       <Text numberOfLines={1} style={profileHeaderStatisticStyles.count}>
-        {shortenLargeNumber(count)}
+        {utilities.shortenLargeNumber(count)}
       </Text>
     </TouchableOpacity>
   );

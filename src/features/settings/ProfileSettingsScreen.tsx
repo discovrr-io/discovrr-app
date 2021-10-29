@@ -163,6 +163,7 @@ function LoadedProfileSettingsScreen(props: LoadedAccountSettingsScreenProps) {
 
   const handleSaveChanges = async (changes: ProfileChangesForm) => {
     try {
+      Keyboard.dismiss();
       setIsSubmitting(true);
 
       let processedAvatar: MediaSource | null = null;
@@ -270,10 +271,11 @@ function LoadedProfileSettingsScreen(props: LoadedAccountSettingsScreenProps) {
         'Profile Updated',
         'Your changes has been successfully saved',
       );
-    } catch (error) {
+    } catch (error: any) {
       console.error($FUNC, 'Failed to update profile:', error);
       utilities.alertSomethingWentWrong(
-        "We weren't able to update your profile at the moment. Please try again later.",
+        error.message ??
+          "We weren't able to update your profile at the moment. Please try again later.",
       );
     } finally {
       setIsSubmitting(false);
@@ -464,7 +466,7 @@ function ProfileSettingsForm({ profile }: { profile: Profile }) {
 }
 
 type ProfileAvatarPicker = {
-  avatar?: MediaSource;
+  avatar?: MediaSource | null;
 };
 
 function ProfileAvatarPicker(props: ProfileAvatarPicker) {
