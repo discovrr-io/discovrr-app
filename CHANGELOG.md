@@ -5,6 +5,7 @@
 ### Changed
 
 - Polished up `CreateItemPreview` screen
+- Implement photo compression and uploading to Firebase Cloud Storage
 
 ## [v3.0.0] (2021-10-24)
 
@@ -27,7 +28,7 @@
   - [ ] Ability to search posts
 - Add new experience to create items with preview (WIP)
   - [x] Create text post
-  - [ ] Create gallery post
+  - [x] Create gallery post
   - [ ] Create video post
   - [ ] Create product
   - [ ] Create workshop

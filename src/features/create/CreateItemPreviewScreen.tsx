@@ -1,10 +1,9 @@
 import * as React from 'react';
 import { SafeAreaView, ScrollView, Text, View } from 'react-native';
 
-import storage from '@react-native-firebase/storage';
-import { nanoid } from '@reduxjs/toolkit';
 import { useSharedValue } from 'react-native-reanimated';
 
+import * as utilities from 'src/utilities';
 import { MediaSource } from 'src/api';
 import { Button, Cell, LoadingOverlay } from 'src/components';
 import { font, layout } from 'src/constants';
@@ -19,26 +18,6 @@ import {
   CreateItemStackScreenProps,
   RootStackNavigationProp,
 } from 'src/navigation';
-
-import {
-  alertSomethingWentWrong,
-  alertUnavailableFeature,
-} from 'src/utilities';
-
-function uploadFileToFirebase(source: MediaSource) {
-  const localFilePath = source.path ?? source.url;
-
-  const fileId = nanoid();
-  const isVideo = source.mime.includes('video');
-  const extension = isVideo ? 'mp4' : 'jpg';
-  const filename = `${fileId}.${extension}`;
-  const storagePath = `/posts/${isVideo ? 'videos' : 'images'}/${filename}`;
-
-  const reference = storage().ref(storagePath);
-  const uploadTask = reference.putFile(localFilePath);
-
-  return [filename, uploadTask, reference] as const;
-}
 
 export type CreateItemPreviewNavigationScreenParams =
   | { type: 'post'; contents: PostContents<MediaSource> }
@@ -100,7 +79,7 @@ export default function CreateItemPreviewScreen(
             processedContents = postContents;
           } else if (postContents.type === 'gallery') {
             setIsUploading(true);
-            setOverlayMessage('Uploading…');
+            setOverlayMessage('Uploading images…');
 
             const sourcesLength = postContents.sources.length;
             const processedSources: MediaSource[] = [];
@@ -109,7 +88,12 @@ export default function CreateItemPreviewScreen(
             for (let i = 0; i < sourcesLength; i++) {
               const index = i + 1;
               const source = postContents.sources[i];
-              const [filename, task, reference] = uploadFileToFirebase(source);
+              const [filename, task, reference] =
+                utilities.uploadFileToFirebase(
+                  source,
+                  ({ filename, isVideo }) =>
+                    `/posts/${isVideo ? 'videos' : 'images'}/${filename}`,
+                );
 
               setOverlayCaption(`${index} of ${sourcesLength}`);
               console.log(
@@ -162,7 +146,7 @@ export default function CreateItemPreviewScreen(
           }, 200);
         } catch (error) {
           console.error($FUNC, 'Failed to submit post:', error);
-          alertSomethingWentWrong(
+          utilities.alertSomethingWentWrong(
             "We weren't able to create your post at this time. Please try again later.",
           );
         } finally {
@@ -173,7 +157,7 @@ export default function CreateItemPreviewScreen(
       if (previewContent.type === 'post') {
         await handleSubmitPost(previewContent.contents);
       } else {
-        alertUnavailableFeature();
+        utilities.alertUnavailableFeature();
       }
     },
     // NOTE: Since we're just mutating `currentProgressProgress`, we don't need
@@ -218,12 +202,12 @@ export default function CreateItemPreviewScreen(
             <Cell.Navigator
               label="Add location"
               caption="No location set"
-              onPress={() => alertUnavailableFeature()}
+              onPress={() => utilities.alertUnavailableFeature()}
             />
             <Cell.Switch
               label="Enable comments"
               value={true}
-              onValueChange={() => alertUnavailableFeature()}
+              onValueChange={() => utilities.alertUnavailableFeature()}
             />
           </Cell.Group>
         </View>

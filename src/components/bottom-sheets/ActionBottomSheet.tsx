@@ -26,6 +26,7 @@ export type ActionBottomSheetItem = {
   iconName: string;
   iconSize?: number;
   destructive?: boolean;
+  disabled?: boolean;
 };
 
 type ActionBottomSheetProps = {
@@ -109,14 +110,24 @@ function ActionBottomSheetContents(props: ActionBottomSheetProps) {
           <View key={`action-bottom-sheet-item-${index}`}>
             <TouchableHighlight
               underlayColor={color.gray100}
+              disabled={props.disabled}
               onPress={async () => await handleSelectItem(props.id)}
               style={styles.actionItemTouchableContainer}>
               <View style={styles.actionItemContainer}>
                 <Icon
                   name={props.iconName}
                   size={props.iconSize ?? ICON_SIZE}
-                  color={props.destructive ? color.danger : color.black}
-                  style={{ width: ICON_SIZE }}
+                  // color={props.destructive ? color.danger : color.black}
+                  color={
+                    props.disabled
+                      ? props.destructive
+                        ? color.dangerDisabled
+                        : color.disabledDarkTextColor
+                      : props.destructive
+                      ? color.danger
+                      : color.black
+                  }
+                  style={[{ width: ICON_SIZE }]}
                 />
                 <Spacer.Horizontal value={layout.spacing.lg} />
                 <Text
@@ -124,7 +135,12 @@ function ActionBottomSheetContents(props: ActionBottomSheetProps) {
                   style={[
                     styles.actionItemLabel,
                     font.large,
-                    props.destructive && { color: color.danger },
+                    props.disabled && { color: color.disabledDarkTextColor },
+                    props.destructive && {
+                      color: props.disabled
+                        ? color.dangerDisabled
+                        : color.danger,
+                    },
                   ]}>
                   {props.label}
                 </Text>

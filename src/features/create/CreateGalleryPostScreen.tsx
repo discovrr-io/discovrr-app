@@ -32,7 +32,7 @@ import ImageCropPicker, {
 
 import * as utilities from 'src/utilities';
 import { MediaSource } from 'src/api';
-import { color, font, layout, strings, values } from 'src/constants';
+import { color, font, layout, values } from 'src/constants';
 // import { useNavigationAlertUnsavedChangesOnRemove } from 'src/hooks';
 
 import {
@@ -77,34 +77,6 @@ const galleyPostSchema = yup.object({
     }),
 });
 
-function constructAlertFromImageCropPickerError(error: any): {
-  title: string;
-  message: string;
-} {
-  let title: string;
-  let message: string;
-
-  switch (error.code as PickerErrorCode) {
-    case 'E_NO_LIBRARY_PERMISSION':
-      title = 'No Library Permissions';
-      message =
-        "You haven't allowed Discovrr access to your photo library. Please enable this in Settings and try again.";
-      break;
-    case 'E_NO_CAMERA_PERMISSION':
-      title = 'No Camera Permissions';
-      message =
-        "You haven't allowed Discovrr access to your camera. Please enable this in Settings and try again.";
-    default:
-      //  Also handles the case when error.code is undefined
-      console.warn('Unhandled error:', error);
-      title = strings.SOMETHING_WENT_WRONG.title;
-      message = strings.SOMETHING_WENT_WRONG.message;
-      break;
-  }
-
-  return { title, message };
-}
-
 type GalleryPostForm = Omit<yup.InferType<typeof galleyPostSchema>, 'media'> & {
   media: Image[];
 };
@@ -117,7 +89,7 @@ export default function CreateGalleryPostScreen(
 ) {
   const handleNavigateToPreview = (values: GalleryPostForm) => {
     const sources: MediaSource[] = values.media.map(item => ({
-      mime: 'image/jpeg',
+      mime: item.mime,
       url: item.path,
       size: item.size,
       width: item.width,
@@ -285,9 +257,10 @@ function ImagePreviewPicker() {
         ...meta.value.slice(index + 1),
       ];
       helpers.setValue(newImagesArray);
-    } catch (err: any) {
-      if (err.code === ('E_PICKER_CANCELLED' as PickerErrorCode)) return;
-      const { title, message } = constructAlertFromImageCropPickerError(err);
+    } catch (error: any) {
+      if (error.code === ('E_PICKER_CANCELLED' as PickerErrorCode)) return;
+      const { title, message } =
+        utilities.constructAlertFromImageCropPickerError(error);
       Alert.alert(title, message);
     }
   };
@@ -315,9 +288,10 @@ function ImagePreviewPicker() {
         helpers.setValue([...meta.value, image]);
         helpers.setTouched(true, true);
         flatListRef.current?.scrollToEnd({ animated: true });
-      } catch (err: any) {
-        if (err.code === ('E_PICKER_CANCELLED' as PickerErrorCode)) return;
-        const { title, message } = constructAlertFromImageCropPickerError(err);
+      } catch (error: any) {
+        if (error.code === ('E_PICKER_CANCELLED' as PickerErrorCode)) return;
+        const { title, message } =
+          utilities.constructAlertFromImageCropPickerError(error);
         Alert.alert(title, message);
       }
     };
@@ -338,9 +312,10 @@ function ImagePreviewPicker() {
         helpers.setValue([...meta.value, ...images]);
         helpers.setTouched(true, true);
         flatListRef.current?.scrollToEnd({ animated: true });
-      } catch (err: any) {
-        if (err.code === ('E_PICKER_CANCELLED' as PickerErrorCode)) return;
-        const { title, message } = constructAlertFromImageCropPickerError(err);
+      } catch (error: any) {
+        if (error.code === ('E_PICKER_CANCELLED' as PickerErrorCode)) return;
+        const { title, message } =
+          utilities.constructAlertFromImageCropPickerError(error);
         Alert.alert(title, message);
       }
     };
