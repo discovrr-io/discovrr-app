@@ -1,5 +1,5 @@
 import React, { useLayoutEffect, useState } from 'react';
-import { SafeAreaView, Text, TextInput, View } from 'react-native';
+import { SafeAreaView, Text, View } from 'react-native';
 import { Button, Cell, Spacer } from 'src/components';
 
 import { color, font, layout } from 'src/constants';

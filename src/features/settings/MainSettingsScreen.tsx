@@ -1,18 +1,28 @@
-import React, { useEffect, useRef, useState } from 'react';
+import * as React from 'react';
 import {
   Alert,
   SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
+  TouchableHighlight,
   TouchableOpacity,
   View,
 } from 'react-native';
 
 import * as Animatable from 'react-native-animatable';
-import codePush from 'react-native-code-push';
+import codePush, { RemotePackage } from 'react-native-code-push';
 import Config from 'react-native-config';
 import Parse from 'parse/react-native';
+import Icon from 'react-native-vector-icons/Ionicons';
+import { useFocusEffect } from '@react-navigation/core';
+
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withTiming,
+} from 'react-native-reanimated';
 
 import * as constants from 'src/constants';
 import { Cell, Spacer } from 'src/components';
@@ -25,15 +35,25 @@ import { alertUnavailableFeature } from 'src/utilities';
 
 const UPDATE_INDICATOR_DIAMETER = 9;
 
+const MainSettingsScreenContext = React.createContext<{
+  showUpdatePopupIndicator: Animated.SharedValue<boolean>;
+}>(null as any);
+
 type MainSettingsScreenProps = RootStackScreenProps<'MainSettings'>;
 
 export default function MainSettingsScreen(props: MainSettingsScreenProps) {
   const dispatch = useAppDispatch();
-  const scrollViewRef = useRef<ScrollView>(null);
+  const scrollViewRef = React.useRef<ScrollView>(null);
 
-  useEffect(() => {
+  const showUpdatePopupIndicator = useSharedValue(false);
+
+  React.useEffect(() => {
     scrollViewRef.current?.flashScrollIndicators();
   }, []);
+
+  const handlePressUpdatePopupIndicator = () => {
+    scrollViewRef.current?.scrollToEnd({ animated: true });
+  };
 
   const handleAlertNotAvailable = () => {
     alertUnavailableFeature();
@@ -61,165 +81,217 @@ export default function MainSettingsScreen(props: MainSettingsScreenProps) {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <ScrollView
-        ref={scrollViewRef}
-        contentContainerStyle={{
-          paddingTop: constants.layout.defaultScreenMargins.vertical,
-          paddingBottom: constants.layout.spacing.huge,
-          paddingHorizontal: constants.layout.defaultScreenMargins.horizontal,
-        }}>
-        <Cell.Group label="General">
-          <Cell.Navigator
-            label="My profile"
-            iconName="person-outline"
-            onPress={navigation => navigation.push('ProfileSettings')}
-          />
-          <Cell.Navigator
-            label="Location accuracy"
-            iconName="location-outline"
-            onPress={handleAlertNotAvailable}
-          />
-          <Cell.Navigator
-            label="Notifications"
-            iconName="notifications-outline"
-            onPress={navigation => navigation.push('NotificationSettings')}
-          />
-        </Cell.Group>
-        <Spacer.Vertical value={CELL_GROUP_VERTICAL_SPACING} />
-        <Cell.Group label="Display">
-          <Cell.Navigator
-            label="Dark mode"
-            iconName="moon-outline"
-            onPress={handleAlertNotAvailable}
-          />
-          <Cell.Navigator
-            label="Font size"
-            iconName="text-outline"
-            onPress={handleAlertNotAvailable}
-          />
-        </Cell.Group>
-        <Spacer.Vertical value={CELL_GROUP_VERTICAL_SPACING} />
-        <Cell.Group label="Advanced">
-          <Cell.Button
-            label="Clear cache"
-            iconName="trash-outline"
-            onPress={handlePressClearCache}
-          />
-          <Cell.Button
-            label="Reset to default settings"
-            iconName="sync-outline"
-            onPress={handleAlertNotAvailable}
-          />
-        </Cell.Group>
-        <Spacer.Vertical value={CELL_GROUP_VERTICAL_SPACING} />
-        <Cell.Group label="About">
-          <Cell.Navigator
-            label="About Discovrr"
-            iconName="information-circle-outline"
-            onPress={() => {
-              props.navigation.navigate('InAppWebView', {
-                title: 'About Discovrr',
-                destination: 'about-discovrr',
-              });
-            }}
-          />
-          <Cell.Navigator
-            label="Privacy policy"
-            iconName="key-outline"
-            onPress={() => {
-              props.navigation.navigate('InAppWebView', {
-                title: 'Privacy Policy',
-                destination: 'privacy-policy',
-              });
-            }}
-          />
-          <Cell.Navigator
-            label="Terms and Conditions"
-            iconName="receipt-outline"
-            onPress={() => {
-              props.navigation.navigate('InAppWebView', {
-                title: 'Terms and Conditions',
-                destination: 'terms-and-conditions',
-              });
-            }}
-          />
-        </Cell.Group>
-        <Spacer.Vertical value={CELL_GROUP_VERTICAL_SPACING} />
-        <MainSettingsScreenFooter />
-      </ScrollView>
-    </SafeAreaView>
+    <MainSettingsScreenContext.Provider value={{ showUpdatePopupIndicator }}>
+      <SafeAreaView style={{ flex: 1 }}>
+        {/* TODO: We don't want to show this if the user can already see
+            the footer */}
+        <UpdatePopupIndicator onPress={handlePressUpdatePopupIndicator} />
+        <ScrollView
+          ref={scrollViewRef}
+          contentContainerStyle={{
+            paddingTop: constants.layout.defaultScreenMargins.vertical,
+            paddingBottom: constants.layout.spacing.huge,
+            paddingHorizontal: constants.layout.defaultScreenMargins.horizontal,
+          }}>
+          <Cell.Group label="General">
+            <Cell.Navigator
+              label="My profile"
+              iconName="person-outline"
+              onPress={navigation => navigation.push('ProfileSettings')}
+            />
+            <Cell.Navigator
+              label="Location accuracy"
+              iconName="location-outline"
+              onPress={handleAlertNotAvailable}
+            />
+            <Cell.Navigator
+              label="Notifications"
+              iconName="notifications-outline"
+              onPress={navigation => navigation.push('NotificationSettings')}
+            />
+          </Cell.Group>
+          <Spacer.Vertical value={CELL_GROUP_VERTICAL_SPACING} />
+          <Cell.Group label="Display">
+            <Cell.Navigator
+              label="Dark mode"
+              iconName="moon-outline"
+              onPress={handleAlertNotAvailable}
+            />
+            <Cell.Navigator
+              label="Font size"
+              iconName="text-outline"
+              onPress={handleAlertNotAvailable}
+            />
+          </Cell.Group>
+          <Spacer.Vertical value={CELL_GROUP_VERTICAL_SPACING} />
+          <Cell.Group label="Advanced">
+            <Cell.Button
+              label="Clear cache"
+              iconName="trash-outline"
+              onPress={handlePressClearCache}
+            />
+            <Cell.Button
+              label="Reset to default settings"
+              iconName="sync-outline"
+              onPress={handleAlertNotAvailable}
+            />
+          </Cell.Group>
+          <Spacer.Vertical value={CELL_GROUP_VERTICAL_SPACING} />
+          <Cell.Group label="About">
+            <Cell.Navigator
+              label="About Discovrr"
+              iconName="information-circle-outline"
+              onPress={() => {
+                props.navigation.navigate('InAppWebView', {
+                  title: 'About Discovrr',
+                  destination: 'about-discovrr',
+                });
+              }}
+            />
+            <Cell.Navigator
+              label="Privacy policy"
+              iconName="key-outline"
+              onPress={() => {
+                props.navigation.navigate('InAppWebView', {
+                  title: 'Privacy Policy',
+                  destination: 'privacy-policy',
+                });
+              }}
+            />
+            <Cell.Navigator
+              label="Terms and Conditions"
+              iconName="receipt-outline"
+              onPress={() => {
+                props.navigation.navigate('InAppWebView', {
+                  title: 'Terms and Conditions',
+                  destination: 'terms-and-conditions',
+                });
+              }}
+            />
+          </Cell.Group>
+          <Spacer.Vertical value={CELL_GROUP_VERTICAL_SPACING} />
+          <MainSettingsScreenFooter />
+        </ScrollView>
+      </SafeAreaView>
+    </MainSettingsScreenContext.Provider>
   );
 }
 
-export function MainSettingsScreenFooter() {
-  const [hasUpdateAvailable, setHasUpdateAvailable] = useState(false);
+type CheckUpdateStatus =
+  | { state: 'checking' }
+  | { state: 'up-to-date' }
+  | { state: 'update-available'; result: RemotePackage }
+  | { state: 'failed'; error?: any };
 
-  useEffect(() => {
-    codePush
-      .checkForUpdate()
-      .then(update => update && setHasUpdateAvailable(true))
-      .catch(() => {}); // Do nothing
-  }, []);
+function MainSettingsScreenFooter() {
+  const { showUpdatePopupIndicator } = React.useContext(
+    MainSettingsScreenContext,
+  );
 
-  return (
-    <View>
-      {hasUpdateAvailable ? (
-        <TouchableOpacity
-          onPress={() =>
-            Alert.alert(
-              'New Update Available',
-              'This update will be installed the next time you restart ' +
-                'Discovrr.\n\n' +
-                `You are currently on version ${constants.values.APP_VERSION}.`,
-            )
+  const [checkUpdateStatus, setCheckUpdateStatus] =
+    React.useState<CheckUpdateStatus>({ state: 'checking' });
+
+  useFocusEffect(
+    React.useCallback(() => {
+      codePush
+        .checkForUpdate()
+        .then(update => {
+          if (update) {
+            showUpdatePopupIndicator.value = true;
+            setCheckUpdateStatus({ state: 'update-available', result: update });
+          } else {
+            showUpdatePopupIndicator.value = false;
+            setCheckUpdateStatus({ state: 'up-to-date' });
           }
-          style={[footerStyles.container, { flexDirection: 'row' }]}>
+        })
+        .catch(error => {
+          // console.warn('Failed to check update:', error);
+          showUpdatePopupIndicator.value = false;
+          setCheckUpdateStatus({ state: 'failed', error });
+        });
+    }, [showUpdatePopupIndicator]),
+  );
+
+  const handlePressUpdateStatusLabel = React.useCallback(() => {
+    if (checkUpdateStatus.state === 'update-available') {
+      Alert.alert(
+        'New Update Available',
+        'This update will be installed the next time you restart Discovrr.' +
+          `\n\nYou are currently on version ${constants.values.APP_VERSION}`,
+      );
+    } else if (checkUpdateStatus.state !== 'checking') {
+      Alert.alert(
+        "You're Up To Date",
+        "You're currently using the latest version of Discovrr.",
+      );
+    }
+  }, [checkUpdateStatus]);
+
+  const UpdateStatusLabel = React.useCallback(() => {
+    const defaultTextStyles = [constants.font.small, footerStyles.text];
+
+    if (checkUpdateStatus.state === 'checking') {
+      return (
+        <>
           <Animatable.View
+            animation="fadeIn"
+            direction="alternate"
+            iterationCount="infinite"
+            style={[
+              footerStyles.indicator,
+              { backgroundColor: constants.color.gray300 },
+            ]}
+          />
+          <Spacer.Horizontal value="sm" />
+          <Text style={defaultTextStyles}>Checking for updates…</Text>
+        </>
+      );
+    } else if (checkUpdateStatus.state === 'update-available') {
+      return (
+        <>
+          <Animatable.View
+            animation="flash"
             iterationCount="infinite"
             iterationDelay={1500}
-            animation="flash"
-            style={{
-              backgroundColor: constants.color.orange500,
-              width: UPDATE_INDICATOR_DIAMETER,
-              height: UPDATE_INDICATOR_DIAMETER,
-              borderRadius: UPDATE_INDICATOR_DIAMETER / 2,
-            }}
+            style={[
+              footerStyles.indicator,
+              { backgroundColor: constants.color.orange500 },
+            ]}
           />
           <Spacer.Horizontal value="sm" />
           <Text
             style={[
-              constants.font.smallBold,
               footerStyles.text,
+              constants.font.smallBold,
               { color: constants.color.orange500 },
             ]}>
             An update is available
           </Text>
-        </TouchableOpacity>
-      ) : (
-        <TouchableOpacity
-          activeOpacity={constants.values.DEFAULT_ACTIVE_OPACITY}
-          onPress={() =>
-            Alert.alert(
-              'You’re Up to Date',
-              "You're currently on the latest version of Discovrr.",
-            )
-          }>
-          <View style={footerStyles.container}>
-            <Text style={[constants.font.small, footerStyles.text]}>
-              <Text style={[constants.font.smallBold, footerStyles.text]}>
-                Discovrr {constants.values.APP_VERSION}
-              </Text>
-              <Text>&nbsp;({constants.values.STORE_VERSION})</Text>
-              {Config.ENV !== 'production' && (
-                <Text style={[constants.font.small, footerStyles.text]}>
-                  &nbsp;[{Config.ENV}]
-                </Text>
-              )}
-            </Text>
-          </View>
-        </TouchableOpacity>
-      )}
+        </>
+      );
+    } else {
+      return (
+        <Text style={defaultTextStyles}>
+          <Text style={[constants.font.smallBold, footerStyles.text]}>
+            Discovrr {constants.values.APP_VERSION}
+          </Text>
+          <Text>&nbsp;({constants.values.STORE_VERSION})</Text>
+          {Config.ENV !== 'production' && (
+            <Text style={defaultTextStyles}>&nbsp;[{Config.ENV}]</Text>
+          )}
+        </Text>
+      );
+    }
+  }, [checkUpdateStatus]);
+
+  return (
+    <View>
+      <TouchableOpacity
+        activeOpacity={constants.values.DEFAULT_ACTIVE_OPACITY}
+        onPress={handlePressUpdateStatusLabel}
+        style={[footerStyles.container, { flexDirection: 'row' }]}>
+        <UpdateStatusLabel />
+      </TouchableOpacity>
       <Spacer.Vertical value="sm" />
       <Text style={[constants.font.small, footerStyles.text]}>
         {Parse.serverURL}
@@ -237,5 +309,86 @@ const footerStyles = StyleSheet.create({
   text: {
     textAlign: 'center',
     color: constants.color.gray500,
+  },
+  indicator: {
+    width: UPDATE_INDICATOR_DIAMETER,
+    height: UPDATE_INDICATOR_DIAMETER,
+    borderRadius: UPDATE_INDICATOR_DIAMETER / 2,
+  },
+});
+
+type UpdateIndicatorProps = {
+  onPress?: () => void;
+};
+
+function UpdatePopupIndicator(props: UpdateIndicatorProps) {
+  const { showUpdatePopupIndicator } = React.useContext(
+    MainSettingsScreenContext,
+  );
+
+  const [indicatorHeight, setIndicatorHeight] = React.useState(0);
+
+  const popupStyle = useAnimatedStyle(() => {
+    return {
+      top: showUpdatePopupIndicator.value
+        ? withSpring(constants.layout.spacing.md * 1.5)
+        : withSpring(-indicatorHeight),
+      opacity: showUpdatePopupIndicator.value
+        ? withTiming(1, { duration: 300 })
+        : withTiming(0, { duration: 200 }),
+    };
+  }, [indicatorHeight]);
+
+  const handlePressIndicator = () => {
+    showUpdatePopupIndicator.value = false;
+    props.onPress?.();
+  };
+
+  return (
+    <Animated.View
+      onLayout={e => setIndicatorHeight(e.nativeEvent.layout.height)}
+      style={[popupStyle, updateIndicatorStyles.invisibleContainer]}>
+      <TouchableHighlight
+        underlayColor={constants.color.orange700}
+        onPress={handlePressIndicator}
+        style={[
+          updateIndicatorStyles.touchableContainer,
+          { borderRadius: indicatorHeight / 2 },
+        ]}>
+        <View style={updateIndicatorStyles.container}>
+          <Icon
+            name="arrow-down-outline"
+            size={18}
+            color={constants.color.white}
+          />
+          <Spacer.Horizontal value="sm" />
+          <Text
+            numberOfLines={1}
+            style={[constants.font.small, { color: constants.color.white }]}>
+            An update is available
+          </Text>
+        </View>
+      </TouchableHighlight>
+    </Animated.View>
+  );
+}
+
+const updateIndicatorStyles = StyleSheet.create({
+  invisibleContainer: {
+    zIndex: 20,
+    position: 'absolute',
+    alignItems: 'center',
+    alignSelf: 'center',
+  },
+  touchableContainer: {
+    backgroundColor: constants.color.orange500,
+    paddingVertical: constants.layout.spacing.md,
+    paddingHorizontal: constants.layout.spacing.lg,
+    maxWidth: 200,
+  },
+  container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

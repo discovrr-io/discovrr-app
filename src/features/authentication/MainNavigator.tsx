@@ -68,15 +68,14 @@ function FacadeNavigator() {
               break;
             case 'Explore':
               iconName = focused ? 'compass' : 'compass-outline';
-              iconSize *= 1.1;
+              iconSize *= 1.12;
               break;
             case '__Create':
               iconName = 'add';
-              iconSize *= 1.25;
+              iconSize *= 1.3;
               break;
             case 'Notifications':
               iconName = focused ? 'notifications' : 'notifications-outline';
-              iconSize *= 0.95;
               break;
             case '__MyProfile':
               iconName = focused ? 'person' : 'person-outline';
