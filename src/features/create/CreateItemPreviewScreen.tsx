@@ -6,7 +6,7 @@ import { useSharedValue } from 'react-native-reanimated';
 import * as utilities from 'src/utilities';
 import { MediaSource } from 'src/api';
 import { Button, Cell, LoadingOverlay } from 'src/components';
-import { font, layout } from 'src/constants';
+import { color, font, layout } from 'src/constants';
 import { PostItemCardPreview } from 'src/features/posts/PostItemCard';
 import { createPost } from 'src/features/posts/posts-slice';
 import { useMyProfileId } from 'src/features/profiles/hooks';
@@ -44,9 +44,15 @@ export default function CreateItemPreviewScreen(
     });
 
   const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [isUploading, setIsUploading] = React.useState(false);
-  const [overlayMessage, setOverlayMessage] = React.useState<string>();
-  const [overlayCaption, setOverlayCaption] = React.useState<string>();
+  const [overlayContent, setOverlayContent] = React.useState<{
+    message?: string;
+    caption?: string;
+    isUploading?: boolean;
+  }>({
+    message: 'Getting ready…',
+    caption: "This won't take long",
+    isUploading: false,
+  });
 
   const currentUploadProgress = useSharedValue(0);
 
@@ -78,8 +84,11 @@ export default function CreateItemPreviewScreen(
           if (postContents.type === 'text') {
             processedContents = postContents;
           } else if (postContents.type === 'gallery') {
-            setIsUploading(true);
-            setOverlayMessage('Uploading images…');
+            setOverlayContent(prev => ({
+              ...prev,
+              message: 'Uploading images…',
+              isUploading: true,
+            }));
 
             const sourcesLength = postContents.sources.length;
             const processedSources: MediaSource[] = [];
@@ -95,7 +104,11 @@ export default function CreateItemPreviewScreen(
                     `/posts/${isVideo ? 'videos' : 'images'}/${filename}`,
                 );
 
-              setOverlayCaption(`${index} of ${sourcesLength}`);
+              setOverlayContent(prev => ({
+                ...prev,
+                caption: `${index} of ${sourcesLength}`,
+              }));
+
               console.log(
                 $FUNC,
                 `Uploading '${filename}' (${index} of ${sourcesLength})...`,
@@ -127,9 +140,13 @@ export default function CreateItemPreviewScreen(
             throw new Error(`Unimplemented post type: ${postContents.type}`);
           }
 
-          setIsUploading(false);
-          setOverlayMessage('Creating post…');
-          setOverlayCaption("This won't take long");
+          setOverlayContent(prev => ({
+            ...prev,
+            message: 'Creating post…',
+            caption: "This won't take long",
+            isUploading: false,
+          }));
+
           const newPost = await dispatch(
             createPost(processedContents),
           ).unwrap();
@@ -198,7 +215,9 @@ export default function CreateItemPreviewScreen(
           {renderPostContents()}
         </View>
         <View>
-          <Cell.Group label="Options">
+          <Cell.Group
+            label="Options"
+            containerStyle={{ backgroundColor: color.absoluteWhite }}>
             <Cell.Navigator
               label="Add location"
               caption="No location set"
@@ -214,9 +233,11 @@ export default function CreateItemPreviewScreen(
       </ScrollView>
       {isSubmitting && (
         <LoadingOverlay
-          message={overlayMessage}
-          caption={overlayCaption}
-          progress={isUploading ? currentUploadProgress : undefined}
+          message={overlayContent.message}
+          caption={overlayContent.caption}
+          progress={
+            overlayContent.isUploading ? currentUploadProgress : undefined
+          }
         />
       )}
     </SafeAreaView>

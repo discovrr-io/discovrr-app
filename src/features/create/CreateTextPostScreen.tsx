@@ -23,7 +23,7 @@ import Animated, {
 import * as utilities from 'src/utilities';
 import { Button } from 'src/components';
 import { color, font, layout } from 'src/constants';
-// import { useNavigationAlertUnsavedChangesOnRemove } from 'src/hooks';
+import { useNavigationAlertUnsavedChangesOnRemove } from 'src/hooks';
 
 import {
   CreateItemDetailsTopTabScreenProps,
@@ -66,7 +66,10 @@ export default function CreateTextPostScreen(props: CreateTextPostScreenProps) {
     <Formik<TextPostForm>
       initialValues={{ text: '' }}
       validationSchema={textPostSchema}
-      onSubmit={handleNavigateToPreview}>
+      onSubmit={(values, helpers) => {
+        handleNavigateToPreview(values);
+        helpers.resetForm({ values });
+      }}>
       <TextPostFormikForm />
     </Formik>
   );
@@ -74,11 +77,14 @@ export default function CreateTextPostScreen(props: CreateTextPostScreenProps) {
 
 function TextPostFormikForm() {
   const navigation = useNavigation<CreateTextPostScreenProps['navigation']>();
-  const { /* dirty, */ handleSubmit } = useFormikContext<TextPostForm>();
+  const { dirty, handleSubmit } = useFormikContext<TextPostForm>();
 
-  // FIXME: This will still show an alert if the user has switched tabs from a
-  // dirty text form and then presses the close button.
-  // useNavigationAlertUnsavedChangesOnRemove(dirty);
+  // FIXME: This will still show an alert in the following situations:
+  //   - The user has switched to another tab when the form is dirty
+  // FIXME: This will NOT show an alert in the following situations:
+  //   - The user has pressed "Post", navigated back and pressed the close
+  //     button even if the form is still dirty
+  useNavigationAlertUnsavedChangesOnRemove(dirty);
 
   useFocusEffect(
     React.useCallback(() => {

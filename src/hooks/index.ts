@@ -141,7 +141,7 @@ export function useNavigationAlertUnsavedChangesOnRemove(dirty: boolean) {
   const navigation = useNavigation();
 
   React.useEffect(() => {
-    navigation.addListener('beforeRemove', e => {
+    const unsubscribe = navigation.addListener('beforeRemove', e => {
       if (!dirty) return;
       e.preventDefault();
 
@@ -158,5 +158,7 @@ export function useNavigationAlertUnsavedChangesOnRemove(dirty: boolean) {
         ],
       );
     });
+
+    return unsubscribe;
   }, [navigation, dirty]);
 }

@@ -29,13 +29,13 @@ import ImageCropPicker, {
 } from 'react-native-image-crop-picker';
 
 import * as utilities from 'src/utilities';
-import { MediaSource, ProfileApi } from 'src/api';
+import { AuthApi, MediaSource, ProfileApi } from 'src/api';
 import { updateProfile } from 'src/features/profiles/profiles-slice';
 import { useMyProfileId, useProfile } from 'src/features/profiles/hooks';
 import { Profile, ProfileId } from 'src/models';
 import { RootStackScreenProps } from 'src/navigation';
 
-import { color, font, layout } from 'src/constants';
+import { color, font, layout, media } from 'src/constants';
 import { DEFAULT_AVATAR } from 'src/constants/media';
 import { DEFAULT_ACTIVE_OPACITY } from 'src/constants/values';
 import { SOMETHING_WENT_WRONG } from 'src/constants/strings';
@@ -57,7 +57,7 @@ import {
 import {
   useAppDispatch,
   useIsMounted,
-  // useNavigationAlertUnsavedChangesOnRemove,
+  useNavigationAlertUnsavedChangesOnRemove,
 } from 'src/hooks';
 
 const MAX_INPUT_LENGTH = 30;
@@ -65,8 +65,8 @@ const MAX_BIO_LENGTH = 140;
 const AVATAR_DIAMETER = 130;
 
 const IMAGE_COMPRESSION_QUALITY = 0.7;
-const IMAGE_COMPRESSION_MAX_WIDTH = 200;
-const IMAGE_COMPRESSION_MAX_HEIGHT = 200;
+const IMAGE_COMPRESSION_MAX_WIDTH = media.DEFAULT_AVATAR_DIMENSIONS.width;
+const IMAGE_COMPRESSION_MAX_HEIGHT = media.DEFAULT_AVATAR_DIMENSIONS.height;
 
 const profileChangesSchema = yup.object({
   avatar: yup.object().nullable().notRequired(),
@@ -98,6 +98,11 @@ type ProfileChangesForm = Omit<
   yup.InferType<typeof profileChangesSchema>,
   'avatar'
 > & {
+  /**
+   * If set to `undefined`, the user has NOT changed their current avatar (and
+   * so it doesn't need to be uploaded). Otherwise, explicitly set it to `null`
+   * to remove the current avatar.
+   */
   avatar?: Image | null;
 };
 
@@ -149,15 +154,15 @@ function LoadedProfileSettingsScreen(props: LoadedAccountSettingsScreenProps) {
   const profile = props.profile;
 
   const [isSubmitting, setIsSubmitting] = React.useState(false);
-  // const [isUploading, setIsUploading] = React.useState(false);
-  // const [overlayMessage, setOverlayMessage] = React.useState<string>();
-  // const [overlayCaption, setOverlayCaption] = React.useState<string>();
-
   const [overlayContent, setOverlayContent] = React.useState<{
     message?: string;
     caption?: string;
     isUploading?: boolean;
-  }>({ caption: "This won't take long", isUploading: false });
+  }>({
+    message: 'Getting ready…',
+    caption: "This won't take long",
+    isUploading: false,
+  });
 
   const currentUploadProgress = useSharedValue(0);
 
@@ -166,18 +171,34 @@ function LoadedProfileSettingsScreen(props: LoadedAccountSettingsScreenProps) {
       Keyboard.dismiss();
       setIsSubmitting(true);
 
-      let processedAvatar: MediaSource | null = null;
+      // First check if the username is available (if it has been changed)
+      if (profile.username !== changes.username) {
+        if (!(await AuthApi.checkIfUsernameAvailable(changes.username))) {
+          throw new Error(
+            'This username is already taken. Please choose another one',
+          );
+        }
+      }
+
+      // Then upload the new profile avatar (if it has been changed)
+      let processedAvatar: MediaSource | null | undefined = undefined;
+
+      console.log('CHANGES AVATAR', changes.avatar);
+
+      // We'll remove the current avatar even if we're uploading a new one
       if (changes.avatar !== undefined) {
-        // We'll remove the current avatar even if we're uploading a new one
         console.log($FUNC, 'Removing current avatar...');
-        setOverlayContent({ message: 'Processing changes…' });
+        processedAvatar = null;
+
+        // First, remove it from the Firebase profile
         await auth().currentUser?.updateProfile({ photoURL: null });
 
+        // Then delete it from Firebase Cloud Storage
         const oldProfileAvatarFilename = profile.avatar?.filename;
         if (oldProfileAvatarFilename) {
           console.log(
             $FUNC,
-            'Deleting old profile avatar file:',
+            'Deleting old profile avatar from Cloud Storage:',
             oldProfileAvatarFilename,
           );
 
@@ -187,81 +208,105 @@ function LoadedProfileSettingsScreen(props: LoadedAccountSettingsScreenProps) {
             );
             await reference.delete();
           } catch (error) {
+            // We'll just continue on if this fails
             console.error(
               'Failed to delete old profile image from Firebase:',
               error,
             );
           }
         }
-
-        if (changes.avatar) {
-          console.log($FUNC, 'Uploading avatar...');
-          setOverlayContent({
-            message: 'Uploading avatar…',
-            caption: 'This may take a while',
-            isUploading: true,
-          });
-
-          const source: MediaSource = {
-            mime: changes.avatar.mime,
-            url: changes.avatar.path,
-            size: changes.avatar.size,
-            width: changes.avatar.width,
-            height: changes.avatar.height,
-          };
-
-          const [filename, task, reference] = utilities.uploadFileToFirebase(
-            source,
-            ({ filename }) => `/avatars/${filename}`,
-          );
-
-          task.on('state_changed', snapshot => {
-            currentUploadProgress.value =
-              snapshot.bytesTransferred / snapshot.totalBytes;
-          });
-
-          await task.then(() => {
-            console.log($FUNC, 'Successfully uploaded avatar');
-          });
-
-          const avatarDownloadURL = await reference.getDownloadURL();
-          const firebaseCurrentUser = auth().currentUser;
-
-          if (firebaseCurrentUser) {
-            setOverlayContent({
-              message: 'Applying avatar…',
-              isUploading: false,
-            });
-
-            await firebaseCurrentUser.updateProfile({
-              photoURL: avatarDownloadURL,
-            });
-          } else {
-            console.warn(
-              $FUNC,
-              'Firebase user is null, which is unexpected.',
-              'Skipping profile update...',
-            );
-          }
-
-          processedAvatar = {
-            ...source,
-            filename,
-            url: avatarDownloadURL,
-            path: undefined,
-          };
-        }
       }
 
-      setOverlayContent({ message: 'Saving profile changes…' });
+      // We'll upload the new avatar if it's set to a defined value
+      if (changes.avatar) {
+        console.log($FUNC, 'Uploading avatar...');
+        setOverlayContent({
+          message: 'Uploading avatar…',
+          caption: 'This may take a while',
+          isUploading: true,
+        });
 
+        // Only select these fields - the others are not important
+        const source: MediaSource = {
+          mime: changes.avatar.mime,
+          url: changes.avatar.path,
+          size: changes.avatar.size,
+          width: changes.avatar.width,
+          height: changes.avatar.height,
+        };
+
+        const [filename, task, reference] = utilities.uploadFileToFirebase(
+          source,
+          ({ filename }) => `/avatars/${filename}`,
+        );
+
+        task.on('state_changed', snapshot => {
+          currentUploadProgress.value =
+            snapshot.bytesTransferred / snapshot.totalBytes;
+        });
+
+        await task.then(() => {
+          console.log($FUNC, 'Successfully uploaded avatar');
+        });
+
+        const avatarDownloadURL = await reference.getDownloadURL();
+        const firebaseCurrentUser = auth().currentUser;
+
+        // We'll apply the avatar to the Firebase profile
+        if (firebaseCurrentUser) {
+          setOverlayContent(prev => ({
+            ...prev,
+            message: 'Applying avatar…',
+          }));
+
+          await firebaseCurrentUser.updateProfile({
+            photoURL: avatarDownloadURL,
+          });
+        } else {
+          console.warn(
+            $FUNC,
+            'Firebase user is null, which is unexpected.',
+            'Skipping profile photo URL update...',
+          );
+        }
+
+        // We'll set the download URL to the `url` property and replace
+        // `filename` with its filename in Cloud Storage (so we can easily
+        // reference to it later on if we need to).
+        processedAvatar = {
+          ...source,
+          filename,
+          url: avatarDownloadURL,
+          path: undefined,
+        };
+      }
+
+      setOverlayContent({ message: 'Saving your changes…' });
+
+      const changedDisplayName = changes.displayName.trim();
+      const processedDisplayName =
+        profile.displayName !== changedDisplayName
+          ? changedDisplayName
+          : undefined;
+
+      const changedUsername = changes.username.trim();
+      const processedUsername =
+        profile.username !== changedUsername ? changedUsername : undefined;
+
+      const changedBiography = changes.biography?.trim();
+      const processedBiography =
+        profile.biography !== changedBiography ? changedBiography : undefined;
+
+      // Finally, we update the profile (with the new avatar if changed).
       const updateProfileAction = updateProfile({
         profileId: profile.profileId,
+        // If any of these fields are `undefined`, it will be ignored by Redux
+        // and the server.
         changes: {
           avatar: processedAvatar,
-          displayName: changes.displayName?.trim(),
-          username: changes.username?.trim(),
-          biography: changes.biography?.trim(),
+          displayName: processedDisplayName,
+          username: processedUsername,
+          biography: processedBiography,
         },
       });
 
@@ -269,7 +314,7 @@ function LoadedProfileSettingsScreen(props: LoadedAccountSettingsScreenProps) {
 
       Alert.alert(
         'Profile Updated',
-        'Your changes has been successfully saved',
+        'Your changes has been successfully saved.',
       );
     } catch (error: any) {
       console.error($FUNC, 'Failed to update profile:', error);
@@ -299,7 +344,10 @@ function LoadedProfileSettingsScreen(props: LoadedAccountSettingsScreenProps) {
               }}
               enableReinitialize={true}
               validationSchema={profileChangesSchema}
-              onSubmit={handleSaveChanges}>
+              onSubmit={async (values, helpers) => {
+                await handleSaveChanges(values);
+                helpers.resetForm({ values });
+              }}>
               <ProfileSettingsForm profile={profile} />
             </Formik>
           </KeyboardAvoidingView>
@@ -342,7 +390,7 @@ function ProfileSettingsForm({ profile }: { profile: Profile }) {
     try {
       setIsGeneratingUsername(true);
       const username = await ProfileApi.generateRandomUsername();
-      setFieldValue('username', username);
+      if (isMounted.current) setFieldValue('username', username);
     } catch (error) {
       console.error($FUNC, 'Failed to generate random username:', error);
       Alert.alert(
@@ -354,7 +402,7 @@ function ProfileSettingsForm({ profile }: { profile: Profile }) {
     }
   };
 
-  // useNavigationAlertUnsavedChangesOnRemove(dirty);
+  useNavigationAlertUnsavedChangesOnRemove(dirty);
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -492,7 +540,7 @@ function ProfileAvatarPicker(props: ProfileAvatarPicker) {
         id: 'remove',
         label: 'Remove Current Photo',
         iconName: 'person-remove-outline',
-        disabled: meta.value === null,
+        disabled: !props.avatar && !meta.value,
       },
       { id: 'camera', label: 'Take a Photo', iconName: 'camera-outline' },
       {
@@ -501,9 +549,32 @@ function ProfileAvatarPicker(props: ProfileAvatarPicker) {
         iconName: 'albums-outline',
       },
     ] as ActionBottomSheetItem[];
-  }, [meta.value]);
+  }, [meta.value, props.avatar]);
 
   const handleSelectActionItem = async (selectedItemId: string) => {
+    const handleTakePhoto = async () => {
+      try {
+        const image = await ImageCropPicker.openCamera({
+          mediaType: 'photo',
+          cropping: true,
+          cropperCircleOverlay: true,
+          forceJpg: true,
+          width: IMAGE_COMPRESSION_MAX_WIDTH,
+          height: IMAGE_COMPRESSION_MAX_HEIGHT,
+          compressImageQuality: IMAGE_COMPRESSION_QUALITY,
+          compressImageMaxWidth: IMAGE_COMPRESSION_MAX_WIDTH,
+          compressImageMaxHeight: IMAGE_COMPRESSION_MAX_HEIGHT,
+        });
+
+        helpers.setValue(image);
+      } catch (error: any) {
+        if (error.code === ('E_PICKER_CANCELLED' as PickerErrorCode)) return;
+        const { title, message } =
+          utilities.constructAlertFromImageCropPickerError(error);
+        Alert.alert(title, message);
+      }
+    };
+
     const handleSelectFromPhotoLibrary = async () => {
       try {
         const image = await ImageCropPicker.openPicker({
@@ -529,10 +600,15 @@ function ProfileAvatarPicker(props: ProfileAvatarPicker) {
 
     switch (selectedItemId) {
       case 'remove':
-        helpers.setValue(null);
+        if (props.avatar === undefined) {
+          helpers.setValue(undefined);
+        } else {
+          helpers.setValue(null);
+        }
         break;
-      // case 'camera':
-      //   break;
+      case 'camera':
+        await handleTakePhoto();
+        break;
       case 'library':
         await handleSelectFromPhotoLibrary();
         break;

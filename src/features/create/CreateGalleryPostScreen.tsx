@@ -33,7 +33,7 @@ import ImageCropPicker, {
 import * as utilities from 'src/utilities';
 import { MediaSource } from 'src/api';
 import { color, font, layout, values } from 'src/constants';
-// import { useNavigationAlertUnsavedChangesOnRemove } from 'src/hooks';
+import { useNavigationAlertUnsavedChangesOnRemove } from 'src/hooks';
 
 import {
   ActionBottomSheet,
@@ -112,7 +112,10 @@ export default function CreateGalleryPostScreen(
     <Formik<GalleryPostForm>
       initialValues={{ media: [], caption: '' }}
       validationSchema={galleyPostSchema}
-      onSubmit={handleNavigateToPreview}>
+      onSubmit={(values, helpers) => {
+        handleNavigateToPreview(values);
+        helpers.resetForm({ values });
+      }}>
       <GalleryPostFormikForm />
     </Formik>
   );
@@ -122,13 +125,16 @@ function GalleryPostFormikForm() {
   const navigation =
     useNavigation<CreateGalleryPostScreenProps['navigation']>();
 
-  const { /* dirty, */ handleSubmit } = useFormikContext<GalleryPostForm>();
+  const { dirty, handleSubmit } = useFormikContext<GalleryPostForm>();
 
   const [field, meta, _] = useField<GalleryPostForm['caption']>('caption');
 
-  // FIXME: This will still show an alert if the user has switched tabs from a
-  // dirty gallery form and then pressed the close button.
-  // useNavigationAlertUnsavedChangesOnRemove(dirty);
+  // FIXME: This will still show an alert in the following situations:
+  //   - The user has switched to another tab when the form is dirty
+  // FIXME: This will NOT show an alert in the following situations:
+  //   - The user has pressed "Post", navigated back and pressed the close
+  //     button even if the form is still dirty
+  useNavigationAlertUnsavedChangesOnRemove(dirty);
 
   useFocusEffect(
     React.useCallback(() => {

@@ -1,7 +1,12 @@
+import { Image } from 'react-native';
+
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import analytics from '@react-native-firebase/analytics';
 import Parse from 'parse/react-native';
-import { Image } from 'react-native';
+
+import * as constants from 'src/constants';
+import { SessionId, User, UserId } from 'src/models';
+import { ProfileId, ProfileKind } from 'src/models/profile';
 
 import {
   ApiError,
@@ -9,8 +14,6 @@ import {
   CommonApiErrorCode,
   MediaSource,
 } from './common';
-import { SessionId, User, UserId } from 'src/models';
-import { ProfileId, ProfileKind } from 'src/models/profile';
 
 export namespace AuthApi {
   export type AuthApiErrorCode =
@@ -91,8 +94,8 @@ export namespace AuthApi {
         try {
           imageSize = await getImageSize(firebaseUser.photoURL);
         } catch (error) {
-          console.error($FUNC, 'Failed to get image size of photo URL:', error);
-          imageSize = { width: 100, height: 100 };
+          console.warn($FUNC, 'Failed to get image size of photo URL:', error);
+          imageSize = constants.media.DEFAULT_AVATAR_DIMENSIONS;
         }
 
         avatar = {
@@ -299,10 +302,22 @@ export namespace AuthApi {
 
   //#region REGISTER
 
-  async function checkIfUsernameAvailable(username: string): Promise<boolean> {
-    const query = new Parse.Query(Parse.Object.extend('Profile'));
-    const results = await query.equalTo('username', username).findAll();
-    return results.length === 0;
+  /**
+   * Determines if the given username is available for use.
+   *
+   * NOTE: This will return `false` if the current user is checking the
+   * availability of their own username. This is intended behaviour as their
+   * own username is, of course, not available to anyone.
+   *
+   * @param username The username to check if available.
+   * @returns Whether or not the given username is available.
+   */
+  export async function checkIfUsernameAvailable(
+    username: string,
+  ): Promise<boolean> {
+    // We're calling a cloud function here because the server can run the query
+    // using the master key.
+    return Parse.Cloud.run('checkIfUsernameAvailable', { username });
   }
 
   export type RegisterNewAccountParams = {

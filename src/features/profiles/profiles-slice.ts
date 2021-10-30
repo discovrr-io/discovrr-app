@@ -215,23 +215,26 @@ const profilesSlice = createSlice({
       })
       // -- updateProfile --
       .addCase(updateProfile.fulfilled, (state, action) => {
-        const { profileId, changes } = action.meta.arg;
+        type Writeable<T> = { -readonly [P in keyof T]: T[P] };
 
-        const processedChanges = changes;
+        const { profileId, changes } = action.meta.arg;
+        const finalChanges: Partial<Writeable<Profile>> = {};
+
+        if (changes.displayName) finalChanges.displayName = changes.displayName;
+        if (changes.username) finalChanges.username = changes.username;
+        if (changes.biography) finalChanges.biography = changes.biography;
 
         // Explicitly set a defined or null value if the avatar was changed
-        if (changes.avatar !== undefined) {
-          processedChanges.avatar = changes.avatar;
-        }
-
+        if (changes.avatar !== undefined) finalChanges.avatar = changes.avatar;
         // Explicitly set a defined or null value if the cover photo was changed
-        if (changes.coverPhoto !== undefined) {
-          processedChanges.coverPhoto = changes.coverPhoto;
-        }
+        if (changes.coverPhoto !== undefined)
+          finalChanges.coverPhoto = changes.coverPhoto;
+
+        console.log('FINAL CHANGES:', finalChanges);
 
         profilesAdapter.updateOne(state, {
           id: profileId,
-          changes: processedChanges,
+          changes: finalChanges,
         });
       })
       // -- updateProfileFollowStatus --

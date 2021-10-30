@@ -14,7 +14,20 @@ export interface SharedProfileDetails {
   readonly email: string;
   readonly username: string;
   readonly displayName: string;
+  /**
+   * An object representing information about the avatar of this profile.
+   *
+   * This property may be set to `null` if the user wishes the explicitly remove
+   * their current profile avatar. It will be translated to `undefined` in the
+   * database.
+   */
   readonly avatar?: MediaSource | null;
+  /**
+   * An object representing information about the cover photo of this profile.
+   *
+   * Just like `avatar`, this property may be set to `null` if the user wishes
+   * to remove their current cover photo.
+   */
   readonly coverPhoto?: MediaSource | null;
   readonly biography?: string;
   readonly followers?: ProfileId[];
