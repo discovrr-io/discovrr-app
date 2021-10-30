@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- Display alert informing unsaved changes when navigation away from dirty forms
+
 ## [v3.0.1] (2021-10-30)
 
 ### Added
