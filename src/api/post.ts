@@ -1,7 +1,7 @@
 import Parse from 'parse/react-native';
 
-import { Post, ProfileId } from 'src/models';
-import { PostContents, PostId, PostLocation } from 'src/models/post';
+import { Post, PostId, ProfileId } from 'src/models';
+import { PostContents, PostLocation } from 'src/models/post';
 import { Pagination } from 'src/models/common';
 
 import {
@@ -11,8 +11,92 @@ import {
   MediaSource,
 } from './common';
 import { UserApi } from './user';
+import { nanoid } from '@reduxjs/toolkit';
 
-const EARLIEST_DATE = new Date('2020-10-30');
+export const PROFILES: ProfileId[] = [
+  'O8T0p6jIpI',
+  '8zJM1F0Rk2',
+  '2AhsuWRlIe',
+  'G6DPwKHHMD',
+  'a5RTTjCe21',
+  'fZAJdrFX5i',
+  'ZMkIlkrILP',
+  'LJ9EPTEoHW',
+  'vXtgpnXCO4',
+  'F91Ar7Shi8',
+].map(it => it as ProfileId);
+
+export const POSTS: Post[] = Array.from({ length: 1000 }, (_, index) => {
+  const POST_ID = nanoid() as PostId;
+
+  const makePostContents = (): Post['contents'] => {
+    const postType = Math.random();
+    if (postType <= 0.25) {
+      return {
+        type: 'text',
+        text: 'This is a long piece of text that serves no purpose but to demonstrate a text post.',
+      };
+    } else {
+      // 1:1, 4:5, 2:3
+      const imageSize = Math.floor(Math.random() * 3);
+      if (imageSize === 0) {
+        return {
+          type: 'gallery',
+          sources: [
+            {
+              mime: 'image/jpeg',
+              url: `https://source.unsplash.com/collection/2204414/600x600?query=${POST_ID}`,
+              width: 600,
+              height: 600,
+            },
+          ],
+          caption: 'This is a small caption!',
+        };
+      } else if (imageSize === 1) {
+        return {
+          type: 'gallery',
+          sources: [
+            {
+              mime: 'image/jpeg',
+              url: `https://source.unsplash.com/collection/2204414/600x750?query=${POST_ID}`,
+              width: 600,
+              height: 750,
+            },
+          ],
+          caption: 'This is a small caption!',
+        };
+      } else {
+        return {
+          type: 'gallery',
+          sources: [
+            {
+              mime: 'image/jpeg',
+              url: `https://source.unsplash.com/collection/2204414/600x900?query=${POST_ID}`,
+              width: 600,
+              height: 900,
+            },
+          ],
+          caption: 'This is a small caption!',
+        };
+      }
+    }
+  };
+
+  return {
+    id: POST_ID,
+    profileId: PROFILES[Math.floor(Math.random() * PROFILES.length)],
+    contents: makePostContents(),
+    createdAt: new Date(
+      new Date().setDate(new Date().getDate() - index),
+    ).toISOString(),
+    statistics: {
+      didLike: Math.random() < 0.25,
+      didSave: false,
+      totalLikes: Math.floor(Math.random() * 1000),
+      totalViews: Math.floor(Math.random() * 2000),
+    },
+  };
+});
 
 export namespace PostApi {
   export type PostApiErrorCode = CommonApiErrorCode;
@@ -129,6 +213,7 @@ export namespace PostApi {
     pagination?: Pagination;
   };
 
+  /*
   export async function fetchAllPosts(
     params: FetchAllPostsParams,
   ): Promise<Post[]> {
@@ -138,7 +223,6 @@ export namespace PostApi {
 
     postsQuery
       .include('profile', 'statistics')
-      .greaterThanOrEqualTo('createdAt', EARLIEST_DATE)
       .descending('createdAt')
       .notEqualTo('status', ApiObjectStatus.DELETED);
 
@@ -146,11 +230,67 @@ export namespace PostApi {
       postsQuery
         .limit(pagination.limit)
         .skip(pagination.limit * pagination.currentPage);
+
+      if (pagination.oldestDateFetched) {
+        postsQuery.lessThan('createdAt', pagination.oldestDateFetched);
+      }
     }
 
     const results = await postsQuery.find();
     // TODO: Filter out posts from blocked profiles
     return results.map(post => mapResultToPost(post, myProfile?.id));
+  }
+  */
+
+  export async function fetchAllPosts(
+    params: FetchAllPostsParams,
+  ): Promise<Post[]> {
+    const { pagination } = params;
+    return await new Promise<Post[]>(resolve => {
+      setTimeout(() => {
+        resolve(POSTS.slice(0, pagination?.limit));
+      }, 2000);
+    });
+  }
+
+  export type FetchMorePostsParams = {
+    pagination: Pagination;
+  };
+
+  /*
+  export async function fetchMorePosts(
+    params: FetchMorePostsParams,
+  ): Promise<Post[]> {
+    const { pagination } = params;
+    const myProfile = await UserApi.getCurrentUserProfile();
+    const postsQuery = new Parse.Query(Parse.Object.extend('Post'));
+
+    postsQuery
+      .include('profile', 'statistics')
+      .descending('createdAt')
+      .notEqualTo('status', ApiObjectStatus.DELETED)
+      .limit(pagination.limit);
+
+    if (pagination.oldestDateFetched) {
+      postsQuery.lessThan('createdAt', pagination.oldestDateFetched);
+    }
+
+    const results = await postsQuery.find();
+    // TODO: Filter out posts from blocked profiles
+    return results.map(post => mapResultToPost(post, myProfile?.id));
+  }
+  */
+
+  export async function fetchMorePosts(
+    params: FetchMorePostsParams,
+  ): Promise<Post[]> {
+    const { pagination } = params;
+    const skipCount = (pagination.currentPage + 1) * pagination.limit;
+    return await new Promise<Post[]>(resolve => {
+      setTimeout(() => {
+        resolve(POSTS.slice(skipCount, skipCount + pagination.limit));
+      }, 2000);
+    });
   }
 
   export type FetchPostsForProfileParams = {

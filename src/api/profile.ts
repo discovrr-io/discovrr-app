@@ -130,6 +130,23 @@ export namespace ProfileApi {
     return mapResultToProfile(result);
   }
 
+  export type FetchAllProfilesByIdsParams = {
+    profileIds: ProfileId[];
+  };
+
+  export async function fetchAllProfilesByIds(
+    params: FetchAllProfilesByIdsParams,
+  ): Promise<Profile[]> {
+    const { profileIds } = params;
+    const query = new Parse.Query(Parse.Object.extend('Profile'));
+    query.containedIn('objectId', profileIds);
+    query.include('profilePersonal', 'profileVendor');
+    query.notEqualTo('status', ApiObjectStatus.DELETED);
+
+    const results = await query.find();
+    return results.map(mapResultToProfile);
+  }
+
   export type FetchAllProfilesParams = {
     pagination?: Pagination;
   };

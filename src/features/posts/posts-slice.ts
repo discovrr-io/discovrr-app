@@ -60,6 +60,11 @@ export const fetchAllPosts = createAsyncThunk<
   Reloadable<PostApi.FetchAllPostsParams>
 >('posts/fetchAllPosts', PostApi.fetchAllPosts);
 
+export const fetchMorePosts = createAsyncThunk<
+  Post[],
+  PostApi.FetchMorePostsParams
+>('posts/fetchMorePosts', PostApi.fetchMorePosts);
+
 export const fetchPostsForProfile = createAsyncThunk<
   Post[],
   Reloadable<PostApi.FetchPostsForProfileParams>
@@ -181,6 +186,13 @@ const postsSlice = createSlice({
             status: 'fulfilled',
             error: undefined,
           };
+        }
+      })
+      // -- fetchMorePosts --
+      .addCase(fetchMorePosts.fulfilled, (state, action) => {
+        postsAdapter.upsertMany(state, action.payload);
+        for (const postId of action.payload.map(post => post.id)) {
+          state.statuses[postId] = { status: 'fulfilled' };
         }
       })
       // -- updatePostLikeStatus --

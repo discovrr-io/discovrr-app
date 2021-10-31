@@ -95,7 +95,7 @@ type PostItemCardBodyProps = CardElementOptions & {
   postBody: Pick<Post, 'contents' | 'statistics'>;
 };
 
-function PostItemCardBody(props: PostItemCardBodyProps) {
+export function PostItemCardBody(props: PostItemCardBodyProps) {
   const { postBody, ...cardElementProps } = props;
 
   // const isFocused = useIsFocused();

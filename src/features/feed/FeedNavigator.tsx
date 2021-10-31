@@ -4,14 +4,16 @@ import { createMaterialTopTabNavigator } from '@react-navigation/material-top-ta
 import { color, font } from 'src/constants';
 import { FeedTopTabParamList } from 'src/navigation';
 
-import DiscoverFeed from './DiscoverFeed';
-// import DiscoverFeed from './DiscoverFeed.new';
+// import DiscoverFeed from './DiscoverFeed';
+import DiscoverFeed from './DiscoverFeed.alt';
 import NearMeFeed from './NearMeFeed';
 import FollowingFeed from './FollowingFeed';
 
 const FeedTopTab = createMaterialTopTabNavigator<FeedTopTabParamList>();
 
 export default function FeedNavigator() {
+  console.log('REND FEED NAVIGATOR');
+
   return (
     <FeedTopTab.Navigator
       initialRouteName="DiscoverFeed"

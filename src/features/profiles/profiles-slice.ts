@@ -51,14 +51,35 @@ export const fetchProfileById = createAsyncThunk<
 >('profiles/fetchProfileById', ProfileApi.fetchProfileById, {
   condition: (
     { profileId, reload = false },
-    { getState }: BaseThunkAPI<RootState, unknown>,
+    thunkApi: BaseThunkAPI<RootState, unknown>,
   ) => {
     if (reload) return true;
-    const { status } = selectProfileStatusById(getState(), profileId);
+    const { status } = selectProfileStatusById(thunkApi.getState(), profileId);
     return (
       status !== 'fulfilled' && status !== 'pending' && status !== 'refreshing'
     );
   },
+});
+
+export const fetchAllProfilesByIds = createAsyncThunk<
+  Profile[],
+  Reloadable<ProfileApi.FetchAllProfilesByIdsParams>,
+  { dispatch: AppDispatch; state: RootState }
+>('fetchAllProfilesByIds', async ({ profileIds, reload = false }, thunkApi) => {
+  if (reload) {
+    return await ProfileApi.fetchAllProfilesByIds({ profileIds });
+  }
+
+  const profileIdsToBeFetched = profileIds.filter(profileId => {
+    const { status } = selectProfileStatusById(thunkApi.getState(), profileId);
+    return (
+      status !== 'fulfilled' && status !== 'pending' && status !== 'refreshing'
+    );
+  });
+
+  return await ProfileApi.fetchAllProfilesByIds({
+    profileIds: profileIdsToBeFetched,
+  });
 });
 
 export const fetchAllProfiles = createAsyncThunk<
@@ -200,6 +221,13 @@ const profilesSlice = createSlice({
           status: 'rejected',
           error: action.error,
         };
+      })
+      // -- fetchAllProfilesByIds --
+      .addCase(fetchAllProfilesByIds.fulfilled, (state, action) => {
+        profilesAdapter.upsertMany(state, action.payload);
+        for (const profileId of action.payload.map(p => p.profileId)) {
+          state.statuses[profileId] = { status: 'fulfilled' };
+        }
       })
       // -- fetchAllProfilesByKind --
       .addCase(fetchAllProfilesByKind.fulfilled, (state, action) => {
