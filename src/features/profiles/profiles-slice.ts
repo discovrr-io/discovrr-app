@@ -230,8 +230,6 @@ const profilesSlice = createSlice({
         if (changes.coverPhoto !== undefined)
           finalChanges.coverPhoto = changes.coverPhoto;
 
-        console.log('FINAL CHANGES:', finalChanges);
-
         profilesAdapter.updateOne(state, {
           id: profileId,
           changes: finalChanges,

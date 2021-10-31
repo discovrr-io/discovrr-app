@@ -7,6 +7,7 @@ import BottomSheet, {
   BottomSheetView,
   useBottomSheet,
   useBottomSheetDynamicSnapPoints,
+  useBottomSheetTimingConfigs,
 } from '@gorhom/bottom-sheet';
 import { Portal } from '@gorhom/portal';
 
@@ -62,6 +63,10 @@ const ActionBottomSheet = React.forwardRef<BottomSheet, ActionBottomSheetProps>(
       [],
     );
 
+    const animationConfigs = useBottomSheetTimingConfigs({
+      duration: 300,
+    });
+
     return (
       <Portal>
         <BottomSheet
@@ -69,6 +74,7 @@ const ActionBottomSheet = React.forwardRef<BottomSheet, ActionBottomSheetProps>(
           index={-1}
           animateOnMount
           enablePanDownToClose
+          animationConfigs={animationConfigs}
           snapPoints={animatedSnapPoints}
           handleHeight={animatedHandleHeight}
           contentHeight={animatedContentHeight}
