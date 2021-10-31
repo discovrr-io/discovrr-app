@@ -5,6 +5,8 @@ export namespace NotificationApi {
   export type SetFCMRegistrationTokenForSessionParams = {
     sessionId: SessionId;
     registrationToken: string;
+    appVersion?: string;
+    storeVersion?: string;
   };
 
   export async function setFCMRegistrationTokenForSession(

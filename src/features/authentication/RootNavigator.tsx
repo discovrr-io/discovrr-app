@@ -1,8 +1,13 @@
-import React, { useEffect } from 'react';
+import * as React from 'react';
 
 import codePush from 'react-native-code-push';
 import messaging from '@react-native-firebase/messaging';
 import { nanoid } from '@reduxjs/toolkit';
+
+import * as constants from 'src/constants';
+import { useAppDispatch, useAppSelector } from 'src/hooks';
+import { NotificationId } from 'src/models';
+import { RootStack } from 'src/navigation';
 
 import {
   HeaderIcon,
@@ -10,10 +15,6 @@ import {
   PlaceholderScreen,
   RouteError,
 } from 'src/components';
-import { color, font } from 'src/constants';
-import { useAppDispatch, useAppSelector } from 'src/hooks';
-import { NotificationId } from 'src/models';
-import { RootStack } from 'src/navigation';
 
 import {
   didReceiveNotification,
@@ -52,14 +53,14 @@ export default function RootNavigator() {
     return state.notifications.didRegisterFCMToken;
   });
 
-  useEffect(() => {
+  React.useEffect(() => {
     // Allow restarts from this point on. If there is an update available, it'll
     // restart the app, otherwise nothing will happen.
     console.log($FUNC, 'Allowing CodePush restarts');
     codePush.allowRestart();
   }, []);
 
-  useEffect(() => {
+  React.useEffect(() => {
     const unsubscribe = messaging().onMessage(remoteMessage => {
       console.log($FUNC, 'New message:', remoteMessage);
 
@@ -93,7 +94,7 @@ export default function RootNavigator() {
     return unsubscribe;
   }, [dispatch]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     console.log($FUNC, 'Did register FCM token?', didRegisterFCMToken);
     console.log($FUNC, 'Session ID:', sessionId);
     if (!sessionId) console.warn('Session ID is not set, which is unexpected');
@@ -101,11 +102,13 @@ export default function RootNavigator() {
     if (!didRegisterFCMToken && sessionId)
       (async () => {
         try {
-          console.log($FUNC, 'Will register FCM token...');
+          console.log($FUNC, 'Setting FCM registration token...');
           const token = await getFCMToken();
           const action = setFCMRegistrationTokenForSession({
             sessionId,
             registrationToken: token,
+            appVersion: constants.values.APP_VERSION,
+            storeVersion: constants.values.STORE_VERSION,
           });
           await dispatch(action).unwrap();
         } catch (error) {
@@ -118,9 +121,9 @@ export default function RootNavigator() {
     <RootStack.Navigator
       initialRouteName="Main"
       screenOptions={{
-        headerTintColor: color.black,
+        headerTintColor: constants.color.black,
         headerBackTitleVisible: false,
-        headerTitleStyle: font.defaultHeaderTitleStyle,
+        headerTitleStyle: constants.font.defaultHeaderTitleStyle,
         headerLeft: props => <HeaderIcon.Back {...props} />,
       }}>
       {/* -- Header-less Navigators -- */}
