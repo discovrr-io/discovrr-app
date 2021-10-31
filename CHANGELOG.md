@@ -2,14 +2,22 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed issue where the "Sign in with Google" button doesn't show the account
+  selection dialog after already signing into another Google account previously
+  ([issue #6](https://github.com/discovrr-io/discovrr-app/issues/6))
+
+### Changed
+
 - Display alert informing unsaved changes when navigation away from dirty forms
 
 ## [v3.0.1] (2021-10-30)
 
 ### Added
 
-- Implement ability to change profile picture
-- Implement ability to upload gallery posts
+- Add ability to change profile picture
+- Add ability to upload gallery posts
 
 ### Changed
 

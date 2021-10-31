@@ -3,6 +3,7 @@ import { Image } from 'react-native';
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import analytics from '@react-native-firebase/analytics';
 import Parse from 'parse/react-native';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
 import * as constants from 'src/constants';
 import { SessionId, User, UserId } from 'src/models';
@@ -420,6 +421,11 @@ export namespace AuthApi {
       console.log($FUNC, 'Signing out of Firebase...');
       await auth().signOut();
       await analytics().setUserId(null);
+    }
+
+    if (await GoogleSignin.isSignedIn()) {
+      console.log($FUNC, 'Signing out of Google...');
+      await GoogleSignin.signOut();
     }
   }
 

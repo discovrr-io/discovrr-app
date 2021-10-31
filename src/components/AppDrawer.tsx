@@ -17,6 +17,7 @@ import { signOut } from 'src/features/authentication/auth-slice';
 import { selectProfileById } from 'src/features/profiles/profiles-slice';
 import { useAppDispatch, useAppSelector } from 'src/hooks';
 
+import Spacer from './Spacer';
 import { RootStackNavigationProp, RootStackParamList } from 'src/navigation';
 import { ProfileId } from 'src/models';
 import { alertSomethingWentWrong } from 'src/utilities';
@@ -149,26 +150,18 @@ function AppDrawer(props: AppDrawerProps & { profileId: ProfileId }) {
                 backgroundColor: color.placeholder,
               }}
             />
+            <Spacer.Vertical value="lg" />
             <Text
               numberOfLines={1}
-              style={[
-                font.extraLargeBold,
-                {
-                  paddingTop: layout.spacing.lg,
-                  textAlign: 'center',
-                },
-              ]}>
+              style={[font.extraLargeBold, { textAlign: 'center' }]}>
               {profile?.displayName || 'Anonymous'}
             </Text>
+            <Spacer.Vertical value="xs" />
             <Text
               numberOfLines={1}
               style={[
                 font.medium,
-                {
-                  color: color.gray500,
-                  paddingTop: layout.spacing.xs,
-                  textAlign: 'center',
-                },
+                { color: color.gray500, textAlign: 'center' },
               ]}>
               @{profile?.username || 'anonymous'}
             </Text>
@@ -178,11 +171,6 @@ function AppDrawer(props: AppDrawerProps & { profileId: ProfileId }) {
 
       <Divider />
 
-      {/* <AppDrawerItem
-        label="Notifications"
-        iconName="notifications-outline"
-        onPress={() => handleNavigation('Notifications')}
-      /> */}
       <AppDrawerItem
         label="My Shopping"
         iconName="cart-outline"

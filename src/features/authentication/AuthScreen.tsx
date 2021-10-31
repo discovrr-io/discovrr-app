@@ -109,8 +109,6 @@ const resetPasswordFormSchema = yup.object({
     .email('Please enter a valid email address'),
 });
 
-GoogleSignin.configure();
-
 function useDisallowCodePushRestarts(isProcessing: boolean) {
   const $FUNC = '[useDisallowCodePushRestarts]';
   useEffect(() => {

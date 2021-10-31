@@ -8,6 +8,7 @@ import codePush, { CodePushOptions } from 'react-native-code-push';
 import Config from 'react-native-config';
 import Parse from 'parse/react-native';
 import RNBootSplash from 'react-native-bootsplash';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import { persistStore } from 'redux-persist';
@@ -30,6 +31,8 @@ import { resetAppState } from './global-actions';
 
 import AuthGate from './features/authentication/AuthGate';
 import { signOut } from './features/authentication/auth-slice';
+
+GoogleSignin.configure();
 
 Parse.setAsyncStorage(AsyncStorage);
 Parse.User.enableUnsafeCurrentUser();
