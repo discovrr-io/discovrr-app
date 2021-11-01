@@ -38,9 +38,7 @@ import { RootStackScreenProps } from 'src/navigation';
 import { color, font, layout, media } from 'src/constants';
 import { DEFAULT_AVATAR } from 'src/constants/media';
 import { DEFAULT_ACTIVE_OPACITY } from 'src/constants/values';
-import { SOMETHING_WENT_WRONG } from 'src/constants/strings';
 import { CELL_GROUP_VERTICAL_SPACING } from 'src/components/cells/CellGroup';
-import { CELL_ICON_SIZE } from 'src/components/cells/common';
 
 import {
   ActionBottomSheet,
@@ -62,7 +60,7 @@ import {
 
 const MAX_INPUT_LENGTH = 30;
 const MAX_BIO_LENGTH = 140;
-const AVATAR_DIAMETER = 130;
+const AVATAR_DIAMETER = 140;
 
 const IMAGE_COMPRESSION_QUALITY = 0.7;
 const IMAGE_COMPRESSION_MAX_WIDTH = media.DEFAULT_AVATAR_DIMENSIONS.width;
@@ -75,7 +73,10 @@ const profileChangesSchema = yup.object({
     .trim()
     .required('Please enter your name')
     .min(3, 'Your display name should have at least 3 characters')
-    .max(MAX_INPUT_LENGTH),
+    .max(
+      MAX_INPUT_LENGTH,
+      `Your display name should not be longer than ${MAX_INPUT_LENGTH} characters`,
+    ),
   username: yup
     .string()
     .trim()
@@ -86,12 +87,13 @@ const profileChangesSchema = yup.object({
       message:
         'Your username should only contain letters, numbers, and underscores with no spaces',
     }),
-  // email: yup
-  //   .string()
-  //   .trim()
-  //   .required('Please enter your email address')
-  //   .email('Please enter a valid email address'),
-  biography: yup.string().trim().max(MAX_BIO_LENGTH),
+  biography: yup
+    .string()
+    .trim()
+    .max(
+      MAX_BIO_LENGTH,
+      `Your biography should not be more than ${MAX_BIO_LENGTH} characters`,
+    ),
 });
 
 type ProfileChangesForm = Omit<
@@ -106,49 +108,44 @@ type ProfileChangesForm = Omit<
   avatar?: Image | null;
 };
 
-type ProfileSettingsProps = RootStackScreenProps<'ProfileSettings'>;
-
-export default function ProfileSettingsScreenWrapper(
-  props: ProfileSettingsProps,
-) {
-  const myProfileId = useMyProfileId();
-
-  if (!myProfileId) {
-    return (
-      <RouteError message="We weren't able to get your profile details." />
-    );
-  }
-
-  return <ProfileSettingsScreen myProfileId={myProfileId} {...props} />;
+function ProfileNotFoundRouteError() {
+  return <RouteError message="We weren't able to find your profile." />;
 }
 
-function ProfileSettingsScreen(
-  props: ProfileSettingsProps & { myProfileId: ProfileId },
+type ProfileSettingsScreenProps = RootStackScreenProps<'ProfileSettings'>;
+
+export default function ProfileSettingsScreen(
+  props: ProfileSettingsScreenProps,
+) {
+  const myProfileId = useMyProfileId();
+  if (!myProfileId) return <ProfileNotFoundRouteError />;
+
+  return <ProfileSettingsScreenInner myProfileId={myProfileId} {...props} />;
+}
+
+function ProfileSettingsScreenInner(
+  props: ProfileSettingsScreenProps & { myProfileId: ProfileId },
 ) {
   const profileData = useProfile(props.myProfileId);
-
-  const renderRouteError = () => (
-    <RouteError message="We weren't able to find your profile." />
-  );
 
   return (
     <AsyncGate
       data={profileData}
       onPending={() => <LoadingContainer />}
       onFulfilled={profile => {
-        if (!profile) return renderRouteError();
+        if (!profile) return <ProfileNotFoundRouteError />;
         return <LoadedProfileSettingsScreen profile={profile} />;
       }}
-      onRejected={renderRouteError}
+      onRejected={ProfileNotFoundRouteError}
     />
   );
 }
 
-type LoadedAccountSettingsScreenProps = {
+type LoadedProfileSettingsScreenProps = {
   profile: Profile;
 };
 
-function LoadedProfileSettingsScreen(props: LoadedAccountSettingsScreenProps) {
+function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
   const $FUNC = '[LoadedProfileSettingsScreen]';
   const dispatch = useAppDispatch();
   const profile = props.profile;
@@ -329,30 +326,34 @@ function LoadedProfileSettingsScreen(props: LoadedAccountSettingsScreenProps) {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <ScrollView
-        keyboardShouldPersistTaps="handled"
-        contentContainerStyle={[layout.defaultScreenStyle, { flexGrow: 1 }]}>
-        <TouchableWithoutFeedback accessible={false} onPress={Keyboard.dismiss}>
-          <KeyboardAvoidingView behavior="position">
-            <Formik<ProfileChangesForm>
-              initialValues={{
-                avatar: undefined,
-                displayName: profile.displayName,
-                username: profile.username,
-                biography: profile.biography,
-              }}
-              enableReinitialize={true}
-              validationSchema={profileChangesSchema}
-              onSubmit={async (values, helpers) => {
-                await handleSaveChanges(values);
-                helpers.resetForm({ values });
-              }}>
-              <ProfileSettingsForm profile={profile} />
-            </Formik>
-          </KeyboardAvoidingView>
-        </TouchableWithoutFeedback>
-      </ScrollView>
+    <ProfileSettingsFormContext.Provider value={{ currentProfile: profile }}>
+      <SafeAreaView style={{ flex: 1 }}>
+        <ScrollView
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={[layout.defaultScreenStyle, { flexGrow: 1 }]}>
+          <TouchableWithoutFeedback
+            accessible={false}
+            onPress={Keyboard.dismiss}>
+            <KeyboardAvoidingView behavior="position">
+              <Formik<ProfileChangesForm>
+                initialValues={{
+                  avatar: undefined,
+                  displayName: profile.displayName,
+                  username: profile.username,
+                  biography: profile.biography,
+                }}
+                enableReinitialize={true}
+                validationSchema={profileChangesSchema}
+                onSubmit={async (values, helpers) => {
+                  await handleSaveChanges(values);
+                  helpers.resetForm({ values });
+                }}>
+                <ProfileSettingsForm />
+              </Formik>
+            </KeyboardAvoidingView>
+          </TouchableWithoutFeedback>
+        </ScrollView>
+      </SafeAreaView>
       {isSubmitting && (
         <LoadingOverlay
           message={overlayContent.message}
@@ -362,16 +363,22 @@ function LoadedProfileSettingsScreen(props: LoadedAccountSettingsScreenProps) {
           }
         />
       )}
-    </SafeAreaView>
+    </ProfileSettingsFormContext.Provider>
   );
 }
 
-function ProfileSettingsForm({ profile }: { profile: Profile }) {
+type ProfileSettingsFormContextProps = {
+  currentProfile: Profile;
+};
+
+const ProfileSettingsFormContext =
+  React.createContext<ProfileSettingsFormContextProps>(null as any);
+
+function ProfileSettingsForm() {
   const $FUNC = '[ProfileSettingsForm]';
-  const navigation = useNavigation<ProfileSettingsProps['navigation']>();
+  const navigation = useNavigation<ProfileSettingsScreenProps['navigation']>();
   const isMounted = useIsMounted();
 
-  const [selection, setSelection] = React.useState('user');
   const [isGeneratingUsername, setIsGeneratingUsername] = React.useState(false);
 
   const {
@@ -384,7 +391,7 @@ function ProfileSettingsForm({ profile }: { profile: Profile }) {
     handleChange,
     handleSubmit,
     setFieldValue,
-  } = useFormikContext<ProfileApi.ProfileChanges>();
+  } = useFormikContext<ProfileChangesForm>();
 
   const handleGenerateRandomUsername = async () => {
     try {
@@ -393,8 +400,7 @@ function ProfileSettingsForm({ profile }: { profile: Profile }) {
       if (isMounted.current) setFieldValue('username', username);
     } catch (error) {
       console.error($FUNC, 'Failed to generate random username:', error);
-      Alert.alert(
-        SOMETHING_WENT_WRONG.title,
+      utilities.alertSomethingWentWrong(
         "We weren't able to generate a username for you. Please try again later.",
       );
     } finally {
@@ -432,11 +438,11 @@ function ProfileSettingsForm({ profile }: { profile: Profile }) {
   return (
     <>
       <View style={{ alignItems: 'center' }}>
-        <ProfileAvatarPicker avatar={profile.avatar} />
+        <ProfileAvatarPicker />
       </View>
       <Spacer.Vertical value={CELL_GROUP_VERTICAL_SPACING * 2} />
       <Cell.Group
-        label="Profile details"
+        label="General"
         elementOptions={{
           containerSpacingHorizontal: layout.spacing.md * 1.25,
         }}>
@@ -491,34 +497,25 @@ function ProfileSettingsForm({ profile }: { profile: Profile }) {
         </Cell.InputGroup>
       </Cell.Group>
       <Spacer.Vertical value={CELL_GROUP_VERTICAL_SPACING} />
-      <Cell.Group
-        label="Account type"
-        elementOptions={{ iconSize: CELL_ICON_SIZE * 1.5 }}>
-        <Cell.Select
-          value={selection}
-          onValueChanged={option => setSelection(option)}>
-          <Cell.Option
-            label="User"
-            value="user"
-            caption="Post, share and like content created by other users and makers"
-          />
-          <Cell.Option
-            label="Maker"
-            value="maker"
-            caption="Advertise products and workshops to help your business grow"
-          />
-        </Cell.Select>
+      <Cell.Group label="Account Settings" elementOptions={{ disabled: true }}>
+        <Cell.Navigator label="Add public email" iconName="mail-outline" />
+        <Cell.Navigator label="Add my hometown" iconName="location-outline" />
+        <Cell.Navigator label="Change password" iconName="key-outline" />
+      </Cell.Group>
+      <Spacer.Vertical value={CELL_GROUP_VERTICAL_SPACING} />
+      <Cell.Group label="Danger Zone" elementOptions={{ disabled: true }}>
+        <Cell.Navigator
+          label="Delete My Account"
+          iconName="person-remove-outline"
+        />
       </Cell.Group>
     </>
   );
 }
 
-type ProfileAvatarPicker = {
-  avatar?: MediaSource | null;
-};
-
-function ProfileAvatarPicker(props: ProfileAvatarPicker) {
+function ProfileAvatarPicker() {
   const $FUNC = '[ProfileAvatarPicker]';
+  const { currentProfile } = React.useContext(ProfileSettingsFormContext);
   const [_, meta, helpers] = useField<ProfileChangesForm['avatar']>('avatar');
 
   React.useEffect(() => {
@@ -527,11 +524,13 @@ function ProfileAvatarPicker(props: ProfileAvatarPicker) {
 
   const avatarSource: FastImageProps['source'] = React.useMemo(() => {
     if (meta.value === undefined) {
-      return props.avatar?.url ? { uri: props.avatar.url } : DEFAULT_AVATAR;
+      return currentProfile.avatar?.url
+        ? { uri: currentProfile.avatar.url }
+        : DEFAULT_AVATAR;
     } else {
       return meta.value ? { uri: meta.value.path } : DEFAULT_AVATAR;
     }
-  }, [meta.value, props.avatar]);
+  }, [meta.value, currentProfile.avatar]);
 
   const actionBottomSheetRef = React.useRef<BottomSheet>(null);
   const actionBottomSheetItems = React.useMemo(() => {
@@ -540,7 +539,7 @@ function ProfileAvatarPicker(props: ProfileAvatarPicker) {
         id: 'remove',
         label: 'Remove Current Photo',
         iconName: 'person-remove-outline',
-        disabled: !props.avatar && !meta.value,
+        disabled: !currentProfile.avatar && !meta.value,
       },
       { id: 'camera', label: 'Take a Photo', iconName: 'camera-outline' },
       {
@@ -549,7 +548,7 @@ function ProfileAvatarPicker(props: ProfileAvatarPicker) {
         iconName: 'albums-outline',
       },
     ] as ActionBottomSheetItem[];
-  }, [meta.value, props.avatar]);
+  }, [meta.value, currentProfile.avatar]);
 
   const handleSelectActionItem = async (selectedItemId: string) => {
     const handleTakePhoto = async () => {
@@ -600,7 +599,7 @@ function ProfileAvatarPicker(props: ProfileAvatarPicker) {
 
     switch (selectedItemId) {
       case 'remove':
-        if (props.avatar === undefined) {
+        if (currentProfile.avatar === undefined) {
           helpers.setValue(undefined);
         } else {
           helpers.setValue(null);
@@ -625,14 +624,14 @@ function ProfileAvatarPicker(props: ProfileAvatarPicker) {
       <TouchableOpacity
         activeOpacity={DEFAULT_ACTIVE_OPACITY}
         onPress={handlePressAvatar}
-        style={editProfileAvatarStyles.touchableContainer}>
+        style={profileAvatarPickerStyles.touchableContainer}>
         <FastImage
           resizeMode="cover"
-          style={editProfileAvatarStyles.image}
+          style={profileAvatarPickerStyles.image}
           source={avatarSource}
         />
-        <View style={editProfileAvatarStyles.editTextContainer}>
-          <Text style={[font.medium, editProfileAvatarStyles.editText]}>
+        <View style={profileAvatarPickerStyles.editTextContainer}>
+          <Text style={[font.medium, profileAvatarPickerStyles.editText]}>
             Edit
           </Text>
         </View>
@@ -646,7 +645,7 @@ function ProfileAvatarPicker(props: ProfileAvatarPicker) {
   );
 }
 
-const editProfileAvatarStyles = StyleSheet.create({
+const profileAvatarPickerStyles = StyleSheet.create({
   touchableContainer: {
     overflow: 'hidden',
     borderRadius: AVATAR_DIAMETER / 2,

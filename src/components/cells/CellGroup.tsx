@@ -45,6 +45,7 @@ export default function CellGroup(props: CellGroupProps) {
       <View
         style={[
           styles.contentContainer,
+          cellElementOptions.disabled && { backgroundColor: color.white },
           {
             borderWidth: cellElementOptions.borderWidth,
             borderColor: cellElementOptions.borderColor,
@@ -68,5 +69,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderWidth: StyleSheet.hairlineWidth,
     borderRadius: layout.radius.md,
+    backgroundColor: color.absoluteWhite,
   },
 });

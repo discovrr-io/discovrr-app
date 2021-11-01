@@ -28,7 +28,7 @@ export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
  * This is useful when you want to check if you can mutate a stateful value
  * after dispatching an action that may unmount the enclosing component. This
  * specifically avoids the `"Can't perform a React state update on an
- * unmounted component"` error you may see.
+ * unmounted component"` warning you may see.
  */
 export function useIsMounted(): React.MutableRefObject<boolean> {
   const isMounted = React.useRef(true);

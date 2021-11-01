@@ -239,5 +239,16 @@ export namespace ProfileApi {
     });
   }
 
+  export type ChangeProfileKindParams = {
+    kind: ProfileKind;
+  };
+
+  export async function changeProfileKind(
+    params: ChangeProfileKindParams,
+  ): Promise<Profile> {
+    const updatedProfile = await Parse.Cloud.run('changeProfileKind', params);
+    return mapResultToProfile(updatedProfile);
+  }
+
   //#endregion UPDATE OPERATIONS
 }

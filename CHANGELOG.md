@@ -8,6 +8,11 @@
   selection dialog after already signing into another Google account previously
   ([issue #6](https://github.com/discovrr-io/discovrr-app/issues/6))
 
+### Actions
+
+- Add ability to switch account type from `"personal"` to `"vendor"` and
+  vice-versa
+
 ### Changed
 
 - Display alert informing unsaved changes when navigation away from dirty forms

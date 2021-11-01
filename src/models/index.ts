@@ -17,6 +17,7 @@ export type {
 export type {
   default as Profile,
   ProfileId,
+  ProfileKind,
   PersonalProfile,
   PersonalProfileId,
   VendorProfile,

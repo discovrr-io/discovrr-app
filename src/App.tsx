@@ -46,7 +46,8 @@ const navigationTheme: Theme = {
     ...DefaultTheme.colors,
     primary: color.accent,
     background: color.white,
-    card: color.white,
+    card: color.absoluteWhite,
+    notification: color.red500,
   },
 };
 

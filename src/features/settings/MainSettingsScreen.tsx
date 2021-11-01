@@ -29,8 +29,8 @@ import { Cell, Spacer } from 'src/components';
 import { CELL_GROUP_VERTICAL_SPACING } from 'src/components/cells/CellGroup';
 import { RootStackScreenProps } from 'src/navigation';
 
-import { useAppDispatch } from 'src/hooks';
-import { resetAppState } from 'src/global-actions';
+import * as globalActions from 'src/global-actions';
+import { useAppDispatch, useIsMounted } from 'src/hooks';
 import { alertUnavailableFeature } from 'src/utilities';
 
 const UPDATE_INDICATOR_DIAMETER = 9;
@@ -61,7 +61,7 @@ export default function MainSettingsScreen(props: MainSettingsScreenProps) {
 
   const handlePressClearCache = () => {
     const commitClearCache = () => {
-      dispatch(resetAppState());
+      dispatch(globalActions.resetAppState());
     };
 
     Alert.alert(
@@ -96,14 +96,20 @@ export default function MainSettingsScreen(props: MainSettingsScreenProps) {
           <Cell.Group label="General">
             <Cell.Navigator
               label="My profile"
-              iconName="person-outline"
+              iconName="happy-outline"
               onPress={navigation => navigation.push('ProfileSettings')}
             />
             <Cell.Navigator
+              label="Account Type"
+              iconName="person-outline"
+              // value={profile.kind}
+              onPress={navigation => navigation.push('AccountTypeSettings')}
+            />
+            {/* <Cell.Navigator
               label="Location accuracy"
               iconName="location-outline"
               onPress={handleAlertNotAvailable}
-            />
+            /> */}
             <Cell.Navigator
               label="Notifications"
               iconName="notifications-outline"
@@ -188,28 +194,38 @@ function MainSettingsScreenFooter() {
     MainSettingsScreenContext,
   );
 
+  const isMounted = useIsMounted();
   const [checkUpdateStatus, setCheckUpdateStatus] =
     React.useState<CheckUpdateStatus>({ state: 'checking' });
 
   useFocusEffect(
-    React.useCallback(() => {
-      codePush
-        .checkForUpdate()
-        .then(update => {
-          if (update) {
-            showUpdatePopupIndicator.value = true;
-            setCheckUpdateStatus({ state: 'update-available', result: update });
-          } else {
+    React.useCallback(
+      () => {
+        codePush
+          .checkForUpdate()
+          .then(update => {
+            if (!isMounted.current) return;
+            if (update) {
+              showUpdatePopupIndicator.value = true;
+              setCheckUpdateStatus({
+                state: 'update-available',
+                result: update,
+              });
+            } else {
+              showUpdatePopupIndicator.value = false;
+              setCheckUpdateStatus({ state: 'up-to-date' });
+            }
+          })
+          .catch(error => {
+            if (!isMounted.current) return;
+            // console.warn('Failed to check update:', error);
             showUpdatePopupIndicator.value = false;
-            setCheckUpdateStatus({ state: 'up-to-date' });
-          }
-        })
-        .catch(error => {
-          // console.warn('Failed to check update:', error);
-          showUpdatePopupIndicator.value = false;
-          setCheckUpdateStatus({ state: 'failed', error });
-        });
-    }, [showUpdatePopupIndicator]),
+            setCheckUpdateStatus({ state: 'failed', error });
+          });
+      },
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      [showUpdatePopupIndicator],
+    ),
   );
 
   const handlePressUpdateStatusLabel = React.useCallback(() => {

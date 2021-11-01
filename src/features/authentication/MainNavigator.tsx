@@ -48,9 +48,6 @@ function FacadeNavigator() {
         headerLeftContainerStyle: {
           paddingLeft: layout.defaultScreenMargins.horizontal,
         },
-        headerStyle: {
-          backgroundColor: color.white,
-        },
         headerTintColor: color.black,
         headerTitleStyle: font.defaultHeaderTitleStyle,
         tabBarShowLabel: false,
@@ -89,13 +86,11 @@ function FacadeNavigator() {
           return <Icon name={iconName} size={iconSize} color={color} />;
         },
         tabBarStyle: {
-          backgroundColor: color.white,
           minHeight: DEFAULT_MIN_BOTTOM_TAB_BAR_HEIGHT,
         },
         tabBarBadgeStyle: {
           fontFamily: font.small.fontFamily,
           fontSize: font.small.fontSize,
-          backgroundColor: color.red500,
         },
       })}>
       <FacadeBottomTab.Screen name="Home" component={HomeNavigator} />

@@ -1,18 +1,18 @@
 import React from 'react';
 import { useNavigation } from '@react-navigation/core';
 
-import { SettingsStackNavigationProp } from 'src/navigation';
+import { RootStackNavigationProp } from 'src/navigation';
 import CellButton, { CellButtonProps } from './CellButton';
 
 type CellNavigatorProps = Omit<
   CellButtonProps,
   'suffixIconName' | 'onPress'
 > & {
-  onPress?: (navigation: SettingsStackNavigationProp) => void | Promise<void>;
+  onPress?: (navigation: RootStackNavigationProp) => void | Promise<void>;
 };
 
 export default function CellNavigator(props: CellNavigatorProps) {
-  const navigation = useNavigation<SettingsStackNavigationProp>();
+  const navigation = useNavigation<RootStackNavigationProp>();
   return (
     <CellButton
       {...props}

@@ -102,6 +102,11 @@ export const updateProfile = createAsyncThunk(
   ProfileApi.updateProfile,
 );
 
+export const changeProfileKind = createAsyncThunk<
+  Profile,
+  ProfileApi.ChangeProfileKindParams
+>('profiles/changeProfileKind', ProfileApi.changeProfileKind);
+
 type UpdateProfileFollowStatusParams = {
   followeeId: ProfileId;
   followerId: ProfileId;
@@ -247,6 +252,13 @@ const profilesSlice = createSlice({
         profilesSlice.caseReducers.profileFollowStatusChanged(state, {
           ...action,
           payload: { ...action.meta.arg, didFollow: oldDidFollow },
+        });
+      })
+      .addCase(changeProfileKind.fulfilled, (state, action) => {
+        const updatedProfile = action.payload;
+        profilesAdapter.updateOne(state, {
+          id: updatedProfile.profileId,
+          changes: updatedProfile,
         });
       });
   },

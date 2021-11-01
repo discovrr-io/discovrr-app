@@ -10,8 +10,10 @@ import {
   createStackNavigator,
 } from '@react-navigation/stack';
 
+import * as globalSelectors from 'src/global-selectors';
 import { HeaderIcon, PlaceholderScreen } from 'src/components';
 import { color, font, layout } from 'src/constants';
+import { useAppSelector } from 'src/hooks';
 
 import {
   CreateItemDetailsTopTabParamList,
@@ -23,9 +25,6 @@ import CreateGalleryPostScreen from './CreateGalleryPostScreen';
 import CreateItemPreviewScreen from './CreateItemPreviewScreen';
 
 const TAB_ICON_SIZE = 24;
-
-const __IS_VENDOR = true;
-const __TAB_COUNT = __IS_VENDOR ? 5 : 3;
 
 type TabBarIconProps = {
   name: string;
@@ -51,6 +50,10 @@ function CreateItemDetailsNavigator() {
   const insets = useSafeAreaInsets();
   const { width: windowWidth } = useWindowDimensions();
 
+  const myProfileKind = useAppSelector(
+    globalSelectors.selectCurrentUserProfileKind,
+  );
+
   return (
     <CreateItemDetailsTopTab.Navigator
       initialRouteName="CreateTextPost"
@@ -70,7 +73,7 @@ function CreateItemDetailsNavigator() {
           paddingBottom: insets.bottom,
         },
         tabBarItemStyle: {
-          width: windowWidth / __TAB_COUNT,
+          width: windowWidth / (myProfileKind === 'vendor' ? 5 : 3),
           paddingHorizontal: 0,
         },
         tabBarIndicatorStyle: {
@@ -105,25 +108,25 @@ function CreateItemDetailsNavigator() {
           tabBarIcon: props => <TabBarIcon name="film" {...props} />,
         }}
       />
-      {__IS_VENDOR && (
-        <CreateItemDetailsTopTab.Screen
-          name="CreateProduct"
-          component={PlaceholderScreen}
-          options={{
-            title: 'Product',
-            tabBarIcon: props => <TabBarIcon name="gift" {...props} />,
-          }}
-        />
-      )}
-      {__IS_VENDOR && (
-        <CreateItemDetailsTopTab.Screen
-          name="CreateWorkshop"
-          component={PlaceholderScreen}
-          options={{
-            title: 'Workshop',
-            tabBarIcon: props => <TabBarIcon name="brush" {...props} />,
-          }}
-        />
+      {myProfileKind === 'vendor' && (
+        <>
+          <CreateItemDetailsTopTab.Screen
+            name="CreateProduct"
+            component={PlaceholderScreen}
+            options={{
+              title: 'Product',
+              tabBarIcon: props => <TabBarIcon name="gift" {...props} />,
+            }}
+          />
+          <CreateItemDetailsTopTab.Screen
+            name="CreateWorkshop"
+            component={PlaceholderScreen}
+            options={{
+              title: 'Workshop',
+              tabBarIcon: props => <TabBarIcon name="brush" {...props} />,
+            }}
+          />
+        </>
       )}
     </CreateItemDetailsTopTab.Navigator>
   );

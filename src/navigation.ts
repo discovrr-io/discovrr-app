@@ -71,6 +71,7 @@ export type RootStackParamList = {
   // -- Settings Screens --
   MainSettings: SettingsStackParamList['MainSettings'];
   ProfileSettings: SettingsStackParamList['ProfileSettings'];
+  AccountTypeSettings: SettingsStackParamList['AccountTypeSettings'];
   LocationAccuracySettings: SettingsStackParamList['LocationAccuracySettings'];
   NotificationSettings: SettingsStackParamList['NotificationSettings'];
   // -- Miscellaneous --
@@ -316,14 +317,15 @@ export type ProfileStackParamList = {
 export type SettingsStackParamList = {
   MainSettings: undefined;
   ProfileSettings: undefined;
+  AccountTypeSettings: undefined;
   NotificationSettings: undefined;
   LocationAccuracySettings: undefined;
 };
 
-// export type SettingsStackNavigationProp = StackNavigationProp<
-//   SettingsStackParamList,
-//   'MainSettings'
-// >;
+export type SettingsStackNavigationProp = StackNavigationProp<
+  SettingsStackParamList,
+  'MainSettings'
+>;
 
 // export type SettingsStackScreenProps<K extends keyof SettingsStackParamList> =
 //   StackScreenProps<SettingsStackParamList, K>;
@@ -410,7 +412,8 @@ Root = Stack {
   Saved
   (Settings) = Group {
     MainSettings
-    AccountSettings
+    ProfileSettings
+    AccountTypeSettings
     LocationSettings
     NotificationSettings
   }
