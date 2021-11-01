@@ -142,6 +142,7 @@ function FacadeNavigator() {
       <FacadeBottomTab.Screen
         name="Notifications"
         component={NotificationsScreen}
+        // FIXME: This should reset when signing into a different account
         options={{ tabBarBadge: unreadCount > 0 ? unreadCount : undefined }}
       />
       <FacadeBottomTab.Screen

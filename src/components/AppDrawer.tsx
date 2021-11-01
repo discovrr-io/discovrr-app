@@ -10,46 +10,54 @@ import {
   DrawerItem,
 } from '@react-navigation/drawer';
 
-import { color, font, layout } from 'src/constants';
-import { DEFAULT_AVATAR } from 'src/constants/media';
-import { DEFAULT_ACTIVE_OPACITY } from 'src/constants/values';
-import { signOut } from 'src/features/authentication/auth-slice';
-import { selectProfileById } from 'src/features/profiles/profiles-slice';
+import * as constants from 'src/constants';
+import * as utilities from 'src/utilities';
+import * as authSlice from 'src/features/authentication/auth-slice';
+import * as profilesSlice from 'src/features/profiles/profiles-slice';
 import { useAppDispatch, useAppSelector } from 'src/hooks';
+import { ProfileId } from 'src/models';
+import { RootStackNavigationProp, RootStackParamList } from 'src/navigation';
 
 import Spacer from './Spacer';
-import { RootStackNavigationProp, RootStackParamList } from 'src/navigation';
-import { ProfileId } from 'src/models';
-import { alertSomethingWentWrong } from 'src/utilities';
 
 const AVATAR_DIAMETER = 125;
-const DRAWER_ITEM_ICON_COLOR = color.black;
-const DRAWER_ITEM_TEXT_COLOR = color.black;
+const DRAWER_ITEM_ICON_COLOR = constants.color.black;
+const DRAWER_ITEM_TEXT_COLOR = constants.color.black;
 
 type AppDrawerItemProps = {
   label: string;
   iconName: string;
+  tintColor?: string;
   onPress: () => void;
 };
 
-const AppDrawerItem = ({ label, iconName, onPress }: AppDrawerItemProps) => (
+const AppDrawerItem = ({
+  label,
+  iconName,
+  tintColor,
+  onPress,
+}: AppDrawerItemProps) => (
   <DrawerItem
-    pressColor={color.gray200}
+    pressColor={constants.color.gray200}
     label={() => (
       <Text
         numberOfLines={1}
         style={[
-          font.medium,
-          { color: DRAWER_ITEM_TEXT_COLOR, marginLeft: -8 },
+          constants.font.medium,
+          { color: tintColor ?? DRAWER_ITEM_TEXT_COLOR, marginLeft: -8 },
         ]}>
         {label}
       </Text>
     )}
     icon={({ size }) => (
-      <Icon name={iconName} size={size} color={DRAWER_ITEM_ICON_COLOR} />
+      <Icon
+        name={iconName}
+        size={size}
+        color={tintColor ?? DRAWER_ITEM_ICON_COLOR}
+      />
     )}
     onPress={onPress}
-    style={{ paddingLeft: layout.spacing.md }}
+    style={{ paddingLeft: constants.layout.spacing.md }}
   />
 );
 
@@ -57,8 +65,8 @@ const Divider = () => (
   <View
     style={{
       borderBottomWidth: 1,
-      borderColor: color.gray100,
-      marginVertical: layout.spacing.sm,
+      borderColor: constants.color.gray100,
+      marginVertical: constants.layout.spacing.sm,
     }}
   />
 );
@@ -83,7 +91,9 @@ function AppDrawer(props: AppDrawerProps & { profileId: ProfileId }) {
 
   const dispatch = useAppDispatch();
   const navigation = props.navigation;
-  const profile = useAppSelector(state => selectProfileById(state, profileId));
+  const profile = useAppSelector(state =>
+    profilesSlice.selectProfileById(state, profileId),
+  );
 
   const handleNavigation = (screen: keyof RootStackParamList) => {
     navigation.closeDrawer();
@@ -94,7 +104,7 @@ function AppDrawer(props: AppDrawerProps & { profileId: ProfileId }) {
     const commitLogOut = async () => {
       try {
         console.log($FUNC, 'Signing out...');
-        await dispatch(signOut()).unwrap();
+        await dispatch(authSlice.signOut()).unwrap();
       } catch (error) {
         console.error($FUNC, 'Failed to log out user:', error);
         throw error;
@@ -126,42 +136,44 @@ function AppDrawer(props: AppDrawerProps & { profileId: ProfileId }) {
 
   return (
     <DrawerContentScrollView {...props}>
-      <View style={{ padding: layout.spacing.lg }}>
+      <View style={{ padding: constants.layout.spacing.lg }}>
         <TouchableOpacity
-          activeOpacity={DEFAULT_ACTIVE_OPACITY}
+          activeOpacity={constants.values.DEFAULT_ACTIVE_OPACITY}
           onPress={() => {
             if (profile) {
               handleNavigation('ProfileSettings');
             } else {
-              alertSomethingWentWrong();
+              utilities.alertSomethingWentWrong();
               navigation.closeDrawer();
             }
           }}>
           <View style={{ alignItems: 'center' }}>
             <FastImage
               source={
-                profile?.avatar ? { uri: profile.avatar.url } : DEFAULT_AVATAR
+                profile?.avatar
+                  ? { uri: profile.avatar.url }
+                  : constants.media.DEFAULT_AVATAR
               }
               resizeMode="cover"
               style={{
                 width: AVATAR_DIAMETER,
                 height: AVATAR_DIAMETER,
                 borderRadius: AVATAR_DIAMETER / 2,
-                backgroundColor: color.placeholder,
+                backgroundColor: constants.color.placeholder,
               }}
             />
             <Spacer.Vertical value="lg" />
             <Text
               numberOfLines={1}
-              style={[font.extraLargeBold, { textAlign: 'center' }]}>
+              style={[constants.font.extraLargeBold, { textAlign: 'center' }]}>
               {profile?.displayName || 'Anonymous'}
             </Text>
             <Spacer.Vertical value="xs" />
             <Text
               numberOfLines={1}
               style={[
-                font.medium,
-                { color: color.gray500, textAlign: 'center' },
+                constants.font.medium,
+                { color: constants.color.gray500, textAlign: 'center' },
               ]}>
               @{profile?.username || 'anonymous'}
             </Text>
@@ -190,8 +202,17 @@ function AppDrawer(props: AppDrawerProps & { profileId: ProfileId }) {
       <Divider />
 
       <AppDrawerItem
+        label="Send Us Feedback"
+        iconName="chatbubbles-outline"
+        onPress={() => utilities.alertUnavailableFeature()}
+      />
+
+      <Divider />
+
+      <AppDrawerItem
         label="Log Out"
         iconName="log-out-outline"
+        tintColor={constants.color.red500}
         onPress={handleLogOut}
       />
 

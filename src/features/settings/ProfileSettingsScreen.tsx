@@ -348,7 +348,7 @@ function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
                   await handleSaveChanges(values);
                   helpers.resetForm({ values });
                 }}>
-                <ProfileSettingsForm />
+                <ProfileSettingsFormikForm />
               </Formik>
             </KeyboardAvoidingView>
           </TouchableWithoutFeedback>
@@ -374,7 +374,7 @@ type ProfileSettingsFormContextProps = {
 const ProfileSettingsFormContext =
   React.createContext<ProfileSettingsFormContextProps>(null as any);
 
-function ProfileSettingsForm() {
+function ProfileSettingsFormikForm() {
   const $FUNC = '[ProfileSettingsForm]';
   const navigation = useNavigation<ProfileSettingsScreenProps['navigation']>();
   const isMounted = useIsMounted();
@@ -442,7 +442,7 @@ function ProfileSettingsForm() {
       </View>
       <Spacer.Vertical value={CELL_GROUP_VERTICAL_SPACING * 2} />
       <Cell.Group
-        label="General"
+        label="My Details"
         elementOptions={{
           containerSpacingHorizontal: layout.spacing.md * 1.25,
         }}>
@@ -505,7 +505,7 @@ function ProfileSettingsForm() {
       <Spacer.Vertical value={CELL_GROUP_VERTICAL_SPACING} />
       <Cell.Group label="Danger Zone" elementOptions={{ disabled: true }}>
         <Cell.Navigator
-          label="Delete My Account"
+          label="Deactivate my account"
           iconName="person-remove-outline"
         />
       </Cell.Group>

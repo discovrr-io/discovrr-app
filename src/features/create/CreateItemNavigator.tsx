@@ -20,9 +20,10 @@ import {
   CreateItemStackParamList,
 } from 'src/navigation';
 
+import CreateItemPreviewScreen from './CreateItemPreviewScreen';
 import CreateTextPostScreen from './CreateTextPostScreen';
 import CreateGalleryPostScreen from './CreateGalleryPostScreen';
-import CreateItemPreviewScreen from './CreateItemPreviewScreen';
+import CreateProductScreen from './CreateProductScreen';
 
 const TAB_ICON_SIZE = 24;
 
@@ -112,7 +113,7 @@ function CreateItemDetailsNavigator() {
         <>
           <CreateItemDetailsTopTab.Screen
             name="CreateProduct"
-            component={PlaceholderScreen}
+            component={CreateProductScreen}
             options={{
               title: 'Product',
               tabBarIcon: props => <TabBarIcon name="gift" {...props} />,

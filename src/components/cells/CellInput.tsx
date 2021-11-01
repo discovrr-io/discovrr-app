@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import * as React from 'react';
 import {
   Platform,
   StyleProp,
@@ -28,10 +28,14 @@ type CellInputProps = CellElementProps &
   Pick<
     TextInputProps,
     | 'autoCapitalize'
+    | 'keyboardAppearance'
+    | 'keyboardType'
     | 'multiline'
-    | 'placeholder'
     | 'onBlur'
     | 'onChangeText'
+    | 'placeholder'
+    | 'returnKeyLabel'
+    | 'returnKeyType'
     | 'value'
   > & {
     label: string;
@@ -44,7 +48,7 @@ const CellInput = (props: CellInputProps) => {
   const { label, prefix, suffix, error, ...textInputProps } = props;
 
   const cellElementOptions = useCellElementContext(props.elementOptions);
-  const cellInputGroupProps = useContext(CellInputGroupContext);
+  const cellInputGroupProps = React.useContext(CellInputGroupContext);
 
   return (
     <CellContainer style={{ paddingVertical: 0, paddingHorizontal: 0 }}>
