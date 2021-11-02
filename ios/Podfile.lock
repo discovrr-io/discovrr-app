@@ -21,6 +21,13 @@ PODS:
     - React-Core (= 0.64.2)
     - React-jsi (= 0.64.2)
     - ReactCommon/turbomodule/core (= 0.64.2)
+  - ffmpeg-kit-ios-https (4.5)
+  - ffmpeg-kit-react-native (4.5.0):
+    - ffmpeg-kit-react-native/https (= 4.5.0)
+    - React-Core
+  - ffmpeg-kit-react-native/https (4.5.0):
+    - ffmpeg-kit-ios-https (= 4.5)
+    - React-Core
   - Firebase/Analytics (8.8.0):
     - Firebase/Core
   - Firebase/Auth (8.8.0):
@@ -660,6 +667,7 @@ DEPENDENCIES:
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
   - FBReactNativeSpec (from `../node_modules/react-native/React/FBReactNativeSpec`)
+  - ffmpeg-kit-react-native (from `../node_modules/ffmpeg-kit-react-native`)
   - Flipper (= 0.98.0)
   - Flipper-DoubleConversion (= 1.1.7)
   - Flipper-Folly (= 2.6.7)
@@ -748,6 +756,7 @@ SPEC REPOS:
     - Base64
     - boost-for-react-native
     - CocoaAsyncSocket
+    - ffmpeg-kit-ios-https
     - Firebase
     - FirebaseABTesting
     - FirebaseAnalytics
@@ -799,6 +808,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/Libraries/FBLazyVector"
   FBReactNativeSpec:
     :path: "../node_modules/react-native/React/FBReactNativeSpec"
+  ffmpeg-kit-react-native:
+    :path: "../node_modules/ffmpeg-kit-react-native"
   glog:
     :podspec: "../node_modules/react-native/third-party-podspecs/glog.podspec"
   Permission-LocationAlways:
@@ -927,6 +938,8 @@ SPEC CHECKSUMS:
   DoubleConversion: cf9b38bf0b2d048436d9a82ad2abe1404f11e7de
   FBLazyVector: e686045572151edef46010a6f819ade377dfeb4b
   FBReactNativeSpec: d757093abeeab0276a420109aba17476c4423090
+  ffmpeg-kit-ios-https: f7f34d0e0000a01dbc678f615588330ef1e23cc6
+  ffmpeg-kit-react-native: 03655a7f2d1ede5c465c9ce3ab25817aeac04a8c
   Firebase: 629510f1a9ddb235f3a7c5c8ceb23ba887f0f814
   FirebaseABTesting: 981336dd14d84787e33466e4247f77ec2343f8d9
   FirebaseAnalytics: 5506ea8b867d8423485a84b4cd612d279f7b0b8a

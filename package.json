@@ -52,6 +52,7 @@
     "@react-navigation/native": "^6.0.0",
     "@react-navigation/stack": "^6.0.0",
     "@reduxjs/toolkit": "^1.6.1",
+    "ffmpeg-kit-react-native": "^4.5.0",
     "formik": "^2.2.9",
     "lodash": "^4.17.21",
     "parse": "^3.3.0",
