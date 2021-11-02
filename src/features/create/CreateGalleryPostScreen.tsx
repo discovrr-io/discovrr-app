@@ -117,10 +117,7 @@ function GalleryPostFormikForm() {
       contentContainerStyle={{ flexGrow: 1 }}>
       <KeyboardAvoidingView
         behavior="position"
-        keyboardVerticalOffset={Platform.select({
-          ios: -80,
-          default: undefined,
-        })}
+        keyboardVerticalOffset={Platform.select({ ios: -80 })}
         style={{ flexGrow: 1 }}>
         <View
           style={[
@@ -145,6 +142,7 @@ function GalleryPostFormikForm() {
               maxLength={MAX_CAPTION_LENGTH}
               placeholder="Write a caption…"
               placeholderTextColor={color.gray500}
+              selectionColor={Platform.select({ ios: color.accent })}
               value={field.value}
               onChangeText={field.onChange('caption')}
               onBlur={field.onBlur('caption')}

@@ -452,8 +452,8 @@ function ProfileSettingsFormikForm() {
             autoCapitalize="words"
             placeholder="Enter your full name"
             value={values.displayName}
-            onBlur={handleBlur('displayName')}
             onChangeText={handleChange('displayName')}
+            onBlur={handleBlur('displayName')}
             error={errors.displayName}
           />
           <Cell.Input
@@ -461,8 +461,8 @@ function ProfileSettingsFormikForm() {
             autoCapitalize="none"
             placeholder="Enter a unique username"
             value={values.username}
-            onBlur={handleBlur('username')}
             onChangeText={handleChange('username')}
+            onBlur={handleBlur('username')}
             error={errors.username}
             prefix={
               values.username?.length && values.username.length > 0 ? (
@@ -490,8 +490,8 @@ function ProfileSettingsFormikForm() {
             label="Biography"
             placeholder="Write a short biography about yourself (max 140 characters)"
             value={values.biography}
-            onBlur={handleBlur('biography')}
             onChangeText={handleChange('biography')}
+            onBlur={handleBlur('biography')}
             error={errors.biography}
           />
         </Cell.InputGroup>

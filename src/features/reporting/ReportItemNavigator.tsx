@@ -54,7 +54,6 @@ export default function ReportItemNavigator() {
         options={{
           cardStyleInterpolator: Platform.select({
             android: CardStyleInterpolators.forFadeFromCenter,
-            default: undefined,
           }),
         }}
       />

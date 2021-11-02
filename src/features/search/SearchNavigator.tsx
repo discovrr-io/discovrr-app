@@ -213,11 +213,9 @@ export default function SearchNavigator() {
         headerTitleStyle: font.defaultHeaderTitleStyle,
         headerStyleInterpolator: Platform.select({
           android: HeaderStyleInterpolators.forFade,
-          default: undefined,
         }),
         cardStyleInterpolator: Platform.select({
           android: CardStyleInterpolators.forFadeFromCenter,
-          default: undefined,
         }),
       }}>
       <SearchStack.Screen

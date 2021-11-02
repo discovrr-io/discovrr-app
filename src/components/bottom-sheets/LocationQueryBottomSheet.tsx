@@ -110,10 +110,7 @@ const LocationQueryBottomSheet = React.forwardRef<
               minimumValue={MIN_SEARCH_RADIUS}
               maximumValue={MAX_SEARCH_RADIUS}
               minimumTrackTintColor={color.accent}
-              thumbTintColor={Platform.select({
-                android: color.accent,
-                default: undefined,
-              })}
+              thumbTintColor={Platform.select({ android: color.accent })}
             />
           </BottomSheetScrollView>
           <View style={bottomSheetStyles.buttonFooterContainer}>

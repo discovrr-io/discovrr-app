@@ -107,6 +107,8 @@ export default function RootNavigator() {
           const action = setFCMRegistrationTokenForSession({
             sessionId,
             registrationToken: token,
+            // FIXME: This won't be updated if FCM token is already set (which
+            // only happens if the user signs in)
             appVersion: constants.values.APP_VERSION,
             storeVersion: constants.values.STORE_VERSION,
           });

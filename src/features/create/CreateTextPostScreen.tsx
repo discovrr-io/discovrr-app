@@ -2,6 +2,7 @@ import * as React from 'react';
 import {
   Keyboard,
   KeyboardAvoidingView,
+  Platform,
   Text,
   TextInput as RNTextInput,
   TouchableWithoutFeedback,
@@ -162,6 +163,7 @@ function TextArea(props: TextAreaProps) {
           maxLength={MAX_TEXT_POST_LENGTH}
           placeholder={props.placeholder}
           placeholderTextColor={color.gray500}
+          selectionColor={Platform.select({ ios: color.accent })}
           value={field.value}
           onChangeText={field.onChange('text')}
           onBlur={field.onBlur('text')}

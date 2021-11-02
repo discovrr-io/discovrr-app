@@ -163,7 +163,6 @@ export default function CreateItemNavigator() {
           title: 'Preview',
           cardStyleInterpolator: Platform.select({
             android: CardStyleInterpolators.forHorizontalIOS,
-            default: undefined,
           }),
         }}
       />
