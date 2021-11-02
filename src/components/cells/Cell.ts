@@ -8,6 +8,16 @@ import CellOption from './CellOption';
 import CellSelect from './CellSelect';
 import CellSwitch from './CellSwitch';
 
+export type { CellButtonProps } from './CellButton';
+export type { CellFieldProps } from './CellField';
+export type { CellGroupProps } from './CellGroup';
+export type { CellInputProps } from './CellInput';
+export type { CellInputGroupProps } from './CellInputGroup';
+export type { CellNavigatorProps } from './CellNavigator';
+export type { CellOptionProps } from './CellOption';
+export type { CellSelectProps } from './CellSelect';
+export type { CellSwitchProps } from './CellSwitch';
+
 const Cell = {
   Button: CellButton,
   Field: CellField,

@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/core';
 import { RootStackNavigationProp } from 'src/navigation';
 import CellButton, { CellButtonProps } from './CellButton';
 
-type CellNavigatorProps = Omit<
+export type CellNavigatorProps = Omit<
   CellButtonProps,
   'suffixIconName' | 'onPress'
 > & {

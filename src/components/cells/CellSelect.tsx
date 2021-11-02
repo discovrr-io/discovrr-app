@@ -12,7 +12,7 @@ export const CellSelectContext = React.createContext<CellSelectContextProps>(
   null as any,
 );
 
-type CellSelectProps = CellSelectContextProps & {
+export type CellSelectProps = CellSelectContextProps & {
   children?: React.ReactNode;
 };
 

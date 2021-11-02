@@ -24,7 +24,7 @@ import { CellInputGroupContext } from './CellInputGroup';
 import { CellElementProps, defaultCellElementOptions } from './common';
 import { useCellElementContext } from './hooks';
 
-type CellInputProps = CellElementProps &
+export type CellInputProps = CellElementProps &
   Pick<
     TextInputProps,
     | 'autoCapitalize'

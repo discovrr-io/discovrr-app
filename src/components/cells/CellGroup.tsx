@@ -20,7 +20,7 @@ import {
 
 export const CELL_GROUP_VERTICAL_SPACING = layout.spacing.md;
 
-type CellGroupProps = CellElementProps & {
+export type CellGroupProps = CellElementProps & {
   label?: string;
   labelStyle?: StyleProp<TextStyle>;
   containerStyle?: StyleProp<ViewStyle>;

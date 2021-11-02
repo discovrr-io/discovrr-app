@@ -6,7 +6,7 @@ import CellContainer from './CellContainer';
 import { CellElementProps, defaultCellElementOptions } from './common';
 import { useCellElementContext } from './hooks';
 
-type CellSwitchProps = CellElementProps &
+export type CellSwitchProps = CellElementProps &
   Pick<SwitchProps, 'disabled' | 'value' | 'onValueChange'> & {
     label: string;
     caption?: string;

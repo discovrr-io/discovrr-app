@@ -17,7 +17,7 @@ export const CellInputGroupContext =
     defaultCellInputGroupContextProps,
   );
 
-type CellInputGroupProps = Partial<CellInputGroupContextProps> & {
+export type CellInputGroupProps = Partial<CellInputGroupContextProps> & {
   children?: React.ReactNode;
 };
 

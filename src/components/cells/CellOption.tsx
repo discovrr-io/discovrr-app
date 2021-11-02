@@ -10,7 +10,7 @@ import { useCellElementContext } from './hooks';
 
 import { CellElementProps, defaultCellElementOptions } from './common';
 
-type CellOptionProps = CellElementProps & {
+export type CellOptionProps = CellElementProps & {
   label: string;
   value: string;
   caption?: string;
