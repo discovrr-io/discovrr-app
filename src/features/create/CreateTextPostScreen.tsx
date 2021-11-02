@@ -10,8 +10,6 @@ import {
 
 import * as yup from 'yup';
 import { Formik, useField, useFormikContext } from 'formik';
-import { useNavigation } from '@react-navigation/core';
-import { useFocusEffect } from '@react-navigation/native';
 
 import Animated, {
   interpolateColor,
@@ -21,7 +19,6 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import * as utilities from 'src/utilities';
-import { Button } from 'src/components';
 import { color, font, layout } from 'src/constants';
 import { useNavigationAlertUnsavedChangesOnRemove } from 'src/hooks';
 
@@ -29,6 +26,8 @@ import {
   CreateItemDetailsTopTabScreenProps,
   CreateItemStackNavigationProp,
 } from 'src/navigation';
+
+import { useHandleSubmitNavigationButton } from './hooks';
 
 const MAX_TEXT_POST_LENGTH = 280;
 
@@ -76,7 +75,6 @@ export default function CreateTextPostScreen(props: CreateTextPostScreenProps) {
 }
 
 function TextPostFormikForm() {
-  const navigation = useNavigation<CreateTextPostScreenProps['navigation']>();
   const { dirty, handleSubmit } = useFormikContext<TextPostForm>();
 
   // FIXME: This will still show an alert in the following situations:
@@ -85,21 +83,7 @@ function TextPostFormikForm() {
   //   - The user has pressed "Post", navigated back and pressed the close
   //     button even if the form is still dirty
   useNavigationAlertUnsavedChangesOnRemove(dirty);
-
-  useFocusEffect(
-    React.useCallback(() => {
-      navigation.getParent<CreateItemStackNavigationProp>().setOptions({
-        headerRight: () => (
-          <Button
-            title="Next"
-            type="primary"
-            size="medium"
-            onPress={handleSubmit}
-          />
-        ),
-      });
-    }, [navigation, handleSubmit]),
-  );
+  useHandleSubmitNavigationButton<TextPostForm>(handleSubmit);
 
   return (
     <View style={[layout.defaultScreenStyle, { flex: 1 }]}>

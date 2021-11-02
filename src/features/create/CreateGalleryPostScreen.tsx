@@ -13,13 +13,10 @@ import {
 
 import * as yup from 'yup';
 import { Formik, useField, useFormikContext } from 'formik';
-
-import { useFocusEffect, useNavigation } from '@react-navigation/core';
 import { Image } from 'react-native-image-crop-picker';
 
 import * as utilities from 'src/utilities';
 import { MediaSource } from 'src/api';
-import { Button } from 'src/components';
 import { color, font, layout } from 'src/constants';
 import { useNavigationAlertUnsavedChangesOnRemove } from 'src/hooks';
 
@@ -29,6 +26,7 @@ import {
 } from 'src/navigation';
 
 import { ImagePreviewPicker } from './components';
+import { useHandleSubmitNavigationButton } from './hooks';
 
 const MAX_CAPTION_LENGTH = 280;
 const MAX_MEDIA_COUNT = 8;
@@ -101,9 +99,6 @@ export default function CreateGalleryPostScreen(
 }
 
 function GalleryPostFormikForm() {
-  const navigation =
-    useNavigation<CreateGalleryPostScreenProps['navigation']>();
-
   const { dirty, handleSubmit } = useFormikContext<GalleryPostForm>();
 
   const [field, meta, _] = useField<GalleryPostForm['caption']>('caption');
@@ -114,21 +109,7 @@ function GalleryPostFormikForm() {
   //   - The user has pressed "Post", navigated back and pressed the close
   //     button even if the form is still dirty
   useNavigationAlertUnsavedChangesOnRemove(dirty);
-
-  useFocusEffect(
-    React.useCallback(() => {
-      navigation.getParent<CreateItemStackNavigationProp>().setOptions({
-        headerRight: () => (
-          <Button
-            title="Next"
-            type="primary"
-            size="medium"
-            onPress={handleSubmit}
-          />
-        ),
-      });
-    }, [navigation, handleSubmit]),
-  );
+  useHandleSubmitNavigationButton<GalleryPostForm>(handleSubmit);
 
   return (
     <ScrollView
