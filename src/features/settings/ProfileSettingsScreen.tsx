@@ -75,7 +75,7 @@ const profileChangesSchema = yup.object({
     .min(3, 'Your display name should have at least 3 characters')
     .max(
       MAX_INPUT_LENGTH,
-      `Your display name should not be longer than ${MAX_INPUT_LENGTH} characters`,
+      `Your display name should be no longer than ${MAX_INPUT_LENGTH} characters`,
     ),
   username: yup
     .string()
@@ -92,7 +92,7 @@ const profileChangesSchema = yup.object({
     .trim()
     .max(
       MAX_BIO_LENGTH,
-      `Your biography should not be more than ${MAX_BIO_LENGTH} characters`,
+      `Your biography should be no longer than ${MAX_BIO_LENGTH} characters`,
     ),
 });
 

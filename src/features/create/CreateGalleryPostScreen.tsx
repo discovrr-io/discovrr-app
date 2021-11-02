@@ -28,8 +28,8 @@ import {
 import { ImagePreviewPicker } from './components';
 import { useHandleSubmitNavigationButton } from './hooks';
 
-const MAX_CAPTION_LENGTH = 280;
 const MAX_MEDIA_COUNT = 8;
+const MAX_CAPTION_LENGTH = 280;
 
 const galleyPostSchema = yup.object({
   media: yup
