@@ -68,7 +68,7 @@ type ProductForm = Omit<yup.InferType<typeof productSchema>, 'media'> & {
 type CreateProductScreenProps =
   CreateItemDetailsTopTabScreenProps<'CreateProduct'>;
 
-export default function CreateProductScreen(props: CreateProductScreenProps) {
+export default function CreateProductScreen(_: CreateProductScreenProps) {
   return (
     <Formik<ProductForm>
       initialValues={{
@@ -89,8 +89,7 @@ export default function CreateProductScreen(props: CreateProductScreenProps) {
 }
 
 function ProductFormikForm() {
-  const { dirty, values, errors, handleBlur, handleChange, handleSubmit } =
-    useFormikContext<ProductForm>();
+  const { dirty, values, handleSubmit } = useFormikContext<ProductForm>();
 
   useNavigationAlertUnsavedChangesOnRemove(dirty);
   useHandleSubmitNavigationButton<ProductForm>(handleSubmit);
@@ -115,21 +114,13 @@ function ProductFormikForm() {
           <FormikField
             fieldName="name"
             label="Name"
-            placeholder="What's the name of the product?"
-            value={values.name}
-            onChangeText={handleChange('name')}
-            onBlur={handleBlur('name')}
-            error={errors.name}
+            placeholder="What's the name of your product?"
           />
           <FormikField
             fieldName="price"
             label="Price"
-            placeholder="0.00 (AUD)"
-            keyboardType="decimal-pad"
-            value={values.price}
-            onChangeText={handleChange('price')}
-            onBlur={handleBlur('price')}
-            error={errors.price}
+            placeholder="123,456.78 (AUD)"
+            keyboardType="numeric"
           />
           <FormikField
             fieldName="description"
@@ -137,10 +128,6 @@ function ProductFormikForm() {
             numberOfLines={8}
             label="Description"
             placeholder="Write a short description about your product"
-            value={values.description}
-            onChangeText={handleChange('description')}
-            onBlur={handleBlur('description')}
-            error={errors.description}
           />
         </Cell.Group>
         <Spacer.Vertical value={CELL_GROUP_VERTICAL_SPACING} />

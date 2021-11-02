@@ -153,7 +153,7 @@ export const CellField = React.forwardRef<CellFieldMethods, CellFieldProps>(
             ...props.elementOptions,
             containerSpacingVertical: 0,
           }}
-          style={[multiline && { minHeight: 150, maxHeight: 400 }]}>
+          style={[multiline && { height: 200 }]}>
           <TouchableWithoutFeedback onPress={handleFocus}>
             <Animated.View style={[{ flex: 1 }, placeholderStyles]}>
               <TextInput

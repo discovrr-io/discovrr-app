@@ -4,6 +4,7 @@ import {
   Alert,
   Keyboard,
   KeyboardAvoidingView,
+  Platform,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -334,7 +335,12 @@ function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
           <TouchableWithoutFeedback
             accessible={false}
             onPress={Keyboard.dismiss}>
-            <KeyboardAvoidingView behavior="position">
+            <KeyboardAvoidingView
+              behavior="position"
+              keyboardVerticalOffset={Platform.select({
+                ios: -50,
+                android: -100,
+              })}>
               <Formik<ProfileChangesForm>
                 initialValues={{
                   avatar: undefined,
@@ -514,13 +520,8 @@ function ProfileSettingsFormikForm() {
 }
 
 function ProfileAvatarPicker() {
-  const $FUNC = '[ProfileAvatarPicker]';
   const { currentProfile } = React.useContext(ProfileSettingsFormContext);
   const [_, meta, helpers] = useField<ProfileChangesForm['avatar']>('avatar');
-
-  React.useEffect(() => {
-    console.log($FUNC, 'AVATAR:', meta.value);
-  }, [meta.value]);
 
   const avatarSource: FastImageProps['source'] = React.useMemo(() => {
     if (meta.value === undefined) {
