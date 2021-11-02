@@ -62,6 +62,11 @@ export const CellField = React.forwardRef<CellFieldMethods, CellFieldProps>(
     const labelState = useSharedValue(_initialValue ? 1 : 0);
     const labelWidth = useSharedValue(0);
 
+    const blur = () => textInputRef.current?.blur();
+    const focus = () => textInputRef.current?.focus();
+    const clear = () => textInputRef.current?.clear();
+    const isFocused = () => Boolean(textInputRef.current?.isFocused());
+
     const labelStyles = useAnimatedStyle(() => ({
       transform: [
         {
@@ -101,16 +106,16 @@ export const CellField = React.forwardRef<CellFieldMethods, CellFieldProps>(
 
     const handleTextInputFocus = () => {
       labelState.value = withTiming(1);
-      textInputRef.current?.focus();
+      focus();
     };
 
     const handleTextInputBlur = () => {
       if (value.length === 0) labelState.value = withTiming(0);
-      textInputRef.current?.blur();
+      blur();
     };
 
     const handleTextInputClear = () => {
-      textInputRef.current?.clear();
+      clear();
     };
 
     const handlePlaceholderContainerLayout = React.useCallback(
@@ -121,7 +126,7 @@ export const CellField = React.forwardRef<CellFieldMethods, CellFieldProps>(
     );
 
     React.useImperativeHandle(ref, () => ({
-      isFocused: Boolean(textInputRef.current?.isFocused),
+      isFocused: isFocused(),
       focus: handleTextInputFocus,
       blur: handleTextInputBlur,
       clear: handleTextInputClear,
@@ -161,14 +166,13 @@ export const CellField = React.forwardRef<CellFieldMethods, CellFieldProps>(
               {...textInputProps}
               ref={textInputRef}
               placeholder=""
-              pointerEvents={
-                textInputRef.current?.isFocused() ? 'auto' : 'none'
-              }
+              pointerEvents={isFocused() ? 'auto' : 'none'}
               multiline={multiline}
               value={value}
               onChangeText={setValue}
               onFocus={handleTextInputFocus}
               onBlur={handleTextInputBlur}
+              textAlign="left"
               style={[
                 constants.font.medium,
                 {

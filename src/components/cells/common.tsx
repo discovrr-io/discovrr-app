@@ -3,7 +3,7 @@ import { StyleProp, StyleSheet, TextStyle, View } from 'react-native';
 
 import { color, font, layout } from 'src/constants';
 
-export const CELL_HIGHLIGHT_COLOR = color.white;
+export const CELL_HIGHLIGHT_COLOR = color.gray100;
 export const CELL_ICON_SIZE = 20;
 export const CELL_CONTENT_ELEMENT_SPACING = layout.spacing.md;
 

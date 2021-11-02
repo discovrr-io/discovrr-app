@@ -15,6 +15,7 @@ export type CellButtonProps = CellElementProps & {
   caption?: string;
   iconName?: string;
   suffixIconName?: string;
+  previewValue?: string;
   onPress?: () => void | Promise<void>;
 };
 
@@ -63,6 +64,26 @@ export default function CellButton(props: CellButtonProps) {
             )}
           </View>
         </View>
+        {props.previewValue && (
+          <View style={styles.previewValueContainer}>
+            <Spacer.Horizontal value={cellElementOptions.itemSpacing} />
+            <Text
+              numberOfLines={1}
+              ellipsizeMode="middle"
+              style={[
+                defaultCellElementOptions.labelStyle,
+                cellElementOptions.labelStyle,
+                styles.previewValueText,
+                {
+                  color: isDisabled
+                    ? color.disabledDarkTextColor
+                    : color.gray500,
+                },
+              ]}>
+              {props.previewValue}
+            </Text>
+          </View>
+        )}
         {props.suffixIconName && (
           <View style={styles.trailingContainer}>
             <Spacer.Horizontal value={cellElementOptions.itemSpacing} />
@@ -91,6 +112,17 @@ const styles = StyleSheet.create({
   labelContainerStyle: {
     flexGrow: 1,
     flexShrink: 1,
+  },
+  previewValueContainer: {
+    flexGrow: 1.5,
+    flexShrink: 1.5,
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+  },
+  previewValueText: {
+    flexGrow: 1,
+    flexShrink: 1,
+    textAlign: 'right',
   },
   trailingContainer: {
     flexDirection: 'row',

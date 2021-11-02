@@ -30,8 +30,9 @@ import { CELL_GROUP_VERTICAL_SPACING } from 'src/components/cells/CellGroup';
 import { RootStackScreenProps } from 'src/navigation';
 
 import * as globalActions from 'src/global-actions';
-import { useAppDispatch, useIsMounted } from 'src/hooks';
-import { alertUnavailableFeature } from 'src/utilities';
+import * as globalSelectors from 'src/global-selectors';
+import * as utilities from 'src/utilities';
+import { useAppDispatch, useAppSelector, useIsMounted } from 'src/hooks';
 
 const UPDATE_INDICATOR_DIAMETER = 9;
 
@@ -43,8 +44,11 @@ type MainSettingsScreenProps = RootStackScreenProps<'MainSettings'>;
 
 export default function MainSettingsScreen(props: MainSettingsScreenProps) {
   const dispatch = useAppDispatch();
-  const scrollViewRef = React.useRef<ScrollView>(null);
+  const currentProfileKind = useAppSelector(
+    globalSelectors.selectCurrentUserProfileKind,
+  );
 
+  const scrollViewRef = React.useRef<ScrollView>(null);
   const showUpdatePopupIndicator = useSharedValue(false);
 
   React.useEffect(() => {
@@ -56,7 +60,7 @@ export default function MainSettingsScreen(props: MainSettingsScreenProps) {
   };
 
   const handleAlertNotAvailable = () => {
-    alertUnavailableFeature();
+    utilities.alertUnavailableFeature();
   };
 
   const handlePressClearCache = () => {
@@ -102,7 +106,7 @@ export default function MainSettingsScreen(props: MainSettingsScreenProps) {
             <Cell.Navigator
               label="Account Type"
               iconName="person-outline"
-              // value={profile.kind}
+              previewValue={currentProfileKind === 'vendor' ? 'Maker' : 'User'}
               onPress={navigation => navigation.push('AccountTypeSettings')}
             />
             {/* <Cell.Navigator
