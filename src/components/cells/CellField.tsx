@@ -1,6 +1,7 @@
 import * as React from 'react';
 import {
   LayoutChangeEvent,
+  Platform,
   Text,
   TextInput,
   TextInputProps,
@@ -107,15 +108,9 @@ export const CellField = React.forwardRef<CellFieldMethods, CellFieldProps>(
       ),
     }));
 
-    const placeholderStyles = useAnimatedStyle(
-      () => ({
-        opacity:
-          value.length !== 0
-            ? 0
-            : interpolate(labelState.value, [0.25, 0.75], [0, 1]),
-      }),
-      [value],
-    );
+    const placeholderStyles = useAnimatedStyle(() => ({
+      opacity: interpolate(labelState.value, [0.25, 0.75], [0, 1]),
+    }));
 
     const handleChangeText = (text: string) => {
       onChangeText?.(text);
@@ -137,7 +132,7 @@ export const CellField = React.forwardRef<CellFieldMethods, CellFieldProps>(
       clear();
     };
 
-    const handlePlaceholderContainerLayout = React.useCallback(
+    const handleLabelViewLayout = React.useCallback(
       ({ nativeEvent }: LayoutChangeEvent) => {
         labelWidth.value = nativeEvent.layout.width;
       },
@@ -159,63 +154,52 @@ export const CellField = React.forwardRef<CellFieldMethods, CellFieldProps>(
             containerSpacingVertical: 0,
           }}
           style={[multiline && { minHeight: 150, maxHeight: 400 }]}>
-          <Animated.View
-            pointerEvents="none"
-            style={[
-              placeholderStyles,
-              {
-                position: 'absolute',
-                top: spacingTop,
-                left: cellElementOptions.containerSpacingHorizontal,
-                right: cellElementOptions.containerSpacingHorizontal,
-              },
-            ]}>
-            <Animated.Text
-              numberOfLines={1}
-              style={[
-                constants.font.medium,
-                style,
-                { color: placeholderTextColor ?? constants.color.gray300 },
-              ]}>
-              {placeholder}
-            </Animated.Text>
-          </Animated.View>
           <TouchableWithoutFeedback onPress={handleFocus}>
-            <View style={{ flex: 1 }}>
+            <Animated.View style={[{ flex: 1 }, placeholderStyles]}>
               <TextInput
                 {...textInputProps}
                 ref={textInputRef}
-                placeholder=""
                 pointerEvents={isFocused() ? 'auto' : 'none'}
                 multiline={multiline}
+                placeholder={placeholder}
+                placeholderTextColor={placeholderTextColor}
                 value={text}
                 onChangeText={handleChangeText}
                 onFocus={handleFocus}
                 onBlur={handleBlur}
                 textAlign="left"
+                selectionColor={Platform.select({
+                  ios: constants.color.accent,
+                })}
                 style={[
                   constants.font.medium,
                   {
                     flex: 1,
                     textAlignVertical: 'top',
                     paddingTop: spacingTop,
-                    paddingBottom: !error ? spacingBottom : undefined,
-                    paddingLeft: -1, // Android needs this
+                    paddingBottom: Platform.select({
+                      ios: !error ? spacingBottom : undefined,
+                      android: constants.layout.spacing.xs,
+                    }),
+                    paddingLeft: Platform.select({
+                      android: -1,
+                    }),
                   },
                   style,
                 ]}
               />
-            </View>
+            </Animated.View>
           </TouchableWithoutFeedback>
           <Animated.View
             pointerEvents="none"
-            onLayout={handlePlaceholderContainerLayout}
+            onLayout={handleLabelViewLayout}
             style={[
               labelTransformStyles,
               {
                 position: 'absolute',
                 top: spacingTop * 0.75,
                 left: cellElementOptions.containerSpacingHorizontal,
+                right: cellElementOptions.containerSpacingHorizontal,
               },
             ]}>
             <Animated.Text
