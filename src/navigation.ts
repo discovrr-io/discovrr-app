@@ -254,7 +254,9 @@ export type CreateItemDetailsTopTabParamList = {
   CreateTextPost: undefined;
   CreateGalleryPost: undefined;
   CreateVideoPost: undefined;
-  CreateProduct: undefined;
+  CreateProduct:
+    | { tags: string[]; categories: string[]; location?: string }
+    | undefined;
   CreateWorkshop: undefined;
 };
 
