@@ -54,10 +54,11 @@ const AppDrawerItem = ({
         name={iconName}
         size={size}
         color={tintColor ?? DRAWER_ITEM_ICON_COLOR}
+        style={{ paddingLeft: constants.layout.spacing.md }}
       />
     )}
     onPress={onPress}
-    style={{ paddingLeft: constants.layout.spacing.md }}
+    // style={{ paddingLeft: constants.layout.spacing.md }}
   />
 );
 
@@ -113,12 +114,11 @@ function AppDrawer(props: AppDrawerProps & { profileId: ProfileId }) {
 
     navigation.closeDrawer();
     Alert.alert(
-      'Are you sure you want to log out?',
+      'Are you sure you want to sign out?',
       'You will need to sign in again.',
       [
-        { text: 'Cancel', style: 'cancel' },
         {
-          text: 'Log Out',
+          text: 'Sign Out',
           style: 'destructive',
           onPress: () => {
             commitLogOut().catch(error => {
@@ -130,6 +130,7 @@ function AppDrawer(props: AppDrawerProps & { profileId: ProfileId }) {
             });
           },
         },
+        { text: 'Cancel', style: 'cancel' },
       ],
     );
   };
@@ -210,7 +211,7 @@ function AppDrawer(props: AppDrawerProps & { profileId: ProfileId }) {
       <Divider />
 
       <AppDrawerItem
-        label="Log Out"
+        label="Sign Out"
         iconName="log-out-outline"
         tintColor={constants.color.red500}
         onPress={handleLogOut}
