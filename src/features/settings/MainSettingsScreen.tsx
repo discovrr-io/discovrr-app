@@ -64,7 +64,7 @@ export default function MainSettingsScreen(props: MainSettingsScreenProps) {
   };
 
   const handlePressClearCache = () => {
-    const commitClearCache = () => {
+    const clearCache = () => {
       dispatch(globalActions.resetAppState());
     };
 
@@ -74,12 +74,12 @@ export default function MainSettingsScreen(props: MainSettingsScreenProps) {
         'This will improve in time the more you use the Discovrr app.' +
         '\n\nAre you sure you want to clear the cache anyway?',
       [
-        { text: 'Cancel', style: 'cancel' },
         {
           text: 'Clear Cache',
           style: 'destructive',
-          onPress: commitClearCache,
+          onPress: clearCache,
         },
+        { text: 'Cancel', style: 'cancel' },
       ],
     );
   };

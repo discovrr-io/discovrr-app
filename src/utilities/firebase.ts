@@ -1,4 +1,5 @@
 import storage from '@react-native-firebase/storage';
+import { Image } from 'react-native-image-crop-picker';
 import { nanoid } from '@reduxjs/toolkit';
 
 import { MediaSource } from 'src/api';
@@ -36,4 +37,14 @@ export function uploadFileToFirebase(
   const uploadTask = reference.putFile(localFilePath);
 
   return [filename, uploadTask, reference] as const;
+}
+
+export function mapImageToMediaSource(image: Image): MediaSource {
+  return {
+    mime: image.mime,
+    url: image.path,
+    size: image.size,
+    width: image.width,
+    height: image.height,
+  };
 }

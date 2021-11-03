@@ -33,6 +33,11 @@ const initialState = productsAdapter.getInitialState<ProductApiFetchStatuses>({
 
 //#region Product Async Thunks
 
+export const createProduct = createAsyncThunk(
+  'products/createProduct',
+  ProductApi.createProduct,
+);
+
 export const fetchProductById = createAsyncThunk<
   Product,
   Reloadable<ProductApi.FetchProductByIdParams>
@@ -84,6 +89,14 @@ const productsSlice = createSlice({
       .addCase(resetAppState, state => {
         console.log('Purging products...');
         Object.assign(state, initialState);
+      })
+      // -- createProduct --
+      .addCase(createProduct.fulfilled, (state, action) => {
+        productsAdapter.addOne(state, action.payload);
+        state.statuses[action.payload.id] = {
+          status: 'fulfilled',
+          error: undefined,
+        };
       })
       // -- fetchProductById --
       .addCase(fetchProductById.pending, (state, action) => {

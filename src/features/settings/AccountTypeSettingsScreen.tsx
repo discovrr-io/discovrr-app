@@ -169,7 +169,7 @@ function AccountTypeForm() {
 
   return (
     <Cell.Group
-      label="Account Type"
+      label="What best describes you?"
       elementOptions={{ iconSize: CELL_ICON_SIZE * 1.5 }}>
       <Cell.Select value={meta.value} onValueChanged={handleChangeSelection}>
         <Cell.Option
