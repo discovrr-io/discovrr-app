@@ -7,10 +7,15 @@ import { Image } from 'react-native-image-crop-picker';
 
 import * as constants from 'src/constants';
 import * as utilities from 'src/utilities';
+import * as productsSlice from 'src/features/products/products-slice';
 import { Cell, CellFieldProps, Spacer } from 'src/components';
 import { CELL_GROUP_VERTICAL_SPACING } from 'src/components/cells/CellGroup';
-import { useNavigationAlertUnsavedChangesOnRemove } from 'src/hooks';
 import { CreateItemDetailsTopTabScreenProps } from 'src/navigation';
+
+import {
+  useAppDispatch,
+  useNavigationAlertUnsavedChangesOnRemove,
+} from 'src/hooks';
 
 import { ImagePreviewPicker } from './components';
 import { useHandleSubmitNavigationButton } from './hooks';
@@ -69,6 +74,32 @@ type CreateProductScreenProps =
   CreateItemDetailsTopTabScreenProps<'CreateProduct'>;
 
 export default function CreateProductScreen(_: CreateProductScreenProps) {
+  const dispatch = useAppDispatch();
+
+  const __handleSubmit = async (values: ProductForm) => {
+    try {
+      console.log({ values });
+      const sources = values.media.map(utilities.mapImageToMediaSource);
+      const product = await dispatch(
+        productsSlice.createProduct({
+          ...values,
+          price: Number.parseFloat(values.price),
+          media: sources,
+          hidden: !values.visible,
+        }),
+      ).unwrap();
+
+      console.log('NEW PRODUCT:', product);
+    } catch (error: any) {
+      console.error('Failed to create new product:', error);
+      utilities.alertSomethingWentWrong(
+        error?.message ||
+          error?.code ||
+          "We weren't able to create your product at this time. Please try again later.",
+      );
+    }
+  };
+
   return (
     <Formik<ProductForm>
       initialValues={{
@@ -79,8 +110,9 @@ export default function CreateProductScreen(_: CreateProductScreenProps) {
         visible: true,
       }}
       validationSchema={productSchema}
-      onSubmit={(values, helpers) => {
-        console.log(values);
+      onSubmit={async (values, helpers) => {
+        // await __handleSubmit(values);
+        utilities.alertUnavailableFeature();
         helpers.resetForm({ values });
       }}>
       <ProductFormikForm />
@@ -89,7 +121,8 @@ export default function CreateProductScreen(_: CreateProductScreenProps) {
 }
 
 function ProductFormikForm() {
-  const { dirty, values, handleSubmit } = useFormikContext<ProductForm>();
+  const { dirty, handleSubmit } = useFormikContext<ProductForm>();
+  const [_, visibleMeta, visibleHelpers] = useField<boolean>('visible');
 
   useNavigationAlertUnsavedChangesOnRemove(dirty);
   useHandleSubmitNavigationButton<ProductForm>(handleSubmit);
@@ -132,12 +165,16 @@ function ProductFormikForm() {
         </Cell.Group>
         <Spacer.Vertical value={CELL_GROUP_VERTICAL_SPACING} />
         <Cell.Group label="Categorisation">
-          <Cell.Navigator label="Add tags" previewValue="N tags" />
-          <Cell.Navigator label="Add categories" previewValue="N categories" />
+          <Cell.Navigator label="Add tags" previewValue="0 tags" />
+          <Cell.Navigator label="Add categories" previewValue="0 categories" />
         </Cell.Group>
         <Spacer.Vertical value={CELL_GROUP_VERTICAL_SPACING} />
         <Cell.Group label="Additional Options">
-          <Cell.Switch label="Visible to everyone" value={values.visible} />
+          <Cell.Switch
+            label="Visible to everyone"
+            value={visibleMeta.value}
+            onValueChange={value => visibleHelpers.setValue(value)}
+          />
           <Cell.Navigator label="Add location" />
         </Cell.Group>
       </View>
