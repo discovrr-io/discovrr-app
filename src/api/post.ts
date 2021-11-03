@@ -63,7 +63,7 @@ export namespace PostApi {
     location?: PostLocation;
   };
 
-  export async function createPost(contents: CreatePostParams): Promise<Post> {
+  export async function createPost(params: CreatePostParams): Promise<Post> {
     type CreatePostPayload = {
       kind: Post['contents']['type'];
       caption: string;
@@ -72,28 +72,27 @@ export namespace PostApi {
     };
 
     let payload: CreatePostPayload;
-    switch (contents.type) {
+    switch (params.type) {
       case 'gallery':
         payload = {
           kind: 'gallery',
-          caption: contents.caption,
-          media: contents.sources,
+          caption: params.caption,
+          media: params.sources,
         };
         break;
       case 'video':
         payload = {
           kind: 'video',
-          caption: contents.caption,
-          media: [contents.source],
+          caption: params.caption,
+          media: [params.source],
         };
         break;
-      case 'text': /* FALLTHROUGH */
-      default:
-        payload = { kind: 'text', caption: contents.text };
+      case 'text':
+        payload = { kind: 'text', caption: params.text };
         break;
     }
 
-    const newPost: Parse.Object = await Parse.Cloud.run('createPost', payload);
+    const result: Parse.Object = await Parse.Cloud.run('createPost', payload);
     // // For some reason this returns an object of type
     // // `{ id: string; className: string; _objCount: number }`
     // const newPostStatistics = newPost.get('statistics')
@@ -102,7 +101,7 @@ export namespace PostApi {
     // const statistics = await statisticsQuery.get(newPostStatistics.id);
 
     const myProfile = await UserApi.getCurrentUserProfile();
-    return mapResultToPost(newPost, myProfile?.id);
+    return mapResultToPost(result, myProfile?.id);
   }
 
   //#endregion CREATE OPERATIONS

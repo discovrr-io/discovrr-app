@@ -38,6 +38,27 @@ export namespace ProductApi {
     };
   }
 
+  //#region CREATE OPERATIONS
+
+  export type CreateProductParams = Pick<
+    Product,
+    'name' | 'description' | 'price' | 'media'
+  > & {
+    tags?: string[];
+    categories?: string[];
+    hidden?: boolean;
+  };
+
+  export async function createProduct(
+    params: CreateProductParams,
+  ): Promise<Product> {
+    const result: Parse.Object = await Parse.Cloud.run('createProduct', params);
+    const myProfile = await UserApi.getCurrentUserProfile();
+    return mapResultToProduct(result, undefined, myProfile?.id);
+  }
+
+  //#endregion CREATE OPERATIONS
+
   //#region READ OPERATIONS
 
   export type FetchProductByIdParams = {

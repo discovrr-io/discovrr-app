@@ -16,7 +16,6 @@ import { Formik, useField, useFormikContext } from 'formik';
 import { Image } from 'react-native-image-crop-picker';
 
 import * as utilities from 'src/utilities';
-import { MediaSource } from 'src/api';
 import { color, font, layout } from 'src/constants';
 import { useNavigationAlertUnsavedChangesOnRemove } from 'src/hooks';
 
@@ -65,14 +64,7 @@ export default function CreateGalleryPostScreen(
   props: CreateGalleryPostScreenProps,
 ) {
   const handleNavigateToPreview = (values: GalleryPostForm) => {
-    const sources: MediaSource[] = values.media.map(item => ({
-      mime: item.mime,
-      url: item.path,
-      size: item.size,
-      width: item.width,
-      height: item.height,
-    }));
-
+    const sources = values.media.map(utilities.mapImageToMediaSource);
     props.navigation
       .getParent<CreateItemStackNavigationProp>()
       .navigate('CreateItemPreview', {
