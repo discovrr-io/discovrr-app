@@ -13,39 +13,39 @@ import {
 } from 'react-native';
 
 import Icon from 'react-native-vector-icons/Ionicons';
+import { useField } from 'formik';
 
 import { Spacer } from 'src/components';
 import { color, font, layout, values } from 'src/constants';
-import { useField } from 'formik';
 
 export interface PreviewPickerMethods {
   scrollToEnd: () => void;
 }
 
-export interface PreviewPickerProps<MediaT> {
+export interface PreviewPickerProps<ItemT> {
   fieldName: string;
   maxCount: number;
   caption: string;
-  renderItem: PreviewPickerItemProps<MediaT>['renderItem'];
+  renderItem: PreviewPickerItemProps<ItemT>['renderItem'];
   onAddItem?: () => void | Promise<void>;
   onSelectItemAtIndex?: (index: number) => void | Promise<void>;
 }
 
-function PreviewPickerInner<MediaT>(
-  props: PreviewPickerProps<MediaT>,
+function PreviewPickerInner<ItemT>(
+  props: PreviewPickerProps<ItemT>,
   ref: React.Ref<PreviewPickerMethods>,
 ) {
-  const [_, meta, helpers] = useField<MediaT[]>(props.fieldName);
-  const { value: media } = meta;
-  const { setValue: setMedia } = helpers;
+  const [_, meta, helpers] = useField<ItemT[]>(props.fieldName);
+  const { value: items } = meta;
+  const { setValue: setItems } = helpers;
 
   const { width: windowWidth } = useWindowDimensions();
   const itemWidth = React.useMemo(() => windowWidth / 2, [windowWidth]);
-  const flatListRef = React.useRef<FlatList<MediaT>>(null);
+  const flatListRef = React.useRef<FlatList<ItemT>>(null);
 
   const handleRemoveImageAtIndex = async (index: number) => {
-    const newItemArray = [...media.slice(0, index), ...media.slice(index + 1)];
-    setMedia(newItemArray);
+    const newItemArray = [...items.slice(0, index), ...items.slice(index + 1)];
+    setItems(newItemArray);
   };
 
   React.useImperativeHandle(ref, () => ({
@@ -73,9 +73,9 @@ function PreviewPickerInner<MediaT>(
           </Text>
         )}
       </View>
-      <FlatList<MediaT>
+      <FlatList<ItemT>
         horizontal
-        data={media}
+        data={items}
         ref={flatListRef}
         keyboardShouldPersistTaps="handled"
         keyExtractor={(_, index) => `preview-picker-item-${index}`}
@@ -102,7 +102,7 @@ function PreviewPickerInner<MediaT>(
           />
         )}
         ListFooterComponent={() => {
-          if (media.length >= props.maxCount) return null;
+          if (items.length >= props.maxCount) return null;
           return (
             <TouchableHighlight
               underlayColor={color.gray100}
@@ -118,7 +118,7 @@ function PreviewPickerInner<MediaT>(
         }}
         ListFooterComponentStyle={{
           paddingLeft:
-            media.length > 0 && media.length < props.maxCount
+            items.length > 0 && items.length < props.maxCount
               ? layout.spacing.md
               : undefined,
         }}
@@ -127,24 +127,24 @@ function PreviewPickerInner<MediaT>(
   );
 }
 
-type PreviewPickerRenderItemInfo<MediaT> = {
+type PreviewPickerRenderItemInfo<ItemT> = {
   index: number;
-  item: MediaT;
+  item: ItemT;
   itemWidth: number;
   isAboveLimit: boolean;
 };
 
-type PreviewPickerItemProps<MediaT> = {
-  item: MediaT;
+type PreviewPickerItemProps<ItemT> = {
+  item: ItemT;
   index: number;
   isAboveLimit: boolean;
-  renderItem: (info: PreviewPickerRenderItemInfo<MediaT>) => React.ReactNode;
+  renderItem: (info: PreviewPickerRenderItemInfo<ItemT>) => React.ReactNode;
   onPressItem?: TouchableOpacityProps['onPress'];
   onPressRemove?: TouchableOpacityProps['onPress'];
   style?: StyleProp<ImageStyle>;
 };
 
-function PickerItem<MediaT>(props: PreviewPickerItemProps<MediaT>) {
+function PickerItem<ItemT>(props: PreviewPickerItemProps<ItemT>) {
   const { width: windowWidth } = useWindowDimensions();
   const itemWidth = React.useMemo(() => windowWidth / 2, [windowWidth]);
 

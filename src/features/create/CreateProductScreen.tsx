@@ -83,7 +83,7 @@ export default function CreateProductScreen(_: CreateProductScreenProps) {
       const product = await dispatch(
         productsSlice.createProduct({
           ...values,
-          price: Number.parseFloat(values.price),
+          price: Number.parseFloat(values.price.replaceAll(',', '')),
           media: sources,
           hidden: !values.visible,
         }),

@@ -49,7 +49,7 @@ export const CellField = React.forwardRef<CellFieldMethods, CellFieldProps>(
       placeholder,
       placeholderTextColor,
       style,
-      value = '',
+      value: initialValue = '',
       onChangeText,
       ...textInputProps
     } = props;
@@ -58,10 +58,10 @@ export const CellField = React.forwardRef<CellFieldMethods, CellFieldProps>(
     const spacingTop = cellElementOptions.containerSpacingVertical * 1.9;
     const spacingBottom = cellElementOptions.containerSpacingVertical;
 
-    const [text, setText] = React.useState(value);
+    const [text, setText] = React.useState(initialValue);
     const textInputRef = React.useRef<TextInput>(null);
 
-    const labelState = useSharedValue(value ? 1 : 0);
+    const labelState = useSharedValue(text ? 1 : 0);
     const labelWidth = useSharedValue(0);
     const errorState = useDerivedValue(() => {
       return error ? withTiming(1) : withTiming(0);
@@ -78,7 +78,7 @@ export const CellField = React.forwardRef<CellFieldMethods, CellFieldProps>(
           translateY: interpolate(
             labelState.value,
             [0, 1],
-            [0, -(spacingTop * 0.6)],
+            [0, -(spacingTop * 0.55)],
           ),
         },
         {
@@ -123,7 +123,7 @@ export const CellField = React.forwardRef<CellFieldMethods, CellFieldProps>(
     };
 
     const handleBlur = () => {
-      if (value.length === 0) labelState.value = withTiming(0);
+      if (text.length === 0) labelState.value = withTiming(0);
       blur();
     };
 
@@ -155,7 +155,7 @@ export const CellField = React.forwardRef<CellFieldMethods, CellFieldProps>(
           }}
           style={[multiline && { height: 200 }]}>
           <TouchableWithoutFeedback onPress={handleFocus}>
-            <Animated.View style={[{ flex: 1 }, placeholderStyles]}>
+            <Animated.View style={[placeholderStyles, { flex: 1 }]}>
               <TextInput
                 {...textInputProps}
                 ref={textInputRef}
