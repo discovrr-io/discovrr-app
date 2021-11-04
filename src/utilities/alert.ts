@@ -42,3 +42,9 @@ export function constructAlertFromImageCropPickerError(error: any): {
 
   return { title, message };
 }
+
+export function alertImageCropPickerError(error: any) {
+  if (error.code === ('E_PICKER_CANCELLED' as PickerErrorCode)) return;
+  const { title, message } = constructAlertFromImageCropPickerError(error);
+  Alert.alert(title, message);
+}

@@ -1,14 +1,10 @@
 import * as React from 'react';
-import { Alert, Keyboard, StyleSheet, View } from 'react-native';
+import { Keyboard, StyleSheet, View } from 'react-native';
 
 import BottomSheet from '@gorhom/bottom-sheet';
 import FastImage from 'react-native-fast-image';
+import ImageCropPicker, { Image } from 'react-native-image-crop-picker';
 import { useField } from 'formik';
-
-import ImageCropPicker, {
-  Image,
-  PickerErrorCode,
-} from 'react-native-image-crop-picker';
 
 import * as constants from 'src/constants';
 import * as utilities from 'src/utilities';
@@ -79,10 +75,7 @@ export default function ImagePreviewPicker(props: ImagePreviewPickerProps) {
       ];
       helpers.setValue(newImagesArray);
     } catch (error: any) {
-      if (error.code === ('E_PICKER_CANCELLED' as PickerErrorCode)) return;
-      const { title, message } =
-        utilities.constructAlertFromImageCropPickerError(error);
-      Alert.alert(title, message);
+      utilities.alertImageCropPickerError(error);
     }
   };
 
@@ -102,10 +95,7 @@ export default function ImagePreviewPicker(props: ImagePreviewPickerProps) {
         helpers.setTouched(true, true);
         previewPickerRef.current?.scrollToEnd();
       } catch (error: any) {
-        if (error.code === ('E_PICKER_CANCELLED' as PickerErrorCode)) return;
-        const { title, message } =
-          utilities.constructAlertFromImageCropPickerError(error);
-        Alert.alert(title, message);
+        utilities.alertImageCropPickerError(error);
       }
     };
 
@@ -126,10 +116,7 @@ export default function ImagePreviewPicker(props: ImagePreviewPickerProps) {
         helpers.setTouched(true, true);
         previewPickerRef.current?.scrollToEnd();
       } catch (error: any) {
-        if (error.code === ('E_PICKER_CANCELLED' as PickerErrorCode)) return;
-        const { title, message } =
-          utilities.constructAlertFromImageCropPickerError(error);
-        Alert.alert(title, message);
+        utilities.alertImageCropPickerError(error);
       }
     };
 
@@ -144,9 +131,6 @@ export default function ImagePreviewPicker(props: ImagePreviewPickerProps) {
         setTimeout(async () => {
           await handleSelectFromPhotoLibrary();
         }, 80);
-        break;
-      default:
-        actionBottomSheetRef.current?.close();
         break;
     }
   };

@@ -2,10 +2,11 @@ import * as React from 'react';
 import { Keyboard, View } from 'react-native';
 
 import { useField } from 'formik';
-import { Video } from 'react-native-image-crop-picker';
 import BottomSheet from '@gorhom/bottom-sheet';
+import ImageCropPicker, { Video } from 'react-native-image-crop-picker';
 import VideoPlayer from 'react-native-video';
 
+import * as utilities from 'src/utilities';
 import { color } from 'src/constants';
 import { ActionBottomSheet, ActionBottomSheetItem } from 'src/components';
 
@@ -24,7 +25,7 @@ export default function ViewPreviewPicker(props: VideoPreviewPickerProps) {
   const actionBottomSheetRef = React.useRef<BottomSheet>(null);
   const actionBottomSheetItems = React.useMemo(() => {
     return [
-      { id: 'video', label: 'Record a Video', iconName: 'videocam-outline' },
+      { id: 'camera', label: 'Record a Video', iconName: 'videocam-outline' },
       {
         id: 'library',
         label: 'Select from Photo Library',
@@ -36,6 +37,37 @@ export default function ViewPreviewPicker(props: VideoPreviewPickerProps) {
   const handleAddVideo = async () => {
     Keyboard.dismiss();
     actionBottomSheetRef.current?.expand();
+  };
+
+  const handleSelectActionItem = async (selectedItemId: string) => {
+    const handleRecordVideo = async () => {
+      try {
+        await ImageCropPicker.openCamera({
+          mediaType: 'video',
+        });
+      } catch (error: any) {
+        utilities.alertImageCropPickerError(error);
+      }
+    };
+
+    const handleSelectFromPhotoLibrary = async () => {
+      try {
+        await ImageCropPicker.openPicker({
+          mediaType: 'video',
+        });
+      } catch (error) {
+        utilities.alertImageCropPickerError(error);
+      }
+    };
+
+    switch (selectedItemId) {
+      case 'camera':
+        await handleRecordVideo();
+        break;
+      case 'library':
+        await handleSelectFromPhotoLibrary();
+        break;
+    }
   };
 
   return (
@@ -61,6 +93,7 @@ export default function ViewPreviewPicker(props: VideoPreviewPickerProps) {
       <ActionBottomSheet
         ref={actionBottomSheetRef}
         items={actionBottomSheetItems}
+        onSelectItem={handleSelectActionItem}
       />
     </View>
   );

@@ -20,14 +20,10 @@ import storage from '@react-native-firebase/storage';
 import * as yup from 'yup';
 import BottomSheet from '@gorhom/bottom-sheet';
 import FastImage, { FastImageProps } from 'react-native-fast-image';
+import ImageCropPicker, { Image } from 'react-native-image-crop-picker';
 import { Formik, useField, useFormikContext } from 'formik';
 import { useNavigation } from '@react-navigation/core';
 import { useSharedValue } from 'react-native-reanimated';
-
-import ImageCropPicker, {
-  Image,
-  PickerErrorCode,
-} from 'react-native-image-crop-picker';
 
 import * as utilities from 'src/utilities';
 import { AuthApi, MediaSource, ProfileApi } from 'src/api';
@@ -568,10 +564,7 @@ function ProfileAvatarPicker() {
 
         helpers.setValue(image);
       } catch (error: any) {
-        if (error.code === ('E_PICKER_CANCELLED' as PickerErrorCode)) return;
-        const { title, message } =
-          utilities.constructAlertFromImageCropPickerError(error);
-        Alert.alert(title, message);
+        utilities.alertImageCropPickerError(error);
       }
     };
 
@@ -591,10 +584,7 @@ function ProfileAvatarPicker() {
 
         helpers.setValue(image);
       } catch (error: any) {
-        if (error.code === ('E_PICKER_CANCELLED' as PickerErrorCode)) return;
-        const { title, message } =
-          utilities.constructAlertFromImageCropPickerError(error);
-        Alert.alert(title, message);
+        utilities.alertImageCropPickerError(error);
       }
     };
 
