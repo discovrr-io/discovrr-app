@@ -23,6 +23,7 @@ import {
 import CreateItemPreviewScreen from './CreateItemPreviewScreen';
 import CreateTextPostScreen from './CreateTextPostScreen';
 import CreateGalleryPostScreen from './CreateGalleryPostScreen';
+import CreateVideoPostScreen from './CreateVideoPostScreen';
 import CreateProductScreen from './CreateProductScreen';
 
 const TAB_ICON_SIZE = 24;
@@ -103,7 +104,7 @@ function CreateItemDetailsNavigator() {
       />
       <CreateItemDetailsTopTab.Screen
         name="CreateVideoPost"
-        component={PlaceholderScreen}
+        component={CreateVideoPostScreen}
         options={{
           title: 'Video',
           tabBarIcon: props => <TabBarIcon name="film" {...props} />,
