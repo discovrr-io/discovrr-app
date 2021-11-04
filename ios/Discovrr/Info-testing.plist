@@ -92,14 +92,16 @@
 			</dict>
 		</dict>
 	</dict>
-	<key>NSCameraUsageDescription</key>
-	<string>To capture images and video for posts you share and to customise your profile avatar</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>To show points of interest near you and to geotag posts you share</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>To show points of interest near you and to geotag posts you share</string>
+	<string>Discovrr uses your location to show points of interest near you.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Discovrr uses your location to show points of interest near you.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Discovrr uses your camera to take pictures of posts, products and workshops you create.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Discovrr uses your microphone to record videos for posts you share.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>To select images and video for posts you share and to customise your profile avatar</string>
+	<string>Discovrr uses your photo library to select images and video for posts, products and workshops you share.</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Rubik-Bold.ttf</string>
