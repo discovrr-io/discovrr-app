@@ -1,1 +1,1 @@
-export * from './ImagePreviewPicker';
+export { default as ImagePreviewPicker } from './ImagePreviewPicker';

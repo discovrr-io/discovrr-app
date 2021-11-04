@@ -124,11 +124,6 @@ function GalleryPostFormikForm() {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View
             style={[galleryPostFormikFormStyles.container, { flexGrow: 1 }]}>
-            {meta.error && meta.touched && (
-              <Text style={[font.smallBold, { color: color.danger }]}>
-                {meta.error}
-              </Text>
-            )}
             <TextInput
               multiline
               maxLength={MAX_CAPTION_LENGTH}
@@ -140,9 +135,21 @@ function GalleryPostFormikForm() {
               onBlur={field.onBlur('caption')}
               style={[
                 font.extraLarge,
-                { textAlignVertical: 'top', minHeight: '20%' },
+                {
+                  textAlignVertical: 'top',
+                  minHeight: !meta.error ? '20%' : undefined,
+                },
               ]}
             />
+            {meta.error && meta.touched && (
+              <Text
+                style={[
+                  font.smallBold,
+                  { color: color.danger, paddingTop: layout.spacing.sm },
+                ]}>
+                {meta.error}
+              </Text>
+            )}
           </View>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
