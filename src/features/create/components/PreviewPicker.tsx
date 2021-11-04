@@ -25,6 +25,7 @@ export interface PreviewPickerMethods {
 export interface PreviewPickerProps<MediaT> {
   fieldName: string;
   maxCount: number;
+  caption: string;
   renderItem: PreviewPickerItemProps<MediaT>['renderItem'];
   onAddItem?: () => void | Promise<void>;
   onSelectItemAtIndex?: (index: number) => void | Promise<void>;
@@ -53,19 +54,25 @@ function PreviewPickerInner<MediaT>(
 
   return (
     <View>
-      {meta.touched && meta.error && (
+      <View style={previewPickerStyles.captionContainer}>
         <Text
-          style={[
-            font.smallBold,
-            {
-              color: color.danger,
-              paddingTop: layout.spacing.sm,
-              paddingHorizontal: layout.spacing.lg,
-            },
-          ]}>
-          {meta.error}
+          style={[font.medium, { color: color.gray500, textAlign: 'center' }]}>
+          {props.caption}
         </Text>
-      )}
+        {meta.touched && meta.error && (
+          <Text
+            style={[
+              font.smallBold,
+              {
+                color: color.danger,
+                paddingTop: layout.spacing.sm,
+                textAlign: 'center',
+              },
+            ]}>
+            {meta.error}
+          </Text>
+        )}
+      </View>
       <FlatList<MediaT>
         horizontal
         data={media}
@@ -101,7 +108,7 @@ function PreviewPickerInner<MediaT>(
               underlayColor={color.gray100}
               onPress={props.onAddItem}
               style={[
-                previewPickerStyles.item,
+                previewPickerStyles.itemTouchableContainer,
                 previewPickerStyles.addItemButton,
                 { width: itemWidth },
               ]}>
@@ -163,7 +170,10 @@ function PickerItem<MediaT>(props: PreviewPickerItemProps<MediaT>) {
 }
 
 const previewPickerStyles = StyleSheet.create({
-  item: {
+  captionContainer: {
+    paddingHorizontal: layout.spacing.lg,
+  },
+  itemTouchableContainer: {
     aspectRatio: 1,
     borderRadius: layout.radius.md,
     overflow: 'hidden',

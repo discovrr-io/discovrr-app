@@ -106,21 +106,16 @@ function GalleryPostFormikForm() {
   return (
     <ScrollView
       keyboardShouldPersistTaps="handled"
-      contentContainerStyle={{ flexGrow: 1 }}>
+      contentContainerStyle={galleryPostFormikFormStyles.scrollView}>
       <KeyboardAvoidingView
         behavior="position"
         keyboardVerticalOffset={Platform.select({ ios: -80 })}
         style={{ flexGrow: 1 }}>
-        <View
-          style={[
-            galleryPostFormikFormStyles.container,
-            { paddingTop: layout.spacing.lg },
-          ]}>
-          <Text style={[font.medium, { color: color.gray500 }]}>
-            Start creating your gallery post by uploading your photos below
-          </Text>
-        </View>
-        <ImagePreviewPicker fieldName="media" maxCount={MAX_MEDIA_COUNT} />
+        <ImagePreviewPicker
+          fieldName="media"
+          maxCount={MAX_MEDIA_COUNT}
+          caption={`Upload up to ${MAX_MEDIA_COUNT} photos below`}
+        />
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View
             style={[galleryPostFormikFormStyles.container, { flexGrow: 1 }]}>
@@ -158,6 +153,10 @@ function GalleryPostFormikForm() {
 }
 
 const galleryPostFormikFormStyles = StyleSheet.create({
+  scrollView: {
+    flexGrow: 1,
+    paddingVertical: layout.spacing.lg,
+  },
   container: {
     paddingHorizontal: layout.spacing.lg,
   },

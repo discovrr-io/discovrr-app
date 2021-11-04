@@ -1,20 +1,12 @@
 import * as React from 'react';
-import { ScrollView, Text, View } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 
 import * as yup from 'yup';
-import {
-  FFmpegKit,
-  FFmpegKitConfig,
-  ReturnCode,
-} from 'ffmpeg-kit-react-native';
+import { Formik } from 'formik';
 
 import { CreateItemDetailsTopTabScreenProps } from 'src/navigation';
-
-import { Formik } from 'formik';
-import { Button } from 'src/components';
 import { layout } from 'src/constants';
-import ImageCropPicker, { Video } from 'react-native-image-crop-picker';
-import VideoPlayer from 'react-native-video';
+import { VideoPreviewPicker } from './components';
 
 type CreateVideoPostScreenProps =
   CreateItemDetailsTopTabScreenProps<'CreateVideoPost'>;
@@ -29,6 +21,16 @@ const videoPostSchema = yup.object({
 type VideoPostForm = yup.InferType<typeof videoPostSchema>;
 
 export default function CreateVideoPostScreen(_: CreateVideoPostScreenProps) {
+  // useFocusEffect(
+  //   React.useCallback(() => {
+  //     return () => {
+  //       FFmpegKit.cancel()
+  //         .then(() => console.log('Successfully cancelled'))
+  //         .catch(error => console.error('Failed to cancel:', error));
+  //     };
+  //   }, []),
+  // );
+
   return (
     <Formik<VideoPostForm>
       initialValues={{ video: [] }}
@@ -39,7 +41,31 @@ export default function CreateVideoPostScreen(_: CreateVideoPostScreenProps) {
 }
 
 function VideoPostFormikForm() {
-  const [video, setVideo] = React.useState<Video | null>(null);
+  return (
+    <ScrollView contentContainerStyle={videoPostFormikFormStyles.scrollView}>
+      <VideoPreviewPicker
+        fieldName="video"
+        maxCount={1}
+        caption="Upload your video below"
+      />
+    </ScrollView>
+  );
+}
+
+const videoPostFormikFormStyles = StyleSheet.create({
+  scrollView: {
+    flexGrow: 1,
+    paddingVertical: layout.spacing.lg,
+  },
+  container: {
+    paddingHorizontal: layout.spacing.lg,
+  },
+});
+
+/*
+function VideoPostFormikForm() {
+  const [video, setVideo] = React.useState<Video>();
+  const [gifDir, setGifDir] = React.useState<string>();
 
   const handleSelectVideo = async () => {
     try {
@@ -56,11 +82,14 @@ function VideoPostFormikForm() {
 
   const handleEncodeVideo = async (video: Video) => {
     try {
+      const fileId = nanoid();
+      console.log('CACHE DIR:', RNFS.CachesDirectoryPath);
       console.log('Encoding video...');
 
-      const command = `-i ${video.path} -loop -1 -vf "scale=320:-1" output.gif`;
-
+      const outputPath = `${RNFS.CachesDirectoryPath}/${fileId}.gif`;
+      const command = `-i ${video.path} -loop -1 -vf "scale=320:-1" ${outputPath}`;
       console.log('EXECUTING:', command);
+
       FFmpegKit.executeAsync(command, async session => {
         const state = FFmpegKitConfig.sessionStateToString(
           await session.getState(),
@@ -71,6 +100,11 @@ function VideoPostFormikForm() {
 
         if (ReturnCode.isSuccess(returnCode)) {
           console.log(`Encoding completed successfully in ${duration} ms.`);
+          const gifPath = `file://${outputPath}`;
+          console.log('OUTPUT:', gifPath);
+          setGifDir(gifPath);
+        } else if (ReturnCode.isCancel(returnCode)) {
+          console.warn('FFmpeg task cancelled!');
         } else {
           console.error(
             `Failed to encode video with state "${state}"`,
@@ -86,6 +120,21 @@ function VideoPostFormikForm() {
 
   return (
     <ScrollView contentContainerStyle={layout.defaultScreenStyle}>
+      {video && (
+        <View>
+          <VideoPlayer
+            repeat
+            controls
+            source={{ uri: video.path }}
+            style={{
+              backgroundColor: 'lightblue',
+              width: '100%',
+              aspectRatio: 1,
+            }}
+          />
+          <Text>{JSON.stringify(video)}</Text>
+        </View>
+      )}
       <Button
         title={!video ? 'Select Video' : 'Encode Video'}
         type="primary"
@@ -95,15 +144,17 @@ function VideoPostFormikForm() {
           return await handleEncodeVideo(video);
         }}
       />
-      {video && (
-        <View>
-          <VideoPlayer
-            source={{ uri: video.path }}
-            style={{ backgroundColor: 'red', width: '100%', aspectRatio: 1 }}
-          />
-          <Text>{JSON.stringify(video)}</Text>
-        </View>
+      {gifDir && (
+        <FastImage
+          source={{ uri: gifDir }}
+          style={{
+            backgroundColor: 'lightgreen',
+            width: '100%',
+            aspectRatio: 1,
+          }}
+        />
       )}
     </ScrollView>
   );
 }
+*/

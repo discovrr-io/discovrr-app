@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
 import * as yup from 'yup';
 import { Formik, useField, useFormikContext } from 'formik';
@@ -131,17 +131,12 @@ function ProductFormikForm() {
   return (
     <ScrollView
       keyboardShouldPersistTaps="handled"
-      contentContainerStyle={{
-        flexGrow: 1,
-        paddingVertical: constants.layout.spacing.lg,
-      }}>
-      <View style={[productFormikFormStyles.container]}>
-        <Text
-          style={[constants.font.medium, { color: constants.color.gray500 }]}>
-          Start creating your product by uploading your photos below
-        </Text>
-      </View>
-      <ImagePreviewPicker fieldName="media" maxCount={MAX_MEDIA_COUNT} />
+      contentContainerStyle={productFormikFormStyles.scrollView}>
+      <ImagePreviewPicker
+        fieldName="media"
+        maxCount={MAX_MEDIA_COUNT}
+        caption={`Upload up to ${MAX_MEDIA_COUNT} photos below`}
+      />
       <View style={[productFormikFormStyles.container]}>
         <Cell.Group label="Product Details">
           <FormikField
@@ -183,6 +178,10 @@ function ProductFormikForm() {
 }
 
 const productFormikFormStyles = StyleSheet.create({
+  scrollView: {
+    flexGrow: 1,
+    paddingVertical: constants.layout.spacing.lg,
+  },
   container: {
     paddingHorizontal: constants.layout.spacing.lg,
   },
