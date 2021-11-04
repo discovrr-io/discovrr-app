@@ -62,10 +62,16 @@ export default function ViewPreviewPicker(props: VideoPreviewPickerProps) {
 
     switch (selectedItemId) {
       case 'camera':
-        await handleRecordVideo();
+        // We'll wait a short period of time to let the bottom sheet fully close
+        setTimeout(async () => {
+          await handleRecordVideo();
+        }, 80);
         break;
       case 'library':
-        await handleSelectFromPhotoLibrary();
+        // We'll wait a short period of time to let the bottom sheet fully close
+        setTimeout(async () => {
+          await handleSelectFromPhotoLibrary();
+        }, 80);
         break;
     }
   };

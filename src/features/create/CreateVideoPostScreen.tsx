@@ -4,9 +4,14 @@ import { ScrollView, StyleSheet } from 'react-native';
 import * as yup from 'yup';
 import { Formik } from 'formik';
 
+import * as constants from 'src/constants';
+import * as utilities from 'src/utilities';
 import { CreateItemDetailsTopTabScreenProps } from 'src/navigation';
-import { layout } from 'src/constants';
-import { VideoPreviewPicker } from './components';
+
+import { TextArea, VideoPreviewPicker } from './components';
+
+const MAX_MEDIA_COUNT = 1;
+const MAX_CAPTION_LENGTH = 280;
 
 type CreateVideoPostScreenProps =
   CreateItemDetailsTopTabScreenProps<'CreateVideoPost'>;
@@ -15,7 +20,19 @@ const videoPostSchema = yup.object({
   video: yup
     .array()
     .min(1, 'Please upload a video')
-    .max(1, 'You can only upload one video at a time'),
+    .max(MAX_MEDIA_COUNT, 'You can only upload one video at a time'),
+  caption: yup
+    .string()
+    .trim()
+    .required('Please write a caption of at least 3 words')
+    .max(
+      MAX_CAPTION_LENGTH,
+      `Your caption is too long! Please enter at most ${MAX_CAPTION_LENGTH} characters`,
+    )
+    .test('has at least 3 words', 'Please enter at least 3 words', input => {
+      if (!input) return false;
+      return utilities.getWordCount(input) >= 3;
+    }),
 });
 
 type VideoPostForm = yup.InferType<typeof videoPostSchema>;
@@ -33,7 +50,7 @@ export default function CreateVideoPostScreen(_: CreateVideoPostScreenProps) {
 
   return (
     <Formik<VideoPostForm>
-      initialValues={{ video: [] }}
+      initialValues={{ video: [], caption: '' }}
       onSubmit={values => console.log(values)}>
       <VideoPostFormikForm />
     </Formik>
@@ -48,6 +65,11 @@ function VideoPostFormikForm() {
         maxCount={1}
         caption="Upload your video below"
       />
+      <TextArea
+        fieldName="caption"
+        placeholder="Write a caption…"
+        containerStyle={[videoPostFormikFormStyles.container, { flexGrow: 1 }]}
+      />
     </ScrollView>
   );
 }
@@ -55,10 +77,10 @@ function VideoPostFormikForm() {
 const videoPostFormikFormStyles = StyleSheet.create({
   scrollView: {
     flexGrow: 1,
-    paddingVertical: layout.spacing.lg,
+    paddingVertical: constants.layout.spacing.lg,
   },
   container: {
-    paddingHorizontal: layout.spacing.lg,
+    paddingHorizontal: constants.layout.spacing.lg,
   },
 });
 

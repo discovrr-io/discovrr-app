@@ -1,22 +1,17 @@
 import * as React from 'react';
 import {
-  Keyboard,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   StyleSheet,
-  Text,
-  TextInput,
-  TouchableWithoutFeedback,
-  View,
 } from 'react-native';
 
 import * as yup from 'yup';
-import { Formik, useField, useFormikContext } from 'formik';
+import { Formik, useFormikContext } from 'formik';
 import { Image } from 'react-native-image-crop-picker';
 
+import * as constants from 'src/constants';
 import * as utilities from 'src/utilities';
-import { color, font, layout } from 'src/constants';
 import { useNavigationAlertUnsavedChangesOnRemove } from 'src/hooks';
 
 import {
@@ -24,7 +19,7 @@ import {
   CreateItemStackNavigationProp,
 } from 'src/navigation';
 
-import { ImagePreviewPicker } from './components';
+import { ImagePreviewPicker, TextArea } from './components';
 import { useHandleSubmitNavigationButton } from './hooks';
 
 const MAX_MEDIA_COUNT = 8;
@@ -93,8 +88,6 @@ export default function CreateGalleryPostScreen(
 function GalleryPostFormikForm() {
   const { dirty, handleSubmit } = useFormikContext<GalleryPostForm>();
 
-  const [field, meta, _] = useField<GalleryPostForm['caption']>('caption');
-
   // FIXME: This will still show an alert in the following situations:
   //   - The user has switched to another tab when the form is dirty
   // FIXME: This will NOT show an alert in the following situations:
@@ -109,44 +102,21 @@ function GalleryPostFormikForm() {
       contentContainerStyle={galleryPostFormikFormStyles.scrollView}>
       <KeyboardAvoidingView
         behavior="position"
-        keyboardVerticalOffset={Platform.select({ ios: -80 })}
+        keyboardVerticalOffset={Platform.select({ ios: -100 })}
         style={{ flexGrow: 1 }}>
         <ImagePreviewPicker
           fieldName="media"
           maxCount={MAX_MEDIA_COUNT}
           caption={`Upload up to ${MAX_MEDIA_COUNT} photos below`}
         />
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View
-            style={[galleryPostFormikFormStyles.container, { flexGrow: 1 }]}>
-            <TextInput
-              multiline
-              maxLength={MAX_CAPTION_LENGTH}
-              placeholder="Write a caption…"
-              placeholderTextColor={color.gray500}
-              selectionColor={Platform.select({ ios: color.accent })}
-              value={field.value}
-              onChangeText={field.onChange('caption')}
-              onBlur={field.onBlur('caption')}
-              style={[
-                font.extraLarge,
-                {
-                  textAlignVertical: 'top',
-                  minHeight: !meta.error ? '20%' : undefined,
-                },
-              ]}
-            />
-            {meta.error && meta.touched && (
-              <Text
-                style={[
-                  font.smallBold,
-                  { color: color.danger, paddingTop: layout.spacing.sm },
-                ]}>
-                {meta.error}
-              </Text>
-            )}
-          </View>
-        </TouchableWithoutFeedback>
+        <TextArea
+          fieldName="caption"
+          placeholder="Write a caption…"
+          containerStyle={[
+            galleryPostFormikFormStyles.container,
+            { flexGrow: 1 },
+          ]}
+        />
       </KeyboardAvoidingView>
     </ScrollView>
   );
@@ -155,9 +125,9 @@ function GalleryPostFormikForm() {
 const galleryPostFormikFormStyles = StyleSheet.create({
   scrollView: {
     flexGrow: 1,
-    paddingVertical: layout.spacing.lg,
+    paddingVertical: constants.layout.spacing.lg,
   },
   container: {
-    paddingHorizontal: layout.spacing.lg,
+    paddingHorizontal: constants.layout.spacing.lg,
   },
 });

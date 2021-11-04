@@ -122,6 +122,7 @@ export default function ImagePreviewPicker(props: ImagePreviewPickerProps) {
 
     switch (selectedItemId) {
       case 'camera':
+        // We'll wait a short period of time to let the bottom sheet fully close
         setTimeout(async () => {
           await handleTakePhoto();
         }, 80);

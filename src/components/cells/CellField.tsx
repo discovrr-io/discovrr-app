@@ -165,8 +165,14 @@ export const CellField = React.forwardRef<CellFieldMethods, CellFieldProps>(
                 placeholderTextColor={placeholderTextColor}
                 value={text}
                 onChangeText={handleChangeText}
-                onFocus={handleFocus}
-                onBlur={handleBlur}
+                onFocus={e => {
+                  handleFocus();
+                  textInputProps.onFocus?.(e);
+                }}
+                onBlur={e => {
+                  handleBlur();
+                  textInputProps.onBlur?.(e);
+                }}
                 textAlign="left"
                 selectionColor={Platform.select({
                   ios: constants.color.accent,

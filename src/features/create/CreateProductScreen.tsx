@@ -193,13 +193,13 @@ type FormikFieldProps = CellFieldProps & {
 
 function FormikField(props: FormikFieldProps) {
   const { fieldName, ...cellFieldProps } = props;
-  const [field, meta, helpers] = useField<string>(fieldName);
+  const [field, meta] = useField<string>(fieldName);
 
   return (
     <Cell.Field
       {...cellFieldProps}
       value={meta.value}
-      onChangeText={text => helpers.setValue(text)}
+      onChangeText={field.onChange(fieldName)}
       onBlur={field.onBlur(fieldName)}
       error={meta.touched ? meta.error : undefined}
     />
