@@ -11,7 +11,7 @@ export const DEFAULT_MIN_BOTTOM_TAB_BAR_HEIGHT = 55;
 export const DEFAULT_ICON_LIKE_ANIMATION: Animation = 'rubberBand';
 
 export const APP_VERSION: string =
-  nodePackage.version || getVersion() || '<unknown-version>';
+  nodePackage.version || `${getVersion()}-native` || '<unknown-version>';
 
 // Store version 3.0.0.5 (3000005)
 export const STORE_VERSION = createVersionString([3, 0, 0, 5] as const);

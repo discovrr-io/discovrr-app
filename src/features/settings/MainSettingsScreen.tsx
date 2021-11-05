@@ -221,10 +221,10 @@ function MainSettingsScreenFooter() {
             }
           })
           .catch(error => {
-            if (!isMounted.current) return;
             // console.warn('Failed to check update:', error);
             showUpdatePopupIndicator.value = false;
-            setCheckUpdateStatus({ state: 'failed', error });
+            if (isMounted.current)
+              setCheckUpdateStatus({ state: 'failed', error });
           });
       },
       // eslint-disable-next-line react-hooks/exhaustive-deps
