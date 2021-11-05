@@ -4,7 +4,7 @@ import { SafeAreaView, ScrollView, Text, View } from 'react-native';
 import { useSharedValue } from 'react-native-reanimated';
 
 import * as utilities from 'src/utilities';
-import { MediaSource } from 'src/api';
+import { MediaSource, ProductApi } from 'src/api';
 import { Button, Cell, LoadingOverlay } from 'src/components';
 import { color, font, layout } from 'src/constants';
 import { PostItemCardPreview } from 'src/features/posts/PostItemCard';
@@ -21,7 +21,7 @@ import {
 
 export type CreateItemPreviewNavigationScreenParams =
   | { type: 'post'; contents: PostContents<MediaSource> }
-  | { type: 'product'; contents: any }
+  | { type: 'product'; contents: ProductApi.CreateProductParams }
   | { type: 'workshop'; contents: any };
 
 type CreateItemPreviewScreenProps =
@@ -70,7 +70,11 @@ export default function CreateItemPreviewScreen(
           />
         );
       default:
-        return <Text style={[font.medium]}>NOT IMPLEMENTED</Text>;
+        return (
+          <Text style={[font.medium]}>
+            {JSON.stringify(previewContent.contents)}
+          </Text>
+        );
     }
   }, [myProfileDetails, previewContent.type, previewContent.contents]);
 

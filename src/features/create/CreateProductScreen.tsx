@@ -7,15 +7,14 @@ import { Image } from 'react-native-image-crop-picker';
 
 import * as constants from 'src/constants';
 import * as utilities from 'src/utilities';
-import * as productsSlice from 'src/features/products/products-slice';
 import { Cell, CellFieldProps, Spacer } from 'src/components';
 import { CELL_GROUP_VERTICAL_SPACING } from 'src/components/cells/CellGroup';
-import { CreateItemDetailsTopTabScreenProps } from 'src/navigation';
+import { useNavigationAlertUnsavedChangesOnRemove } from 'src/hooks';
 
 import {
-  useAppDispatch,
-  useNavigationAlertUnsavedChangesOnRemove,
-} from 'src/hooks';
+  CreateItemDetailsTopTabScreenProps,
+  CreateItemStackNavigationProp,
+} from 'src/navigation';
 
 import { ImagePreviewPicker } from './components';
 import { useHandleSubmitNavigationButton } from './hooks';
@@ -73,31 +72,20 @@ type ProductForm = Omit<yup.InferType<typeof productSchema>, 'media'> & {
 type CreateProductScreenProps =
   CreateItemDetailsTopTabScreenProps<'CreateProduct'>;
 
-export default function CreateProductScreen(_: CreateProductScreenProps) {
-  const dispatch = useAppDispatch();
-
-  const __handleSubmit = async (values: ProductForm) => {
-    try {
-      console.log({ values });
-      const sources = values.media.map(utilities.mapImageToMediaSource);
-      const product = await dispatch(
-        productsSlice.createProduct({
+export default function CreateProductScreen(props: CreateProductScreenProps) {
+  const handleNavigateToPreview = (values: ProductForm) => {
+    const sources = values.media.map(utilities.mapImageToMediaSource);
+    props.navigation
+      .getParent<CreateItemStackNavigationProp>()
+      .navigate('CreateItemPreview', {
+        type: 'product',
+        contents: {
           ...values,
           price: Number.parseFloat(values.price.replaceAll(',', '')),
           media: sources,
           hidden: !values.visible,
-        }),
-      ).unwrap();
-
-      console.log('NEW PRODUCT:', product);
-    } catch (error: any) {
-      console.error('Failed to create new product:', error);
-      utilities.alertSomethingWentWrong(
-        error?.message ||
-          error?.code ||
-          "We weren't able to create your product at this time. Please try again later.",
-      );
-    }
+        },
+      });
   };
 
   return (
@@ -111,8 +99,7 @@ export default function CreateProductScreen(_: CreateProductScreenProps) {
       }}
       validationSchema={productSchema}
       onSubmit={async (values, helpers) => {
-        // await __handleSubmit(values);
-        utilities.alertUnavailableFeature();
+        handleNavigateToPreview(values);
         helpers.resetForm({ values });
       }}>
       <ProductFormikForm />

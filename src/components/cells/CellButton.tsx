@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, TouchableHighlight } from 'react-native';
+import { StyleSheet, Text, TouchableHighlight, View } from 'react-native';
 
 import Icon from 'react-native-vector-icons/Ionicons';
 
@@ -43,28 +43,28 @@ export default function CellButton(props: CellButtonProps) {
             <Spacer.Horizontal value={cellElementOptions.itemSpacing} />
           </>
         )}
-        {/* <View style={styles.labelContainerStyle}> */}
-        <Text
-          numberOfLines={1}
-          style={[
-            defaultCellElementOptions.labelStyle,
-            cellElementOptions.labelStyle,
-            isDisabled && { color: color.disabledDarkTextColor },
-            styles.labelText,
-          ]}>
-          {props.label}
-        </Text>
-        {props.caption && (
+        <View style={styles.leadingContainer}>
           <Text
+            numberOfLines={1}
             style={[
-              defaultCellElementOptions.captionStyle,
-              cellElementOptions.captionStyle,
+              defaultCellElementOptions.labelStyle,
+              cellElementOptions.labelStyle,
               isDisabled && { color: color.disabledDarkTextColor },
             ]}>
-            {props.caption}
+            {props.label}
           </Text>
-        )}
-        {/* </View> */}
+          {props.caption && (
+            <Text
+              numberOfLines={2}
+              style={[
+                defaultCellElementOptions.captionStyle,
+                cellElementOptions.captionStyle,
+                isDisabled && { color: color.disabledDarkTextColor },
+              ]}>
+              {props.caption}
+            </Text>
+          )}
+        </View>
         {props.previewValue && (
           <>
             <Spacer.Horizontal value={cellElementOptions.itemSpacing} />
@@ -104,7 +104,7 @@ export default function CellButton(props: CellButtonProps) {
 }
 
 const styles = StyleSheet.create({
-  labelText: {
+  leadingContainer: {
     flexGrow: 1,
     flexShrink: 1,
   },
