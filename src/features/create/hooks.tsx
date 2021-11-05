@@ -1,15 +1,14 @@
 import * as React from 'react';
 
-import { FormikContextType } from 'formik';
+import { useFormikContext } from 'formik';
 import { useFocusEffect, useNavigation } from '@react-navigation/core';
 
 import { CreateItemStackNavigationProp } from 'src/navigation';
 import { Button } from 'src/components';
 
-export function useHandleSubmitNavigationButton<Values = any>(
-  handleSubmit: FormikContextType<Values>['handleSubmit'],
-) {
+export function useHandleSubmitNavigationButton<Values = any>() {
   const navigation = useNavigation();
+  const { handleSubmit } = useFormikContext<Values>();
 
   useFocusEffect(
     React.useCallback(() => {

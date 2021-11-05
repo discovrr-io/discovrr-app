@@ -76,7 +76,7 @@ export default function CreateTextPostScreen(props: CreateTextPostScreenProps) {
 }
 
 function TextPostFormikForm() {
-  const { dirty, handleSubmit } = useFormikContext<TextPostForm>();
+  const { dirty } = useFormikContext<TextPostForm>();
 
   // FIXME: This will still show an alert in the following situations:
   //   - The user has switched to another tab when the form is dirty
@@ -84,7 +84,7 @@ function TextPostFormikForm() {
   //   - The user has pressed "Post", navigated back and pressed the close
   //     button even if the form is still dirty
   useNavigationAlertUnsavedChangesOnRemove(dirty);
-  useHandleSubmitNavigationButton<TextPostForm>(handleSubmit);
+  useHandleSubmitNavigationButton<TextPostForm>();
 
   return (
     <View style={[layout.defaultScreenStyle, { flex: 1 }]}>

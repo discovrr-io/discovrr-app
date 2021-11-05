@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { SafeAreaView, ScrollView, Text, View } from 'react-native';
+import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { useSharedValue } from 'react-native-reanimated';
 
@@ -7,12 +7,14 @@ import * as utilities from 'src/utilities';
 import { MediaSource, ProductApi } from 'src/api';
 import { Button, Cell, LoadingOverlay } from 'src/components';
 import { color, font, layout } from 'src/constants';
-import { PostItemCardPreview } from 'src/features/posts/PostItemCard';
 import { createPost } from 'src/features/posts/posts-slice';
 import { useMyProfileId } from 'src/features/profiles/hooks';
 import { useAppDispatch, useAppSelector, useIsMounted } from 'src/hooks';
 import { Profile } from 'src/models';
 import { PostContents } from 'src/models/post';
+
+import { PostItemCardPreview } from 'src/features/posts/PostItemCard';
+import { ProductItemCardPreview } from 'src/features/products/ProductItemCard';
 
 import {
   CreateItemStackScreenProps,
@@ -56,17 +58,22 @@ export default function CreateItemPreviewScreen(
 
   const currentUploadProgress = useSharedValue(0);
 
-  const renderPostContents = React.useCallback(() => {
+  const renderCardPreview = React.useCallback(() => {
     switch (previewContent.type) {
       case 'post':
         return (
           <PostItemCardPreview
             contents={previewContent.contents}
             author={myProfileDetails}
-            style={{
-              maxWidth: '85%',
-              alignSelf: 'center',
-            }}
+            style={createItemPreviewScreenStyles.cardPreview}
+          />
+        );
+      case 'product':
+        return (
+          <ProductItemCardPreview
+            contents={previewContent.contents}
+            author={myProfileDetails}
+            style={createItemPreviewScreenStyles.cardPreview}
           />
         );
       default:
@@ -77,6 +84,39 @@ export default function CreateItemPreviewScreen(
         );
     }
   }, [myProfileDetails, previewContent.type, previewContent.contents]);
+
+  const renderOptions = React.useCallback(() => {
+    switch (previewContent.type) {
+      case 'post':
+        return (
+          <>
+            <Cell.Navigator
+              label="Add location"
+              caption="No location set"
+              onPress={() => utilities.alertUnavailableFeature()}
+            />
+            <Cell.Switch
+              label="Enable comments"
+              value={true}
+              onValueChange={() => utilities.alertUnavailableFeature()}
+            />
+          </>
+        );
+      case 'product':
+        return (
+          <>
+            <Cell.Navigator
+              label="Add location"
+              caption="No location set"
+              onPress={() => utilities.alertUnavailableFeature()}
+            />
+          </>
+        );
+
+      default:
+        return null;
+    }
+  }, [previewContent.type]);
 
   const handleSubmit = React.useCallback(
     async () => {
@@ -216,23 +256,10 @@ export default function CreateItemPreviewScreen(
             justifyContent: 'center',
             marginBottom: layout.spacing.md,
           }}>
-          {renderPostContents()}
+          {renderCardPreview()}
         </View>
         <View>
-          <Cell.Group
-            label="Options"
-            containerStyle={{ backgroundColor: color.absoluteWhite }}>
-            <Cell.Navigator
-              label="Add location"
-              caption="No location set"
-              onPress={() => utilities.alertUnavailableFeature()}
-            />
-            <Cell.Switch
-              label="Enable comments"
-              value={true}
-              onValueChange={() => utilities.alertUnavailableFeature()}
-            />
-          </Cell.Group>
+          <Cell.Group label="Options">{renderOptions()}</Cell.Group>
         </View>
       </ScrollView>
       {isSubmitting && (
@@ -247,3 +274,10 @@ export default function CreateItemPreviewScreen(
     </SafeAreaView>
   );
 }
+
+const createItemPreviewScreenStyles = StyleSheet.create({
+  cardPreview: {
+    maxWidth: '85%',
+    alignSelf: 'center',
+  },
+});

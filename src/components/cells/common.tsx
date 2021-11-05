@@ -71,6 +71,8 @@ export function renderChildrenWithDivider(
       {index < React.Children.count(children) - 1 && (
         <View
           style={{
+            width: '95%',
+            alignSelf: 'center',
             borderBottomWidth: cellElementOptions.borderWidth,
             borderColor: cellElementOptions.borderColor,
           }}

@@ -86,7 +86,7 @@ export default function CreateGalleryPostScreen(
 }
 
 function GalleryPostFormikForm() {
-  const { dirty, handleSubmit } = useFormikContext<GalleryPostForm>();
+  const { dirty } = useFormikContext<GalleryPostForm>();
 
   // FIXME: This will still show an alert in the following situations:
   //   - The user has switched to another tab when the form is dirty
@@ -94,7 +94,7 @@ function GalleryPostFormikForm() {
   //   - The user has pressed "Post", navigated back and pressed the close
   //     button even if the form is still dirty
   useNavigationAlertUnsavedChangesOnRemove(dirty);
-  useHandleSubmitNavigationButton<GalleryPostForm>(handleSubmit);
+  useHandleSubmitNavigationButton<GalleryPostForm>();
 
   return (
     <ScrollView

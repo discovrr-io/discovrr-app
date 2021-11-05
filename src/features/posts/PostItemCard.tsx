@@ -77,10 +77,10 @@ export default function PostItemCard(props: PostItemCardProps) {
       value={{ showMenuIcon, showShareIcon, onPressMenu, onPressShare }}>
       <AsyncGate
         data={postData}
-        onPending={() => <LoadedPostItemCard.Pending {...cardElementProps} />}
+        onPending={() => <InnerPostItemCard.Pending {...cardElementProps} />}
         onFulfilled={post => {
           if (!post) return null;
-          return <LoadedPostItemCard post={post} {...cardElementProps} />;
+          return <InnerPostItemCard post={post} {...cardElementProps} />;
         }}
       />
     </PostItemCardContext.Provider>
@@ -89,14 +89,64 @@ export default function PostItemCard(props: PostItemCardProps) {
 
 //#endregion PostItemCard
 
+//#region InnerPostItemCard ----------------------------------------------------
+
+type InnerPostItemCardProps = CardElementProps & {
+  post: Post;
+};
+
+export const InnerPostItemCard = (props: InnerPostItemCardProps) => {
+  const { post, ...cardElementProps } = props;
+  const navigation = useNavigation<RootStackNavigationProp>();
+
+  const handlePressPost = () => {
+    navigation.push('PostDetails', { postId: post.id });
+  };
+
+  return (
+    <Card {...cardElementProps}>
+      <Card.Body onPress={handlePressPost}>
+        {elementOptions => <PostItemCardBody {...elementOptions} body={post} />}
+      </Card.Body>
+      <PostItemCardFooter post={post} />
+    </Card>
+  );
+};
+
+// eslint-disable-next-line react/display-name
+InnerPostItemCard.Pending = (props: CardElementProps) => {
+  const aspectRatioIndex = generateRandomNumberBetween(0, ASPECT_RATIOS.length);
+  return (
+    <Card {...props}>
+      <Card.Body
+        style={[
+          postItemCardStyles.cardBodyPlaceholder,
+          { aspectRatio: ASPECT_RATIOS[aspectRatioIndex] },
+        ]}>
+        {elementOptions => (
+          <ActivityIndicator
+            color={color.gray300}
+            style={{
+              transform: [{ scale: elementOptions.smallContent ? 2 : 3 }],
+            }}
+          />
+        )}
+      </Card.Body>
+      <PostItemCardFooter.Pending />
+    </Card>
+  );
+};
+
+//#endregion InnerPostItemCard
+
 //#region PostItemCardBody -----------------------------------------------------
 
 type PostItemCardBodyProps = CardElementOptions & {
-  postBody: Pick<Post, 'contents' | 'statistics'>;
+  body: Pick<Post, 'contents' | 'statistics'>;
 };
 
 function PostItemCardBody(props: PostItemCardBodyProps) {
-  const { postBody, ...cardElementProps } = props;
+  const { body, ...cardElementProps } = props;
 
   // const isFocused = useIsFocused();
   // const [isVideoPaused, setIsVideoPaused] = useState(false);
@@ -128,11 +178,11 @@ function PostItemCardBody(props: PostItemCardBodyProps) {
                 elementOptions={elementOptions}
               />
             )}
-            {postBody.statistics.totalViews > 1 && (
+            {body.statistics.totalViews > 1 && (
               <Card.Indicator
                 iconName="eye"
                 position="bottom-left"
-                label={shortenLargeNumber(postBody.statistics.totalViews)}
+                label={shortenLargeNumber(body.statistics.totalViews)}
                 elementOptions={elementOptions}
               />
             )}
@@ -151,14 +201,14 @@ function PostItemCardBody(props: PostItemCardBodyProps) {
         </View>
       );
     },
-    [postBody.statistics.totalViews],
+    [body.statistics.totalViews],
   );
 
-  switch (postBody.contents.type) {
+  switch (body.contents.type) {
     case 'gallery':
       return renderImageGallery(
-        postBody.contents.sources,
-        postBody.contents.caption,
+        body.contents.sources,
+        body.contents.caption,
         cardElementProps,
       );
     case 'video':
@@ -173,14 +223,14 @@ function PostItemCardBody(props: PostItemCardBodyProps) {
               // paused={isVideoPaused}
               paused={true}
               source={{
-                uri: postBody.contents.source.url,
-                type: postBody.contents.source.type,
+                uri: body.contents.source.url,
+                type: body.contents.source.type,
               }}
               style={{
                 width: '100%',
                 aspectRatio:
-                  (postBody.contents.source.height ?? 1) /
-                  (postBody.contents.source.width ?? 1),
+                  (body.contents.source.height ?? 1) /
+                  (body.contents.source.width ?? 1),
                 backgroundColor: color.placeholder,
               }}
             />
@@ -204,7 +254,7 @@ function PostItemCardBody(props: PostItemCardBodyProps) {
               />
             </View>
           </View>
-          <PostItemCardCaption caption={postBody.contents.caption} />
+          <PostItemCardCaption caption={body.contents.caption} />
         </View>
       );
     case 'text':
@@ -219,7 +269,7 @@ function PostItemCardBody(props: PostItemCardBodyProps) {
             style={
               cardElementProps.smallContent ? font.medium : font.extraLarge
             }>
-            {postBody.contents.text}
+            {body.contents.text}
           </Text>
         </View>
       );
@@ -227,58 +277,6 @@ function PostItemCardBody(props: PostItemCardBodyProps) {
 }
 
 //#endregion PostItemCardBody
-
-//#region LoadedPostItemCard ---------------------------------------------------
-
-type LoadedPostItemCardProps = CardElementProps & {
-  post: Post;
-};
-
-export const LoadedPostItemCard = (props: LoadedPostItemCardProps) => {
-  const { post, ...cardElementProps } = props;
-  const navigation = useNavigation<RootStackNavigationProp>();
-
-  const handlePressPost = () => {
-    navigation.push('PostDetails', { postId: post.id });
-  };
-
-  return (
-    <Card {...cardElementProps}>
-      <Card.Body onPress={handlePressPost}>
-        {elementOptions => (
-          <PostItemCardBody {...elementOptions} postBody={post} />
-        )}
-      </Card.Body>
-      <PostItemCardFooter post={post} />
-    </Card>
-  );
-};
-
-// eslint-disable-next-line react/display-name
-LoadedPostItemCard.Pending = (props: CardElementProps) => {
-  const aspectRatioIndex = generateRandomNumberBetween(0, ASPECT_RATIOS.length);
-  return (
-    <Card {...props}>
-      <Card.Body
-        style={[
-          postItemCardStyles.cardBodyPlaceholder,
-          { aspectRatio: ASPECT_RATIOS[aspectRatioIndex] },
-        ]}>
-        {elementOptions => (
-          <ActivityIndicator
-            color={color.gray300}
-            style={{
-              transform: [{ scale: elementOptions.smallContent ? 2 : 3 }],
-            }}
-          />
-        )}
-      </Card.Body>
-      <PostItemCardFooter.Pending />
-    </Card>
-  );
-};
-
-//#endregion LoadedPostItemCard
 
 //#region PostItemCardCaption --------------------------------------------------
 
@@ -458,7 +456,7 @@ export function PostItemCardPreview(props: PostItemCardPreviewProps) {
         {elementOptions => (
           <PostItemCardBody
             {...elementOptions}
-            postBody={{
+            body={{
               contents: contents,
               statistics: {
                 didLike: false,

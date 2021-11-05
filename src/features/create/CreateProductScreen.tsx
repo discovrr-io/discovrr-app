@@ -62,7 +62,7 @@ const productSchema = yup.object({
       if (!input) return false;
       return utilities.getWordCount(input) >= 3;
     }),
-  visible: yup.boolean().required(),
+  hidden: yup.boolean().required(),
 });
 
 type ProductForm = Omit<yup.InferType<typeof productSchema>, 'media'> & {
@@ -83,7 +83,6 @@ export default function CreateProductScreen(props: CreateProductScreenProps) {
           ...values,
           price: Number.parseFloat(values.price.replaceAll(',', '')),
           media: sources,
-          hidden: !values.visible,
         },
       });
   };
@@ -95,7 +94,7 @@ export default function CreateProductScreen(props: CreateProductScreenProps) {
         name: '',
         price: '',
         description: '',
-        visible: true,
+        hidden: false,
       }}
       validationSchema={productSchema}
       onSubmit={async (values, helpers) => {
@@ -108,11 +107,11 @@ export default function CreateProductScreen(props: CreateProductScreenProps) {
 }
 
 function ProductFormikForm() {
-  const { dirty, handleSubmit } = useFormikContext<ProductForm>();
-  const [_, visibleMeta, visibleHelpers] = useField<boolean>('visible');
+  const { dirty } = useFormikContext<ProductForm>();
+  const [_, hiddenMeta, hiddenHelpers] = useField<boolean>('hidden');
 
   useNavigationAlertUnsavedChangesOnRemove(dirty);
-  useHandleSubmitNavigationButton<ProductForm>(handleSubmit);
+  useHandleSubmitNavigationButton<ProductForm>();
 
   // TODO: Add KeyboardAvoidingView (couldn't get it to work before)
   return (
@@ -154,10 +153,9 @@ function ProductFormikForm() {
         <Cell.Group label="Additional Options">
           <Cell.Switch
             label="Visible to everyone"
-            value={visibleMeta.value}
-            onValueChange={value => visibleHelpers.setValue(value)}
+            value={!hiddenMeta.value}
+            onValueChange={value => hiddenHelpers.setValue(!value)}
           />
-          <Cell.Navigator label="Add location" />
         </Cell.Group>
       </View>
     </ScrollView>
@@ -187,7 +185,7 @@ function FormikField(props: FormikFieldProps) {
       {...cellFieldProps}
       value={meta.value}
       onChangeText={field.onChange(fieldName)}
-      onBlur={field.onBlur(fieldName)}
+      // onBlur={field.onBlur(fieldName)}
       error={meta.touched ? meta.error : undefined}
     />
   );

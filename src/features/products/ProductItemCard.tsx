@@ -4,9 +4,12 @@ import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import FastImage from 'react-native-fast-image';
 
 import * as constants from 'src/components/cards/constants';
-import { ApiFetchStatus } from 'src/api';
+import { ApiFetchStatus, ProductApi } from 'src/api';
 import { AsyncGate, Card, Spacer } from 'src/components';
-import { CardElementProps } from 'src/components/cards/common';
+import {
+  CardElementOptions,
+  CardElementProps,
+} from 'src/components/cards/common';
 import { color, font, layout } from 'src/constants';
 import { fetchProfileByVendorProfileId } from 'src/features/profiles/profiles-slice';
 import { useAppDispatch, useIsMounted } from 'src/hooks';
@@ -16,6 +19,7 @@ import { alertUnavailableFeature } from 'src/utilities';
 import { useProduct } from './hooks';
 import { useNavigation } from '@react-navigation/core';
 import { RootStackNavigationProp } from 'src/navigation';
+import { CardAuthorProps } from 'src/components/cards/CardAuthor';
 
 type ProductItemCardProps = CardElementProps & {
   productId: ProductId;
@@ -49,48 +53,7 @@ const InnerProductItemCard = (props: InnerProductItemCardProps) => {
     <Card {...cardElementProps}>
       <Card.Body onPress={() => alertUnavailableFeature()}>
         {elementOptions => (
-          <View>
-            <View>
-              <Card.Indicator iconName="pricetags" position="top-right" />
-              <FastImage
-                resizeMode="cover"
-                source={{ uri: product.media[0]?.url }}
-                style={{
-                  width: '100%',
-                  aspectRatio: 1,
-                  backgroundColor: color.placeholder,
-                }}
-              />
-            </View>
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                paddingHorizontal: elementOptions.insetHorizontal,
-                paddingVertical: elementOptions.insetVertical,
-              }}>
-              <Text
-                numberOfLines={3}
-                style={[
-                  elementOptions.captionTextStyle,
-                  { flexGrow: 1, flexShrink: 1 },
-                ]}>
-                {product.name}
-              </Text>
-              <Spacer.Horizontal
-                value={layout.spacing.md}
-                style={{ height: 2 }}
-              />
-              <Text
-                style={
-                  elementOptions.smallContent
-                    ? font.largeBold
-                    : [{ ...font.extraLargeBold, fontSize: font.size.h3 }]
-                }>
-                ${product.price}
-              </Text>
-            </View>
-          </View>
+          <ProductItemCardBody {...elementOptions} body={product} />
         )}
       </Card.Body>
       <Card.Footer>
@@ -161,6 +124,63 @@ InnerProductItemCard.Pending = (props: CardElementProps) => {
     </Card>
   );
 };
+
+//#region ProductItemCardBody
+
+type ProductItemCardBodyProps = CardElementOptions & {
+  body: Pick<
+    Product,
+    'name' | 'description' | 'price' | 'media' | 'statistics'
+  >;
+};
+
+function ProductItemCardBody(props: ProductItemCardBodyProps) {
+  const { body, ...cardElementOptions } = props;
+
+  return (
+    <View>
+      <View>
+        <Card.Indicator iconName="pricetags" position="top-right" />
+        <FastImage
+          resizeMode="cover"
+          source={{ uri: body.media[0]?.url }}
+          style={{
+            width: '100%',
+            aspectRatio: 1,
+            backgroundColor: color.placeholder,
+          }}
+        />
+      </View>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          paddingHorizontal: cardElementOptions.insetHorizontal,
+          paddingVertical: cardElementOptions.insetVertical,
+        }}>
+        <Text
+          numberOfLines={3}
+          style={[
+            cardElementOptions.captionTextStyle,
+            { flexGrow: 1, flexShrink: 1 },
+          ]}>
+          {body.name}
+        </Text>
+        <Spacer.Horizontal value={layout.spacing.md} style={{ height: 2 }} />
+        <Text
+          style={
+            cardElementOptions.smallContent
+              ? font.largeBold
+              : [{ ...font.extraLargeBold, fontSize: font.size.h3 }]
+          }>
+          ${body.price}
+        </Text>
+      </View>
+    </View>
+  );
+}
+
+//#region ProductItemCardPreview -----------------------------------------------
 
 type ProductItemCardAuthorProps = CardElementProps & {
   vendorProfileId: VendorProfileId;
@@ -251,52 +271,58 @@ const ProductItemCardAuthor = (props: ProductItemCardAuthorProps) => {
   );
 };
 
-// const ProductItemCardAuthor = (props: ProductItemCardAuthorProps) => {
-//   const { vendorProfileId, ...cardElementProps } = props;
-//   // const profileData = useProfile(profileId);
-//
-//   const handlePressAuthor = (profileId: Profile | undefined) => {
-//     if (!profileId) {
-//       console.warn(`Cannot navigate to vendor profile with ID '${profileId}'`);
-//       return;
-//     }
-//
-//     alertUnavailableFeature();
-//   };
-//
-//   return (
-//     <AsyncGate
-//       data={profileData}
-//       onPending={() => <Card.Author.Pending {...cardElementProps} />}
-//       onRejected={() => (
-//         <Card.Author displayName="Anonymous" {...cardElementProps} />
-//       )}
-//       onFulfilled={profile => {
-//         const profileDisplayName = (() => {
-//           if (!profile) {
-//             return 'Anonymous';
-//           } else if (profile.kind === 'vendor') {
-//             return profile.businessName || profile.displayName;
-//           } else {
-//             console.warn(
-//               'ProductItemCard found a profile that is NOT a vendor, which is unexpected.',
-//             );
-//             return profile.displayName;
-//           }
-//         })();
-//
-//         return (
-//           <Card.Author
-//             avatar={profile?.avatar ?? DEFAULT_AVATAR}
-//             displayName={profileDisplayName}
-//             onPress={() => handlePressAuthor(profile)}
-//             {...cardElementProps}
-//           />
-//         );
-//       }}
-//     />
-//   );
-// };
+//#region ProductItemCardPreview -----------------------------------------------
+
+type ProductContents = Omit<
+  ProductApi.CreateProductParams,
+  'tags' | 'categories' | 'hidden'
+>;
+
+type ProductItemCardPreviewProps = CardElementProps & {
+  contents: ProductContents;
+  author: CardAuthorProps;
+  statistics?: Partial<Product['statistics']>;
+};
+
+export function ProductItemCardPreview(props: ProductItemCardPreviewProps) {
+  const { contents, author, statistics, elementOptions, style } = props;
+
+  return (
+    <Card elementOptions={{ ...elementOptions, disabled: true }} style={style}>
+      <Card.Body>
+        {elementOptions => (
+          <ProductItemCardBody
+            {...elementOptions}
+            body={{
+              ...contents,
+              statistics: {
+                didLike: false,
+                didSave: false,
+                totalLikes: 0,
+                totalViews: 0,
+                ...statistics,
+              },
+            }}
+          />
+        )}
+      </Card.Body>
+      <Card.Footer>
+        <Card.Author {...author} />
+        <Card.Actions>
+          <Card.HeartIconButton
+            didLike={statistics?.didLike ?? false}
+            totalLikes={statistics?.totalLikes ?? 0}
+            onToggleLike={() => {}}
+          />
+        </Card.Actions>
+      </Card.Footer>
+    </Card>
+  );
+}
+
+//#endregion ProductItemCardPreview
+
+//#region Styles ---------------------------------------------------------------
 
 const productItemCardStyles = StyleSheet.create({
   cardBodyPlaceholder: {
