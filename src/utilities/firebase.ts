@@ -15,9 +15,11 @@ type GenerateStoragePathConfig = {
   fileExtension: string;
 };
 
+export type GenerateStoragePath = (config: GenerateStoragePathConfig) => string;
+
 export function uploadFileToFirebase(
   source: MediaSource,
-  generateStoragePath: (config: GenerateStoragePathConfig) => string,
+  generateStoragePath: GenerateStoragePath,
 ) {
   // We should have path defined, but we'll set it to url just in case.
   const localFilePath = source.path ?? source.url;

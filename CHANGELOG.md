@@ -22,7 +22,8 @@
 ### Added
 
 - Add ability to change profile picture
-- Add ability to upload gallery posts
+- Add ability to create gallery posts
+- Add ability to create products
 
 ### Changed
 
@@ -52,7 +53,7 @@
   - [x] Create text post
   - [x] Create gallery post
   - [ ] Create video post
-  - [ ] Create product
+  - [x] Create product
   - [ ] Create workshop
 - Add ability to clear app cache from Settings
 - Add placeholder UI for reporting comments, posts and profiles

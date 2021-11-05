@@ -48,10 +48,18 @@ type InnerProductItemCardProps = CardElementProps & {
 const InnerProductItemCard = (props: InnerProductItemCardProps) => {
   const { product, ...cardElementProps } = props;
   const { didLike, totalLikes } = product.statistics;
+  const navigation = useNavigation<RootStackNavigationProp>();
+
+  const handlePressProduct = () => {
+    navigation.push('ProductDetails', {
+      productId: product.id,
+      productName: product.name,
+    });
+  };
 
   return (
     <Card {...cardElementProps}>
-      <Card.Body onPress={() => alertUnavailableFeature()}>
+      <Card.Body onPress={handlePressProduct}>
         {elementOptions => (
           <ProductItemCardBody {...elementOptions} body={product} />
         )}

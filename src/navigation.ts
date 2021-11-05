@@ -21,7 +21,7 @@ import {
   MaterialTopTabScreenProps,
 } from '@react-navigation/material-top-tabs';
 
-import { PostId, ProfileId } from './models';
+import { PostId, ProductId, ProfileId } from './models';
 import { InAppWebViewNavigationScreenParams } from './components/InAppWebView';
 import { CreateItemPreviewNavigationScreenParams } from './features/create/CreateItemPreviewScreen';
 
@@ -62,7 +62,7 @@ export type RootStackParamList = {
   ProfileDetails: ProfileStackParamList['ProfileDetails'];
   ProfileFollowActivity: ProfileStackParamList['ProfileFollowActivity'];
   // -- Product Screens --
-  ProductDetails: undefined;
+  ProductDetails: ProductStackParamList['ProductDetails'];
   EditProduct: undefined;
   // -- Drawer Navigators --
   Notifications: undefined;
@@ -246,7 +246,7 @@ export type CreateItemStackScreenProps<
   K extends keyof CreateItemStackParamList,
 > = StackScreenProps<CreateItemStackParamList, K>;
 
-//#endregion
+//#endregion CREATE ITEM STACK
 
 //#region CREATE ITEM DETAILS TOP TAB
 
@@ -270,7 +270,7 @@ export type CreateItemDetailsTopTabScreenProps<
   K extends keyof CreateItemDetailsTopTabParamList,
 > = MaterialTopTabScreenProps<CreateItemDetailsTopTabParamList, K>;
 
-//#endregion
+//#endregion CREATE ITEM DETAILS TOP TAB
 
 //#region POST STACK
 
@@ -279,15 +279,7 @@ export type PostStackParamList = {
   EditPost: { postId: PostId };
 };
 
-// export type PostStackNavigationProp = StackNavigationProp<
-//   PostStackParamList,
-//   'PostDetails'
-// >;
-
-// export type PostStackScreenProps<K extends keyof PostStackParamList> =
-//   StackScreenProps<PostStackParamList, K>;
-
-//#endregion
+//#endregion POST STACK
 
 //#region PROFILE STACK
 
@@ -304,15 +296,15 @@ export type ProfileStackParamList = {
   };
 };
 
-// export type ProfileStackNavigationProp = StackNavigationProp<
-//   ProfileStackParamList,
-//   'ProfileDetails'
-// >;
+//#endregion PROFILE STACK
 
-// export type ProfileStackScreenProps<K extends keyof ProfileStackParamList> =
-//   StackScreenProps<ProfileStackParamList, K>;
+//#region PRODUCT STACK
 
-//#endregion
+export type ProductStackParamList = {
+  ProductDetails: { productId: ProductId; productName?: string };
+};
+
+//#endregion PRODUCT STACK
 
 //#region SETTINGS STACK
 
@@ -329,10 +321,7 @@ export type SettingsStackNavigationProp = StackNavigationProp<
   'MainSettings'
 >;
 
-// export type SettingsStackScreenProps<K extends keyof SettingsStackParamList> =
-//   StackScreenProps<SettingsStackParamList, K>;
-
-//#endregion
+//#endregion SETTINGS STACK
 
 //#region REPORT ITEM STACK
 

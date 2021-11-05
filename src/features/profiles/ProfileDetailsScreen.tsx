@@ -47,7 +47,6 @@ import VendorProfileHeader from './vendor/VendorProfileHeader';
 import { fetchProfileById } from './profiles-slice';
 import { useIsMyProfile, useProfile } from './hooks';
 
-// type ProfileDetailsScreenProps = ProfileStackScreenProps<'ProfileDetails'>;
 type ProfileDetailsScreenProps = RootStackScreenProps<'ProfileDetails'>;
 
 export default function ProfileDetailsScreen(props: ProfileDetailsScreenProps) {

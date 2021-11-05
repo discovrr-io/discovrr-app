@@ -1,7 +1,6 @@
-import React from 'react';
+import * as React from 'react';
 
 import { RootStack } from 'src/navigation';
-
 import ProfileDetailsScreen from './ProfileDetailsScreen';
 import ProfileFollowActivityScreen from './ProfileFollowActivityScreen';
 

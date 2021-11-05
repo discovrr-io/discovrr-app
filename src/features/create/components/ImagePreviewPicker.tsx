@@ -58,7 +58,7 @@ export default function ImagePreviewPicker(props: ImagePreviewPickerProps) {
         //   ios: media[index].sourceURL ?? media[index].path,
         //   default: media[index].path,
         // }),
-        compressImageQuality: IMAGE_COMPRESSION_QUALITY,
+        // compressImageQuality: IMAGE_COMPRESSION_QUALITY,
         compressImageMaxWidth: IMAGE_COMPRESSION_MAX_WIDTH,
         compressImageMaxHeight: IMAGE_COMPRESSION_MAX_HEIGHT,
       });
@@ -84,7 +84,7 @@ export default function ImagePreviewPicker(props: ImagePreviewPickerProps) {
       try {
         const image = await ImageCropPicker.openCamera({
           mediaType: 'photo',
-          cropping: true,
+          // cropping: true,
           forceJpg: true,
           compressImageQuality: IMAGE_COMPRESSION_QUALITY,
           compressImageMaxWidth: IMAGE_COMPRESSION_MAX_WIDTH,

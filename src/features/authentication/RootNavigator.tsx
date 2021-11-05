@@ -27,6 +27,7 @@ import ReportItemNavigator from 'src/features/reporting/ReportItemNavigator';
 
 import renderPostNavigator from 'src/features/posts/PostNavigator';
 import renderProfileNavigator from 'src/features/profiles/ProfileNavigator';
+import renderProductNavigator from 'src/features/products/ProductNavigator';
 import renderSettingsNavigator from 'src/features/settings/SettingsNavigator';
 import { SessionApi } from 'src/api/session';
 
@@ -154,6 +155,7 @@ export default function RootNavigator() {
       {/* -- Item Navigators -- */}
       {renderPostNavigator()}
       {renderProfileNavigator()}
+      {renderProductNavigator()}
 
       {/* -- Drawer Navigators -- */}
       <RootStack.Screen name="Notifications" component={PlaceholderScreen} />
