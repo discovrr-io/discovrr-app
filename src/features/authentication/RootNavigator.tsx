@@ -28,6 +28,7 @@ import ReportItemNavigator from 'src/features/reporting/ReportItemNavigator';
 import renderPostNavigator from 'src/features/posts/PostNavigator';
 import renderProfileNavigator from 'src/features/profiles/ProfileNavigator';
 import renderSettingsNavigator from 'src/features/settings/SettingsNavigator';
+import { SessionApi } from 'src/api/session';
 
 async function getFCMToken(): Promise<string> {
   const $FUNC = '[getFCMToken]';
@@ -94,11 +95,23 @@ export default function RootNavigator() {
     return unsubscribe;
   }, [dispatch]);
 
+  // This'll run every time the user starts the app or right after a restart
+  // issued by a CodePush update
   React.useEffect(() => {
-    console.log($FUNC, 'Did register FCM token?', didRegisterFCMToken);
-    console.log($FUNC, 'Session ID:', sessionId);
-    if (!sessionId) console.warn('Session ID is not set, which is unexpected');
+    if (sessionId) {
+      console.log($FUNC, `Setting app version for session '${sessionId}'...`);
+      SessionApi.setAppVersionForSession({
+        sessionId,
+        appVersion: constants.values.APP_VERSION,
+        storeVersion: constants.values.STORE_VERSION,
+      }).catch(error => {
+        console.warn($FUNC, 'Failed to set app version for session:', error);
+      });
+    }
+  }, [sessionId]);
 
+  React.useEffect(() => {
+    if (!sessionId) console.warn('Session ID is not set, which is unexpected');
     if (!didRegisterFCMToken && sessionId)
       (async () => {
         try {

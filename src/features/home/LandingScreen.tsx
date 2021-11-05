@@ -10,6 +10,7 @@ import {
   ViewStyle,
 } from 'react-native';
 
+import analytics from '@react-native-firebase/analytics';
 import FastImage from 'react-native-fast-image';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Parse from 'parse/react-native';
@@ -224,6 +225,19 @@ export default function LandingScreen(_: LandingScreenProps) {
 
   const masonryListScrollViewRef = useRef<ScrollView>(null);
   useScrollToTop(masonryListScrollViewRef);
+
+  // Firebase does not log screen view when the first screen the user jumps into
+  // is the landing page, so we'll manually log it here.
+  // NOTE: This will log this screen twice if the user starts from the Auth
+  // screen and then navigates to the Landing screen.
+  useEffect(() => {
+    analytics()
+      .logScreenView({
+        screen_name: 'Landing',
+        screen_class: 'Landing',
+      })
+      .catch(error => console.warn($FUNC, 'Failed to log screen view:', error));
+  }, []);
 
   useEffect(() => {
     if (isInitialRender || shouldRefresh)
