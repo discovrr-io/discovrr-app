@@ -40,7 +40,7 @@ function PreviewPickerInner<ItemT>(
   const { setValue: setItems } = helpers;
 
   const { width: windowWidth } = useWindowDimensions();
-  const itemWidth = React.useMemo(() => windowWidth / 2, [windowWidth]);
+  const itemWidth = React.useMemo(() => windowWidth * 0.7, [windowWidth]);
   const flatListRef = React.useRef<FlatList<ItemT>>(null);
 
   const handleRemoveImageAtIndex = async (index: number) => {
@@ -92,8 +92,9 @@ function PreviewPickerInner<ItemT>(
         ItemSeparatorComponent={() => <Spacer.Horizontal value="md" />}
         renderItem={({ item, index }) => (
           <PickerItem
-            item={item}
             index={index}
+            item={item}
+            itemWidth={itemWidth}
             renderItem={props.renderItem}
             isAboveLimit={index >= props.maxCount}
             onPressItem={async () => await props.onSelectItemAtIndex?.(index)}
@@ -135,8 +136,9 @@ type PreviewPickerRenderItemInfo<ItemT> = {
 };
 
 type PreviewPickerItemProps<ItemT> = {
-  item: ItemT;
   index: number;
+  item: ItemT;
+  itemWidth: number;
   isAboveLimit: boolean;
   renderItem: (info: PreviewPickerRenderItemInfo<ItemT>) => React.ReactNode;
   onPressItem?: TouchableOpacityProps['onPress'];
@@ -145,9 +147,6 @@ type PreviewPickerItemProps<ItemT> = {
 };
 
 function PickerItem<ItemT>(props: PreviewPickerItemProps<ItemT>) {
-  const { width: windowWidth } = useWindowDimensions();
-  const itemWidth = React.useMemo(() => windowWidth / 2, [windowWidth]);
-
   return (
     <TouchableOpacity
       activeOpacity={values.DEFAULT_ACTIVE_OPACITY}
@@ -160,9 +159,9 @@ function PickerItem<ItemT>(props: PreviewPickerItemProps<ItemT>) {
         <Icon name="close" size={24} color={color.white} />
       </TouchableOpacity>
       {props.renderItem({
-        itemWidth,
         index: props.index,
         item: props.item,
+        itemWidth: props.itemWidth,
         isAboveLimit: props.isAboveLimit,
       })}
     </TouchableOpacity>

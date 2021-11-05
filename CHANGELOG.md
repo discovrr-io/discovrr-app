@@ -2,16 +2,20 @@
 
 ## [Unreleased]
 
+## [v3.0.2] (2021-11-05)
+
 ### Fixed
 
 - Fixed issue where the "Sign in with Google" button doesn't show the account
   selection dialog after already signing into another Google account previously
   ([issue #6](https://github.com/discovrr-io/discovrr-app/issues/6))
 
-### Actions
+### Added
 
 - Add ability to switch account type from `"personal"` to `"vendor"` and
   vice-versa
+- Add ability to create products
+- Add basic functionality to create video posts
 
 ### Changed
 
@@ -23,7 +27,6 @@
 
 - Add ability to change profile picture
 - Add ability to create gallery posts
-- Add ability to create products
 
 ### Changed
 
@@ -107,7 +110,8 @@
   - Discover tab (previously Home tab)
   - Notifications tab (previously in drawer)
 
-[unreleased]: https://github.com/discovrr-io/discovrr-app/compare/v3.0.1...HEAD
+[unreleased]: https://github.com/discovrr-io/discovrr-app/compare/v3.0.2...HEAD
+[v3.0.2]: https://github.com/discovrr-io/discovrr-app/compare/v3.0.1...v3.0.2
 [v3.0.1]: https://github.com/discovrr-io/discovrr-app/compare/v3.0.0...v3.0.1
 [v3.0.0]: https://github.com/discovrr-io/discovrr-app/compare/v2.3.0.3...v3.0.0
 [v2.3.0.3]: https://github.com/discovrr-io/discovrr-app/compare/v2.3.0.2...v2.3.0.3

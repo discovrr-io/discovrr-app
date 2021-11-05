@@ -7,10 +7,12 @@ import ImageCropPicker, { Video } from 'react-native-image-crop-picker';
 import VideoPlayer from 'react-native-video';
 
 import * as utilities from 'src/utilities';
-import { color } from 'src/constants';
+import { color, layout } from 'src/constants';
 import { ActionBottomSheet, ActionBottomSheetItem } from 'src/components';
 
 import PreviewPicker, { PreviewPickerProps } from './PreviewPicker';
+
+// const command = `-i ${video.path} -loop -1 -vf "scale=320:-1" ${outputPath}`;
 
 export type VideoPreviewPickerProps = Pick<
   PreviewPickerProps<Video>,
@@ -18,10 +20,10 @@ export type VideoPreviewPickerProps = Pick<
 >;
 
 export default function ViewPreviewPicker(props: VideoPreviewPickerProps) {
-  const [_, meta, helpers] = useField<Video[]>(props.fieldName);
-  const { value: videos } = meta;
+  const [_field, _meta, helpers] = useField<Video[]>(props.fieldName);
 
   const previewPickerRef = React.useRef<PreviewPicker>(null);
+  const videoPlayerRef = React.useRef<VideoPlayer>(null);
   const actionBottomSheetRef = React.useRef<BottomSheet>(null);
   const actionBottomSheetItems = React.useMemo(() => {
     return [
@@ -39,12 +41,17 @@ export default function ViewPreviewPicker(props: VideoPreviewPickerProps) {
     actionBottomSheetRef.current?.expand();
   };
 
+  const handlePlayVideoOnFullScreen = (_index: number) => {
+    videoPlayerRef.current?.presentFullscreenPlayer();
+  };
+
   const handleSelectActionItem = async (selectedItemId: string) => {
     const handleRecordVideo = async () => {
       try {
-        await ImageCropPicker.openCamera({
-          mediaType: 'video',
-        });
+        utilities.alertUnavailableFeature();
+        // await ImageCropPicker.openCamera({
+        //   mediaType: 'video',
+        // });
       } catch (error: any) {
         utilities.alertImageCropPickerError(error);
       }
@@ -52,9 +59,14 @@ export default function ViewPreviewPicker(props: VideoPreviewPickerProps) {
 
     const handleSelectFromPhotoLibrary = async () => {
       try {
-        await ImageCropPicker.openPicker({
+        const selectedVideo = await ImageCropPicker.openPicker({
           mediaType: 'video',
+          maxFiles: props.maxCount,
         });
+
+        helpers.setValue([selectedVideo]);
+        helpers.setTouched(true, true);
+        previewPickerRef.current?.scrollToEnd();
       } catch (error) {
         utilities.alertImageCropPickerError(error);
       }
@@ -84,14 +96,20 @@ export default function ViewPreviewPicker(props: VideoPreviewPickerProps) {
         maxCount={props.maxCount}
         caption={props.caption}
         onAddItem={handleAddVideo}
+        onSelectItemAtIndex={handlePlayVideoOnFullScreen}
         renderItem={({ item, itemWidth }) => (
           <VideoPlayer
-            paused
+            // paused
+            repeat
+            ref={videoPlayerRef}
             source={{ uri: item.path }}
+            resizeMode="cover"
             style={{
               width: itemWidth,
               aspectRatio: 1,
               backgroundColor: color.placeholder,
+              borderRadius: layout.radius.md,
+              overflow: 'hidden',
             }}
           />
         )}

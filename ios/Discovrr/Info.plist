@@ -92,12 +92,12 @@
 			</dict>
 		</dict>
 	</dict>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Discovrr uses your location to show points of interest near you.</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>Discovrr uses your location to show points of interest near you.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Discovrr uses your camera to take pictures of posts, products and workshops you create.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Discovrr uses your location to show points of interest near you.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Discovrr uses your location to show points of interest near you.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Discovrr uses your microphone to record videos for posts you share.</string>
 	<key>NSPhotoLibraryUsageDescription</key>

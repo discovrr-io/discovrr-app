@@ -102,7 +102,7 @@ function GalleryPostFormikForm() {
       contentContainerStyle={galleryPostFormikFormStyles.scrollView}>
       <KeyboardAvoidingView
         behavior="position"
-        keyboardVerticalOffset={Platform.select({ ios: -100 })}
+        keyboardVerticalOffset={Platform.select({ ios: 40 })}
         style={{ flexGrow: 1 }}>
         <ImagePreviewPicker
           fieldName="media"
