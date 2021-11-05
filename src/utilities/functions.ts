@@ -13,16 +13,23 @@ export enum ShortenedNumberSuffix {
  * @returns A string with the shortened form of `count`.
  */
 export function shortenLargeNumber(count: number): string {
+  function truncateNumberByPower(value: number, power: number): string {
+    return (Math.floor((value / 10 ** power) * 10) / 10).toFixed(1);
+  }
+
   if (count < 10 ** 3) {
     return count.toString();
   } else if (count < 10 ** 6) {
-    return `${(count / 10 ** 3).toFixed(1)}${ShortenedNumberSuffix.THOUSAND}`;
+    const truncated = truncateNumberByPower(count, 3);
+    return `${truncated}${ShortenedNumberSuffix.THOUSAND}`;
   } else if (count < 10 ** 9) {
-    return `${(count / 10 ** 6).toFixed(1)}${ShortenedNumberSuffix.MILLION}`;
+    const truncated = truncateNumberByPower(count, 6);
+    return `${truncated}${ShortenedNumberSuffix.MILLION}`;
   } else if (count < 10 ** 12) {
-    return `${(count / 10 ** 9).toFixed(1)}${ShortenedNumberSuffix.BILLION}`;
+    const truncated = truncateNumberByPower(count, 9);
+    return `${truncated}${ShortenedNumberSuffix.BILLION}`;
   } else {
-    // This number is way too large to appropriately format in the UI.
+    // This number is way too large to be appropriately displayed in the UI.
     return '∞';
   }
 }
