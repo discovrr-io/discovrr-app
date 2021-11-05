@@ -1,11 +1,11 @@
 import React from 'react';
-import { StyleSheet, Text, TouchableHighlight, View } from 'react-native';
+import { StyleSheet, Text, TouchableHighlight } from 'react-native';
 
 import Icon from 'react-native-vector-icons/Ionicons';
 
-import Spacer from '../Spacer';
 import { color } from 'src/constants';
 
+import Spacer from '../Spacer';
 import CellContainer from './CellContainer';
 import { CellElementProps, defaultCellElementOptions } from './common';
 import { useCellElementContext } from './hooks';
@@ -28,48 +28,48 @@ export default function CellButton(props: CellButtonProps) {
       disabled={isDisabled}
       underlayColor={cellElementOptions.highlightColor}
       onPress={props.onPress}>
-      <CellContainer
-        elementOptions={cellElementOptions}
-        style={styles.container}>
-        <View style={styles.leadingContainer}>
-          {props.iconName && (
-            <>
-              <Icon
-                name={props.iconName}
-                size={cellElementOptions.iconSize}
-                color={isDisabled ? color.disabledDarkTextColor : color.black}
-              />
-              <Spacer.Horizontal value={cellElementOptions.itemSpacing} />
-            </>
-          )}
-          <View style={styles.labelContainerStyle}>
-            <Text
-              numberOfLines={1}
-              style={[
-                defaultCellElementOptions.labelStyle,
-                cellElementOptions.labelStyle,
-                isDisabled && { color: color.gray500 },
-              ]}>
-              {props.label}
-            </Text>
-            {props.caption && (
-              <Text
-                style={[
-                  defaultCellElementOptions.captionStyle,
-                  cellElementOptions.captionStyle,
-                  isDisabled && { color: color.disabledDarkTextColor },
-                ]}>
-                {props.caption}
-              </Text>
-            )}
-          </View>
-        </View>
+      <CellContainer elementOptions={cellElementOptions}>
+        {props.iconName && (
+          <>
+            <Icon
+              name={props.iconName}
+              size={cellElementOptions.iconSize}
+              color={
+                isDisabled
+                  ? color.disabledDarkTextColor
+                  : color.defaultDarkTextColor
+              }
+            />
+            <Spacer.Horizontal value={cellElementOptions.itemSpacing} />
+          </>
+        )}
+        {/* <View style={styles.labelContainerStyle}> */}
+        <Text
+          numberOfLines={1}
+          style={[
+            defaultCellElementOptions.labelStyle,
+            cellElementOptions.labelStyle,
+            isDisabled && { color: color.disabledDarkTextColor },
+            styles.labelText,
+          ]}>
+          {props.label}
+        </Text>
+        {props.caption && (
+          <Text
+            style={[
+              defaultCellElementOptions.captionStyle,
+              cellElementOptions.captionStyle,
+              isDisabled && { color: color.disabledDarkTextColor },
+            ]}>
+            {props.caption}
+          </Text>
+        )}
+        {/* </View> */}
         {props.previewValue && (
-          <View style={styles.previewValueContainer}>
+          <>
             <Spacer.Horizontal value={cellElementOptions.itemSpacing} />
             <Text
               numberOfLines={1}
-              ellipsizeMode="middle"
               style={[
                 defaultCellElementOptions.labelStyle,
                 cellElementOptions.labelStyle,
@@ -82,17 +82,21 @@ export default function CellButton(props: CellButtonProps) {
               ]}>
               {props.previewValue}
             </Text>
-          </View>
+          </>
         )}
         {props.suffixIconName && (
-          <View style={styles.trailingContainer}>
+          <>
             <Spacer.Horizontal value={cellElementOptions.itemSpacing} />
             <Icon
               name={props.suffixIconName}
               size={cellElementOptions.iconSize}
-              color={isDisabled ? color.disabledDarkTextColor : color.black}
+              color={
+                isDisabled
+                  ? color.disabledDarkTextColor
+                  : color.defaultDarkTextColor
+              }
             />
-          </View>
+          </>
         )}
       </CellContainer>
     </TouchableHighlight>
@@ -100,32 +104,12 @@ export default function CellButton(props: CellButtonProps) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    justifyContent: 'space-between',
-  },
-  leadingContainer: {
+  labelText: {
     flexGrow: 1,
     flexShrink: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  labelContainerStyle: {
-    flexGrow: 1,
-    flexShrink: 1,
-  },
-  previewValueContainer: {
-    flexGrow: 1.5,
-    flexShrink: 1.5,
-    flexDirection: 'row',
-    alignItems: 'flex-end',
   },
   previewValueText: {
-    flexGrow: 1,
-    flexShrink: 1,
+    maxWidth: '40%',
     textAlign: 'right',
-  },
-  trailingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
   },
 });

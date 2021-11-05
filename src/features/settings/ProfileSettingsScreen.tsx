@@ -36,6 +36,7 @@ import { color, font, layout, media } from 'src/constants';
 import { DEFAULT_AVATAR } from 'src/constants/media';
 import { DEFAULT_ACTIVE_OPACITY } from 'src/constants/values';
 import { CELL_GROUP_VERTICAL_SPACING } from 'src/components/cells/CellGroup';
+import { selectCurrentUserProfileKind } from 'src/global-selectors';
 
 import {
   ActionBottomSheet,
@@ -51,6 +52,7 @@ import {
 
 import {
   useAppDispatch,
+  useAppSelector,
   useIsMounted,
   useNavigationAlertUnsavedChangesOnRemove,
 } from 'src/hooks';
@@ -381,6 +383,7 @@ function ProfileSettingsFormikForm() {
   const navigation = useNavigation<ProfileSettingsScreenProps['navigation']>();
   const isMounted = useIsMounted();
 
+  const currentProfileKind = useAppSelector(selectCurrentUserProfileKind);
   const [isGeneratingUsername, setIsGeneratingUsername] = React.useState(false);
 
   const {
@@ -497,6 +500,15 @@ function ProfileSettingsFormikForm() {
             error={errors.biography}
           />
         </Cell.InputGroup>
+      </Cell.Group>
+      <Spacer.Vertical value={CELL_GROUP_VERTICAL_SPACING} />
+      <Cell.Group label="Account Type">
+        <Cell.Navigator
+          label="Change account type"
+          iconName="person-outline"
+          previewValue={currentProfileKind === 'vendor' ? 'Maker' : 'User'}
+          onPress={navigation => navigation.navigate('AccountTypeSettings')}
+        />
       </Cell.Group>
       <Spacer.Vertical value={CELL_GROUP_VERTICAL_SPACING} />
       <Cell.Group label="Account Settings" elementOptions={{ disabled: true }}>
