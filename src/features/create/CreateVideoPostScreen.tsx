@@ -1,5 +1,10 @@
 import * as React from 'react';
-import { ScrollView, StyleSheet } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+} from 'react-native';
 
 import * as yup from 'yup';
 import { Formik } from 'formik';
@@ -25,10 +30,7 @@ const videoPostSchema = yup.object({
     .string()
     .trim()
     .required('Please write a caption of at least 3 words')
-    .max(
-      MAX_CAPTION_LENGTH,
-      `Your caption is too long! Please enter at most ${MAX_CAPTION_LENGTH} characters`,
-    )
+    .max(MAX_CAPTION_LENGTH, 'Your caption is too long!')
     .test('has at least 3 words', 'Please enter at least 3 words', input => {
       if (!input) return false;
       return utilities.getWordCount(input) >= 3;
@@ -58,18 +60,28 @@ export default function CreateVideoPostScreen(_: CreateVideoPostScreenProps) {
 }
 
 function VideoPostFormikForm() {
+  // FIXME: Get this to work properly with KeyboardAvoidingView
   return (
     <ScrollView contentContainerStyle={videoPostFormikFormStyles.scrollView}>
-      <VideoPreviewPicker
-        fieldName="video"
-        maxCount={1}
-        caption="Upload your video below"
-      />
-      <TextArea
-        fieldName="caption"
-        placeholder="Write a caption…"
-        containerStyle={[videoPostFormikFormStyles.container, { flexGrow: 1 }]}
-      />
+      <KeyboardAvoidingView
+        behavior={Platform.select({ ios: 'position' })}
+        keyboardVerticalOffset={Platform.select({ ios: 40 })}
+        style={{ flexGrow: 1 }}>
+        <VideoPreviewPicker
+          fieldName="video"
+          maxCount={1}
+          caption="Upload your video below"
+        />
+        <TextArea
+          fieldName="caption"
+          placeholder="Write a caption…"
+          maxLength={MAX_CAPTION_LENGTH}
+          containerStyle={[
+            videoPostFormikFormStyles.container,
+            { flexGrow: 1 },
+          ]}
+        />
+      </KeyboardAvoidingView>
     </ScrollView>
   );
 }

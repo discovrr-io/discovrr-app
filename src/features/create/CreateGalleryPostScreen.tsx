@@ -38,10 +38,7 @@ const galleyPostSchema = yup.object({
     .string()
     .trim()
     .required('Please write a caption of at least 3 words')
-    .max(
-      MAX_CAPTION_LENGTH,
-      `Your caption is too long! Please enter at most ${MAX_CAPTION_LENGTH} characters`,
-    )
+    .max(MAX_CAPTION_LENGTH, 'Your caption is too long!')
     .test('has at least 3 words', 'Please enter at least 3 words', input => {
       if (!input) return false;
       return utilities.getWordCount(input) >= 3;
@@ -96,12 +93,13 @@ function GalleryPostFormikForm() {
   useNavigationAlertUnsavedChangesOnRemove(dirty);
   useHandleSubmitNavigationButton<GalleryPostForm>();
 
+  // FIXME: Get this to work properly with KeyboardAvoidingView
   return (
     <ScrollView
       keyboardShouldPersistTaps="handled"
       contentContainerStyle={galleryPostFormikFormStyles.scrollView}>
       <KeyboardAvoidingView
-        behavior="position"
+        behavior={Platform.select({ ios: 'position' })}
         keyboardVerticalOffset={Platform.select({ ios: 40 })}
         style={{ flexGrow: 1 }}>
         <ImagePreviewPicker
@@ -112,6 +110,7 @@ function GalleryPostFormikForm() {
         <TextArea
           fieldName="caption"
           placeholder="Write a caption…"
+          maxLength={MAX_CAPTION_LENGTH}
           containerStyle={[
             galleryPostFormikFormStyles.container,
             { flexGrow: 1 },

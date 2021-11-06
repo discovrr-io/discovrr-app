@@ -26,6 +26,7 @@ export interface PreviewPickerProps<ItemT> {
   fieldName: string;
   maxCount: number;
   caption: string;
+  description?: string;
   renderItem: PreviewPickerItemProps<ItemT>['renderItem'];
   onAddItem?: () => void | Promise<void>;
   onSelectItemAtIndex?: (index: number) => void | Promise<void>;
@@ -59,18 +60,24 @@ function PreviewPickerInner<ItemT>(
           style={[font.medium, { color: color.gray500, textAlign: 'center' }]}>
           {props.caption}
         </Text>
-        {meta.touched && meta.error && (
+        {meta.touched && meta.error ? (
           <Text
             style={[
-              font.smallBold,
-              {
-                color: color.danger,
-                paddingTop: layout.spacing.sm,
-                textAlign: 'center',
-              },
+              previewPickerStyles.descriptionText,
+              { color: color.danger },
             ]}>
             {meta.error}
           </Text>
+        ) : (
+          props.description && (
+            <Text
+              style={[
+                previewPickerStyles.descriptionText,
+                { color: color.gray500 },
+              ]}>
+              {props.description}
+            </Text>
+          )
         )}
       </View>
       <FlatList<ItemT>
@@ -171,6 +178,11 @@ function PickerItem<ItemT>(props: PreviewPickerItemProps<ItemT>) {
 const previewPickerStyles = StyleSheet.create({
   captionContainer: {
     paddingHorizontal: layout.spacing.lg,
+  },
+  descriptionText: {
+    ...font.smallBold,
+    paddingTop: layout.spacing.sm,
+    textAlign: 'center',
   },
   itemTouchableContainer: {
     aspectRatio: 1,

@@ -127,6 +127,7 @@ function TextArea(props: TextAreaProps) {
 
   return (
     // TODO: Fix resizing text input when keyboard is active
+    // TODO: Consider using `TextArea` from './components'
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <KeyboardAvoidingView
         behavior="height"

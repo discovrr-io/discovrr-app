@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   TextInput as RNTextInput,
-  SafeAreaView,
   StyleProp,
   ViewStyle,
   Text,
@@ -14,6 +13,7 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 import { getDefaultHeaderHeight } from '@react-navigation/elements';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import {
   CardStyleInterpolators,
@@ -113,7 +113,7 @@ function SearchHeader(
 ) {
   const headerHeight = getDefaultHeaderHeight(props.layout, false, 0);
   return (
-    <SafeAreaView>
+    <SafeAreaView edges={['top', 'left', 'right']}>
       <View
         style={[
           {

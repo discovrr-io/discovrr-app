@@ -18,7 +18,7 @@ const IMAGE_COMPRESSION_MAX_HEIGHT = (IMAGE_COMPRESSION_MAX_WIDTH / 2) * 3;
 
 export type ImagePreviewPickerProps = Pick<
   PreviewPickerProps<Image>,
-  'fieldName' | 'maxCount' | 'caption'
+  'fieldName' | 'maxCount' | 'caption' | 'description'
 >;
 
 export default function ImagePreviewPicker(props: ImagePreviewPickerProps) {
@@ -139,10 +139,12 @@ export default function ImagePreviewPicker(props: ImagePreviewPickerProps) {
   return (
     <View>
       <PreviewPicker<Image>
+        {...props}
         ref={previewPickerRef}
-        fieldName={props.fieldName}
-        maxCount={props.maxCount}
-        caption={props.caption}
+        description={
+          props.description ??
+          `Tap on ${props.maxCount > 1 ? 'a' : 'the'} photo to crop it`
+        }
         onAddItem={handleAddImage}
         onSelectItemAtIndex={handleSelectItemAtIndex}
         renderItem={({ item, itemWidth, isAboveLimit }) => (

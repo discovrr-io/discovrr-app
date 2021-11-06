@@ -106,12 +106,21 @@ function PersistedApp() {
       const [[_, prevVersion]] = await AsyncStorage.multiGet(['storeVersion']);
       console.log($FUNC, 'Previous store version:', prevVersion);
 
+      // We don't want to purge the store if the user has started the app for
+      // the first time
+      if (!prevVersion) {
+        console.log($FUNC, 'Skipping purge...');
+        return;
+      }
+
       if (prevVersion !== currVersion) {
         AsyncStorage.setItem('storeVersion', currVersion);
         console.log($FUNC, 'Purging store...');
         persistor.pause();
 
         // Custom purging - purges everything in the store except authentication
+        // FIXME: This is not asynchronous, so we'll need to wait for every
+        // single part of the store to be cleared, one after the other.
         const resetAction = resetAppState({
           // Only reset the FCM registration token if we actually signed the
           // user out (and thus their associated Parse.Session object has been

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Keyboard, View } from 'react-native';
+import { Keyboard, Platform, View } from 'react-native';
 
 import { useField } from 'formik';
 import BottomSheet from '@gorhom/bottom-sheet';
@@ -16,7 +16,7 @@ import PreviewPicker, { PreviewPickerProps } from './PreviewPicker';
 
 export type VideoPreviewPickerProps = Pick<
   PreviewPickerProps<Video>,
-  'fieldName' | 'maxCount' | 'caption'
+  'fieldName' | 'maxCount' | 'caption' | 'description'
 >;
 
 export default function ViewPreviewPicker(props: VideoPreviewPickerProps) {
@@ -42,6 +42,12 @@ export default function ViewPreviewPicker(props: VideoPreviewPickerProps) {
   };
 
   const handlePlayVideoOnFullScreen = (_index: number) => {
+    if (Platform.OS === 'android') {
+      // FIXME: The full screen video player doesn't work properly on Android
+      utilities.alertUnavailableFeature();
+      return;
+    }
+
     videoPlayerRef.current?.presentFullscreenPlayer();
   };
 
@@ -91,10 +97,14 @@ export default function ViewPreviewPicker(props: VideoPreviewPickerProps) {
   return (
     <View>
       <PreviewPicker<Video>
+        {...props}
         ref={previewPickerRef}
-        fieldName={props.fieldName}
-        maxCount={props.maxCount}
-        caption={props.caption}
+        description={
+          props.description ??
+          `Tap on ${
+            props.maxCount > 1 ? 'a' : 'the'
+          } video to play it in fullscreen`
+        }
         onAddItem={handleAddVideo}
         onSelectItemAtIndex={handlePlayVideoOnFullScreen}
         renderItem={({ item, itemWidth }) => (

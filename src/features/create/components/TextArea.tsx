@@ -11,6 +11,7 @@ import {
 
 import { useField } from 'formik';
 import { color, font, layout } from 'src/constants';
+import { CharacterCounter } from '.';
 
 export type TextAreaProps = TextInputProps & {
   fieldName: string;
@@ -23,9 +24,38 @@ export default function TextArea(props: TextAreaProps) {
 
   return (
     <View style={containerStyle}>
+      <View
+        style={{
+          flexDirection: 'row-reverse',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}>
+        {props.maxLength && (
+          <CharacterCounter
+            currentLength={field.value.length}
+            maxLength={props.maxLength}
+            style={{ paddingVertical: layout.spacing.sm }}
+          />
+        )}
+        {meta.touched && meta.error && (
+          <Text
+            style={[
+              font.smallBold,
+              {
+                flexGrow: 1,
+                flexShrink: 1,
+                color: color.danger,
+                paddingVertical: layout.spacing.sm,
+              },
+            ]}>
+            {meta.error}
+          </Text>
+        )}
+      </View>
       <TextInput
         {...restProps}
         multiline
+        maxLength={undefined}
         placeholderTextColor={color.gray500}
         selectionColor={Platform.select({ ios: color.accent })}
         value={field.value}
@@ -40,15 +70,6 @@ export default function TextArea(props: TextAreaProps) {
           style,
         ]}
       />
-      {meta.touched && meta.error && (
-        <Text
-          style={[
-            font.smallBold,
-            { color: color.danger, paddingTop: layout.spacing.sm },
-          ]}>
-          {meta.error}
-        </Text>
-      )}
     </View>
   );
 }
