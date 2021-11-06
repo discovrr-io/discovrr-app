@@ -63,23 +63,19 @@ def jscFlavor = 'org.webkit:android-jsc:+'
 /**
  * Whether to enable the Hermes VM.
  *
- * This should be set on project.ext.react and mirrored here.  If it is not set
+ * This should be set on project.ext.react and mirrored here. If it is not set
  * on project.ext.react, JavaScript will not be compiled to Hermes Bytecode
  * and the benefits of using Hermes will therefore be sharply reduced.
  */
-def enableHermes = project.ext.react.get("enableHermes", false);
+def enableHermes = project.ext.react.get("enableHermes", true);
 
 def versionMajor = 3 // Can be more than 2 digits
 def versionMinor = 0 // Must be between 0 and 99
-def versionPatch = 2 // Must be between 0 and 99
+def versionPatch = 3 // Must be between 0 and 99
 def versionBuild = 0 // Must be between 0 and 99
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
-
-    packagingOptions {
-        pickFirst '**/*.so'
-    }
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -115,6 +111,7 @@ android {
                 keyPassword DISCOVRR_UPLOAD_KEY_PASSWORD
             }
         }
+
         debug {
             storeFile file('debug.keystore')
             storePassword 'android'
@@ -172,6 +169,10 @@ android {
 
         }
     }
+
+    packagingOptions {
+        pickFirst '**/*.so'
+    }
 }
 
 dependencies {
@@ -180,7 +181,9 @@ dependencies {
     implementation "com.facebook.react:react-native:+" // From node_modules
 
     // For animated GIF support
-    implementation 'com.facebook.fresco:animated-gif:2.5.0'
+    // NOTE: I had to manually downgraded this from 2.5.0 to 2.2.0 because of a
+    // runtime error that occurs when Android tries to initialise Fresco.
+    implementation 'com.facebook.fresco:animated-gif:2.2.0'
 
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
 

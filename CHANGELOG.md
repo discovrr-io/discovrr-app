@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+## [v3.0.3] (2021-11-06)
+
+### Changed
+
+- Enable Hermes for Android
+- Downgrade `fresco` native library to version `2.2.0`
+
 ## [v3.0.2] (2021-11-05)
 
 ### Fixed
@@ -110,7 +117,8 @@
   - Discover tab (previously Home tab)
   - Notifications tab (previously in drawer)
 
-[unreleased]: https://github.com/discovrr-io/discovrr-app/compare/v3.0.2...HEAD
+[unreleased]: https://github.com/discovrr-io/discovrr-app/compare/v3.0.3...HEAD
+[v3.0.3]: https://github.com/discovrr-io/discovrr-app/compare/v3.0.2...v3.0.3
 [v3.0.2]: https://github.com/discovrr-io/discovrr-app/compare/v3.0.1...v3.0.2
 [v3.0.1]: https://github.com/discovrr-io/discovrr-app/compare/v3.0.0...v3.0.1
 [v3.0.0]: https://github.com/discovrr-io/discovrr-app/compare/v2.3.0.3...v3.0.0
