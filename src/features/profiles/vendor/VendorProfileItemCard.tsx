@@ -117,8 +117,8 @@ const InnerVendorProfileItemCard = (props: InnerVendorProfileItemCardProps) => {
         />
         <Card.Actions>
           <Card.HeartIconButton
-            didLike={false}
-            totalLikes={0}
+            didLike={vendorProfile.statistics?.didLike ?? false}
+            totalLikes={vendorProfile.statistics?.totalLikes ?? 0}
             // onToggleLike={() => alertUnavailableFeature()}
             onToggleLike={() => {}}
           />

@@ -1,8 +1,7 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
-import Icon from 'react-native-vector-icons/Ionicons';
 import Video from 'react-native-video';
 import { useNavigation } from '@react-navigation/core';
 
@@ -12,7 +11,7 @@ import { DEFAULT_IMAGE_DIMENSIONS } from 'src/constants/media';
 import { Post, PostId, Profile, ProfileId } from 'src/models';
 import { RootStackNavigationProp } from 'src/navigation';
 
-import { AsyncGate, Card } from 'src/components';
+import { AsyncGate, Card, PlayButton } from 'src/components';
 import { CardActionsProps } from 'src/components/cards/CardActions';
 import { CardAuthorProps } from 'src/components/cards/CardAuthor';
 import { useCardElementOptionsContext } from 'src/components/cards/hooks';
@@ -33,16 +32,20 @@ import { useAppDispatch, useOverridableContextOptions } from 'src/hooks';
 
 import { usePost } from './hooks';
 import { updatePostLikeStatus } from './posts-slice';
+import { Statistics } from 'src/models/common';
+import Animated, {
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withTiming,
+} from 'react-native-reanimated';
 
 const ASPECT_RATIOS = [
   1 / 1, // 1:1 (Square)
   4 / 5, // 4:5 (Portrait Short)
   2 / 3, // 2:3 (Portrait Tall)
 ];
-
-const PLAY_BUTTON_SIZE_SMALL = 80;
-const PLAY_BUTTON_SIZE_LARGE = 120;
-const PLAY_BUTTON_COLOR = color.gray100;
 
 type PostItemCardContext = {
   showMenuIcon?: boolean;
@@ -52,6 +55,10 @@ type PostItemCardContext = {
 };
 
 export const PostItemCardContext = React.createContext<PostItemCardContext>({});
+
+type PreferredMediaAspectRatio = {
+  preferredMediaAspectRatio?: number;
+};
 
 //#region PostItemCard ---------------------------------------------------------
 
@@ -141,9 +148,10 @@ InnerPostItemCard.Pending = (props: CardElementProps) => {
 
 //#region PostItemCardBody -----------------------------------------------------
 
-type PostItemCardBodyProps = CardElementOptions & {
-  body: Pick<Post, 'contents' | 'statistics'>;
-};
+type PostItemCardBodyProps = CardElementOptions &
+  PreferredMediaAspectRatio & {
+    body: Pick<Post, 'contents' | 'statistics'>;
+  };
 
 function PostItemCardBody(props: PostItemCardBodyProps) {
   const { body, ...cardElementProps } = props;
@@ -155,107 +163,140 @@ function PostItemCardBody(props: PostItemCardBodyProps) {
   //   setIsVideoPaused(!isFocused);
   // }, [isFocused]);
 
-  const renderImageGallery = useCallback(
-    (
-      sources: MediaSource[],
-      caption: string,
-      elementOptions: CardElementOptions,
-    ) => {
-      const imagePreviewSource = sources[0];
-      const {
-        width: imageWidth = DEFAULT_IMAGE_DIMENSIONS.height,
-        height: imageHeight = DEFAULT_IMAGE_DIMENSIONS.width,
-      } = imagePreviewSource;
+  // const renderImageGallery = useCallback(
+  //   (
+  //     sources: MediaSource[],
+  //     caption: string,
+  //     elementOptions: CardElementOptions,
+  //   ) => {
+  //     const imagePreviewSource = sources[0];
+  //     const {
+  //       width: imageWidth = DEFAULT_IMAGE_DIMENSIONS.height,
+  //       height: imageHeight = DEFAULT_IMAGE_DIMENSIONS.width,
+  //     } = imagePreviewSource;
+  //
+  //     return (
+  //       <View>
+  //         <View>
+  //           {sources.length > 1 && (
+  //             <Card.Indicator
+  //               iconName="images"
+  //               position="top-right"
+  //               label={sources.length.toString()}
+  //               elementOptions={elementOptions}
+  //             />
+  //           )}
+  //           {body.statistics.totalViews > 1 && (
+  //             <Card.Indicator
+  //               iconName="eye"
+  //               position="bottom-left"
+  //               label={shortenLargeNumber(body.statistics.totalViews)}
+  //               elementOptions={elementOptions}
+  //             />
+  //           )}
+  //           <FastImage
+  //             resizeMode="contain"
+  //             source={{ uri: imagePreviewSource.url }}
+  //             style={{
+  //               width: '100%',
+  //               height: undefined,
+  //               aspectRatio:
+  //                 props.preferredMediaAspectRatio ?? imageWidth / imageHeight,
+  //               backgroundColor: color.placeholder,
+  //             }}
+  //           />
+  //         </View>
+  //         <PostItemCardCaption caption={caption} />
+  //       </View>
+  //     );
+  //   },
+  //   [body.statistics.totalViews, props.preferredMediaAspectRatio],
+  // );
 
-      return (
-        <View>
-          <View>
-            {sources.length > 1 && (
-              <Card.Indicator
-                iconName="images"
-                position="top-right"
-                label={sources.length.toString()}
-                elementOptions={elementOptions}
-              />
-            )}
-            {body.statistics.totalViews > 1 && (
-              <Card.Indicator
-                iconName="eye"
-                position="bottom-left"
-                label={shortenLargeNumber(body.statistics.totalViews)}
-                elementOptions={elementOptions}
-              />
-            )}
-            <FastImage
-              resizeMode="contain"
-              source={{ uri: imagePreviewSource.url }}
-              style={{
-                width: '100%',
-                height: undefined,
-                aspectRatio: imageWidth / imageHeight,
-                backgroundColor: color.placeholder,
-              }}
-            />
-          </View>
-          <PostItemCardCaption caption={caption} />
-        </View>
-      );
-    },
-    [body.statistics.totalViews],
-  );
+  // const renderVideoOrThumbnail = useCallback(
+  //   (
+  //     source: MediaSource,
+  //     thumbnail: MediaSource | undefined,
+  //     caption: string,
+  //     elementOptions: CardElementOptions,
+  //   ) => {
+  //     return (
+  //       <View>
+  //         <View>
+  //           {body.statistics.totalViews > 1 && (
+  //             <Card.Indicator
+  //               iconName="eye"
+  //               position="bottom-left"
+  //               label={shortenLargeNumber(body.statistics.totalViews)}
+  //               elementOptions={elementOptions}
+  //             />
+  //           )}
+  //           {thumbnail ? (
+  //             <FastImage
+  //               source={{ uri: thumbnail.url }}
+  //               style={{
+  //                 width: '100%',
+  //                 aspectRatio:
+  //                   props.preferredMediaAspectRatio ??
+  //                   (thumbnail.width ?? 1) / (thumbnail.height ?? 1),
+  //                 backgroundColor: color.placeholder,
+  //               }}
+  //             />
+  //           ) : (
+  //             <Video
+  //               muted
+  //               repeat
+  //               playWhenInactive
+  //               resizeMode="cover"
+  //               // paused={isVideoPaused}
+  //               // paused={true}
+  //               source={{
+  //                 uri: source.url,
+  //                 type: source.type,
+  //               }}
+  //               style={{
+  //                 width: '100%',
+  //                 aspectRatio:
+  //                   props.preferredMediaAspectRatio ??
+  //                   (source.width ?? 1) / (source.height ?? 1),
+  //                 backgroundColor: color.placeholder,
+  //               }}
+  //             />
+  //           )}
+  //           <PlayButton smallContent={elementOptions.smallContent} />
+  //         </View>
+  //         <PostItemCardCaption caption={caption} />
+  //       </View>
+  //     );
+  //   },
+  //   [],
+  // );
 
   switch (body.contents.type) {
     case 'gallery':
-      return renderImageGallery(
-        body.contents.sources,
-        body.contents.caption,
-        cardElementProps,
+      // return renderImageGallery(
+      //   body.contents.sources,
+      //   body.contents.caption,
+      //   cardElementProps,
+      // );
+      return (
+        <PostItemCardBodyImageGallery
+          {...body.contents}
+          statistics={body.statistics}
+        />
       );
     case 'video':
+      // return renderVideoOrThumbnail(
+      //   body.contents.source,
+      //   body.contents.thumbnail,
+      //   body.contents.caption,
+      //   cardElementProps,
+      // );
       return (
-        <View>
-          <View>
-            <Video
-              muted
-              repeat
-              playWhenInactive
-              resizeMode="cover"
-              // paused={isVideoPaused}
-              paused={true}
-              source={{
-                uri: body.contents.source.url,
-                type: body.contents.source.type,
-              }}
-              style={{
-                width: '100%',
-                aspectRatio:
-                  (body.contents.source.height ?? 1) /
-                  (body.contents.source.width ?? 1),
-                backgroundColor: color.placeholder,
-              }}
-            />
-            <View
-              style={{
-                position: 'absolute',
-                width: '100%',
-                height: '100%',
-                backgroundColor: '#00000044',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-              <Icon
-                name="play"
-                size={
-                  cardElementProps.smallContent
-                    ? PLAY_BUTTON_SIZE_SMALL
-                    : PLAY_BUTTON_SIZE_LARGE
-                }
-                color={PLAY_BUTTON_COLOR}
-              />
-            </View>
-          </View>
-          <PostItemCardCaption caption={body.contents.caption} />
-        </View>
+        <PostItemCardBodyVideoThumbnailProps
+          {...body.contents}
+          statistics={body.statistics}
+        />
       );
     case 'text':
       return (
@@ -274,6 +315,137 @@ function PostItemCardBody(props: PostItemCardBodyProps) {
         </View>
       );
   }
+}
+
+type PostItemCardBodyImageGalleryProps = PreferredMediaAspectRatio & {
+  sources: MediaSource[];
+  caption: string;
+  statistics: Statistics;
+};
+
+function PostItemCardBodyImageGallery(
+  props: PostItemCardBodyImageGalleryProps,
+) {
+  const { sources, caption, statistics, preferredMediaAspectRatio } = props;
+
+  const elementOptions = useCardElementOptionsContext();
+  const imagePreviewSource = props.sources[0];
+  const {
+    width: imageWidth = DEFAULT_IMAGE_DIMENSIONS.height,
+    height: imageHeight = DEFAULT_IMAGE_DIMENSIONS.width,
+  } = imagePreviewSource;
+
+  return (
+    <View>
+      <View>
+        {sources.length > 1 && (
+          <Card.Indicator
+            iconName="images"
+            position="top-right"
+            label={sources.length.toString()}
+            elementOptions={elementOptions}
+          />
+        )}
+        {statistics.totalViews > 1 && (
+          <Card.Indicator
+            iconName="eye"
+            position="bottom-left"
+            label={shortenLargeNumber(statistics.totalViews)}
+            elementOptions={elementOptions}
+          />
+        )}
+        <FastImage
+          resizeMode="contain"
+          source={{ uri: imagePreviewSource.url }}
+          style={{
+            width: '100%',
+            height: undefined,
+            aspectRatio:
+              /* preferredMediaAspectRatio ?? */ imageWidth / imageHeight,
+            backgroundColor: color.placeholder,
+          }}
+        />
+      </View>
+      <PostItemCardCaption caption={caption} />
+    </View>
+  );
+}
+
+type PostItemCardBodyVideoThumbnailProps = PreferredMediaAspectRatio & {
+  source: MediaSource;
+  thumbnail?: MediaSource;
+  caption: string;
+  statistics: Statistics;
+};
+
+function PostItemCardBodyVideoThumbnailProps(
+  props: PostItemCardBodyVideoThumbnailProps,
+) {
+  const { source, thumbnail, caption, statistics, preferredMediaAspectRatio } =
+    props;
+
+  const elementOptions = useCardElementOptionsContext();
+  const [isVideoPaused, setIsVideoPaused] = useState(false);
+
+  const playButtonOpacity = useSharedValue(0);
+  const playButtonStyle = useAnimatedStyle(() => ({
+    opacity: playButtonOpacity.value,
+  }));
+
+  useEffect(() => {
+    playButtonOpacity.value = withDelay(3000, withTiming(1));
+  }, [playButtonOpacity]);
+
+  return (
+    <View>
+      <View>
+        {statistics.totalViews > 1 && (
+          <Card.Indicator
+            iconName="eye"
+            position="bottom-left"
+            label={shortenLargeNumber(statistics.totalViews)}
+            elementOptions={elementOptions}
+          />
+        )}
+        {thumbnail ? (
+          <FastImage
+            source={{ uri: thumbnail.url }}
+            style={{
+              width: '100%',
+              aspectRatio:
+                // preferredMediaAspectRatio ??
+                (thumbnail.width ?? 1) / (thumbnail.height ?? 1),
+              backgroundColor: color.placeholder,
+            }}
+          />
+        ) : (
+          <Video
+            muted
+            repeat
+            paused={isVideoPaused}
+            playWhenInactive
+            resizeMode="cover"
+            source={{
+              uri: source.url,
+              type: source.type,
+            }}
+            style={{
+              width: '100%',
+              aspectRatio:
+                // preferredMediaAspectRatio ??
+                (source.width ?? 1) / (source.height ?? 1),
+              backgroundColor: color.placeholder,
+            }}
+          />
+        )}
+        <PlayButton
+          smallContent={elementOptions.smallContent}
+          style={playButtonStyle}
+        />
+      </View>
+      <PostItemCardCaption caption={caption} />
+    </View>
+  );
 }
 
 //#endregion PostItemCardBody
@@ -440,14 +612,23 @@ function PostItemCardActions(props: PostItemCardActionsProps) {
 //   post: Pick<Post, 'contents'> & Pick<Partial<Post>, 'statistics'>;
 // };
 
-type PostItemCardPreviewProps = CardElementProps & {
-  contents: Post['contents'];
-  author: CardAuthorProps;
-  statistics?: Partial<Post['statistics']>;
-};
+type PostItemCardPreviewProps = CardElementProps &
+  PreferredMediaAspectRatio & {
+    contents: Post['contents'];
+    author: CardAuthorProps;
+    statistics?: Partial<Post['statistics']>;
+  };
 
 export function PostItemCardPreview(props: PostItemCardPreviewProps) {
-  const { contents, author, statistics, elementOptions, style } = props;
+  const {
+    contents,
+    author,
+    statistics,
+    elementOptions,
+    preferredMediaAspectRatio,
+    style,
+  } = props;
+
   const newElementOptions = { ...elementOptions, disabled: true };
 
   return (
@@ -456,6 +637,7 @@ export function PostItemCardPreview(props: PostItemCardPreviewProps) {
         {elementOptions => (
           <PostItemCardBody
             {...elementOptions}
+            preferredMediaAspectRatio={preferredMediaAspectRatio}
             body={{
               contents: contents,
               statistics: {

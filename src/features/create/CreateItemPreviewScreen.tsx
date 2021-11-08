@@ -70,6 +70,9 @@ export default function CreateItemPreviewScreen(
           <PostItemCardPreview
             contents={previewContent.contents}
             author={myProfileDetails}
+            preferredMediaAspectRatio={
+              previewContent.contents.type === 'video' ? 2 / 3 : undefined
+            }
             style={createItemPreviewScreenStyles.cardPreview}
           />
         );

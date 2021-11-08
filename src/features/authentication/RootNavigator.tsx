@@ -1,10 +1,13 @@
 import * as React from 'react';
+import { Platform } from 'react-native';
 
 import codePush from 'react-native-code-push';
 import messaging from '@react-native-firebase/messaging';
 import { nanoid } from '@reduxjs/toolkit';
+import { HeaderStyleInterpolators } from '@react-navigation/stack';
 
 import * as constants from 'src/constants';
+import { SessionApi } from 'src/api';
 import { useAppDispatch, useAppSelector } from 'src/hooks';
 import { NotificationId } from 'src/models';
 import { RootStack } from 'src/navigation';
@@ -29,7 +32,6 @@ import renderPostNavigator from 'src/features/posts/PostNavigator';
 import renderProfileNavigator from 'src/features/profiles/ProfileNavigator';
 import renderProductNavigator from 'src/features/products/ProductNavigator';
 import renderSettingsNavigator from 'src/features/settings/SettingsNavigator';
-import { SessionApi } from 'src/api/session';
 
 async function getFCMToken(): Promise<string> {
   const $FUNC = '[getFCMToken]';
@@ -141,6 +143,9 @@ export default function RootNavigator() {
         headerBackTitleVisible: false,
         headerTitleStyle: constants.font.defaultHeaderTitleStyle,
         headerLeft: props => <HeaderIcon.Back {...props} />,
+        headerStyleInterpolator: Platform.select({
+          ios: HeaderStyleInterpolators.forUIKit,
+        }),
       }}>
       {/* -- Header-less Navigators -- */}
       <RootStack.Group screenOptions={{ headerShown: false }}>

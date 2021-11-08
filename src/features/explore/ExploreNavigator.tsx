@@ -29,6 +29,8 @@ export default function ExploreNavigator() {
         headerBackTitleVisible: false,
         headerTitleStyle: font.defaultHeaderTitleStyle,
         headerStyle: { backgroundColor: color.white },
+        headerStyleInterpolator: HeaderStyleInterpolators.forFade,
+        cardStyleInterpolator: CardStyleInterpolators.forFadeFromCenter,
       }}>
       <ExploreStack.Screen
         name="Feed"
@@ -75,11 +77,7 @@ export default function ExploreNavigator() {
       <ExploreStack.Screen
         name="Search"
         component={SearchNavigator}
-        options={{
-          headerShown: false,
-          headerStyleInterpolator: HeaderStyleInterpolators.forFade,
-          cardStyleInterpolator: CardStyleInterpolators.forFadeFromCenter,
-        }}
+        options={{ headerShown: false }}
       />
     </ExploreStack.Navigator>
   );

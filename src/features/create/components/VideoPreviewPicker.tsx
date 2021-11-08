@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Keyboard, Platform, View } from 'react-native';
+import { Alert, Keyboard, Platform, View } from 'react-native';
 
 import { useField } from 'formik';
 import BottomSheet from '@gorhom/bottom-sheet';
@@ -8,19 +8,28 @@ import VideoPlayer from 'react-native-video';
 
 import * as utilities from 'src/utilities';
 import { color, layout } from 'src/constants';
-import { ActionBottomSheet, ActionBottomSheetItem } from 'src/components';
+import {
+  ActionBottomSheet,
+  ActionBottomSheetItem,
+  PlayButton,
+} from 'src/components';
 
 import PreviewPicker, { PreviewPickerProps } from './PreviewPicker';
+
+const MAXIMUM_DURATION_SECONDS = 60;
+const MAXIMUM_DURATION_MILLISECONDS = MAXIMUM_DURATION_SECONDS * 1000;
 
 // const command = `-i ${video.path} -loop -1 -vf "scale=320:-1" ${outputPath}`;
 
 export type VideoPreviewPickerProps = Pick<
   PreviewPickerProps<Video>,
   'fieldName' | 'maxCount' | 'caption' | 'description'
->;
+> & {
+  maxTimeLimit?: number;
+};
 
 export default function ViewPreviewPicker(props: VideoPreviewPickerProps) {
-  const [_field, _meta, helpers] = useField<Video[]>(props.fieldName);
+  const [_field, meta, helpers] = useField<Video[]>(props.fieldName);
 
   const previewPickerRef = React.useRef<PreviewPicker>(null);
   const videoPlayerRef = React.useRef<VideoPlayer>(null);
@@ -65,12 +74,53 @@ export default function ViewPreviewPicker(props: VideoPreviewPickerProps) {
 
     const handleSelectFromPhotoLibrary = async () => {
       try {
-        const selectedVideo = await ImageCropPicker.openPicker({
-          mediaType: 'video',
-          maxFiles: props.maxCount,
-        });
+        if (props.maxCount > 1) {
+          const selectedVideos = await ImageCropPicker.openPicker({
+            mediaType: 'video',
+            multiple: true,
+            maxFiles: props.maxCount,
+          });
 
-        helpers.setValue([selectedVideo]);
+          if (
+            selectedVideos.some(
+              video =>
+                video.duration &&
+                video.duration > MAXIMUM_DURATION_MILLISECONDS,
+            )
+          ) {
+            Alert.alert(
+              'Video Will Be Trimmed',
+              'One or more of your videos are longer than the maximum time ' +
+                `limit of ${MAXIMUM_DURATION_SECONDS} seconds. It will be ` +
+                'trimmed when you upload it.',
+            );
+          }
+
+          helpers.setValue([...meta.value, ...selectedVideos]);
+        } else {
+          const selectedVideo = await ImageCropPicker.openPicker({
+            mediaType: 'video',
+            multiple: false,
+            maxFiles: 1,
+          });
+
+          console.log({ selectedVideo });
+
+          if (
+            selectedVideo.duration &&
+            selectedVideo.duration > MAXIMUM_DURATION_MILLISECONDS
+          ) {
+            Alert.alert(
+              'Video Will Be Trimmed',
+              'This video is longer than the maximum time limit of ' +
+                `${MAXIMUM_DURATION_SECONDS} seconds. It will be trimmed ` +
+                'when you upload it.',
+            );
+          }
+
+          helpers.setValue([selectedVideo]);
+        }
+
         helpers.setTouched(true, true);
         previewPickerRef.current?.scrollToEnd();
       } catch (error) {
@@ -108,20 +158,21 @@ export default function ViewPreviewPicker(props: VideoPreviewPickerProps) {
         onAddItem={handleAddVideo}
         onSelectItemAtIndex={handlePlayVideoOnFullScreen}
         renderItem={({ item, itemWidth }) => (
-          <VideoPlayer
-            // paused
-            repeat
-            ref={videoPlayerRef}
-            source={{ uri: item.path }}
-            resizeMode="cover"
+          <View
             style={{
               width: itemWidth,
-              aspectRatio: 1,
-              backgroundColor: color.placeholder,
               borderRadius: layout.radius.md,
               overflow: 'hidden',
-            }}
-          />
+            }}>
+            <VideoPlayer
+              repeat
+              ref={videoPlayerRef}
+              source={{ uri: item.path }}
+              resizeMode="cover"
+              style={[{ aspectRatio: 1, backgroundColor: color.placeholder }]}
+            />
+            <PlayButton />
+          </View>
         )}
       />
       <ActionBottomSheet

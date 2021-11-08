@@ -1,6 +1,7 @@
-import React from 'react';
+import * as React from 'react';
 import {
   ActivityIndicator,
+  Keyboard,
   StyleSheet,
   Text,
   useWindowDimensions,
@@ -31,6 +32,10 @@ type LoadingOverlayProps = {
 export default function LoadingOverlay(props: LoadingOverlayProps) {
   const { message, caption, progress, onCancel } = props;
 
+  React.useEffect(() => {
+    Keyboard.dismiss();
+  }, []);
+
   return (
     <Portal>
       <BlurView
@@ -47,7 +52,7 @@ export default function LoadingOverlay(props: LoadingOverlayProps) {
           />
           <Text style={styles.message}>{message || 'Loading…'}</Text>
           <Text style={styles.caption}>
-            {caption || 'This may take a while'}
+            {caption || "This won't take long"}
           </Text>
           {progress && <ProgressBar progress={progress} />}
           {onCancel && <CancelButton onCancel={onCancel} />}

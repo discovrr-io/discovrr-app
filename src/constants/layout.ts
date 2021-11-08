@@ -1,6 +1,7 @@
 import { ViewStyle } from 'react-native';
 
 const SPACING_UNIT = 8;
+const RADIUS_UNIT = 8;
 
 export type Spacing = {
   huge: number;
@@ -25,9 +26,9 @@ export const spacing: Spacing = {
 };
 
 export const radius = {
-  lg: 16,
-  md: 12,
-  sm: 8,
+  lg: RADIUS_UNIT * 2,
+  md: RADIUS_UNIT * 1.5,
+  sm: RADIUS_UNIT,
   zero: 0,
 };
 

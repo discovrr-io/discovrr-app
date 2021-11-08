@@ -25,13 +25,14 @@ export namespace PostApi {
     let postContents: PostContents;
     const media: MediaSource[] = result.get('media') ?? [];
     const caption: string = result.get('caption') ?? '';
+    const thumbnail: MediaSource | undefined = result.get('thumbnail');
 
     if (media.length === 0) {
       postContents = { type: 'text', text: caption };
     } else if (media.length === 1 && media[0].mime.includes('video')) {
-      postContents = { type: 'video', source: media[0], caption };
+      postContents = { type: 'video', source: media[0], thumbnail, caption };
     } else {
-      postContents = { type: 'gallery', sources: media, caption };
+      postContents = { type: 'gallery', sources: media, thumbnail, caption };
     }
 
     const statistics: Parse.Object | undefined = result.get('statistics');

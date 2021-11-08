@@ -3,14 +3,11 @@ import {
   ActivityIndicator,
   Alert,
   Keyboard,
-  KeyboardAvoidingView,
-  Platform,
   SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   View,
 } from 'react-native';
 
@@ -330,32 +327,21 @@ function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
         <ScrollView
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={[layout.defaultScreenStyle, { flexGrow: 1 }]}>
-          <TouchableWithoutFeedback
-            accessible={false}
-            onPress={Keyboard.dismiss}>
-            <KeyboardAvoidingView
-              behavior="position"
-              keyboardVerticalOffset={Platform.select({
-                ios: -50,
-                android: -100,
-              })}>
-              <Formik<ProfileChangesForm>
-                initialValues={{
-                  avatar: undefined,
-                  displayName: profile.displayName,
-                  username: profile.username,
-                  biography: profile.biography,
-                }}
-                enableReinitialize={true}
-                validationSchema={profileChangesSchema}
-                onSubmit={async (values, helpers) => {
-                  await handleSaveChanges(values);
-                  helpers.resetForm({ values });
-                }}>
-                <ProfileSettingsFormikForm />
-              </Formik>
-            </KeyboardAvoidingView>
-          </TouchableWithoutFeedback>
+          <Formik<ProfileChangesForm>
+            initialValues={{
+              avatar: undefined,
+              displayName: profile.displayName,
+              username: profile.username,
+              biography: profile.biography,
+            }}
+            enableReinitialize={true}
+            validationSchema={profileChangesSchema}
+            onSubmit={async (values, helpers) => {
+              await handleSaveChanges(values);
+              helpers.resetForm({ values });
+            }}>
+            <ProfileSettingsFormikForm />
+          </Formik>
         </ScrollView>
       </SafeAreaView>
       {isSubmitting && (
@@ -440,6 +426,7 @@ function ProfileSettingsFormikForm() {
     });
   }, [navigation, dirty, isSubmitting, isValid, handleSubmit]);
 
+  // FIXME: Get this to work properly with KeyboardAvoidingView
   return (
     <>
       <View style={{ alignItems: 'center' }}>

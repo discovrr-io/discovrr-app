@@ -60,11 +60,11 @@
   - [ ] Ability to search workshops
   - [ ] Ability to search posts
 - Add new experience to create items with preview (WIP)
-  - [x] Create text post
-  - [x] Create gallery post
-  - [ ] Create video post
-  - [x] Create product
-  - [ ] Create workshop
+  - [x] Create text posts
+  - [x] Create gallery posts
+  - [ ] Create video posts
+  - [x] Create products
+  - [ ] Create workshops
 - Add ability to clear app cache from Settings
 - Add placeholder UI for reporting comments, posts and profiles
 

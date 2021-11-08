@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/bootsplash_logo.png" alt="logo" align="center">
+  <img src="assets/bootsplash_logo@1,5x.png" alt="logo" align="center">
 </p>
 
 # Discovrr [![CI][badge]][ci]

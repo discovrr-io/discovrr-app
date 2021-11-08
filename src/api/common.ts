@@ -51,6 +51,8 @@ export type MediaSource = {
   width?: number;
   height?: number;
   filename?: string;
+  /** Only available for videos. */
+  duration?: number | null;
 };
 
 /**

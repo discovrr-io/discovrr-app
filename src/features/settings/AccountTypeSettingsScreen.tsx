@@ -116,12 +116,7 @@ function LoadedAccountTypeSettingsScreen(
           <AccountTypeForm />
         </Formik>
       </ScrollView>
-      {isSubmitting && (
-        <LoadingOverlay
-          message="Apply changes…"
-          caption="This won't take long"
-        />
-      )}
+      {isSubmitting && <LoadingOverlay message="Apply changes…" />}
     </SafeAreaView>
   );
 }

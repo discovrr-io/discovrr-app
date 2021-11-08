@@ -1,5 +1,5 @@
 import storage from '@react-native-firebase/storage';
-import { Image } from 'react-native-image-crop-picker';
+import { Image, Video } from 'react-native-image-crop-picker';
 import { nanoid } from '@reduxjs/toolkit';
 
 import { MediaSource } from 'src/api';
@@ -48,5 +48,12 @@ export function mapImageToMediaSource(image: Image): MediaSource {
     size: image.size,
     width: image.width,
     height: image.height,
+  };
+}
+
+export function mapVideoToMediaSource(video: Video): MediaSource {
+  return {
+    ...mapImageToMediaSource(video),
+    duration: video.duration,
   };
 }

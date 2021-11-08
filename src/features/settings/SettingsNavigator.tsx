@@ -20,7 +20,7 @@ export default function renderSettingsNavigator() {
       <RootStack.Screen
         name="ProfileSettings"
         component={ProfileSettingsScreen}
-        options={{ title: 'Profile Settings' }}
+        options={{ title: 'My Profile' }}
       />
       <RootStack.Screen
         name="AccountTypeSettings"

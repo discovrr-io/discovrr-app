@@ -13,6 +13,7 @@ export { default as InAppWebView } from './InAppWebView';
 export { default as LoadingOverlay } from './LoadingOverlay';
 export { default as MasonryList } from './MasonryList';
 export { default as PlaceholderScreen } from './PlaceholderScreen';
+export { default as PlayButton } from './PlayButton';
 export { default as RouteError } from './RouteError';
 export { default as Spacer } from './Spacer';
 

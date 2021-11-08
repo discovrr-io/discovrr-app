@@ -11,8 +11,18 @@ export type PostId = EntityId & { __postIdBrand: any };
 
 export type PostContents<SourceItem = MediaSource> =
   | { type: 'text'; text: string }
-  | { type: 'gallery'; sources: SourceItem[]; caption: string }
-  | { type: 'video'; source: SourceItem; caption: string };
+  | {
+      type: 'gallery';
+      sources: SourceItem[];
+      thumbnail?: SourceItem;
+      caption: string;
+    }
+  | {
+      type: 'video';
+      source: SourceItem;
+      caption: string;
+      thumbnail?: SourceItem;
+    };
 
 export type PostLocation = {
   /**

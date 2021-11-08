@@ -113,15 +113,14 @@ function SearchHeader(
 ) {
   const headerHeight = getDefaultHeaderHeight(props.layout, false, 0);
   return (
-    <SafeAreaView edges={['top', 'left', 'right']}>
+    <SafeAreaView edges={['top', 'left', 'right']} style={props.containerStyle}>
       <View
         style={[
           {
             flexDirection: 'row',
-            minHeight: headerHeight,
             alignItems: 'center',
+            minHeight: headerHeight,
           },
-          props.containerStyle,
         ]}>
         {props.children}
       </View>
