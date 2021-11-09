@@ -8,11 +8,7 @@ import VideoPlayer from 'react-native-video';
 
 import * as utilities from 'src/utilities';
 import { color, layout } from 'src/constants';
-import {
-  ActionBottomSheet,
-  ActionBottomSheetItem,
-  PlayButton,
-} from 'src/components';
+import { ActionBottomSheet, ActionBottomSheetItem } from 'src/components';
 
 import PreviewPicker, { PreviewPickerProps } from './PreviewPicker';
 
@@ -104,7 +100,7 @@ export default function ViewPreviewPicker(props: VideoPreviewPickerProps) {
             maxFiles: 1,
           });
 
-          console.log({ selectedVideo });
+          console.log(selectedVideo);
 
           if (
             selectedVideo.duration &&
@@ -158,21 +154,21 @@ export default function ViewPreviewPicker(props: VideoPreviewPickerProps) {
         onAddItem={handleAddVideo}
         onSelectItemAtIndex={handlePlayVideoOnFullScreen}
         renderItem={({ item, itemWidth }) => (
-          <View
-            style={{
-              width: itemWidth,
-              borderRadius: layout.radius.md,
-              overflow: 'hidden',
-            }}>
-            <VideoPlayer
-              repeat
-              ref={videoPlayerRef}
-              source={{ uri: item.path }}
-              resizeMode="cover"
-              style={[{ aspectRatio: 1, backgroundColor: color.placeholder }]}
-            />
-            <PlayButton />
-          </View>
+          <VideoPlayer
+            repeat
+            ref={videoPlayerRef}
+            source={{ uri: item.path }}
+            resizeMode="cover"
+            style={[
+              {
+                width: itemWidth,
+                aspectRatio: 1,
+                borderRadius: layout.radius.md,
+                overflow: 'hidden',
+                backgroundColor: color.placeholder,
+              },
+            ]}
+          />
         )}
       />
       <ActionBottomSheet

@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import * as React from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
@@ -33,9 +33,10 @@ import { useAppDispatch, useOverridableContextOptions } from 'src/hooks';
 import { usePost } from './hooks';
 import { updatePostLikeStatus } from './posts-slice';
 import { Statistics } from 'src/models/common';
-import Animated, {
+import {
   runOnJS,
   useAnimatedStyle,
+  useDerivedValue,
   useSharedValue,
   withDelay,
   withTiming,
@@ -156,129 +157,8 @@ type PostItemCardBodyProps = CardElementOptions &
 function PostItemCardBody(props: PostItemCardBodyProps) {
   const { body, ...cardElementProps } = props;
 
-  // const isFocused = useIsFocused();
-  // const [isVideoPaused, setIsVideoPaused] = useState(false);
-
-  // useEffect(() => {
-  //   setIsVideoPaused(!isFocused);
-  // }, [isFocused]);
-
-  // const renderImageGallery = useCallback(
-  //   (
-  //     sources: MediaSource[],
-  //     caption: string,
-  //     elementOptions: CardElementOptions,
-  //   ) => {
-  //     const imagePreviewSource = sources[0];
-  //     const {
-  //       width: imageWidth = DEFAULT_IMAGE_DIMENSIONS.height,
-  //       height: imageHeight = DEFAULT_IMAGE_DIMENSIONS.width,
-  //     } = imagePreviewSource;
-  //
-  //     return (
-  //       <View>
-  //         <View>
-  //           {sources.length > 1 && (
-  //             <Card.Indicator
-  //               iconName="images"
-  //               position="top-right"
-  //               label={sources.length.toString()}
-  //               elementOptions={elementOptions}
-  //             />
-  //           )}
-  //           {body.statistics.totalViews > 1 && (
-  //             <Card.Indicator
-  //               iconName="eye"
-  //               position="bottom-left"
-  //               label={shortenLargeNumber(body.statistics.totalViews)}
-  //               elementOptions={elementOptions}
-  //             />
-  //           )}
-  //           <FastImage
-  //             resizeMode="contain"
-  //             source={{ uri: imagePreviewSource.url }}
-  //             style={{
-  //               width: '100%',
-  //               height: undefined,
-  //               aspectRatio:
-  //                 props.preferredMediaAspectRatio ?? imageWidth / imageHeight,
-  //               backgroundColor: color.placeholder,
-  //             }}
-  //           />
-  //         </View>
-  //         <PostItemCardCaption caption={caption} />
-  //       </View>
-  //     );
-  //   },
-  //   [body.statistics.totalViews, props.preferredMediaAspectRatio],
-  // );
-
-  // const renderVideoOrThumbnail = useCallback(
-  //   (
-  //     source: MediaSource,
-  //     thumbnail: MediaSource | undefined,
-  //     caption: string,
-  //     elementOptions: CardElementOptions,
-  //   ) => {
-  //     return (
-  //       <View>
-  //         <View>
-  //           {body.statistics.totalViews > 1 && (
-  //             <Card.Indicator
-  //               iconName="eye"
-  //               position="bottom-left"
-  //               label={shortenLargeNumber(body.statistics.totalViews)}
-  //               elementOptions={elementOptions}
-  //             />
-  //           )}
-  //           {thumbnail ? (
-  //             <FastImage
-  //               source={{ uri: thumbnail.url }}
-  //               style={{
-  //                 width: '100%',
-  //                 aspectRatio:
-  //                   props.preferredMediaAspectRatio ??
-  //                   (thumbnail.width ?? 1) / (thumbnail.height ?? 1),
-  //                 backgroundColor: color.placeholder,
-  //               }}
-  //             />
-  //           ) : (
-  //             <Video
-  //               muted
-  //               repeat
-  //               playWhenInactive
-  //               resizeMode="cover"
-  //               // paused={isVideoPaused}
-  //               // paused={true}
-  //               source={{
-  //                 uri: source.url,
-  //                 type: source.type,
-  //               }}
-  //               style={{
-  //                 width: '100%',
-  //                 aspectRatio:
-  //                   props.preferredMediaAspectRatio ??
-  //                   (source.width ?? 1) / (source.height ?? 1),
-  //                 backgroundColor: color.placeholder,
-  //               }}
-  //             />
-  //           )}
-  //           <PlayButton smallContent={elementOptions.smallContent} />
-  //         </View>
-  //         <PostItemCardCaption caption={caption} />
-  //       </View>
-  //     );
-  //   },
-  //   [],
-  // );
-
   switch (body.contents.type) {
     case 'gallery':
-      // return renderImageGallery(
-      //   body.contents.sources,
-      //   body.contents.caption,
-      //   cardElementProps,
-      // );
       return (
         <PostItemCardBodyImageGallery
           {...body.contents}
@@ -286,16 +166,11 @@ function PostItemCardBody(props: PostItemCardBodyProps) {
         />
       );
     case 'video':
-      // return renderVideoOrThumbnail(
-      //   body.contents.source,
-      //   body.contents.thumbnail,
-      //   body.contents.caption,
-      //   cardElementProps,
-      // );
       return (
         <PostItemCardBodyVideoThumbnailProps
           {...body.contents}
           statistics={body.statistics}
+          preferredMediaAspectRatio={props.preferredMediaAspectRatio}
         />
       );
     case 'text':
@@ -317,7 +192,7 @@ function PostItemCardBody(props: PostItemCardBodyProps) {
   }
 }
 
-type PostItemCardBodyImageGalleryProps = PreferredMediaAspectRatio & {
+type PostItemCardBodyImageGalleryProps = {
   sources: MediaSource[];
   caption: string;
   statistics: Statistics;
@@ -326,7 +201,7 @@ type PostItemCardBodyImageGalleryProps = PreferredMediaAspectRatio & {
 function PostItemCardBodyImageGallery(
   props: PostItemCardBodyImageGalleryProps,
 ) {
-  const { sources, caption, statistics, preferredMediaAspectRatio } = props;
+  const { sources, caption, statistics } = props;
 
   const elementOptions = useCardElementOptionsContext();
   const imagePreviewSource = props.sources[0];
@@ -360,8 +235,7 @@ function PostItemCardBodyImageGallery(
           style={{
             width: '100%',
             height: undefined,
-            aspectRatio:
-              /* preferredMediaAspectRatio ?? */ imageWidth / imageHeight,
+            aspectRatio: imageWidth / imageHeight,
             backgroundColor: color.placeholder,
           }}
         />
@@ -385,19 +259,10 @@ function PostItemCardBodyVideoThumbnailProps(
     props;
 
   const elementOptions = useCardElementOptionsContext();
-  const [isVideoPaused, setIsVideoPaused] = useState(false);
-
-  const playButtonOpacity = useSharedValue(0);
-  const playButtonStyle = useAnimatedStyle(() => ({
-    opacity: playButtonOpacity.value,
-  }));
-
-  useEffect(() => {
-    playButtonOpacity.value = withDelay(3000, withTiming(1));
-  }, [playButtonOpacity]);
+  const [viewWidth, setViewWidth] = React.useState(0);
 
   return (
-    <View>
+    <View onLayout={e => setViewWidth(e.nativeEvent.layout.width)}>
       <View>
         {statistics.totalViews > 1 && (
           <Card.Indicator
@@ -407,43 +272,86 @@ function PostItemCardBodyVideoThumbnailProps(
             elementOptions={elementOptions}
           />
         )}
-        {thumbnail ? (
-          <FastImage
-            source={{ uri: thumbnail.url }}
-            style={{
-              width: '100%',
-              aspectRatio:
-                // preferredMediaAspectRatio ??
-                (thumbnail.width ?? 1) / (thumbnail.height ?? 1),
-              backgroundColor: color.placeholder,
-            }}
-          />
-        ) : (
-          <Video
-            muted
-            repeat
-            paused={isVideoPaused}
-            playWhenInactive
-            resizeMode="cover"
-            source={{
-              uri: source.url,
-              type: source.type,
-            }}
-            style={{
-              width: '100%',
-              aspectRatio:
-                // preferredMediaAspectRatio ??
-                (source.width ?? 1) / (source.height ?? 1),
-              backgroundColor: color.placeholder,
-            }}
-          />
-        )}
-        <PlayButton
-          smallContent={elementOptions.smallContent}
-          style={playButtonStyle}
-        />
+        <View
+          style={{
+            maxHeight: preferredMediaAspectRatio
+              ? viewWidth / preferredMediaAspectRatio
+              : undefined,
+            alignItems: 'center',
+            justifyContent: 'center',
+            overflow: 'hidden',
+          }}>
+          {thumbnail ? (
+            <FastImage
+              source={{ uri: thumbnail.url }}
+              style={{
+                width: '100%',
+                aspectRatio: (thumbnail.width ?? 1) / (thumbnail.height ?? 1),
+                backgroundColor: color.placeholder,
+              }}
+            />
+          ) : (
+            <PostItemCardBodyVideoPreview source={source} />
+          )}
+        </View>
       </View>
       <PostItemCardCaption caption={caption} />
+    </View>
+  );
+}
+
+type PostItemCardBodyVideoPreviewProps = Pick<
+  PostItemCardBodyVideoThumbnailProps,
+  'source'
+>;
+
+function PostItemCardBodyVideoPreview(
+  props: PostItemCardBodyVideoPreviewProps,
+) {
+  const source = props.source;
+  const elementOptions = useCardElementOptionsContext();
+
+  const [isPreviewLoaded, setIsPreviewLoaded] = React.useState(false);
+  const [isPreviewFinished, setIsPreviewFinished] = React.useState(false);
+
+  const playButtonOpacity = useSharedValue(0);
+  const playButtonStyle = useAnimatedStyle(() => ({
+    opacity: playButtonOpacity.value,
+  }));
+
+  useDerivedValue(() => {
+    if (playButtonOpacity.value) {
+      runOnJS(setIsPreviewFinished)(true);
+    }
+  });
+
+  React.useEffect(() => {
+    if (isPreviewLoaded) {
+      // Wait for 3 seconds before fading in the play button
+      playButtonOpacity.value = withDelay(3 * 1000, withTiming(1));
+    }
+  }, [isPreviewLoaded, playButtonOpacity]);
+
+  return (
+    <View>
+      <Video
+        muted
+        playWhenInactive
+        paused={isPreviewFinished}
+        onLoadStart={() => setIsPreviewLoaded(false)}
+        onReadyForDisplay={() => setIsPreviewLoaded(true)}
+        resizeMode="cover"
+        source={{ uri: source.url, type: source.type }}
+        style={{
+          width: '100%',
+          aspectRatio: (source.width ?? 1) / (source.height ?? 1),
+          backgroundColor: color.placeholder,
+        }}
+      />
+      <PlayButton
+        smallContent={elementOptions.smallContent}
+        style={playButtonStyle}
+      />
     </View>
   );
 }

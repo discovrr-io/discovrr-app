@@ -63,69 +63,6 @@ export default function CreateItemPreviewScreen(
 
   const currentUploadProgress = useSharedValue(0);
 
-  const renderCardPreview = React.useCallback(() => {
-    switch (previewContent.type) {
-      case 'post':
-        return (
-          <PostItemCardPreview
-            contents={previewContent.contents}
-            author={myProfileDetails}
-            preferredMediaAspectRatio={
-              previewContent.contents.type === 'video' ? 2 / 3 : undefined
-            }
-            style={createItemPreviewScreenStyles.cardPreview}
-          />
-        );
-      case 'product':
-        return (
-          <ProductItemCardPreview
-            contents={previewContent.contents}
-            author={myProfileDetails}
-            style={createItemPreviewScreenStyles.cardPreview}
-          />
-        );
-      default:
-        return (
-          <Text style={[constants.font.medium]}>
-            {JSON.stringify(previewContent.contents)}
-          </Text>
-        );
-    }
-  }, [myProfileDetails, previewContent.type, previewContent.contents]);
-
-  const renderOptions = React.useCallback(() => {
-    switch (previewContent.type) {
-      case 'post':
-        return (
-          <Cell.Group label="Options">
-            <Cell.Navigator
-              label="Add location"
-              caption="No location set"
-              onPress={() => utilities.alertUnavailableFeature()}
-            />
-            <Cell.Switch
-              label="Enable comments"
-              value={true}
-              onValueChange={() => utilities.alertUnavailableFeature()}
-            />
-          </Cell.Group>
-        );
-      case 'product':
-        return (
-          <Cell.Group label="Options">
-            <Cell.Navigator
-              label="Add location"
-              caption="No location set"
-              onPress={() => utilities.alertUnavailableFeature()}
-            />
-          </Cell.Group>
-        );
-
-      default:
-        return null;
-    }
-  }, [previewContent.type]);
-
   const handleSubmit = React.useCallback(
     async () => {
       const uploadMediaToFirebase = async (
@@ -195,6 +132,7 @@ export default function CreateItemPreviewScreen(
 
           processedContents = { ...postContents, sources: processedSources };
         } else {
+          // TODO: Clear the thumbnails folder when video post successfully submit
           throw new Error(`Unimplemented post type: ${postContents.type}`);
         }
 
@@ -296,6 +234,69 @@ export default function CreateItemPreviewScreen(
       ),
     });
   }, [props.navigation, handleSubmit, isSubmitting]);
+
+  const renderCardPreview = React.useCallback(() => {
+    switch (previewContent.type) {
+      case 'post':
+        return (
+          <PostItemCardPreview
+            contents={{ ...previewContent.contents }}
+            author={myProfileDetails}
+            preferredMediaAspectRatio={
+              previewContent.contents.type === 'video' ? 2 / 3 : undefined
+            }
+            style={createItemPreviewScreenStyles.cardPreview}
+          />
+        );
+      case 'product':
+        return (
+          <ProductItemCardPreview
+            contents={previewContent.contents}
+            author={myProfileDetails}
+            style={createItemPreviewScreenStyles.cardPreview}
+          />
+        );
+      default:
+        return (
+          <Text style={[constants.font.medium]}>
+            {JSON.stringify(previewContent.contents)}
+          </Text>
+        );
+    }
+  }, [myProfileDetails, previewContent.type, previewContent.contents]);
+
+  const renderOptions = React.useCallback(() => {
+    switch (previewContent.type) {
+      case 'post':
+        return (
+          <Cell.Group label="Options">
+            <Cell.Navigator
+              label="Add location"
+              caption="No location set"
+              onPress={() => utilities.alertUnavailableFeature()}
+            />
+            <Cell.Switch
+              label="Enable comments"
+              value={true}
+              onValueChange={() => utilities.alertUnavailableFeature()}
+            />
+          </Cell.Group>
+        );
+      case 'product':
+        return (
+          <Cell.Group label="Options">
+            <Cell.Navigator
+              label="Add location"
+              caption="No location set"
+              onPress={() => utilities.alertUnavailableFeature()}
+            />
+          </Cell.Group>
+        );
+
+      default:
+        return null;
+    }
+  }, [previewContent.type]);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>

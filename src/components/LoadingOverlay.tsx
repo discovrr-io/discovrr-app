@@ -39,7 +39,7 @@ export default function LoadingOverlay(props: LoadingOverlayProps) {
   return (
     <Portal>
       <BlurView
-        blurRadius={3}
+        blurRadius={5}
         blurType="dark"
         style={{ position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 }}
       />

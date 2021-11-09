@@ -10,8 +10,9 @@ import {
 } from 'react-native';
 
 import { useField } from 'formik';
+
+import CharacterCounter from './CharacterCounter';
 import { color, font, layout } from 'src/constants';
-import { CharacterCounter } from '.';
 
 export type TextAreaProps = TextInputProps & {
   fieldName: string;
