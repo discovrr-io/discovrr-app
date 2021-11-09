@@ -83,7 +83,7 @@ export default function DiscoverFeed() {
       refreshControl={
         <RefreshControl
           tintColor={color.gray500}
-          refreshing={postIds.length > 0 && shouldRefresh}
+          refreshing={postIds.length > 0 && (isInitialRender || shouldRefresh)}
           onRefresh={handleRefresh}
         />
       }

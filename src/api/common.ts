@@ -42,8 +42,13 @@ export type ApiFetchStatuses<Id extends EntityId = string> = {
   statuses: Record<Id, ApiFetchStatus>;
 };
 
+// TODO: Distinguish between external and local media sources
 export type MediaSource = {
   mime: string;
+  /**
+   * The location of the media source, which may reside on the internet or
+   * locally. If a local file, it may have the `file://` scheme prepended.
+   */
   url: string;
   path?: string;
   size?: number;

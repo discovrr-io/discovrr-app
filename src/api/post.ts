@@ -1,8 +1,13 @@
 import Parse from 'parse/react-native';
 
-import { Post, ProfileId } from 'src/models';
-import { PostContents, PostId, PostLocation } from 'src/models/post';
+import { ProfileId } from 'src/models/profile';
 import { Pagination } from 'src/models/common';
+import Post, {
+  PostContents,
+  PostId,
+  PostLocation,
+  PostType,
+} from 'src/models/post';
 
 import {
   ApiError,
@@ -23,16 +28,19 @@ export namespace PostApi {
     myProfileId?: string | undefined,
   ): Post {
     let postContents: PostContents;
+    const kind: PostType = result.get('kind');
     const media: MediaSource[] = result.get('media') ?? [];
     const caption: string = result.get('caption') ?? '';
     const thumbnail: MediaSource | undefined = result.get('thumbnail');
 
-    if (media.length === 0) {
+    if (kind === 'text' || media.length === 0) {
       postContents = { type: 'text', text: caption };
-    } else if (media.length === 1 && media[0].mime.includes('video')) {
+    } else if (kind === 'video') {
       postContents = { type: 'video', source: media[0], thumbnail, caption };
-    } else {
+    } else if (kind === 'gallery') {
       postContents = { type: 'gallery', sources: media, thumbnail, caption };
+    } else {
+      throw new Error(`Unknown post kind: '${kind}'`);
     }
 
     const statistics: Parse.Object | undefined = result.get('statistics');
@@ -66,9 +74,10 @@ export namespace PostApi {
 
   export async function createPost(params: CreatePostParams): Promise<Post> {
     type CreatePostPayload = {
-      kind: Post['contents']['type'];
+      kind: PostType;
       caption: string;
       media?: MediaSource[];
+      thumbnail?: MediaSource;
       location?: PostLocation;
     };
 
@@ -79,6 +88,7 @@ export namespace PostApi {
           kind: 'gallery',
           caption: params.caption,
           media: params.sources,
+          thumbnail: params.thumbnail,
         };
         break;
       case 'video':
@@ -86,6 +96,7 @@ export namespace PostApi {
           kind: 'video',
           caption: params.caption,
           media: [params.source],
+          thumbnail: params.thumbnail,
         };
         break;
       case 'text':

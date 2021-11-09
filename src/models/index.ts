@@ -1,6 +1,5 @@
 export type { default as AppSettings } from './settings';
 export type { default as Notification, NotificationId } from './notification';
-export type { default as Post, PostId } from './post';
 export type { default as Product, ProductId } from './product';
 export type { default as User, UserId } from './user';
 
@@ -13,6 +12,15 @@ export type {
   CommentId,
   CommentReplyId,
 } from './comment';
+
+export type {
+  default as Post,
+  PostId,
+  PostType,
+  TextPostContents,
+  GalleryPostContents,
+  VideoPostContents,
+} from './post';
 
 export type {
   default as Profile,

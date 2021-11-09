@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+## [v3.0.4] (2021-11-10)
+
+## Added
+
+- Add ability to compress and upload video posts with boomerang GIF preview
+
+## Fixed
+
+- Minor bug fixes and improvements
+
 ## [v3.0.3] (2021-11-06)
 
 ### Changed
@@ -61,9 +71,9 @@
   - [ ] Ability to search posts
 - Add new experience to create items with preview (WIP)
   - [x] Create text posts
-  - [x] Create gallery posts
-  - [ ] Create video posts
-  - [x] Create products
+  - [x] Create gallery posts (2021-10-30)
+  - [x] Create video posts (2021-11-10)
+  - [x] Create products (2021-11-05)
   - [ ] Create workshops
 - Add ability to clear app cache from Settings
 - Add placeholder UI for reporting comments, posts and profiles

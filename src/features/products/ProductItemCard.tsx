@@ -2,24 +2,27 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
+import { useNavigation } from '@react-navigation/core';
 
-import * as constants from 'src/components/cards/constants';
 import { ApiFetchStatus, ProductApi } from 'src/api';
-import { AsyncGate, Card, Spacer } from 'src/components';
-import {
-  CardElementOptions,
-  CardElementProps,
-} from 'src/components/cards/common';
 import { color, font, layout } from 'src/constants';
 import { fetchProfileByVendorProfileId } from 'src/features/profiles/profiles-slice';
 import { useAppDispatch, useIsMounted } from 'src/hooks';
 import { Product, ProductId, Profile, VendorProfileId } from 'src/models';
-import { alertUnavailableFeature } from 'src/utilities';
+import { RootStackNavigationProp } from 'src/navigation';
+
+import { AsyncGate, Card, Spacer } from 'src/components';
+import { CardAuthorProps } from 'src/components/cards/CardAuthor';
+import {
+  CardElementOptions,
+  CardElementProps,
+} from 'src/components/cards/common';
+import {
+  CARD_PLACEHOLDER_TEXT_HEIGHT_SMALL,
+  CARD_PLACEHOLDER_TEXT_HEIGHT_LARGE,
+} from 'src/components/cards/constants';
 
 import { useProduct } from './hooks';
-import { useNavigation } from '@react-navigation/core';
-import { RootStackNavigationProp } from 'src/navigation';
-import { CardAuthorProps } from 'src/components/cards/CardAuthor';
 
 type ProductItemCardProps = CardElementProps & {
   productId: ProductId;
@@ -105,8 +108,8 @@ InnerProductItemCard.Pending = (props: CardElementProps) => {
                   productItemCardStyles.cardCaptionText,
                   {
                     height: elementOptions.smallContent
-                      ? constants.CARD_PLACEHOLDER_TEXT_HEIGHT_SMALL * 1.1
-                      : constants.CARD_PLACEHOLDER_TEXT_HEIGHT_LARGE * 1.4,
+                      ? CARD_PLACEHOLDER_TEXT_HEIGHT_SMALL * 1.1
+                      : CARD_PLACEHOLDER_TEXT_HEIGHT_LARGE * 1.4,
                   },
                 ]}
               />
@@ -116,8 +119,8 @@ InnerProductItemCard.Pending = (props: CardElementProps) => {
                   productItemCardStyles.cardCaptionPrice,
                   {
                     height: elementOptions.smallContent
-                      ? constants.CARD_PLACEHOLDER_TEXT_HEIGHT_SMALL * 1.25
-                      : constants.CARD_PLACEHOLDER_TEXT_HEIGHT_LARGE * 1.4,
+                      ? CARD_PLACEHOLDER_TEXT_HEIGHT_SMALL * 1.25
+                      : CARD_PLACEHOLDER_TEXT_HEIGHT_LARGE * 1.4,
                   },
                 ]}
               />

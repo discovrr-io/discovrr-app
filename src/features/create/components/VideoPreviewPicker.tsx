@@ -1,14 +1,15 @@
 import * as React from 'react';
 import { Alert, Keyboard, Platform, View } from 'react-native';
 
-import { useField } from 'formik';
 import BottomSheet from '@gorhom/bottom-sheet';
 import ImageCropPicker, { Video } from 'react-native-image-crop-picker';
 import VideoPlayer from 'react-native-video';
+import { useField } from 'formik';
+import { useFocusEffect } from '@react-navigation/core';
 
 import * as utilities from 'src/utilities';
-import { color, layout } from 'src/constants';
 import { ActionBottomSheet, ActionBottomSheetItem } from 'src/components';
+import { color, layout } from 'src/constants';
 
 import PreviewPicker, { PreviewPickerProps } from './PreviewPicker';
 
@@ -40,6 +41,15 @@ export default function ViewPreviewPicker(props: VideoPreviewPickerProps) {
       },
     ] as ActionBottomSheetItem[];
   }, []);
+
+  const [shouldPauseVideo, setShouldPauseVideo] = React.useState(false);
+  useFocusEffect(
+    React.useCallback(() => {
+      return () => {
+        setShouldPauseVideo(true);
+      };
+    }, []),
+  );
 
   const handleAddVideo = async () => {
     Keyboard.dismiss();
@@ -100,8 +110,6 @@ export default function ViewPreviewPicker(props: VideoPreviewPickerProps) {
             maxFiles: 1,
           });
 
-          console.log(selectedVideo);
-
           if (
             selectedVideo.duration &&
             selectedVideo.duration > MAXIMUM_DURATION_MILLISECONDS
@@ -156,8 +164,9 @@ export default function ViewPreviewPicker(props: VideoPreviewPickerProps) {
         renderItem={({ item, itemWidth }) => (
           <VideoPlayer
             repeat
+            paused={shouldPauseVideo}
             ref={videoPlayerRef}
-            source={{ uri: item.path }}
+            source={{ uri: item.sourceURL ?? item.path }}
             resizeMode="cover"
             style={[
               {

@@ -202,9 +202,9 @@ function PostItemCardBodyImageGallery(
   props: PostItemCardBodyImageGalleryProps,
 ) {
   const { sources, caption, statistics } = props;
-
   const elementOptions = useCardElementOptionsContext();
-  const imagePreviewSource = props.sources[0];
+  const imagePreviewSource = sources[0];
+
   const {
     width: imageWidth = DEFAULT_IMAGE_DIMENSIONS.height,
     height: imageHeight = DEFAULT_IMAGE_DIMENSIONS.width,
@@ -282,14 +282,20 @@ function PostItemCardBodyVideoThumbnailProps(
             overflow: 'hidden',
           }}>
           {thumbnail ? (
-            <FastImage
-              source={{ uri: thumbnail.url }}
-              style={{
-                width: '100%',
-                aspectRatio: (thumbnail.width ?? 1) / (thumbnail.height ?? 1),
-                backgroundColor: color.placeholder,
-              }}
-            />
+            <>
+              <FastImage
+                source={{ uri: thumbnail.url }}
+                style={{
+                  width: '100%',
+                  aspectRatio: (thumbnail.width ?? 1) / (thumbnail.height ?? 1),
+                  backgroundColor: color.placeholder,
+                }}
+              />
+              <PlayButton
+                smallContent={elementOptions.smallContent}
+                style={{ opacity: 0.5 }}
+              />
+            </>
           ) : (
             <PostItemCardBodyVideoPreview source={source} />
           )}

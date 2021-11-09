@@ -1,6 +1,9 @@
 import * as React from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import * as RNFS from 'react-native-fs';
+import { FFmpegKit, ReturnCode } from 'ffmpeg-kit-react-native';
+import { nanoid } from '@reduxjs/toolkit';
 import { useSharedValue } from 'react-native-reanimated';
 
 import * as constants from 'src/constants';
@@ -22,6 +25,8 @@ import {
   RootStackNavigationProp,
 } from 'src/navigation';
 
+const COMPRESSED_VIDEO_WIDTH = 425;
+
 type __PostContents = PostContents<MediaSource>;
 type __ProductContents = ProductApi.CreateProductParams;
 type __WorkshopContents = any;
@@ -33,6 +38,57 @@ export type CreateItemPreviewNavigationScreenParams =
 
 type CreateItemPreviewScreenProps =
   CreateItemStackScreenProps<'CreateItemPreview'>;
+
+async function compressVideo(video: MediaSource): Promise<MediaSource> {
+  const tempFolder = RNFS.TemporaryDirectoryPath.endsWith('/')
+    ? RNFS.TemporaryDirectoryPath.slice(0, -1)
+    : RNFS.TemporaryDirectoryPath;
+
+  const filename = `${nanoid()}.mp4`;
+  const videosFolder = `${tempFolder}/videos`;
+  const output = `${videosFolder}/${filename}`;
+
+  if (!(await RNFS.exists(videosFolder))) {
+    console.log("Creating 'videos' folder...");
+    await RNFS.mkdir(videosFolder);
+  }
+
+  console.log(`Compressing video '${filename}'...`);
+  const command = `-y -i "${video.url}" -t 00:01:00 -filter:v "scale=${COMPRESSED_VIDEO_WIDTH}:trunc(ow/a/2)*2,crop=${COMPRESSED_VIDEO_WIDTH}:min(in_h\\,${COMPRESSED_VIDEO_WIDTH}/2*3)" -c:a copy "${output}"`;
+
+  return await new Promise<MediaSource>((resolve, reject) => {
+    console.log('Running FFmpeg command:', command);
+    FFmpegKit.executeAsync(command, async session => {
+      const returnCode = await session.getReturnCode();
+      const duration = await session.getDuration();
+
+      if (!ReturnCode.isSuccess(returnCode)) {
+        if (ReturnCode.isCancel(returnCode)) {
+          console.warn('FFmpeg task cancelled!');
+        } else {
+          console.error(
+            'Failed to generate thumbnail with return code:',
+            returnCode,
+          );
+        }
+
+        reject(returnCode);
+      }
+
+      console.log(`Successfully generated thumbnail in ${duration} ms.`);
+      console.log('Getting media information....');
+
+      const outputURI = `file://${output}`;
+      const mediaInformation = await utilities.getMediaSourceForFile(outputURI);
+
+      resolve({
+        ...video,
+        ...mediaInformation,
+        duration: Math.min(video.duration ?? 0, 60 * 1000),
+      });
+    });
+  });
+}
 
 export default function CreateItemPreviewScreen(
   props: CreateItemPreviewScreenProps,
@@ -65,15 +121,22 @@ export default function CreateItemPreviewScreen(
 
   const handleSubmit = React.useCallback(
     async () => {
-      const uploadMediaToFirebase = async (
-        media: MediaSource[],
+      async function uploadImagesToFirebase(
+        images: MediaSource[],
         generateStoragePath: utilities.GenerateStoragePath,
-      ) => {
+      ): Promise<MediaSource[]> {
+        setOverlayContent(prev => ({
+          ...prev,
+          message: 'Uploading images…',
+          caption: 'This may take a while',
+          isUploading: true,
+        }));
+
         const processedSources: MediaSource[] = [];
 
-        for (let i = 0; i < media.length; i++) {
+        for (let i = 0; i < images.length; i++) {
           const index = i + 1;
-          const source = media[i];
+          const source = images[i];
           const [filename, task, reference] = utilities.uploadFileToFirebase(
             source,
             generateStoragePath,
@@ -81,12 +144,12 @@ export default function CreateItemPreviewScreen(
 
           setOverlayContent(prev => ({
             ...prev,
-            caption: `${index} of ${media.length}`,
+            caption: `${index} of ${images.length}`,
           }));
 
           console.log(
             $FUNC,
-            `Uploading '${filename}' (${index} of ${media.length})...`,
+            `Uploading '${filename}' (${index} of ${images.length})...`,
           );
 
           task.on('state_changed', snapshot => {
@@ -111,29 +174,107 @@ export default function CreateItemPreviewScreen(
         }
 
         return processedSources;
-      };
+      }
+
+      async function uploadVideoToFirebase(
+        video: MediaSource,
+        generateStoragePath: utilities.GenerateStoragePath,
+      ): Promise<MediaSource> {
+        setOverlayContent(prev => ({
+          ...prev,
+          message: 'Compressing video…',
+          caption: 'This may take a while',
+        }));
+
+        const compressedVideo = await compressVideo(video);
+
+        setOverlayContent(prev => ({
+          ...prev,
+          message: 'Uploading video…',
+          isUploading: true,
+        }));
+
+        const [videoFilename, videoTask, videoReference] =
+          utilities.uploadFileToFirebase(compressedVideo, generateStoragePath);
+
+        videoTask.on('state_changed', snapshot => {
+          const transferred = snapshot.bytesTransferred;
+          const totalBytes = snapshot.totalBytes;
+          const progress = Math.round((transferred / totalBytes) * 100);
+          currentUploadProgress.value = transferred / totalBytes;
+          console.log(
+            $FUNC,
+            `${videoFilename}: ${transferred} of ${totalBytes} (${progress}%)`,
+          );
+        });
+
+        return await videoTask.then(async () => ({
+          ...compressedVideo,
+          filename: videoFilename,
+          url: await videoReference.getDownloadURL(),
+          path: videoReference.fullPath,
+        }));
+      }
 
       const handleSubmitPost = async (postContents: __PostContents) => {
         let processedContents = postContents;
         if (postContents.type === 'text') {
           processedContents = postContents;
         } else if (postContents.type === 'gallery') {
-          setOverlayContent(prev => ({
-            ...prev,
-            message: 'Uploading images…',
-            isUploading: true,
-          }));
-
-          const processedSources = await uploadMediaToFirebase(
+          const processedSources = await uploadImagesToFirebase(
             postContents.sources,
-            ({ filename, isVideo }) =>
-              `/posts/${isVideo ? 'videos' : 'images'}/${filename}`,
+            ({ filename }) => `/posts/images/${filename}`,
           );
 
           processedContents = { ...postContents, sources: processedSources };
         } else {
+          const processedVideo = await uploadVideoToFirebase(
+            postContents.source,
+            ({ filename }) => `/posts/videos/${filename}`,
+          );
+
+          let processedThumbnail: MediaSource | undefined = undefined;
+          if (postContents.thumbnail) {
+            setOverlayContent(prev => ({
+              ...prev,
+              message: 'Uploading thumbnail…',
+              isUploading: true,
+            }));
+
+            const [thumbnailFilename, thumbnailTask, thumbnailReference] =
+              utilities.uploadFileToFirebase(
+                postContents.thumbnail,
+                ({ fileId }) => `posts/thumbnails/${fileId}.gif`,
+              );
+
+            thumbnailTask.on('state_changed', snapshot => {
+              const transferred = snapshot.bytesTransferred;
+              const totalBytes = snapshot.totalBytes;
+              const progress = Math.round((transferred / totalBytes) * 100);
+              currentUploadProgress.value = transferred / totalBytes;
+              console.log(
+                $FUNC,
+                `${thumbnailFilename}: ${transferred} of ${totalBytes} (${progress}%)`,
+              );
+            });
+
+            await thumbnailTask.then(async () => {
+              // @ts-ignore
+              processedThumbnail = {
+                ...postContents.thumbnail,
+                filename: thumbnailFilename,
+                url: await thumbnailReference.getDownloadURL(),
+                path: thumbnailReference.fullPath,
+              };
+            });
+          }
+
           // TODO: Clear the thumbnails folder when video post successfully submit
-          throw new Error(`Unimplemented post type: ${postContents.type}`);
+          processedContents = {
+            ...postContents,
+            source: processedVideo,
+            thumbnail: processedThumbnail,
+          };
         }
 
         setOverlayContent(prev => ({
@@ -165,7 +306,7 @@ export default function CreateItemPreviewScreen(
           isUploading: true,
         }));
 
-        const processedSources = await uploadMediaToFirebase(
+        const processedSources = await uploadImagesToFirebase(
           contents.media,
           ({ filename }) => `/products/${filename}`,
         );
@@ -280,6 +421,13 @@ export default function CreateItemPreviewScreen(
               value={true}
               onValueChange={() => utilities.alertUnavailableFeature()}
             />
+            {previewContent.contents.type === 'video' && (
+              <Cell.Switch
+                label="Mute video"
+                value={false}
+                onValueChange={() => utilities.alertUnavailableFeature()}
+              />
+            )}
           </Cell.Group>
         );
       case 'product':
@@ -296,7 +444,7 @@ export default function CreateItemPreviewScreen(
       default:
         return null;
     }
-  }, [previewContent.type]);
+  }, [previewContent.type, previewContent.contents.type]);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>

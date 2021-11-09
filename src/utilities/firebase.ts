@@ -54,6 +54,8 @@ export function mapImageToMediaSource(image: Image): MediaSource {
 export function mapVideoToMediaSource(video: Video): MediaSource {
   return {
     ...mapImageToMediaSource(video),
+    // Prefer higher quality source URL (only available on iOS)
+    url: video.sourceURL ?? video.path,
     duration: video.duration,
   };
 }

@@ -9,15 +9,9 @@ import {
 import * as yup from 'yup';
 import * as RNFS from 'react-native-fs';
 import { Formik, useFormikContext } from 'formik';
+import { FFmpegKit, ReturnCode } from 'ffmpeg-kit-react-native';
 import { nanoid } from '@reduxjs/toolkit';
 import { Video } from 'react-native-image-crop-picker';
-
-import {
-  FFmpegKit,
-  FFprobeKit,
-  MediaInformationSession,
-  ReturnCode,
-} from 'ffmpeg-kit-react-native';
 
 import * as constants from 'src/constants';
 import * as utilities from 'src/utilities';
@@ -35,7 +29,7 @@ import { useHandleSubmitNavigationButton } from './hooks';
 
 const MAX_MEDIA_COUNT = 1;
 const MAX_CAPTION_LENGTH = 280;
-const GIF_SCALE_WIDTH = 200;
+const GIF_SCALE_WIDTH = 175;
 
 type CreateVideoPostScreenProps =
   CreateItemDetailsTopTabScreenProps<'CreateVideoPost'>;
@@ -61,41 +55,10 @@ type VideoPostForm = Omit<yup.InferType<typeof videoPostSchema>, 'video'> & {
   video: Video[];
 };
 
-async function getThumbnailMediaInformation(
-  fileURI: string,
-): Promise<MediaSource> {
-  return await new Promise<MediaSource>((resolve, reject) => {
-    FFprobeKit.getMediaInformationAsync(fileURI, async session => {
-      const mediaSession = session as MediaInformationSession;
-      const returnCode = await mediaSession.getReturnCode();
-      const information = mediaSession.getMediaInformation();
-      const streams: any[] = information.getAllProperties()['streams'];
-
-      if (!ReturnCode.isSuccess(returnCode)) {
-        if (ReturnCode.isCancel(returnCode)) {
-          console.warn('FFmpeg task cancelled!');
-        } else {
-          console.error(
-            `Failed to generate get media information with return code:`,
-            returnCode,
-          );
-        }
-
-        reject(returnCode);
-      }
-
-      resolve({
-        mime: 'image/gif',
-        url: fileURI,
-        width: streams[0]?.['width'],
-        height: streams[0]?.['height'],
-      });
-    });
-  });
-}
-
 async function generateThumbnailPreview(video: Video): Promise<MediaSource> {
+  // Prefer higher quality source URL (only available on iOS)
   const input = video.sourceURL ?? video.path;
+
   // We're using nanoid here to always generate a unique filename. We could use
   // the filename from `input` instead, which would prevent new files from being
   // created if we've already generated a preview for that particular video, but
@@ -118,7 +81,7 @@ async function generateThumbnailPreview(video: Video): Promise<MediaSource> {
 
   // We'll overwrite existing file for now
   console.log(`Generating GIF preview for file '${filename}'...`);
-  const command = `-y -t 1 -i ${input} -filter_complex "reverse[r];[0][r]concat=n=2:v=1:a=0,fps=25,scale=${GIF_SCALE_WIDTH}:trunc(ow/a/2)*2,crop=${GIF_SCALE_WIDTH}:min(in_h\\,${GIF_SCALE_WIDTH}/2*3)" ${output}`;
+  const command = `-y -t 1 -i "${input}" -filter_complex "reverse[r];[0][r]concat=n=2:v=1:a=0,fps=25,scale=${GIF_SCALE_WIDTH}:trunc(ow/a/2)*2,crop=${GIF_SCALE_WIDTH}:min(in_h\\,${GIF_SCALE_WIDTH}/2*3)" "${output}"`;
 
   return await new Promise((resolve, reject) => {
     console.log('Running FFmpeg command:', command);
@@ -131,7 +94,7 @@ async function generateThumbnailPreview(video: Video): Promise<MediaSource> {
           console.warn('FFmpeg task cancelled!');
         } else {
           console.error(
-            `Failed to generate thumbnail with return code:`,
+            'Failed to generate thumbnail with return code:',
             returnCode,
           );
         }
@@ -140,11 +103,11 @@ async function generateThumbnailPreview(video: Video): Promise<MediaSource> {
       }
 
       console.log(`Successfully generated thumbnail in ${duration} ms.`);
-      console.log(`Getting media information...`);
+      console.log('Getting media information...');
 
       const outputURI = `file://${output}`;
-      const mediaInformation = await getThumbnailMediaInformation(outputURI);
-      resolve(mediaInformation);
+      const mediaSource = await utilities.getMediaSourceForFile(outputURI);
+      resolve({ mime: 'image/gif', ...mediaSource });
     });
   });
 }

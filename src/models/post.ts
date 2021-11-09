@@ -9,20 +9,31 @@ import { ProfileId } from './profile';
  */
 export type PostId = EntityId & { __postIdBrand: any };
 
+export type PostType = PostContents['type'];
+
+export type TextPostContents = {
+  type: 'text';
+  text: string;
+};
+
+export type GalleryPostContents<SourceItem = MediaSource> = {
+  type: 'gallery';
+  sources: SourceItem[];
+  thumbnail?: SourceItem;
+  caption: string;
+};
+
+export type VideoPostContents<SourceItem = MediaSource> = {
+  type: 'video';
+  source: SourceItem;
+  caption: string;
+  thumbnail?: SourceItem;
+};
+
 export type PostContents<SourceItem = MediaSource> =
-  | { type: 'text'; text: string }
-  | {
-      type: 'gallery';
-      sources: SourceItem[];
-      thumbnail?: SourceItem;
-      caption: string;
-    }
-  | {
-      type: 'video';
-      source: SourceItem;
-      caption: string;
-      thumbnail?: SourceItem;
-    };
+  | TextPostContents
+  | GalleryPostContents<SourceItem>
+  | VideoPostContents<SourceItem>;
 
 export type PostLocation = {
   /**
@@ -53,8 +64,8 @@ export default interface Post {
   /**
    * The main body of a given post.
    *
-   * The contents of a post differs depending on whether it is a text post, an
-   * image gallery post or a video post.
+   * The contents of a post differs depending on whether it is a text post, a
+   * gallery post or a video post.
    */
   readonly contents: PostContents;
 

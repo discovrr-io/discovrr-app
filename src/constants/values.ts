@@ -13,8 +13,8 @@ export const DEFAULT_ICON_LIKE_ANIMATION: Animation = 'rubberBand';
 export const APP_VERSION: string =
   nodePackage.version || `${getVersion()}-native` || '<unknown-version>';
 
-// Store version 3.0.0.5 (3000005)
-export const STORE_VERSION = createVersionString([3, 0, 0, 5] as const);
+// Store version 3.0.0.6 (3000006)
+export const STORE_VERSION = createVersionString([3, 0, 0, 6] as const);
 // Set this to the appropriate option any time the `STORE_VERSION` is changed
 export const STORE_SHOULD_SIGN_OUT = true;
 

@@ -1,17 +1,13 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import * as React from 'react';
 import {
+  ActivityIndicator,
   Alert,
   FlatList,
   KeyboardAvoidingView,
   Platform,
   RefreshControl,
   Share,
+  StyleProp,
   StyleSheet,
   Text,
   TextInput,
@@ -19,23 +15,34 @@ import {
   useWindowDimensions,
   View,
   ViewProps,
+  ViewStyle,
 } from 'react-native';
 
 import Carousel, { Pagination } from 'react-native-snap-carousel';
 import BottomSheet from '@gorhom/bottom-sheet';
 import FastImage from 'react-native-fast-image';
 import Icon from 'react-native-vector-icons/Ionicons';
+import Video from 'react-native-video';
 import { useNavigation } from '@react-navigation/core';
+
 import {
   SafeAreaView,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 
+import * as constants from 'src/constants';
+import * as utilities from 'src/utilities';
 import { MediaSource } from 'src/api';
-import { Comment, CommentId, Post, Profile } from 'src/models';
+import {
+  Comment,
+  CommentId,
+  GalleryPostContents,
+  Post,
+  Profile,
+  VideoPostContents,
+} from 'src/models';
 import { useAppDispatch, useAppSelector, useIsMounted } from 'src/hooks';
 import { RootStackNavigationProp, RootStackScreenProps } from 'src/navigation';
-import { alertSomethingWentWrong } from 'src/utilities';
 
 import {
   ActionBottomSheet,
@@ -48,13 +55,6 @@ import {
   LoadingOverlay,
   RouteError,
 } from 'src/components';
-
-import { color, font, layout } from 'src/constants';
-import { DEFAULT_IMAGE_DIMENSIONS } from 'src/constants/media';
-import {
-  DEFAULT_ACTIVE_OPACITY,
-  DEFAULT_MIN_BOTTOM_TAB_BAR_HEIGHT,
-} from 'src/constants/values';
 
 import CommentCell from 'src/features/comments/CommentCell';
 import { useIsMyProfile } from 'src/features/profiles/hooks';
@@ -69,10 +69,13 @@ import { usePost } from './hooks';
 import { deletePost, fetchPostById } from './posts-slice';
 import { PostItemCardFooter } from './PostItemCard';
 
-const COMMENT_REPLY_INDICATOR_HEIGHT = 50;
-const COMMENT_TEXT_INPUT_MIN_HEIGHT = DEFAULT_MIN_BOTTOM_TAB_BAR_HEIGHT;
-const COMMENT_TEXT_INPUT_MAX_HEIGHT = 230;
 const COMMENT_POST_BUTTON_WIDTH = 70;
+const COMMENT_REPLY_INDICATOR_HEIGHT = 50;
+const COMMENT_TEXT_INPUT_MAX_HEIGHT = 230;
+const COMMENT_TEXT_INPUT_MIN_HEIGHT =
+  constants.values.DEFAULT_MIN_BOTTOM_TAB_BAR_HEIGHT;
+
+const MEDIA_WIDTH_SCALE = 0.85;
 
 const ANDROID_SHARE_MESSAGE = `\
 Hey there! I want to show you something I found on Discovrr. Download the \
@@ -88,8 +91,8 @@ function SliderImage({ item: source }: SliderImageProps) {
   // to make sure the `height` and `width` fields are always available when
   // possible.
   const {
-    width = DEFAULT_IMAGE_DIMENSIONS.width,
-    height = DEFAULT_IMAGE_DIMENSIONS.height,
+    width = constants.media.DEFAULT_IMAGE_DIMENSIONS.width,
+    height = constants.media.DEFAULT_IMAGE_DIMENSIONS.height,
   } = source;
 
   return (
@@ -100,8 +103,8 @@ function SliderImage({ item: source }: SliderImageProps) {
         width: undefined,
         height: undefined,
         aspectRatio: width / height,
-        borderRadius: layout.radius.md,
-        backgroundColor: color.placeholder,
+        borderRadius: constants.layout.radius.md,
+        backgroundColor: constants.color.placeholder,
       }}
     />
   );
@@ -118,10 +121,10 @@ const PostHeaderComponent = ({ post }: { post: Post }) => {
     return selectProfileById(state, post.profileId);
   });
 
-  const [isDeletingPost, setIsDeletingPost] = useState(false);
+  const [isDeletingPost, setIsDeletingPost] = React.useState(false);
 
-  const actionBottomSheetRef = useRef<BottomSheet>(null);
-  const actionBottomSheetItems = useMemo(() => {
+  const actionBottomSheetRef = React.useRef<BottomSheet>(null);
+  const actionBottomSheetItems = React.useMemo(() => {
     let items: ActionBottomSheetItem[];
 
     if (isMyProfile) {
@@ -159,7 +162,7 @@ const PostHeaderComponent = ({ post }: { post: Post }) => {
           navigation.goBack();
         } catch (error: any) {
           console.error($FUNC, 'Failed to delete post:', error);
-          alertSomethingWentWrong(
+          utilities.alertSomethingWentWrong(
             error.message ??
               "We weren't able to delete this post. Please try again later.",
           );
@@ -217,12 +220,12 @@ const PostHeaderComponent = ({ post }: { post: Post }) => {
         console.log($FUNC, 'Successfully shared post:', result.activityType);
       }
     } catch (error: any) {
-      alertSomethingWentWrong(error.message);
+      utilities.alertSomethingWentWrong(error.message);
     }
   };
 
   return (
-    <View style={{ marginBottom: layout.spacing.md }}>
+    <View style={{ marginBottom: constants.layout.spacing.md }}>
       <PostDetailsContent post={post} />
       <PostItemCardFooter
         post={post}
@@ -231,7 +234,7 @@ const PostHeaderComponent = ({ post }: { post: Post }) => {
         onPressMenu={() => actionBottomSheetRef.current?.expand()}
         onPressShare={handlePressShare}
         style={{
-          paddingHorizontal: layout.defaultScreenMargins.horizontal,
+          paddingHorizontal: constants.layout.defaultScreenMargins.horizontal,
           paddingBottom: 0,
         }}
       />
@@ -247,10 +250,14 @@ const PostHeaderComponent = ({ post }: { post: Post }) => {
 
 const AddCommentComponent = () => (
   <View style={{ alignItems: 'center' }}>
-    <Text style={[font.mediumBold, { textAlign: 'center' }]}>
+    <Text style={[constants.font.mediumBold, { textAlign: 'center' }]}>
       Why not add to the conversation?
     </Text>
-    <Text style={[font.small, { textAlign: 'center', color: color.gray500 }]}>
+    <Text
+      style={[
+        constants.font.small,
+        { textAlign: 'center', color: constants.color.gray500 },
+      ]}>
       Reply with your own comment below!
     </Text>
   </View>
@@ -279,13 +286,15 @@ export default function PostDetailsScreenWrapper(
           return (
             <RouteError
               message="There doesn't seem to be a post here"
-              containerStyle={{ backgroundColor: color.white }}
+              containerStyle={{ backgroundColor: constants.color.white }}
             />
           );
         return <PostDetailsScreen post={post} />;
       }}
       onRejected={_ => (
-        <RouteError containerStyle={{ backgroundColor: color.white }} />
+        <RouteError
+          containerStyle={{ backgroundColor: constants.color.white }}
+        />
       )}
     />
   );
@@ -307,22 +316,22 @@ function PostDetailsScreen({ post }: PostDetailsScreenProps) {
   const dispatch = useAppDispatch();
   const isMounted = useIsMounted();
 
-  const flatListRef = useRef<FlatList<CommentId>>(null);
-  const textInputRef = useRef<TextInput>(null);
+  const flatListRef = React.useRef<FlatList<CommentId>>(null);
+  const textInputRef = React.useRef<TextInput>(null);
 
-  const [isInitialRender, setIsInitialRender] = useState(true);
-  const [shouldRefresh, setShouldRefresh] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [isInitialRender, setIsInitialRender] = React.useState(true);
+  const [shouldRefresh, setShouldRefresh] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
 
-  const [commentTextInput, setCommentTextInput] = useState('');
-  const [isProcessingComment, setIsProcessingComment] = useState(false);
-  const [replyContext, setReplyContext] = useState<PostReplyContext>({
+  const [commentTextInput, setCommentTextInput] = React.useState('');
+  const [isProcessingComment, setIsProcessingComment] = React.useState(false);
+  const [replyContext, setReplyContext] = React.useState<PostReplyContext>({
     type: 'post',
   });
 
   const commentIds = useAppSelector(st => selectCommentsForPost(st, post.id));
 
-  useEffect(
+  React.useEffect(
     () => {
       if (isInitialRender || shouldRefresh)
         (async () => {
@@ -403,7 +412,7 @@ function PostDetailsScreen({ post }: PostDetailsScreenProps) {
       }
     } catch (error) {
       console.error('Failed to post comment:', error);
-      alertSomethingWentWrong();
+      utilities.alertSomethingWentWrong();
     } finally {
       if (isMounted.current) {
         setIsProcessingComment(false);
@@ -412,7 +421,7 @@ function PostDetailsScreen({ post }: PostDetailsScreenProps) {
     }
   };
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (replyContext.type !== 'post') {
       setCommentTextInput(`@${replyContext.recipient.username} `);
     }
@@ -451,7 +460,7 @@ function PostDetailsScreen({ post }: PostDetailsScreenProps) {
           ListFooterComponentStyle={postDetailsScreenStyles.listFooter}
           refreshControl={
             <RefreshControl
-              tintColor={color.gray500}
+              tintColor={constants.color.gray500}
               refreshing={!isInitialRender && shouldRefresh}
               onRefresh={handleRefresh}
             />
@@ -466,7 +475,7 @@ function PostDetailsScreen({ post }: PostDetailsScreenProps) {
                 postDetailsScreenStyles.commentCell,
                 replyContext.type === 'comment' &&
                   index === replyContext.index && {
-                    backgroundColor: color.gray100,
+                    backgroundColor: constants.color.gray100,
                   },
               ]}
             />
@@ -478,16 +487,16 @@ function PostDetailsScreen({ post }: PostDetailsScreenProps) {
               <Text
                 numberOfLines={1}
                 style={[
-                  font.smallBold,
+                  constants.font.smallBold,
                   postDetailsScreenStyles.commentBoxIndicatorText,
                 ]}>
                 Replying to {replyContext.recipient.displayName}…
               </Text>
               <TouchableOpacity
-                activeOpacity={DEFAULT_ACTIVE_OPACITY}
+                activeOpacity={constants.values.DEFAULT_ACTIVE_OPACITY}
                 onPress={() => setReplyContext({ type: 'post' })}
                 style={postDetailsScreenStyles.commentBoxIndicatorCloseIcon}>
-                <Icon name="close" size={24} color={color.gray700} />
+                <Icon name="close" size={24} color={constants.color.gray700} />
               </TouchableOpacity>
             </View>
           )}
@@ -502,16 +511,19 @@ function PostDetailsScreen({ post }: PostDetailsScreenProps) {
               onChangeText={setCommentTextInput}
               editable={!isProcessingComment}
               placeholder="Add a comment…"
-              placeholderTextColor={color.gray500}
-              selectionColor={Platform.OS === 'ios' ? color.accent : undefined}
+              placeholderTextColor={constants.color.gray500}
+              selectionColor={
+                Platform.OS === 'ios' ? constants.color.accent : undefined
+              }
               style={[
-                font.small,
+                constants.font.small,
                 postDetailsScreenStyles.commentBoxTextInput,
-                isProcessingComment && { color: color.gray500 },
+                isProcessingComment && { color: constants.color.gray500 },
                 Platform.OS === 'ios' && {
-                  paddingTop: layout.spacing.lg * 1.2,
-                  paddingBottom: layout.spacing.lg * 1.2,
-                  paddingRight: layout.defaultScreenMargins.horizontal * 1.5,
+                  paddingTop: constants.layout.spacing.lg * 1.2,
+                  paddingBottom: constants.layout.spacing.lg * 1.2,
+                  paddingRight:
+                    constants.layout.defaultScreenMargins.horizontal * 1.5,
                   minHeight: COMMENT_TEXT_INPUT_MIN_HEIGHT,
                   maxHeight: COMMENT_TEXT_INPUT_MAX_HEIGHT,
                 },
@@ -536,27 +548,27 @@ function PostDetailsScreen({ post }: PostDetailsScreenProps) {
 
 const postDetailsScreenStyles = StyleSheet.create({
   listHeader: {
-    paddingTop: layout.spacing.md,
+    paddingTop: constants.layout.spacing.md,
   },
   listFooter: {
-    paddingTop: layout.spacing.md * 1.5,
-    paddingBottom: layout.spacing.lg,
+    paddingTop: constants.layout.spacing.md * 1.5,
+    paddingBottom: constants.layout.spacing.lg,
   },
   commentCell: {
-    paddingHorizontal: layout.defaultScreenMargins.horizontal,
-    paddingTop: layout.spacing.md,
+    paddingHorizontal: constants.layout.defaultScreenMargins.horizontal,
+    paddingTop: constants.layout.spacing.md,
   },
   commentBoxIndicator: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: color.gray100,
-    paddingLeft: layout.spacing.md * 1.5,
+    backgroundColor: constants.color.gray100,
+    paddingLeft: constants.layout.spacing.md * 1.5,
     height: COMMENT_REPLY_INDICATOR_HEIGHT,
   },
   commentBoxIndicatorText: {
     flexGrow: 1,
     flexShrink: 1,
-    color: color.gray700,
+    color: constants.color.gray700,
   },
   commentBoxIndicatorCloseIcon: {
     alignItems: 'center',
@@ -568,15 +580,15 @@ const postDetailsScreenStyles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-end',
     minHeight: COMMENT_TEXT_INPUT_MIN_HEIGHT,
-    backgroundColor: color.white,
-    borderTopWidth: layout.border.thin,
-    borderColor: color.gray100,
+    backgroundColor: constants.color.white,
+    borderTopWidth: constants.layout.border.thin,
+    borderColor: constants.color.gray100,
   },
   commentBoxTextInput: {
     flexGrow: 1,
     flexShrink: 1,
-    color: color.black,
-    paddingLeft: layout.defaultScreenMargins.horizontal * 1.5,
+    color: constants.color.black,
+    paddingLeft: constants.layout.defaultScreenMargins.horizontal * 1.5,
   },
   commentBoxPostButton: {
     justifyContent: 'center',
@@ -591,69 +603,38 @@ type PostDetailsContentProps = ViewProps & {
 
 function PostDetailsContent(props: PostDetailsContentProps) {
   const { post, ...restProps } = props;
-  const { width: windowWidth } = useWindowDimensions();
 
-  const carouselRef = useRef<Carousel<MediaSource> | null>(null);
-  const [activeMediaIndex, setActiveMediaIndex] = useState(0);
-
-  const renderPostContent = useCallback(() => {
+  const renderPostContent = React.useCallback(() => {
     switch (post.contents.type) {
       case 'gallery':
         return (
-          <View>
-            <Carousel
-              data={post.contents.sources}
-              ref={c => (carouselRef.current = c)}
-              // For some reason, the default FlatList implementation doesn't
-              // render on initial mount for iOS, so we'll use the ScrollView
-              // implementation instead. This isn't required for Android.
-              useScrollView={Platform.OS === 'ios'}
-              sliderWidth={windowWidth}
-              itemWidth={windowWidth * 0.85}
-              onSnapToItem={setActiveMediaIndex}
-              contentContainerCustomStyle={{ alignItems: 'center' }}
-              renderItem={({ item }) => <SliderImage item={item} />}
-            />
-            <Pagination
-              activeDotIndex={activeMediaIndex}
-              dotsLength={post.contents.sources.length}
-              dotStyle={{
-                width: 10,
-                height: 10,
-                borderRadius: 5,
-                marginBottom: layout.spacing.sm,
-                backgroundColor: color.gray700,
-              }}
-              containerStyle={{
-                paddingTop: layout.spacing.lg,
-                paddingBottom: 0,
-              }}
-            />
-            <Text
-              style={[
-                font.medium,
-                postDetailsContentStyles.caption,
-                post.location && { marginBottom: 0 },
-              ]}>
-              {post.contents.caption}
-            </Text>
-          </View>
+          <GalleryPostDetailsContent
+            contents={post.contents}
+            location={post.location}
+          />
         );
       case 'video':
         return (
-          <Text style={[font.large, { textAlign: 'center' }]}>[VIDEO]</Text>
+          <VideoPostDetailsContent
+            contents={post.contents}
+            location={post.location}
+          />
         );
       case 'text': /* FALLTHROUGH */
       default:
         return (
-          <View style={postDetailsContentStyles.dialogBox}>
-            <Text style={[font.large, postDetailsContentStyles.dialogBoxText]}>
+          <View style={postDetailsContentStyles.textPostContainer}>
+            <Text
+              style={[
+                constants.font.large,
+                postDetailsContentStyles.textPostText,
+              ]}>
               {post.contents.text}
             </Text>
           </View>
         );
     }
-  }, [activeMediaIndex, windowWidth, post]);
+  }, [post]);
 
   return (
     <View style={[restProps.style]}>
@@ -661,12 +642,13 @@ function PostDetailsContent(props: PostDetailsContentProps) {
       {post.location && (
         <Text
           style={[
-            font.small,
+            constants.font.small,
             {
-              color: color.gray500,
-              marginHorizontal: layout.defaultScreenMargins.horizontal * 1.5,
-              marginTop: layout.spacing.xs * 1.5,
-              marginBottom: layout.spacing.md,
+              color: constants.color.gray500,
+              marginHorizontal:
+                constants.layout.defaultScreenMargins.horizontal * 1.5,
+              marginTop: constants.layout.spacing.xs * 1.5,
+              marginBottom: constants.layout.spacing.md,
             },
           ]}>
           {post.location.text}
@@ -677,15 +659,147 @@ function PostDetailsContent(props: PostDetailsContentProps) {
 }
 
 const postDetailsContentStyles = StyleSheet.create({
-  dialogBox: {
-    paddingHorizontal: layout.defaultScreenMargins.horizontal * 1.5,
-    marginBottom: layout.spacing.md,
+  textPostContainer: {
+    paddingHorizontal: constants.layout.defaultScreenMargins.horizontal * 1.5,
+    marginBottom: constants.layout.spacing.md,
   },
-  dialogBoxText: {
-    color: color.black,
+  textPostText: {
+    color: constants.color.black,
   },
+});
+
+type GalleryPostDetailsContentProps = {
+  contents: GalleryPostContents;
+  location?: Post['location'];
+};
+
+function GalleryPostDetailsContent(props: GalleryPostDetailsContentProps) {
+  const { contents, location } = props;
+  const { width: windowWidth } = useWindowDimensions();
+
+  const carouselRef = React.useRef<Carousel<MediaSource> | null>(null);
+  const [activeMediaIndex, setActiveMediaIndex] = React.useState(0);
+
+  return (
+    <View>
+      <Carousel
+        data={contents.sources}
+        ref={c => (carouselRef.current = c)}
+        // For some reason, the default FlatList implementation doesn't
+        // render on initial mount for iOS, so we'll use the ScrollView
+        // implementation instead. This isn't required for Android.
+        useScrollView={Platform.OS === 'ios'}
+        sliderWidth={windowWidth}
+        itemWidth={windowWidth * 0.85}
+        onSnapToItem={setActiveMediaIndex}
+        contentContainerCustomStyle={{ alignItems: 'center' }}
+        renderItem={({ item }) => <SliderImage item={item} />}
+      />
+      <Pagination
+        activeDotIndex={activeMediaIndex}
+        dotsLength={contents.sources.length}
+        dotStyle={{
+          width: 10,
+          height: 10,
+          borderRadius: 5,
+          marginBottom: constants.layout.spacing.sm,
+          backgroundColor: constants.color.gray700,
+        }}
+        containerStyle={{
+          paddingTop: constants.layout.spacing.lg,
+          paddingBottom: 0,
+        }}
+      />
+      <PostDetailsContentCaption
+        caption={contents.caption}
+        style={[location && { marginBottom: 0 }]}
+      />
+    </View>
+  );
+}
+
+type VideoPostDetailsContentProps = {
+  contents: VideoPostContents;
+  location?: Post['location'];
+};
+
+function VideoPostDetailsContent(props: VideoPostDetailsContentProps) {
+  const { contents, location } = props;
+  const { width: windowWidth } = useWindowDimensions();
+
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  const aspectRatio = React.useMemo(() => {
+    const { width = 1, height = 1 } = contents.source;
+    return width / height;
+  }, [contents.source]);
+
+  return (
+    <View>
+      <View style={videoPostDetailsContentStyle.videoContainer}>
+        <Video
+          repeat
+          controls
+          ignoreSilentSwitch="ignore"
+          onLoad={() => setIsLoading(false)}
+          source={{ uri: contents.source.url }}
+          style={[
+            videoPostDetailsContentStyle.video,
+            { aspectRatio, width: windowWidth * MEDIA_WIDTH_SCALE },
+          ]}
+        />
+        {isLoading && (
+          <ActivityIndicator
+            size="large"
+            color={constants.color.gray500}
+            style={videoPostDetailsContentStyle.activityIndicator}
+          />
+        )}
+      </View>
+      <PostDetailsContentCaption
+        caption={contents.caption}
+        style={[location && { marginBottom: 0 }]}
+      />
+    </View>
+  );
+}
+
+const videoPostDetailsContentStyle = StyleSheet.create({
+  videoContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  video: {
+    backgroundColor: constants.color.placeholder,
+    borderRadius: constants.layout.radius.md,
+  },
+  activityIndicator: {
+    position: 'absolute',
+    transform: [{ scale: 1.5 }],
+  },
+});
+
+type PostDetailsContentCaptionProps = {
+  caption: string;
+  style?: StyleProp<ViewStyle>;
+};
+
+function PostDetailsContentCaption(props: PostDetailsContentCaptionProps) {
+  return (
+    <Text
+      style={[
+        constants.font.medium,
+        postDetailsContentCaptionStyles.caption,
+        props.style,
+      ]}>
+      {props.caption}
+    </Text>
+  );
+}
+
+const postDetailsContentCaptionStyles = StyleSheet.create({
   caption: {
-    marginVertical: layout.spacing.md * 1.5,
-    marginHorizontal: layout.defaultScreenMargins.horizontal * 1.5,
+    marginVertical: constants.layout.spacing.md * 1.5,
+    marginHorizontal: constants.layout.defaultScreenMargins.horizontal * 1.5,
   },
 });
