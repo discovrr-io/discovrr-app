@@ -127,7 +127,8 @@
   - Discover tab (previously Home tab)
   - Notifications tab (previously in drawer)
 
-[unreleased]: https://github.com/discovrr-io/discovrr-app/compare/v3.0.3...HEAD
+[unreleased]: https://github.com/discovrr-io/discovrr-app/compare/v3.0.4...HEAD
+[v3.0.4]: https://github.com/discovrr-io/discovrr-app/compare/v3.0.3...v3.0.4
 [v3.0.3]: https://github.com/discovrr-io/discovrr-app/compare/v3.0.2...v3.0.3
 [v3.0.2]: https://github.com/discovrr-io/discovrr-app/compare/v3.0.1...v3.0.2
 [v3.0.1]: https://github.com/discovrr-io/discovrr-app/compare/v3.0.0...v3.0.1
