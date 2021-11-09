@@ -54,12 +54,17 @@ export namespace AuthApi {
     }
 
     const displayName: string | undefined = profile.get('displayName');
-    if (!displayName && firebaseUser.displayName) {
+    if ((!displayName || displayName === '---') && firebaseUser.displayName) {
       profile.set('displayName', firebaseUser.displayName);
       syncProfile = true;
-    } else if (displayName /* && !firebaseUser.displayName */) {
+    } else if (displayName) {
       console.log($FUNC, 'Updating Firebase display name...');
       await firebaseUser.updateProfile({ displayName });
+    } else {
+      const username: string = profile.get('username');
+      profile.set('displayName', username);
+      console.log($FUNC, 'Setting Firebase display name to username...');
+      await firebaseUser.updateProfile({ displayName: username });
     }
 
     // const avatar: MediaSource | undefined = profile.get('avatar');
