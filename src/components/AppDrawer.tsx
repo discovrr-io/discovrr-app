@@ -1,5 +1,5 @@
 import React from 'react';
-import { Alert, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Linking, Text, TouchableOpacity, View } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -99,6 +99,36 @@ function AppDrawer(props: AppDrawerProps & { profileId: ProfileId }) {
   const handleNavigation = (screen: keyof RootStackParamList) => {
     navigation.closeDrawer();
     navigation.getParent<RootStackNavigationProp>().navigate(screen);
+  };
+
+  const handleSendFeedback = async () => {
+    const subject = `Feedback for Discovrr v${constants.values.APP_VERSION}`;
+    const body = `Hi Discovrr Team, I've been using your app and would like to share some feedback to you.`;
+    const address = 'milos@discovrr.com';
+    const link = `mailto:${address}?subject=${subject}&body=${body}`;
+
+    const errorMessage =
+      `Please send your feedback to ${address} instead. We'll get back to ` +
+      `you shortly.\n\nThank you for considering sending us feedback.`;
+
+    const canOpen = await Linking.canOpenURL(link);
+
+    if (!canOpen) {
+      Alert.alert(
+        'Cannot Open Link',
+        "Looks like your device doesn't support email links. " + errorMessage,
+      );
+      return;
+    }
+
+    try {
+      await Linking.openURL(link);
+    } catch (error) {
+      Alert.alert(
+        'Cannot Open Link',
+        "We couldn't open this link for you. " + errorMessage,
+      );
+    }
   };
 
   const handleLogOut = () => {
@@ -205,7 +235,7 @@ function AppDrawer(props: AppDrawerProps & { profileId: ProfileId }) {
       <AppDrawerItem
         label="Send Us Feedback"
         iconName="chatbubbles-outline"
-        onPress={() => utilities.alertUnavailableFeature()}
+        onPress={handleSendFeedback}
       />
 
       <Divider />

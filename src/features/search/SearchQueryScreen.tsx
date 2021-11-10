@@ -15,7 +15,7 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 
 import * as searchSlice from './search-slice';
-import { Spacer } from 'src/components';
+import { EmptyContainer, Spacer } from 'src/components';
 import { color, font, layout } from 'src/constants';
 import { useAppDispatch, useAppSelector } from 'src/hooks';
 import { SearchStackScreenProps } from 'src/navigation';
@@ -55,6 +55,12 @@ export default function SearchQueryScreen(props: SearchQueryScreenProps) {
             paddingVertical: layout.defaultScreenMargins.vertical,
             paddingHorizontal: layout.defaultScreenMargins.horizontal,
           }}
+          ListEmptyComponent={
+            <EmptyContainer
+              emoji="🔍"
+              message="You haven't searched for anything (yet!)"
+            />
+          }
           renderItem={({ item: query, index }) => (
             <SearchHistoryItem
               label={query}

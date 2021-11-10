@@ -372,21 +372,21 @@ export namespace AuthApi {
       const provider: string | undefined =
         firebaseUser.providerData[0]?.providerId;
 
-      const newProfile: Parse.Object = await Parse.Cloud.run(
-        'createProfileForNewUser',
+      // We'll update the profile here as the server will automatically generate
+      // a profile for us when signing up (or logging in for the first time via
+      // Google or Apple).
+      console.log($FUNC, `Updating new profile...`);
+      const updatedProfile: Parse.Object = await Parse.Cloud.run(
+        'updateProfileForCurrentUser',
         {
-          kind,
-          email,
-          displayName,
-          username,
-          provider,
+          changes: { kind, email, displayName, username, provider },
         },
       );
 
       const user: User = {
         provider,
         id: parseUser.id as UserId,
-        profileId: newProfile.id as ProfileId,
+        profileId: updatedProfile.id as ProfileId,
       };
 
       const currentSession = await Parse.Session.current();

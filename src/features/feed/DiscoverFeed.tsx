@@ -47,7 +47,11 @@ export default function DiscoverFeed() {
             fetchAllPosts({ pagination, reload: true }),
           ).unwrap();
 
-          const profileIds = [...new Set(posts.map(post => post.profileId))];
+          // Don't include "Anonymous" profiles
+          const filteredProfileIds = posts
+            .map(post => post.profileId)
+            .filter(Boolean);
+          const profileIds = [...new Set(filteredProfileIds)];
           console.log($FUNC, 'Profiles to fetch:', profileIds);
 
           await Promise.all(

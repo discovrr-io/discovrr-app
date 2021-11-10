@@ -23,9 +23,9 @@ import {
 } from '@react-navigation/native';
 import { useFlipper } from '@react-navigation/devtools';
 
+import * as constants from './constants';
 import store from './store';
 import SplashScreen from './SplashScreen';
-import { color, values } from './constants';
 import { useAppDispatch } from './hooks';
 import { resetAppState } from './global-actions';
 
@@ -52,10 +52,10 @@ const navigationTheme: Theme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
-    primary: color.accent,
-    background: color.white,
-    card: color.absoluteWhite,
-    notification: color.red500,
+    primary: constants.color.accent,
+    background: constants.color.white,
+    card: constants.color.absoluteWhite,
+    notification: constants.color.red500,
   },
 };
 
@@ -100,7 +100,7 @@ function PersistedApp() {
 
   const handleBeforeLift = async () => {
     try {
-      const currVersion = values.STORE_VERSION;
+      const currVersion = constants.values.STORE_VERSION;
       console.log($FUNC, 'Current store version:', currVersion);
 
       const [[_, prevVersion]] = await AsyncStorage.multiGet(['storeVersion']);
@@ -109,12 +109,13 @@ function PersistedApp() {
       // We don't want to purge the store if the user has started the app for
       // the first time
       if (!prevVersion) {
-        console.log($FUNC, 'Skipping purge...');
+        console.warn($FUNC, 'Store version not found. Skipping...');
+        await AsyncStorage.setItem('storeVersion', currVersion);
         return;
       }
 
       if (prevVersion !== currVersion) {
-        AsyncStorage.setItem('storeVersion', currVersion);
+        await AsyncStorage.setItem('storeVersion', currVersion);
         console.log($FUNC, 'Purging store...');
         persistor.pause();
 
@@ -125,7 +126,8 @@ function PersistedApp() {
           // Only reset the FCM registration token if we actually signed the
           // user out (and thus their associated Parse.Session object has been
           // deleted)
-          shouldResetFCMRegistrationToken: values.STORE_SHOULD_SIGN_OUT,
+          shouldResetFCMRegistrationToken:
+            constants.values.STORE_SHOULD_SIGN_OUT,
         });
 
         // FIXME: Even if we don't sign out the user, the profile associated
@@ -134,7 +136,9 @@ function PersistedApp() {
 
         // NOTE: User will only be signed out if the version has changed.
         // Subsequent app launches will not be affected.
-        if (values.STORE_SHOULD_SIGN_OUT) await dispatch(signOut()).unwrap();
+        if (constants.values.STORE_SHOULD_SIGN_OUT) {
+          await dispatch(signOut()).unwrap();
+        }
       }
     } catch (error) {
       console.error($FUNC, 'Failed to configure persistor', error);

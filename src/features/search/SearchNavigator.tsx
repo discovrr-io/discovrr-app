@@ -113,7 +113,9 @@ function SearchHeader(
 ) {
   const headerHeight = getDefaultHeaderHeight(props.layout, false, 0);
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} style={props.containerStyle}>
+    <SafeAreaView
+      edges={['top', 'left', 'right']}
+      style={[{ backgroundColor: color.absoluteWhite }, props.containerStyle]}>
       <View
         style={[
           {

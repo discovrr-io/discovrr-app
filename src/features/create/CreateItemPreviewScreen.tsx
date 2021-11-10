@@ -25,7 +25,7 @@ import {
   RootStackNavigationProp,
 } from 'src/navigation';
 
-const COMPRESSED_VIDEO_WIDTH = 425;
+const COMPRESSED_VIDEO_WIDTH = 300;
 
 type __PostContents = PostContents<MediaSource>;
 type __ProductContents = ProductApi.CreateProductParams;
@@ -54,7 +54,7 @@ async function compressVideo(video: MediaSource): Promise<MediaSource> {
   }
 
   console.log(`Compressing video '${filename}'...`);
-  const command = `-y -i "${video.url}" -t 00:01:00 -filter:v "scale=${COMPRESSED_VIDEO_WIDTH}:trunc(ow/a/2)*2,crop=${COMPRESSED_VIDEO_WIDTH}:min(in_h\\,${COMPRESSED_VIDEO_WIDTH}/2*3)" -c:a copy "${output}"`;
+  const command = `-y -t 60 -i "${video.url}" -filter:v "scale=${COMPRESSED_VIDEO_WIDTH}:trunc(ow/a/2)*2,crop=${COMPRESSED_VIDEO_WIDTH}:min(in_h\\,${COMPRESSED_VIDEO_WIDTH}/2*3)" -c:a copy "${output}"`;
 
   return await new Promise<MediaSource>((resolve, reject) => {
     console.log('Running FFmpeg command:', command);
@@ -111,10 +111,12 @@ export default function CreateItemPreviewScreen(
     message?: string;
     caption?: string;
     isUploading?: boolean;
+    canCancel?: boolean;
   }>({
     message: 'Getting ready…',
     caption: "This won't take long",
     isUploading: false,
+    canCancel: false,
   });
 
   const currentUploadProgress = useSharedValue(0);
@@ -125,22 +127,22 @@ export default function CreateItemPreviewScreen(
         images: MediaSource[],
         generateStoragePath: utilities.GenerateStoragePath,
       ): Promise<MediaSource[]> {
-        setOverlayContent(prev => ({
-          ...prev,
+        setOverlayContent({
           message: 'Uploading images…',
           caption: 'This may take a while',
           isUploading: true,
-        }));
+        });
 
         const processedSources: MediaSource[] = [];
 
         for (let i = 0; i < images.length; i++) {
           const index = i + 1;
           const source = images[i];
-          const [filename, task, reference] = utilities.uploadFileToFirebase(
-            source,
-            generateStoragePath,
-          );
+          const [filename, task, reference] =
+            utilities.createUploadFileToFirebaseTask(
+              source,
+              generateStoragePath,
+            );
 
           setOverlayContent(prev => ({
             ...prev,
@@ -168,7 +170,7 @@ export default function CreateItemPreviewScreen(
               ...source,
               filename,
               url: await reference.getDownloadURL(),
-              path: undefined,
+              path: reference.fullPath,
             });
           });
         }
@@ -180,22 +182,34 @@ export default function CreateItemPreviewScreen(
         video: MediaSource,
         generateStoragePath: utilities.GenerateStoragePath,
       ): Promise<MediaSource> {
-        setOverlayContent(prev => ({
-          ...prev,
+        setOverlayContent({
           message: 'Compressing video…',
           caption: 'This may take a while',
-        }));
+          canCancel: true,
+        });
+
+        const timer = setTimeout(() => {
+          if (isMounted.current)
+            setOverlayContent(prev => ({
+              ...prev,
+              caption: 'This is taking longer than usual…',
+            }));
+        }, 20 * 1000);
 
         const compressedVideo = await compressVideo(video);
+        clearTimeout(timer);
 
-        setOverlayContent(prev => ({
-          ...prev,
+        setOverlayContent({
           message: 'Uploading video…',
+          caption: 'This may take a while',
           isUploading: true,
-        }));
+        });
 
         const [videoFilename, videoTask, videoReference] =
-          utilities.uploadFileToFirebase(compressedVideo, generateStoragePath);
+          utilities.createUploadFileToFirebaseTask(
+            compressedVideo,
+            generateStoragePath,
+          );
 
         videoTask.on('state_changed', snapshot => {
           const transferred = snapshot.bytesTransferred;
@@ -235,14 +249,14 @@ export default function CreateItemPreviewScreen(
 
           let processedThumbnail: MediaSource | undefined = undefined;
           if (postContents.thumbnail) {
-            setOverlayContent(prev => ({
-              ...prev,
+            setOverlayContent({
               message: 'Uploading thumbnail…',
+              caption: 'This may take a while',
               isUploading: true,
-            }));
+            });
 
             const [thumbnailFilename, thumbnailTask, thumbnailReference] =
-              utilities.uploadFileToFirebase(
+              utilities.createUploadFileToFirebaseTask(
                 postContents.thumbnail,
                 ({ fileId }) => `posts/thumbnails/${fileId}.gif`,
               );
@@ -277,12 +291,10 @@ export default function CreateItemPreviewScreen(
           };
         }
 
-        setOverlayContent(prev => ({
-          ...prev,
+        setOverlayContent({
           message: 'Creating post…',
-          caption: "This won't take long",
           isUploading: false,
-        }));
+        });
 
         const createPostAction = postsSlice.createPost(processedContents);
         const newPost = await dispatch(createPostAction).unwrap();
@@ -300,23 +312,19 @@ export default function CreateItemPreviewScreen(
       };
 
       const handleSubmitProduct = async (contents: __ProductContents) => {
-        setOverlayContent(prev => ({
-          ...prev,
+        setOverlayContent({
           message: 'Uploading images…',
           isUploading: true,
-        }));
+        });
 
         const processedSources = await uploadImagesToFirebase(
           contents.media,
           ({ filename }) => `/products/${filename}`,
         );
 
-        setOverlayContent(prev => ({
-          ...prev,
+        setOverlayContent({
           message: 'Creating your product…',
-          caption: "This won't take long",
-          isUploading: false,
-        }));
+        });
 
         const createProductParams = { ...contents, media: processedSources };
         const createProductAction =
@@ -347,11 +355,19 @@ export default function CreateItemPreviewScreen(
         } else {
           utilities.alertUnavailableFeature();
         }
-      } catch (error) {
-        console.error($FUNC, `Failed to submit ${previewContent.type}:`, error);
-        utilities.alertSomethingWentWrong(
-          `We weren't able to create your ${previewContent.type} at this time. Please try again later.`,
-        );
+      } catch (error: any) {
+        if (ReturnCode.isCancel(error)) {
+          console.warn('FFmpeg task successfully cancelled');
+        } else {
+          console.error(
+            $FUNC,
+            `Failed to submit ${previewContent.type}:`,
+            error,
+          );
+          utilities.alertSomethingWentWrong(
+            `We weren't able to create your ${previewContent.type} at this time. Please try again later.`,
+          );
+        }
       } finally {
         if (isMounted.current) setIsSubmitting(false);
       }
@@ -361,6 +377,11 @@ export default function CreateItemPreviewScreen(
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [dispatch, previewContent.type, previewContent.contents, props.navigation],
   );
+
+  const handleCancel = React.useCallback(async () => {
+    console.log('Cancelling tasks...');
+    await FFmpegKit.cancel();
+  }, []);
 
   React.useLayoutEffect(() => {
     props.navigation.setOptions({
@@ -421,6 +442,14 @@ export default function CreateItemPreviewScreen(
               value={true}
               onValueChange={() => utilities.alertUnavailableFeature()}
             />
+            {/* These need to be separated to render the divider */}
+            {previewContent.contents.type === 'video' && (
+              <Cell.Switch
+                label="Loop video"
+                value={true}
+                onValueChange={() => utilities.alertUnavailableFeature()}
+              />
+            )}
             {previewContent.contents.type === 'video' && (
               <Cell.Switch
                 label="Mute video"
@@ -472,6 +501,7 @@ export default function CreateItemPreviewScreen(
           progress={
             overlayContent.isUploading ? currentUploadProgress : undefined
           }
+          onCancel={overlayContent.canCancel ? handleCancel : undefined}
         />
       )}
     </SafeAreaView>

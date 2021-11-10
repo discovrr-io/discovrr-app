@@ -7,10 +7,13 @@
 ## Added
 
 - Add ability to compress and upload video posts with boomerang GIF preview
+- Display a video player on `PostDetailsScreen` for video posts
+- Add ability to share feedback via email
 
 ## Fixed
 
-- Minor bug fixes and improvements
+- Fixed issue where creating a new account with email and password failed
+- Minor bug fixes and visual improvements
 
 ## [v3.0.3] (2021-11-06)
 

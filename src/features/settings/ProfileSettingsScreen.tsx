@@ -228,10 +228,11 @@ function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
           height: changes.avatar.height,
         };
 
-        const [filename, task, reference] = utilities.uploadFileToFirebase(
-          source,
-          ({ filename }) => `/avatars/${filename}`,
-        );
+        const [filename, task, reference] =
+          utilities.createUploadFileToFirebaseTask(
+            source,
+            ({ filename }) => `/avatars/${filename}`,
+          );
 
         task.on('state_changed', snapshot => {
           currentUploadProgress.value =
