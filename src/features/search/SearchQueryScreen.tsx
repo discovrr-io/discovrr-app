@@ -36,7 +36,7 @@ export default function SearchQueryScreen(props: SearchQueryScreenProps) {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: color.absoluteWhite }}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <FlatList
           data={queryHistory}
