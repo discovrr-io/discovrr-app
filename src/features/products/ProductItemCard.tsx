@@ -4,7 +4,7 @@ import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import FastImage from 'react-native-fast-image';
 import { useNavigation } from '@react-navigation/core';
 
-import { ApiFetchStatus, ProductApi } from 'src/api';
+import { ApiFetchStatus, MediaSource, ProductApi } from 'src/api';
 import { color, font, layout } from 'src/constants';
 import { fetchProfileByVendorProfileId } from 'src/features/profiles/profiles-slice';
 import { useAppDispatch, useIsMounted } from 'src/hooks';
@@ -287,7 +287,9 @@ const ProductItemCardAuthor = (props: ProductItemCardAuthorProps) => {
 type ProductContents = Omit<
   ProductApi.CreateProductParams,
   'tags' | 'categories' | 'hidden'
->;
+> & {
+  media: MediaSource[];
+};
 
 type ProductItemCardPreviewProps = CardElementProps & {
   contents: ProductContents;

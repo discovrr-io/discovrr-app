@@ -44,7 +44,9 @@ export function createUploadFileToFirebaseTask(
 export function mapImageToMediaSource(image: Image): MediaSource {
   return {
     mime: image.mime,
-    url: image.path,
+    url: 'file://' + image.path,
+    path: image.path,
+    filename: image.filename,
     size: image.size,
     width: image.width,
     height: image.height,

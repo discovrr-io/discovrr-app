@@ -75,14 +75,17 @@ type CreateProductScreenProps =
 export default function CreateProductScreen(props: CreateProductScreenProps) {
   const handleNavigateToPreview = (values: ProductForm) => {
     const sources = values.media.map(utilities.mapImageToMediaSource);
+
     props.navigation
       .getParent<CreateItemStackNavigationProp>()
       .navigate('CreateItemPreview', {
         type: 'product',
         contents: {
           ...values,
+          name: values.name.trim(),
+          description: values.description.trim(),
           price: Number.parseFloat(values.price.replaceAll(',', '')),
-          media: sources,
+          squarespaceImages: sources,
         },
       });
   };
@@ -129,6 +132,7 @@ function ProductFormikForm() {
             fieldName="name"
             label="Name"
             placeholder="What's the name of your product?"
+            autoCapitalize="words"
           />
           <FormikField
             fieldName="price"

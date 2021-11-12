@@ -9,6 +9,8 @@
 - Add ability to compress and upload video posts with boomerang GIF preview
 - Display a video player on `PostDetailsScreen` for video posts
 - Add ability to share feedback via email
+- Add ability to publish products and its images from verified vendors onto
+  Squarespace
 
 ## Fixed
 

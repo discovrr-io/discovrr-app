@@ -3732,7 +3732,7 @@ balanced-match@^1.0.0:
   resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-1.0.2.tgz#e83e3a7e3f300b34cb9d87f615fa0cbf357690ee"
   integrity sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==
 
-base-64@^0.1.0:
+base-64@0.1.0, base-64@^0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/base-64/-/base-64-0.1.0.tgz#780a99c84e7d600260361511c4877613bf24f6bb"
   integrity sha1-eAqZyE59YAJgNhURxId2E78k9rs=
@@ -8699,6 +8699,14 @@ react-native-animatable@^1.3.3:
   integrity sha512-2ckIxZQAsvWn25Ho+DK3d1mXIgj7tITkrS4pYDvx96WyOttSvzzFeQnM2od0+FUMzILbdHDsDEqZvnz1DYNQ1w==
   dependencies:
     prop-types "^15.7.2"
+
+react-native-blob-util@^0.13.16:
+  version "0.13.16"
+  resolved "https://registry.yarnpkg.com/react-native-blob-util/-/react-native-blob-util-0.13.16.tgz#4e8d6a36b44ed5b207f311198cc37e822258027e"
+  integrity sha512-Lrfatr5Vk5wuPH59ITzZ5Vu5WCu3pPT3cXXm+u0gaYtsEiPZ3bFWwTJiIFj7iTb9g63znoffji2kfjg8c7RjSg==
+  dependencies:
+    base-64 "0.1.0"
+    glob "^7.1.6"
 
 react-native-bootsplash@^3.2.6:
   version "3.2.6"

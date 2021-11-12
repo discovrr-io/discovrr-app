@@ -51,11 +51,11 @@ export type MediaSource = {
    */
   url: string;
   path?: string;
+  filename?: string;
   size?: number;
   type?: string;
   width?: number;
   height?: number;
-  filename?: string;
   /** Only available for videos. */
   duration?: number | null;
 };

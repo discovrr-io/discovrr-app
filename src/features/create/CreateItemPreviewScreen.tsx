@@ -2,6 +2,8 @@ import * as React from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import * as RNFS from 'react-native-fs';
+import Config from 'react-native-config';
+import ReactNativeBlobUtil from 'react-native-blob-util';
 import { FFmpegKit, ReturnCode } from 'ffmpeg-kit-react-native';
 import { nanoid } from '@reduxjs/toolkit';
 import { useSharedValue } from 'react-native-reanimated';
@@ -27,8 +29,18 @@ import {
 
 const COMPRESSED_VIDEO_WIDTH = 300;
 
+const SQUARESPACE_PIOT_KEY = Config.SQUARESPACE_PIOT_KEY || '';
+const SQUARESPACE_URL = 'https://api.squarespace.com/1.0/commerce';
+
 type __PostContents = PostContents<MediaSource>;
-type __ProductContents = ProductApi.CreateProductParams;
+
+type __ProductContents = ProductApi.CreateProductParams & {
+  /**
+   * Images to be uploaded to Squarespace.
+   */
+  squarespaceImages: MediaSource[];
+};
+
 type __WorkshopContents = any;
 
 export type CreateItemPreviewNavigationScreenParams =
@@ -149,11 +161,6 @@ export default function CreateItemPreviewScreen(
             caption: `${index} of ${images.length}`,
           }));
 
-          console.log(
-            $FUNC,
-            `Uploading '${filename}' (${index} of ${images.length})...`,
-          );
-
           task.on('state_changed', snapshot => {
             const transferred = snapshot.bytesTransferred;
             const totalBytes = snapshot.totalBytes;
@@ -168,8 +175,8 @@ export default function CreateItemPreviewScreen(
           await task.then(async () => {
             processedSources.push({
               ...source,
-              filename,
               url: await reference.getDownloadURL(),
+              filename,
               path: reference.fullPath,
             });
           });
@@ -224,8 +231,8 @@ export default function CreateItemPreviewScreen(
 
         return await videoTask.then(async () => ({
           ...compressedVideo,
-          filename: videoFilename,
           url: await videoReference.getDownloadURL(),
+          filename: videoFilename,
           path: videoReference.fullPath,
         }));
       }
@@ -276,8 +283,8 @@ export default function CreateItemPreviewScreen(
               // @ts-ignore
               processedThumbnail = {
                 ...postContents.thumbnail,
-                filename: thumbnailFilename,
                 url: await thumbnailReference.getDownloadURL(),
+                filename: thumbnailFilename,
                 path: thumbnailReference.fullPath,
               };
             });
@@ -313,29 +320,65 @@ export default function CreateItemPreviewScreen(
 
       const handleSubmitProduct = async (contents: __ProductContents) => {
         setOverlayContent({
-          message: 'Uploading images…',
-          isUploading: true,
-        });
-
-        const processedSources = await uploadImagesToFirebase(
-          contents.media,
-          ({ filename }) => `/products/${filename}`,
-        );
-
-        setOverlayContent({
           message: 'Creating your product…',
         });
 
-        const createProductParams = { ...contents, media: processedSources };
+        const { squarespaceImages, ...createProductParams } = contents;
         const createProductAction =
           productsSlice.createProduct(createProductParams);
         const newProduct = await dispatch(createProductAction).unwrap();
         console.log($FUNC, 'Successfully created new product:', newProduct);
 
+        if (newProduct.squarespaceId) {
+          setOverlayContent({
+            message: 'Uploading images…',
+            caption: 'This may take a while',
+            isUploading: true,
+          });
+
+          for (let i = 0; i < squarespaceImages.length; i++) {
+            const index = i + 1;
+            const image = squarespaceImages[i];
+
+            const filename =
+              image.filename ||
+              image.path?.slice(image.path.lastIndexOf('/') + 1) ||
+              image.url.slice(image.url.lastIndexOf('/') + 1);
+
+            setOverlayContent(prev => ({
+              ...prev,
+              caption: `${index} of ${squarespaceImages.length}`,
+            }));
+
+            await ReactNativeBlobUtil.fetch(
+              'POST',
+              `${SQUARESPACE_URL}/products/${newProduct.squarespaceId}/images`,
+              {
+                Authorization: `Bearer ${SQUARESPACE_PIOT_KEY}`,
+                'User-Agent': `DiscovrrApp/${constants.values.APP_VERSION}`,
+                'Content-Type': 'multipart/form-data',
+              },
+              [
+                {
+                  filename,
+                  name: 'file',
+                  data: ReactNativeBlobUtil.wrap(
+                    image.path || image.url.replace('file://', ''),
+                  ),
+                },
+              ],
+            ).uploadProgress((written, total) => {
+              currentUploadProgress.value = written / total;
+              const progress = Math.round((written / total) * 100);
+              console.log(`${filename}: ${written} of ${total} (${progress}%)`);
+            });
+          }
+        }
+
         // Pop off the `CreateItem` stack
         props.navigation.getParent<RootStackNavigationProp>().goBack();
-        // Then navigate to the new post. We'll wait for a short period of time
-        // to not make the screen jump instantly
+        // Then navigate to the new product. We'll wait for a short period of
+        // time to not make the screen jump instantly.
         setTimeout(() => {
           props.navigation
             .getParent<RootStackNavigationProp>()
@@ -365,7 +408,9 @@ export default function CreateItemPreviewScreen(
             error,
           );
           utilities.alertSomethingWentWrong(
-            `We weren't able to create your ${previewContent.type} at this time. Please try again later.`,
+            error.message ||
+              `We weren't able to create your ${previewContent.type} at this ` +
+                'time. Please try again later.',
           );
         }
       } finally {
@@ -413,7 +458,10 @@ export default function CreateItemPreviewScreen(
       case 'product':
         return (
           <ProductItemCardPreview
-            contents={previewContent.contents}
+            contents={{
+              ...previewContent.contents,
+              media: previewContent.contents.squarespaceImages,
+            }}
             author={myProfileDetails}
             style={createItemPreviewScreenStyles.cardPreview}
           />

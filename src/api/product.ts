@@ -43,7 +43,7 @@ export namespace ProductApi {
 
   export type CreateProductParams = Pick<
     Product,
-    'name' | 'description' | 'price' | 'media'
+    'name' | 'description' | 'price'
   > & {
     hashtags?: string[];
     categories?: string[];
@@ -128,10 +128,4 @@ export namespace ProductApi {
   }
 
   //#endregion READ OPERATIONS
-
-  //#region UPDATE OPERATIONS
-
-  async function uploadImageForProduct(squarespaceId: string) {}
-
-  //#endregion UPDATE OPERATIONS
 }
