@@ -7,6 +7,7 @@ export * from './inputs';
 
 export { default as AppDrawer } from './AppDrawer';
 export { default as AsyncGate } from './AsyncGate';
+export { default as Banner } from './Banner';
 export { default as DiscovrrIcon } from './DiscovrrIcon';
 export { default as HeaderIcon } from './HeaderIcon';
 export { default as InAppWebView } from './InAppWebView';

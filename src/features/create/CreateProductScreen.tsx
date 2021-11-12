@@ -45,10 +45,26 @@ const productSchema = yup.object({
     .required('Please enter the price of your product')
     .test(
       'is formatted as a valid currency',
-      'Please format your price like "12,345.67"',
+      'Your price should only have digits, an optional decimal point and optional commas like "12,345.67"',
       input => {
         if (!input) return false;
-        return /^(\d(?:[\d,])*)(?:\.(\d{2}))?$/.test(input.trim());
+        return /^(\d(?:[\d,])*)(?:\.(\d{0,2}))?$/.test(input.trim());
+      },
+    )
+    // .test(
+    //   'has up to two digits for cents',
+    //   'Please enter up to 2 digits after the decimal point',
+    //   input => {
+    //     if (!input) return false;
+    //     return /^(.*)(?:\.(\d{,2}))?$/.test(input.trim());
+    //   },
+    // )
+    .test(
+      'has numeric value less than or equal to $1,000,000',
+      'Please input a price less than $1,000,000',
+      input => {
+        if (!input) return false;
+        return Number.parseFloat(input) <= 10 ** 6;
       },
     ),
   description: yup
@@ -153,6 +169,14 @@ function ProductFormikForm() {
           <Cell.Navigator label="Add tags" previewValue="0 tags" />
           <Cell.Navigator label="Add categories" previewValue="0 categories" />
         </Cell.Group>
+        {/* <Spacer.Vertical value={CELL_GROUP_VERTICAL_SPACING} />
+        <Cell.Group
+          label="Variants (Preview)"
+          elementOptions={{ disabled: true }}>
+          <Cell.Button label="Color" previewValue="No colors" />
+          <Cell.Button label="Size" previewValue="No sizes" />
+          <Cell.Navigator label="Add another variant" />
+        </Cell.Group> */}
         <Spacer.Vertical value={CELL_GROUP_VERTICAL_SPACING} />
         <Cell.Group label="Additional Options">
           <Cell.Switch

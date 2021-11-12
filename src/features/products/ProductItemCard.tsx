@@ -147,6 +147,7 @@ type ProductItemCardBodyProps = CardElementOptions & {
 
 function ProductItemCardBody(props: ProductItemCardBodyProps) {
   const { body, ...cardElementOptions } = props;
+  const [dollars, cents] = body.price.toFixed(2).split('.');
 
   return (
     <View>
@@ -178,14 +179,26 @@ function ProductItemCardBody(props: ProductItemCardBodyProps) {
           {body.name}
         </Text>
         <Spacer.Horizontal value={layout.spacing.md} style={{ height: 2 }} />
-        <Text
-          style={
-            cardElementOptions.smallContent
-              ? font.largeBold
-              : [{ ...font.extraLargeBold, fontSize: font.size.h3 }]
-          }>
-          ${body.price}
-        </Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
+          <Text
+            style={[
+              cardElementOptions.smallContent
+                ? font.largeBold
+                : [{ ...font.extraLargeBold, fontSize: font.size.h3 }],
+              { textAlign: 'right' },
+            ]}>
+            ${dollars}
+          </Text>
+          <Text
+            style={[
+              cardElementOptions.smallContent
+                ? [font.extraSmallBold, { paddingTop: 1 }]
+                : [font.smallBold, { paddingTop: layout.spacing.xs }],
+              { textAlign: 'right' },
+            ]}>
+            {cents}
+          </Text>
+        </View>
       </View>
     </View>
   );

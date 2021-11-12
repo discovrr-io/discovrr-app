@@ -13,7 +13,7 @@ import * as utilities from 'src/utilities';
 import * as postsSlice from 'src/features/posts/posts-slice';
 import * as productsSlice from 'src/features/products/products-slice';
 import { MediaSource, ProductApi } from 'src/api';
-import { Button, Cell, LoadingOverlay } from 'src/components';
+import { Banner, Button, Cell, LoadingOverlay } from 'src/components';
 import { useMyProfileId } from 'src/features/profiles/hooks';
 import { useAppDispatch, useAppSelector, useIsMounted } from 'src/hooks';
 import { Profile } from 'src/models';
@@ -531,6 +531,12 @@ export default function CreateItemPreviewScreen(
           paddingVertical: constants.layout.spacing.lg,
           paddingHorizontal: constants.layout.spacing.lg,
         }}>
+        {previewContent.type !== 'post' && (
+          <Banner
+            title="You're not a verified vendor yet"
+            caption="Your product won't be visible to anyone until we verify you. To be verified, start by posting this product. We'll let you know when you're verified."
+          />
+        )}
         <View
           style={{
             flexGrow: 1,
