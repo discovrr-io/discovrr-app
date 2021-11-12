@@ -169,6 +169,12 @@ export namespace ProfileApi {
     query.equalTo('kind', kind);
     query.notEqualTo('status', ApiObjectStatus.DELETED);
 
+    if (kind === 'personal') {
+      query.exists('profilePersonal');
+    } else if (kind === 'vendor') {
+      query.exists('profileVendor');
+    }
+
     if (pagination) {
       query.limit(pagination.limit);
       query.skip(pagination.limit * pagination.currentPage);

@@ -26,6 +26,7 @@ export interface PreviewPickerProps<ItemT> {
   fieldName: string;
   maxCount: number;
   caption: string;
+  iconName?: string;
   description?: string;
   renderItem: PreviewPickerItemProps<ItemT>['renderItem'];
   onAddItem?: () => void | Promise<void>;
@@ -120,7 +121,11 @@ function PreviewPickerInner<ItemT>(
                 previewPickerStyles.addItemButton,
                 { width: itemWidth },
               ]}>
-              <Icon name="add-outline" color={color.accent} size={60} />
+              <Icon
+                name={props.iconName ?? 'add-outline'}
+                color={color.accent}
+                size={50}
+              />
             </TouchableHighlight>
           );
         }}

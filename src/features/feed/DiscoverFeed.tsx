@@ -33,7 +33,7 @@ export default function DiscoverFeed() {
     if (isInitialRender || shouldRefresh)
       (async () => {
         try {
-          console.log($FUNC, 'Fetching posts...');
+          console.log($FUNC, `Fetching first ${PAGINATION_LIMIT} posts...`);
           setCurrentPage(0);
           setDidReachEnd(false);
 
@@ -42,7 +42,6 @@ export default function DiscoverFeed() {
             currentPage: 0,
           };
 
-          console.log($FUNC, `Fetching first ${PAGINATION_LIMIT} posts...`);
           const posts = await dispatch(
             fetchAllPosts({ pagination, reload: true }),
           ).unwrap();

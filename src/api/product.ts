@@ -24,11 +24,12 @@ export namespace ProductApi {
     return {
       id: result.id as ProductId,
       vendorId: vendorProfileId ?? result.get('profileVendor').id,
-      squareSpaceId: result.get('squareSpaceId'),
-      name: result.get('name'),
-      description: result.get('description'),
-      price: result.get('price'),
-      media: result.get('media'),
+      squarespaceId: result.get('squarespaceId'),
+      squarespaceUrl: result.get('squarespaceUrl'),
+      name: result.get('name') || '<NO NAME>',
+      description: result.get('description') || '<NO DESCRIPTION>',
+      price: result.get('price') || 0.0,
+      media: result.get('media') || [],
       statistics: {
         didSave: false,
         didLike: false,
@@ -44,7 +45,7 @@ export namespace ProductApi {
     Product,
     'name' | 'description' | 'price' | 'media'
   > & {
-    tags?: string[];
+    hashtags?: string[];
     categories?: string[];
     hidden?: boolean;
   };
@@ -130,93 +131,7 @@ export namespace ProductApi {
 
   //#region UPDATE OPERATIONS
 
-  // export async function updateProductLikeStatus(
-  //   productId: string,
-  //   didLike: boolean,
-  // ) {
-  //   const $FUNC = '[ProductApi.updateProductLikeStatus]';
-  //
-  //   const myProfile = await UserApi.getCurrentUserProfile();
-  //   if (!myProfile) throw new UserApi.UserNotFoundApiError();
-  //
-  //   const query = new Parse.Query(Parse.Object.extend('Product'));
-  //   const product = await query.get(productId);
-  //
-  //   const profileLikedProductsRelation = myProfile.relation('likedProducts');
-  //   const profileLikedProductsArray = myProfile.get('likedProductsArray') ?? [];
-  //   const profileLikedProductsSet = new Set<string>(profileLikedProductsArray);
-  //
-  //   const productLikersRelation = product.relation('likers');
-  //   const productLikersArray = product.get('likersArray') ?? [];
-  //   const productLikersSet = new Set<string>(productLikersArray);
-  //
-  //   if (didLike) {
-  //     console.log($FUNC, 'Adding liked product...');
-  //     profileLikedProductsRelation.add(product);
-  //     profileLikedProductsSet.add(product.id);
-  //     myProfile.increment('likedProductsCount');
-  //
-  //     console.log($FUNC, 'Adding liker profile...');
-  //     productLikersRelation.add(myProfile);
-  //     productLikersSet.add(myProfile.id);
-  //     product.increment('likersCount');
-  //   } else {
-  //     console.log($FUNC, 'Removing liked product...');
-  //     profileLikedProductsRelation.remove(product);
-  //     profileLikedProductsSet.delete(product.id);
-  //     myProfile.decrement('likedProductsCount');
-  //
-  //     console.log($FUNC, 'Removing liker profile...');
-  //     productLikersRelation.remove(myProfile);
-  //     productLikersSet.delete(myProfile.id);
-  //     product.decrement('likersCount');
-  //   }
-  //
-  //   myProfile.set('likedProductsArray', [...profileLikedProductsSet]);
-  //   product.set('likersArray', [...productLikersSet]);
-  //
-  //   console.log($FUNC, 'Saving...');
-  //   await Promise.all([myProfile.save(), product.save()]);
-  //   console.log($FUNC, 'Done!');
-  // }
-
-  // export async function updateProductViewCounter(productId: string) {
-  //   const $FUNC = '[ProductApi.updateProductViewCounter]';
-  //
-  //   const profile = await UserApi.getCurrentUserProfile();
-  //   if (!profile) throw new UserApi.UserNotFoundApiError();
-  //
-  //   const query = new Parse.Query(Parse.Object.extend('Product'));
-  //   const product = await query.get(productId);
-  //
-  //   const profileViewedProductsRelation = profile.relation('viewedProducts');
-  //   const profileViewedProductsArray = profile.get('viewedProductsArray') ?? [];
-  //   const profileViewedProductsSet = new Set<string>(
-  //     profileViewedProductsArray,
-  //   );
-  //
-  //   console.log($FUNC, 'Adding viewed product...');
-  //   profileViewedProductsRelation.add(product);
-  //   profileViewedProductsSet.add(product.id);
-  //   profile.set('viewedProductsArray', [...profileViewedProductsSet]);
-  //   profile.set('viewedProductsCount', profileViewedProductsSet.size);
-  //
-  //   const productViewersRelation = product.relation('viewers');
-  //   const productViewersArray = product.get('viewersArray') ?? [];
-  //   const productViewersSet = new Set<string>(productViewersArray);
-  //
-  //   console.log($FUNC, 'Adding viewer profile...');
-  //   productViewersRelation.add(profile);
-  //   product.set('viewersArray', [...productViewersSet.add(profile.id)]);
-  //   // A "view" is counted as the number of times a user has visited the
-  //   // product's page spaced out in 5 minute intervals. If the last visit was
-  //   // less than 5 minutes ago, it will NOT be counted as a view.
-  //   product.increment('viewersCount');
-  //
-  //   console.log($FUNC, 'Saving changes...');
-  //   await Promise.all([profile.save(), product.save()]);
-  //   console.log($FUNC, 'Successfully saved');
-  // }
+  async function uploadImageForProduct(squarespaceId: string) {}
 
   //#endregion UPDATE OPERATIONS
 }

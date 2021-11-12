@@ -9,7 +9,8 @@ export type ProductId = EntityId & { __productIdBrand: any };
 export default interface Product {
   readonly id: ProductId;
   readonly vendorId: VendorProfileId;
-  readonly squareSpaceId?: string;
+  readonly squarespaceId?: string;
+  readonly squarespaceUrl?: string;
   readonly name: string;
   readonly description: string;
   readonly price: number;
