@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 
-<!-- ## [v3.0.4] (2021-11-10) -->
+## [v3.0.4] (2021-11-10)
 
 ## Added
 
@@ -15,7 +15,11 @@
 ## Fixed
 
 - Fixed issue where creating a new account with email and password failed
-- Minor bug fixes and visual improvements
+- Minor bug fixes and visual i
+
+## Changed
+
+- Show statistics and actions on maker profile pages
 
 ## [v3.0.3] (2021-11-06)
 
