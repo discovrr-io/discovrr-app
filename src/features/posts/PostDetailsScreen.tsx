@@ -12,6 +12,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   useWindowDimensions,
   View,
   ViewProps,
@@ -22,8 +23,8 @@ import Carousel, { Pagination } from 'react-native-snap-carousel';
 import BottomSheet from '@gorhom/bottom-sheet';
 import FastImage from 'react-native-fast-image';
 import Icon from 'react-native-vector-icons/Ionicons';
-import Video from 'react-native-video';
-import { useNavigation } from '@react-navigation/core';
+import Video, { OnLoadData, VideoProperties } from 'react-native-video';
+import { useFocusEffect, useNavigation } from '@react-navigation/core';
 
 import {
   SafeAreaView,
@@ -727,35 +728,43 @@ function VideoPostDetailsContent(props: VideoPostDetailsContentProps) {
   const { contents, location } = props;
   const { width: windowWidth } = useWindowDimensions();
 
-  const [isLoading, setIsLoading] = React.useState(true);
+  // const videoRef = React.useRef<Video>(null);
+  // const [isLoading, setIsLoading] = React.useState(true);
+  // const [isPaused, setIsPaused] = React.useState(false);
 
   const aspectRatio = React.useMemo(() => {
     const { width = 1, height = 1 } = contents.source;
     return width / height;
   }, [contents.source]);
 
+  // useFocusEffect(
+  //   React.useCallback(() => {
+  //     return () => {
+  //       console.log('PAUSING');
+  //       setIsPaused(true);
+  //     };
+  //   }, []),
+  // );
+
+  const handlePressVideo = () => {
+    // if (Platform.OS !== 'android') return;
+    // videoRef.current?.presentFullscreenPlayer();
+  };
+
   return (
     <View>
-      <View style={videoPostDetailsContentStyle.videoContainer}>
-        <Video
+      <TouchableWithoutFeedback onPress={handlePressVideo}>
+        <VideoPlayer
           repeat
-          controls
+          resizeMode="cover"
           ignoreSilentSwitch="ignore"
-          onLoad={() => setIsLoading(false)}
           source={{ uri: contents.source.url }}
-          style={[
-            videoPostDetailsContentStyle.video,
-            { aspectRatio, width: windowWidth * MEDIA_WIDTH_SCALE },
-          ]}
+          videoPlayerStyle={{
+            aspectRatio,
+            width: windowWidth * MEDIA_WIDTH_SCALE,
+          }}
         />
-        {isLoading && (
-          <ActivityIndicator
-            size="large"
-            color={constants.color.gray500}
-            style={videoPostDetailsContentStyle.activityIndicator}
-          />
-        )}
-      </View>
+      </TouchableWithoutFeedback>
       <PostDetailsContentCaption
         caption={contents.caption}
         style={[location && { marginBottom: 0 }]}
@@ -778,6 +787,53 @@ const videoPostDetailsContentStyle = StyleSheet.create({
     transform: [{ scale: 1.5 }],
   },
 });
+
+type VideoPlayerProps = Omit<VideoProperties, 'style'> & {
+  containerStyle?: StyleProp<ViewStyle>;
+  videoPlayerStyle?: StyleProp<ViewStyle>;
+};
+
+function VideoPlayer(props: VideoPlayerProps) {
+  const { containerStyle, videoPlayerStyle, onLoad, ...videoProps } = props;
+
+  const videoRef = React.useRef<Video>(null);
+  const [showLoading, setShowLoading] = React.useState(true);
+  const [isPaused, setIsPaused] = React.useState(false);
+
+  const handleOnLoad = React.useCallback(
+    (data: OnLoadData) => {
+      onLoad?.(data);
+      setShowLoading(false);
+    },
+    [onLoad],
+  );
+
+  useFocusEffect(
+    React.useCallback(() => {
+      return () => setIsPaused(true);
+    }, []),
+  );
+
+  return (
+    <View style={[videoPostDetailsContentStyle.videoContainer, containerStyle]}>
+      <Video
+        {...videoProps}
+        controls
+        ref={videoRef}
+        paused={isPaused}
+        onLoad={handleOnLoad}
+        style={[videoPostDetailsContentStyle.video, videoPlayerStyle]}
+      />
+      {showLoading && (
+        <ActivityIndicator
+          size="large"
+          color={constants.color.gray500}
+          style={videoPostDetailsContentStyle.activityIndicator}
+        />
+      )}
+    </View>
+  );
+}
 
 type PostDetailsContentCaptionProps = {
   caption: string;

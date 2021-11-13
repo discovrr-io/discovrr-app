@@ -1,9 +1,18 @@
 import * as React from 'react';
-import { Alert, Keyboard, Platform, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  Keyboard,
+  Platform,
+  View,
+} from 'react-native';
 
 import BottomSheet from '@gorhom/bottom-sheet';
 import ImageCropPicker, { Video } from 'react-native-image-crop-picker';
-import VideoPlayer from 'react-native-video';
+import RNVideo, {
+  OnLoadData,
+  VideoProperties as RNVideoProps,
+} from 'react-native-video';
 import { useField } from 'formik';
 import { useFocusEffect } from '@react-navigation/core';
 
@@ -23,13 +32,14 @@ export type VideoPreviewPickerProps = Pick<
   'fieldName' | 'maxCount' | 'caption' | 'description'
 > & {
   maxTimeLimit?: number;
+  paused?: boolean;
 };
 
 export default function ViewPreviewPicker(props: VideoPreviewPickerProps) {
   const [_field, meta, helpers] = useField<Video[]>(props.fieldName);
 
   const previewPickerRef = React.useRef<PreviewPicker>(null);
-  const videoPlayerRef = React.useRef<VideoPlayer>(null);
+  const videoPlayerRef = React.useRef<RNVideo>(null);
   const actionBottomSheetRef = React.useRef<BottomSheet>(null);
   const actionBottomSheetItems = React.useMemo(() => {
     return [
@@ -41,15 +51,6 @@ export default function ViewPreviewPicker(props: VideoPreviewPickerProps) {
       },
     ] as ActionBottomSheetItem[];
   }, []);
-
-  const [shouldPauseVideo, setShouldPauseVideo] = React.useState(false);
-  useFocusEffect(
-    React.useCallback(() => {
-      return () => {
-        setShouldPauseVideo(true);
-      };
-    }, []),
-  );
 
   const handleAddVideo = async () => {
     Keyboard.dismiss();
@@ -162,22 +163,11 @@ export default function ViewPreviewPicker(props: VideoPreviewPickerProps) {
         }
         onAddItem={handleAddVideo}
         onSelectItemAtIndex={handlePlayVideoOnFullScreen}
-        renderItem={({ item, itemWidth }) => (
-          <VideoPlayer
-            repeat
-            paused={shouldPauseVideo}
+        renderItem={renderItemInfo => (
+          <VideoPreviewPickerItem
             ref={videoPlayerRef}
-            source={{ uri: item.sourceURL ?? item.path }}
-            resizeMode="cover"
-            style={[
-              {
-                width: itemWidth,
-                aspectRatio: 1,
-                borderRadius: layout.radius.md,
-                overflow: 'hidden',
-                backgroundColor: color.placeholder,
-              },
-            ]}
+            paused={props.paused}
+            {...renderItemInfo}
           />
         )}
       />
@@ -189,3 +179,60 @@ export default function ViewPreviewPicker(props: VideoPreviewPickerProps) {
     </View>
   );
 }
+
+type VideoPreviewPickerItemProps = Omit<RNVideoProps, 'source'> & {
+  item: Video;
+  itemWidth: number;
+};
+
+const VideoPreviewPickerItem = React.forwardRef<
+  RNVideo,
+  VideoPreviewPickerItemProps
+>((props, ref) => {
+  const { item, itemWidth, onLoad, ...videoProps } = props;
+
+  const [shouldPauseVideo, setShouldPauseVideo] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  const handleOnLoad = React.useCallback(
+    (data: OnLoadData) => {
+      onLoad?.(data);
+      setIsLoading(false);
+    },
+    [onLoad],
+  );
+
+  useFocusEffect(
+    React.useCallback(() => {
+      return () => setShouldPauseVideo(true);
+    }, []),
+  );
+
+  return (
+    <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+      <RNVideo
+        ref={ref}
+        repeat
+        resizeMode="cover"
+        paused={props.paused || shouldPauseVideo}
+        source={{ uri: item.sourceURL ?? item.path }}
+        onLoad={handleOnLoad}
+        {...videoProps}
+        style={{
+          width: itemWidth,
+          aspectRatio: 1,
+          borderRadius: layout.radius.md,
+          overflow: 'hidden',
+          backgroundColor: color.placeholder,
+        }}
+      />
+      {isLoading && (
+        <ActivityIndicator
+          size="large"
+          color={color.gray500}
+          style={{ position: 'absolute', transform: [{ scale: 1.5 }] }}
+        />
+      )}
+    </View>
+  );
+});

@@ -31,12 +31,12 @@ export type MasonryListProps<ItemT> = Omit<
   'data' | 'renderItem' | 'keyExtractor' | 'getItemLayout'
 > & {
   data: ItemT[];
-  spacing?: number;
-  getBrickHeight: (item: ItemT, brickWidth: number) => number;
-  renderItem: (info: RenderItemInfo<ItemT>) => React.ReactElement | null;
   debug?: boolean;
+  spacing?: number;
   containerWidth?: number;
   keyExtractor?: ((item: ItemT, index: number) => string) | undefined;
+  getBrickHeight: (item: ItemT, brickWidth: number) => number;
+  renderItem: (info: RenderItemInfo<ItemT>) => React.ReactElement | null;
   getItemLayout?:
     | ((
         data: Array<ItemT> | null | undefined,
@@ -50,14 +50,14 @@ function MasonryListInner<ItemT>(
   ref: React.ForwardedRef<FlatList<MasonryListColumnItem<ItemT>>>,
 ) {
   const {
-    numColumns = 2,
-    spacing = 0,
     data,
+    keyExtractor,
     getBrickHeight,
     containerWidth,
-    renderItem,
-    keyExtractor,
     initialNumToRender,
+    renderItem,
+    numColumns = 2,
+    spacing = 0,
     debug = false,
   } = props;
 
@@ -88,14 +88,14 @@ function MasonryListInner<ItemT>(
 
     const columnsHeight = columns.map(() => 0);
 
-    brickData.forEach(brick => {
+    for (const brick of brickData) {
       const shortestHeight = Math.min(...columnsHeight);
       const shortestHeightIndex = columnsHeight.indexOf(shortestHeight);
 
       columns[shortestHeightIndex].push(brick);
       columnsHeight[shortestHeightIndex] =
         columnsHeight[shortestHeightIndex] + brick.layout.height;
-    });
+    }
 
     return [
       { type: 'gutter', width: spacing } as MasonryListColumnItem<ItemT>,

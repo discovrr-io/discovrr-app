@@ -2,6 +2,7 @@ import * as React from 'react';
 import {
   ActivityIndicator,
   Keyboard,
+  Platform,
   StyleSheet,
   Text,
   useWindowDimensions,
@@ -27,10 +28,17 @@ type LoadingOverlayProps = {
   caption?: string;
   progress?: Animated.SharedValue<number>;
   onCancel?: () => void | Promise<void>;
+  preferBlur?: boolean;
 };
 
 export default function LoadingOverlay(props: LoadingOverlayProps) {
-  const { message, caption, progress, onCancel } = props;
+  const {
+    message,
+    caption,
+    progress,
+    onCancel,
+    preferBlur = Platform.OS === 'ios',
+  } = props;
 
   React.useEffect(() => {
     Keyboard.dismiss();
@@ -38,12 +46,18 @@ export default function LoadingOverlay(props: LoadingOverlayProps) {
 
   return (
     <Portal>
-      <BlurView
-        blurRadius={5}
-        blurType="dark"
-        style={{ position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 }}
-      />
-      <View style={styles.container}>
+      {preferBlur && (
+        <BlurView
+          blurRadius={5}
+          blurType="dark"
+          style={{ position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 }}
+        />
+      )}
+      <View
+        style={[
+          styles.container,
+          !preferBlur && { backgroundColor: 'rgba(0,0,0,0.75)' },
+        ]}>
         <View style={styles.contentContainer}>
           <ActivityIndicator
             size="large"

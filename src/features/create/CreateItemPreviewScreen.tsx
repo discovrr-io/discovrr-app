@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import * as RNFS from 'react-native-fs';
 import Config from 'react-native-config';
 import ReactNativeBlobUtil from 'react-native-blob-util';
+import RNFS from 'react-native-fs';
 import { FFmpegKit, ReturnCode } from 'ffmpeg-kit-react-native';
 import { nanoid } from '@reduxjs/toolkit';
 import { useSharedValue } from 'react-native-reanimated';
@@ -25,6 +25,7 @@ import { ProductItemCardPreview } from 'src/features/products/ProductItemCard';
 import {
   CreateItemStackScreenProps,
   RootStackNavigationProp,
+  RootStackParamList,
 } from 'src/navigation';
 
 const COMPRESSED_VIDEO_WIDTH = 300;
@@ -52,21 +53,17 @@ type CreateItemPreviewScreenProps =
   CreateItemStackScreenProps<'CreateItemPreview'>;
 
 async function compressVideo(video: MediaSource): Promise<MediaSource> {
-  const tempFolder = RNFS.TemporaryDirectoryPath.endsWith('/')
-    ? RNFS.TemporaryDirectoryPath.slice(0, -1)
-    : RNFS.TemporaryDirectoryPath;
-
   const filename = `${nanoid()}.mp4`;
-  const videosFolder = `${tempFolder}/videos`;
-  const output = `${videosFolder}/${filename}`;
+  const outputDirectory = utilities.getCompressedVideoOutputDirectory();
+  const output = `${outputDirectory}/${filename}`;
 
-  if (!(await RNFS.exists(videosFolder))) {
+  if (!(await RNFS.exists(outputDirectory))) {
     console.log("Creating 'videos' folder...");
-    await RNFS.mkdir(videosFolder);
+    await RNFS.mkdir(outputDirectory);
   }
 
   console.log(`Compressing video '${filename}'...`);
-  const command = `-y -t 60 -i "${video.url}" -filter:v "scale=${COMPRESSED_VIDEO_WIDTH}:trunc(ow/a/2)*2,crop=${COMPRESSED_VIDEO_WIDTH}:min(in_h\\,${COMPRESSED_VIDEO_WIDTH}/2*3)" -c:a copy "${output}"`;
+  const command = `-t 60 -i "${video.path}" -filter:v "scale=${COMPRESSED_VIDEO_WIDTH}:trunc(ow/a/2)*2,crop=${COMPRESSED_VIDEO_WIDTH}:min(in_h\\,${COMPRESSED_VIDEO_WIDTH}/2*3)" -c:a copy "${output}"`;
 
   return await new Promise<MediaSource>((resolve, reject) => {
     console.log('Running FFmpeg command:', command);
@@ -221,12 +218,7 @@ export default function CreateItemPreviewScreen(
         videoTask.on('state_changed', snapshot => {
           const transferred = snapshot.bytesTransferred;
           const totalBytes = snapshot.totalBytes;
-          const progress = Math.round((transferred / totalBytes) * 100);
           currentUploadProgress.value = transferred / totalBytes;
-          console.log(
-            $FUNC,
-            `${videoFilename}: ${transferred} of ${totalBytes} (${progress}%)`,
-          );
         });
 
         return await videoTask.then(async () => ({
@@ -237,7 +229,9 @@ export default function CreateItemPreviewScreen(
         }));
       }
 
-      const handleSubmitPost = async (postContents: __PostContents) => {
+      async function handleSubmitPost(
+        postContents: __PostContents,
+      ): Promise<RootStackParamList['PostDetails']> {
         let processedContents = postContents;
         if (postContents.type === 'text') {
           processedContents = postContents;
@@ -271,12 +265,7 @@ export default function CreateItemPreviewScreen(
             thumbnailTask.on('state_changed', snapshot => {
               const transferred = snapshot.bytesTransferred;
               const totalBytes = snapshot.totalBytes;
-              const progress = Math.round((transferred / totalBytes) * 100);
               currentUploadProgress.value = transferred / totalBytes;
-              console.log(
-                $FUNC,
-                `${thumbnailFilename}: ${transferred} of ${totalBytes} (${progress}%)`,
-              );
             });
 
             await thumbnailTask.then(async () => {
@@ -307,18 +296,12 @@ export default function CreateItemPreviewScreen(
         const newPost = await dispatch(createPostAction).unwrap();
         console.log($FUNC, 'Successfully created new post:', newPost);
 
-        // Pop off the `CreateItem` stack
-        props.navigation.getParent<RootStackNavigationProp>().goBack();
-        // Then navigate to the new post. We'll wait for a short period of time
-        // to not make the screen jump instantly
-        setTimeout(() => {
-          props.navigation
-            .getParent<RootStackNavigationProp>()
-            .navigate('PostDetails', { postId: newPost.id });
-        }, 200);
-      };
+        return { postId: newPost.id };
+      }
 
-      const handleSubmitProduct = async (contents: __ProductContents) => {
+      async function handleSubmitProduct(
+        contents: __ProductContents,
+      ): Promise<RootStackParamList['ProductDetails']> {
         setOverlayContent({
           message: 'Creating your product…',
         });
@@ -330,12 +313,15 @@ export default function CreateItemPreviewScreen(
         console.log($FUNC, 'Successfully created new product:', newProduct);
 
         if (newProduct.squarespaceId) {
+          console.log($FUNC, 'Uploading images to Squarespace...');
+
           setOverlayContent({
             message: 'Uploading images…',
             caption: 'This may take a while',
             isUploading: true,
           });
 
+          // Squarespace only allows uploading one image at a time
           for (let i = 0; i < squarespaceImages.length; i++) {
             const index = i + 1;
             const image = squarespaceImages[i];
@@ -369,37 +355,52 @@ export default function CreateItemPreviewScreen(
               ],
             ).uploadProgress((written, total) => {
               currentUploadProgress.value = written / total;
-              const progress = Math.round((written / total) * 100);
-              console.log(`${filename}: ${written} of ${total} (${progress}%)`);
             });
           }
         }
 
-        // Pop off the `CreateItem` stack
-        props.navigation.getParent<RootStackNavigationProp>().goBack();
-        // Then navigate to the new product. We'll wait for a short period of
-        // time to not make the screen jump instantly.
-        setTimeout(() => {
-          props.navigation
-            .getParent<RootStackNavigationProp>()
-            .navigate('ProductDetails', {
-              productId: newProduct.id,
-              productName: newProduct.name,
-            });
-        }, 200);
-      };
+        return { productId: newProduct.id, productName: newProduct.name };
+      }
+
+      async function deleteTemporaryFiles() {
+        const thumbnails = await RNFS.readDir(
+          utilities.getThumbnailOutputDirectory(),
+        );
+
+        const videos = await RNFS.readDir(
+          utilities.getCompressedVideoOutputDirectory(),
+        );
+
+        await Promise.all(
+          thumbnails.concat(videos).map(async file => {
+            console.log($FUNC, 'UNKINK:', file.name);
+            await RNFS.unlink(file.path);
+          }),
+        );
+      }
 
       try {
         setIsSubmitting(true);
+        currentUploadProgress.value = 0;
+
         if (previewContent.type === 'post') {
-          await handleSubmitPost(previewContent.contents);
+          const params = await handleSubmitPost(previewContent.contents);
+          const nav = props.navigation.getParent<RootStackNavigationProp>();
+          nav.goBack(); // Pop off the `CreateItem` stack
+          nav.navigate('PostDetails', params);
         } else if (previewContent.type === 'product') {
-          await handleSubmitProduct(previewContent.contents);
+          const params = await handleSubmitProduct(previewContent.contents);
+          const nav = props.navigation.getParent<RootStackNavigationProp>();
+          nav.goBack(); // Pop off the `CreateItem` stack
+          nav.navigate('ProductDetails', params);
         } else {
           utilities.alertUnavailableFeature();
+          return;
         }
+
+        await deleteTemporaryFiles();
       } catch (error: any) {
-        if (ReturnCode.isCancel(error)) {
+        if (error.getValue && ReturnCode.isCancel(error)) {
           console.warn('FFmpeg task successfully cancelled');
         } else {
           console.error(
@@ -417,8 +418,8 @@ export default function CreateItemPreviewScreen(
         if (isMounted.current) setIsSubmitting(false);
       }
     },
-    // NOTE: Since we're just mutating `currentProgressProgress`, we don't need
-    // to add it as a dependency. We don't need to observe `isMounted` as well.
+    // NOTE: Since we're just mutating `currentUploadProgress`, we don't need
+    // to add it as a dependency. We don't need to observe `isMounted` too.
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [dispatch, previewContent.type, previewContent.contents, props.navigation],
   );

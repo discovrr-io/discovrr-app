@@ -1,5 +1,4 @@
 import storage from '@react-native-firebase/storage';
-import { Image, Video } from 'react-native-image-crop-picker';
 import { nanoid } from '@reduxjs/toolkit';
 
 import { MediaSource } from 'src/api';
@@ -39,25 +38,4 @@ export function createUploadFileToFirebaseTask(
   const uploadTask = reference.putFile(localFilePath);
 
   return [filename, uploadTask, reference] as const;
-}
-
-export function mapImageToMediaSource(image: Image): MediaSource {
-  return {
-    mime: image.mime,
-    url: 'file://' + image.path,
-    path: image.path,
-    filename: image.filename,
-    size: image.size,
-    width: image.width,
-    height: image.height,
-  };
-}
-
-export function mapVideoToMediaSource(video: Video): MediaSource {
-  return {
-    ...mapImageToMediaSource(video),
-    // Prefer higher quality source URL (only available on iOS)
-    url: video.sourceURL ?? video.path,
-    duration: video.duration,
-  };
 }

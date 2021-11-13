@@ -29,7 +29,7 @@ import { useHandleSubmitNavigationButton } from './hooks';
 
 const MAX_MEDIA_COUNT = 1;
 const MAX_CAPTION_LENGTH = 280;
-const GIF_SCALE_WIDTH = 175;
+const GIF_SCALE_WIDTH = 150;
 
 type CreateVideoPostScreenProps =
   CreateItemDetailsTopTabScreenProps<'CreateVideoPost'>;
@@ -66,20 +66,15 @@ async function generateThumbnailPreview(video: Video): Promise<MediaSource> {
   // caches the image if the URI hasn't changed. Additionally, React Native's
   // Image component won't render GIFs on Android for some reason.
   const filename = `${nanoid()}.gif`;
+  const outputDirectory = utilities.getThumbnailOutputDirectory();
+  const output = `${outputDirectory}/${filename}`;
 
-  const tempFolder = RNFS.TemporaryDirectoryPath.endsWith('/')
-    ? RNFS.TemporaryDirectoryPath.slice(0, -1)
-    : RNFS.TemporaryDirectoryPath;
-
-  const thumbnailsFolder = `${tempFolder}/thumbnails`;
-  const output = `${thumbnailsFolder}/${filename}`;
-
-  if (!(await RNFS.exists(thumbnailsFolder))) {
+  if (!(await RNFS.exists(outputDirectory))) {
     console.log("Creating 'thumbnails' folder...");
-    await RNFS.mkdir(thumbnailsFolder);
+    await RNFS.mkdir(outputDirectory);
   }
 
-  // We'll overwrite existing file for now
+  // We'll overwrite the existing file for now
   console.log(`Generating GIF preview for file '${filename}'...`);
   const command = `-y -t 1 -i "${input}" -filter_complex "reverse[r];[0][r]concat=n=2:v=1:a=0,fps=25,scale=${GIF_SCALE_WIDTH}:trunc(ow/a/2)*2,crop=${GIF_SCALE_WIDTH}:min(in_h\\,${GIF_SCALE_WIDTH}/2*3)" "${output}"`;
 
@@ -117,16 +112,6 @@ export default function CreateVideoPostScreen(
 ) {
   const [generatingPreview, setGeneratingPreview] = React.useState(false);
 
-  // useFocusEffect(
-  //   React.useCallback(() => {
-  //     return () => {
-  //       FFmpegKit.cancel()
-  //         .then(() => console.log('Successfully cancelled'))
-  //         .catch(error => console.error('Failed to cancel:', error));
-  //     };
-  //   }, []),
-  // );
-
   const handleNavigateToPreview = async (values: VideoPostForm) => {
     try {
       setGeneratingPreview(true);
@@ -153,63 +138,6 @@ export default function CreateVideoPostScreen(
     }
   };
 
-  // const handleNavigateToPreview = async (values: VideoPostForm) => {
-  //   setGeneratingPreview(true);
-  //   const video = values.video[0];
-  //   let thumbnailPath: string | undefined = undefined;
-
-  //   try {
-  //     const input = video.sourceURL ?? video.path;
-  //     const output = `${RNFS.CachesDirectoryPath}/${nanoid()}.jpg`;
-  //     const command = `-ss 00:00:01.000 -i ${input} -vframes 1 ${output}`;
-
-  //     console.log('Running command:', command);
-  //     await FFmpegKit.executeAsync(command, async session => {
-  //       const state = FFmpegKitConfig.sessionStateToString(
-  //         await session.getState(),
-  //       );
-
-  //       const returnCode = await session.getReturnCode();
-  //       const failStackTrace = await session.getFailStackTrace();
-  //       const duration = await session.getDuration();
-
-  //       if (ReturnCode.isSuccess(returnCode)) {
-  //         console.log(`Thumbnail generated successfully in ${duration} ms.`);
-  //         const outputPath = `file://${output}`;
-  //         thumbnailPath = outputPath;
-  //       } else if (ReturnCode.isCancel(returnCode)) {
-  //         console.warn('FFmpeg task cancelled!');
-  //       } else {
-  //         console.error(
-  //           `Failed to generate thumbnail with state "${state}"`,
-  //           `and return code "${returnCode}"`,
-  //         );
-  //         console.log(failStackTrace);
-
-  //         throw returnCode;
-  //       }
-  //     });
-
-  //     console.log('THUMBNAIL:', thumbnailPath);
-  //   } catch (error) {
-  //     console.log('ERROR:', error);
-  //   } finally {
-  //     setGeneratingPreview(false);
-  //   }
-
-  //   // const source = utilities.mapVideoToMediaSource(video);
-  //   // props.navigation
-  //   //   .getParent<CreateItemStackNavigationProp>()
-  //   //   .navigate('CreateItemPreview', {
-  //   //     type: 'post',
-  //   //     contents: {
-  //   //       type: 'video',
-  //   //       caption: values.caption.trim(),
-  //   //       source,
-  //   //     },
-  //   //   });
-  // };
-
   return (
     <>
       <Formik<VideoPostForm>
@@ -227,7 +155,7 @@ export default function CreateVideoPostScreen(
 }
 
 function VideoPostFormikForm() {
-  const { dirty } = useFormikContext<VideoPostForm>();
+  const { dirty, isSubmitting } = useFormikContext<VideoPostForm>();
 
   useNavigationAlertUnsavedChangesOnRemove(dirty);
   useHandleSubmitNavigationButton<VideoPostForm>();
@@ -243,6 +171,7 @@ function VideoPostFormikForm() {
           fieldName="video"
           maxCount={1}
           caption="Upload your video below"
+          paused={isSubmitting}
         />
         <TextArea
           fieldName="caption"
@@ -267,100 +196,3 @@ const videoPostFormikFormStyles = StyleSheet.create({
     paddingHorizontal: constants.layout.spacing.lg,
   },
 });
-
-/*
-function VideoPostFormikForm() {
-  const [video, setVideo] = React.useState<Video>();
-  const [gifDir, setGifDir] = React.useState<string>();
-
-  const handleSelectVideo = async () => {
-    try {
-      const video = await ImageCropPicker.openPicker({
-        mediaType: 'video',
-      });
-
-      console.log(video);
-      setVideo(video);
-    } catch (error) {
-      console.error('Failed to pick video:', error);
-    }
-  };
-
-  const handleEncodeVideo = async (video: Video) => {
-    try {
-      const fileId = nanoid();
-      console.log('CACHE DIR:', RNFS.CachesDirectoryPath);
-      console.log('Encoding video...');
-
-      const outputPath = `${RNFS.CachesDirectoryPath}/${fileId}.gif`;
-      const command = `-i ${video.path} -loop -1 -vf "scale=320:-1" ${outputPath}`;
-      console.log('EXECUTING:', command);
-
-      FFmpegKit.executeAsync(command, async session => {
-        const state = FFmpegKitConfig.sessionStateToString(
-          await session.getState(),
-        );
-        const returnCode = await session.getReturnCode();
-        const failStackTrace = await session.getFailStackTrace();
-        const duration = await session.getDuration();
-
-        if (ReturnCode.isSuccess(returnCode)) {
-          console.log(`Encoding completed successfully in ${duration} ms.`);
-          const gifPath = `file://${outputPath}`;
-          console.log('OUTPUT:', gifPath);
-          setGifDir(gifPath);
-        } else if (ReturnCode.isCancel(returnCode)) {
-          console.warn('FFmpeg task cancelled!');
-        } else {
-          console.error(
-            `Failed to encode video with state "${state}"`,
-            `and return code "${returnCode}"`,
-          );
-          console.log(failStackTrace);
-        }
-      });
-    } catch (error) {
-      console.error('Failed to encode video:', error);
-    }
-  };
-
-  return (
-    <ScrollView contentContainerStyle={layout.defaultScreenStyle}>
-      {video && (
-        <View>
-          <VideoPlayer
-            repeat
-            controls
-            source={{ uri: video.path }}
-            style={{
-              backgroundColor: 'lightblue',
-              width: '100%',
-              aspectRatio: 1,
-            }}
-          />
-          <Text>{JSON.stringify(video)}</Text>
-        </View>
-      )}
-      <Button
-        title={!video ? 'Select Video' : 'Encode Video'}
-        type="primary"
-        variant="contained"
-        onPress={async () => {
-          if (!video) return await handleSelectVideo();
-          return await handleEncodeVideo(video);
-        }}
-      />
-      {gifDir && (
-        <FastImage
-          source={{ uri: gifDir }}
-          style={{
-            backgroundColor: 'lightgreen',
-            width: '100%',
-            aspectRatio: 1,
-          }}
-        />
-      )}
-    </ScrollView>
-  );
-}
-*/
