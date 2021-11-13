@@ -2,17 +2,14 @@ import React from 'react';
 
 import { useNavigation } from '@react-navigation/native';
 
-import { Button, Spacer, ToggleButton } from 'src/components';
+import { Button, ToggleButton } from 'src/components';
 import { color } from 'src/constants';
 import { selectCurrentUserProfileId } from 'src/features/authentication/auth-slice';
 import { selectPostsByProfile } from 'src/features/posts/posts-slice';
 import { useAppDispatch, useAppSelector } from 'src/hooks';
 import { PersonalProfile } from 'src/models/profile';
 import { RootStackNavigationProp } from 'src/navigation';
-import {
-  alertSomethingWentWrong,
-  alertUnavailableFeature,
-} from 'src/utilities';
+import { alertSomethingWentWrong } from 'src/utilities';
 
 import {
   updateProfileFollowStatus,
@@ -146,17 +143,16 @@ export default function UserProfileHeader(props: UserProfileHeaderProps) {
                   isToggled ? color.accentFocused : color.gray700
                 }
                 loadingIndicatorColor={_ => color.white}
-                containerStyle={isToggled =>
-                  isToggled
-                    ? { width: '50%' }
-                    : { borderColor: color.white, width: '50%' }
-                }
+                containerStyle={isToggled => [
+                  { flexGrow: 1 },
+                  !isToggled && { borderColor: color.white },
+                ]}
                 textStyle={isToggled =>
                   isToggled ? {} : { color: color.white }
                 }
                 onPress={handlePressFollow}
               />
-              <Spacer.Horizontal value="sm" />
+              {/* <Spacer.Horizontal value="sm" />
               <Button
                 size="small"
                 variant="outlined"
@@ -165,7 +161,7 @@ export default function UserProfileHeader(props: UserProfileHeaderProps) {
                 containerStyle={{ flexGrow: 1, borderColor: color.white }}
                 underlayColor={color.gray700}
                 onPress={() => alertUnavailableFeature()}
-              />
+              /> */}
             </>
           )}
         </>

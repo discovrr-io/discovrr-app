@@ -17,7 +17,7 @@ import { DEFAULT_ACTIVE_OPACITY } from 'src/constants/values';
 
 const DEFAULT_BACKGROUND = require('../../../assets/images/backdrop.png');
 
-export const HEADER_MAX_HEIGHT = 265;
+export const HEADER_MAX_HEIGHT_MULTIPLIER = 0.4;
 const AVATAR_IMAGE_RADIUS = 80;
 
 type ProfileDetails = Pick<
@@ -41,7 +41,7 @@ export type ProfileHeaderProps = {
 
 export default function ProfileHeader(props: ProfileHeaderProps) {
   const { profileDetails, renderStatistics, renderActions } = props;
-  const { width: windowWidth } = useWindowDimensions();
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
 
   return (
     <View pointerEvents="box-none">
@@ -54,7 +54,7 @@ export default function ProfileHeader(props: ProfileHeaderProps) {
         }
         style={{
           width: windowWidth,
-          height: HEADER_MAX_HEIGHT,
+          height: windowHeight * HEADER_MAX_HEIGHT_MULTIPLIER,
           backgroundColor: color.gray100,
         }}
       />

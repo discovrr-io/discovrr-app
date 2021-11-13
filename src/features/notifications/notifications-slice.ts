@@ -40,7 +40,9 @@ const notificationsSlice = createSlice({
       action: PayloadAction<Pick<Notification, 'id' | 'title' | 'message'>>,
     ) => {
       const newNotification = action.payload;
-      state.allNotifications.push({ ...newNotification, read: false });
+      if (!state.allNotifications.some(it => it.id === newNotification.id)) {
+        state.allNotifications.push({ ...newNotification, read: false });
+      }
     },
     markAllNotificationsAsRead: state => {
       for (const notification of state.allNotifications) {

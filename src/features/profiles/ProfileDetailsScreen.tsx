@@ -1,28 +1,22 @@
-import React, {
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import * as React from 'react';
 import {
   Alert,
   Platform,
-  SafeAreaView,
   StyleSheet,
   TouchableOpacity,
+  useWindowDimensions,
 } from 'react-native';
 
 import BottomSheet from '@gorhom/bottom-sheet';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { useNavigation } from '@react-navigation/core';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Tabs, MaterialTabBar } from 'react-native-collapsible-tab-view';
+import { useNavigation } from '@react-navigation/core';
 
 import PostMasonryList from 'src/features/posts/PostMasonryList';
 import { color, font, layout } from 'src/constants';
 import { SOMETHING_WENT_WRONG } from 'src/constants/strings';
 import { DEFAULT_ACTIVE_OPACITY } from 'src/constants/values';
-import { HEADER_MAX_HEIGHT } from 'src/features/profiles/ProfileHeader';
 import { useAppDispatch, useAppSelector, useIsMounted } from 'src/hooks';
 import { Profile } from 'src/models';
 import { RootStackScreenProps } from 'src/navigation';
@@ -37,14 +31,11 @@ import {
   RouteError,
 } from 'src/components';
 
-import {
-  fetchPostsForProfile,
-  selectPostsByProfile,
-} from 'src/features/posts/posts-slice';
+import { HEADER_MAX_HEIGHT_MULTIPLIER } from 'src/features/profiles/ProfileHeader';
 
-import PersonalProfileHeader from './personal/PersonalProfileHeader';
-import VendorProfileHeader from './vendor/VendorProfileHeader';
-import { fetchProfileById } from './profiles-slice';
+import DefaultProfileHeader from './DefaultProfileHeader';
+import * as postsSlice from 'src/features/posts/posts-slice';
+import * as profilesSlice from './profiles-slice';
 import { useIsMyProfile, useProfile } from './hooks';
 
 type ProfileDetailsScreenProps = RootStackScreenProps<'ProfileDetails'>;
@@ -74,23 +65,30 @@ export default function ProfileDetailsScreen(props: ProfileDetailsScreenProps) {
   );
 }
 
-function LoadedProfileDetailsScreen(props: { profile: Profile }) {
+type LoadedProfileDetailsScreenProps = {
+  profile: Profile;
+};
+
+function LoadedProfileDetailsScreen(props: LoadedProfileDetailsScreenProps) {
   const $FUNC = '[LoadedProfileDetailsScreen]';
   const profile = props.profile;
+  const { height: windowHeight } = useWindowDimensions();
 
   const dispatch = useAppDispatch();
   const navigation = useNavigation<ProfileDetailsScreenProps['navigation']>();
   const isMounted = useIsMounted();
 
-  const [isInitialRender, setIsInitialRender] = useState(true);
-  const [shouldRefresh, setShouldRefresh] = useState(false);
+  const [isInitialRender, setIsInitialRender] = React.useState(true);
+  const [shouldRefresh, setShouldRefresh] = React.useState(false);
 
   const isMyProfile = useIsMyProfile(profile.profileId);
-  const posts = useAppSelector(s => selectPostsByProfile(s, profile.profileId));
+  const posts = useAppSelector(s =>
+    postsSlice.selectPostsByProfile(s, profile.profileId),
+  );
   const postIds = posts.map(post => post.id);
 
-  const actionBottomSheetRef = useRef<BottomSheet>(null);
-  const actionBottomSheetItems = useMemo(() => {
+  const actionBottomSheetRef = React.useRef<BottomSheet>(null);
+  const actionBottomSheetItems = React.useMemo(() => {
     const items: ActionBottomSheetItem[] = [];
 
     if (!isMyProfile) {
@@ -123,10 +121,10 @@ function LoadedProfileDetailsScreen(props: { profile: Profile }) {
     ];
   }, [isMyProfile, profile]);
 
-  useLayoutEffect(() => {
+  React.useLayoutEffect(() => {
     navigation.setOptions({
       // eslint-disable-next-line react/display-name
-      headerRight: () => (
+      headerRight: ({ tintColor }) => (
         <TouchableOpacity
           activeOpacity={DEFAULT_ACTIVE_OPACITY}
           onPress={() => actionBottomSheetRef.current?.expand()}
@@ -137,14 +135,14 @@ function LoadedProfileDetailsScreen(props: { profile: Profile }) {
               default: 'ellipsis-horizontal',
             })}
             size={24}
-            color={color.black}
+            color={tintColor || color.black}
           />
         </TouchableOpacity>
       ),
     });
   }, [navigation]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (isInitialRender || shouldRefresh)
       (async () => {
         try {
@@ -153,12 +151,12 @@ function LoadedProfileDetailsScreen(props: { profile: Profile }) {
             `Refreshing profile with ID '${profile.profileId}'...`,
           );
 
-          const fetchProfileAction = fetchProfileById({
+          const fetchProfileAction = profilesSlice.fetchProfileById({
             profileId: profile.profileId,
             reload: true,
           });
 
-          const fetchPostsAction = fetchPostsForProfile({
+          const fetchPostsAction = postsSlice.fetchPostsForProfile({
             profileId: profile.profileId,
             reload: true,
           });
@@ -207,29 +205,27 @@ function LoadedProfileDetailsScreen(props: { profile: Profile }) {
     }
   };
 
+  const renderDefaultHeader = React.useCallback(() => {
+    return <DefaultProfileHeader profile={profile} />;
+  }, [profile]);
+
   // TODO: Add pull to refresh
   return (
-    <>
+    <SafeAreaView edges={['bottom', 'left', 'right']} style={{ flex: 1 }}>
       <Tabs.Container
         lazy
         snapThreshold={0.25}
-        headerHeight={HEADER_MAX_HEIGHT}
+        headerHeight={windowHeight * HEADER_MAX_HEIGHT_MULTIPLIER}
         containerStyle={{ backgroundColor: color.gray100 }}
-        renderHeader={() =>
-          profile.kind === 'personal' ? (
-            <PersonalProfileHeader personalProfile={profile} />
-          ) : (
-            <VendorProfileHeader vendorProfile={profile} />
-          )
-        }
+        renderHeader={renderDefaultHeader}
         renderTabBar={props => (
           <MaterialTabBar
             {...props}
-            activeColor={color.black}
+            activeColor={color.accent}
             inactiveColor={color.gray700}
-            labelStyle={font.medium}
+            labelStyle={font.defaultTabBarLabelStyle}
             indicatorStyle={{ backgroundColor: color.accent }}
-            contentContainerStyle={{ backgroundColor: color.white }}
+            contentContainerStyle={{ backgroundColor: color.absoluteWhite }}
           />
         )}>
         <Tabs.Tab name="posts" label="Posts">
@@ -251,27 +247,29 @@ function LoadedProfileDetailsScreen(props: { profile: Profile }) {
             }
           />
         </Tabs.Tab>
-        <Tabs.Tab name="notes" label="Notes">
-          {/* @ts-ignore */}
-          <Tabs.ScrollView>
-            <EmptyContainer
-              justifyContentToCenter={false}
-              message={`${
-                isMyProfile
-                  ? "You haven't"
-                  : (profile.displayName || 'This user') + " hasn't"
-              } shared any public notes.`}
-              containerStyle={profileDetailsScreenStyles.emptyContainer}
-            />
-          </Tabs.ScrollView>
-        </Tabs.Tab>
+        {
+          <Tabs.Tab name="likes" label="Likes">
+            {/* @ts-ignore */}
+            <Tabs.ScrollView>
+              <EmptyContainer
+                justifyContentToCenter={false}
+                message={`${
+                  isMyProfile
+                    ? "You haven't"
+                    : (profile.displayName || 'This user') + " hasn't"
+                } shared any public notes.`}
+                containerStyle={profileDetailsScreenStyles.emptyContainer}
+              />
+            </Tabs.ScrollView>
+          </Tabs.Tab>
+        }
       </Tabs.Container>
       <ActionBottomSheet
         ref={actionBottomSheetRef}
         items={actionBottomSheetItems}
         onSelectItem={handleSelectActionItem}
       />
-    </>
+    </SafeAreaView>
   );
 }
 

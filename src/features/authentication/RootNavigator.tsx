@@ -73,7 +73,7 @@ export default function RootNavigator() {
 
       dispatch(
         didReceiveNotification({
-          id: nanoid() as NotificationId,
+          id: (remoteMessage.messageId || nanoid()) as NotificationId,
           title: alertTitle,
           message: alertMessage,
         }),

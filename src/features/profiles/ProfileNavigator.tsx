@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { color } from 'src/constants';
 
 import { RootStack } from 'src/navigation';
 import ProfileDetailsScreen from './ProfileDetailsScreen';
@@ -13,6 +14,9 @@ export default function renderProfileNavigator() {
         options={({ route }) => ({
           title: route.params.profileDisplayName || 'Profile',
           headerShown: !route.params.hideHeader ?? true,
+          // headerTransparent: true,
+          // headerTintColor: color.absoluteWhite,
+          headerTintColor: color.absoluteBlack,
         })}
       />
       <RootStack.Screen
