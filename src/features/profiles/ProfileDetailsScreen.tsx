@@ -215,14 +215,14 @@ function LoadedProfileDetailsScreen(props: { profile: Profile }) {
         snapThreshold={0.25}
         headerHeight={HEADER_MAX_HEIGHT}
         containerStyle={{ backgroundColor: color.gray100 }}
-        HeaderComponent={() =>
+        renderHeader={() =>
           profile.kind === 'personal' ? (
             <PersonalProfileHeader personalProfile={profile} />
           ) : (
             <VendorProfileHeader vendorProfile={profile} />
           )
         }
-        TabBarComponent={props => (
+        renderTabBar={props => (
           <MaterialTabBar
             {...props}
             activeColor={color.black}

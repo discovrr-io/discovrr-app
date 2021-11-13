@@ -13,6 +13,7 @@ import {
   Text,
   TouchableOpacity,
   Platform,
+  StatusBar,
 } from 'react-native';
 
 import * as yup from 'yup';
@@ -640,7 +641,13 @@ export default function AuthScreen() {
   };
 
   return (
-    <SafeAreaView style={authScreenStyles.container}>
+    <View style={authScreenStyles.container}>
+      <StatusBar
+        animated
+        translucent
+        barStyle="light-content"
+        backgroundColor="transparent"
+      />
       <Video
         muted
         repeat
@@ -708,7 +715,7 @@ export default function AuthScreen() {
       ) : status === 'registering' ? (
         <LoadingOverlay message="Creating your account..." />
       ) : null}
-    </SafeAreaView>
+    </View>
   );
 }
 

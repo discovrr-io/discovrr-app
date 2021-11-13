@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Alert, Platform, StatusBar } from 'react-native';
+import { Alert, StatusBar } from 'react-native';
 
 import analytics from '@react-native-firebase/analytics';
 import crashlytics from '@react-native-firebase/crashlytics';
@@ -126,7 +126,9 @@ export default function AuthGate() {
     <>
       <StatusBar
         animated
-        barStyle={Platform.OS === 'android' ? 'light-content' : 'dark-content'}
+        translucent
+        barStyle="dark-content"
+        backgroundColor="transparent"
       />
       {status === 'signing-out' && (
         <LoadingOverlay message="Signing you out.." />
@@ -134,9 +136,6 @@ export default function AuthGate() {
       <RootNavigator />
     </>
   ) : (
-    <>
-      <StatusBar animated barStyle="light-content" />
-      <AuthNavigator />
-    </>
+    <AuthNavigator />
   );
 }
