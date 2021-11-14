@@ -2,7 +2,9 @@ import * as React from 'react';
 import { color } from 'src/constants';
 
 import { RootStack } from 'src/navigation';
-import ProfileDetailsScreen from './ProfileDetailsScreen';
+// import ProfileDetailsScreen from './ProfileDetailsScreen';
+// import ProfileDetailsScreen from './ProfileDetailsScreen.new';
+import ProfileDetailsScreen from './ProfileDetailsScreen.alt';
 import ProfileFollowActivityScreen from './ProfileFollowActivityScreen';
 
 export default function renderProfileNavigator() {
@@ -14,9 +16,10 @@ export default function renderProfileNavigator() {
         options={({ route }) => ({
           title: route.params.profileDisplayName || 'Profile',
           headerShown: !route.params.hideHeader ?? true,
-          // headerTransparent: true,
-          // headerTintColor: color.absoluteWhite,
-          headerTintColor: color.absoluteBlack,
+          // headerTintColor: color.absoluteBlack,
+          headerTitleContainerStyle: { opacity: 0 },
+          headerTransparent: true,
+          headerTintColor: color.absoluteWhite,
         })}
       />
       <RootStack.Screen
