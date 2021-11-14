@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+## Added
+
+- Replace video on login screen with a new splash video
+- New profile details page with taller header
+  - [ ] Display products on maker profile page
+  - [ ] Show profile name on top when bottom sheet covers header
+  - [ ] Replace old profile page on My Profile tab with new one
+
 ## [v3.0.4] (2021-11-10)
 
 ## Added
@@ -15,7 +23,7 @@
 ## Fixed
 
 - Fixed issue where creating a new account with email and password failed
-- Minor bug fixes and visual i
+- Minor bug fixes and visual changes
 
 ## Changed
 

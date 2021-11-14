@@ -49,11 +49,9 @@ import { useAuthState } from './hooks';
 import FastImage from 'react-native-fast-image';
 
 const DISCOVRR_LOGO = require('../../../assets/images/logo-horizontal.png');
+const LOGIN_VIDEO_SOURCE = require('../../../assets/videos/login-video.mp4');
 const LOGIN_POSTER_SOURCE = require('../../../assets/images/login-video-poster.png');
 const LOGIN_POSTER_ASSET_SOURCE = Image.resolveAssetSource(LOGIN_POSTER_SOURCE);
-const LOGIN_VIDEO_SOURCE = {
-  uri: 'https://firebasestorage.googleapis.com/v0/b/discovrrapp-88c28.appspot.com/o/sys%2FloginBackgroundVideo.mp4?alt=media&token=ee3959f1-71ae-4f7b-94d9-05a3979112bc',
-};
 
 const DEFAULT_ERROR_TITLE = SOMETHING_WENT_WRONG.title;
 const DEFAULT_AUTH_SIGN_IN_ERROR_MESSAGE =
@@ -252,7 +250,7 @@ function LoginForm({ setFormType }: LoginFormProps) {
           <Button
             type="primary"
             variant="contained"
-            title="Sign in"
+            title="Sign In"
             // disabled={isProcessing}
             onPress={props.handleSubmit}
             containerStyle={formStyles.button}
@@ -652,7 +650,7 @@ export default function AuthScreen() {
       {/* Android: Sometimes the video poster takes a while to render, so we'll
           render an image behind as well. */}
       <FastImage
-        source={LOGIN_POSTER_ASSET_SOURCE}
+        source={LOGIN_POSTER_SOURCE}
         style={[
           authScreenStyles.backgroundVideo,
           { backgroundColor: color.placeholder },
@@ -669,8 +667,8 @@ export default function AuthScreen() {
         preventsDisplaySleepDuringVideoPlayback={false}
         resizeMode="cover"
         posterResizeMode="cover"
-        poster={LOGIN_POSTER_ASSET_SOURCE.uri}
         source={LOGIN_VIDEO_SOURCE}
+        poster={LOGIN_POSTER_ASSET_SOURCE.uri}
         style={authScreenStyles.backgroundVideo}
       />
       <ScrollView

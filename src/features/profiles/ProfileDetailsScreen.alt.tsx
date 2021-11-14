@@ -15,22 +15,39 @@ import FastImage from 'react-native-fast-image';
 import Icon from 'react-native-vector-icons/Ionicons';
 import LinearGradient from 'react-native-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import { useFocusEffect, useNavigation } from '@react-navigation/core';
 import { useHeaderHeight } from '@react-navigation/elements';
 
 import * as constants from 'src/constants';
 import * as utilities from 'src/utilities';
-import __ProfileHeader from './ProfileHeader';
+
+import * as authSlice from 'src/features/authentication/auth-slice';
+import * as postsSlice from 'src/features/posts/posts-slice';
+import * as profilesSlice from 'src/features/profiles/profiles-slice';
+
+import PostMasonryList from 'src/features/posts/PostMasonryList';
+import { useAppDispatch, useAppSelector, useIsMounted } from 'src/hooks';
 import { Profile } from 'src/models';
-import { RootStackScreenProps } from 'src/navigation';
+import { RootStackNavigationProp, RootStackScreenProps } from 'src/navigation';
+
 import {
+  ActionBottomSheet,
+  ActionBottomSheetItem,
   AsyncGate,
+  Button,
+  EmptyContainer,
   LoadingContainer,
+  PlaceholderScreen,
   RouteError,
   Spacer,
   ToggleButton,
 } from 'src/components';
 
-import { useProfile } from './hooks';
+import { useIsMyProfile, useProfile } from './hooks';
+
+const MaterialTopTab = createMaterialTopTabNavigator();
+const BACKGROUND_COLOR = constants.color.gray100;
 
 type ProfileDetailsScreenProps = RootStackScreenProps<'ProfileDetails'>;
 
@@ -72,14 +89,49 @@ function LoadedProfileDetailsScreen(props: LoadedProfileDetailsScreenProps) {
   const { profile, navigation } = props;
   const { height: windowHeight } = useWindowDimensions();
 
+  const isMyProfile = useIsMyProfile(profile.profileId);
   const headerHeight = useHeaderHeight();
   // const headerTitleOpacity = React.useRef(new Animated.Value(0)).current;
 
   const bottomSheetRef = React.useRef<BottomSheet>(null);
   const snapPoints = React.useMemo(
-    () => [windowHeight * 0.45, windowHeight - headerHeight],
+    () => [windowHeight * 0.45 + 24, windowHeight - headerHeight],
     [headerHeight, windowHeight],
   );
+
+  const actionBottomSheetRef = React.useRef<BottomSheet>(null);
+  const actionBottomSheetItems = React.useMemo(() => {
+    const items: ActionBottomSheetItem[] = [];
+
+    if (!isMyProfile) {
+      const displayName = (() => {
+        if (profile.kind === 'vendor') {
+          return profile.businessName || profile.displayName;
+        } else {
+          return profile.displayName;
+        }
+      })();
+
+      items.push(
+        {
+          id: 'block',
+          label: `Block ${displayName}`,
+          iconName: 'hand-right-outline',
+          destructive: true,
+        },
+        {
+          id: 'report',
+          label: `Report ${profile.displayName}`,
+          iconName: 'flag-outline',
+        },
+      );
+    }
+
+    return [
+      ...items,
+      { id: 'share', label: 'Share Profile', iconName: 'share-social-outline' },
+    ];
+  }, [isMyProfile, profile]);
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -92,8 +144,7 @@ function LoadedProfileDetailsScreen(props: LoadedProfileDetailsScreenProps) {
       headerRight: ({ tintColor }) => (
         <TouchableOpacity
           activeOpacity={constants.values.DEFAULT_ACTIVE_OPACITY}
-          // onPress={() => actionBottomSheetRef.current?.expand()}
-          onPress={() => {}}
+          onPress={() => actionBottomSheetRef.current?.expand()}
           style={{
             marginRight: constants.layout.defaultScreenMargins.horizontal,
           }}>
@@ -109,6 +160,36 @@ function LoadedProfileDetailsScreen(props: LoadedProfileDetailsScreenProps) {
       ),
     });
   }, [navigation]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      StatusBar.setBarStyle('light-content', true);
+      return () => StatusBar.setBarStyle('dark-content', true);
+    }, []),
+  );
+
+  const handleSelectActionItem = (selectedItemId: string) => {
+    switch (selectedItemId) {
+      case 'block':
+        utilities.alertUnavailableFeature({
+          title: "We're still working on this",
+          message:
+            'In the meantime, you may report this profile. Your report will be anonymous.',
+        });
+        break;
+      case 'report':
+        // FIXME: On iOS the status bar goes dark because of `useFocusEffect`,
+        // but it should have the light-content bar style
+        navigation.navigate('ReportItem', {
+          screen: 'ReportItemReason',
+          params: { type: 'profile' },
+        });
+        break;
+      default:
+        actionBottomSheetRef.current?.close();
+        break;
+    }
+  };
 
   return (
     <SafeAreaView edges={['bottom', 'left', 'right']} style={{ flex: 1 }}>
@@ -133,13 +214,65 @@ function LoadedProfileDetailsScreen(props: LoadedProfileDetailsScreenProps) {
       <BottomSheet
         ref={bottomSheetRef}
         animateOnMount={false}
-        onChange={index => console.log('CHANGE:', index)}
-        onAnimate={(from, to) => console.log('ANIMATE:', { from, to })}
-        snapPoints={snapPoints}>
-        <BottomSheetScrollView>
-          <Text>{JSON.stringify(profile)}</Text>
-        </BottomSheetScrollView>
+        // onChange={index => console.log('CHANGE:', index)}
+        // onAnimate={(from, to) => console.log('ANIMATE:', { from, to })}
+        snapPoints={snapPoints}
+        backgroundStyle={{ backgroundColor: constants.color.absoluteWhite }}>
+        <MaterialTopTab.Navigator
+          screenOptions={{
+            lazy: true,
+            // lazyPreloadDistance: 1,
+            lazyPlaceholder: () => (
+              <LoadingContainer
+                justifyContentToCenter={false}
+                containerStyle={{
+                  paddingTop: constants.layout.spacing.xl,
+                  backgroundColor: BACKGROUND_COLOR,
+                }}
+              />
+            ),
+            tabBarLabelStyle: constants.font.defaultTabBarLabelStyle,
+            tabBarActiveTintColor: constants.color.accent,
+            tabBarInactiveTintColor: constants.color.gray500,
+            tabBarPressColor: constants.color.gray200,
+            tabBarStyle: {
+              backgroundColor: constants.color.absoluteWhite,
+            },
+          }}>
+          {profile.kind === 'vendor' && (
+            <MaterialTopTab.Screen name="Products">
+              {_ => (
+                <PlaceholderScreen
+                  justifyContentToCenter={false}
+                  containerStyle={{
+                    paddingTop: constants.layout.spacing.xl,
+                    backgroundColor: BACKGROUND_COLOR,
+                  }}
+                />
+              )}
+            </MaterialTopTab.Screen>
+          )}
+          <MaterialTopTab.Screen name="Posts">
+            {_ => <ProfileDetailsContentPostsTab profile={profile} />}
+          </MaterialTopTab.Screen>
+          <MaterialTopTab.Screen name="Liked">
+            {_ => (
+              <PlaceholderScreen
+                justifyContentToCenter={false}
+                containerStyle={{
+                  paddingTop: constants.layout.spacing.xl,
+                  backgroundColor: BACKGROUND_COLOR,
+                }}
+              />
+            )}
+          </MaterialTopTab.Screen>
+        </MaterialTopTab.Navigator>
       </BottomSheet>
+      <ActionBottomSheet
+        ref={actionBottomSheetRef}
+        items={actionBottomSheetItems}
+        onSelectItem={handleSelectActionItem}
+      />
     </SafeAreaView>
   );
 }
@@ -149,11 +282,95 @@ type ProfileDetailsHeaderPros = {
 };
 
 function ProfileDetailsHeader(props: ProfileDetailsHeaderPros) {
+  const $FUNC = '[ProfileDetailsHeader]';
   const { profile } = props;
   const { height: windowHeight } = useWindowDimensions();
 
+  const dispatch = useAppDispatch();
+  const navigation = useNavigation<RootStackNavigationProp>();
+
   const headerHeight = useHeaderHeight();
   const avatarHeight = windowHeight * 0.13;
+
+  const currentUserProfileId = useAppSelector(state => {
+    return authSlice.selectCurrentUserProfileId(state);
+  });
+
+  const isMyProfile = profile.profileId === currentUserProfileId;
+  const isFollowing = React.useMemo(() => {
+    if (isMyProfile) return false;
+    if (!profile.followers) return false;
+    if (!currentUserProfileId) return false;
+    return profile.followers.includes(currentUserProfileId);
+  }, [currentUserProfileId, isMyProfile, profile.followers]);
+
+  // FIXME: For some reason this isn't working
+  // const isFollowing = useAppSelector(state => {
+  //   if (isMyProfile) return false;
+  //   return profilesSlice.selectIsUserFollowingProfile(state, profile.id);
+  // });
+
+  const isFollowed = useAppSelector(state => {
+    if (!currentUserProfileId) return false;
+    if (isMyProfile) return false;
+    const myProfile = profilesSlice.selectProfileById(
+      state,
+      currentUserProfileId,
+    );
+    return myProfile?.followers?.some(id => id === profile.profileId) ?? false;
+  });
+
+  const totalLikes = useAppSelector(state => {
+    return postsSlice
+      .selectPostsByProfile(state, profile.profileId)
+      .map(post => post.statistics?.totalLikes ?? 0)
+      .reduce((acc, curr) => acc + curr, 0);
+  });
+
+  const handleNavigateToFollowActivity = (
+    selector: 'followers' | 'following',
+  ) => {
+    navigation.push('ProfileFollowActivity', {
+      profileId: profile.profileId,
+      profileDisplayName: profile.displayName,
+      selector,
+    });
+  };
+
+  const handlePressEditProfile = () => {
+    navigation.navigate('ProfileSettings');
+  };
+
+  const handlePressFollow = async (didFollow: boolean) => {
+    const description = didFollow ? 'follow' : 'unfollow';
+
+    try {
+      if (!currentUserProfileId) {
+        console.warn(
+          $FUNC,
+          'No profile ID was found for the current user, which is unexpected.',
+          'Aborting `updateProfileFollowStatus` action...',
+        );
+        throw new Error('Failed to find profile for the current user');
+      }
+
+      console.log($FUNC, `Will ${description} profile...`);
+
+      const updateProfileFollowStatusAction =
+        profilesSlice.updateProfileFollowStatus({
+          didFollow,
+          followeeId: profile.profileId,
+          followerId: currentUserProfileId,
+        });
+
+      await dispatch(updateProfileFollowStatusAction).unwrap();
+      console.log($FUNC, `Successfully ${description}ed profile`);
+    } catch (error) {
+      console.error($FUNC, `Failed to ${description} user:`, error);
+      utilities.alertSomethingWentWrong();
+      throw error; // Rethrow the error to toggle the button back
+    }
+  };
 
   return (
     <View style={profileDetailsHeaderStyles.headerContainer}>
@@ -184,6 +401,7 @@ function ProfileDetailsHeader(props: ProfileDetailsHeaderPros) {
                 { height: avatarHeight, borderRadius: avatarHeight / 2 },
               ]}
             />
+            <Spacer.Vertical value="sm" />
             <Text
               style={[
                 constants.font.extraLargeBold,
@@ -212,34 +430,58 @@ function ProfileDetailsHeader(props: ProfileDetailsHeaderPros) {
           </View>
           <Spacer.Vertical value="md" />
           <View style={profileDetailsHeaderStyles.headerStatisticsContainer}>
-            <ProfileDetailsHeaderStatistics label="Followers" count={4321} />
-            <ProfileDetailsHeaderStatistics label="Following" count={1234} />
-            <ProfileDetailsHeaderStatistics label="Likes" count={9876} />
+            <ProfileDetailsHeaderStatistics
+              label="Followers"
+              count={profile.followers?.length ?? 0}
+              onPress={() => handleNavigateToFollowActivity('followers')}
+            />
+            <ProfileDetailsHeaderStatistics
+              label="Following"
+              count={profile.following?.length ?? 0}
+              onPress={() => handleNavigateToFollowActivity('following')}
+            />
+            <ProfileDetailsHeaderStatistics label="Likes" count={totalLikes} />
           </View>
           <Spacer.Vertical value="md" />
-          <ToggleButton
-            size="medium"
-            title={isToggled => (isToggled ? 'Following' : 'Follow')}
-            initialState={false}
-            underlayColor={isToggled =>
-              isToggled
-                ? constants.color.accentFocused
-                : constants.color.gray200
-            }
-            textStyle={isToggled => [
-              isToggled && { color: constants.color.defaultLightTextColor },
-            ]}
-            containerStyle={isToggled => [
-              {
-                width: '75%',
-                borderWidth: 0,
-                backgroundColor: isToggled
-                  ? constants.color.accent
-                  : constants.color.gray100,
-              },
-            ]}
-            onPress={() => {}}
-          />
+          {isMyProfile ? (
+            <Button
+              title="Edit My Profile"
+              size="medium"
+              variant="contained"
+              containerStyle={profileDetailsHeaderStyles.headerButton}
+              onPress={handlePressEditProfile}
+            />
+          ) : (
+            <ToggleButton
+              size="medium"
+              title={isToggled =>
+                isToggled ? 'Following' : isFollowed ? 'Follow Back' : 'Follow'
+              }
+              initialState={isFollowing}
+              underlayColor={isToggled =>
+                isToggled
+                  ? constants.color.accentFocused
+                  : constants.color.gray200
+              }
+              textStyle={isToggled => [
+                isToggled && { color: constants.color.defaultLightTextColor },
+              ]}
+              loadingIndicatorColor={isToggled =>
+                isToggled
+                  ? constants.color.defaultLightTextColor
+                  : constants.color.defaultDarkTextColor
+              }
+              containerStyle={isToggled => [
+                profileDetailsHeaderStyles.headerButton,
+                {
+                  backgroundColor: isToggled
+                    ? constants.color.accent
+                    : constants.color.gray100,
+                },
+              ]}
+              onPress={handlePressFollow}
+            />
+          )}
         </View>
       </View>
     </View>
@@ -284,6 +526,10 @@ const profileDetailsHeaderStyles = StyleSheet.create({
   headerStatisticsContainer: {
     flexDirection: 'row',
   },
+  headerButton: {
+    width: '75%',
+    borderWidth: 0,
+  },
 });
 
 type ProfileDetailsHeaderStatisticProps = {
@@ -326,3 +572,81 @@ const profileDetailsHeaderStatisticStyles = StyleSheet.create({
     color: constants.color.white,
   },
 });
+
+type ProfileDetailsContentPostsTabProps = {
+  profile: Profile;
+};
+
+function ProfileDetailsContentPostsTab(
+  props: ProfileDetailsContentPostsTabProps,
+) {
+  const profile = props.profile;
+  const postIds = useAppSelector(state => {
+    return postsSlice
+      .selectPostsByProfile(state, profile.profileId)
+      .map(post => post.id);
+  });
+
+  const dispatch = useAppDispatch();
+  const isMounted = useIsMounted();
+  const [shouldRefresh, setShouldRefresh] = React.useState(true);
+
+  React.useEffect(() => {
+    async function fetchPostsForProfile() {
+      try {
+        console.log(`Refreshing profile with ID '${profile.profileId}'...`);
+
+        const fetchProfileAction = profilesSlice.fetchProfileById({
+          profileId: profile.profileId,
+          reload: true,
+        });
+
+        const fetchPostsAction = postsSlice.fetchPostsForProfile({
+          profileId: profile.profileId,
+          reload: true,
+        });
+
+        await Promise.all([
+          dispatch(fetchProfileAction).unwrap(),
+          dispatch(fetchPostsAction).unwrap(),
+        ]);
+
+        console.log('Finished refreshing profile');
+      } catch (error: any) {
+        console.error('Failed to refresh profile:', error);
+        utilities.alertSomethingWentWrong(error.message);
+      } finally {
+        if (isMounted.current) setShouldRefresh(false);
+      }
+    }
+
+    const timer = setTimeout(() => {
+      if (shouldRefresh) fetchPostsForProfile();
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [dispatch, profile.profileId, shouldRefresh, isMounted]);
+
+  return (
+    <PostMasonryList
+      smallContent
+      postIds={postIds}
+      style={{ backgroundColor: BACKGROUND_COLOR }}
+      contentContainerStyle={{
+        flexGrow: 1,
+        paddingBottom: constants.layout.spacing.md,
+      }}
+      // @ts-ignore We'll ignore this error for now
+      ScrollViewComponent={BottomSheetScrollView}
+      ListEmptyComponent={() => (
+        <EmptyContainer
+          justifyContentToCenter={false}
+          message="This user hasn't posted anything yet"
+          containerStyle={{
+            paddingTop: constants.layout.spacing.lg,
+          }}
+        />
+      )}
+    />
+  );
+}
