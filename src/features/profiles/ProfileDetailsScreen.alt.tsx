@@ -2,6 +2,7 @@ import * as React from 'react';
 import {
   Platform,
   StatusBar,
+  StyleSheet,
   Text,
   TouchableOpacity,
   useWindowDimensions,
@@ -17,6 +18,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useHeaderHeight } from '@react-navigation/elements';
 
 import * as constants from 'src/constants';
+import * as utilities from 'src/utilities';
 import __ProfileHeader from './ProfileHeader';
 import { Profile } from 'src/models';
 import { RootStackScreenProps } from 'src/navigation';
@@ -116,7 +118,7 @@ function LoadedProfileDetailsScreen(props: LoadedProfileDetailsScreenProps) {
         barStyle="light-content"
         backgroundColor="transparent"
       />
-      <ProfileHeader profile={profile} />
+      <ProfileDetailsHeader profile={profile} />
       <LinearGradient
         colors={[
           constants.color.absoluteBlack + 'A0', // alpha channel
@@ -142,7 +144,11 @@ function LoadedProfileDetailsScreen(props: LoadedProfileDetailsScreenProps) {
   );
 }
 
-function ProfileHeader(props: { profile: Profile }) {
+type ProfileDetailsHeaderPros = {
+  profile: Profile;
+};
+
+function ProfileDetailsHeader(props: ProfileDetailsHeaderPros) {
   const { profile } = props;
   const { height: windowHeight } = useWindowDimensions();
 
@@ -150,7 +156,7 @@ function ProfileHeader(props: { profile: Profile }) {
   const avatarHeight = windowHeight * 0.13;
 
   return (
-    <View style={{ width: '100%', height: '55%' }}>
+    <View style={profileDetailsHeaderStyles.headerContainer}>
       <FastImage
         resizeMode="cover"
         source={
@@ -158,126 +164,165 @@ function ProfileHeader(props: { profile: Profile }) {
             ? { uri: profile.coverPhoto.url }
             : constants.media.DEFAULT_IMAGE
         }
-        style={{
-          width: '100%',
-          height: '100%',
-          backgroundColor: constants.color.placeholder,
-        }}
+        style={profileDetailsHeaderStyles.coverPhoto}
       />
       <View
         style={[
-          {
-            width: '100%',
-            height: '100%',
-            position: 'absolute',
-            paddingTop: headerHeight / 2,
-            justifyContent: 'center',
-            paddingHorizontal: constants.layout.spacing.lg,
-            backgroundColor: constants.color.absoluteBlack + '80',
-          },
+          profileDetailsHeaderStyles.headerInsetContainer,
+          { paddingTop: headerHeight / 2 },
         ]}>
-        <View
-          style={{
-            height: '100%',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}>
-          <View
-            style={{
-              alignItems: 'center',
-            }}>
-            <View
-              style={{
-                alignItems: 'center',
-                paddingHorizontal: constants.layout.spacing.lg,
-              }}>
-              <FastImage
-                source={
-                  profile.avatar
-                    ? { uri: profile.avatar.url }
-                    : constants.media.DEFAULT_AVATAR
-                }
-                style={{
-                  backgroundColor: constants.color.placeholder,
-                  aspectRatio: 1,
-                  width: avatarHeight,
-                  borderRadius: avatarHeight / 2,
-                }}
-              />
-              <View
-                style={{
-                  flexShrink: 1,
-                }}>
-                <Text
-                  style={[
-                    constants.font.extraLargeBold,
-                    { textAlign: 'center' },
-                    {
-                      fontSize: constants.font.size.h3,
-                      color: constants.color.defaultLightTextColor,
-                    },
-                  ]}>
-                  {profile.displayName}
-                </Text>
-
-                <Text
-                  style={[
-                    constants.font.mediumBold,
-                    { textAlign: 'center' },
-                    { color: constants.color.defaultLightTextColor },
-                  ]}>
-                  @{profile.username}
-                </Text>
-                {profile.biography && (
-                  <>
-                    <Spacer.Vertical value="xs" />
-                    <Text
-                      numberOfLines={2}
-                      style={[
-                        constants.font.small,
-                        { textAlign: 'center' },
-                        { color: constants.color.defaultLightTextColor },
-                      ]}>
-                      {profile.biography}
-                    </Text>
-                  </>
-                )}
-              </View>
-            </View>
+        <View style={profileDetailsHeaderStyles.headerContentContainer}>
+          <View style={profileDetailsHeaderStyles.headerTextContainer}>
+            <FastImage
+              source={
+                profile.avatar
+                  ? { uri: profile.avatar.url }
+                  : constants.media.DEFAULT_AVATAR
+              }
+              style={[
+                profileDetailsHeaderStyles.avatar,
+                { height: avatarHeight, borderRadius: avatarHeight / 2 },
+              ]}
+            />
+            <Text
+              style={[
+                constants.font.extraLargeBold,
+                profileDetailsHeaderStyles.headerText,
+                { fontSize: constants.font.size.h3 },
+              ]}>
+              {profile.displayName}
+            </Text>
+            <Text
+              style={[
+                constants.font.mediumBold,
+                profileDetailsHeaderStyles.headerText,
+              ]}>
+              @{profile.username}
+            </Text>
+            {profile.biography && (
+              <Text
+                numberOfLines={2}
+                style={[
+                  constants.font.small,
+                  profileDetailsHeaderStyles.headerText,
+                ]}>
+                {profile.biography}
+              </Text>
+            )}
           </View>
           <Spacer.Vertical value="md" />
-          <View>
-            <View style={{ flexDirection: 'row' }}>
-              <__ProfileHeader.Statistic label="Followers" count={4321} />
-              <__ProfileHeader.Statistic label="Following" count={1234} />
-              <__ProfileHeader.Statistic label="Likes" count={9876} />
-            </View>
-            <Spacer.Vertical value="md" />
-            <ToggleButton
-              size="medium"
-              title={isToggled => (isToggled ? 'Following' : 'Follow')}
-              initialState={false}
-              underlayColor={isToggled =>
-                isToggled
-                  ? constants.color.accentFocused
-                  : constants.color.gray200
-              }
-              textStyle={isToggled => [
-                isToggled && { color: constants.color.defaultLightTextColor },
-              ]}
-              containerStyle={isToggled => [
-                {
-                  borderWidth: 0,
-                  backgroundColor: isToggled
-                    ? constants.color.accent
-                    : constants.color.gray100,
-                },
-              ]}
-              onPress={() => {}}
-            />
+          <View style={profileDetailsHeaderStyles.headerStatisticsContainer}>
+            <ProfileDetailsHeaderStatistics label="Followers" count={4321} />
+            <ProfileDetailsHeaderStatistics label="Following" count={1234} />
+            <ProfileDetailsHeaderStatistics label="Likes" count={9876} />
           </View>
+          <Spacer.Vertical value="md" />
+          <ToggleButton
+            size="medium"
+            title={isToggled => (isToggled ? 'Following' : 'Follow')}
+            initialState={false}
+            underlayColor={isToggled =>
+              isToggled
+                ? constants.color.accentFocused
+                : constants.color.gray200
+            }
+            textStyle={isToggled => [
+              isToggled && { color: constants.color.defaultLightTextColor },
+            ]}
+            containerStyle={isToggled => [
+              {
+                width: '75%',
+                borderWidth: 0,
+                backgroundColor: isToggled
+                  ? constants.color.accent
+                  : constants.color.gray100,
+              },
+            ]}
+            onPress={() => {}}
+          />
         </View>
       </View>
     </View>
   );
 }
+
+const profileDetailsHeaderStyles = StyleSheet.create({
+  avatar: {
+    aspectRatio: 1,
+    backgroundColor: constants.color.placeholder,
+  },
+  coverPhoto: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: constants.color.placeholder,
+  },
+  headerContainer: {
+    width: '100%',
+    height: '55%',
+  },
+  headerInsetContainer: {
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
+    justifyContent: 'center',
+    paddingHorizontal: constants.layout.spacing.lg,
+    backgroundColor: constants.color.absoluteBlack + '80',
+  },
+  headerContentContainer: {
+    alignItems: 'center',
+    paddingHorizontal: constants.layout.spacing.lg,
+  },
+  headerTextContainer: {
+    flexGrow: 1,
+    flexShrink: 1,
+    alignItems: 'center',
+  },
+  headerText: {
+    textAlign: 'center',
+    color: constants.color.defaultLightTextColor,
+  },
+  headerStatisticsContainer: {
+    flexDirection: 'row',
+  },
+});
+
+type ProfileDetailsHeaderStatisticProps = {
+  label: string;
+  count: number;
+  onPress?: () => void;
+};
+
+function ProfileDetailsHeaderStatistics(
+  props: ProfileDetailsHeaderStatisticProps,
+) {
+  const { label, count, onPress } = props;
+  return (
+    <TouchableOpacity
+      activeOpacity={constants.values.DEFAULT_ACTIVE_OPACITY}
+      style={profileDetailsHeaderStatisticStyles.container}
+      onPress={onPress}>
+      <Text numberOfLines={1} style={profileDetailsHeaderStatisticStyles.label}>
+        {label}
+      </Text>
+      <Text numberOfLines={1} style={profileDetailsHeaderStatisticStyles.count}>
+        {utilities.shortenLargeNumber(count)}
+      </Text>
+    </TouchableOpacity>
+  );
+}
+
+const profileDetailsHeaderStatisticStyles = StyleSheet.create({
+  container: {
+    width: 80,
+  },
+  label: {
+    ...constants.font.small,
+    textAlign: 'center',
+    color: constants.color.white,
+  },
+  count: {
+    ...constants.font.extraLargeBold,
+    textAlign: 'center',
+    color: constants.color.white,
+  },
+});
