@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import * as React from 'react';
 
 import analytics from '@react-native-firebase/analytics';
 import inAppMessaging from '@react-native-firebase/in-app-messaging';
@@ -31,6 +31,7 @@ import { resetAppState } from './global-actions';
 
 import AuthGate from './features/authentication/AuthGate';
 import { signOut } from './features/authentication/auth-slice';
+import { StatusBar } from 'react-native';
 
 // Redeclare forwardRef to allow generics
 declare module 'react' {
@@ -63,7 +64,7 @@ const persistor = persistStore(store);
 
 function App() {
   const $FUNC = '[App]';
-  useEffect(() => {
+  React.useEffect(() => {
     console.log($FUNC, 'Suppressing in app messages...');
     inAppMessaging()
       .setMessagesDisplaySuppressed(true)
@@ -87,12 +88,12 @@ function PersistedApp() {
   const $FUNC = '[PersistedApp]';
   const dispatch = useAppDispatch();
 
-  const routeNameRef = useRef<string>();
-  const navigationRef = useRef<NavigationContainerRef<any>>(null);
+  const routeNameRef = React.useRef<string>();
+  const navigationRef = React.useRef<NavigationContainerRef<any>>(null);
 
   useFlipper(navigationRef);
 
-  useEffect(() => {
+  React.useEffect(() => {
     RNBootSplash.hide({ fade: true }).catch(error => {
       console.error($FUNC, 'Failed to hide boot splash screen:', error);
     });
@@ -197,6 +198,12 @@ function PersistedApp() {
             },
           },
         }}>
+        <StatusBar
+          animated
+          translucent
+          barStyle="dark-content"
+          backgroundColor="transparent"
+        />
         <AuthGate />
       </NavigationContainer>
     </PersistGate>

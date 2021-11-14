@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import * as React from 'react';
 import {
   useWindowDimensions,
   Alert,
@@ -46,6 +46,7 @@ import { AuthStackNavigationProp } from 'src/navigation';
 
 import * as authSlice from './auth-slice';
 import { useAuthState } from './hooks';
+import FastImage from 'react-native-fast-image';
 
 const DISCOVRR_LOGO = require('../../../assets/images/logo-horizontal.png');
 const LOGIN_POSTER_SOURCE = require('../../../assets/images/login-video-poster.png');
@@ -112,7 +113,7 @@ const resetPasswordFormSchema = yup.object({
 
 function useDisallowCodePushRestarts(isProcessing: boolean) {
   const $FUNC = '[useDisallowCodePushRestarts]';
-  useEffect(() => {
+  React.useEffect(() => {
     if (isProcessing) {
       console.log($FUNC, 'Temporarily disallowing CodePush restarts');
       codePush.disallowRestart();
@@ -201,7 +202,7 @@ function LoginForm({ setFormType }: LoginFormProps) {
   const dispatch = useAppDispatch();
 
   const isMounted = useIsMounted();
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [isProcessing, setIsProcessing] = React.useState(false);
   const initialFormValues: LoginFormValues = { email: '', password: '' };
 
   useDisallowCodePushRestarts(isProcessing);
@@ -310,7 +311,7 @@ function RegisterForm({ setFormType }: RegisterFormProps) {
   const navigation = useNavigation<AuthStackNavigationProp>();
   const isMounted = useIsMounted();
 
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [isProcessing, setIsProcessing] = React.useState(false);
   const initialFormValues: RegisterFormValues = {
     kind: 'personal',
     displayName: '',
@@ -450,7 +451,7 @@ function ForgotPasswordForm({ setFormType }: ForgotPasswordFormProps) {
   const $FUNC = '[ForgotPasswordForm]';
 
   const isMounted = useIsMounted();
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [isProcessing, setIsProcessing] = React.useState(false);
   const initialFormValues: ForgotPasswordFormValues = { email: '' };
 
   useDisallowCodePushRestarts(isProcessing);
@@ -542,8 +543,8 @@ export default function AuthScreen() {
   const { width: windowWidth } = useWindowDimensions();
 
   const isMounted = useIsMounted();
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [formType, setFormType] = useState<FormType>('login');
+  const [isProcessing, setIsProcessing] = React.useState(false);
+  const [formType, setFormType] = React.useState<FormType>('login');
 
   const [status, _error] = useAuthState();
 
@@ -648,6 +649,15 @@ export default function AuthScreen() {
         barStyle="light-content"
         backgroundColor="transparent"
       />
+      {/* Android: Sometimes the video poster takes a while to render, so we'll
+          render an image behind as well. */}
+      <FastImage
+        source={LOGIN_POSTER_ASSET_SOURCE}
+        style={[
+          authScreenStyles.backgroundVideo,
+          { backgroundColor: color.placeholder },
+        ]}
+      />
       <Video
         muted
         repeat
@@ -729,6 +739,7 @@ const authScreenStyles = StyleSheet.create({
     right: 0,
     left: 0,
     bottom: 0,
+    backgroundColor: 'transparent',
   },
   scrollView: {
     flexGrow: 1,

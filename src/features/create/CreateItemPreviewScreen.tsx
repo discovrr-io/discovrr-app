@@ -363,13 +363,19 @@ export default function CreateItemPreviewScreen(
       }
 
       async function deleteTemporaryFiles() {
-        const thumbnails = await RNFS.readDir(
-          utilities.getThumbnailOutputDirectory(),
-        );
+        let thumbnails: RNFS.ReadDirItem[] = [];
+        if (await RNFS.exists(utilities.getThumbnailOutputDirectory())) {
+          thumbnails = await RNFS.readDir(
+            utilities.getThumbnailOutputDirectory(),
+          );
+        }
 
-        const videos = await RNFS.readDir(
-          utilities.getCompressedVideoOutputDirectory(),
-        );
+        let videos: RNFS.ReadDirItem[] = [];
+        if (await RNFS.exists(utilities.getCompressedVideoOutputDirectory())) {
+          videos = await RNFS.readDir(
+            utilities.getCompressedVideoOutputDirectory(),
+          );
+        }
 
         await Promise.all(
           thumbnails.concat(videos).map(async file => {

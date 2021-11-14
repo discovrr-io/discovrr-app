@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActivityIndicator, SafeAreaView } from 'react-native';
+import { ActivityIndicator, SafeAreaView, StatusBar } from 'react-native';
 
 import analytics from '@react-native-firebase/analytics';
 import FastImage from 'react-native-fast-image';
@@ -28,6 +28,12 @@ export default function SplashScreen() {
         alignItems: 'center',
         justifyContent: 'center',
       }}>
+      <StatusBar
+        animated
+        translucent
+        barStyle="dark-content"
+        backgroundColor="transparent"
+      />
       <FastImage
         source={LOGO}
         style={{ width: LOGO_WIDTH, height: LOGO_WIDTH }}
