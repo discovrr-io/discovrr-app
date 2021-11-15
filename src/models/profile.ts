@@ -14,6 +14,7 @@ export interface SharedProfileDetails {
   readonly email: string;
   readonly username: string;
   readonly displayName: string;
+
   /**
    * An object representing information about the avatar of this profile.
    *
@@ -22,6 +23,7 @@ export interface SharedProfileDetails {
    * database.
    */
   readonly avatar?: MediaSource | null;
+
   /**
    * An object representing information about the cover photo of this profile.
    *
@@ -29,6 +31,10 @@ export interface SharedProfileDetails {
    * to remove their current cover photo.
    */
   readonly coverPhoto?: MediaSource | null;
+
+  readonly background?: MediaSource | null;
+  readonly backgroundThumbnail?: MediaSource | null;
+
   readonly biography?: string;
   readonly followers?: ProfileId[];
   readonly following?: ProfileId[];

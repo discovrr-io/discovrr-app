@@ -34,30 +34,34 @@ export type LoadingStatus =
  * server. Only the `status` field is required.
  */
 export type ApiFetchStatus = {
-  status: LoadingStatus;
-  error?: SerializedError;
+  readonly status: LoadingStatus;
+  readonly error?: SerializedError;
 };
 
 export type ApiFetchStatuses<Id extends EntityId = string> = {
-  statuses: Record<Id, ApiFetchStatus>;
+  readonly statuses: Record<Id, ApiFetchStatus>;
 };
 
 // TODO: Distinguish between external and local media sources
 export type MediaSource = {
-  mime: string;
+  readonly mime: string;
   /**
    * The location of the media source, which may reside on the internet or
    * locally. If a local file, it may have the `file://` scheme prepended.
    */
-  url: string;
-  path?: string;
-  filename?: string;
-  size?: number;
-  type?: string;
-  width?: number;
-  height?: number;
-  /** Only available for videos. */
-  duration?: number | null;
+  readonly url: string;
+  readonly path?: string;
+  readonly filename?: string;
+  readonly size?: number;
+  readonly type?: string;
+  readonly width?: number;
+  readonly height?: number;
+  /**
+   * Duration in milliseconds.
+   *
+   * Only available for videos.
+   */
+  readonly duration?: number | null;
 };
 
 /**

@@ -38,6 +38,8 @@ export namespace ProfileApi {
       displayName: result.get('displayName') ?? '',
       avatar: result.get('avatar'),
       coverPhoto: result.get('coverPhoto'),
+      background: result.get('background'),
+      backgroundThumbnail: result.get('backgroundThumbnail'),
       biography: result.get('biography'),
       // TODO: Compute this through a query instead
       followers: result.get('followersArray') ?? [],

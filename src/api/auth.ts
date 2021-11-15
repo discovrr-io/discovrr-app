@@ -379,7 +379,13 @@ export namespace AuthApi {
       const updatedProfile: Parse.Object = await Parse.Cloud.run(
         'updateProfileForCurrentUser',
         {
-          changes: { kind, email, displayName, username, provider },
+          changes: {
+            kind,
+            email: email.trim(),
+            displayName: displayName.trim(),
+            username: username.trim(),
+            provider,
+          },
         },
       );
 
