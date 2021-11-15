@@ -2,17 +2,25 @@
 
 ## [Unreleased]
 
-## Added
+### Added
 
 - Replace video on login screen with a new splash video
 - New profile details page with taller header
-  - [ ] Display products on maker profile page
-  - [ ] Show profile name on top when bottom sheet covers header
+  - [x] Display products on maker profile page
+  - [x] Show profile name on top when bottom sheet covers header
   - [ ] Replace old profile page on My Profile tab with new one
+
+### Changed
+
+- Increased maximum username limit to 30 characters
+- Increased product name limit to 150 characters
+- Increased product description limit to 2000 characters
+- Allow full stops in profile username and disallow only repeated symbols
+- Revamped profile details screen with new UI and video header
 
 ## [v3.0.4] (2021-11-10)
 
-## Added
+### Added
 
 - Add ability to compress and upload video posts with boomerang GIF preview
 - Display a video player on `PostDetailsScreen` for video posts
@@ -20,12 +28,12 @@
 - Add ability to publish products and its images from verified vendors onto
   Squarespace
 
-## Fixed
+### Fixed
 
 - Fixed issue where creating a new account with email and password failed
 - Minor bug fixes and visual changes
 
-## Changed
+### Changed
 
 - Show statistics and actions on maker profile pages
 

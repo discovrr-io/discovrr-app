@@ -20,8 +20,8 @@ import { ImagePreviewPicker } from './components';
 import { useHandleSubmitNavigationButton } from './hooks';
 
 const MAX_MEDIA_COUNT = 8;
-const MAX_NAME_LENGTH = 50;
-const MAX_DESCRIPTION_LENGTH = 280;
+const MAX_NAME_LENGTH = 150;
+const MAX_DESCRIPTION_LENGTH = 2000;
 
 const productSchema = yup.object({
   media: yup

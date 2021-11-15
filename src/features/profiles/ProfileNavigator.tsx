@@ -16,8 +16,6 @@ export default function renderProfileNavigator() {
         options={({ route }) => ({
           title: route.params.profileDisplayName || 'Profile',
           headerShown: !route.params.hideHeader ?? true,
-          // headerTintColor: color.absoluteBlack,
-          headerTitleContainerStyle: { opacity: 0 },
           headerTransparent: true,
           headerTintColor: color.absoluteWhite,
         })}

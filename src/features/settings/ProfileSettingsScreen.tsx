@@ -78,7 +78,10 @@ const profileChangesSchema = yup.object({
     .trim()
     .required('Please enter a unique username')
     .min(3, 'Your username should have at least 3 characters')
-    .max(15, 'Your username should not be more than 15 characters')
+    .max(
+      MAX_INPUT_LENGTH,
+      `Your username should not be more than ${MAX_INPUT_LENGTH} characters`,
+    )
     .matches(/^[A-Za-z0-9_][A-Za-z0-9_]*$/, {
       message:
         'Your username should only contain letters, numbers, and underscores with no spaces',
@@ -176,8 +179,6 @@ function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
       // Then upload the new profile avatar (if it has been changed)
       let processedAvatar: MediaSource | null | undefined = undefined;
 
-      console.log('CHANGES AVATAR', changes.avatar);
-
       // We'll remove the current avatar even if we're uploading a new one
       if (changes.avatar !== undefined) {
         console.log($FUNC, 'Removing current avatar...');
@@ -229,9 +230,9 @@ function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
         };
 
         const [filename, task, reference] =
-          utilities.createUploadFileToFirebaseTask(
+          utilities.createFirebaseUploadFileTask(
             source,
-            ({ filename }) => `/avatars/${filename}`,
+            ({ filename }) => `/profiles/avatars/${filename}`,
           );
 
         task.on('state_changed', snapshot => {
@@ -449,6 +450,7 @@ function ProfileSettingsFormikForm() {
             onBlur={handleBlur('displayName')}
             error={errors.displayName}
           />
+          {/* TODO: Add business name section */}
           <Cell.Input
             label="Username"
             autoCapitalize="none"

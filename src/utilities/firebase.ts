@@ -16,7 +16,7 @@ type GenerateStoragePathConfig = {
 
 export type GenerateStoragePath = (config: GenerateStoragePathConfig) => string;
 
-export function createUploadFileToFirebaseTask(
+export function createFirebaseUploadFileTask(
   source: MediaSource,
   generateStoragePath: GenerateStoragePath,
 ) {

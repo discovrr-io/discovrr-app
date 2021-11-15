@@ -1,24 +1,34 @@
 import * as React from 'react';
 import {
   ActivityIndicator,
+  Animated as RNAnimated,
+  DeviceEventEmitter,
   Platform,
   StatusBar,
   StyleSheet,
   Text,
+  ToastAndroid,
   TouchableOpacity,
   useWindowDimensions,
   View,
 } from 'react-native';
 
-// import Animated from 'react-native-reanimated';
 import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import FastImage from 'react-native-fast-image';
 import Icon from 'react-native-vector-icons/Ionicons';
 import LinearGradient from 'react-native-linear-gradient';
+import Video from 'react-native-video';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { useFocusEffect, useNavigation } from '@react-navigation/core';
 import { useHeaderHeight } from '@react-navigation/elements';
+
+import Animated, {
+  interpolate,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 
 import * as authSlice from 'src/features/authentication/auth-slice';
 import * as postsSlice from 'src/features/posts/posts-slice';
@@ -29,6 +39,7 @@ import * as constants from 'src/constants';
 import * as utilities from 'src/utilities';
 import PostMasonryList from 'src/features/posts/PostMasonryList';
 import ProductMasonryList from 'src/features/products/ProductMasonryList';
+
 import { useAppDispatch, useAppSelector, useIsMounted } from 'src/hooks';
 import { Profile } from 'src/models';
 import { RootStackNavigationProp, RootStackScreenProps } from 'src/navigation';
@@ -50,6 +61,11 @@ import { useIsMyProfile, useProfile } from './hooks';
 
 const MaterialTopTab = createMaterialTopTabNavigator();
 const BACKGROUND_COLOR = constants.color.gray100;
+
+const HEADER_ANIMATION_DURATION = 200;
+const PLAY_HEADER_VIDEO_FULLSCREEN_EVENT = 'playHeaderVideoFullscreen';
+const PAUSE_HEADER_VIDEO_EVENT = 'pauseHeaderVideo';
+const HIDE_HEADER_CONTENT = 'hideHeaderContent';
 
 const ProfileDetailsContext = React.createContext<{
   profile: Profile;
@@ -98,7 +114,7 @@ function LoadedProfileDetailsScreen(props: LoadedProfileDetailsScreenProps) {
 
   const isMyProfile = useIsMyProfile(profile.profileId);
   const headerHeight = useHeaderHeight();
-  // const headerTitleOpacity = React.useRef(new Animated.Value(0)).current;
+  const headerTitleOpacity = React.useRef(new RNAnimated.Value(0)).current;
 
   const bottomSheetRef = React.useRef<BottomSheet>(null);
   const snapPoints = React.useMemo(
@@ -142,45 +158,52 @@ function LoadedProfileDetailsScreen(props: LoadedProfileDetailsScreenProps) {
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      // headerTitleContainerStyle: {
-      //   opacity: headerTitleOpacity.interpolate({
-      //     inputRange: [0, 1],
-      //     outputRange: [0, 1],
-      //   }),
-      // },
+      headerTitleStyle: {
+        opacity: headerTitleOpacity,
+      },
       headerRight: ({ tintColor }) => (
-        <TouchableOpacity
-          activeOpacity={constants.values.DEFAULT_ACTIVE_OPACITY}
-          onPress={() => actionBottomSheetRef.current?.expand()}
+        <View
           style={{
-            marginRight: constants.layout.defaultScreenMargins.horizontal,
+            flexDirection: 'row-reverse',
+            paddingStart: constants.layout.defaultScreenMargins.horizontal,
           }}>
-          <Icon
-            name={Platform.select({
-              android: 'ellipsis-vertical',
-              default: 'ellipsis-horizontal',
-            })}
-            size={24}
-            color={tintColor || constants.color.black}
-          />
-        </TouchableOpacity>
+          <TouchableOpacity
+            activeOpacity={constants.values.DEFAULT_ACTIVE_OPACITY}
+            onPress={() => actionBottomSheetRef.current?.expand()}>
+            <Icon
+              name={Platform.select({
+                android: 'ellipsis-vertical',
+                default: 'ellipsis-horizontal',
+              })}
+              size={24}
+              color={tintColor || constants.color.defaultLightTextColor}
+            />
+          </TouchableOpacity>
+          {profile.background?.mime.includes('video') && (
+            <>
+              <Spacer.Horizontal value="lg" />
+              <TouchableOpacity
+                activeOpacity={constants.values.DEFAULT_ACTIVE_OPACITY}
+                onPress={() =>
+                  DeviceEventEmitter.emit(PLAY_HEADER_VIDEO_FULLSCREEN_EVENT)
+                }>
+                <Icon
+                  name="expand-outline"
+                  size={24}
+                  color={tintColor || constants.color.defaultLightTextColor}
+                />
+              </TouchableOpacity>
+            </>
+          )}
+        </View>
       ),
     });
-  }, [navigation]);
+  }, [headerTitleOpacity, navigation, profile.background?.mime]);
 
   useFocusEffect(
     React.useCallback(() => {
-      if (true || Platform.OS === 'ios') {
-        // console.log('FOCUS');
-        StatusBar.setBarStyle('light-content', true);
-      }
-
-      return () => {
-        if (true || Platform.OS === 'ios') {
-          // console.log('BLUR');
-          StatusBar.setBarStyle('dark-content', true);
-        }
-      };
+      StatusBar.setBarStyle('light-content', true);
+      return () => StatusBar.setBarStyle('dark-content', true);
     }, []),
   );
 
@@ -223,6 +246,7 @@ function LoadedProfileDetailsScreen(props: LoadedProfileDetailsScreenProps) {
             height: headerHeight * 1.25,
           }}
         />
+        {/* TODO: Don't render this when the bottom sheet is open */}
         <View
           style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
           <ActivityIndicator size="large" color={constants.color.gray500} />
@@ -230,9 +254,30 @@ function LoadedProfileDetailsScreen(props: LoadedProfileDetailsScreenProps) {
         <BottomSheet
           ref={bottomSheetRef}
           // animateOnMount={false}
-          // onChange={index => console.log('CHANGE:', index)}
-          // onAnimate={(from, to) => console.log('ANIMATE:', { from, to })}
           snapPoints={snapPoints}
+          onChange={newIndex => {
+            if (newIndex === 1) {
+              headerTitleOpacity.stopAnimation(() => {
+                RNAnimated.timing(headerTitleOpacity, {
+                  toValue: 1,
+                  duration: HEADER_ANIMATION_DURATION,
+                  useNativeDriver: true,
+                }).start();
+                DeviceEventEmitter.emit(PAUSE_HEADER_VIDEO_EVENT, true);
+                DeviceEventEmitter.emit(HIDE_HEADER_CONTENT, true);
+              });
+            } else {
+              headerTitleOpacity.stopAnimation(() => {
+                RNAnimated.timing(headerTitleOpacity, {
+                  toValue: 0,
+                  duration: HEADER_ANIMATION_DURATION,
+                  useNativeDriver: true,
+                }).start();
+                DeviceEventEmitter.emit(PAUSE_HEADER_VIDEO_EVENT, false);
+                DeviceEventEmitter.emit(HIDE_HEADER_CONTENT, false);
+              });
+            }
+          }}
           handleStyle={{
             backgroundColor: constants.color.absoluteWhite,
             borderTopLeftRadius: constants.layout.radius.md,
@@ -293,8 +338,16 @@ function ProfileDetailsHeader() {
   const dispatch = useAppDispatch();
   const navigation = useNavigation<RootStackNavigationProp>();
 
+  const videoRef = React.useRef<Video>(null);
+  const [isVideoPaused, setIsVideoPaused] = React.useState(false);
+
   const headerHeight = useHeaderHeight();
   const avatarHeight = windowHeight * 0.13;
+
+  const headerContentOpacity = useSharedValue(1);
+  const headerContentStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(headerContentOpacity.value, [0, 1], [0, 1]),
+  }));
 
   const currentUserProfileId = useAppSelector(state => {
     return authSlice.selectCurrentUserProfileId(state);
@@ -330,6 +383,43 @@ function ProfileDetailsHeader() {
       .reduce((acc, curr) => acc + curr, 0);
   });
 
+  React.useEffect(() => {
+    const playHeaderVideoFullscreenListener = DeviceEventEmitter.addListener(
+      PLAY_HEADER_VIDEO_FULLSCREEN_EVENT,
+      () => {
+        // FIXME: This doesn't work on Android
+        if (Platform.OS === 'android') {
+          ToastAndroid.show(
+            "This feature isn't available for Android yet",
+            ToastAndroid.LONG,
+          );
+          return;
+        }
+
+        videoRef.current?.presentFullscreenPlayer();
+      },
+    );
+
+    const pauseHeaderVideoListener = DeviceEventEmitter.addListener(
+      PAUSE_HEADER_VIDEO_EVENT,
+      shouldPause => setIsVideoPaused(Boolean(shouldPause)),
+    );
+
+    const hideHeaderListener = DeviceEventEmitter.addListener(
+      HIDE_HEADER_CONTENT,
+      shouldHide =>
+        (headerContentOpacity.value = withTiming(Boolean(shouldHide) ? 0 : 1, {
+          duration: HEADER_ANIMATION_DURATION,
+        })),
+    );
+
+    return () => {
+      playHeaderVideoFullscreenListener.remove();
+      pauseHeaderVideoListener.remove();
+      hideHeaderListener.remove();
+    };
+  }, [headerContentOpacity]);
+
   const handleNavigateToFollowActivity = (
     selector: 'followers' | 'following',
   ) => {
@@ -345,7 +435,7 @@ function ProfileDetailsHeader() {
   };
 
   const handlePressFollow = async (didFollow: boolean) => {
-    const description = didFollow ? 'follow' : 'unfollow';
+    const action = didFollow ? 'follow' : 'unfollow';
 
     try {
       if (!currentUserProfileId) {
@@ -357,7 +447,7 @@ function ProfileDetailsHeader() {
         throw new Error('Failed to find profile for the current user');
       }
 
-      console.log($FUNC, `Will ${description} profile...`);
+      console.log($FUNC, `Will ${action} profile...`);
 
       const updateProfileFollowStatusAction =
         profilesSlice.updateProfileFollowStatus({
@@ -367,9 +457,9 @@ function ProfileDetailsHeader() {
         });
 
       await dispatch(updateProfileFollowStatusAction).unwrap();
-      console.log($FUNC, `Successfully ${description}ed profile`);
+      console.log($FUNC, `Successfully ${action}ed profile`);
     } catch (error) {
-      console.error($FUNC, `Failed to ${description} user:`, error);
+      console.error($FUNC, `Failed to ${action} user:`, error);
       utilities.alertSomethingWentWrong();
       throw error; // Rethrow the error to toggle the button back
     }
@@ -377,21 +467,71 @@ function ProfileDetailsHeader() {
 
   return (
     <View style={profileDetailsHeaderStyles.headerContainer}>
-      <FastImage
-        resizeMode="cover"
-        source={
-          profile.coverPhoto
-            ? { uri: profile.coverPhoto.url }
-            : constants.media.DEFAULT_IMAGE
-        }
-        style={profileDetailsHeaderStyles.coverPhoto}
-      />
+      {profile.background?.mime.includes('video') ? (
+        <>
+          {Platform.OS === 'android' && (
+            <FastImage
+              source={{ uri: profile.backgroundThumbnail?.url }}
+              style={[
+                { position: 'absolute' },
+                profileDetailsHeaderStyles.coverPhoto,
+              ]}
+            />
+          )}
+          <Video
+            muted
+            repeat
+            ref={videoRef}
+            paused={isVideoPaused}
+            playWhenInactive
+            playInBackground
+            resizeMode="cover"
+            posterResizeMode="cover"
+            preventsDisplaySleepDuringVideoPlayback={false}
+            source={{ uri: profile.background.url }}
+            poster={profile.backgroundThumbnail?.url}
+            style={[
+              profileDetailsHeaderStyles.coverPhoto,
+              {
+                backgroundColor: Platform.select({
+                  android: 'transparent',
+                  default: constants.color.placeholder,
+                }),
+              },
+            ]}
+            onFullscreenPlayerDidDismiss={() => {
+              // A "hack" to force the video to continue playing when the
+              // fullscreen play is dismissed. There will still be a little pause,
+              // but it's not too noticeable.
+              // https://github.com/react-native-video/react-native-video/issues/2279#issuecomment-778127819
+              setIsVideoPaused(true);
+              setTimeout(() => {
+                setIsVideoPaused(false);
+              }, 0);
+            }}
+          />
+        </>
+      ) : (
+        <FastImage
+          resizeMode="cover"
+          source={
+            profile.background || profile.coverPhoto
+              ? { uri: profile.background?.url || profile.coverPhoto?.url }
+              : constants.media.DEFAULT_IMAGE
+          }
+          style={[profileDetailsHeaderStyles.coverPhoto]}
+        />
+      )}
       <View
         style={[
           profileDetailsHeaderStyles.headerInsetContainer,
-          { paddingTop: headerHeight / 2 },
+          { paddingTop: headerHeight / 8 },
         ]}>
-        <View style={profileDetailsHeaderStyles.headerContentContainer}>
+        <Animated.View
+          style={[
+            headerContentStyle,
+            profileDetailsHeaderStyles.headerContentContainer,
+          ]}>
           <View style={profileDetailsHeaderStyles.headerTextContainer}>
             <FastImage
               source={
@@ -485,7 +625,7 @@ function ProfileDetailsHeader() {
               onPress={handlePressFollow}
             />
           )}
-        </View>
+        </Animated.View>
       </View>
     </View>
   );
@@ -511,7 +651,7 @@ const profileDetailsHeaderStyles = StyleSheet.create({
     position: 'absolute',
     justifyContent: 'center',
     paddingHorizontal: constants.layout.spacing.lg,
-    backgroundColor: constants.color.absoluteBlack + '80',
+    backgroundColor: constants.color.absoluteBlack + '60',
   },
   headerContentContainer: {
     alignItems: 'center',

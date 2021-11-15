@@ -148,10 +148,7 @@ export default function CreateItemPreviewScreen(
           const index = i + 1;
           const source = images[i];
           const [filename, task, reference] =
-            utilities.createUploadFileToFirebaseTask(
-              source,
-              generateStoragePath,
-            );
+            utilities.createFirebaseUploadFileTask(source, generateStoragePath);
 
           setOverlayContent(prev => ({
             ...prev,
@@ -210,7 +207,7 @@ export default function CreateItemPreviewScreen(
         });
 
         const [videoFilename, videoTask, videoReference] =
-          utilities.createUploadFileToFirebaseTask(
+          utilities.createFirebaseUploadFileTask(
             compressedVideo,
             generateStoragePath,
           );
@@ -257,7 +254,7 @@ export default function CreateItemPreviewScreen(
             });
 
             const [thumbnailFilename, thumbnailTask, thumbnailReference] =
-              utilities.createUploadFileToFirebaseTask(
+              utilities.createFirebaseUploadFileTask(
                 postContents.thumbnail,
                 ({ fileId }) => `posts/thumbnails/${fileId}.gif`,
               );

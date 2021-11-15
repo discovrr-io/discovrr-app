@@ -50,7 +50,7 @@ import FastImage from 'react-native-fast-image';
 
 const DISCOVRR_LOGO = require('../../../assets/images/logo-horizontal.png');
 const LOGIN_VIDEO_SOURCE = require('../../../assets/videos/login-video.mp4');
-const LOGIN_POSTER_SOURCE = require('../../../assets/images/login-video-poster.png');
+const LOGIN_POSTER_SOURCE = require('../../../assets/images/login-video-poster.jpg');
 const LOGIN_POSTER_ASSET_SOURCE = Image.resolveAssetSource(LOGIN_POSTER_SOURCE);
 
 const DEFAULT_ERROR_TITLE = SOMETHING_WENT_WRONG.title;
@@ -88,13 +88,22 @@ const registerFormSchema = yup.object({
     .email('Please enter a valid email address'),
   username: yup
     .string()
+    .trim()
     .required('Please enter a username')
     .min(3, 'Your username should have at least 3 characters')
-    .max(15, 'Your username should not be more than 15 characters')
-    .matches(/^[A-Za-z0-9_][A-Za-z0-9_]*$/, {
+    .max(30, 'Your username should not be more than 30 characters')
+    .matches(/^[A-Za-z0-9_.][A-Za-z0-9_.]*$/, {
       message:
-        'Your username should only contain letters, numbers, and underscores with no spaces',
-    }),
+        'Your username should only contain letters, numbers, full stops and underscores with no spaces',
+    })
+    .test(
+      'is not a repeated symbol',
+      `This username is not valid - please choose one that's more identifiable to everyone`,
+      input => {
+        if (!input) return false;
+        return !/^(?:\.|_){3,}$/.test(input);
+      },
+    ),
   password: yup
     .string()
     .required('Please enter a password')
@@ -649,13 +658,15 @@ export default function AuthScreen() {
       />
       {/* Android: Sometimes the video poster takes a while to render, so we'll
           render an image behind as well. */}
-      <FastImage
-        source={LOGIN_POSTER_SOURCE}
-        style={[
-          authScreenStyles.backgroundVideo,
-          { backgroundColor: color.placeholder },
-        ]}
-      />
+      {Platform.OS === 'android' && (
+        <FastImage
+          source={LOGIN_POSTER_SOURCE}
+          style={[
+            authScreenStyles.backgroundVideo,
+            { backgroundColor: color.placeholder },
+          ]}
+        />
+      )}
       <Video
         muted
         repeat
@@ -669,7 +680,10 @@ export default function AuthScreen() {
         posterResizeMode="cover"
         source={LOGIN_VIDEO_SOURCE}
         poster={LOGIN_POSTER_ASSET_SOURCE.uri}
-        style={authScreenStyles.backgroundVideo}
+        style={[
+          authScreenStyles.backgroundVideo,
+          Platform.OS === 'android' && { backgroundColor: 'transparent' },
+        ]}
       />
       <ScrollView
         keyboardShouldPersistTaps="handled"
@@ -737,7 +751,7 @@ const authScreenStyles = StyleSheet.create({
     right: 0,
     left: 0,
     bottom: 0,
-    backgroundColor: 'transparent',
+    backgroundColor: color.placeholder,
   },
   scrollView: {
     flexGrow: 1,
