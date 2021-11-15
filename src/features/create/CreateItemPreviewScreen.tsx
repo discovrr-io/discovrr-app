@@ -28,7 +28,7 @@ import {
   RootStackParamList,
 } from 'src/navigation';
 
-const COMPRESSED_VIDEO_WIDTH = 300;
+const COMPRESSED_VIDEO_WIDTH = 400;
 
 const SQUARESPACE_PIOT_KEY = Config.SQUARESPACE_PIOT_KEY || '';
 const SQUARESPACE_URL = 'https://api.squarespace.com/1.0/commerce';

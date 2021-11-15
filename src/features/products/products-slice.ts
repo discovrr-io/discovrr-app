@@ -196,7 +196,7 @@ export function selectProductStatusById(
   return state.products.statuses[productId] ?? { status: 'idle' };
 }
 
-export const selectProductsForMerchant = createSelector(
+export const selectProductsForVendor = createSelector(
   [selectAllProducts, (_: RootState, id: VendorProfileId) => id],
   (products, vendorProfileId) => {
     return products.filter(product => product.vendorId === vendorProfileId);

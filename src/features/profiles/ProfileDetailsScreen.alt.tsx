@@ -1,5 +1,6 @@
 import * as React from 'react';
 import {
+  ActivityIndicator,
   Platform,
   StatusBar,
   StyleSheet,
@@ -19,14 +20,15 @@ import { createMaterialTopTabNavigator } from '@react-navigation/material-top-ta
 import { useFocusEffect, useNavigation } from '@react-navigation/core';
 import { useHeaderHeight } from '@react-navigation/elements';
 
-import * as constants from 'src/constants';
-import * as utilities from 'src/utilities';
-
 import * as authSlice from 'src/features/authentication/auth-slice';
 import * as postsSlice from 'src/features/posts/posts-slice';
 import * as profilesSlice from 'src/features/profiles/profiles-slice';
+import * as productsSlice from 'src/features/products/products-slice';
 
+import * as constants from 'src/constants';
+import * as utilities from 'src/utilities';
 import PostMasonryList from 'src/features/posts/PostMasonryList';
+import ProductMasonryList from 'src/features/products/ProductMasonryList';
 import { useAppDispatch, useAppSelector, useIsMounted } from 'src/hooks';
 import { Profile } from 'src/models';
 import { RootStackNavigationProp, RootStackScreenProps } from 'src/navigation';
@@ -48,6 +50,11 @@ import { useIsMyProfile, useProfile } from './hooks';
 
 const MaterialTopTab = createMaterialTopTabNavigator();
 const BACKGROUND_COLOR = constants.color.gray100;
+
+const ProfileDetailsContext = React.createContext<{
+  profile: Profile;
+  isMyProfile: boolean;
+}>(null as any);
 
 type ProfileDetailsScreenProps = RootStackScreenProps<'ProfileDetails'>;
 
@@ -163,8 +170,17 @@ function LoadedProfileDetailsScreen(props: LoadedProfileDetailsScreenProps) {
 
   useFocusEffect(
     React.useCallback(() => {
-      StatusBar.setBarStyle('light-content', true);
-      return () => StatusBar.setBarStyle('dark-content', true);
+      if (true || Platform.OS === 'ios') {
+        // console.log('FOCUS');
+        StatusBar.setBarStyle('light-content', true);
+      }
+
+      return () => {
+        if (true || Platform.OS === 'ios') {
+          // console.log('BLUR');
+          StatusBar.setBarStyle('dark-content', true);
+        }
+      };
     }, []),
   );
 
@@ -178,8 +194,8 @@ function LoadedProfileDetailsScreen(props: LoadedProfileDetailsScreenProps) {
         });
         break;
       case 'report':
-        // FIXME: On iOS the status bar goes dark because of `useFocusEffect`,
-        // but it should have the light-content bar style
+        // FIXME: On iOS the status bar goes dark when the report screen is
+        // visible, but it should have the light-content bar style instead.
         navigation.navigate('ReportItem', {
           screen: 'ReportItemReason',
           params: { type: 'profile' },
@@ -192,98 +208,86 @@ function LoadedProfileDetailsScreen(props: LoadedProfileDetailsScreenProps) {
   };
 
   return (
-    <SafeAreaView edges={['bottom', 'left', 'right']} style={{ flex: 1 }}>
-      <StatusBar
-        animated
-        translucent
-        barStyle="light-content"
-        backgroundColor="transparent"
-      />
-      <ProfileDetailsHeader profile={profile} />
-      <LinearGradient
-        colors={[
-          constants.color.absoluteBlack + 'A0', // alpha channel
-          constants.color.absoluteBlack + '00', // alpha channel
-        ]}
-        style={{
-          position: 'absolute',
-          width: '100%',
-          height: headerHeight * 1.25,
-        }}
-      />
-      <BottomSheet
-        ref={bottomSheetRef}
-        animateOnMount={false}
-        // onChange={index => console.log('CHANGE:', index)}
-        // onAnimate={(from, to) => console.log('ANIMATE:', { from, to })}
-        snapPoints={snapPoints}
-        backgroundStyle={{ backgroundColor: constants.color.absoluteWhite }}>
-        <MaterialTopTab.Navigator
-          screenOptions={{
-            lazy: true,
-            // lazyPreloadDistance: 1,
-            lazyPlaceholder: () => (
-              <LoadingContainer
-                justifyContentToCenter={false}
-                containerStyle={{
-                  paddingTop: constants.layout.spacing.xl,
-                  backgroundColor: BACKGROUND_COLOR,
-                }}
-              />
-            ),
-            tabBarLabelStyle: constants.font.defaultTabBarLabelStyle,
-            tabBarActiveTintColor: constants.color.accent,
-            tabBarInactiveTintColor: constants.color.gray500,
-            tabBarPressColor: constants.color.gray200,
-            tabBarStyle: {
-              backgroundColor: constants.color.absoluteWhite,
-            },
-          }}>
-          {profile.kind === 'vendor' && (
-            <MaterialTopTab.Screen name="Products">
-              {_ => (
-                <PlaceholderScreen
+    <ProfileDetailsContext.Provider value={{ profile, isMyProfile }}>
+      {Platform.OS === 'ios' && <StatusBar animated barStyle="light-content" />}
+      <SafeAreaView edges={['bottom', 'left', 'right']} style={{ flex: 1 }}>
+        <ProfileDetailsHeader />
+        <LinearGradient
+          colors={[
+            constants.color.absoluteBlack + 'A0', // alpha channel
+            constants.color.absoluteBlack + '00', // alpha channel
+          ]}
+          style={{
+            position: 'absolute',
+            width: '100%',
+            height: headerHeight * 1.25,
+          }}
+        />
+        <View
+          style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+          <ActivityIndicator size="large" color={constants.color.gray500} />
+        </View>
+        <BottomSheet
+          ref={bottomSheetRef}
+          // animateOnMount={false}
+          // onChange={index => console.log('CHANGE:', index)}
+          // onAnimate={(from, to) => console.log('ANIMATE:', { from, to })}
+          snapPoints={snapPoints}
+          handleStyle={{
+            backgroundColor: constants.color.absoluteWhite,
+            borderTopLeftRadius: constants.layout.radius.md,
+            borderTopRightRadius: constants.layout.radius.md,
+          }}
+          backgroundStyle={{ backgroundColor: BACKGROUND_COLOR }}>
+          <MaterialTopTab.Navigator
+            screenOptions={{
+              lazy: true,
+              // lazyPreloadDistance: 1,
+              lazyPlaceholder: () => (
+                <LoadingContainer
                   justifyContentToCenter={false}
-                  containerStyle={{
-                    paddingTop: constants.layout.spacing.xl,
-                    backgroundColor: BACKGROUND_COLOR,
-                  }}
+                  containerStyle={
+                    profileDetailsContentCommonTabStyles.container
+                  }
                 />
-              )}
-            </MaterialTopTab.Screen>
-          )}
-          <MaterialTopTab.Screen name="Posts">
-            {_ => <ProfileDetailsContentPostsTab profile={profile} />}
-          </MaterialTopTab.Screen>
-          <MaterialTopTab.Screen name="Liked">
-            {_ => (
-              <PlaceholderScreen
-                justifyContentToCenter={false}
-                containerStyle={{
-                  paddingTop: constants.layout.spacing.xl,
-                  backgroundColor: BACKGROUND_COLOR,
-                }}
+              ),
+              tabBarLabelStyle: constants.font.defaultTabBarLabelStyle,
+              tabBarActiveTintColor: constants.color.accent,
+              tabBarInactiveTintColor: constants.color.gray500,
+              tabBarPressColor: constants.color.gray200,
+              tabBarStyle: {
+                backgroundColor: constants.color.absoluteWhite,
+              },
+            }}>
+            {profile.kind === 'vendor' && (
+              <MaterialTopTab.Screen
+                name="Products"
+                component={ProfileDetailsContentProductsTab}
               />
             )}
-          </MaterialTopTab.Screen>
-        </MaterialTopTab.Navigator>
-      </BottomSheet>
-      <ActionBottomSheet
-        ref={actionBottomSheetRef}
-        items={actionBottomSheetItems}
-        onSelectItem={handleSelectActionItem}
-      />
-    </SafeAreaView>
+            <MaterialTopTab.Screen
+              name="Posts"
+              component={ProfileDetailsContentPostsTab}
+            />
+            <MaterialTopTab.Screen
+              name="Liked"
+              component={ProfileDetailsContentLikedTab}
+            />
+          </MaterialTopTab.Navigator>
+        </BottomSheet>
+        <ActionBottomSheet
+          ref={actionBottomSheetRef}
+          items={actionBottomSheetItems}
+          onSelectItem={handleSelectActionItem}
+        />
+      </SafeAreaView>
+    </ProfileDetailsContext.Provider>
   );
 }
 
-type ProfileDetailsHeaderPros = {
-  profile: Profile;
-};
-
-function ProfileDetailsHeader(props: ProfileDetailsHeaderPros) {
+function ProfileDetailsHeader() {
   const $FUNC = '[ProfileDetailsHeader]';
-  const { profile } = props;
+  const { profile, isMyProfile } = React.useContext(ProfileDetailsContext);
   const { height: windowHeight } = useWindowDimensions();
 
   const dispatch = useAppDispatch();
@@ -296,7 +300,6 @@ function ProfileDetailsHeader(props: ProfileDetailsHeaderPros) {
     return authSlice.selectCurrentUserProfileId(state);
   });
 
-  const isMyProfile = profile.profileId === currentUserProfileId;
   const isFollowing = React.useMemo(() => {
     if (isMyProfile) return false;
     if (!profile.followers) return false;
@@ -573,14 +576,8 @@ const profileDetailsHeaderStatisticStyles = StyleSheet.create({
   },
 });
 
-type ProfileDetailsContentPostsTabProps = {
-  profile: Profile;
-};
-
-function ProfileDetailsContentPostsTab(
-  props: ProfileDetailsContentPostsTabProps,
-) {
-  const profile = props.profile;
+function ProfileDetailsContentPostsTab() {
+  const { profile } = React.useContext(ProfileDetailsContext);
   const postIds = useAppSelector(state => {
     return postsSlice
       .selectPostsByProfile(state, profile.profileId)
@@ -589,7 +586,9 @@ function ProfileDetailsContentPostsTab(
 
   const dispatch = useAppDispatch();
   const isMounted = useIsMounted();
-  const [shouldRefresh, setShouldRefresh] = React.useState(true);
+
+  const [isInitialRender, setIsInitialRender] = React.useState(true);
+  const [shouldRefresh, setShouldRefresh] = React.useState(false);
 
   React.useEffect(() => {
     async function fetchPostsForProfile() {
@@ -616,16 +615,19 @@ function ProfileDetailsContentPostsTab(
         console.error('Failed to refresh profile:', error);
         utilities.alertSomethingWentWrong(error.message);
       } finally {
-        if (isMounted.current) setShouldRefresh(false);
+        if (isMounted.current) {
+          if (isInitialRender) setIsInitialRender(false);
+          if (shouldRefresh) setShouldRefresh(false);
+        }
       }
     }
 
     const timer = setTimeout(() => {
-      if (shouldRefresh) fetchPostsForProfile();
+      if (isInitialRender || shouldRefresh) fetchPostsForProfile();
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, [dispatch, profile.profileId, shouldRefresh, isMounted]);
+  }, [dispatch, profile.profileId, isInitialRender, shouldRefresh, isMounted]);
 
   return (
     <PostMasonryList
@@ -636,17 +638,80 @@ function ProfileDetailsContentPostsTab(
         flexGrow: 1,
         paddingBottom: constants.layout.spacing.md,
       }}
-      // @ts-ignore We'll ignore this error for now
+      // @ts-ignore We'll ignore the error for now
       ScrollViewComponent={BottomSheetScrollView}
-      ListEmptyComponent={() => (
-        <EmptyContainer
-          justifyContentToCenter={false}
-          message="This user hasn't posted anything yet"
-          containerStyle={{
-            paddingTop: constants.layout.spacing.lg,
-          }}
-        />
-      )}
+      ListEmptyComponent={() =>
+        isInitialRender ? (
+          <LoadingContainer
+            justifyContentToCenter={false}
+            message="Loading posts…"
+            containerStyle={[
+              profileDetailsContentCommonTabStyles.container,
+              { paddingTop: constants.layout.spacing.xxl },
+            ]}
+          />
+        ) : (
+          <EmptyContainer
+            justifyContentToCenter={false}
+            message="This user hasn't posted anything yet"
+            containerStyle={profileDetailsContentCommonTabStyles.container}
+          />
+        )
+      }
     />
   );
 }
+
+function ProfileDetailsContentProductsTab() {
+  const { profile } = React.useContext(ProfileDetailsContext);
+
+  const productIds = useAppSelector(state => {
+    if (profile.kind !== 'vendor') return undefined;
+    return productsSlice
+      .selectProductsForVendor(state, profile.id)
+      .map(product => product.id);
+  });
+
+  if (!productIds) {
+    return <RouteError />;
+  }
+
+  return (
+    <ProductMasonryList
+      smallContent
+      productIds={productIds}
+      style={{ backgroundColor: BACKGROUND_COLOR }}
+      contentContainerStyle={{
+        flexGrow: 1,
+        paddingBottom: constants.layout.spacing.md,
+      }}
+      // @ts-ignore
+      ScrollViewComponent={BottomSheetScrollView}
+      ListEmptyComponent={
+        <EmptyContainer
+          justifyContentToCenter={false}
+          message="This user does not have any products yet"
+          containerStyle={profileDetailsContentCommonTabStyles.container}
+        />
+      }
+    />
+  );
+}
+
+function ProfileDetailsContentLikedTab() {
+  const { profile: _ } = React.useContext(ProfileDetailsContext);
+
+  return (
+    <PlaceholderScreen
+      justifyContentToCenter={false}
+      containerStyle={profileDetailsContentCommonTabStyles.container}
+    />
+  );
+}
+
+const profileDetailsContentCommonTabStyles = StyleSheet.create({
+  container: {
+    paddingTop: constants.layout.spacing.xl,
+    backgroundColor: BACKGROUND_COLOR,
+  },
+});
