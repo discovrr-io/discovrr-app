@@ -10,10 +10,9 @@ import ExploreNavigator from 'src/features/explore/ExploreNavigator';
 import NotificationsScreen from 'src/features/notifications/NotificationsScreen';
 import ProfileDetailsScreen from 'src/features/profiles/ProfileDetailsScreen';
 
-import { color, font, layout } from 'src/constants';
-import { DEFAULT_MIN_BOTTOM_TAB_BAR_HEIGHT } from 'src/constants/values';
+import * as constants from 'src/constants';
+import * as notificationsSlice from 'src/features/notifications/notifications-slice';
 import { useMyProfileId } from 'src/features/profiles/hooks';
-import { selectUnreadNotificationsCount } from 'src/features/notifications/notifications-slice';
 import { useAppSelector } from 'src/hooks';
 
 import {
@@ -36,7 +35,9 @@ const FacadeBottomTab = createBottomTabNavigator<FacadeBottomTabParamList>();
 function FacadeNavigator() {
   const $FUNC = '[FacadeNavigator]';
   const myProfileId = useMyProfileId();
-  const unreadCount = useAppSelector(selectUnreadNotificationsCount);
+  const unreadCount = useAppSelector(
+    notificationsSlice.selectUnreadNotificationsCount,
+  );
 
   return (
     <FacadeBottomTab.Navigator
@@ -46,10 +47,10 @@ function FacadeNavigator() {
         headerBackTitleVisible: false,
         headerLeft: HeaderIcon.Menu,
         headerLeftContainerStyle: {
-          paddingLeft: layout.defaultScreenMargins.horizontal,
+          paddingLeft: constants.layout.defaultScreenMargins.horizontal,
         },
-        headerTintColor: color.black,
-        headerTitleStyle: font.defaultHeaderTitleStyle,
+        headerTintColor: constants.color.black,
+        headerTitleStyle: constants.font.defaultHeaderTitleStyle,
         tabBarShowLabel: false,
         tabBarIcon: ({ focused, color, size: _ }) => {
           let iconName: string;
@@ -86,11 +87,11 @@ function FacadeNavigator() {
           return <Icon name={iconName} size={iconSize} color={color} />;
         },
         tabBarStyle: {
-          minHeight: DEFAULT_MIN_BOTTOM_TAB_BAR_HEIGHT,
+          minHeight: constants.values.DEFAULT_MIN_BOTTOM_TAB_BAR_HEIGHT,
         },
         tabBarBadgeStyle: {
-          fontFamily: font.small.fontFamily,
-          fontSize: font.small.fontSize,
+          fontFamily: constants.font.small.fontFamily,
+          fontSize: constants.font.small.fontSize,
         },
       })}>
       <FacadeBottomTab.Screen name="Home" component={HomeNavigator} />

@@ -22,6 +22,7 @@ import authReducer from './features/authentication/auth-slice';
 import commentRepliesReducer from './features/comments/comment-replies-slice';
 import commentsReducer from './features/comments/comments-slice';
 import notificationsReducer from './features/notifications/notifications-slice';
+import onboardingReducer from './features/onboarding/onboarding-slice';
 import postsReducer from './features/posts/posts-slice';
 import productsReducer from './features/products/products-slice';
 import profilesReducer from './features/profiles/profiles-slice';
@@ -32,6 +33,7 @@ import { AuthState } from './features/authentication/auth-slice';
 import { CommentRepliesState } from './features/comments/comment-replies-slice';
 import { CommentsState } from './features/comments/comments-slice';
 import { NotificationsState } from './features/notifications/notifications-slice';
+import { OnboardingState } from './features/onboarding/onboarding-slice';
 import { PostsState } from './features/posts/posts-slice';
 import { ProductsState } from './features/products/products-slice';
 import { ProfilesState } from './features/profiles/profiles-slice';
@@ -43,6 +45,7 @@ type AppState = {
   comments: CommentsState;
   commentReplies: CommentRepliesState;
   notifications: NotificationsState;
+  onboarding: OnboardingState;
   posts: PostsState;
   products: ProductsState;
   profiles: ProfilesState;
@@ -57,6 +60,7 @@ export const rootReducer = combineReducers<AppState>({
   comments: commentsReducer,
   commentReplies: commentRepliesReducer,
   notifications: notificationsReducer,
+  onboarding: onboardingReducer,
   posts: postsReducer,
   products: productsReducer,
   profiles: profilesReducer,
@@ -69,7 +73,7 @@ const persistedReducer = persistReducer<CombinedAppState>(
     key: 'root',
     storage: AsyncStorage,
     stateReconciler: autoMergeLevel2,
-    blacklist: ['posts', 'comments', 'commentReplies', 'merchants', 'products'],
+    blacklist: ['comments', 'commentReplies', 'posts', 'products', 'profiles'],
   },
   rootReducer,
 );

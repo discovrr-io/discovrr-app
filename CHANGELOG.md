@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [v3.0.5] (2021-11-17)
+
 ### Added
 
 - Replace video on login screen with a new splash video
@@ -9,6 +11,7 @@
   - [x] Display products on maker profile page
   - [x] Show profile name on top when bottom sheet covers header
   - [ ] Replace old profile page on My Profile tab with new one
+- Add new onboarding process (WIP)
 
 ### Changed
 
@@ -152,7 +155,8 @@
   - Discover tab (previously Home tab)
   - Notifications tab (previously in drawer)
 
-[unreleased]: https://github.com/discovrr-io/discovrr-app/compare/v3.0.4...HEAD
+[unreleased]: https://github.com/discovrr-io/discovrr-app/compare/v3.0.5...HEAD
+[v3.0.5]: https://github.com/discovrr-io/discovrr-app/compare/v3.0.4...v3.0.5
 [v3.0.4]: https://github.com/discovrr-io/discovrr-app/compare/v3.0.3...v3.0.4
 [v3.0.3]: https://github.com/discovrr-io/discovrr-app/compare/v3.0.2...v3.0.3
 [v3.0.2]: https://github.com/discovrr-io/discovrr-app/compare/v3.0.1...v3.0.2

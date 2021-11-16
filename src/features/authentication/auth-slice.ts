@@ -96,6 +96,7 @@ const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
+    // TODO: Remove this
     dismissInfoModal: state => {
       state.isFirstLogin = false;
     },
