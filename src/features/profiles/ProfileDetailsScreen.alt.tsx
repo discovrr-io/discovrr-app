@@ -291,9 +291,10 @@ function LoadedProfileDetailsScreen(props: LoadedProfileDetailsScreenProps) {
               lazyPlaceholder: () => (
                 <LoadingContainer
                   justifyContentToCenter={false}
-                  containerStyle={
-                    profileDetailsContentCommonTabStyles.container
-                  }
+                  containerStyle={[
+                    profileDetailsContentCommonTabStyles.container,
+                    { paddingTop: constants.layout.spacing.xxl },
+                  ]}
                 />
               ),
               tabBarLabelStyle: constants.font.defaultTabBarLabelStyle,
@@ -819,15 +820,45 @@ function ProfileDetailsContentProductsTab() {
   const { profile } = React.useContext(ProfileDetailsContext);
 
   const productIds = useAppSelector(state => {
-    if (profile.kind !== 'vendor') return undefined;
+    // There shouldn't be a case where we have a personal profile here
+    if (profile.kind !== 'vendor') return [];
     return productsSlice
       .selectProductsForVendor(state, profile.id)
       .map(product => product.id);
   });
 
-  if (!productIds) {
-    return <RouteError />;
-  }
+  const dispatch = useAppDispatch();
+  const isMounted = useIsMounted();
+
+  const [shouldFetch, setShouldFetch] = React.useState(true);
+  // const [didReachEnd, setDidReachEnd] = React.useState(false);
+
+  React.useEffect(
+    () => {
+      async function fetchProducts() {
+        try {
+          if (profile.kind !== 'vendor') return;
+          const action = productsSlice.fetchProductsForVendorProfile({
+            vendorProfileId: profile.id,
+          });
+
+          await dispatch(action).unwrap();
+        } catch (error) {
+          console.error('Failed to fetch products:', error);
+          utilities.alertSomethingWentWrong(
+            "We weren't able to fetch products for this profile at this time. " +
+              'Please try again later.',
+          );
+        } finally {
+          if (isMounted.current) setShouldFetch(false);
+        }
+      }
+
+      if (shouldFetch) fetchProducts();
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [dispatch, shouldFetch],
+  );
 
   return (
     <ProductMasonryList
@@ -841,11 +872,22 @@ function ProfileDetailsContentProductsTab() {
       // @ts-ignore
       ScrollViewComponent={BottomSheetScrollView}
       ListEmptyComponent={
-        <EmptyContainer
-          justifyContentToCenter={false}
-          message="This user does not have any products yet"
-          containerStyle={profileDetailsContentCommonTabStyles.container}
-        />
+        shouldFetch ? (
+          <LoadingContainer
+            justifyContentToCenter={false}
+            message="Loading products"
+            containerStyle={[
+              profileDetailsContentCommonTabStyles.container,
+              { paddingTop: constants.layout.spacing.xxl },
+            ]}
+          />
+        ) : (
+          <EmptyContainer
+            justifyContentToCenter={false}
+            message="This user does not have any products yet"
+            containerStyle={profileDetailsContentCommonTabStyles.container}
+          />
+        )
       }
     />
   );

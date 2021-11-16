@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import * as React from 'react';
 import {
   Platform,
   RefreshControl,
@@ -14,6 +14,7 @@ import analytics from '@react-native-firebase/analytics';
 import FastImage from 'react-native-fast-image';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Parse from 'parse/react-native';
+import { useScrollToTop } from '@react-navigation/native';
 
 import ProductItemCard from 'src/features/products/ProductItemCard';
 import { color, font, layout } from 'src/constants';
@@ -30,7 +31,6 @@ import {
   MasonryList,
   Spacer,
 } from 'src/components';
-import { useScrollToTop } from '@react-navigation/native';
 
 const TILE_SPACING = DEFAULT_TILE_SPACING;
 
@@ -219,18 +219,18 @@ export default function LandingScreen(_: LandingScreenProps) {
   const $FUNC = '[LandingScreen]';
   const isMounted = useIsMounted();
 
-  const [homeFeedData, setHomeFeedData] = useState<HomeFeedData | null>(null);
-  const [isInitialRender, setIsInitialRender] = useState(true);
-  const [shouldRefresh, setShouldRefresh] = useState(false);
+  const [homeFeedData, setHomeFeedData] = React.useState<HomeFeedData>();
+  const [isInitialRender, setIsInitialRender] = React.useState(true);
+  const [shouldRefresh, setShouldRefresh] = React.useState(false);
 
-  const masonryListScrollViewRef = useRef<ScrollView>(null);
+  const masonryListScrollViewRef = React.useRef<ScrollView>(null);
   useScrollToTop(masonryListScrollViewRef);
 
   // Firebase does not log screen view when the first screen the user jumps into
   // is the landing page, so we'll manually log it here.
   // NOTE: This will log this screen twice if the user starts from the Auth
   // screen and then navigates to the Landing screen.
-  useEffect(() => {
+  React.useEffect(() => {
     analytics()
       .logScreenView({
         screen_name: 'Landing',
@@ -239,7 +239,7 @@ export default function LandingScreen(_: LandingScreenProps) {
       .catch(error => console.warn($FUNC, 'Failed to log screen view:', error));
   }, []);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (isInitialRender || shouldRefresh)
       (async () => {
         try {

@@ -219,11 +219,13 @@ export namespace PostApi {
       .include('profile', 'statistics')
       .descending('createdAt')
       .notEqualTo('status', ApiObjectStatus.DELETED)
-      .skip(pagination.currentPage * pagination.limit)
       .limit(pagination.limit);
 
     if (pagination.oldestDateFetched) {
+      console.log(`Fetching posts older than ${pagination.oldestDateFetched}`);
       postsQuery.lessThan('createdAt', pagination.oldestDateFetched);
+    } else {
+      postsQuery.skip(pagination.currentPage * pagination.limit);
     }
 
     const results = await postsQuery.find();

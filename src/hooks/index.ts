@@ -98,7 +98,7 @@ export function useAsyncItem<ItemId, Item, AsyncThunkReturned, AsyncThunkArg>(
     () => {
       (async () => {
         try {
-          console.log($FUNC, `Fetching ${description}...`);
+          // console.log($FUNC, `Fetching ${description}...`);
           // NOTE: Native promises don't have cancellation, so we can't return a
           // cleanup function to abort this async action.
           await dispatch(fetchItemAction).unwrap();
