@@ -1,22 +1,24 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import * as React from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
 import { useNavigation } from '@react-navigation/core';
 
+import * as constants from 'src/constants';
+import * as profilesSlice from 'src/features/profiles/profiles-slice';
 import { ApiFetchStatus, MediaSource, ProductApi } from 'src/api';
-import { color, font, layout } from 'src/constants';
-import { fetchProfileByVendorProfileId } from 'src/features/profiles/profiles-slice';
 import { useAppDispatch, useIsMounted } from 'src/hooks';
 import { Product, ProductId, Profile, VendorProfileId } from 'src/models';
 import { RootStackNavigationProp } from 'src/navigation';
 
 import { AsyncGate, Card, Spacer } from 'src/components';
 import { CardAuthorProps } from 'src/components/cards/CardAuthor';
+
 import {
   CardElementOptions,
   CardElementProps,
 } from 'src/components/cards/common';
+
 import {
   CARD_PLACEHOLDER_TEXT_HEIGHT_SMALL,
   CARD_PLACEHOLDER_TEXT_HEIGHT_LARGE,
@@ -89,7 +91,7 @@ InnerProductItemCard.Pending = (props: CardElementProps) => {
           <View>
             <View style={[productItemCardStyles.cardBodyPlaceholder]}>
               <ActivityIndicator
-                color={color.gray300}
+                color={constants.color.gray300}
                 style={{
                   transform: [{ scale: elementOptions.smallContent ? 2 : 3 }],
                 }}
@@ -148,6 +150,7 @@ type ProductItemCardBodyProps = CardElementOptions & {
 function ProductItemCardBody(props: ProductItemCardBodyProps) {
   const { body, ...cardElementOptions } = props;
   const [dollars, cents] = body.price.toFixed(2).split('.');
+  const thumbnail: MediaSource | undefined = body.media[0];
 
   return (
     <View>
@@ -155,11 +158,13 @@ function ProductItemCardBody(props: ProductItemCardBodyProps) {
         <Card.Indicator iconName="pricetags" position="top-right" />
         <FastImage
           resizeMode="cover"
-          source={{ uri: body.media[0]?.url }}
+          source={
+            thumbnail ? { uri: thumbnail.url } : constants.media.DEFAULT_IMAGE
+          }
           style={{
             width: '100%',
             aspectRatio: 1,
-            backgroundColor: color.placeholder,
+            backgroundColor: constants.color.placeholder,
           }}
         />
       </View>
@@ -178,13 +183,16 @@ function ProductItemCardBody(props: ProductItemCardBodyProps) {
           ]}>
           {body.name}
         </Text>
-        <Spacer.Horizontal value={layout.spacing.md} style={{ height: 2 }} />
+        <Spacer.Horizontal value="md" style={{ height: 2 }} />
         <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
           <Text
             style={[
               cardElementOptions.smallContent
-                ? font.largeBold
-                : [{ ...font.extraLargeBold, fontSize: font.size.h3 }],
+                ? constants.font.largeBold
+                : [
+                    constants.font.extraLargeBold,
+                    { fontSize: constants.font.size.h3 },
+                  ],
               { textAlign: 'right' },
             ]}>
             ${dollars}
@@ -192,8 +200,11 @@ function ProductItemCardBody(props: ProductItemCardBodyProps) {
           <Text
             style={[
               cardElementOptions.smallContent
-                ? [font.extraSmallBold, { paddingTop: 1 }]
-                : [font.smallBold, { paddingTop: layout.spacing.xs }],
+                ? [constants.font.extraSmallBold, { paddingTop: 1.5 }]
+                : [
+                    constants.font.smallBold,
+                    { paddingTop: constants.layout.spacing.xs },
+                  ],
               { textAlign: 'right' },
             ]}>
             {cents}
@@ -218,29 +229,36 @@ const ProductItemCardAuthor = (props: ProductItemCardAuthorProps) => {
   const navigation = useNavigation<RootStackNavigationProp>();
   const isMounted = useIsMounted();
 
-  const [foundProfile, setFoundProfile] = useState<Profile>();
-  const [status, setStatus] = useState<ApiFetchStatus>({ status: 'idle' });
+  const [foundProfile, setFoundProfile] = React.useState<Profile>();
+  const [status, setStatus] = React.useState<ApiFetchStatus>({
+    status: 'idle',
+  });
 
-  const getProfileDisplayName = useCallback((profile: Profile | undefined) => {
-    if (!profile) {
-      return 'Anonymous';
-    } else if (profile.kind === 'vendor') {
-      return profile.businessName || profile.displayName;
-    } else {
-      console.warn(
-        $FUNC,
-        'ProductItemCard found a profile that is NOT a vendor,',
-        'which is unexpected.',
-      );
-      return profile.displayName;
-    }
-  }, []);
+  const getProfileDisplayName = React.useCallback(
+    (profile: Profile | undefined) => {
+      if (!profile) {
+        return 'Anonymous';
+      } else if (profile.kind === 'vendor') {
+        return profile.businessName || profile.displayName;
+      } else {
+        console.warn(
+          $FUNC,
+          'ProductItemCard found a profile that is NOT a vendor,',
+          'which is unexpected.',
+        );
+        return profile.displayName;
+      }
+    },
+    [],
+  );
 
-  useEffect(() => {
+  React.useEffect(() => {
     (async () => {
       try {
         setStatus({ status: 'pending' });
-        const fetchAction = fetchProfileByVendorProfileId({ vendorProfileId });
+        const fetchAction = profilesSlice.fetchProfileByVendorProfileId({
+          vendorProfileId,
+        });
         const profile = await dispatch(fetchAction).unwrap();
         if (isMounted.current) {
           setStatus({ status: 'fulfilled' });
@@ -354,7 +372,7 @@ const productItemCardStyles = StyleSheet.create({
   cardBodyPlaceholder: {
     width: '100%',
     aspectRatio: 1,
-    backgroundColor: color.placeholder,
+    backgroundColor: constants.color.placeholder,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -365,10 +383,10 @@ const productItemCardStyles = StyleSheet.create({
   },
   cardCaptionText: {
     width: '55%',
-    backgroundColor: color.placeholder,
+    backgroundColor: constants.color.placeholder,
   },
   cardCaptionPrice: {
     width: '20%',
-    backgroundColor: color.placeholder,
+    backgroundColor: constants.color.placeholder,
   },
 });

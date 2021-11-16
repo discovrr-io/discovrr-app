@@ -9,15 +9,20 @@ import Post, {
   PostType,
 } from 'src/models/post';
 
+import { UserApi } from './user';
 import {
   ApiError,
   CommonApiErrorCode,
   ApiObjectStatus,
   MediaSource,
 } from './common';
-import { UserApi } from './user';
 
-const EARLIEST_DATE = new Date('2020-10-30');
+// import { POSTS } from './__mock';
+// import { generateRandomNumberBetween } from 'src/utilities';
+
+// function randomWaitTime(): number {
+//   return generateRandomNumberBetween(0.5 * 1000, 3 * 1000);
+// }
 
 export namespace PostApi {
   export type PostApiErrorCode = CommonApiErrorCode;
@@ -124,6 +129,7 @@ export namespace PostApi {
     postId: PostId;
   };
 
+  // /*
   export async function fetchPostById(
     params: FetchPostByIdParams,
   ): Promise<Post> {
@@ -135,11 +141,31 @@ export namespace PostApi {
     const result = await postQuery.get(String(postId));
     return mapResultToPost(result, myProfile?.id);
   }
+  // */
+
+  /*
+  export async function fetchPostById(
+    params: FetchPostByIdParams,
+  ): Promise<Post> {
+    const { postId } = params;
+    return new Promise<Post>((resolve, reject) => {
+      setTimeout(() => {
+        const maybePost = POSTS.find(post => post.id === postId);
+        if (maybePost) {
+          resolve(maybePost);
+        } else {
+          reject('Object not found');
+        }
+      }, randomWaitTime());
+    });
+  }
+  */
 
   export type FetchAllPostsParams = {
     pagination?: Pagination;
   };
 
+  // /*
   export async function fetchAllPosts(
     params: FetchAllPostsParams,
   ): Promise<Post[]> {
@@ -149,7 +175,6 @@ export namespace PostApi {
 
     postsQuery
       .include('profile', 'statistics')
-      .greaterThanOrEqualTo('createdAt', EARLIEST_DATE)
       .descending('createdAt')
       .notEqualTo('status', ApiObjectStatus.DELETED);
 
@@ -163,11 +188,70 @@ export namespace PostApi {
     // TODO: Filter out posts from blocked profiles
     return results.map(post => mapResultToPost(post, myProfile?.id));
   }
+  // */
+
+  /*
+  export async function fetchAllPosts(
+    params: FetchAllPostsParams,
+  ): Promise<Post[]> {
+    const { pagination } = params;
+    return await new Promise<Post[]>(resolve => {
+      setTimeout(() => {
+        resolve(POSTS.slice(0, pagination?.limit));
+      }, randomWaitTime());
+    });
+  }
+  */
+
+  export type FetchMorePostsParams = {
+    pagination: Pagination;
+  };
+
+  // /*
+  export async function fetchMorePosts(
+    params: FetchMorePostsParams,
+  ): Promise<Post[]> {
+    const { pagination } = params;
+    const myProfile = await UserApi.getCurrentUserProfile();
+    const postsQuery = new Parse.Query(Parse.Object.extend('Post'));
+
+    postsQuery
+      .include('profile', 'statistics')
+      .descending('createdAt')
+      .notEqualTo('status', ApiObjectStatus.DELETED)
+      .skip(pagination.currentPage * pagination.limit)
+      .limit(pagination.limit);
+
+    if (pagination.oldestDateFetched) {
+      postsQuery.lessThan('createdAt', pagination.oldestDateFetched);
+    }
+
+    const results = await postsQuery.find();
+    // TODO: Filter out posts from blocked profiles
+    return results.map(post => mapResultToPost(post, myProfile?.id));
+  }
+  // */
+
+  /*
+  export async function fetchMorePosts(
+    params: FetchMorePostsParams,
+  ): Promise<Post[]> {
+    const { pagination } = params;
+    const skipCount = pagination.currentPage * pagination.limit;
+    return await new Promise<Post[]>(resolve => {
+      setTimeout(() => {
+        resolve(POSTS.slice(skipCount, skipCount + pagination.limit));
+      }, randomWaitTime());
+    });
+  }
+  */
 
   export type FetchPostsForProfileParams = {
     profileId: ProfileId;
+    pagination: Pagination;
   };
 
+  // /*
   export async function fetchPostsForProfile(
     params: FetchPostsForProfileParams,
   ): Promise<Post[]> {
@@ -186,6 +270,26 @@ export namespace PostApi {
     const results = await query.find();
     return results.map(result => mapResultToPost(result, myProfile?.id));
   }
+  // */
+
+  /*
+  export async function fetchPostsForProfile(
+    params: FetchPostsForProfileParams,
+  ): Promise<Post[]> {
+    const { profileId, pagination } = params;
+    const skipCount = pagination.currentPage * pagination.limit;
+    return await new Promise<Post[]>((resolve, reject) => {
+      setTimeout(() => {
+        resolve(
+          POSTS.filter(post => post.profileId === profileId).slice(
+            skipCount,
+            skipCount + pagination.limit,
+          ),
+        );
+      }, randomWaitTime());
+    });
+  }
+  */
 
   //#endregion READ OPERATIONS
 

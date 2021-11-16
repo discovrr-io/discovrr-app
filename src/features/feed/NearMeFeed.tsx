@@ -99,14 +99,12 @@ export default function NearMeFeed(_: NearMeFeedProps) {
           setCurrentMerchantsPage({ index: 0, didReachEnd: false });
           setCurrentProductsPage({ index: 0, didReachEnd: false });
 
-          const fetchVendorsAction = fetchAllProfilesByKind({ kind: 'vendor' });
-          const fetchProductsAction = fetchAllProducts({
-            reload: shouldRefresh,
-          });
+          const fetchVendors = fetchAllProfilesByKind({ kind: 'vendor' });
+          const fetchProducts = fetchAllProducts({ reload: shouldRefresh });
 
           const [vendors, products] = await Promise.all([
-            dispatch(fetchVendorsAction).unwrap(),
-            dispatch(fetchProductsAction).unwrap(),
+            dispatch(fetchVendors).unwrap(),
+            dispatch(fetchProducts).unwrap(),
           ] as const);
 
           // Sometimes an `undefined` creeps up here

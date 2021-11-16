@@ -60,6 +60,11 @@ export const fetchAllPosts = createAsyncThunk<
   Reloadable<PostApi.FetchAllPostsParams>
 >('posts/fetchAllPosts', PostApi.fetchAllPosts);
 
+export const fetchMorePosts = createAsyncThunk<
+  Post[],
+  PostApi.FetchMorePostsParams
+>('posts/fetchMorePosts', PostApi.fetchMorePosts);
+
 export const fetchPostsForProfile = createAsyncThunk<
   Post[],
   Reloadable<PostApi.FetchPostsForProfileParams>
@@ -142,15 +147,15 @@ const postsSlice = createSlice({
         };
       })
       // -- fetchAllPosts --
-      .addCase(fetchAllPosts.pending, (state, action) => {
-        const { reload = false } = action.meta.arg ?? {};
-        for (const postId of Object.keys(state.statuses)) {
-          state.statuses[postId as PostId] = {
-            status: reload ? 'refreshing' : 'pending',
-            error: undefined,
-          };
-        }
-      })
+      // .addCase(fetchAllPosts.pending, (state, action) => {
+      //   const { reload = false } = action.meta.arg ?? {};
+      //   for (const postId of Object.keys(state.statuses)) {
+      //     state.statuses[postId as PostId] = {
+      //       status: reload ? 'refreshing' : 'pending',
+      //       error: undefined,
+      //     };
+      //   }
+      // })
       .addCase(fetchAllPosts.fulfilled, (state, action) => {
         const { reload = false } = action.meta.arg ?? {};
 
@@ -165,12 +170,19 @@ const postsSlice = createSlice({
           state.statuses[postId] = { status: 'fulfilled' };
         }
       })
-      .addCase(fetchAllPosts.rejected, (state, action) => {
-        for (const postId of Object.keys(state.statuses)) {
-          state.statuses[postId as PostId] = {
-            status: 'rejected',
-            error: action.error,
-          };
+      // .addCase(fetchAllPosts.rejected, (state, action) => {
+      //   for (const postId of Object.keys(state.statuses)) {
+      //     state.statuses[postId as PostId] = {
+      //       status: 'rejected',
+      //       error: action.error,
+      //     };
+      //   }
+      // })
+      // -- fetchMorePosts --
+      .addCase(fetchMorePosts.fulfilled, (state, action) => {
+        postsAdapter.upsertMany(state, action.payload);
+        for (const postId of action.payload.map(post => post.id)) {
+          state.statuses[postId] = { status: 'fulfilled' };
         }
       })
       // -- fetchPostsForProfile --

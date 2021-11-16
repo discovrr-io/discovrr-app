@@ -159,6 +159,7 @@ function LoadedProfileDetailsScreen(props: LoadedProfileDetailsScreenProps) {
           const fetchPostsAction = postsSlice.fetchPostsForProfile({
             profileId: profile.profileId,
             reload: true,
+            pagination: { currentPage: 0, limit: 25 },
           });
 
           await Promise.all([

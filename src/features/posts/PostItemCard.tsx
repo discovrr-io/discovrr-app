@@ -6,7 +6,7 @@ import Video from 'react-native-video';
 import { useNavigation } from '@react-navigation/core';
 
 import { MediaSource } from 'src/api';
-import { color, font } from 'src/constants';
+import { color, font, layout } from 'src/constants';
 import { DEFAULT_IMAGE_DIMENSIONS } from 'src/constants/media';
 import { Post, PostId, Profile, ProfileId } from 'src/models';
 import { RootStackNavigationProp } from 'src/navigation';
@@ -129,7 +129,7 @@ InnerPostItemCard.Pending = (props: CardElementProps) => {
       <Card.Body
         style={[
           postItemCardStyles.cardBodyPlaceholder,
-          { aspectRatio: ASPECT_RATIOS[aspectRatioIndex] },
+          { width: '100%', aspectRatio: ASPECT_RATIOS[aspectRatioIndex] },
         ]}>
         {elementOptions => (
           <ActivityIndicator
@@ -589,5 +589,6 @@ const postItemCardStyles = StyleSheet.create({
     backgroundColor: color.placeholder,
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: layout.spacing.md,
   },
 });

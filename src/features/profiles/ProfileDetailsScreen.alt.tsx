@@ -306,17 +306,20 @@ function LoadedProfileDetailsScreen(props: LoadedProfileDetailsScreenProps) {
             }}>
             {profile.kind === 'vendor' && (
               <MaterialTopTab.Screen
-                name="Products"
+                name="ProductDetailsProductsTab"
                 component={ProfileDetailsContentProductsTab}
+                options={{ tabBarLabel: 'Products' }}
               />
             )}
             <MaterialTopTab.Screen
-              name="Posts"
+              name="ProductDetailsPostsTab"
               component={ProfileDetailsContentPostsTab}
+              options={{ tabBarLabel: 'Posts' }}
             />
             <MaterialTopTab.Screen
-              name="Liked"
+              name="ProductDetailsLikedTab"
               component={ProfileDetailsContentLikedTab}
+              options={{ tabBarLabel: 'Liked' }}
             />
           </MaterialTopTab.Navigator>
         </BottomSheet>
@@ -340,6 +343,7 @@ function ProfileDetailsHeader() {
 
   const videoRef = React.useRef<Video>(null);
   const [isVideoPaused, setIsVideoPaused] = React.useState(false);
+  const [fallbackToImage, setFallbackToImage] = React.useState(false);
 
   const headerHeight = useHeaderHeight();
   const avatarHeight = windowHeight * 0.13;
@@ -382,6 +386,18 @@ function ProfileDetailsHeader() {
       .map(post => post.statistics?.totalLikes ?? 0)
       .reduce((acc, curr) => acc + curr, 0);
   });
+
+  useFocusEffect(
+    React.useCallback(() => {
+      // FIXME: Video starts playing when header is collapsed after navigating
+      // to another screen on the stack and going back.
+      // NOTE: If we add a `if (!isVideoPaused)` check on the next line, the
+      // video pauses when pushing another screen to the stack, even if the
+      // header is expanded.
+      setIsVideoPaused(false);
+      return () => setIsVideoPaused(true);
+    }, []),
+  );
 
   React.useEffect(() => {
     const playHeaderVideoFullscreenListener = DeviceEventEmitter.addListener(
@@ -467,7 +483,7 @@ function ProfileDetailsHeader() {
 
   return (
     <View style={profileDetailsHeaderStyles.headerContainer}>
-      {profile.background?.mime.includes('video') ? (
+      {!fallbackToImage && profile.background?.mime.includes('video') ? (
         <>
           {Platform.OS === 'android' && (
             <FastImage
@@ -487,6 +503,10 @@ function ProfileDetailsHeader() {
             playInBackground
             resizeMode="cover"
             posterResizeMode="cover"
+            onError={({ error }) => {
+              console.warn('Failed to load video:', error);
+              setFallbackToImage(true);
+            }}
             preventsDisplaySleepDuringVideoPlayback={false}
             source={{ uri: profile.background.url }}
             poster={profile.backgroundThumbnail?.url}
@@ -501,8 +521,8 @@ function ProfileDetailsHeader() {
             ]}
             onFullscreenPlayerDidDismiss={() => {
               // A "hack" to force the video to continue playing when the
-              // fullscreen play is dismissed. There will still be a little pause,
-              // but it's not too noticeable.
+              // fullscreen player is dismissed. The video will still pause for
+              // a really short period, but it's not too noticeable.
               // https://github.com/react-native-video/react-native-video/issues/2279#issuecomment-778127819
               setIsVideoPaused(true);
               setTimeout(() => {
@@ -515,7 +535,7 @@ function ProfileDetailsHeader() {
         <FastImage
           resizeMode="cover"
           source={
-            profile.background || profile.coverPhoto
+            !fallbackToImage && (profile.background || profile.coverPhoto)
               ? { uri: profile.background?.url || profile.coverPhoto?.url }
               : constants.media.DEFAULT_IMAGE
           }
@@ -651,7 +671,7 @@ const profileDetailsHeaderStyles = StyleSheet.create({
     position: 'absolute',
     justifyContent: 'center',
     paddingHorizontal: constants.layout.spacing.lg,
-    backgroundColor: constants.color.absoluteBlack + '60',
+    backgroundColor: constants.color.absoluteBlack + '70',
   },
   headerContentContainer: {
     alignItems: 'center',
@@ -735,21 +755,14 @@ function ProfileDetailsContentPostsTab() {
       try {
         console.log(`Refreshing profile with ID '${profile.profileId}'...`);
 
-        const fetchProfileAction = profilesSlice.fetchProfileById({
-          profileId: profile.profileId,
-          reload: true,
-        });
-
         const fetchPostsAction = postsSlice.fetchPostsForProfile({
           profileId: profile.profileId,
           reload: true,
+          // This is ignored by the API for now
+          pagination: { currentPage: 0, limit: 25 },
         });
 
-        await Promise.all([
-          dispatch(fetchProfileAction).unwrap(),
-          dispatch(fetchPostsAction).unwrap(),
-        ]);
-
+        await dispatch(fetchPostsAction).unwrap();
         console.log('Finished refreshing profile');
       } catch (error: any) {
         console.error('Failed to refresh profile:', error);

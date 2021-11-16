@@ -23,8 +23,9 @@ import { useNavigation } from '@react-navigation/core';
 import { useSharedValue } from 'react-native-reanimated';
 
 import * as utilities from 'src/utilities';
+import * as globalSelectors from 'src/global-selectors';
+import * as profilesSlice from 'src/features/profiles/profiles-slice';
 import { AuthApi, MediaSource, ProfileApi } from 'src/api';
-import { updateProfile } from 'src/features/profiles/profiles-slice';
 import { useMyProfileId, useProfile } from 'src/features/profiles/hooks';
 import { Profile, ProfileId } from 'src/models';
 import { RootStackScreenProps } from 'src/navigation';
@@ -33,7 +34,6 @@ import { color, font, layout, media } from 'src/constants';
 import { DEFAULT_AVATAR } from 'src/constants/media';
 import { DEFAULT_ACTIVE_OPACITY } from 'src/constants/values';
 import { CELL_GROUP_VERTICAL_SPACING } from 'src/components/cells/CellGroup';
-import { selectCurrentUserProfileKind } from 'src/global-selectors';
 
 import {
   ActionBottomSheet,
@@ -55,6 +55,7 @@ import {
 } from 'src/hooks';
 
 const MAX_INPUT_LENGTH = 30;
+// const MAX_BUSINESS_NAME_LENGTH = MAX_INPUT_LENGTH * 2;
 const MAX_BIO_LENGTH = 140;
 const AVATAR_DIAMETER = 140;
 
@@ -73,6 +74,14 @@ const profileChangesSchema = yup.object({
       MAX_INPUT_LENGTH,
       `Your display name should be no longer than ${MAX_INPUT_LENGTH} characters`,
     ),
+  // businessName: yup
+  //   .string()
+  //   .trim()
+  //   .min(3, 'Your business name should have at least 3 characters')
+  //   .max(
+  //     MAX_BUSINESS_NAME_LENGTH,
+  //     `Your business name should be no longer than ${MAX_BUSINESS_NAME_LENGTH} characters`,
+  //   ),
   username: yup
     .string()
     .trim()
@@ -284,6 +293,14 @@ function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
           ? changedDisplayName
           : undefined;
 
+      // let processedBusinessName: string | undefined = undefined;
+      // if (profile.kind === 'vendor') {
+      //   const changedBusinessName = changes.businessName?.trim();
+      //   if (profile.businessName !== changedBusinessName) {
+      //     processedBusinessName = changedBusinessName;
+      //   }
+      // }
+
       const changedUsername = changes.username.trim();
       const processedUsername =
         profile.username !== changedUsername ? changedUsername : undefined;
@@ -293,7 +310,7 @@ function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
         profile.biography !== changedBiography ? changedBiography : undefined;
 
       // Finally, we update the profile (with the new avatar if changed).
-      const updateProfileAction = updateProfile({
+      const updateProfileAction = profilesSlice.updateProfile({
         profileId: profile.profileId,
         // If any of these fields are `undefined`, it will be ignored by Redux
         // and the server.
@@ -333,6 +350,10 @@ function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
             initialValues={{
               avatar: undefined,
               displayName: profile.displayName,
+              // businessName:
+              //   profile.kind === 'vendor'
+              //     ? profile.businessName
+              //     : profile.displayName,
               username: profile.username,
               biography: profile.biography,
             }}
@@ -371,7 +392,10 @@ function ProfileSettingsFormikForm() {
   const navigation = useNavigation<ProfileSettingsScreenProps['navigation']>();
   const isMounted = useIsMounted();
 
-  const currentProfileKind = useAppSelector(selectCurrentUserProfileKind);
+  const currentProfileKind = useAppSelector(
+    globalSelectors.selectCurrentUserProfileKind,
+  );
+
   const [isGeneratingUsername, setIsGeneratingUsername] = React.useState(false);
 
   const {
@@ -439,8 +463,11 @@ function ProfileSettingsFormikForm() {
         label="My Details"
         elementOptions={{
           containerSpacingHorizontal: layout.spacing.md * 1.25,
+          labelStyle: {
+            fontSize: font.size.sm,
+          },
         }}>
-        <Cell.InputGroup labelFlex={1.1}>
+        <Cell.InputGroup labelFlex={1.45}>
           <Cell.Input
             label="Name"
             autoCapitalize="words"
@@ -450,7 +477,16 @@ function ProfileSettingsFormikForm() {
             onBlur={handleBlur('displayName')}
             error={errors.displayName}
           />
-          {/* TODO: Add business name section */}
+          {/* {currentProfileKind === 'vendor' && (
+            <Cell.Input
+              label="Business Name"
+              placeholder="Enter your business name"
+              value={values.businessName}
+              onChangeText={handleChange('businessName')}
+              onBlur={handleBlur('businessName')}
+              error={errors.businessName}
+            />
+          )} */}
           <Cell.Input
             label="Username"
             autoCapitalize="none"

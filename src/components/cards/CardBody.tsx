@@ -15,7 +15,8 @@ export default function CardBody(props: CardBodyProps) {
     <TouchableOpacity
       disabled={cardElementOptions.disabled}
       activeOpacity={1}
-      onPress={props.onPress}>
+      onPress={props.onPress}
+      style={props.style}>
       <>
         {typeof props.children === 'function'
           ? props.children(cardElementOptions)

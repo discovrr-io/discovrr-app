@@ -75,6 +75,7 @@ export namespace ProductApi {
       .include('statistics')
       .notEqualTo('status', ApiObjectStatus.DELETED)
       .get(productId);
+
     return mapResultToProduct(result);
   }
 
@@ -86,18 +87,19 @@ export namespace ProductApi {
     params: FetchAllProductsParams,
   ): Promise<Product[]> {
     const { pagination } = params;
-    const profile = await UserApi.getCurrentUserProfile();
-    const query = new Parse.Query(Parse.Object.extend('Product'));
-    query.notEqualTo('status', ApiObjectStatus.DELETED);
+    const myProfile = await UserApi.getCurrentUserProfile();
+    const productsQuery = new Parse.Query(Parse.Object.extend('Product'));
+    productsQuery.notEqualTo('status', ApiObjectStatus.DELETED);
 
     if (pagination) {
-      query.limit(pagination.limit);
-      query.skip(pagination.limit * pagination.currentPage);
+      productsQuery
+        .skip(pagination.currentPage * pagination.limit)
+        .limit(pagination.limit);
     }
 
-    const results = await query.find();
+    const results = await productsQuery.find();
     return results.map(result =>
-      mapResultToProduct(result, undefined, profile?.id),
+      mapResultToProduct(result, undefined, myProfile?.id),
     );
   }
 

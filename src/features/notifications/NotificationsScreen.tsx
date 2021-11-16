@@ -4,7 +4,7 @@ import { FlatList, SafeAreaView } from 'react-native';
 import { useFocusEffect } from '@react-navigation/core';
 
 import { EmptyContainer } from 'src/components';
-import { useAppDispatch } from 'src/hooks';
+import { useAppDispatch, useAppSelector } from 'src/hooks';
 import { FacadeBottomTabScreenProps } from 'src/navigation';
 
 import { markAllNotificationsAsRead } from './notifications-slice';
@@ -14,6 +14,10 @@ type NotificationsScreenProps = FacadeBottomTabScreenProps<'Notifications'>;
 export default function NotificationsScreen(_: NotificationsScreenProps) {
   const $FUNC = '[NotificationsScreen]';
   const dispatch = useAppDispatch();
+
+  const _notifications = useAppSelector(
+    state => state.notifications.allNotifications,
+  );
 
   useFocusEffect(
     React.useCallback(() => {
@@ -30,7 +34,8 @@ export default function NotificationsScreen(_: NotificationsScreenProps) {
     <SafeAreaView style={{ flex: 1 }}>
       <FlatList
         data={[]}
-        renderItem={() => null}
+        // keyExtractor={item => String(item.id)}
+        renderItem={({ item: _ }) => null}
         contentContainerStyle={{ flexGrow: 1 }}
         ListEmptyComponent={
           <EmptyContainer

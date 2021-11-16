@@ -1,15 +1,16 @@
-import React, { useCallback } from 'react';
+import * as React from 'react';
 import { Text, View } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
 import { useNavigation } from '@react-navigation/core';
 
-import { color } from 'src/constants';
+import * as constants from 'src/constants';
 import { useProfile } from 'src/features/profiles/hooks';
 import { ProfileId, VendorProfile } from 'src/models';
 import { RootStackNavigationProp } from 'src/navigation';
 
 import { AsyncGate, Card } from 'src/components';
+
 import {
   CardElementOptions,
   CardElementProps,
@@ -59,7 +60,7 @@ const InnerVendorProfileItemCard = (props: InnerVendorProfileItemCardProps) => {
 
   const navigation = useNavigation<RootStackNavigationProp>();
 
-  const renderCardBody = useCallback(
+  const renderCardBody = React.useCallback(
     (elementOptions: CardElementOptions) => {
       const coverPhoto = vendorProfile.coverPhoto;
       const { width = 1, height = 1 } = coverPhoto ?? {};
@@ -70,11 +71,15 @@ const InnerVendorProfileItemCard = (props: InnerVendorProfileItemCardProps) => {
           <View>
             <Card.Indicator iconName="cart" position="top-right" />
             <FastImage
-              source={{ uri: coverPhoto?.url }}
+              source={
+                coverPhoto
+                  ? { uri: coverPhoto?.url }
+                  : constants.media.DEFAULT_IMAGE
+              }
               style={{
                 aspectRatio,
                 width: '100%',
-                backgroundColor: color.placeholder,
+                backgroundColor: constants.color.placeholder,
               }}
             />
           </View>

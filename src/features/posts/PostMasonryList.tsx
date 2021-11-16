@@ -1,11 +1,11 @@
 import React from 'react';
+import { ScrollView } from 'react-native';
 
 import { DEFAULT_TILE_SPACING } from 'src/constants/values';
 import { MasonryList, MasonryListProps } from 'src/components';
 import { PostId } from 'src/models';
 
 import PostItemCard from './PostItemCard';
-import { ScrollView } from 'react-native';
 
 type PostMasonryListProps<ItemT> = Omit<
   MasonryListProps<ItemT>,

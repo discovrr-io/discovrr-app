@@ -1,4 +1,5 @@
 import { EntityId, SerializedError } from '@reduxjs/toolkit';
+import { Pagination } from 'src/models/common';
 
 export type CommonApiErrorCode =
   | 'PARSE_ERROR'
@@ -83,4 +84,5 @@ export enum ApiObjectStatus {
   DELETED = 9,
 }
 
-export type Reloadable<T> = T & { reload?: boolean };
+export type Reloadable<P> = P & { reload?: boolean };
+export type Paginated<P> = P & { pagination: Pagination };
