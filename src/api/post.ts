@@ -257,7 +257,7 @@ export namespace PostApi {
   export async function fetchPostsForProfile(
     params: FetchPostsForProfileParams,
   ): Promise<Post[]> {
-    const { profileId } = params;
+    const { profileId, pagination } = params;
     const profilePointer: Parse.Pointer = {
       __type: 'Pointer',
       className: 'Profile',
@@ -292,6 +292,35 @@ export namespace PostApi {
     });
   }
   */
+
+  export type FetchLikedPostsForProfile = {
+    profileId: ProfileId;
+    pagination: Pagination;
+  };
+
+  export async function fetchLikedPostsForProfile(
+    params: FetchLikedPostsForProfile,
+  ) {
+    const { profileId, pagination } = params;
+
+    const myProfile = await UserApi.getCurrentUserProfile();
+    const profileQuery = new Parse.Query(Parse.Object.extend('Profile'));
+    const profile = await profileQuery.get(String(profileId));
+
+    const likedPostsQuery = profile.relation('likedPosts').query();
+    likedPostsQuery
+      .notEqualTo('status', ApiObjectStatus.DELETED)
+      .limit(pagination.limit);
+
+    if (pagination.oldestDateFetched) {
+      likedPostsQuery.lessThan('createdAt', pagination.oldestDateFetched);
+    } else {
+      likedPostsQuery.skip(pagination.currentPage * pagination.limit);
+    }
+
+    const results = await likedPostsQuery.find();
+    return results.map(post => mapResultToPost(post, myProfile?.id));
+  }
 
   //#endregion READ OPERATIONS
 

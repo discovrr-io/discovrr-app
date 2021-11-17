@@ -37,6 +37,7 @@ const CardActions = (props: CardActionsProps) => {
             ? constants.CARD_ICON_SMALL
             : constants.CARD_ICON_LARGE,
         },
+        cardElementOptions.disabled && { backgroundColor: 'pink' },
         props.style,
       ]}>
       {React.Children.toArray(props.children)
@@ -136,6 +137,7 @@ export const CardActionsIconButton = React.forwardRef<
   return (
     <TouchableOpacity
       {...restProps}
+      disabled={cardElementOptions.disabled}
       activeOpacity={restProps.activeOpacity ?? values.DEFAULT_ACTIVE_OPACITY}
       style={[cardActionsStyles.cardIconContainer, style]}>
       <Animatable.View ref={ref}>

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, StyleSheet, Text, View } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
 import { useNavigation } from '@react-navigation/core';
@@ -59,6 +59,14 @@ const LoadedProductItemCard = (props: InnerProductItemCardProps) => {
   const navigation = useNavigation<RootStackNavigationProp>();
 
   const handlePressProduct = () => {
+    if (product.hidden) {
+      Alert.alert(
+        'This product is hidden',
+        "You'll be able to manage this product soon.",
+      );
+      return;
+    }
+
     navigation.push('ProductDetails', {
       productId: product.id,
       productName: product.name,
@@ -67,7 +75,7 @@ const LoadedProductItemCard = (props: InnerProductItemCardProps) => {
 
   return (
     <Card
-      {...cardElementProps}
+      elementOptions={cardElementProps.elementOptions}
       style={[cardElementProps.style, product.hidden && { opacity: 0.4 }]}>
       <Card.Body onPress={handlePressProduct}>
         {elementOptions => (
@@ -80,7 +88,11 @@ const LoadedProductItemCard = (props: InnerProductItemCardProps) => {
           <Card.HeartIconButton
             didLike={didLike}
             totalLikes={totalLikes}
-            onToggleLike={() => {}}
+            onToggleLike={() => console.log('HERE')}
+            elementOptions={{
+              ...cardElementProps.elementOptions,
+              disabled: product.hidden,
+            }}
           />
         </Card.Actions>
       </Card.Footer>

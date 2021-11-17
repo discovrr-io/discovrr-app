@@ -140,7 +140,7 @@ export namespace ProfileApi {
       query.skip(pagination.limit * pagination.currentPage);
     }
 
-    const results = await query.findAll();
+    const results = await query.find();
     return results.map(mapResultToProfile);
   }
 
@@ -170,10 +170,10 @@ export namespace ProfileApi {
 
     if (pagination) {
       query.limit(pagination.limit);
-      query.skip(pagination.limit * pagination.currentPage);
+      query.skip(pagination.currentPage * pagination.limit);
     }
 
-    const results = await query.findAll();
+    const results = await query.find();
     return results.map(mapResultToProfile);
   }
 

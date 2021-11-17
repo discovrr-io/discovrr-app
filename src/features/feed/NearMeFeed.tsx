@@ -26,17 +26,15 @@ import ProductItemCard from 'src/features/products/ProductItemCard';
 import VendorProfileItemCard from 'src/features/profiles/vendor/VendorProfileItemCard';
 import { fetchAllProfilesByKind } from '../profiles/profiles-slice';
 
-// const MERCHANT_PAGINATION_LIMIT = 5;
-// const VENDOR_PAGINATION_LIMIT = 5;
-// const PRODUCT_PAGINATION_LIMIT = 8;
+const VENDOR_PAGINATION_LIMIT = 7;
+const PRODUCT_PAGINATION_LIMIT = 18;
 const TILE_SPACING = DEFAULT_TILE_SPACING;
 
 function shuffleVendorsAndProducts(
   profileIds: ProfileId[],
   productIds: ProductId[],
 ): NearMeItem[] {
-  const totalLength = profileIds.length + productIds.length;
-  const nearMeItems: NearMeItem[] = new Array(totalLength);
+  const nearMeItems: NearMeItem[] = [];
 
   const shuffledProductIds = productIds
     .slice()
@@ -80,16 +78,18 @@ export default function NearMeFeed(_: NearMeFeedProps) {
   const isMounted = useIsMounted();
 
   const [nearMeItems, setNearMeItems] = React.useState<NearMeItem[]>([]);
-  const [currentMerchantsPage, setCurrentMerchantsPage] = React.useState(() => {
-    return { index: 0, didReachEnd: false } as CurrentPage;
-  });
-  const [currentProductsPage, setCurrentProductsPage] = React.useState(() => {
-    return { index: 0, didReachEnd: false } as CurrentPage;
-  });
-
   const [isInitialRender, setIsInitialRender] = React.useState(true);
   const [shouldRefresh, setShouldRefresh] = React.useState(false);
-  const [shouldFetchMore, _setShouldFetchMore] = React.useState(false);
+  const [shouldFetchMore, setShouldFetchMore] = React.useState(false);
+
+  const [currentMerchantsPage, setCurrentMerchantsPage] =
+    React.useState<CurrentPage>({ index: 0, didReachEnd: false });
+  const [currentProductsPage, setCurrentProductsPage] =
+    React.useState<CurrentPage>({ index: 0, didReachEnd: false });
+
+  const didReachEndFeed = React.useMemo(() => {
+    return currentMerchantsPage.didReachEnd && currentProductsPage.didReachEnd;
+  }, [currentMerchantsPage, currentProductsPage]);
 
   React.useEffect(
     () => {
@@ -99,30 +99,41 @@ export default function NearMeFeed(_: NearMeFeedProps) {
           setCurrentMerchantsPage({ index: 0, didReachEnd: false });
           setCurrentProductsPage({ index: 0, didReachEnd: false });
 
-          const fetchVendors = fetchAllProfilesByKind({ kind: 'vendor' });
-          const fetchProducts = fetchAllProducts({ reload: shouldRefresh });
+          const fetchVendorsAction = fetchAllProfilesByKind({
+            kind: 'vendor',
+            pagination: {
+              currentPage: 0,
+              limit: VENDOR_PAGINATION_LIMIT,
+            },
+          });
+
+          const fetchProductsAction = fetchAllProducts({
+            reload: shouldRefresh,
+            pagination: {
+              currentPage: 0,
+              limit: PRODUCT_PAGINATION_LIMIT,
+            },
+          });
 
           const [vendors, products] = await Promise.all([
-            dispatch(fetchVendors).unwrap(),
-            dispatch(fetchProducts).unwrap(),
+            dispatch(fetchVendorsAction).unwrap(),
+            dispatch(fetchProductsAction).unwrap(),
           ] as const);
 
           // Sometimes an `undefined` creeps up here
-          const newNearMeItems = shuffleVendorsAndProducts(
+          const refreshedNearMeItems = shuffleVendorsAndProducts(
             vendors.map(it => it.profileId).filter(Boolean),
             products.map(it => it.id).filter(Boolean),
           );
 
-          setNearMeItems(newNearMeItems);
+          setNearMeItems(refreshedNearMeItems);
           setCurrentMerchantsPage({
             index: 1,
-            // didReachEnd: merchants.length === 0,
-            didReachEnd: true,
+            didReachEnd: vendors.length === 0,
           });
           setCurrentProductsPage({
             index: 1,
-            // didReachEnd: products.length === 0,
-            didReachEnd: true,
+            didReachEnd: products.length === 0,
           });
 
           console.log(
@@ -149,23 +160,89 @@ export default function NearMeFeed(_: NearMeFeedProps) {
     [dispatch, isInitialRender, shouldRefresh],
   );
 
+  React.useEffect(
+    () => {
+      async function fetchMoreVendorsAndProducts() {
+        try {
+          console.log($FUNC, 'Fetching more merchants and products...');
+
+          const fetchVendorsAction = fetchAllProfilesByKind({
+            kind: 'vendor',
+            pagination: {
+              currentPage: currentProductsPage.index,
+              limit: VENDOR_PAGINATION_LIMIT,
+            },
+          });
+
+          const fetchProductsAction = fetchAllProducts({
+            reload: shouldRefresh,
+            pagination: {
+              currentPage: currentProductsPage.index,
+              limit: PRODUCT_PAGINATION_LIMIT,
+            },
+          });
+
+          const [vendors, products] = await Promise.all([
+            currentMerchantsPage.didReachEnd
+              ? Promise.resolve([])
+              : dispatch(fetchVendorsAction).unwrap(),
+            currentProductsPage.didReachEnd
+              ? Promise.resolve([])
+              : dispatch(fetchProductsAction).unwrap(),
+          ] as const);
+
+          // Sometimes an `undefined` creeps up here
+          const newNearMeItems = shuffleVendorsAndProducts(
+            vendors.map(it => it.profileId).filter(Boolean),
+            products.map(it => it.id).filter(Boolean),
+          );
+
+          setNearMeItems(prev => [...prev, ...newNearMeItems]);
+          setCurrentMerchantsPage(prev => ({
+            index: prev.index + 1,
+            didReachEnd: vendors.length === 0,
+          }));
+          setCurrentProductsPage(prev => ({
+            index: prev.index + 1,
+            didReachEnd: products.length === 0,
+          }));
+
+          console.log(
+            $FUNC,
+            `Fetched ${vendors.length} more vendor profile(s)`,
+            `and ${products.length} more product(s)`,
+          );
+        } catch (error) {
+          console.error($FUNC, 'Failed to fetch near me items:', error);
+          alertSomethingWentWrong();
+        } finally {
+          if (isMounted.current) setShouldFetchMore(false);
+        }
+      }
+
+      if (shouldFetchMore) fetchMoreVendorsAndProducts();
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [dispatch, shouldFetchMore],
+  );
+
   const handleRefresh = () => {
     if (!isInitialRender && !shouldFetchMore && !shouldRefresh)
       setShouldRefresh(true);
   };
 
-  // const handleFetchMore = () => {
-  //   if (!isInitialRender && !shouldFetchMore && !shouldFetchMore)
-  //     setShouldFetchMore(true);
-  // };
+  const handleFetchMore = () => {
+    if (!isInitialRender && !shouldFetchMore && !didReachEndFeed)
+      setShouldFetchMore(true);
+  };
 
   return (
     <View style={{ flex: 1 }}>
       <SearchLocationOptions />
       <MasonryList
         data={nearMeItems}
-        // onEndReached={handleFetchMore}
-        // onEndReachedThreshold={0}
+        onEndReached={handleFetchMore}
+        onEndReachedThreshold={0.25}
         contentContainerStyle={{ flexGrow: 1 }}
         refreshControl={
           <RefreshControl
@@ -221,12 +298,7 @@ export default function NearMeFeed(_: NearMeFeedProps) {
         }}
         ListFooterComponent={
           !isInitialRender && nearMeItems.length > 0 ? (
-            <FeedFooter
-              didReachEnd={
-                currentMerchantsPage.didReachEnd &&
-                currentProductsPage.didReachEnd
-              }
-            />
+            <FeedFooter didReachEnd={didReachEndFeed} />
           ) : undefined
         }
       />

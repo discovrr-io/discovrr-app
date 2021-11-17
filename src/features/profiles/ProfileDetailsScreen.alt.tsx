@@ -40,9 +40,8 @@ import * as utilities from 'src/utilities';
 import PostMasonryList from 'src/features/posts/PostMasonryList';
 import ProductMasonryList from 'src/features/products/ProductMasonryList';
 
-import FeedFooter from 'src/features/feed/FeedFooter';
 import { useAppDispatch, useAppSelector, useIsMounted } from 'src/hooks';
-import { Profile } from 'src/models';
+import { PostId, Profile } from 'src/models';
 import { RootStackNavigationProp, RootStackScreenProps } from 'src/navigation';
 
 import {
@@ -52,7 +51,6 @@ import {
   Button,
   EmptyContainer,
   LoadingContainer,
-  PlaceholderScreen,
   RouteError,
   Spacer,
   ToggleButton,
@@ -832,8 +830,8 @@ function ProfileDetailsContentProductsTab() {
   const isMounted = useIsMounted();
 
   const [shouldFetch, setShouldFetch] = React.useState(true);
-  const [currentPage, setCurrentPage] = React.useState(0);
-  const [didReachEnd, setDidReachEnd] = React.useState(false);
+  const [currentPage, _setCurrentPage] = React.useState(0);
+  const [_didReachEnd, _setDidReachEnd] = React.useState(false);
 
   React.useEffect(
     () => {
@@ -870,7 +868,6 @@ function ProfileDetailsContentProductsTab() {
     <ProductMasonryList
       smallContent
       productIds={productIds}
-      onEndReached={() => console.log('TEST')}
       style={{ backgroundColor: BACKGROUND_COLOR }}
       contentContainerStyle={{
         flexGrow: 1,
@@ -896,18 +893,67 @@ function ProfileDetailsContentProductsTab() {
           />
         )
       }
-      ListFooterComponent={<FeedFooter />}
     />
   );
 }
 
 function ProfileDetailsContentLikedTab() {
-  const { profile: _ } = React.useContext(ProfileDetailsContext);
+  const { profile } = React.useContext(ProfileDetailsContext);
+  const dispatch = useAppDispatch();
+
+  const [likedPostIds, setLikedPostIds] = React.useState<PostId[]>([]);
+  const [shouldFetch, setShouldFetch] = React.useState(true);
+
+  React.useEffect(() => {
+    if (shouldFetch)
+      (async () => {
+        try {
+          const posts = await dispatch(
+            postsSlice.fetchLikedPostsForProfile({
+              profileId: profile.profileId,
+              pagination: { currentPage: 0, limit: 25 },
+            }),
+          ).unwrap();
+
+          setLikedPostIds(posts.map(post => post.id));
+        } catch (error) {
+          console.error('Failed to get liked posts:', error);
+          utilities.alertSomethingWentWrong();
+        } finally {
+          setShouldFetch(false);
+        }
+      })();
+  }, [dispatch, shouldFetch, profile.profileId]);
 
   return (
-    <PlaceholderScreen
-      justifyContentToCenter={false}
-      containerStyle={profileDetailsContentCommonTabStyles.container}
+    <PostMasonryList
+      smallContent
+      postIds={likedPostIds}
+      style={{ backgroundColor: BACKGROUND_COLOR }}
+      contentContainerStyle={{
+        flexGrow: 1,
+        paddingBottom: constants.layout.spacing.md,
+      }}
+      // @ts-ignore
+      ScrollViewComponent={BottomSheetScrollView}
+      ListEmptyComponent={
+        shouldFetch ? (
+          <LoadingContainer
+            justifyContentToCenter={false}
+            message="Loading liked posts"
+            containerStyle={[
+              profileDetailsContentCommonTabStyles.container,
+              { paddingTop: constants.layout.spacing.xxl },
+            ]}
+          />
+        ) : (
+          <EmptyContainer
+            justifyContentToCenter={false}
+            message="This user hasn't liked any posts yet"
+            containerStyle={profileDetailsContentCommonTabStyles.container}
+          />
+        )
+      }
     />
   );
 }

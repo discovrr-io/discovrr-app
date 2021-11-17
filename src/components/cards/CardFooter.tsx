@@ -23,14 +23,19 @@ export default function CardFooter(props: CardFooterProps) {
         },
         props.style,
       ]}>
-      {React.Children.map(props.children, (child, index) => (
-        <>
-          {typeof child === 'function' ? child(cardElementOptions) : child}
-          {index < React.Children.count(props.children) - 1 && (
-            <Spacer.Horizontal value={layout.spacing.md} />
-          )}
-        </>
-      ))}
+      {React.Children.map(
+        typeof props.children === 'function'
+          ? props.children(cardElementOptions)
+          : props.children,
+        (child, index) => (
+          <>
+            {typeof child === 'function' ? child(cardElementOptions) : child}
+            {index < React.Children.count(props.children) - 1 && (
+              <Spacer.Horizontal value={layout.spacing.md} />
+            )}
+          </>
+        ),
+      )}
     </View>
   );
 }
