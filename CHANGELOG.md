@@ -4,6 +4,14 @@
 
 ## [v3.0.5] (2021-11-17)
 
+### Changed
+
+- Increased maximum username limit to 30 characters
+- Increased product name limit to 150 characters
+- Increased product description limit to 2000 characters
+- Allow full stops in profile username and disallow only repeated symbols
+- Revamped profile details screen with new UI and video header
+
 ### Added
 
 - Replace video on login screen with a new splash video
@@ -13,23 +21,7 @@
   - [ ] Replace old profile page on My Profile tab with new one
 - Add new onboarding process (WIP)
 
-### Changed
-
-- Increased maximum username limit to 30 characters
-- Increased product name limit to 150 characters
-- Increased product description limit to 2000 characters
-- Allow full stops in profile username and disallow only repeated symbols
-- Revamped profile details screen with new UI and video header
-
 ## [v3.0.4] (2021-11-10)
-
-### Added
-
-- Add ability to compress and upload video posts with boomerang GIF preview
-- Display a video player on `PostDetailsScreen` for video posts
-- Add ability to share feedback via email
-- Add ability to publish products and its images from verified vendors onto
-  Squarespace
 
 ### Fixed
 
@@ -39,6 +31,14 @@
 ### Changed
 
 - Show statistics and actions on maker profile pages
+
+### Added
+
+- Add ability to compress and upload video posts with boomerang GIF preview
+- Display a video player on `PostDetailsScreen` for video posts
+- Add ability to share feedback via email
+- Add ability to publish products and its images from verified vendors onto
+  Squarespace
 
 ## [v3.0.3] (2021-11-06)
 
@@ -55,6 +55,10 @@
   selection dialog after already signing into another Google account previously
   ([issue #6](https://github.com/discovrr-io/discovrr-app/issues/6))
 
+### Changed
+
+- Display alert informing unsaved changes when navigation away from dirty forms
+
 ### Added
 
 - Add ability to switch account type from `"personal"` to `"vendor"` and
@@ -62,21 +66,17 @@
 - Add ability to create products
 - Add basic functionality to create video posts
 
-### Changed
-
-- Display alert informing unsaved changes when navigation away from dirty forms
-
 ## [v3.0.1] (2021-10-30)
-
-### Added
-
-- Add ability to change profile picture
-- Add ability to create gallery posts
 
 ### Changed
 
 - Polished up `CreateItemPreview` screen
 - Compress photos when uploading to Firebase Cloud Storage
+
+### Added
+
+- Add ability to change profile picture
+- Add ability to create gallery posts
 
 ## [v3.0.0] (2021-10-24)
 
@@ -86,6 +86,18 @@
   build
   - This should not have been required but it seems to be an [active issue for
     `react-native-config`](https://github.com/luggit/react-native-config/issues/616)
+
+### Fixed
+
+- Fixed issue where cancelling a search after holding the Explore tab will take
+  you to your last viewed tab instead of the Explore feed
+- Searching by makers should only bring up makers and not regular users
+
+### Changed
+
+- Merge `"personal"` and `"vendor"` profile kinds into one common interface
+- Change `APP_VERSION` to be set to the node package version, falling back to
+  the device version if it could not be found
 
 ### Added
 
@@ -106,19 +118,12 @@
 - Add ability to clear app cache from Settings
 - Add placeholder UI for reporting comments, posts and profiles
 
-### Changed
-
-- Merge `"personal"` and `"vendor"` profile kinds into one common interface
-- Change `APP_VERSION` to be set to the node package version, falling back to
-  the device version if it could not be found
+## [v2.3.0.3] (2021-10-15)
 
 ### Fixed
 
-- Fixed issue where cancelling a search after holding the Explore tab will take
-  you to your last viewed tab instead of the Explore feed
-- Searching by makers should only bring up makers and not regular users
-
-## [v2.3.0.3] (2021-10-15)
+- Fix issue where `Slider` in `LocationQueryBottomSheet` doesn't properly
+  respond to gesture events on Android
 
 ### Added
 
@@ -126,11 +131,6 @@
 - Add `LocationQueryBottomSheet` component with basic UI
 - Display Parse server URL on the settings page for ease of troubleshooting
 - Add basic support for notifications with a `NotificationsScreen` component
-
-### Fixed
-
-- Fix issue where `Slider` in `LocationQueryBottomSheet` doesn't properly
-  respond to gesture events on Android
 
 ## [v2.3.0.2] (2021-10-06)
 
