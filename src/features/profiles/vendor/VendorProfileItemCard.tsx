@@ -5,7 +5,7 @@ import FastImage from 'react-native-fast-image';
 import { useNavigation } from '@react-navigation/core';
 
 import * as constants from 'src/constants';
-import { useProfile } from 'src/features/profiles/hooks';
+import { useIsMyProfile, useProfile } from 'src/features/profiles/hooks';
 import { ProfileId, VendorProfile } from 'src/models';
 import { RootStackNavigationProp } from 'src/navigation';
 
@@ -25,12 +25,13 @@ export default function VendorProfileItemCard(
 ) {
   const { profileId, ...cardElementProps } = props;
   const profileData = useProfile(profileId);
+  const isMyProfile = useIsMyProfile(profileId);
 
   return (
     <AsyncGate
       data={profileData}
       onPending={() => (
-        <InnerVendorProfileItemCard.Pending {...cardElementProps} />
+        <LoadedVendorProfileItemCard.Pending {...cardElementProps} />
       )}
       onFulfilled={profile => {
         if (!profile) return null;
@@ -41,8 +42,9 @@ export default function VendorProfileItemCard(
             'Continuing on...',
           );
         return (
-          <InnerVendorProfileItemCard
+          <LoadedVendorProfileItemCard
             vendorProfile={profile as VendorProfile}
+            isMyProfile={isMyProfile}
             {...cardElementProps}
           />
         );
@@ -53,19 +55,21 @@ export default function VendorProfileItemCard(
 
 type InnerVendorProfileItemCardProps = CardElementProps & {
   vendorProfile: VendorProfile;
+  isMyProfile: boolean;
 };
 
-const InnerVendorProfileItemCard = (props: InnerVendorProfileItemCardProps) => {
-  const { vendorProfile, ...cardElementProps } = props;
+const LoadedVendorProfileItemCard = (
+  props: InnerVendorProfileItemCardProps,
+) => {
+  const { vendorProfile, isMyProfile, ...cardElementProps } = props;
 
   const navigation = useNavigation<RootStackNavigationProp>();
 
   const renderCardBody = React.useCallback(
     (elementOptions: CardElementOptions) => {
       const coverPhoto = vendorProfile.coverPhoto;
-      const { width = 1, height = 1 } = coverPhoto ?? {};
-      const aspectRatio = width / height; // Defaults to square (1 / 1 = 1)
-
+      // const { width = 3, height = 2 } = coverPhoto ?? {};
+      // const aspectRatio = width / height; // Defaults to rectangle (3 / 2 = 1.5)
       return (
         <View>
           <View>
@@ -77,8 +81,8 @@ const InnerVendorProfileItemCard = (props: InnerVendorProfileItemCardProps) => {
                   : constants.media.DEFAULT_IMAGE
               }
               style={{
-                aspectRatio,
                 width: '100%',
+                aspectRatio: 1,
                 backgroundColor: constants.color.placeholder,
               }}
             />
@@ -118,6 +122,7 @@ const InnerVendorProfileItemCard = (props: InnerVendorProfileItemCardProps) => {
         <Card.Author
           avatar={vendorProfile.avatar}
           displayName={vendorProfile.businessName || vendorProfile.displayName}
+          isMyProfile={isMyProfile}
           onPress={handlePressBody}
         />
         <Card.Actions>
@@ -133,7 +138,7 @@ const InnerVendorProfileItemCard = (props: InnerVendorProfileItemCardProps) => {
   );
 };
 
-InnerVendorProfileItemCard.Pending = (props: CardElementProps) => {
+LoadedVendorProfileItemCard.Pending = (props: CardElementProps) => {
   return (
     <Card {...props}>
       <Card.Body>{/* TODO: Add placeholder... */}</Card.Body>

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import * as React from 'react';
 import { RefreshControl, StyleSheet, Text, View } from 'react-native';
 
 import BottomSheet from '@gorhom/bottom-sheet';
@@ -79,19 +79,19 @@ export default function NearMeFeed(_: NearMeFeedProps) {
   const dispatch = useAppDispatch();
   const isMounted = useIsMounted();
 
-  const [nearMeItems, setNearMeItems] = useState<NearMeItem[]>([]);
-  const [currentMerchantsPage, setCurrentMerchantsPage] = useState(() => {
+  const [nearMeItems, setNearMeItems] = React.useState<NearMeItem[]>([]);
+  const [currentMerchantsPage, setCurrentMerchantsPage] = React.useState(() => {
     return { index: 0, didReachEnd: false } as CurrentPage;
   });
-  const [currentProductsPage, setCurrentProductsPage] = useState(() => {
+  const [currentProductsPage, setCurrentProductsPage] = React.useState(() => {
     return { index: 0, didReachEnd: false } as CurrentPage;
   });
 
-  const [isInitialRender, setIsInitialRender] = useState(true);
-  const [shouldRefresh, setShouldRefresh] = useState(false);
-  const [shouldFetchMore, _setShouldFetchMore] = useState(false);
+  const [isInitialRender, setIsInitialRender] = React.useState(true);
+  const [shouldRefresh, setShouldRefresh] = React.useState(false);
+  const [shouldFetchMore, _setShouldFetchMore] = React.useState(false);
 
-  useEffect(
+  React.useEffect(
     () => {
       async function fetchVendorsAndProducts() {
         try {
@@ -236,7 +236,7 @@ export default function NearMeFeed(_: NearMeFeedProps) {
 
 function SearchLocationOptions() {
   const _ = useAppSelector(state => state.settings.locationQueryPrefs);
-  const bottomSheetRef = useRef<BottomSheet>(null);
+  const bottomSheetRef = React.useRef<BottomSheet>(null);
 
   return (
     <View

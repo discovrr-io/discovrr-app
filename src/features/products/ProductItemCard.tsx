@@ -196,25 +196,14 @@ function ProductItemCardBody(props: ProductItemCardBodyProps) {
             style={[
               cardElementOptions.smallContent
                 ? constants.font.largeBold
-                : [
-                    constants.font.extraLargeBold,
-                    { fontSize: constants.font.size.h3 },
-                  ],
+                : {
+                    ...constants.font.extraLargeBold,
+                    fontSize: constants.font.size.h3,
+                  },
               { textAlign: 'right' },
             ]}>
             ${dollars}
-          </Text>
-          <Text
-            style={[
-              cardElementOptions.smallContent
-                ? [constants.font.extraSmallBold, { paddingTop: 1.5 }]
-                : [
-                    constants.font.smallBold,
-                    { paddingTop: constants.layout.spacing.xs },
-                  ],
-              { textAlign: 'right' },
-            ]}>
-            {cents}
+            {cents !== '00' && <Text>{`.${cents}`}</Text>}
           </Text>
         </View>
       </View>
@@ -267,10 +256,8 @@ const ProductItemCardAuthor = (props: ProductItemCardAuthorProps) => {
           vendorProfileId,
         });
         const profile = await dispatch(fetchAction).unwrap();
-        if (isMounted.current) {
-          setStatus({ status: 'fulfilled' });
-          setFoundProfile(profile);
-        }
+        setStatus({ status: 'fulfilled' });
+        setFoundProfile(profile);
       } catch (error: any) {
         if (error.name !== 'ConditionError') {
           console.error(
@@ -279,9 +266,7 @@ const ProductItemCardAuthor = (props: ProductItemCardAuthorProps) => {
             `ID '${vendorProfileId}':`,
             error,
           );
-          if (isMounted.current) {
-            setStatus({ status: 'rejected', error });
-          }
+          setStatus({ status: 'rejected', error });
         }
       }
     })();
