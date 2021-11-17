@@ -1,7 +1,6 @@
 import * as React from 'react';
-import WebView from 'react-native-webview';
 
-import { AsyncGate, LoadingContainer } from 'src/components';
+import { AsyncGate, InAppWebView, LoadingContainer } from 'src/components';
 import { RootStackScreenProps } from 'src/navigation';
 
 import { useProduct } from './hooks';
@@ -18,20 +17,8 @@ export default function ProductDetailsScreen(props: ProductDetailsScreenProps) {
       onPending={() => <LoadingContainer />}
       onFulfilled={product => {
         if (!product || !product.squarespaceUrl) return null;
-        return (
-          <LoadedProductDetailsScreen productUrl={product.squarespaceUrl} />
-        );
+        return <InAppWebView source={{ uri: product.squarespaceUrl }} />;
       }}
-    />
-  );
-}
-
-function LoadedProductDetailsScreen({ productUrl }: { productUrl: string }) {
-  return (
-    <WebView
-      allowFileAccess
-      source={{ uri: productUrl }}
-      style={{ width: '100%' }}
     />
   );
 }

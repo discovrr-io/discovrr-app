@@ -1,9 +1,7 @@
 import * as React from 'react';
 import { SafeAreaView, useWindowDimensions } from 'react-native';
 
-import WebView from 'react-native-webview';
-import { WebViewSource } from 'react-native-webview/lib/WebViewTypes';
-import { StackNavigationOptions } from '@react-navigation/stack';
+import WebView, { WebViewProps } from 'react-native-webview';
 
 import Animated, {
   interpolate,
@@ -16,50 +14,9 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { color } from 'src/constants';
-import { RootStackScreenProps } from 'src/navigation';
 
-type InAppWebViewDestination =
-  | 'about-discovrr'
-  | 'privacy-policy'
-  | 'terms-and-conditions'
-  | { uri: string };
-
-export type InAppWebViewNavigationScreenParams = {
-  title: string;
-  destination: InAppWebViewDestination;
-  presentation?: StackNavigationOptions['presentation'];
-};
-
-type InAppWebViewProps = RootStackScreenProps<'InAppWebView'>;
-
-export default function InAppWebView(props: InAppWebViewProps) {
-  const { destination } = props.route.params;
+export default function InAppWebView(props: WebViewProps) {
   const { width: windowWidth } = useWindowDimensions();
-
-  let source: WebViewSource;
-  if (typeof destination === 'string') {
-    let resolvedDestination: string;
-
-    switch (destination) {
-      case 'about-discovrr':
-        resolvedDestination = 'https://discovrr.com.au/about';
-        break;
-      case 'privacy-policy':
-        resolvedDestination = 'https://discovrr.com.au/privacy';
-        break;
-      case 'terms-and-conditions':
-        resolvedDestination = 'https://api.discovrrio.com/terms';
-        break;
-      default:
-        console.warn('Received invalid destination:', destination);
-        resolvedDestination = '';
-        break;
-    }
-
-    source = { uri: resolvedDestination };
-  } else {
-    source = destination;
-  }
 
   const loading = useSharedValue(true);
   const progress = useSharedValue(0);
@@ -110,14 +67,20 @@ export default function InAppWebView(props: InAppWebViewProps) {
         />
       )}
       <WebView
-        allowFileAccess
-        source={source}
-        onLoadStart={() => (loading.value = true)}
-        onLoadEnd={() => (loading.value = false)}
-        onLoadProgress={({ nativeEvent }) =>
-          (progress.value = nativeEvent.progress)
-        }
-        style={{ width: '100%' }}
+        {...props}
+        onLoadStart={event => {
+          loading.value = true;
+          props.onLoadStart?.(event);
+        }}
+        onLoadEnd={event => {
+          loading.value = false;
+          props.onLoadEnd?.(event);
+        }}
+        onLoadProgress={event => {
+          progress.value = event.nativeEvent.progress;
+          props.onLoadProgress?.(event);
+        }}
+        style={[{ width: windowWidth }, props.style]}
       />
     </SafeAreaView>
   );

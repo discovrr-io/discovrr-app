@@ -40,6 +40,7 @@ import * as utilities from 'src/utilities';
 import PostMasonryList from 'src/features/posts/PostMasonryList';
 import ProductMasonryList from 'src/features/products/ProductMasonryList';
 
+import FeedFooter from 'src/features/feed/FeedFooter';
 import { useAppDispatch, useAppSelector, useIsMounted } from 'src/hooks';
 import { Profile } from 'src/models';
 import { RootStackNavigationProp, RootStackScreenProps } from 'src/navigation';
@@ -831,7 +832,8 @@ function ProfileDetailsContentProductsTab() {
   const isMounted = useIsMounted();
 
   const [shouldFetch, setShouldFetch] = React.useState(true);
-  // const [didReachEnd, setDidReachEnd] = React.useState(false);
+  const [currentPage, setCurrentPage] = React.useState(0);
+  const [didReachEnd, setDidReachEnd] = React.useState(false);
 
   React.useEffect(
     () => {
@@ -840,6 +842,10 @@ function ProfileDetailsContentProductsTab() {
           if (profile.kind !== 'vendor') return;
           const action = productsSlice.fetchProductsForVendorProfile({
             vendorProfileId: profile.id,
+            pagination: {
+              currentPage,
+              limit: 1,
+            },
           });
 
           await dispatch(action).unwrap();
@@ -864,6 +870,7 @@ function ProfileDetailsContentProductsTab() {
     <ProductMasonryList
       smallContent
       productIds={productIds}
+      onEndReached={() => console.log('TEST')}
       style={{ backgroundColor: BACKGROUND_COLOR }}
       contentContainerStyle={{
         flexGrow: 1,
@@ -889,6 +896,7 @@ function ProfileDetailsContentProductsTab() {
           />
         )
       }
+      ListFooterComponent={<FeedFooter />}
     />
   );
 }

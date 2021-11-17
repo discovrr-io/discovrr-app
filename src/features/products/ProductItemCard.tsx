@@ -68,10 +68,10 @@ const LoadedProductItemCard = (props: InnerProductItemCardProps) => {
   return (
     <Card
       {...cardElementProps}
-      style={[cardElementProps.style, product.hidden && { opacity: 0.5 }]}>
+      style={[cardElementProps.style, product.hidden && { opacity: 0.4 }]}>
       <Card.Body onPress={handlePressProduct}>
         {elementOptions => (
-          <ProductItemCardBody {...elementOptions} body={product} />
+          <ProductItemCardBody {...elementOptions} product={product} />
         )}
       </Card.Body>
       <Card.Footer>
@@ -146,23 +146,23 @@ LoadedProductItemCard.Pending = (props: CardElementProps) => {
 //#region ProductItemCardBody
 
 type ProductItemCardBodyProps = CardElementOptions & {
-  body: Pick<
+  product: Pick<
     Product,
     'name' | 'description' | 'price' | 'media' | 'hidden' | 'statistics'
   >;
 };
 
 function ProductItemCardBody(props: ProductItemCardBodyProps) {
-  const { body, ...cardElementOptions } = props;
-  const [dollars, cents] = body.price.toFixed(2).split('.');
-  const thumbnail: MediaSource | undefined = body.media[0];
+  const { product, ...cardElementOptions } = props;
+  const [dollars, cents] = product.price.toFixed(2).split('.');
+  const thumbnail: MediaSource | undefined = product.media[0];
 
   return (
     <View>
       <View>
         <CardIndicatorRow
           position="top-right"
-          iconNames={['pricetags'].concat(body.hidden ? 'eye-off' : [])}
+          iconNames={['pricetags'].concat(product.hidden ? 'eye-off' : [])}
         />
         <FastImage
           resizeMode="cover"
@@ -179,7 +179,6 @@ function ProductItemCardBody(props: ProductItemCardBodyProps) {
       <View
         style={{
           flexDirection: 'row',
-          alignItems: 'center',
           paddingHorizontal: cardElementOptions.insetHorizontal,
           paddingVertical: cardElementOptions.insetVertical,
         }}>
@@ -189,7 +188,7 @@ function ProductItemCardBody(props: ProductItemCardBodyProps) {
             cardElementOptions.captionTextStyle,
             { flexGrow: 1, flexShrink: 1 },
           ]}>
-          {body.name}
+          {product.name}
         </Text>
         <Spacer.Horizontal value="md" style={{ height: 2 }} />
         <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
@@ -345,7 +344,7 @@ export function ProductItemCardPreview(props: ProductItemCardPreviewProps) {
         {elementOptions => (
           <ProductItemCardBody
             {...elementOptions}
-            body={{
+            product={{
               ...contents,
               hidden: false,
               statistics: {

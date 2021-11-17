@@ -22,7 +22,7 @@ import {
 } from '@react-navigation/material-top-tabs';
 
 import { PostId, ProductId, ProfileId } from './models';
-import { InAppWebViewNavigationScreenParams } from './components/InAppWebView';
+import { InAppWebViewNavigationScreenParams } from './features/authentication/InAppWebViewScreen';
 import { CreateItemPreviewNavigationScreenParams } from './features/create/CreateItemPreviewScreen';
 
 declare global {

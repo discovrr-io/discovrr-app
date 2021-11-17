@@ -12,12 +12,7 @@ import { useAppDispatch, useAppSelector } from 'src/hooks';
 import { NotificationId } from 'src/models';
 import { RootStack } from 'src/navigation';
 
-import {
-  HeaderIcon,
-  InAppWebView,
-  PlaceholderScreen,
-  RouteError,
-} from 'src/components';
+import { HeaderIcon, PlaceholderScreen, RouteError } from 'src/components';
 
 import {
   didReceiveNotification,
@@ -27,6 +22,7 @@ import {
 import MainNavigator from './MainNavigator';
 import CreateItemNavigator from 'src/features/create/CreateItemNavigator';
 import ReportItemNavigator from 'src/features/reporting/ReportItemNavigator';
+import InAppWebViewScreen from './InAppWebViewScreen';
 
 import renderPostNavigator from 'src/features/posts/PostNavigator';
 import renderProfileNavigator from 'src/features/profiles/ProfileNavigator';
@@ -180,7 +176,7 @@ export default function RootNavigator() {
       />
       <RootStack.Screen
         name="InAppWebView"
-        component={InAppWebView}
+        component={InAppWebViewScreen}
         options={({ route }) => {
           const { title, presentation } = route.params;
           return {
