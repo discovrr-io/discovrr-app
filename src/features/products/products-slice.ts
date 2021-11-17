@@ -1,3 +1,4 @@
+import { BaseThunkAPI } from '@reduxjs/toolkit/dist/createAsyncThunk';
 import {
   createAsyncThunk,
   createEntityAdapter,
@@ -41,7 +42,18 @@ export const createProduct = createAsyncThunk(
 export const fetchProductById = createAsyncThunk<
   Product,
   Reloadable<ProductApi.FetchProductByIdParams>
->('products/fetchProductById', ProductApi.fetchProductById);
+>('products/fetchProductById', ProductApi.fetchProductById, {
+  condition: (
+    { productId, reload = false },
+    { getState }: BaseThunkAPI<RootState, unknown>,
+  ) => {
+    if (reload) return true;
+    const { status } = selectProductStatusById(getState(), productId);
+    return (
+      status !== 'fulfilled' && status !== 'pending' && status !== 'refreshing'
+    );
+  },
+});
 
 export const fetchAllProducts = createAsyncThunk<
   Product[],

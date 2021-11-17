@@ -25,6 +25,7 @@ import {
 } from 'src/components/cards/constants';
 
 import { useProduct } from './hooks';
+import { CardIndicatorRow } from 'src/components/cards/CardIndicator';
 
 type ProductItemCardProps = CardElementProps & {
   productId: ProductId;
@@ -37,10 +38,12 @@ export default function ProductItemCard(props: ProductItemCardProps) {
   return (
     <AsyncGate
       data={productData}
-      onPending={() => <InnerProductItemCard.Pending {...cardElementProps} />}
+      onPending={() => <LoadedProductItemCard.Pending {...cardElementProps} />}
       onFulfilled={product => {
         if (!product) return null;
-        return <InnerProductItemCard product={product} {...cardElementProps} />;
+        return (
+          <LoadedProductItemCard product={product} {...cardElementProps} />
+        );
       }}
     />
   );
@@ -50,7 +53,7 @@ type InnerProductItemCardProps = CardElementProps & {
   product: Product;
 };
 
-const InnerProductItemCard = (props: InnerProductItemCardProps) => {
+const LoadedProductItemCard = (props: InnerProductItemCardProps) => {
   const { product, ...cardElementProps } = props;
   const { didLike, totalLikes } = product.statistics;
   const navigation = useNavigation<RootStackNavigationProp>();
@@ -63,7 +66,9 @@ const InnerProductItemCard = (props: InnerProductItemCardProps) => {
   };
 
   return (
-    <Card {...cardElementProps}>
+    <Card
+      {...cardElementProps}
+      style={[cardElementProps.style, product.hidden && { opacity: 0.5 }]}>
       <Card.Body onPress={handlePressProduct}>
         {elementOptions => (
           <ProductItemCardBody {...elementOptions} body={product} />
@@ -83,7 +88,7 @@ const InnerProductItemCard = (props: InnerProductItemCardProps) => {
   );
 };
 
-InnerProductItemCard.Pending = (props: CardElementProps) => {
+LoadedProductItemCard.Pending = (props: CardElementProps) => {
   return (
     <Card {...props}>
       <Card.Body>
@@ -143,7 +148,7 @@ InnerProductItemCard.Pending = (props: CardElementProps) => {
 type ProductItemCardBodyProps = CardElementOptions & {
   body: Pick<
     Product,
-    'name' | 'description' | 'price' | 'media' | 'statistics'
+    'name' | 'description' | 'price' | 'media' | 'hidden' | 'statistics'
   >;
 };
 
@@ -155,7 +160,10 @@ function ProductItemCardBody(props: ProductItemCardBodyProps) {
   return (
     <View>
       <View>
-        <Card.Indicator iconName="pricetags" position="top-right" />
+        <CardIndicatorRow
+          position="top-right"
+          iconNames={['pricetags'].concat(body.hidden ? 'eye-off' : [])}
+        />
         <FastImage
           resizeMode="cover"
           source={
@@ -339,6 +347,7 @@ export function ProductItemCardPreview(props: ProductItemCardPreviewProps) {
             {...elementOptions}
             body={{
               ...contents,
+              hidden: false,
               statistics: {
                 didLike: false,
                 didSave: false,

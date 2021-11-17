@@ -376,7 +376,7 @@ export default function CreateItemPreviewScreen(
 
         await Promise.all(
           thumbnails.concat(videos).map(async file => {
-            console.log($FUNC, 'UNKINK:', file.name);
+            console.log($FUNC, 'UNLINK:', file.name);
             await RNFS.unlink(file.path);
           }),
         );

@@ -5,16 +5,33 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { IconProps } from 'react-native-vector-icons/Icon';
 import { color, font, layout } from 'src/constants';
 
-import Spacer from '../Spacer';
+import Spacer, { SpacingValue } from '../Spacer';
 import { CardElementProps } from './common';
 import { useCardElementOptionsContext } from './hooks';
 
-const INDICATOR_ICON_SMALL = 20;
-const INDICATOR_ICON_LARGE = INDICATOR_ICON_SMALL * 1.25;
+const CARD_INDICATOR_ICON_SMALL = 20;
+const CARD_INDICATOR_ICON_LARGE = CARD_INDICATOR_ICON_SMALL * 1.25;
 
 type VerticalPosition = 'top' | 'bottom';
 type HorizontalPosition = 'left' | 'right';
 type IndicatorPosition = `${VerticalPosition}-${HorizontalPosition}`;
+
+function useCardIndicatorPositionStyle(
+  position: IndicatorPosition,
+  inset: number,
+) {
+  const positionStyle: ViewStyle = useMemo(
+    () => ({
+      top: position.includes('top') ? inset : undefined,
+      bottom: position.includes('bottom') ? inset : undefined,
+      left: position.includes('left') ? inset : undefined,
+      right: position.includes('right') ? inset : undefined,
+    }),
+    [position, inset],
+  );
+
+  return positionStyle;
+}
 
 type CardIndicatorProps = CardElementProps & {
   iconName: string;
@@ -39,16 +56,7 @@ const CardIndicator = (props: CardIndicatorProps) => {
   const cardElementOptions = useCardElementOptionsContext(elementOptions);
   const inset = cardElementOptions.insetHorizontal;
 
-  const positionStyle: ViewStyle = useMemo(
-    () => ({
-      top: position.includes('top') ? inset : undefined,
-      bottom: position.includes('bottom') ? inset : undefined,
-      left: position.includes('left') ? inset : undefined,
-      right: position.includes('right') ? inset : undefined,
-    }),
-    [position, inset],
-  );
-
+  const positionStyle = useCardIndicatorPositionStyle(position, inset);
   const containerStyle: ViewStyle = useMemo(
     () => ({
       paddingVertical: cardElementOptions.smallContent
@@ -75,8 +83,8 @@ const CardIndicator = (props: CardIndicatorProps) => {
         color={iconColor ?? color.absoluteWhite}
         size={
           iconSize ?? cardElementOptions.smallContent
-            ? INDICATOR_ICON_SMALL
-            : INDICATOR_ICON_LARGE
+            ? CARD_INDICATOR_ICON_SMALL
+            : CARD_INDICATOR_ICON_LARGE
         }
       />
       {label && (
@@ -111,5 +119,60 @@ const cardIndicatorStyles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.55)',
   },
 });
+
+type CardIndicatorRowProps = Pick<
+  CardIndicatorProps,
+  'elementOptions' | 'position'
+> & {
+  iconNames: string[];
+  spacing?: SpacingValue;
+};
+
+export function CardIndicatorRow(props: CardIndicatorRowProps) {
+  const { iconNames, position = 'top-right', spacing, elementOptions } = props;
+
+  const cardElementOptions = useCardElementOptionsContext(elementOptions);
+  const inset = cardElementOptions.insetHorizontal;
+
+  const positionStyle = useCardIndicatorPositionStyle(position, inset);
+
+  return (
+    <View
+      style={[
+        {
+          zIndex: 10,
+          position: 'absolute',
+          flexDirection: position.includes('right') ? 'row-reverse' : 'row',
+        },
+        positionStyle,
+      ]}>
+      {iconNames.map((iconName, index) => (
+        <View
+          key={`card-indicator-${index}`}
+          style={{
+            flexDirection: position.includes('right') ? 'row-reverse' : 'row',
+          }}>
+          <CardIndicator
+            iconName={iconName}
+            style={{
+              position: 'relative',
+              top: undefined,
+              bottom: undefined,
+              left: undefined,
+              right: undefined,
+            }}
+          />
+          {index < iconNames.length - 1 && (
+            <Spacer.Horizontal
+              value={spacing ?? cardElementOptions.smallContent ? 'sm' : 'md'}
+            />
+          )}
+        </View>
+      ))}
+    </View>
+  );
+}
+
+CardIndicator.Row = CardIndicatorRow;
 
 export default CardIndicator;

@@ -72,20 +72,23 @@ export const fetchProfileByVendorProfileId = createAsyncThunk<
   { dispatch: AppDispatch; state: RootState }
 >(
   'profiles/fetchProfileByVendorProfileId',
-  async ({ vendorProfileId /* reload */ }, thunkApi) => {
+  async ({ vendorProfileId, reload }, thunkApi) => {
     const vendorProfiles = selectAllVendorProfiles(thunkApi.getState());
     const maybeVendor = vendorProfiles.find(v => v.id === vendorProfileId);
 
     if (maybeVendor) {
       const maybeProfile =
         thunkApi.getState().profiles.entities[maybeVendor.profileId];
-      if (maybeProfile) return maybeProfile;
 
-      // const fetchProfileAction = fetchProfileById({
-      //   profileId: maybeVendor.profileId,
-      //   reload,
-      // });
-      // return await thunkApi.dispatch(fetchProfileAction).unwrap();
+      if (maybeProfile) {
+        return maybeProfile;
+      } else {
+        const fetchProfileAction = fetchProfileById({
+          profileId: maybeVendor.profileId,
+          reload,
+        });
+        return await thunkApi.dispatch(fetchProfileAction).unwrap();
+      }
     }
 
     return await ProfileApi.fetchProfileByVendorProfileId({ vendorProfileId });

@@ -20,7 +20,9 @@ const initialState: OnboardingState = {
 
 export const submitOnboardingResponse = createAsyncThunk(
   'onboarding/submitOnboardingResponse',
-  ProfileApi.submitOnboardingResponse,
+  async (params: ProfileApi.SubmitOnboardingResponse) => {
+    if (params) await ProfileApi.submitOnboardingResponse(params);
+  },
 );
 
 const onboardingSlice = createSlice({

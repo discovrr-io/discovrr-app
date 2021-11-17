@@ -7,7 +7,7 @@ import * as constants from './constants';
 import CardAuthor from './CardAuthor';
 import CardBody from './CardBody';
 import CardFooter from './CardFooter';
-import CardIndicator from './CardIndicator';
+import CardIndicator, { CardIndicatorRow } from './CardIndicator';
 
 import CardActions, {
   CardActionsHeartIconButton,
@@ -86,6 +86,7 @@ Card.Footer = CardFooter;
 Card.IconButton = CardActionsIconButton;
 Card.HeartIconButton = CardActionsHeartIconButton;
 Card.Indicator = CardIndicator;
+Card.IndicatorRow = CardIndicatorRow;
 Card.ToggleIconButton = CardActionsToggleIconButton;
 
 export default Card;

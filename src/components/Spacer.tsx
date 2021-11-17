@@ -4,9 +4,11 @@ import { StyleProp, View, ViewStyle } from 'react-native';
 import { layout } from 'src/constants';
 import { Spacing } from 'src/constants/layout';
 
-type SpacerProps = {
-  horizontal?: number | keyof Spacing;
-  vertical?: number | keyof Spacing;
+export type SpacingValue = number | keyof Spacing;
+
+export type SpacerProps = {
+  horizontal?: SpacingValue;
+  vertical?: SpacingValue;
   style?: StyleProp<ViewStyle>;
 };
 

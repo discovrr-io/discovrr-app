@@ -23,13 +23,14 @@ export namespace ProductApi {
 
     return {
       id: result.id as ProductId,
-      vendorId: vendorProfileId ?? result.get('profileVendor').id,
+      vendorId: vendorProfileId ?? result.get('profileVendor')?.id,
       squarespaceId: result.get('squarespaceId'),
       squarespaceUrl: result.get('squarespaceUrl'),
-      name: result.get('name') || '<NO NAME>',
+      name: result.get('name') || 'Anonymous',
       description: result.get('description') || '<NO DESCRIPTION>',
-      price: result.get('price') || 0.0,
-      media: result.get('media') || [],
+      price: result.get('price') ?? 0.0,
+      media: result.get('media') ?? [],
+      hidden: result.get('hidden') ?? false,
       statistics: {
         didSave: false,
         didLike: false,
@@ -89,12 +90,18 @@ export namespace ProductApi {
     const { pagination } = params;
     const myProfile = await UserApi.getCurrentUserProfile();
     const productsQuery = new Parse.Query(Parse.Object.extend('Product'));
-    productsQuery.notEqualTo('status', ApiObjectStatus.DELETED);
+
+    productsQuery
+      .notEqualTo('status', ApiObjectStatus.DELETED)
+      .notEqualTo('hidden', true);
 
     if (pagination) {
-      productsQuery
-        .skip(pagination.currentPage * pagination.limit)
-        .limit(pagination.limit);
+      productsQuery.limit(pagination.limit);
+      if (pagination.oldestDateFetched) {
+        productsQuery.lessThan('createdAt', pagination.oldestDateFetched);
+      } else {
+        productsQuery.skip(pagination.currentPage * pagination.limit);
+      }
     }
 
     const results = await productsQuery.find();
@@ -105,12 +112,14 @@ export namespace ProductApi {
 
   export type FetchProductsForVendorProfileParams = {
     vendorProfileId: VendorProfileId;
+    pagination: Pagination;
   };
 
   export async function fetchProductsForVendorProfile(
     params: FetchProductsForVendorProfileParams,
   ): Promise<Product[]> {
-    const profileVendorId = String(params.vendorProfileId);
+    const { vendorProfileId, pagination } = params;
+    const profileVendorId = String(vendorProfileId);
     const profileVendorPointer: Parse.Pointer = {
       __type: 'Pointer',
       className: 'ProfileVendor',
@@ -118,12 +127,22 @@ export namespace ProductApi {
     };
 
     const currentProfile = await UserApi.getCurrentUserProfile();
-    const query = new Parse.Query(Parse.Object.extend('Product'));
-    query
+    const productsQuery = new Parse.Query(Parse.Object.extend('Product'));
+
+    productsQuery
       .notEqualTo('status', ApiObjectStatus.DELETED)
       .equalTo('profileVendor', profileVendorPointer);
 
-    const results = await query.find();
+    if (pagination) {
+      productsQuery.limit(pagination.limit);
+      if (pagination.oldestDateFetched) {
+        productsQuery.lessThan('createdAt', pagination.oldestDateFetched);
+      } else {
+        productsQuery.skip(pagination.currentPage * pagination.limit);
+      }
+    }
+
+    const results = await productsQuery.find();
     return results.map(result =>
       mapResultToProduct(result, profileVendorId, currentProfile?.id),
     );

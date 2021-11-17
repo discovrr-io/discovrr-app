@@ -1,5 +1,6 @@
 import * as React from 'react';
 import {
+  ActivityIndicator,
   Platform,
   RefreshControl,
   ScrollView,
@@ -12,7 +13,6 @@ import {
 
 import analytics from '@react-native-firebase/analytics';
 import FastImage from 'react-native-fast-image';
-import Icon from 'react-native-vector-icons/Ionicons';
 import Parse from 'parse/react-native';
 import { useScrollToTop } from '@react-navigation/native';
 
@@ -102,21 +102,6 @@ function CallToAction(props: CallToActionProps) {
         ]}>
         {props.caption}
       </Text>
-      <Spacer.Vertical value="lg" />
-      <View style={[callToActionStyles.shopNowText]}>
-        <Text
-          style={[
-            constants.font.medium,
-            { color: constants.color.absoluteWhite, textAlign: 'right' },
-          ]}>
-          Shop Now
-        </Text>
-        <Icon
-          name="chevron-forward"
-          size={20}
-          color={constants.color.absoluteWhite}
-        />
-      </View>
     </View>
   );
 }
@@ -125,6 +110,7 @@ const callToActionStyles = StyleSheet.create({
   container: {
     minHeight: 280,
     padding: constants.layout.spacing.lg,
+    paddingBottom: constants.layout.spacing.xxl,
     justifyContent: 'flex-end',
     backgroundColor: constants.color.blue700,
     borderRadius: constants.layout.radius.md,
@@ -170,14 +156,30 @@ const sectionTitleProps = StyleSheet.create({
 type MakerOfTheWeekProps = HomeFeedData['makerOfTheWeek'];
 
 function MakerOfTheWeek(props: MakerOfTheWeekProps) {
+  const [isLoading, setIsLoading] = React.useState(false);
   return (
     <View>
       <SectionTitle title="Maker of the Week" />
-      <FastImage
-        resizeMode="cover"
-        source={{ uri: props.coverImageUrl }}
-        style={makerOfTheWeekStyles.coverImage}
-      />
+      <View
+        style={{
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+        <FastImage
+          resizeMode="cover"
+          source={{ uri: props.coverImageUrl }}
+          style={makerOfTheWeekStyles.coverImage}
+          onLoadStart={() => setIsLoading(true)}
+          onLoadEnd={() => setIsLoading(false)}
+        />
+        {isLoading && (
+          <ActivityIndicator
+            size="large"
+            color={constants.color.gray500}
+            style={{ position: 'absolute' }}
+          />
+        )}
+      </View>
       <Spacer.Vertical value="md" />
       <View style={makerOfTheWeekStyles.textContainer}>
         <Text numberOfLines={1} style={constants.font.mediumBold}>
@@ -195,7 +197,14 @@ function MakerOfTheWeek(props: MakerOfTheWeekProps) {
 MakerOfTheWeek.Pending = () => (
   <View>
     <SectionTitle title="Maker of the Week" />
-    <FastImage source={{}} style={makerOfTheWeekStyles.coverImage} />
+    <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+      <FastImage source={{}} style={makerOfTheWeekStyles.coverImage} />
+      <ActivityIndicator
+        size="large"
+        color={constants.color.gray500}
+        style={{ position: 'absolute' }}
+      />
+    </View>
     <Spacer.Vertical value="md" />
     <View style={makerOfTheWeekStyles.textContainer}>
       <View
@@ -212,6 +221,7 @@ MakerOfTheWeek.Pending = () => (
 const makerOfTheWeekStyles = StyleSheet.create({
   coverImage: {
     height: 280,
+    width: '100%',
     backgroundColor: constants.color.placeholder,
     borderRadius: constants.layout.radius.md,
   },
@@ -244,15 +254,10 @@ export default function LandingScreen(_: LandingScreenProps) {
   const [isInitialRender, setIsInitialRender] = React.useState(true);
   const [shouldRefresh, setShouldRefresh] = React.useState(false);
 
-  const shouldShowModal = useAppSelector(
-    state => !state.onboarding.didCompleteMainOnboarding,
-  );
-
   const [isModalVisible, setIsModalVisible] = React.useState(false);
-
-  React.useEffect(() => {
-    console.log({ isModalVisible, shouldShowModal });
-  }, [isModalVisible, shouldShowModal]);
+  const shouldShowModal = useAppSelector(state => {
+    return !state.onboarding.didCompleteMainOnboarding;
+  });
 
   const masonryListScrollViewRef = React.useRef<ScrollView>(null);
   useScrollToTop(masonryListScrollViewRef);
@@ -306,21 +311,15 @@ export default function LandingScreen(_: LandingScreenProps) {
 
   const handleConcludeOnboarding = (result: OnboardingResult) => {
     setIsModalVisible(false);
-    if (result.surveyResponse) {
-      console.log($FUNC, 'Submitting onboarding response...');
-      dispatch(
-        onboardingSlice.submitOnboardingResponse({
-          response: result.surveyResponse,
-        }),
-      )
-        .unwrap()
-        .then(() =>
-          console.log($FUNC, 'Successfully submitted onboarding result'),
-        )
-        .catch(error => {
-          console.error($FUNC, 'Failed to submit onboarding result:', error);
-        });
-    }
+    console.log($FUNC, 'Submitting onboarding response...');
+    const submitResponseAction = onboardingSlice.submitOnboardingResponse({
+      surveyResult: result.surveyResponse,
+    });
+    dispatch(submitResponseAction)
+      .unwrap()
+      .catch(error => {
+        console.error($FUNC, 'Failed to submit onboarding result:', error);
+      });
   };
 
   return (

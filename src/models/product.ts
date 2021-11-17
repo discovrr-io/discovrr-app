@@ -15,5 +15,6 @@ export default interface Product {
   readonly description: string;
   readonly price: number;
   readonly media: MediaSource[];
+  readonly hidden: boolean;
   readonly statistics: Statistics;
 }

@@ -69,7 +69,7 @@ const InnerVendorProfileItemCard = (props: InnerVendorProfileItemCardProps) => {
       return (
         <View>
           <View>
-            <Card.Indicator iconName="cart" position="top-right" />
+            <Card.Indicator iconName="happy" position="top-right" />
             <FastImage
               source={
                 coverPhoto

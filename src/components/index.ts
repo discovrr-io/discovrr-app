@@ -19,3 +19,4 @@ export { default as RouteError } from './RouteError';
 export { default as Spacer } from './Spacer';
 
 export type { MasonryListProps } from './MasonryList';
+export type { SpacerProps, SpacingValue } from './Spacer';

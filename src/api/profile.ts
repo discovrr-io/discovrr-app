@@ -187,20 +187,7 @@ export namespace ProfileApi {
 
     const result = await vendorQuery.get(vendorId);
     const profile: Parse.Object = result.get('profile');
-
-    return {
-      kind: 'vendor',
-      email: profile.get('email') ?? '',
-      username: profile.get('username') ?? '',
-      displayName: profile.get('displayName') ?? '',
-      avatar: result.get('avatar'),
-      coverPhoto: result.get('coverPhoto'),
-      biography: result.get('biography'),
-      followers: profile.get('followersArray') ?? [],
-      following: profile.get('followingArray') ?? [],
-      blocked: profile.get('blockedArray') ?? [],
-      ...constructCommonProfileDetails<VendorProfileId>(profile.id, result),
-    };
+    return mapResultToProfile(profile);
   }
 
   //#endregion READ OPERATIONS
@@ -254,15 +241,16 @@ export namespace ProfileApi {
   //#region MISCELLANEOUS
 
   export type SubmitOnboardingResponse = {
-    response: string;
+    surveyResult?: string;
   };
 
   export async function submitOnboardingResponse(
     params: SubmitOnboardingResponse,
   ) {
-    const { response: onboardingResponse } = params;
+    const { surveyResult: onboardingResponse } = params;
     const currentUserProfile = await UserApi.getCurrentUserProfile();
     if (!currentUserProfile) return;
+    if (!onboardingResponse) return;
     await currentUserProfile.save({ onboardingResponse });
   }
 
