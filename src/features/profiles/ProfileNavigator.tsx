@@ -15,7 +15,6 @@ export default function renderProfileNavigator() {
         component={ProfileDetailsScreen}
         options={({ route }) => ({
           title: route.params.profileDisplayName || 'Profile',
-          headerShown: !route.params.hideHeader ?? true,
           headerTransparent: true,
           headerTintColor: color.absoluteWhite,
         })}

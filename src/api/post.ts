@@ -136,7 +136,7 @@ export namespace PostApi {
     const { postId } = params;
     const myProfile = await UserApi.getCurrentUserProfile();
     const postQuery = new Parse.Query(Parse.Object.extend('Post'));
-    postQuery.include('statistics');
+    postQuery.include('profile', 'statistics');
 
     const result = await postQuery.get(String(postId));
     return mapResultToPost(result, myProfile?.id);
@@ -162,7 +162,7 @@ export namespace PostApi {
   */
 
   export type FetchAllPostsParams = {
-    pagination?: Pagination;
+    pagination: Pagination;
   };
 
   // /*
@@ -174,14 +174,16 @@ export namespace PostApi {
     const postsQuery = new Parse.Query(Parse.Object.extend('Post'));
 
     postsQuery
-      .include('profile', 'statistics')
       .descending('createdAt')
-      .notEqualTo('status', ApiObjectStatus.DELETED);
+      .include('profile', 'statistics')
+      .notEqualTo('status', ApiObjectStatus.DELETED)
+      .limit(pagination.limit);
 
-    if (pagination) {
-      postsQuery
-        .limit(pagination.limit)
-        .skip(pagination.limit * pagination.currentPage);
+    if (pagination.oldestDateFetched) {
+      console.log(`Fetching posts older than ${pagination.oldestDateFetched}`);
+      postsQuery.lessThan('createdAt', pagination.oldestDateFetched);
+    } else {
+      postsQuery.skip(pagination.currentPage * pagination.limit);
     }
 
     const results = await postsQuery.find();
@@ -216,8 +218,8 @@ export namespace PostApi {
     const postsQuery = new Parse.Query(Parse.Object.extend('Post'));
 
     postsQuery
-      .include('profile', 'statistics')
       .descending('createdAt')
+      .include('profile', 'statistics')
       .notEqualTo('status', ApiObjectStatus.DELETED)
       .limit(pagination.limit);
 
@@ -265,11 +267,21 @@ export namespace PostApi {
     };
 
     const myProfile = await UserApi.getCurrentUserProfile();
-    const query = new Parse.Query(Parse.Object.extend('Post'));
-    query.equalTo('profile', profilePointer);
-    query.notEqualTo('status', ApiObjectStatus.DELETED);
+    const postsQuery = new Parse.Query(Parse.Object.extend('Post'));
 
-    const results = await query.find();
+    postsQuery
+      .descending('createdAt')
+      .include('profile', 'statistics')
+      .equalTo('profile', profilePointer)
+      .notEqualTo('status', ApiObjectStatus.DELETED);
+
+    if (pagination.oldestDateFetched) {
+      postsQuery.lessThan('createdAt', pagination.oldestDateFetched);
+    } else {
+      postsQuery.skip(pagination.currentPage * pagination.limit);
+    }
+
+    const results = await postsQuery.find();
     return results.map(result => mapResultToPost(result, myProfile?.id));
   }
   // */
@@ -308,7 +320,10 @@ export namespace PostApi {
     const profile = await profileQuery.get(String(profileId));
 
     const likedPostsQuery = profile.relation('likedPosts').query();
+
     likedPostsQuery
+      .descending('createdAt')
+      .include('profile', 'statistics')
       .notEqualTo('status', ApiObjectStatus.DELETED)
       .limit(pagination.limit);
 

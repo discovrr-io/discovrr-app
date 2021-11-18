@@ -587,7 +587,7 @@ export default function AuthScreen() {
       await dispatch(authSlice.signInWithCredential({ credential })).unwrap();
     } catch (error: any) {
       if (error.code === appleAuth.Error.CANCELED) {
-        console.warn($FUNC, 'Apple authentication cancelled');
+        console.log($FUNC, 'Apple authentication cancelled');
         return;
       }
 
@@ -621,7 +621,7 @@ export default function AuthScreen() {
       await dispatch(authSlice.signInWithCredential({ credential })).unwrap();
     } catch (error: any) {
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-        console.info($FUNC, 'Google authentication cancelled');
+        console.log($FUNC, 'Google authentication cancelled');
         return;
       }
 

@@ -112,7 +112,7 @@ export namespace ProductApi {
 
   export type FetchProductsForVendorProfileParams = {
     vendorProfileId: VendorProfileId;
-    pagination: Pagination;
+    pagination?: Pagination;
   };
 
   export async function fetchProductsForVendorProfile(

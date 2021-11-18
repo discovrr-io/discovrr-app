@@ -129,7 +129,7 @@ function OnboardingModalGreetingContent(props: {
         flexGrow: 1,
         paddingHorizontal: constants.layout.spacing.xxl,
         paddingTop: constants.layout.spacing.xxl * 1.75,
-        paddingBottom: constants.layout.spacing.xl,
+        paddingBottom: constants.layout.spacing.lg,
       }}>
       <Text style={[constants.font.h2, { flexGrow: 1 }]}>Hi there 👋</Text>
       <View style={{ flexGrow: 1 }}>

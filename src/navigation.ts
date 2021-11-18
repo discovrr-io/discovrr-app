@@ -287,7 +287,7 @@ export type ProfileStackParamList = {
   ProfileDetails: {
     profileId: ProfileId;
     profileDisplayName?: string;
-    hideHeader?: boolean;
+    windowHeight?: number;
   };
   ProfileFollowActivity: {
     profileId: ProfileId;

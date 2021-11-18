@@ -65,19 +65,21 @@ export function renderChildrenWithDivider(
   children: React.ReactNode,
   cellElementOptions: CellElementOptions,
 ) {
-  return React.Children.map(children, (child, index) => (
-    <>
-      {child}
-      {index < React.Children.count(children) - 1 && (
-        <View
-          style={{
-            width: '94%',
-            alignSelf: 'center',
-            borderBottomWidth: cellElementOptions.borderWidth,
-            borderColor: cellElementOptions.borderColor,
-          }}
-        />
-      )}
-    </>
-  ));
+  return React.Children.toArray(children)
+    .filter(Boolean)
+    .map((child, index, array) => (
+      <View key={`cell-child-${index}`}>
+        {child}
+        {index < array.length - 1 && (
+          <View
+            style={{
+              width: '94%',
+              alignSelf: 'center',
+              borderBottomWidth: cellElementOptions.borderWidth,
+              borderColor: cellElementOptions.borderColor,
+            }}
+          />
+        )}
+      </View>
+    ));
 }

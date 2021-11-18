@@ -150,7 +150,7 @@ const LocationQueryBottomSheet = React.forwardRef<
             <Spacer.Vertical value="xs" />
             <Text style={[font.medium, { textAlign: 'center' }]}>
               We&apos;re still working on this feature. We&apos;ll let you know
-              when it&apos;s ready!
+              when it&apos;s ready.
             </Text>
             <Spacer.Vertical value="md" />
             <Button

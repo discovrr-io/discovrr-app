@@ -18,7 +18,6 @@ import ProfileListItem from './ProfileListItem';
 import { useIsMyProfile, useProfile } from './hooks';
 import { fetchProfileById } from './profiles-slice';
 
-// type ProfileFollowActivityScreen = ProfileStackScreenProps<'ProfileFollowActivity'>;
 type ProfileFollowActivityScreen =
   RootStackScreenProps<'ProfileFollowActivity'>;
 

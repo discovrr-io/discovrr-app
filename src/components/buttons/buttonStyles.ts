@@ -87,7 +87,7 @@ export function makeSizeStyles(size: ButtonSize): SizeStyles {
       return {
         container: {
           height: layout.buttonSizes.sm,
-          borderRadius: layout.radius.sm,
+          borderRadius: layout.buttonSizes.sm / 2,
         },
         title: font.smallBold,
       };
@@ -95,7 +95,7 @@ export function makeSizeStyles(size: ButtonSize): SizeStyles {
       return {
         container: {
           height: layout.buttonSizes.md,
-          borderRadius: layout.radius.md,
+          borderRadius: layout.buttonSizes.md / 2,
         },
         title: font.mediumBold,
       };
@@ -103,7 +103,7 @@ export function makeSizeStyles(size: ButtonSize): SizeStyles {
       return {
         container: {
           height: layout.buttonSizes.lg,
-          borderRadius: layout.radius.md,
+          borderRadius: layout.buttonSizes.lg / 2,
         },
         title: font.extraLargeBold,
       };

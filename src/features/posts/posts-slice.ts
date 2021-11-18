@@ -25,7 +25,6 @@ const postsAdapter = createEntityAdapter<Post>({
   sortComparer: (a, b) => b.createdAt.localeCompare(a.createdAt),
 });
 
-// TODO: Only cache the first N number of posts
 const initialState = postsAdapter.getInitialState<PostApiFetchStatuses>({
   statuses: {},
 });
@@ -139,7 +138,7 @@ const postsSlice = createSlice({
         };
       })
       .addCase(fetchPostById.fulfilled, (state, action) => {
-        if (action.payload) postsAdapter.upsertOne(state, action.payload);
+        postsAdapter.upsertOne(state, action.payload);
         state.statuses[action.meta.arg.postId] = {
           status: 'fulfilled',
           error: undefined,
@@ -152,15 +151,6 @@ const postsSlice = createSlice({
         };
       })
       // -- fetchAllPosts --
-      // .addCase(fetchAllPosts.pending, (state, action) => {
-      //   const { reload = false } = action.meta.arg ?? {};
-      //   for (const postId of Object.keys(state.statuses)) {
-      //     state.statuses[postId as PostId] = {
-      //       status: reload ? 'refreshing' : 'pending',
-      //       error: undefined,
-      //     };
-      //   }
-      // })
       .addCase(fetchAllPosts.fulfilled, (state, action) => {
         const { reload = false } = action.meta.arg ?? {};
 
@@ -175,14 +165,6 @@ const postsSlice = createSlice({
           state.statuses[postId] = { status: 'fulfilled' };
         }
       })
-      // .addCase(fetchAllPosts.rejected, (state, action) => {
-      //   for (const postId of Object.keys(state.statuses)) {
-      //     state.statuses[postId as PostId] = {
-      //       status: 'rejected',
-      //       error: action.error,
-      //     };
-      //   }
-      // })
       // -- fetchMorePosts --
       .addCase(fetchMorePosts.fulfilled, (state, action) => {
         postsAdapter.upsertMany(state, action.payload);

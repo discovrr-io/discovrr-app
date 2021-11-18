@@ -434,9 +434,15 @@ function PostItemCardAuthor(props: PostItemCardAuthorProps) {
       return;
     }
 
-    navigation.navigate('ProfileDetails', {
-      profileId: profile.profileId,
-      profileDisplayName: profile.displayName,
+    // FIXME: If the post is in the My Profile tab and the profile id is the
+    // the same as the current user, it will still push a ProfileDetails tab
+    navigation.navigate({
+      key: `ProfileDetails:${profile.profileId}`,
+      name: 'ProfileDetails',
+      params: {
+        profileId: profile.profileId,
+        profileDisplayName: profile.displayName,
+      },
     });
   };
 

@@ -37,7 +37,6 @@ const CardActions = (props: CardActionsProps) => {
             ? constants.CARD_ICON_SMALL
             : constants.CARD_ICON_LARGE,
         },
-        cardElementOptions.disabled && { backgroundColor: 'pink' },
         props.style,
       ]}>
       {React.Children.toArray(props.children)
