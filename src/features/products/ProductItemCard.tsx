@@ -88,7 +88,7 @@ const LoadedProductItemCard = (props: InnerProductItemCardProps) => {
           <Card.HeartIconButton
             didLike={didLike}
             totalLikes={totalLikes}
-            onToggleLike={() => console.log('HERE')}
+            onToggleLike={() => {}}
             elementOptions={{
               ...cardElementProps.elementOptions,
               disabled: product.hidden,

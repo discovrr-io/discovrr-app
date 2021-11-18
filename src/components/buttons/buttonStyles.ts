@@ -47,7 +47,6 @@ export type ButtonStyles = ReturnType<typeof makeButtonStyles>;
 export const commonContainerStyle: ViewStyle = {
   alignItems: 'center',
   justifyContent: 'center',
-  borderWidth: layout.border.thin,
   paddingHorizontal: layout.spacing.lg,
 };
 
@@ -61,6 +60,7 @@ export function makeButtonStyles(
       height: sizeStyles.container.height,
       borderRadius: sizeStyles.container.borderRadius,
       backgroundColor: colorStyles.container.default.backgroundColor,
+      borderWidth: colorStyles.container.default.borderWidth,
       borderColor: colorStyles.container.default.borderColor,
     },
     disabledContainer: {
@@ -68,6 +68,7 @@ export function makeButtonStyles(
       height: sizeStyles.container.height,
       borderRadius: sizeStyles.container.borderRadius,
       backgroundColor: colorStyles.container.disabled.backgroundColor,
+      borderWidth: colorStyles.container.disabled.borderWidth,
       borderColor: colorStyles.container.disabled.borderColor,
     },
     defaultTitle: {
@@ -209,15 +210,18 @@ export function makeOutlinedButtonColorStyles(
         container: {
           default: {
             backgroundColor: 'transparent',
-            borderColor: color.accent,
+            borderWidth: layout.border.thin,
+            borderColor: isDarkTheme ? color.gray300 : color.gray500,
           },
           focused: {
             backgroundColor: color.blue200,
-            borderColor: color.accent,
+            borderWidth: layout.border.thin,
+            borderColor: isDarkTheme ? color.gray300 : color.gray500,
           },
           disabled: {
             backgroundColor: 'transparent',
-            borderColor: color.accentDisabled,
+            borderWidth: layout.border.thin,
+            borderColor: isDarkTheme ? color.gray300 : color.gray500,
           },
         },
         title: {
@@ -234,15 +238,18 @@ export function makeOutlinedButtonColorStyles(
         container: {
           default: {
             backgroundColor: 'transparent',
-            borderColor: color.danger,
+            borderWidth: layout.border.thin,
+            borderColor: isDarkTheme ? color.gray300 : color.gray500,
           },
           focused: {
             backgroundColor: color.red200,
-            borderColor: color.danger,
+            borderWidth: layout.border.thin,
+            borderColor: isDarkTheme ? color.gray300 : color.gray500,
           },
           disabled: {
             backgroundColor: 'transparent',
-            borderColor: color.dangerDisabled,
+            borderWidth: layout.border.thin,
+            borderColor: isDarkTheme ? color.gray300 : color.gray500,
           },
         },
         title: {
@@ -260,15 +267,18 @@ export function makeOutlinedButtonColorStyles(
         container: {
           default: {
             backgroundColor: 'transparent',
-            borderColor: isDarkTheme ? color.white : color.black,
+            borderWidth: layout.border.thick,
+            borderColor: isDarkTheme ? color.gray300 : color.gray500,
           },
           focused: {
             backgroundColor: isDarkTheme ? color.gray700 : color.gray200,
-            borderColor: isDarkTheme ? color.white : color.black,
+            borderWidth: layout.border.thick,
+            borderColor: isDarkTheme ? color.gray300 : color.gray500,
           },
           disabled: {
             backgroundColor: 'transparent',
-            borderColor: isDarkTheme ? color.gray200 : color.gray500,
+            borderWidth: layout.border.thick,
+            borderColor: isDarkTheme ? color.gray300 : color.gray500,
           },
         },
         title: {

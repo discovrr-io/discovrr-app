@@ -19,16 +19,16 @@ export default function NotificationsScreen(_: NotificationsScreenProps) {
     state => state.notifications.allNotifications,
   );
 
-  useFocusEffect(
-    React.useCallback(() => {
-      const timer = setTimeout(() => {
-        console.log($FUNC, 'Marking all notifications as read...');
-        dispatch(markAllNotificationsAsRead());
-      }, 2000);
+  // useFocusEffect(
+  //   React.useCallback(() => {
+  //     const timer = setTimeout(() => {
+  //       console.log($FUNC, 'Marking all notifications as read...');
+  //       dispatch(markAllNotificationsAsRead());
+  //     }, 2000);
 
-      return () => clearTimeout(timer);
-    }, [dispatch]),
-  );
+  //     return () => clearTimeout(timer);
+  //   }, [dispatch]),
+  // );
 
   return (
     <SafeAreaView style={{ flex: 1 }}>

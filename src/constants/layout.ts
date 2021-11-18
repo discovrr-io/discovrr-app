@@ -33,7 +33,7 @@ export const radius = {
 };
 
 export const border = {
-  thick: 2,
+  thick: 1.75,
   thin: 1,
   zero: 0,
 };

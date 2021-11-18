@@ -1,25 +1,33 @@
 import * as React from 'react';
-import { Platform } from 'react-native';
+import { Platform, SafeAreaView, useWindowDimensions } from 'react-native';
 
 import Icon from 'react-native-vector-icons/Ionicons';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createDrawerNavigator } from '@react-navigation/drawer';
+import { useHeaderHeight } from '@react-navigation/elements';
+
+import {
+  createBottomTabNavigator,
+  useBottomTabBarHeight,
+} from '@react-navigation/bottom-tabs';
 
 import HomeNavigator from 'src/features/home/HomeNavigator';
 import ExploreNavigator from 'src/features/explore/ExploreNavigator';
 import NotificationsScreen from 'src/features/notifications/NotificationsScreen';
-import ProfileDetailsScreen from 'src/features/profiles/ProfileDetailsScreen';
+import { LoadedProfileDetailsScreen } from 'src/features/profiles/ProfileDetailsScreen';
 
 import * as constants from 'src/constants';
 import * as notificationsSlice from 'src/features/notifications/notifications-slice';
-import { useMyProfileId } from 'src/features/profiles/hooks';
+import { useMyProfileId, useProfile } from 'src/features/profiles/hooks';
 import { useAppSelector } from 'src/hooks';
 
 import {
   AppDrawer,
+  AsyncGate,
   DiscovrrIcon,
   HeaderIcon,
+  LoadingContainer,
   PlaceholderScreen,
+  RouteError,
 } from 'src/components';
 
 import {
@@ -27,10 +35,50 @@ import {
   FacadeBottomTabParamList,
   RootStackNavigationProp,
   MainDrawerParamList,
+  FacadeBottomTabScreenProps,
 } from 'src/navigation';
 
 const RootDrawer = createDrawerNavigator<MainDrawerParamList>();
 const FacadeBottomTab = createBottomTabNavigator<FacadeBottomTabParamList>();
+
+type MyProfileDetailsScreenProps = FacadeBottomTabScreenProps<'__MyProfile'>;
+
+function MyProfileDetailsScreen(props: MyProfileDetailsScreenProps) {
+  const profileData = useProfile(props.route.params.profileId);
+  const headerHeight = useHeaderHeight();
+  const bottomTabBarHeight = useBottomTabBarHeight();
+  const { height: windowHeight } = useWindowDimensions();
+
+  const renderRouteError = (_error?: any) => (
+    <RouteError containerStyle={{ backgroundColor: constants.color.white }} />
+  );
+
+  return (
+    <AsyncGate
+      data={profileData}
+      onPending={() => (
+        <SafeAreaView
+          style={{
+            flexGrow: 1,
+            justifyContent: 'center',
+            paddingTop: headerHeight,
+          }}>
+          <LoadingContainer message="Loading profile..." />
+        </SafeAreaView>
+      )}
+      onFulfilled={profile => {
+        if (!profile) return renderRouteError();
+        return (
+          <LoadedProfileDetailsScreen
+            profile={profile}
+            preferredWindowHeight={windowHeight - bottomTabBarHeight}
+          />
+        );
+      }}
+      onRejected={renderRouteError}
+    />
+  );
+}
 
 function FacadeNavigator() {
   const $FUNC = '[FacadeNavigator]';
@@ -148,8 +196,12 @@ function FacadeNavigator() {
       />
       <FacadeBottomTab.Screen
         name="__MyProfile"
-        component={ProfileDetailsScreen}
-        options={{ title: 'My Profile' }}
+        component={MyProfileDetailsScreen}
+        options={{
+          title: 'My Profile',
+          headerTransparent: true,
+          headerTintColor: constants.color.defaultLightTextColor,
+        }}
         listeners={({
           navigation,
         }: {
@@ -166,7 +218,6 @@ function FacadeNavigator() {
             // Directly pass parameters as if the caller did so
             navigation.navigate('__MyProfile', {
               profileId: myProfileId,
-              hideHeader: true,
             });
           },
         })}

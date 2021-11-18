@@ -21,6 +21,7 @@ import createDebugger from 'redux-flipper';
 import authReducer from './features/authentication/auth-slice';
 import commentRepliesReducer from './features/comments/comment-replies-slice';
 import commentsReducer from './features/comments/comments-slice';
+import feedReducer from './features/feed/feed-slice';
 import notificationsReducer from './features/notifications/notifications-slice';
 import onboardingReducer from './features/onboarding/onboarding-slice';
 import postsReducer from './features/posts/posts-slice';
@@ -32,6 +33,7 @@ import settingsReducer from './features/settings/settings-slice';
 import { AuthState } from './features/authentication/auth-slice';
 import { CommentRepliesState } from './features/comments/comment-replies-slice';
 import { CommentsState } from './features/comments/comments-slice';
+import { FeedState } from './features/feed/feed-slice';
 import { NotificationsState } from './features/notifications/notifications-slice';
 import { OnboardingState } from './features/onboarding/onboarding-slice';
 import { PostsState } from './features/posts/posts-slice';
@@ -44,6 +46,7 @@ type AppState = {
   auth: AuthState;
   comments: CommentsState;
   commentReplies: CommentRepliesState;
+  feed: FeedState;
   notifications: NotificationsState;
   onboarding: OnboardingState;
   posts: PostsState;
@@ -59,6 +62,7 @@ export const rootReducer = combineReducers<AppState>({
   auth: authReducer,
   comments: commentsReducer,
   commentReplies: commentRepliesReducer,
+  feed: feedReducer,
   notifications: notificationsReducer,
   onboarding: onboardingReducer,
   posts: postsReducer,
@@ -76,6 +80,7 @@ const persistedReducer = persistReducer<CombinedAppState>(
     blacklist: [
       'comments',
       'commentReplies',
+      'feed',
       'posts',
       'products',
       // 'profiles'

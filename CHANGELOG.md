@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Store post IDs from the Discover feed on a separate Redux slice to keep
+  posts sorted and to avoid posts jumping around
+
 ## [v3.0.5] (2021-11-17)
 
 ### Changed
@@ -18,7 +23,7 @@
 - New profile details page with taller header
   - [x] Display products on maker profile page
   - [x] Show profile name on top when bottom sheet covers header
-  - [ ] Replace old profile page on My Profile tab with new one
+  - [x] Replace old profile page on My Profile tab with new one
 - Add new onboarding process (WIP)
 
 ## [v3.0.4] (2021-11-10)
