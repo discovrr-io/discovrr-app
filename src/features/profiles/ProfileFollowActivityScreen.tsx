@@ -1,11 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { FlatList, RefreshControl, SafeAreaView, View } from 'react-native';
 
-import { color, layout } from 'src/constants';
+import * as constants from 'src/constants';
+import * as utilities from 'src/utilities';
 import { useAppDispatch, useIsMounted } from 'src/hooks';
 import { Profile } from 'src/models';
 import { ProfileStackParamList, RootStackScreenProps } from 'src/navigation';
-import { alertSomethingWentWrong } from 'src/utilities';
 
 import {
   AsyncGate,
@@ -79,7 +79,7 @@ function LoadedProfileFollowActivityScreen(
           ).unwrap();
         } catch (error) {
           console.error($FUNC, 'Failed to refresh profile:', error);
-          alertSomethingWentWrong(
+          utilities.alertSomethingWentWrong(
             "We weren't able to refresh this profile. Please try again.",
           );
         } finally {
@@ -103,7 +103,7 @@ function LoadedProfileFollowActivityScreen(
         contentContainerStyle={{ flexGrow: 1 }}
         refreshControl={
           <RefreshControl
-            tintColor={color.gray500}
+            tintColor={constants.color.gray500}
             refreshing={!isInitialRender && shouldRefresh}
             onRefresh={handleRefresh}
           />
@@ -111,9 +111,9 @@ function LoadedProfileFollowActivityScreen(
         ItemSeparatorComponent={() => (
           <View
             style={{
-              marginHorizontal: layout.spacing.md,
-              borderBottomWidth: layout.border.thin,
-              borderColor: color.gray100,
+              marginHorizontal: constants.layout.spacing.md,
+              borderBottomWidth: constants.layout.border.thin,
+              borderColor: constants.color.gray100,
             }}
           />
         )}

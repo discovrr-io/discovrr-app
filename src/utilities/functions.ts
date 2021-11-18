@@ -17,15 +17,15 @@ export function shortenLargeNumber(count: number): string {
     return (Math.floor((value / 10 ** power) * 10) / 10).toFixed(1);
   }
 
-  if (count < 10 ** 3) {
+  if (count < 1e3) {
     return count.toString();
-  } else if (count < 10 ** 6) {
+  } else if (count < 1e6) {
     const truncated = truncateNumberByPower(count, 3);
     return `${truncated}${ShortenedNumberSuffix.THOUSAND}`;
-  } else if (count < 10 ** 9) {
+  } else if (count < 1e9) {
     const truncated = truncateNumberByPower(count, 6);
     return `${truncated}${ShortenedNumberSuffix.MILLION}`;
-  } else if (count < 10 ** 12) {
+  } else if (count < 1e12) {
     const truncated = truncateNumberByPower(count, 9);
     return `${truncated}${ShortenedNumberSuffix.BILLION}`;
   } else {

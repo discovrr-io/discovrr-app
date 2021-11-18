@@ -24,10 +24,10 @@ export default function ProfileListItem(props: ProfileListItemProps) {
   return (
     <AsyncGate
       data={profileData}
-      onPending={() => <InnerProfileListItem.Pending />}
+      onPending={() => <LoadedProfileListItem.Pending />}
       onFulfilled={profile => {
         if (!profile) return null;
-        return <InnerProfileListItem profile={profile} />;
+        return <LoadedProfileListItem profile={profile} />;
       }}
     />
   );
@@ -37,7 +37,7 @@ type InnerProfileListItemProps = {
   profile: Profile;
 };
 
-const InnerProfileListItem = (props: InnerProfileListItemProps) => {
+const LoadedProfileListItem = (props: InnerProfileListItemProps) => {
   const { profile } = props;
   const navigation = useNavigation<RootStackNavigationProp>();
   const isMyProfile = useIsMyProfile(profile.profileId);
@@ -92,7 +92,7 @@ const InnerProfileListItem = (props: InnerProfileListItemProps) => {
 };
 
 // eslint-disable-next-line react/display-name
-InnerProfileListItem.Pending = () => (
+LoadedProfileListItem.Pending = () => (
   <View style={profileListItemStyles.container}>
     <View style={profileListItemStyles.avatar} />
     <View style={profileListItemStyles.innerContainer}>

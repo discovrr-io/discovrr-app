@@ -72,6 +72,7 @@ export default function RootNavigator() {
           id: (remoteMessage.messageId || nanoid()) as NotificationId,
           title: alertTitle,
           message: alertMessage,
+          receivedAt: new Date().toISOString(),
         }),
       );
 

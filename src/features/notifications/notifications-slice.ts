@@ -1,4 +1,10 @@
-import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import {
+  createAsyncThunk,
+  createEntityAdapter,
+  createSelector,
+  createSlice,
+  PayloadAction,
+} from '@reduxjs/toolkit';
 
 import { NotificationApi } from 'src/api';
 import { abortSignOut, signOut } from 'src/features/authentication/auth-slice';
@@ -15,19 +21,19 @@ export const setFCMRegistrationTokenForSession = createAsyncThunk(
 
 //#endregion Notifications Async Thunks
 
-//#region Notifications State Initialization
+//#region Notifications Adapter Initialization
 
-export type NotificationsState = {
-  didRegisterFCMToken: boolean;
-  allNotifications: Notification[];
-};
+export type NotificationsState = typeof initialState;
 
-const initialState: NotificationsState = {
+const notificationsAdapter = createEntityAdapter<Notification>({
+  sortComparer: (a, b) => b.receivedAt.localeCompare(a.receivedAt),
+});
+
+const initialState = notificationsAdapter.getInitialState({
   didRegisterFCMToken: false,
-  allNotifications: [],
-};
+});
 
-//#endregion Notifications State Initialization
+//#endregion Notifications Adapter Initialization
 
 //#region Notifications Slice
 
@@ -37,17 +43,15 @@ const notificationsSlice = createSlice({
   reducers: {
     didReceiveNotification: (
       state,
-      action: PayloadAction<Pick<Notification, 'id' | 'title' | 'message'>>,
+      action: PayloadAction<Omit<Notification, 'read'>>,
     ) => {
-      const newNotification = action.payload;
-      if (!state.allNotifications.some(it => it.id === newNotification.id)) {
-        state.allNotifications.push({ ...newNotification, read: false });
-      }
+      notificationsAdapter.addOne(state, { ...action.payload, read: false });
     },
     markAllNotificationsAsRead: state => {
-      for (const notification of state.allNotifications) {
-        notification.read = true;
-      }
+      notificationsAdapter.updateMany(
+        state,
+        state.ids.map(id => ({ id, changes: { read: true } })),
+      );
     },
   },
   extraReducers: builder => {
@@ -78,9 +82,18 @@ const notificationsSlice = createSlice({
 export const { didReceiveNotification, markAllNotificationsAsRead } =
   notificationsSlice.actions;
 
-export function selectUnreadNotificationsCount(state: RootState) {
-  return state.notifications.allNotifications.filter(it => !it.read).length;
-}
+export const {
+  selectAll: selectAllNotifications,
+  selectById: selectNotificationById,
+  selectIds: selectNotificationIds,
+} = notificationsAdapter.getSelectors<RootState>(state => state.notifications);
+
+export const selectUnreadNotificationsCount = createSelector(
+  [selectAllNotifications],
+  notifications => {
+    return notifications.filter(it => !it.read).length;
+  },
+);
 
 //#endregion Notifications Slice
 

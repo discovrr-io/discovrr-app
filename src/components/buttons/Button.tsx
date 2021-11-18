@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 
-import { ButtonBase } from './ButtonBase';
+import ButtonBase from './ButtonBase';
 import {
   CommonButtonProps,
   makeButtonStyles,

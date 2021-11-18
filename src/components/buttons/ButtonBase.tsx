@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import {
   ActivityIndicator,
   Text,
@@ -21,23 +21,25 @@ type ButtonBaseProps = CommonButtonProps & {
   useTouchableOpacity?: boolean;
 };
 
-export function ButtonBase({
-  title,
-  disabled,
-  loading,
-  buttonStyles,
-  underlayColor,
-  loadingIndicatorColor,
-  containerStyle,
-  textStyle,
-  useTouchableOpacity,
-  ...props
-}: ButtonBaseProps) {
+export default function ButtonBase(props: ButtonBaseProps) {
+  const {
+    title,
+    disabled,
+    loading,
+    buttonStyles,
+    underlayColor,
+    loadingIndicatorColor,
+    containerStyle,
+    textStyle,
+    useTouchableOpacity,
+    ...restProps
+  } = props;
+
   const Touchable = useTouchableOpacity ? TouchableOpacity : TouchableHighlight;
 
   return (
     <Touchable
-      {...props}
+      {...restProps}
       testID={'btn-container'}
       disabled={disabled || loading}
       activeOpacity={DEFAULT_ACTIVE_OPACITY}

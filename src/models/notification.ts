@@ -7,4 +7,5 @@ export default interface Notification {
   readonly title: string;
   readonly message: string;
   readonly read: boolean;
+  readonly receivedAt: string;
 }
