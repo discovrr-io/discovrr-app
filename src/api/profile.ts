@@ -39,7 +39,6 @@ export namespace ProfileApi {
       displayName: result.get('displayName') ?? '',
       biography: result.get('biography'),
       avatar: result.get('avatar'),
-      coverPhoto: result.get('coverPhoto'),
       background: result.get('background'),
       backgroundThumbnail: result.get('backgroundThumbnail'),
       // TODO: Compute this through a query instead
@@ -199,7 +198,7 @@ export namespace ProfileApi {
     Pick<Profile, 'displayName' | 'username' | 'biography'>
   > & {
     avatar?: Profile['avatar'] | null;
-    coverPhoto?: Profile['coverPhoto'] | null;
+    background?: Profile['background'] | null;
   };
 
   export type UpdateProfileParams = {

@@ -26,13 +26,11 @@ export interface SharedProfileDetails {
   readonly avatar?: MediaSource | null;
 
   /**
-   * An object representing information about the cover photo of this profile.
+   * An object representing information about the background of this profile.
    *
    * Just like `avatar`, this property may be set to `null` if the user wishes
-   * to remove their current cover photo.
+   * to remove their current background.
    */
-  readonly coverPhoto?: MediaSource | null;
-
   readonly background?: MediaSource | null;
   readonly backgroundThumbnail?: MediaSource | null;
 

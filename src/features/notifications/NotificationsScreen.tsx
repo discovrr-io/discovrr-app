@@ -9,7 +9,9 @@ import {
   View,
 } from 'react-native';
 
+import FastImage from 'react-native-fast-image';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { formatDistance } from 'date-fns';
 import { useFocusEffect } from '@react-navigation/core';
 import { useLinkTo } from '@react-navigation/native';
 
@@ -171,11 +173,26 @@ function NotificationItem(props: NotificationItemProps) {
               constants.font.extraSmall,
               { color: constants.color.gray500 },
             ]}>
-            {new Date(notification.receivedAt).toLocaleString()}
+            {formatDistance(new Date(notification.receivedAt), new Date(), {
+              addSuffix: true,
+              includeSeconds: true,
+            })}
           </Text>
         </View>
-        {/* <Spacer.Horizontal value="md" />
-        <Icon name="close" size={24} color={constants.color.danger} /> */}
+        {notification.imageUrl && (
+          <>
+            <Spacer.Horizontal value="md" />
+            <FastImage
+              source={{ uri: notification.imageUrl }}
+              style={{
+                height: 40,
+                aspectRatio: 1,
+                borderRadius: constants.layout.spacing.md,
+                backgroundColor: constants.color.placeholder,
+              }}
+            />
+          </>
+        )}
         <Spacer.Horizontal value="md" />
         <Icon
           name="chevron-forward"

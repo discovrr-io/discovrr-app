@@ -75,6 +75,12 @@ export default function RootNavigator() {
           receivedAt: new Date().toISOString(),
           type: remoteMessage.data?.type,
           link: remoteMessage.data?.link,
+          imageUrl:
+            // @ts-ignore For some reason on iOS, the value type of the
+            // `fcm_options` record is not a string, but an object (at least in
+            // this situation)
+            remoteMessage.data?.fcm_options?.image ||
+            remoteMessage.notification?.android?.imageUrl,
         }),
       );
 

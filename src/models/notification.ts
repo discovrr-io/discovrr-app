@@ -10,4 +10,5 @@ export default interface Notification {
   readonly receivedAt: string;
   readonly type?: string;
   readonly link?: string;
+  readonly imageUrl?: string;
 }

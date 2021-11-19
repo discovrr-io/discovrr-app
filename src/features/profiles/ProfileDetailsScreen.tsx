@@ -57,7 +57,7 @@ import {
 import { useIsMyProfile, useProfile } from './hooks';
 
 const MaterialTopTab = createMaterialTopTabNavigator();
-const BACKGROUND_COLOR = constants.color.gray100;
+const BACKGROUND_COLOR = constants.color.white;
 
 const HEADER_ANIMATION_DURATION = 200;
 const PLAY_HEADER_VIDEO_FULLSCREEN_EVENT = 'playHeaderVideoFullscreen';
@@ -85,7 +85,7 @@ function useShouldFetchOnFocus() {
 type ProfileDetailsScreenProps = RootStackScreenProps<'ProfileDetails'>;
 
 export default function ProfileDetailsScreen(props: ProfileDetailsScreenProps) {
-  const profileData = useProfile(props.route.params.profileId);
+  const profileData = useProfile(props.route.params.profileId, true);
   const headerHeight = useHeaderHeight();
 
   const renderRouteError = (_error?: any) => (
@@ -129,8 +129,8 @@ export function LoadedProfileDetailsScreen(
   props: LoadedProfileDetailsScreenProps,
 ) {
   const { profile, preferredWindowHeight } = props;
-  const navigation = useNavigation<ProfileDetailsScreenProps['navigation']>();
   const { height: calculatedWindowHeight } = useWindowDimensions();
+  const navigation = useNavigation<ProfileDetailsScreenProps['navigation']>();
 
   const windowHeight = React.useMemo(() => {
     if (preferredWindowHeight) return preferredWindowHeight;
@@ -566,8 +566,8 @@ function ProfileDetailsHeader(props: ProfileDetailsHeaderProps) {
         <FastImage
           resizeMode="cover"
           source={
-            !fallbackToImage && (profile.background || profile.coverPhoto)
-              ? { uri: profile.background?.url || profile.coverPhoto?.url }
+            !fallbackToImage && profile.background
+              ? { uri: profile.background?.url }
               : constants.media.DEFAULT_IMAGE
           }
           style={[profileDetailsHeaderStyles.coverPhoto]}

@@ -74,7 +74,7 @@ export type UseAsyncItemReturn<Item, Status = ApiFetchStatus> = readonly [
 ];
 
 export interface TypedUseAsyncItem<ItemId, Item, Status = ApiFetchStatus> {
-  (itemId: ItemId): UseAsyncItemReturn<Item, Status>;
+  (itemId: ItemId, reload?: boolean): UseAsyncItemReturn<Item, Status>;
 }
 
 type FetchItemAction<AsyncThunkReturned, AsyncThunkArg> = AsyncThunkAction<

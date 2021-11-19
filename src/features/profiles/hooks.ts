@@ -12,16 +12,18 @@ import {
   selectProfileStatusById,
 } from './profiles-slice';
 
-export const useProfile: TypedUseAsyncItem<ProfileId, Profile | undefined> =
-  profileId => {
-    return useAsyncItem(
-      'profile',
-      profileId,
-      fetchProfileById({ profileId }),
-      selectProfileById,
-      selectProfileStatusById,
-    );
-  };
+export const useProfile: TypedUseAsyncItem<ProfileId, Profile | undefined> = (
+  profileId,
+  reload,
+) => {
+  return useAsyncItem(
+    'profile',
+    profileId,
+    fetchProfileById({ profileId, reload }),
+    selectProfileById,
+    selectProfileStatusById,
+  );
+};
 
 export function useMyProfileId(): ProfileId | undefined {
   return useAppSelector(selectCurrentUserProfileId);

@@ -23,7 +23,7 @@ export default function FeedNavigator() {
         tabBarPressColor: color.gray200,
       }}
       sceneContainerStyle={{
-        backgroundColor: color.gray100,
+        backgroundColor: color.white,
       }}>
       <FeedTopTab.Screen
         name="DiscoverFeed"

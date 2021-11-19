@@ -7,6 +7,11 @@
 - Store post IDs from the Discover feed on a separate Redux slice to keep
   posts sorted and to avoid posts jumping around
 
+### Added
+
+- Add ability to change profile background (image only at the moment)
+- Implemented notification screen with basic history and deep linking
+
 ## [v3.0.5] (2021-11-17)
 
 ### Changed

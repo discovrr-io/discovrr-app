@@ -200,8 +200,8 @@ function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
 
       // Then upload the new profile avatar (if it has been changed)
       let processedAvatar: MediaSource | null | undefined = undefined;
+      let processedBackground: MediaSource | null | undefined = undefined;
 
-      // We'll remove the current avatar even if we're uploading a new one
       if (changes.avatar !== undefined) {
         console.log($FUNC, 'Removing current avatar...');
         processedAvatar = null;
@@ -210,23 +210,71 @@ function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
         await auth().currentUser?.updateProfile({ photoURL: null });
 
         // Then delete it from Firebase Cloud Storage
-        const oldProfileAvatarFilename = profile.avatar?.filename;
-        if (oldProfileAvatarFilename) {
-          console.log(
-            $FUNC,
-            'Deleting old profile avatar from Cloud Storage:',
-            oldProfileAvatarFilename,
-          );
-
+        if (profile.avatar) {
           try {
-            const reference = storage().ref(
-              `/avatars/${oldProfileAvatarFilename}`,
-            );
-            await reference.delete();
+            const filePath =
+              profile.avatar.path ||
+              `/profiles/avatars/${profile.avatar.filename}`;
+            if (filePath) {
+              console.log(
+                $FUNC,
+                'Deleting old avatar from Cloud Storage:',
+                filePath,
+              );
+              const reference = storage().ref(filePath);
+              await reference.delete();
+            } else {
+              console.warn($FUNC, 'There is no way to delete the old avatar');
+            }
+          } catch (error) {
+            // We'll just continue on if this fails
+            console.error('Failed to delete old avatar from Firebase:', error);
+
+            try {
+              console.warn(
+                $FUNC,
+                'Resorting to deleting profile avatar from legacy directory...',
+              );
+              const reference = storage().ref(
+                `/avatars/${profile.avatar?.filename}`,
+              );
+              await reference.delete();
+            } catch (error) {
+              // We'll just continue on if this fails
+              console.error(
+                'Failed to delete old avatar from legacy directory:',
+                error,
+              );
+            }
+          }
+        }
+      }
+
+      if (changes.background !== undefined) {
+        console.log($FUNC, 'Removing current background...');
+        processedBackground = null;
+
+        if (profile.background) {
+          try {
+            const filePath = profile.background.path;
+            if (filePath) {
+              console.log(
+                $FUNC,
+                'Deleting old background from Cloud Storage:',
+                filePath,
+              );
+              const reference = storage().ref(filePath);
+              await reference.delete();
+            } else {
+              console.warn(
+                $FUNC,
+                'There is no way to delete the old background',
+              );
+            }
           } catch (error) {
             // We'll just continue on if this fails
             console.error(
-              'Failed to delete old profile image from Firebase:',
+              'Failed to delete old background from Firebase:',
               error,
             );
           }
@@ -294,7 +342,50 @@ function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
           ...source,
           filename,
           url: avatarDownloadURL,
-          path: undefined,
+          path: reference.fullPath,
+        };
+      }
+
+      if (changes.background) {
+        console.log($FUNC, 'Uploading background...');
+        setOverlayContent({
+          message: 'Uploading background…',
+          caption: 'This may take a while',
+          isUploading: true,
+        });
+
+        // Only select these fields - the others are not important
+        const source: MediaSource = {
+          mime: changes.background.mime,
+          url: changes.background.path,
+          size: changes.background.size,
+          width: changes.background.width,
+          height: changes.background.height,
+        };
+
+        const [filename, task, reference] =
+          utilities.createFirebaseUploadFileTask(
+            source,
+            ({ filename, isVideo }) =>
+              `/profiles/backgrounds/${
+                isVideo ? 'videos' : 'images'
+              }/${filename}`,
+          );
+
+        task.on('state_changed', snapshot => {
+          currentUploadProgress.value =
+            snapshot.bytesTransferred / snapshot.totalBytes;
+        });
+
+        await task.then(() => {
+          console.log($FUNC, 'Successfully uploaded background');
+        });
+
+        processedBackground = {
+          ...source,
+          filename,
+          url: await reference.getDownloadURL(),
+          path: reference.fullPath,
         };
       }
 
@@ -329,6 +420,7 @@ function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
         // and the server.
         changes: {
           avatar: processedAvatar,
+          background: processedBackground,
           displayName: processedDisplayName,
           username: processedUsername,
           biography: processedBiography,

@@ -234,9 +234,9 @@ const profilesSlice = createSlice({
 
         // Explicitly set a defined or null value if the avatar was changed
         if (changes.avatar !== undefined) finalChanges.avatar = changes.avatar;
-        // Explicitly set a defined or null value if the cover photo was changed
-        if (changes.coverPhoto !== undefined)
-          finalChanges.coverPhoto = changes.coverPhoto;
+        // Explicitly set a defined or null value if the background was changed
+        if (changes.background !== undefined)
+          finalChanges.background = changes.background;
 
         profilesAdapter.updateOne(state, {
           id: profileId,
