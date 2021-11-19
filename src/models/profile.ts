@@ -14,6 +14,7 @@ export interface SharedProfileDetails {
   readonly email: string;
   readonly username: string;
   readonly displayName: string;
+  readonly biography?: string;
 
   /**
    * An object representing information about the avatar of this profile.
@@ -35,10 +36,11 @@ export interface SharedProfileDetails {
   readonly background?: MediaSource | null;
   readonly backgroundThumbnail?: MediaSource | null;
 
-  readonly biography?: string;
-  readonly followers?: ProfileId[];
-  readonly following?: ProfileId[];
-  readonly blocked?: ProfileId[];
+  readonly followers: ProfileId[];
+  readonly following: ProfileId[];
+  readonly blocked: ProfileId[];
+
+  readonly highestRole: string;
 }
 
 /**

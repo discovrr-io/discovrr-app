@@ -37,15 +37,16 @@ export namespace ProfileApi {
       email: result.get('email') ?? '',
       username: result.get('username') ?? '',
       displayName: result.get('displayName') ?? '',
+      biography: result.get('biography'),
       avatar: result.get('avatar'),
       coverPhoto: result.get('coverPhoto'),
       background: result.get('background'),
       backgroundThumbnail: result.get('backgroundThumbnail'),
-      biography: result.get('biography'),
       // TODO: Compute this through a query instead
       followers: result.get('followersArray') ?? [],
       following: result.get('followingArray') ?? [],
       blocked: result.get('blockedArray') ?? [],
+      highestRole: result.get('highestRole'),
     };
 
     const kind: string | undefined = result.get('kind');

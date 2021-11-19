@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { Alert, Linking, Text, TouchableOpacity, View } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
@@ -23,6 +23,7 @@ import Spacer from './Spacer';
 const AVATAR_DIAMETER = 125;
 const DRAWER_ITEM_ICON_COLOR = constants.color.black;
 const DRAWER_ITEM_TEXT_COLOR = constants.color.black;
+const ROLE_CHIP_HIT_SLOP_INSET = 25;
 
 type AppDrawerItemProps = {
   label: string;
@@ -31,46 +32,130 @@ type AppDrawerItemProps = {
   onPress: () => void;
 };
 
-const AppDrawerItem = ({
-  label,
-  iconName,
-  tintColor,
-  onPress,
-}: AppDrawerItemProps) => (
-  <DrawerItem
-    pressColor={constants.color.gray200}
-    label={() => (
-      <Text
-        numberOfLines={1}
-        style={[
-          constants.font.medium,
-          { color: tintColor ?? DRAWER_ITEM_TEXT_COLOR, marginLeft: -8 },
-        ]}>
-        {label}
-      </Text>
-    )}
-    icon={({ size }) => (
-      <Icon
-        name={iconName}
-        size={size}
-        color={tintColor ?? DRAWER_ITEM_ICON_COLOR}
-        style={{ paddingLeft: constants.layout.spacing.md }}
-      />
-    )}
-    onPress={onPress}
-    // style={{ paddingLeft: constants.layout.spacing.md }}
-  />
-);
+function AppDrawerItem(props: AppDrawerItemProps) {
+  const { label, iconName, tintColor, onPress } = props;
 
-const Divider = () => (
-  <View
-    style={{
-      borderBottomWidth: 1,
-      borderColor: constants.color.gray100,
-      marginVertical: constants.layout.spacing.sm,
-    }}
-  />
-);
+  return (
+    <DrawerItem
+      pressColor={constants.color.gray200}
+      label={() => (
+        <Text
+          numberOfLines={1}
+          style={[
+            constants.font.medium,
+            { color: tintColor ?? DRAWER_ITEM_TEXT_COLOR, marginLeft: -8 },
+          ]}>
+          {label}
+        </Text>
+      )}
+      icon={({ size }) => (
+        <Icon
+          name={iconName}
+          size={size}
+          color={tintColor ?? DRAWER_ITEM_ICON_COLOR}
+          style={{ paddingLeft: constants.layout.spacing.md }}
+        />
+      )}
+      onPress={onPress}
+    />
+  );
+}
+
+function Divider() {
+  return (
+    <View
+      style={{
+        borderBottomWidth: 1,
+        borderColor: constants.color.gray100,
+        marginVertical: constants.layout.spacing.sm,
+      }}
+    />
+  );
+}
+
+function RoleChip(props: { label: string }) {
+  const [chipHeight, setChipHeight] = React.useState(0);
+
+  const chipColor = React.useMemo(() => {
+    switch (props.label) {
+      case 'administrator':
+        return constants.color.red500;
+      case 'moderator':
+        return constants.color.orange500;
+      case 'verified-vendor':
+        return constants.color.teal500;
+      case 'vendor':
+        return constants.color.gray500;
+      case 'banned':
+        return constants.color.red700;
+      default:
+        return constants.color.gray500;
+    }
+  }, [props.label]);
+
+  const humanReadableRoleLabel = React.useMemo(() => {
+    return (props.label === 'vendor' ? 'unverified-vendor' : props.label)
+      .replace('-', ' ')
+      .replace('vendor', 'maker');
+  }, [props.label]);
+
+  const handlePressChip = React.useCallback(() => {
+    let title: string | undefined = undefined;
+    let message: string | undefined = undefined;
+
+    switch (props.label) {
+      case 'administrator':
+        title = "You're an Administrator";
+        message =
+          'You have the highest level of power over the content and users of Discovrr.';
+        break;
+      case 'moderator':
+        title = "You're a Moderator";
+        message =
+          'You have been granted the ability to moderate the content of Discovrr to make it a safe and open place for everyone.';
+        break;
+      case 'verified-vendor':
+        title = "You're a Verified Maker";
+        message = `You may upload as many products as you desire. As a loyal partner, we'll handle the transactions for you.`;
+        break;
+      case 'vendor':
+        title = "You're an Unverified Maker";
+        message = `Your products will remain hidden from the public until you're verified.\n\nTo be verified, start by uploading a new product. We'll let you know of the outcome shortly after.`;
+        break;
+      case 'banned':
+        title = "You've Been Banned";
+        message = `We believe you broke our terms and thus we have removed all privileges from you. Please contact us for more information.`;
+        break;
+    }
+
+    if (title && message) Alert.alert(title, message);
+  }, [props.label]);
+
+  return (
+    <TouchableOpacity
+      activeOpacity={constants.values.DEFAULT_ACTIVE_OPACITY}
+      onLayout={({ nativeEvent }) => setChipHeight(nativeEvent.layout.height)}
+      onPress={handlePressChip}
+      hitSlop={{
+        top: ROLE_CHIP_HIT_SLOP_INSET,
+        bottom: ROLE_CHIP_HIT_SLOP_INSET,
+        left: ROLE_CHIP_HIT_SLOP_INSET,
+        right: ROLE_CHIP_HIT_SLOP_INSET,
+      }}
+      style={{
+        paddingVertical: constants.layout.spacing.xs,
+        paddingHorizontal: constants.layout.spacing.md,
+        backgroundColor: chipColor + '44', // alpha channel
+        borderWidth: 1,
+        borderColor: chipColor,
+        borderRadius: chipHeight / 2,
+      }}>
+      <Text style={[constants.font.smallBold, { color: chipColor }]}>
+        {humanReadableRoleLabel}
+      </Text>
+    </TouchableOpacity>
+  );
+}
 
 type AppDrawerProps = DrawerContentComponentProps;
 
@@ -208,6 +293,12 @@ function AppDrawer(props: AppDrawerProps & { profileId: ProfileId }) {
               ]}>
               @{profile?.username || 'anonymous'}
             </Text>
+            {profile?.highestRole && profile.highestRole !== 'user' && (
+              <>
+                <Spacer.Vertical value="md" />
+                <RoleChip label={profile.highestRole} />
+              </>
+            )}
           </View>
         </TouchableOpacity>
       </View>

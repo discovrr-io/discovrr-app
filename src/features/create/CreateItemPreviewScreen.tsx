@@ -109,11 +109,18 @@ export default function CreateItemPreviewScreen(
   const isMounted = useIsMounted();
 
   const myProfileId = useMyProfileId();
-  const myProfileDetails: Pick<Profile, 'displayName' | 'avatar'> =
-    useAppSelector(state => {
-      if (!myProfileId) return { displayName: 'My Name' };
-      return state.profiles.entities[myProfileId] ?? { displayName: 'My Name' };
-    });
+  const myProfileDetails: Pick<
+    Profile,
+    'displayName' | 'avatar' | 'highestRole'
+  > = useAppSelector(state => {
+    if (!myProfileId) return { displayName: 'My Name', highestRole: 'user' };
+    return (
+      state.profiles.entities[myProfileId] ?? {
+        displayName: 'My Name',
+        highestRole: 'user',
+      }
+    );
+  });
 
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [overlayContent, setOverlayContent] = React.useState<{
@@ -535,12 +542,13 @@ export default function CreateItemPreviewScreen(
           paddingVertical: constants.layout.spacing.lg,
           paddingHorizontal: constants.layout.spacing.lg,
         }}>
-        {previewContent.type !== 'post' && (
-          <Banner
-            title="You're not a verified vendor yet"
-            caption="Your product won't be visible to anyone until we verify you. To be verified, start by posting this product. We'll let you know when you're verified."
-          />
-        )}
+        {previewContent.type !== 'post' &&
+          myProfileDetails.highestRole !== 'verified-vendor' && (
+            <Banner
+              title="You're not a verified vendor yet"
+              caption="Your product won't be visible to anyone until we verify you. To be verified, start by posting this product. We'll let you know shortly of the outcome."
+            />
+          )}
         <View
           style={{
             flexGrow: 1,
