@@ -73,6 +73,7 @@ export default function RootNavigator() {
           title: alertTitle,
           message: alertMessage,
           receivedAt: new Date().toISOString(),
+          type: remoteMessage.data?.type,
           link: remoteMessage.data?.link,
         }),
       );

@@ -65,8 +65,8 @@ import {
 const MAX_INPUT_LENGTH = 30;
 const MAX_BUSINESS_NAME_LENGTH = MAX_INPUT_LENGTH * 2;
 const MAX_BIO_LENGTH = 140;
-const AVATAR_DIAMETER = 90;
-const AVATAR_BOTTOM_OFFSET_DIVISOR = 2.9;
+const AVATAR_DIAMETER = 100;
+const AVATAR_BOTTOM_OFFSET_DIVISOR = 3.2;
 
 const IMAGE_COMPRESSION_QUALITY = 0.7;
 const AVATAR_COMPRESSION_MAX_WIDTH = media.DEFAULT_AVATAR_DIMENSIONS.width;
@@ -487,15 +487,8 @@ function ProfileSettingsFormikForm() {
         label="My Details"
         elementOptions={{
           containerSpacingHorizontal: layout.spacing.md * 1.25,
-          labelStyle:
-            currentProfileKind === 'vendor'
-              ? {
-                  fontSize: font.size.sm,
-                }
-              : undefined,
         }}>
-        <Cell.InputGroup
-          labelFlex={currentProfileKind === 'vendor' ? 1.45 : 1.1}>
+        <Cell.InputGroup labelFlex={1.1}>
           <Cell.Input
             label="Name"
             autoCapitalize="words"
@@ -507,7 +500,7 @@ function ProfileSettingsFormikForm() {
           />
           {currentProfileKind === 'vendor' && (
             <Cell.Input
-              label="Business Name"
+              label="Business"
               placeholder="Enter your business name"
               value={values.businessName}
               onChangeText={handleChange('businessName')}

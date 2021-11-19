@@ -11,14 +11,15 @@ import {
 
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useFocusEffect } from '@react-navigation/core';
+import { useLinkTo } from '@react-navigation/native';
 
 import * as constants from 'src/constants';
 import * as notificationsSlice from './notifications-slice';
 import FeedFooter from 'src/features/feed/FeedFooter';
 import { Button, EmptyContainer, Spacer } from 'src/components';
+import { useAppDispatch, useAppSelector } from 'src/hooks';
 import { Notification } from 'src/models';
 import { FacadeBottomTabScreenProps } from 'src/navigation';
-import { useAppDispatch, useAppSelector } from 'src/hooks';
 
 type NotificationsScreenProps = FacadeBottomTabScreenProps<'Notifications'>;
 
@@ -54,10 +55,11 @@ export default function NotificationsScreen(props: NotificationsScreenProps) {
             paddingHorizontal: 0,
             marginRight: constants.layout.defaultScreenMargins.horizontal,
           }}
+          onPress={() => dispatch(notificationsSlice.clearAllNotifications())}
         />
       ),
     });
-  }, [props.navigation]);
+  }, [dispatch, props.navigation]);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -103,6 +105,30 @@ type NotificationItemProps = {
 
 function NotificationItem(props: NotificationItemProps) {
   const { notification } = props;
+
+  const dispatch = useAppDispatch();
+  const linkTo = useLinkTo();
+
+  const iconName = React.useMemo(() => {
+    switch (notification.type) {
+      case 'post:like':
+      case 'vendor:like':
+      case 'product:like':
+        return 'heart';
+      case 'post:comment':
+        return 'chatbubble';
+      case 'profile:follow':
+        return 'person-add';
+      default:
+        return 'notifications';
+    }
+  }, [notification.type]);
+
+  const handlePressNotification = () => {
+    dispatch(notificationsSlice.markNotificationAsRead(notification.id));
+    if (notification.link) linkTo(notification.link);
+  };
+
   return (
     <TouchableHighlight
       underlayColor={
@@ -110,7 +136,7 @@ function NotificationItem(props: NotificationItemProps) {
           ? constants.color.teal500 + '40'
           : constants.color.gray500
       }
-      onPress={() => {}}>
+      onPress={handlePressNotification}>
       <View
         style={[
           {
@@ -124,7 +150,7 @@ function NotificationItem(props: NotificationItemProps) {
           },
         ]}>
         <Icon
-          name="heart"
+          name={iconName + '-outline'}
           size={24}
           style={{ width: 24 }}
           color={constants.color.defaultDarkTextColor}
@@ -138,9 +164,18 @@ function NotificationItem(props: NotificationItemProps) {
           <Text numberOfLines={2} style={[constants.font.small]}>
             {notification.message}
           </Text>
+          <Spacer.Vertical value="xs" />
+          <Text
+            numberOfLines={1}
+            style={[
+              constants.font.extraSmall,
+              { color: constants.color.gray500 },
+            ]}>
+            {new Date(notification.receivedAt).toLocaleString()}
+          </Text>
         </View>
-        <Spacer.Horizontal value="md" />
-        <Icon name="close" size={24} color={constants.color.danger} />
+        {/* <Spacer.Horizontal value="md" />
+        <Icon name="close" size={24} color={constants.color.danger} /> */}
         <Spacer.Horizontal value="md" />
         <Icon
           name="chevron-forward"

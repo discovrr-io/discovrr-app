@@ -9,7 +9,7 @@ import {
 import { NotificationApi } from 'src/api';
 import { abortSignOut, signOut } from 'src/features/authentication/auth-slice';
 import { resetAppState } from 'src/global-actions';
-import { Notification } from 'src/models';
+import { Notification, NotificationId } from 'src/models';
 import { RootState } from 'src/store';
 
 //#region Notifications Async Thunks
@@ -47,11 +47,20 @@ const notificationsSlice = createSlice({
     ) => {
       notificationsAdapter.addOne(state, { ...action.payload, read: false });
     },
+    markNotificationAsRead: (state, action: PayloadAction<NotificationId>) => {
+      notificationsAdapter.updateOne(state, {
+        id: action.payload,
+        changes: { read: true },
+      });
+    },
     markAllNotificationsAsRead: state => {
       notificationsAdapter.updateMany(
         state,
         state.ids.map(id => ({ id, changes: { read: true } })),
       );
+    },
+    clearAllNotifications: state => {
+      notificationsAdapter.removeAll(state);
     },
   },
   extraReducers: builder => {
@@ -79,8 +88,12 @@ const notificationsSlice = createSlice({
   },
 });
 
-export const { didReceiveNotification, markAllNotificationsAsRead } =
-  notificationsSlice.actions;
+export const {
+  didReceiveNotification,
+  markNotificationAsRead,
+  markAllNotificationsAsRead,
+  clearAllNotifications,
+} = notificationsSlice.actions;
 
 export const {
   selectAll: selectAllNotifications,

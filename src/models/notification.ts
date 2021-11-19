@@ -8,4 +8,6 @@ export default interface Notification {
   readonly message: string;
   readonly read: boolean;
   readonly receivedAt: string;
+  readonly type?: string;
+  readonly link?: string;
 }

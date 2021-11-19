@@ -1,7 +1,9 @@
 import * as React from 'react';
+import { Linking } from 'react-native';
 
 import analytics from '@react-native-firebase/analytics';
 import inAppMessaging from '@react-native-firebase/in-app-messaging';
+import messaging from '@react-native-firebase/messaging';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import codePush, { CodePushOptions } from 'react-native-code-push';
@@ -15,13 +17,13 @@ import { persistStore } from 'redux-persist';
 import { PortalProvider } from '@gorhom/portal';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { useFlipper } from '@react-navigation/devtools';
 import {
   DefaultTheme,
   NavigationContainer,
   NavigationContainerRef,
   Theme,
 } from '@react-navigation/native';
-import { useFlipper } from '@react-navigation/devtools';
 
 import * as constants from './constants';
 import store from './store';
@@ -31,7 +33,6 @@ import { resetAppState } from './global-actions';
 
 import AuthGate from './features/authentication/AuthGate';
 import { signOut } from './features/authentication/auth-slice';
-import { StatusBar } from 'react-native';
 
 // Redeclare forwardRef to allow generics
 declare module 'react' {
@@ -197,13 +198,37 @@ function PersistedApp() {
               RouteError: '*',
             },
           },
+          getInitialURL: async () => {
+            // Check if app was opened from a deep link
+            const url = await Linking.getInitialURL();
+
+            if (url != null) return url;
+
+            // Check if there is an initial Firebase notification
+            const message = await messaging().getInitialNotification();
+
+            // Get deep link from notification's data
+            // If this is undefined, the app will open the default/home page
+            return message?.data?.link;
+          },
+          subscribe: listener => {
+            const onReceiveURL = ({ url }: { url: string }) => listener(url);
+
+            // Listen to incoming links from deep linking
+            Linking.addEventListener('url', onReceiveURL);
+
+            // Listen to Firebase push notifications
+            const unsubscribe = messaging().onNotificationOpenedApp(message => {
+              const url = message?.data?.link;
+              if (url) listener(url);
+            });
+
+            return () => {
+              Linking.removeEventListener('url', onReceiveURL);
+              unsubscribe();
+            };
+          },
         }}>
-        <StatusBar
-          animated
-          translucent
-          barStyle="dark-content"
-          backgroundColor="transparent"
-        />
         <AuthGate />
       </NavigationContainer>
     </PersistGate>
