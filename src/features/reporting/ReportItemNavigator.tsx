@@ -1,4 +1,5 @@
 import React from 'react';
+import { Platform } from 'react-native';
 
 import {
   CardStyleInterpolators,
@@ -15,7 +16,6 @@ import {
   ReportItemStackParamList,
   RootStackNavigationProp,
 } from 'src/navigation';
-import { Platform } from 'react-native';
 
 const ReportItemStack = createStackNavigator<ReportItemStackParamList>();
 

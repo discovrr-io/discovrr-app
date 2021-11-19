@@ -1,9 +1,11 @@
 import React from 'react';
 import { SafeAreaView, Text, View } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
-import { Button, Spacer } from 'src/components';
 
+import Icon from 'react-native-vector-icons/Ionicons';
+
+import { Button, Spacer } from 'src/components';
 import { color, font, layout } from 'src/constants';
+
 import {
   ReportItemStackScreenParams,
   RootStackNavigationProp,

@@ -1,8 +1,9 @@
-import React from 'react';
-import { Platform, useWindowDimensions } from 'react-native';
+import * as React from 'react';
+import { Platform, StatusBar, useWindowDimensions } from 'react-native';
 
 import Icon from 'react-native-vector-icons/Ionicons';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import { useFocusEffect } from '@react-navigation/core';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
@@ -135,6 +136,14 @@ function CreateItemDetailsNavigator() {
 }
 
 export default function CreateItemNavigator() {
+  useFocusEffect(
+    React.useCallback(() => {
+      if (Platform.OS !== 'ios') return;
+      StatusBar.setBarStyle('light-content', true);
+      return () => StatusBar.setBarStyle('dark-content', true);
+    }, []),
+  );
+
   return (
     <CreateItemStack.Navigator
       initialRouteName="CreateItemDetails"

@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useState } from 'react';
+import * as React from 'react';
 import { SafeAreaView, Text, View } from 'react-native';
 import { Button, Cell, Spacer } from 'src/components';
 
@@ -12,9 +12,9 @@ export default function ReportItemReasonScreen(
   props: ReportItemReasonScreenProps,
 ) {
   const contentType = props.route.params.type;
-  const [selection, setSelection] = useState('');
+  const [selection, setSelection] = React.useState('');
 
-  useLayoutEffect(() => {
+  React.useLayoutEffect(() => {
     props.navigation.setOptions({
       headerRight: () => (
         <Button

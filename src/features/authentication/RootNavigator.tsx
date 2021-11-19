@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Platform } from 'react-native';
+import { Platform, StatusBar } from 'react-native';
 
 import codePush from 'react-native-code-push';
 import messaging from '@react-native-firebase/messaging';
@@ -73,6 +73,7 @@ export default function RootNavigator() {
           title: alertTitle,
           message: alertMessage,
           receivedAt: new Date().toISOString(),
+          link: remoteMessage.data?.link,
         }),
       );
 
@@ -133,68 +134,76 @@ export default function RootNavigator() {
   }, [dispatch, didRegisterFCMToken, sessionId]);
 
   return (
-    <RootStack.Navigator
-      initialRouteName="Main"
-      screenOptions={{
-        headerTintColor: constants.color.black,
-        headerBackTitleVisible: false,
-        headerTitleStyle: constants.font.defaultHeaderTitleStyle,
-        headerLeft: props => <HeaderIcon.Back {...props} />,
-        headerStyleInterpolator: Platform.select({
-          ios: HeaderStyleInterpolators.forUIKit,
-        }),
-      }}>
-      {/* -- Header-less Navigators -- */}
-      <RootStack.Group screenOptions={{ headerShown: false }}>
-        <RootStack.Screen name="Main" component={MainNavigator} />
+    <>
+      <StatusBar
+        animated
+        translucent
+        barStyle="dark-content"
+        backgroundColor="transparent"
+      />
+      <RootStack.Navigator
+        initialRouteName="Main"
+        screenOptions={{
+          headerTintColor: constants.color.black,
+          headerBackTitleVisible: false,
+          headerTitleStyle: constants.font.defaultHeaderTitleStyle,
+          headerLeft: props => <HeaderIcon.Back {...props} />,
+          headerStyleInterpolator: Platform.select({
+            ios: HeaderStyleInterpolators.forUIKit,
+          }),
+        }}>
+        {/* -- Header-less Navigators -- */}
+        <RootStack.Group screenOptions={{ headerShown: false }}>
+          <RootStack.Screen name="Main" component={MainNavigator} />
+          <RootStack.Screen
+            name="Create"
+            component={CreateItemNavigator}
+            options={{ presentation: 'modal' }}
+          />
+        </RootStack.Group>
+
+        {/* -- Item Navigators -- */}
+        {renderPostNavigator()}
+        {renderProfileNavigator()}
+        {renderProductNavigator()}
+
+        {/* -- Drawer Navigators -- */}
+        <RootStack.Screen name="Notifications" component={PlaceholderScreen} />
         <RootStack.Screen
-          name="Create"
-          component={CreateItemNavigator}
-          options={{ presentation: 'modal' }}
+          name="MyShopping"
+          component={PlaceholderScreen}
+          options={{ title: 'My Shopping' }}
         />
-      </RootStack.Group>
+        <RootStack.Screen name="Saved" component={PlaceholderScreen} />
+        {renderSettingsNavigator()}
 
-      {/* -- Item Navigators -- */}
-      {renderPostNavigator()}
-      {renderProfileNavigator()}
-      {renderProductNavigator()}
-
-      {/* -- Drawer Navigators -- */}
-      <RootStack.Screen name="Notifications" component={PlaceholderScreen} />
-      <RootStack.Screen
-        name="MyShopping"
-        component={PlaceholderScreen}
-        options={{ title: 'My Shopping' }}
-      />
-      <RootStack.Screen name="Saved" component={PlaceholderScreen} />
-      {renderSettingsNavigator()}
-
-      {/* -- Miscellaneous -- */}
-      <RootStack.Screen
-        name="ReportItem"
-        component={ReportItemNavigator}
-        options={{ headerShown: false, presentation: 'modal' }}
-      />
-      <RootStack.Screen
-        name="InAppWebView"
-        component={InAppWebViewScreen}
-        options={({ route }) => {
-          const { title, presentation } = route.params;
-          return {
-            title,
-            presentation,
-            headerLeft:
-              presentation === 'modal' || presentation === 'transparentModal'
-                ? HeaderIcon.Close
-                : HeaderIcon.Back,
-          };
-        }}
-      />
-      <RootStack.Screen
-        name="RouteError"
-        component={RouteError}
-        options={{ title: 'Error' }}
-      />
-    </RootStack.Navigator>
+        {/* -- Miscellaneous -- */}
+        <RootStack.Screen
+          name="ReportItem"
+          component={ReportItemNavigator}
+          options={{ headerShown: false, presentation: 'modal' }}
+        />
+        <RootStack.Screen
+          name="InAppWebView"
+          component={InAppWebViewScreen}
+          options={({ route }) => {
+            const { title, presentation } = route.params;
+            return {
+              title,
+              presentation,
+              headerLeft:
+                presentation === 'modal' || presentation === 'transparentModal'
+                  ? HeaderIcon.Close
+                  : HeaderIcon.Back,
+            };
+          }}
+        />
+        <RootStack.Screen
+          name="RouteError"
+          component={RouteError}
+          options={{ title: 'Error' }}
+        />
+      </RootStack.Navigator>
+    </>
   );
 }

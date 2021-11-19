@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react';
-import { Alert, StatusBar } from 'react-native';
+import { Alert } from 'react-native';
 
 import analytics from '@react-native-firebase/analytics';
 import crashlytics from '@react-native-firebase/crashlytics';
 import inAppMessaging from '@react-native-firebase/in-app-messaging';
 import { createStackNavigator } from '@react-navigation/stack';
 
-import { LoadingOverlay } from 'src/components';
+import { HeaderIcon, LoadingOverlay } from 'src/components';
 import { color, font } from 'src/constants';
 import { fetchProfileById } from 'src/features/profiles/profiles-slice';
 import { useAppDispatch, useAppSelector } from 'src/hooks';
@@ -28,6 +28,7 @@ function AuthNavigator() {
         headerTintColor: color.black,
         headerBackTitleVisible: false,
         headerTitleStyle: font.defaultHeaderTitleStyle,
+        headerLeft: props => <HeaderIcon.Back {...props} />,
       }}>
       <AuthStack.Screen
         name="Auth"
@@ -124,13 +125,7 @@ export default function AuthGate() {
 
   return isAuthenticated ? (
     <>
-      <StatusBar
-        animated
-        translucent
-        barStyle="dark-content"
-        backgroundColor="transparent"
-      />
-      {status === 'signing-out' && (
+      {status === 'signing-out' && !!user && (
         <LoadingOverlay message="Signing you out.." />
       )}
       <RootNavigator />
