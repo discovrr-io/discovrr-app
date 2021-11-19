@@ -7,7 +7,6 @@ import {
   StatusBar,
   StyleSheet,
   Text,
-  ToastAndroid,
   TouchableOpacity,
   useWindowDimensions,
   View,
@@ -16,7 +15,6 @@ import {
 import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import FastImage from 'react-native-fast-image';
 import Icon from 'react-native-vector-icons/Ionicons';
-// import LinearGradient from 'react-native-linear-gradient';
 import Video from 'react-native-video';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
@@ -265,17 +263,6 @@ export function LoadedProfileDetailsScreen(
         edges={['bottom', 'left', 'right']}
         style={{ flex: 1, backgroundColor: constants.color.absoluteWhite }}>
         <ProfileDetailsHeader preferredWindowHeight={windowHeight} />
-        {/* <LinearGradient
-          colors={[
-            constants.color.absoluteBlack + 'A0', // alpha channel
-            constants.color.absoluteBlack + '00', // alpha channel
-          ]}
-          style={{
-            position: 'absolute',
-            width: '100%',
-            height: headerHeight * 1.25,
-          }}
-        /> */}
         {/* TODO: Don't render this when the bottom sheet is open */}
         <View
           style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
@@ -450,10 +437,9 @@ function ProfileDetailsHeader(props: ProfileDetailsHeaderProps) {
       () => {
         // FIXME: This doesn't work on Android
         if (Platform.OS === 'android') {
-          ToastAndroid.show(
-            "This feature isn't available for Android yet",
-            ToastAndroid.LONG,
-          );
+          utilities.alertUnavailableFeature({
+            message: "This feature isn't available for Android yet",
+          });
           return;
         }
 

@@ -10,9 +10,13 @@ export function alertSomethingWentWrong(message?: string) {
 }
 
 export function alertUnavailableFeature(
-  options: strings.AlertMessage = strings.FEATURE_UNAVAILABLE,
+  options?: Partial<strings.AlertMessage>,
 ) {
-  Alert.alert(options.title, options.message);
+  const {
+    title = strings.FEATURE_UNAVAILABLE.title,
+    message = strings.FEATURE_UNAVAILABLE.message,
+  } = options ?? {};
+  Alert.alert(title, message);
 }
 
 export function constructAlertFromImageCropPickerError(error: any): {

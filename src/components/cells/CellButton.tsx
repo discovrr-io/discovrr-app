@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { StyleSheet, Text, TouchableHighlight, View } from 'react-native';
 
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -16,12 +16,23 @@ export type CellButtonProps = CellElementProps & {
   iconName?: string;
   suffixIconName?: string;
   previewValue?: string;
+  destructive?: boolean;
   onPress?: () => void | Promise<void>;
 };
 
 export default function CellButton(props: CellButtonProps) {
   const cellElementOptions = useCellElementContext(props.elementOptions);
   const isDisabled = cellElementOptions.disabled;
+
+  const labelTextColor = useMemo(() => {
+    if (isDisabled) {
+      return props.destructive
+        ? color.dangerDisabled
+        : color.disabledDarkTextColor;
+    } else {
+      return props.destructive ? color.danger : color.defaultDarkTextColor;
+    }
+  }, [isDisabled, props.destructive]);
 
   return (
     <TouchableHighlight
@@ -34,11 +45,7 @@ export default function CellButton(props: CellButtonProps) {
             <Icon
               name={props.iconName}
               size={cellElementOptions.iconSize}
-              color={
-                isDisabled
-                  ? color.disabledDarkTextColor
-                  : color.defaultDarkTextColor
-              }
+              color={labelTextColor}
             />
             <Spacer.Horizontal value={cellElementOptions.itemSpacing} />
           </>
@@ -49,7 +56,7 @@ export default function CellButton(props: CellButtonProps) {
             style={[
               defaultCellElementOptions.labelStyle,
               cellElementOptions.labelStyle,
-              isDisabled && { color: color.disabledDarkTextColor },
+              { color: labelTextColor },
             ]}>
             {props.label}
           </Text>
@@ -90,11 +97,7 @@ export default function CellButton(props: CellButtonProps) {
             <Icon
               name={props.suffixIconName}
               size={cellElementOptions.iconSize}
-              color={
-                isDisabled
-                  ? color.disabledDarkTextColor
-                  : color.defaultDarkTextColor
-              }
+              color={labelTextColor}
             />
           </>
         )}

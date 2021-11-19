@@ -5,10 +5,12 @@ import {
   Keyboard,
   SafeAreaView,
   ScrollView,
+  StyleProp,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
+  ViewStyle,
 } from 'react-native';
 
 import auth from '@react-native-firebase/auth';
@@ -16,11 +18,16 @@ import storage from '@react-native-firebase/storage';
 
 import * as yup from 'yup';
 import BottomSheet from '@gorhom/bottom-sheet';
-import FastImage, { FastImageProps } from 'react-native-fast-image';
-import ImageCropPicker, { Image } from 'react-native-image-crop-picker';
+import FastImage, { FastImageProps, ImageStyle } from 'react-native-fast-image';
+import Video, { VideoProperties } from 'react-native-video';
 import { Formik, useField, useFormikContext } from 'formik';
 import { useNavigation } from '@react-navigation/core';
 import { useSharedValue } from 'react-native-reanimated';
+
+import ImageCropPicker, {
+  Image,
+  ImageOrVideo,
+} from 'react-native-image-crop-picker';
 
 import * as utilities from 'src/utilities';
 import * as globalSelectors from 'src/global-selectors';
@@ -31,7 +38,7 @@ import { Profile, ProfileId } from 'src/models';
 import { RootStackScreenProps } from 'src/navigation';
 
 import { color, font, layout, media } from 'src/constants';
-import { DEFAULT_AVATAR } from 'src/constants/media';
+import { DEFAULT_AVATAR, DEFAULT_IMAGE } from 'src/constants/media';
 import { DEFAULT_ACTIVE_OPACITY } from 'src/constants/values';
 import { CELL_GROUP_VERTICAL_SPACING } from 'src/components/cells/CellGroup';
 
@@ -40,6 +47,7 @@ import {
   ActionBottomSheetItem,
   AsyncGate,
   Button,
+  Card,
   Cell,
   LoadingContainer,
   LoadingOverlay,
@@ -55,16 +63,20 @@ import {
 } from 'src/hooks';
 
 const MAX_INPUT_LENGTH = 30;
-// const MAX_BUSINESS_NAME_LENGTH = MAX_INPUT_LENGTH * 2;
+const MAX_BUSINESS_NAME_LENGTH = MAX_INPUT_LENGTH * 2;
 const MAX_BIO_LENGTH = 140;
-const AVATAR_DIAMETER = 140;
+const AVATAR_DIAMETER = 90;
+const AVATAR_BOTTOM_OFFSET_DIVISOR = 2.9;
 
 const IMAGE_COMPRESSION_QUALITY = 0.7;
-const IMAGE_COMPRESSION_MAX_WIDTH = media.DEFAULT_AVATAR_DIMENSIONS.width;
-const IMAGE_COMPRESSION_MAX_HEIGHT = media.DEFAULT_AVATAR_DIMENSIONS.height;
+const AVATAR_COMPRESSION_MAX_WIDTH = media.DEFAULT_AVATAR_DIMENSIONS.width;
+const AVATAR_COMPRESSION_MAX_HEIGHT = media.DEFAULT_AVATAR_DIMENSIONS.height;
+const BACKGROUND_COMPRESSION_MAX_WIDTH = 400;
+const BACKGROUND_COMPRESSION_MAX_HEIGHT = 500;
 
 const profileChangesSchema = yup.object({
   avatar: yup.object().nullable().notRequired(),
+  background: yup.object().nullable().notRequired(),
   displayName: yup
     .string()
     .trim()
@@ -74,14 +86,14 @@ const profileChangesSchema = yup.object({
       MAX_INPUT_LENGTH,
       `Your display name should be no longer than ${MAX_INPUT_LENGTH} characters`,
     ),
-  // businessName: yup
-  //   .string()
-  //   .trim()
-  //   .min(3, 'Your business name should have at least 3 characters')
-  //   .max(
-  //     MAX_BUSINESS_NAME_LENGTH,
-  //     `Your business name should be no longer than ${MAX_BUSINESS_NAME_LENGTH} characters`,
-  //   ),
+  businessName: yup
+    .string()
+    .trim()
+    .min(3, 'Your business name should have at least 3 characters')
+    .max(
+      MAX_BUSINESS_NAME_LENGTH,
+      `Your business name should be no longer than ${MAX_BUSINESS_NAME_LENGTH} characters`,
+    ),
   username: yup
     .string()
     .trim()
@@ -106,7 +118,7 @@ const profileChangesSchema = yup.object({
 
 type ProfileChangesForm = Omit<
   yup.InferType<typeof profileChangesSchema>,
-  'avatar'
+  'avatar' | 'background'
 > & {
   /**
    * If set to `undefined`, the user has NOT changed their current avatar (and
@@ -114,6 +126,7 @@ type ProfileChangesForm = Omit<
    * to remove the current avatar.
    */
   avatar?: Image | null;
+  background?: ImageOrVideo | null;
 };
 
 function ProfileNotFoundRouteError() {
@@ -349,11 +362,12 @@ function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
           <Formik<ProfileChangesForm>
             initialValues={{
               avatar: undefined,
+              background: undefined,
               displayName: profile.displayName,
-              // businessName:
-              //   profile.kind === 'vendor'
-              //     ? profile.businessName
-              //     : profile.displayName,
+              businessName:
+                profile.kind === 'vendor'
+                  ? profile.businessName
+                  : profile.displayName,
               username: profile.username,
               biography: profile.biography,
             }}
@@ -456,18 +470,32 @@ function ProfileSettingsFormikForm() {
   return (
     <>
       <View style={{ alignItems: 'center' }}>
-        <ProfileAvatarPicker />
+        <ProfileBackgroundPicker />
+        <ProfileAvatarPicker
+          containerStyle={[
+            {
+              position: 'absolute',
+              bottom: -(AVATAR_DIAMETER / AVATAR_BOTTOM_OFFSET_DIVISOR),
+              left: layout.spacing.lg,
+            },
+          ]}
+        />
       </View>
+      <Spacer.Vertical value={AVATAR_DIAMETER / AVATAR_BOTTOM_OFFSET_DIVISOR} />
       <Spacer.Vertical value={CELL_GROUP_VERTICAL_SPACING * 2} />
       <Cell.Group
         label="My Details"
         elementOptions={{
           containerSpacingHorizontal: layout.spacing.md * 1.25,
-          labelStyle: {
-            fontSize: font.size.sm,
-          },
+          labelStyle:
+            currentProfileKind === 'vendor'
+              ? {
+                  fontSize: font.size.sm,
+                }
+              : undefined,
         }}>
-        <Cell.InputGroup labelFlex={1.45}>
+        <Cell.InputGroup
+          labelFlex={currentProfileKind === 'vendor' ? 1.45 : 1.1}>
           <Cell.Input
             label="Name"
             autoCapitalize="words"
@@ -477,7 +505,7 @@ function ProfileSettingsFormikForm() {
             onBlur={handleBlur('displayName')}
             error={errors.displayName}
           />
-          {/* {currentProfileKind === 'vendor' && (
+          {currentProfileKind === 'vendor' && (
             <Cell.Input
               label="Business Name"
               placeholder="Enter your business name"
@@ -486,7 +514,7 @@ function ProfileSettingsFormikForm() {
               onBlur={handleBlur('businessName')}
               error={errors.businessName}
             />
-          )} */}
+          )}
           <Cell.Input
             label="Username"
             autoCapitalize="none"
@@ -545,6 +573,7 @@ function ProfileSettingsFormikForm() {
       <Spacer.Vertical value={CELL_GROUP_VERTICAL_SPACING} />
       <Cell.Group label="Danger Zone" elementOptions={{ disabled: true }}>
         <Cell.Navigator
+          destructive
           label="Deactivate my account"
           iconName="person-remove-outline"
         />
@@ -553,9 +582,202 @@ function ProfileSettingsFormikForm() {
   );
 }
 
-function ProfileAvatarPicker() {
+type ProfileBackgroundPickerSource =
+  | { type: 'image'; source: FastImageProps['source'] }
+  | { type: 'video'; source: VideoProperties['source'] };
+
+function ProfileBackgroundPicker() {
+  const { currentProfile } = React.useContext(ProfileSettingsFormContext);
+  const [_, meta, helpers] =
+    useField<ProfileChangesForm['background']>('background');
+
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  const backgroundSource: ProfileBackgroundPickerSource = React.useMemo(() => {
+    if (meta.value === undefined) {
+      return currentProfile.background?.url
+        ? {
+            type: currentProfile.background.mime.includes('video')
+              ? 'video'
+              : 'image',
+            source: { uri: currentProfile.background.url },
+          }
+        : { type: 'image', source: DEFAULT_IMAGE };
+    } else {
+      return meta.value
+        ? {
+            type: meta.value.mime.includes('video') ? 'video' : 'image',
+            source: { uri: meta.value.path },
+          }
+        : { type: 'image', source: DEFAULT_IMAGE };
+    }
+  }, [meta.value, currentProfile.background]);
+
+  const actionBottomSheetRef = React.useRef<BottomSheet>(null);
+  const actionBottomSheetItems = React.useMemo(() => {
+    return [
+      {
+        id: 'remove',
+        label: `Remove Current ${
+          backgroundSource.type === 'video' ? 'Video' : 'Photo'
+        }`,
+        iconName: 'trash-outline',
+        disabled: !currentProfile.background && !meta.value,
+      },
+      { id: 'camera-photo', label: 'Take a Photo', iconName: 'camera-outline' },
+      {
+        id: 'camera-video',
+        label: 'Take a Video',
+        iconName: 'videocam-outline',
+      },
+      {
+        id: 'library',
+        label: 'Select from Photo Library',
+        iconName: 'albums-outline',
+      },
+    ] as ActionBottomSheetItem[];
+  }, [meta.value, currentProfile.background, backgroundSource.type]);
+
+  const handlePressBackground = () => {
+    Keyboard.dismiss();
+    actionBottomSheetRef.current?.expand();
+  };
+
+  const handleSelectActionItem = async (selectedItemId: string) => {
+    const handleTakePhoto = async () => {
+      try {
+        const image = await ImageCropPicker.openCamera({
+          mediaType: 'photo',
+          cropping: true,
+          forceJpg: true,
+          width: BACKGROUND_COMPRESSION_MAX_WIDTH,
+          height: BACKGROUND_COMPRESSION_MAX_HEIGHT,
+          compressImageQuality: IMAGE_COMPRESSION_QUALITY,
+          compressImageMaxWidth: BACKGROUND_COMPRESSION_MAX_WIDTH,
+          compressImageMaxHeight: BACKGROUND_COMPRESSION_MAX_HEIGHT,
+        });
+
+        helpers.setValue(image);
+      } catch (error: any) {
+        utilities.alertImageCropPickerError(error);
+      }
+    };
+
+    const handleRecordVideo = async () => {
+      try {
+        utilities.alertUnavailableFeature();
+        // await ImageCropPicker.openCamera({
+        //   mediaType: 'video',
+        // });
+      } catch (error: any) {
+        utilities.alertImageCropPickerError(error);
+      }
+    };
+
+    const handleSelectFromPhotoLibrary = async () => {
+      try {
+        const image = await ImageCropPicker.openPicker({
+          mediaType: 'any',
+          // cropping: true,
+          forceJpg: true,
+          width: BACKGROUND_COMPRESSION_MAX_WIDTH,
+          height: BACKGROUND_COMPRESSION_MAX_HEIGHT,
+          compressImageQuality: IMAGE_COMPRESSION_QUALITY,
+          compressImageMaxWidth: BACKGROUND_COMPRESSION_MAX_WIDTH,
+          compressImageMaxHeight: BACKGROUND_COMPRESSION_MAX_HEIGHT,
+        });
+
+        helpers.setValue(image);
+      } catch (error: any) {
+        utilities.alertImageCropPickerError(error);
+      }
+    };
+
+    switch (selectedItemId) {
+      case 'remove':
+        if (currentProfile.background === undefined) {
+          helpers.setValue(undefined);
+        } else {
+          helpers.setValue(null);
+        }
+        break;
+      case 'camera-photo':
+        await handleTakePhoto();
+        break;
+      case 'camera-video':
+        await handleRecordVideo();
+        break;
+      case 'library':
+        await handleSelectFromPhotoLibrary();
+        break;
+    }
+  };
+
+  return (
+    <>
+      <TouchableOpacity
+        activeOpacity={DEFAULT_ACTIVE_OPACITY}
+        onPress={handlePressBackground}
+        style={{ alignItems: 'center', justifyContent: 'center' }}>
+        {backgroundSource.type === 'image' ? (
+          <FastImage
+            resizeMode="cover"
+            source={backgroundSource.source}
+            style={[profileBackgroundPickerStyles.picker]}
+            onLoad={() => setIsLoading(false)}
+          />
+        ) : (
+          <Video
+            repeat
+            muted
+            playWhenInactive
+            resizeMode="cover"
+            source={backgroundSource.source}
+            style={[profileBackgroundPickerStyles.picker]}
+            onLoad={() => setIsLoading(false)}
+          />
+        )}
+        <Card.Indicator
+          iconName="brush"
+          position="top-right"
+          elementOptions={{ smallContent: true }}
+        />
+        {isLoading && (
+          <ActivityIndicator
+            size="large"
+            color={color.gray500}
+            style={{ position: 'absolute' }}
+          />
+        )}
+      </TouchableOpacity>
+      <ActionBottomSheet
+        ref={actionBottomSheetRef}
+        items={actionBottomSheetItems}
+        onSelectItem={handleSelectActionItem}
+      />
+    </>
+  );
+}
+
+const profileBackgroundPickerStyles = StyleSheet.create({
+  picker: {
+    width: '100%',
+    aspectRatio: 3 / 1.8,
+    backgroundColor: color.placeholder,
+    borderRadius: layout.radius.md,
+  },
+});
+
+type ProfileAvatarPickerProps = {
+  containerStyle?: StyleProp<ViewStyle>;
+  imageStyle?: StyleProp<ImageStyle>;
+};
+
+function ProfileAvatarPicker(props: ProfileAvatarPickerProps) {
   const { currentProfile } = React.useContext(ProfileSettingsFormContext);
   const [_, meta, helpers] = useField<ProfileChangesForm['avatar']>('avatar');
+
+  const [containerWidth, setContainerWidth] = React.useState(100);
 
   const avatarSource: FastImageProps['source'] = React.useMemo(() => {
     if (meta.value === undefined) {
@@ -567,13 +789,18 @@ function ProfileAvatarPicker() {
     }
   }, [meta.value, currentProfile.avatar]);
 
+  const handlePressAvatar = () => {
+    Keyboard.dismiss();
+    actionBottomSheetRef.current?.expand();
+  };
+
   const actionBottomSheetRef = React.useRef<BottomSheet>(null);
   const actionBottomSheetItems = React.useMemo(() => {
     return [
       {
         id: 'remove',
         label: 'Remove Current Photo',
-        iconName: 'person-remove-outline',
+        iconName: 'trash-outline',
         disabled: !currentProfile.avatar && !meta.value,
       },
       { id: 'camera', label: 'Take a Photo', iconName: 'camera-outline' },
@@ -593,11 +820,11 @@ function ProfileAvatarPicker() {
           cropping: true,
           cropperCircleOverlay: true,
           forceJpg: true,
-          width: IMAGE_COMPRESSION_MAX_WIDTH,
-          height: IMAGE_COMPRESSION_MAX_HEIGHT,
+          width: AVATAR_COMPRESSION_MAX_WIDTH,
+          height: AVATAR_COMPRESSION_MAX_HEIGHT,
           compressImageQuality: IMAGE_COMPRESSION_QUALITY,
-          compressImageMaxWidth: IMAGE_COMPRESSION_MAX_WIDTH,
-          compressImageMaxHeight: IMAGE_COMPRESSION_MAX_HEIGHT,
+          compressImageMaxWidth: AVATAR_COMPRESSION_MAX_WIDTH,
+          compressImageMaxHeight: AVATAR_COMPRESSION_MAX_HEIGHT,
         });
 
         helpers.setValue(image);
@@ -613,11 +840,11 @@ function ProfileAvatarPicker() {
           cropping: true,
           cropperCircleOverlay: true,
           forceJpg: true,
-          width: IMAGE_COMPRESSION_MAX_WIDTH,
-          height: IMAGE_COMPRESSION_MAX_HEIGHT,
+          width: AVATAR_COMPRESSION_MAX_WIDTH,
+          height: AVATAR_COMPRESSION_MAX_HEIGHT,
           compressImageQuality: IMAGE_COMPRESSION_QUALITY,
-          compressImageMaxWidth: IMAGE_COMPRESSION_MAX_WIDTH,
-          compressImageMaxHeight: IMAGE_COMPRESSION_MAX_HEIGHT,
+          compressImageMaxWidth: AVATAR_COMPRESSION_MAX_WIDTH,
+          compressImageMaxHeight: AVATAR_COMPRESSION_MAX_HEIGHT,
         });
 
         helpers.setValue(image);
@@ -643,20 +870,22 @@ function ProfileAvatarPicker() {
     }
   };
 
-  const handlePressAvatar = () => {
-    Keyboard.dismiss();
-    actionBottomSheetRef.current?.expand();
-  };
-
   return (
     <>
       <TouchableOpacity
+        onLayout={({ nativeEvent }) =>
+          setContainerWidth(nativeEvent.layout.width)
+        }
         activeOpacity={DEFAULT_ACTIVE_OPACITY}
         onPress={handlePressAvatar}
-        style={profileAvatarPickerStyles.touchableContainer}>
+        style={[
+          profileAvatarPickerStyles.touchableContainer,
+          { borderRadius: containerWidth / 2 },
+          props.containerStyle,
+        ]}>
         <FastImage
           resizeMode="cover"
-          style={profileAvatarPickerStyles.image}
+          style={[profileAvatarPickerStyles.image, props.imageStyle]}
           source={avatarSource}
         />
         <View style={profileAvatarPickerStyles.editTextContainer}>
@@ -677,12 +906,14 @@ function ProfileAvatarPicker() {
 const profileAvatarPickerStyles = StyleSheet.create({
   touchableContainer: {
     overflow: 'hidden',
-    borderRadius: AVATAR_DIAMETER / 2,
+    borderWidth: 6,
+    borderColor: color.white,
   },
   image: {
     width: AVATAR_DIAMETER,
-    height: AVATAR_DIAMETER,
+    aspectRatio: 1,
     backgroundColor: color.placeholder,
+    borderRadius: AVATAR_DIAMETER / 2,
   },
   editTextContainer: {
     position: 'absolute',

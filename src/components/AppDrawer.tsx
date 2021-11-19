@@ -150,7 +150,9 @@ function RoleChip(props: { label: string }) {
         borderColor: chipColor,
         borderRadius: chipHeight / 2,
       }}>
-      <Text style={[constants.font.smallBold, { color: chipColor }]}>
+      <Text
+        numberOfLines={1}
+        style={[constants.font.smallBold, { color: chipColor }]}>
         {humanReadableRoleLabel}
       </Text>
     </TouchableOpacity>
