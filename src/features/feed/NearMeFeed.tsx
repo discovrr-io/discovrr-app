@@ -34,32 +34,38 @@ function shuffleVendorsAndProducts(
   profileIds: ProfileId[],
   productIds: ProductId[],
 ): NearMeItem[] {
-  const nearMeItems: NearMeItem[] = [];
-
+  // Here we shuffle by the product IDs, which are random enough anyway. Sorting
+  // like this should provide a good enough "randomised" result.
   const shuffledProductIds = productIds
-    .slice()
+    .slice() // We don't want to mutate the original array.
     .sort((a, b) => String(a).localeCompare(String(b)));
 
-  let currentVendorIndex = 0;
-  for (let i = 0; i < shuffledProductIds.length; i++) {
-    const productId = shuffledProductIds[i];
+  // Keep track of the current profile index for later...
+  let currentProfileIndex = 0;
 
-    if (currentVendorIndex % 2 === 0) {
-      const merchantId = profileIds[currentVendorIndex];
-      if (currentVendorIndex < profileIds.length) currentVendorIndex++;
+  // Flat-map over the shuffled product IDs, inserting an array of a product and
+  // a maker profile on every second index. This will arrange the items such
+  // that every maker profile will be preceded by and immediately followed by
+  // one product (i.e. P, M, P, P, M, P, P, M, P, and so on...).
+  const nearMeItems = shuffledProductIds.flatMap<NearMeItem>(
+    (productId, index) => {
+      if (index % 2 === 0) {
+        const profileId = profileIds[currentProfileIndex];
+        if (currentProfileIndex < profileIds.length) currentProfileIndex += 1;
 
-      nearMeItems.push(
-        { type: 'product', item: productId },
-        { type: 'profile', item: merchantId },
-      );
-    } else {
-      nearMeItems.push({ type: 'product', item: productId });
-    }
-  }
+        return [
+          { type: 'product', item: productId },
+          { type: 'profile', item: profileId },
+        ];
+      } else {
+        return { type: 'product', item: productId };
+      }
+    },
+  );
 
-  // Get the remaining profile IDs of vendors and convert them to `NearMeItem`s
+  // Get the remaining profile IDs of vendors and convert them to `NearMeItem`s.
   const restProfileIds = profileIds
-    .slice(currentVendorIndex)
+    .slice(currentProfileIndex)
     .map((item): NearMeItem => ({ type: 'profile', item }));
 
   return [...nearMeItems, ...restProfileIds];
