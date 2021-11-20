@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [v3.0.6] (2021-11-21)
+
 ### Changed
 
 - Store post IDs from the Discover feed on a separate Redux slice to keep
@@ -13,6 +15,10 @@
 - Add ability to change profile background (images and video)
   - Uploading video with camera isn't available yet
 - Implemented notification screen with basic history and deep linking
+
+### Fixed
+
+- Products and maker profiles in Near Me should now be properly shuffled
 
 ## [v3.0.5] (2021-11-17)
 
@@ -167,7 +173,8 @@
   - Discover tab (previously Home tab)
   - Notifications tab (previously in drawer)
 
-[unreleased]: https://github.com/discovrr-io/discovrr-app/compare/v3.0.5...HEAD
+[unreleased]: https://github.com/discovrr-io/discovrr-app/compare/v3.0.6...HEAD
+[v3.0.6]: https://github.com/discovrr-io/discovrr-app/compare/v3.0.5...v3.0.6
 [v3.0.5]: https://github.com/discovrr-io/discovrr-app/compare/v3.0.4...v3.0.5
 [v3.0.4]: https://github.com/discovrr-io/discovrr-app/compare/v3.0.3...v3.0.4
 [v3.0.3]: https://github.com/discovrr-io/discovrr-app/compare/v3.0.2...v3.0.3
