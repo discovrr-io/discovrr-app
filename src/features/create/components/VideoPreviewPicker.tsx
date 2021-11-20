@@ -1,33 +1,21 @@
 import * as React from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  Keyboard,
-  Platform,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Keyboard, Platform, View } from 'react-native';
 
 import BottomSheet from '@gorhom/bottom-sheet';
 import ImageCropPicker, { Video } from 'react-native-image-crop-picker';
+import { useField } from 'formik';
+import { useFocusEffect } from '@react-navigation/core';
+
 import RNVideo, {
   OnLoadData,
   VideoProperties as RNVideoProps,
 } from 'react-native-video';
-import { useField } from 'formik';
-import { useFocusEffect } from '@react-navigation/core';
 
+import * as constants from 'src/constants';
 import * as utilities from 'src/utilities';
 import { ActionBottomSheet, ActionBottomSheetItem } from 'src/components';
 
-import * as constants from 'src/constants';
-import {
-  MAX_VID_DURATION_MILLISECONDS,
-  MAX_VID_DURATION_SECONDS,
-} from 'src/constants/values';
-
 import PreviewPicker, { PreviewPickerProps } from './PreviewPicker';
-
-// const command = `-i ${video.path} -loop -1 -vf "scale=320:-1" ${outputPath}`;
 
 export type VideoPreviewPickerProps = Pick<
   PreviewPickerProps<Video>,
@@ -72,10 +60,15 @@ export default function ViewPreviewPicker(props: VideoPreviewPickerProps) {
   const handleSelectActionItem = async (selectedItemId: string) => {
     const handleRecordVideo = async () => {
       try {
-        utilities.alertUnavailableFeature();
-        // await ImageCropPicker.openCamera({
-        //   mediaType: 'video',
-        // });
+        const selectedVideo = await ImageCropPicker.openCamera({
+          mediaType: 'video',
+          multiple: false,
+          maxFiles: 1,
+        });
+
+        utilities.alertIfAnyVideoWillBeTrimmed([selectedVideo]);
+        helpers.setValue([selectedVideo]);
+        helpers.setTouched(true, true);
       } catch (error: any) {
         utilities.alertImageCropPickerError(error);
       }
@@ -90,21 +83,7 @@ export default function ViewPreviewPicker(props: VideoPreviewPickerProps) {
             maxFiles: props.maxCount,
           });
 
-          if (
-            selectedVideos.some(
-              video =>
-                video.duration &&
-                video.duration > MAX_VID_DURATION_MILLISECONDS,
-            )
-          ) {
-            Alert.alert(
-              'Video Will Be Trimmed',
-              'One or more of your videos are longer than the maximum video ' +
-                `duration of ${MAX_VID_DURATION_SECONDS} seconds. It will be ` +
-                'trimmed when you upload it.',
-            );
-          }
-
+          utilities.alertIfAnyVideoWillBeTrimmed(selectedVideos);
           helpers.setValue([...meta.value, ...selectedVideos]);
         } else {
           const selectedVideo = await ImageCropPicker.openPicker({
@@ -113,18 +92,7 @@ export default function ViewPreviewPicker(props: VideoPreviewPickerProps) {
             maxFiles: 1,
           });
 
-          if (
-            selectedVideo.duration &&
-            selectedVideo.duration > MAX_VID_DURATION_MILLISECONDS
-          ) {
-            Alert.alert(
-              'Video Will Be Trimmed',
-              'This video is longer than the maximum video duration of ' +
-                `${MAX_VID_DURATION_SECONDS} seconds. It will be trimmed ` +
-                'when you upload it.',
-            );
-          }
-
+          utilities.alertIfAnyVideoWillBeTrimmed([selectedVideo]);
           helpers.setValue([selectedVideo]);
         }
 

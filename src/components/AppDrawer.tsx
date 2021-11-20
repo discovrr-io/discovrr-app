@@ -1,5 +1,12 @@
 import * as React from 'react';
-import { Alert, Linking, Text, TouchableOpacity, View } from 'react-native';
+import {
+  Alert,
+  Linking,
+  Text,
+  TouchableHighlight,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 import FastImage from 'react-native-fast-image';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -132,8 +139,8 @@ function RoleChip(props: { label: string }) {
   }, [props.label]);
 
   return (
-    <TouchableOpacity
-      activeOpacity={constants.values.DEFAULT_ACTIVE_OPACITY}
+    <TouchableHighlight
+      underlayColor={chipColor + '40'}
       onLayout={({ nativeEvent }) => setChipHeight(nativeEvent.layout.height)}
       onPress={handlePressChip}
       hitSlop={{
@@ -145,7 +152,7 @@ function RoleChip(props: { label: string }) {
       style={{
         paddingVertical: constants.layout.spacing.xs,
         paddingHorizontal: constants.layout.spacing.md,
-        backgroundColor: chipColor + '44', // alpha channel
+        backgroundColor: chipColor + '20', // alpha channel
         borderWidth: 1,
         borderColor: chipColor,
         borderRadius: chipHeight / 2,
@@ -155,7 +162,7 @@ function RoleChip(props: { label: string }) {
         style={[constants.font.smallBold, { color: chipColor }]}>
         {humanReadableRoleLabel}
       </Text>
-    </TouchableOpacity>
+    </TouchableHighlight>
   );
 }
 
