@@ -6,10 +6,12 @@
 
 - Store post IDs from the Discover feed on a separate Redux slice to keep
   posts sorted and to avoid posts jumping around
+- Display labels under the icons on the bottom tab bar
 
 ### Added
 
-- Add ability to change profile background (image only at the moment)
+- Add ability to change profile background (images and video)
+  - Uploading video with camera isn't available yet
 - Implemented notification screen with basic history and deep linking
 
 ## [v3.0.5] (2021-11-17)

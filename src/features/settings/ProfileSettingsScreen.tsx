@@ -20,6 +20,7 @@ import * as yup from 'yup';
 import BottomSheet from '@gorhom/bottom-sheet';
 import FastImage, { FastImageProps, ImageStyle } from 'react-native-fast-image';
 import Video, { VideoProperties } from 'react-native-video';
+import { FFmpegKit } from 'ffmpeg-kit-react-native';
 import { Formik, useField, useFormikContext } from 'formik';
 import { useNavigation } from '@react-navigation/core';
 import { useSharedValue } from 'react-native-reanimated';
@@ -27,6 +28,7 @@ import { useSharedValue } from 'react-native-reanimated';
 import ImageCropPicker, {
   Image,
   ImageOrVideo,
+  Options,
 } from 'react-native-image-crop-picker';
 
 import * as utilities from 'src/utilities';
@@ -39,8 +41,12 @@ import { RootStackScreenProps } from 'src/navigation';
 
 import { color, font, layout, media } from 'src/constants';
 import { DEFAULT_AVATAR, DEFAULT_IMAGE } from 'src/constants/media';
-import { DEFAULT_ACTIVE_OPACITY } from 'src/constants/values';
 import { CELL_GROUP_VERTICAL_SPACING } from 'src/components/cells/CellGroup';
+import {
+  DEFAULT_ACTIVE_OPACITY,
+  MAX_VID_DURATION_MILLISECONDS,
+  MAX_VID_DURATION_SECONDS,
+} from 'src/constants/values';
 
 import {
   ActionBottomSheet,
@@ -52,6 +58,7 @@ import {
   LoadingContainer,
   LoadingOverlay,
   RouteError,
+  SelectFromLibraryBottomSheet,
   Spacer,
 } from 'src/components';
 
@@ -168,18 +175,22 @@ type LoadedProfileSettingsScreenProps = {
 
 function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
   const $FUNC = '[LoadedProfileSettingsScreen]';
-  const dispatch = useAppDispatch();
   const profile = props.profile;
+
+  const dispatch = useAppDispatch();
+  const isMounted = useIsMounted();
 
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [overlayContent, setOverlayContent] = React.useState<{
     message?: string;
     caption?: string;
     isUploading?: boolean;
+    canCancel?: boolean;
   }>({
     message: 'Getting ready…',
     caption: "This won't take long",
     isUploading: false,
+    canCancel: false,
   });
 
   const currentUploadProgress = useSharedValue(0);
@@ -290,18 +301,11 @@ function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
           isUploading: true,
         });
 
-        // Only select these fields - the others are not important
-        const source: MediaSource = {
-          mime: changes.avatar.mime,
-          url: changes.avatar.path,
-          size: changes.avatar.size,
-          width: changes.avatar.width,
-          height: changes.avatar.height,
-        };
+        const avatarSource = utilities.mapImageToMediaSource(changes.avatar);
 
         const [filename, task, reference] =
           utilities.createFirebaseUploadFileTask(
-            source,
+            avatarSource,
             ({ filename }) => `/profiles/avatars/${filename}`,
           );
 
@@ -339,7 +343,7 @@ function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
         // `filename` with its filename in Cloud Storage (so we can easily
         // reference to it later on if we need to).
         processedAvatar = {
-          ...source,
+          ...avatarSource,
           filename,
           url: avatarDownloadURL,
           path: reference.fullPath,
@@ -347,25 +351,50 @@ function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
       }
 
       if (changes.background) {
+        let backgroundSource: MediaSource;
+
+        // TODO: Upload a thumbnail as well
+        if (changes.background.mime.includes('video')) {
+          console.log($FUNC, 'Compressing background...');
+          setOverlayContent({
+            message: 'Compressing video…',
+            caption: 'This may take a while',
+            canCancel: true,
+          });
+
+          const uncompressed = utilities.mapVideoToMediaSource(
+            // @ts-ignore We'll ignore the fact that duration may not exist (it
+            // can be undefined anyway)
+            changes.background,
+          );
+
+          const timer = setTimeout(() => {
+            if (isMounted.current)
+              setOverlayContent(prev => ({
+                ...prev,
+                caption: 'This is taking longer than usual…',
+              }));
+          }, 20 * 1000);
+
+          backgroundSource = await utilities.compressVideo(uncompressed, 400);
+
+          clearTimeout(timer);
+        } else {
+          backgroundSource = utilities.mapImageToMediaSource(
+            changes.background,
+          );
+        }
+
         console.log($FUNC, 'Uploading background...');
         setOverlayContent({
-          message: 'Uploading background…',
+          message: 'Uploading background',
           caption: 'This may take a while',
           isUploading: true,
         });
 
-        // Only select these fields - the others are not important
-        const source: MediaSource = {
-          mime: changes.background.mime,
-          url: changes.background.path,
-          size: changes.background.size,
-          width: changes.background.width,
-          height: changes.background.height,
-        };
-
         const [filename, task, reference] =
           utilities.createFirebaseUploadFileTask(
-            source,
+            backgroundSource,
             ({ filename, isVideo }) =>
               `/profiles/backgrounds/${
                 isVideo ? 'videos' : 'images'
@@ -382,7 +411,7 @@ function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
         });
 
         processedBackground = {
-          ...source,
+          ...backgroundSource,
           filename,
           url: await reference.getDownloadURL(),
           path: reference.fullPath,
@@ -417,7 +446,7 @@ function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
       const updateProfileAction = profilesSlice.updateProfile({
         profileId: profile.profileId,
         // If any of these fields are `undefined`, it will be ignored by Redux
-        // and the server.
+        // and the backend.
         changes: {
           avatar: processedAvatar,
           background: processedBackground,
@@ -444,6 +473,11 @@ function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
       currentUploadProgress.value = 0;
     }
   };
+
+  const handleCancel = React.useCallback(async () => {
+    console.log('Cancelling tasks...');
+    await FFmpegKit.cancel();
+  }, []);
 
   return (
     <ProfileSettingsFormContext.Provider value={{ currentProfile: profile }}>
@@ -480,6 +514,7 @@ function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
           progress={
             overlayContent.isUploading ? currentUploadProgress : undefined
           }
+          onCancel={overlayContent.canCancel ? handleCancel : undefined}
         />
       )}
     </ProfileSettingsFormContext.Provider>
@@ -699,6 +734,8 @@ function ProfileBackgroundPicker() {
   }, [meta.value, currentProfile.background]);
 
   const actionBottomSheetRef = React.useRef<BottomSheet>(null);
+  const selectFromLibraryBottomSheetRef = React.useRef<BottomSheet>(null);
+
   const actionBottomSheetItems = React.useMemo(() => {
     return [
       {
@@ -725,6 +762,7 @@ function ProfileBackgroundPicker() {
 
   const handlePressBackground = () => {
     Keyboard.dismiss();
+    selectFromLibraryBottomSheetRef.current?.close();
     actionBottomSheetRef.current?.expand();
   };
 
@@ -759,25 +797,6 @@ function ProfileBackgroundPicker() {
       }
     };
 
-    const handleSelectFromPhotoLibrary = async () => {
-      try {
-        const image = await ImageCropPicker.openPicker({
-          mediaType: 'any',
-          // cropping: true,
-          forceJpg: true,
-          width: BACKGROUND_COMPRESSION_MAX_WIDTH,
-          height: BACKGROUND_COMPRESSION_MAX_HEIGHT,
-          compressImageQuality: IMAGE_COMPRESSION_QUALITY,
-          compressImageMaxWidth: BACKGROUND_COMPRESSION_MAX_WIDTH,
-          compressImageMaxHeight: BACKGROUND_COMPRESSION_MAX_HEIGHT,
-        });
-
-        helpers.setValue(image);
-      } catch (error: any) {
-        utilities.alertImageCropPickerError(error);
-      }
-    };
-
     switch (selectedItemId) {
       case 'remove':
         if (currentProfile.background === undefined) {
@@ -793,7 +812,57 @@ function ProfileBackgroundPicker() {
         await handleRecordVideo();
         break;
       case 'library':
-        await handleSelectFromPhotoLibrary();
+        selectFromLibraryBottomSheetRef.current?.expand();
+        break;
+    }
+  };
+
+  const handleSelectUploadTypeAction = async (selectedItemId: string) => {
+    const handleSelectFromPhotoLibrary = async (options: Options) => {
+      try {
+        const imageOrVideo = await ImageCropPicker.openPicker({
+          width: BACKGROUND_COMPRESSION_MAX_WIDTH,
+          height: BACKGROUND_COMPRESSION_MAX_HEIGHT,
+          compressImageQuality: IMAGE_COMPRESSION_QUALITY,
+          compressImageMaxWidth: BACKGROUND_COMPRESSION_MAX_WIDTH,
+          compressImageMaxHeight: BACKGROUND_COMPRESSION_MAX_HEIGHT,
+          ...options,
+        });
+
+        if (
+          // @ts-ignore The `duration` field may be present for videos
+          imageOrVideo.duration &&
+          // @ts-ignore
+          imageOrVideo.duration > MAX_VID_DURATION_MILLISECONDS
+        ) {
+          Alert.alert(
+            'Video Will Be Trimmed',
+            'This video is longer than the maximum video duration of ' +
+              `${MAX_VID_DURATION_SECONDS} seconds. It will be trimmed ` +
+              'when you upload it.',
+          );
+        }
+
+        helpers.setValue(imageOrVideo);
+      } catch (error: any) {
+        utilities.alertImageCropPickerError(error);
+      }
+    };
+
+    switch (selectedItemId) {
+      case 'photo':
+        await handleSelectFromPhotoLibrary({
+          mediaType: 'photo',
+          forceJpg: true,
+          cropping: true,
+          loadingLabelText: 'Processing photo…',
+        });
+        break;
+      case 'video':
+        await handleSelectFromPhotoLibrary({
+          mediaType: 'video',
+          loadingLabelText: 'Processing video…',
+        });
         break;
     }
   };
@@ -809,7 +878,8 @@ function ProfileBackgroundPicker() {
             resizeMode="cover"
             source={backgroundSource.source}
             style={[profileBackgroundPickerStyles.picker]}
-            onLoad={() => setIsLoading(false)}
+            onLoadStart={() => setIsLoading(true)}
+            onLoadEnd={() => setIsLoading(false)}
           />
         ) : (
           <Video
@@ -819,6 +889,7 @@ function ProfileBackgroundPicker() {
             resizeMode="cover"
             source={backgroundSource.source}
             style={[profileBackgroundPickerStyles.picker]}
+            onLoadStart={() => setIsLoading(true)}
             onLoad={() => setIsLoading(false)}
           />
         )}
@@ -839,6 +910,10 @@ function ProfileBackgroundPicker() {
         ref={actionBottomSheetRef}
         items={actionBottomSheetItems}
         onSelectItem={handleSelectActionItem}
+      />
+      <SelectFromLibraryBottomSheet
+        ref={selectFromLibraryBottomSheetRef}
+        onSelectItem={handleSelectUploadTypeAction}
       />
     </>
   );
@@ -958,11 +1033,11 @@ function ProfileAvatarPicker(props: ProfileAvatarPickerProps) {
   return (
     <>
       <TouchableOpacity
+        activeOpacity={DEFAULT_ACTIVE_OPACITY}
+        onPress={handlePressAvatar}
         onLayout={({ nativeEvent }) =>
           setContainerWidth(nativeEvent.layout.width)
         }
-        activeOpacity={DEFAULT_ACTIVE_OPACITY}
-        onPress={handlePressAvatar}
         style={[
           profileAvatarPickerStyles.touchableContainer,
           { borderRadius: containerWidth / 2 },
@@ -970,8 +1045,8 @@ function ProfileAvatarPicker(props: ProfileAvatarPickerProps) {
         ]}>
         <FastImage
           resizeMode="cover"
-          style={[profileAvatarPickerStyles.image, props.imageStyle]}
           source={avatarSource}
+          style={[profileAvatarPickerStyles.image, props.imageStyle]}
         />
         <View style={profileAvatarPickerStyles.editTextContainer}>
           <Text style={[font.medium, profileAvatarPickerStyles.editText]}>
@@ -997,8 +1072,8 @@ const profileAvatarPickerStyles = StyleSheet.create({
   image: {
     width: AVATAR_DIAMETER,
     aspectRatio: 1,
-    backgroundColor: color.placeholder,
     borderRadius: AVATAR_DIAMETER / 2,
+    backgroundColor: color.placeholder,
   },
   editTextContainer: {
     position: 'absolute',

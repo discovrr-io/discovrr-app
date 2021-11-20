@@ -99,10 +99,20 @@ function FacadeNavigator() {
         },
         headerTintColor: constants.color.black,
         headerTitleStyle: constants.font.defaultHeaderTitleStyle,
-        tabBarShowLabel: false,
-        tabBarIcon: ({ focused, color, size: _ }) => {
+        tabBarStyle: {
+          minHeight: constants.values.DEFAULT_MIN_BOTTOM_TAB_BAR_HEIGHT,
+        },
+        tabBarLabelStyle: [
+          constants.font.defaultBottomTabLabelStyle,
+          { marginTop: -5, marginBottom: 4 },
+        ],
+        tabBarBadgeStyle: {
+          fontFamily: constants.font.small.fontFamily,
+          fontSize: constants.font.small.fontSize,
+        },
+        tabBarIcon: ({ focused, color }) => {
           let iconName: string;
-          let iconSize = 26;
+          let iconSize = 25;
 
           if (Platform.OS === 'ios' && route.name === 'Home') {
             return <DiscovrrIcon size={iconSize * 0.9} color={color} />;
@@ -134,13 +144,6 @@ function FacadeNavigator() {
 
           return <Icon name={iconName} size={iconSize} color={color} />;
         },
-        tabBarStyle: {
-          minHeight: constants.values.DEFAULT_MIN_BOTTOM_TAB_BAR_HEIGHT,
-        },
-        tabBarBadgeStyle: {
-          fontFamily: constants.font.small.fontFamily,
-          fontSize: constants.font.small.fontSize,
-        },
       })}>
       <FacadeBottomTab.Screen name="Home" component={HomeNavigator} />
       <FacadeBottomTab.Screen
@@ -155,7 +158,7 @@ function FacadeNavigator() {
           tabLongPress: _ => {
             // Navigate to the Feed first, and then to Search - this will allow
             // `navigation.goBack()` to behave as intended when we're in the
-            // `Query` screen
+            // `SearchQuery` screen
             navigation.navigate('Explore', {
               screen: 'Feed',
               params: { screen: 'DiscoverFeed' },
@@ -173,7 +176,7 @@ function FacadeNavigator() {
       <FacadeBottomTab.Screen
         name="__Create"
         component={PlaceholderScreen}
-        options={{ title: 'Create Post' }}
+        options={{ title: 'Create' }}
         listeners={({
           navigation,
         }: {
@@ -192,13 +195,16 @@ function FacadeNavigator() {
         name="Notifications"
         component={NotificationsScreen}
         // FIXME: This should reset when signing into a different account
-        options={{ tabBarBadge: unreadCount > 0 ? unreadCount : undefined }}
+        options={{
+          title: 'Updates',
+          tabBarBadge: unreadCount > 0 ? unreadCount : undefined,
+        }}
       />
       <FacadeBottomTab.Screen
         name="__MyProfile"
         component={MyProfileDetailsScreen}
         options={{
-          title: 'My Profile',
+          title: 'You',
           headerTransparent: true,
           headerTintColor: constants.color.defaultLightTextColor,
         }}

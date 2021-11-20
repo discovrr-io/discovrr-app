@@ -10,7 +10,7 @@ type GenerateStoragePathConfig = {
   isVideo: boolean;
   /** The name of the new file, WITHOUT the extension. */
   fileId: string;
-  /** The file extension of the new file. */
+  /** The file extension of the new file, without the dot (e.g. `"jpg"` or `"mp4"`). */
   fileExtension: string;
 };
 

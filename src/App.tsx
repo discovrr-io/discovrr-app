@@ -11,7 +11,7 @@ import Config from 'react-native-config';
 import Parse from 'parse/react-native';
 import RNBootSplash from 'react-native-bootsplash';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
-import { Provider } from 'react-redux';
+import { Provider as ReduxProvider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import { persistStore } from 'redux-persist';
 import { PortalProvider } from '@gorhom/portal';
@@ -77,9 +77,9 @@ function App() {
   return (
     <SafeAreaProvider>
       <PortalProvider>
-        <Provider store={store}>
+        <ReduxProvider store={store}>
           <PersistedApp />
-        </Provider>
+        </ReduxProvider>
       </PortalProvider>
     </SafeAreaProvider>
   );

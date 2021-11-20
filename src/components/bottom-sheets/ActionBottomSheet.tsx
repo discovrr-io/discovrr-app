@@ -1,6 +1,10 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableHighlight, View } from 'react-native';
 
+import Icon from 'react-native-vector-icons/Ionicons';
+import { Portal } from '@gorhom/portal';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetBackdropProps,
@@ -9,17 +13,13 @@ import BottomSheet, {
   useBottomSheetDynamicSnapPoints,
   useBottomSheetTimingConfigs,
 } from '@gorhom/bottom-sheet';
-import { Portal } from '@gorhom/portal';
-
-import Icon from 'react-native-vector-icons/Ionicons';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import Spacer from '../Spacer';
 import Button, { ButtonProps } from '../buttons/Button';
-import { color, font, layout } from 'src/constants';
+import * as constants from 'src/constants';
 
 const ICON_SIZE = 24;
-const ITEM_SPACING = layout.spacing.sm;
+const ITEM_SPACING = constants.layout.spacing.sm;
 
 export type ActionBottomSheetItem = {
   id: string;
@@ -42,12 +42,17 @@ type ActionBottomSheetProps = {
 const ActionBottomSheet = React.forwardRef<BottomSheet, ActionBottomSheetProps>(
   (props: ActionBottomSheetProps, ref) => {
     const initialSnapPoints = React.useMemo(() => ['CONTENT_HEIGHT'], []);
+
     const {
       animatedHandleHeight,
       animatedSnapPoints,
       animatedContentHeight,
       handleContentLayout,
     } = useBottomSheetDynamicSnapPoints(initialSnapPoints);
+
+    const animationConfigs = useBottomSheetTimingConfigs({
+      duration: 300,
+    });
 
     const renderBackdrop = React.useCallback(
       (props: BottomSheetBackdropProps) => {
@@ -62,10 +67,6 @@ const ActionBottomSheet = React.forwardRef<BottomSheet, ActionBottomSheetProps>(
       },
       [],
     );
-
-    const animationConfigs = useBottomSheetTimingConfigs({
-      duration: 300,
-    });
 
     return (
       <Portal>
@@ -82,9 +83,7 @@ const ActionBottomSheet = React.forwardRef<BottomSheet, ActionBottomSheetProps>(
           <BottomSheetView
             onLayout={handleContentLayout}
             style={styles.container}>
-            <SafeAreaView edges={['bottom', 'left', 'right']}>
-              <ActionBottomSheetContents {...props} />
-            </SafeAreaView>
+            <ActionBottomSheetContents {...props} />
           </BottomSheetView>
         </BottomSheet>
       </Portal>
@@ -110,12 +109,12 @@ function ActionBottomSheetContents(props: ActionBottomSheetProps) {
   };
 
   return (
-    <>
+    <SafeAreaView edges={['bottom', 'left', 'right']}>
       <View>
         {items.map((props: ActionBottomSheetItem, index) => (
           <View key={`action-bottom-sheet-item-${index}`}>
             <TouchableHighlight
-              underlayColor={color.gray100}
+              underlayColor={constants.color.gray100}
               disabled={props.disabled}
               onPress={async () => await handleSelectItem(props.id)}
               style={styles.actionItemTouchableContainer}>
@@ -127,25 +126,27 @@ function ActionBottomSheetContents(props: ActionBottomSheetProps) {
                   color={
                     props.disabled
                       ? props.destructive
-                        ? color.dangerDisabled
-                        : color.disabledDarkTextColor
+                        ? constants.color.dangerDisabled
+                        : constants.color.disabledDarkTextColor
                       : props.destructive
-                      ? color.danger
-                      : color.black
+                      ? constants.color.danger
+                      : constants.color.black
                   }
                   style={[{ width: ICON_SIZE }]}
                 />
-                <Spacer.Horizontal value={layout.spacing.lg} />
+                <Spacer.Horizontal value={constants.layout.spacing.lg} />
                 <Text
                   numberOfLines={1}
                   style={[
                     styles.actionItemLabel,
-                    font.large,
-                    props.disabled && { color: color.disabledDarkTextColor },
+                    constants.font.large,
+                    props.disabled && {
+                      color: constants.color.disabledDarkTextColor,
+                    },
                     props.destructive && {
                       color: props.disabled
-                        ? color.dangerDisabled
-                        : color.danger,
+                        ? constants.color.dangerDisabled
+                        : constants.color.danger,
                     },
                   ]}>
                   {props.label}
@@ -158,31 +159,31 @@ function ActionBottomSheetContents(props: ActionBottomSheetProps) {
           </View>
         ))}
       </View>
-      <Spacer.Vertical value={layout.spacing.md} />
+      <Spacer.Vertical value={constants.layout.spacing.md} />
       <Button
         title={footerButtonTitle}
         type={footerButtonType}
         variant={footerButtonVariant}
         onPress={footerButtonOnPress ?? (() => close())}
       />
-    </>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: layout.spacing.lg,
-    paddingBottom: layout.spacing.lg,
+    paddingHorizontal: constants.layout.spacing.lg,
+    paddingBottom: constants.layout.spacing.lg,
   },
   actionItemTouchableContainer: {
-    borderRadius: layout.radius.md,
+    borderRadius: constants.layout.radius.md,
     // height: BOTTOM_SHEET_ITEM_HEIGHT,
     overflow: 'hidden',
   },
   actionItemContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: layout.spacing.md,
+    padding: constants.layout.spacing.md,
   },
   actionItemLabel: {
     flexGrow: 1,

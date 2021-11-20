@@ -201,7 +201,7 @@ export default function SearchResultsNavigator(
         lazy: true,
         tabBarScrollEnabled: true,
         tabBarItemStyle: { width: 120 },
-        tabBarLabelStyle: font.defaultTabBarLabelStyle,
+        tabBarLabelStyle: font.defaultTopTabBarLabelStyle,
         tabBarActiveTintColor: color.accent,
         tabBarInactiveTintColor: color.gray500,
         tabBarPressColor: color.gray200,

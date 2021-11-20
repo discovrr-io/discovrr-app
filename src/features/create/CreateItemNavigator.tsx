@@ -11,9 +11,9 @@ import {
   createStackNavigator,
 } from '@react-navigation/stack';
 
+import * as constants from 'src/constants';
 import * as globalSelectors from 'src/global-selectors';
 import { HeaderIcon, PlaceholderScreen } from 'src/components';
-import { color, font, layout } from 'src/constants';
 import { useAppSelector } from 'src/hooks';
 
 import {
@@ -40,7 +40,7 @@ const TabBarIcon = (props: TabBarIconProps) => (
   <Icon
     name={`${props.name}-outline`}
     // name={props.focused ? props.name : props.name + '-outline'}
-    color={props.focused ? props.color : color.gray500}
+    color={props.focused ? props.color : constants.color.gray500}
     size={props.size ?? TAB_ICON_SIZE}
   />
 );
@@ -66,11 +66,11 @@ function CreateItemDetailsNavigator() {
         swipeEnabled: false,
         tabBarShowIcon: true,
         tabBarScrollEnabled: true,
-        tabBarActiveTintColor: color.accent,
-        tabBarInactiveTintColor: color.gray500,
-        tabBarPressColor: color.gray200,
+        tabBarActiveTintColor: constants.color.accent,
+        tabBarInactiveTintColor: constants.color.gray500,
+        tabBarPressColor: constants.color.gray200,
         tabBarStyle: {
-          backgroundColor: color.absoluteWhite,
+          backgroundColor: constants.color.absoluteWhite,
         },
         tabBarContentContainerStyle: {
           paddingBottom: insets.bottom,
@@ -78,14 +78,15 @@ function CreateItemDetailsNavigator() {
         tabBarItemStyle: {
           width: windowWidth / (myProfileKind === 'vendor' ? 5 : 3),
           paddingHorizontal: 0,
+          height: constants.values.DEFAULT_MIN_BOTTOM_TAB_BAR_HEIGHT * 1.25,
         },
         tabBarIndicatorStyle: {
           top: 0,
         },
-        tabBarLabelStyle: {
-          ...font.defaultTabBarLabelStyle,
-          fontSize: font.size.sm,
-        },
+        tabBarLabelStyle: [
+          constants.font.defaultTopTabBarLabelStyle,
+          { fontSize: constants.font.size.sm },
+        ],
       }}>
       <CreateItemDetailsTopTab.Screen
         name="CreateTextPost"
@@ -148,9 +149,9 @@ export default function CreateItemNavigator() {
     <CreateItemStack.Navigator
       initialRouteName="CreateItemDetails"
       screenOptions={({ route }) => ({
-        headerTintColor: color.black,
+        headerTintColor: constants.color.black,
         headerBackTitleVisible: false,
-        headerTitleStyle: font.defaultHeaderTitleStyle,
+        headerTitleStyle: constants.font.defaultHeaderTitleStyle,
         headerLeft: props =>
           route.name === 'CreateItemDetails' ? (
             <HeaderIcon.Close {...props} />
@@ -158,7 +159,7 @@ export default function CreateItemNavigator() {
             <HeaderIcon.Back {...props} />
           ),
         headerLeftContainerStyle: {
-          paddingLeft: layout.defaultScreenMargins.horizontal,
+          paddingLeft: constants.layout.defaultScreenMargins.horizontal,
         },
       })}>
       <CreateItemStack.Screen

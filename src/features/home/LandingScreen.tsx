@@ -186,7 +186,7 @@ function MakerOfTheWeek(props: MakerOfTheWeekProps) {
           {props.title}
         </Text>
         <Spacer.Vertical value="sm" />
-        <Text numberOfLines={2} style={constants.font.small}>
+        <Text numberOfLines={3} style={constants.font.small}>
           {props.caption}
         </Text>
       </View>

@@ -17,7 +17,7 @@ export default function FeedNavigator() {
       initialRouteName="DiscoverFeed"
       screenOptions={{
         lazy: true,
-        tabBarLabelStyle: font.defaultTabBarLabelStyle,
+        tabBarLabelStyle: font.defaultTopTabBarLabelStyle,
         tabBarActiveTintColor: color.accent,
         tabBarInactiveTintColor: color.gray500,
         tabBarPressColor: color.gray200,

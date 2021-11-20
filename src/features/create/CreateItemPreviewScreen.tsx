@@ -5,7 +5,6 @@ import Config from 'react-native-config';
 import ReactNativeBlobUtil from 'react-native-blob-util';
 import RNFS from 'react-native-fs';
 import { FFmpegKit, ReturnCode } from 'ffmpeg-kit-react-native';
-import { nanoid } from '@reduxjs/toolkit';
 import { useSharedValue } from 'react-native-reanimated';
 
 import * as constants from 'src/constants';
@@ -51,53 +50,6 @@ export type CreateItemPreviewNavigationScreenParams =
 
 type CreateItemPreviewScreenProps =
   CreateItemStackScreenProps<'CreateItemPreview'>;
-
-async function compressVideo(video: MediaSource): Promise<MediaSource> {
-  const filename = `${nanoid()}.mp4`;
-  const outputDirectory = utilities.getCompressedVideoOutputDirectory();
-  const output = `${outputDirectory}/${filename}`;
-
-  if (!(await RNFS.exists(outputDirectory))) {
-    console.log("Creating 'videos' folder...");
-    await RNFS.mkdir(outputDirectory);
-  }
-
-  console.log(`Compressing video '${filename}'...`);
-  const command = `-t 60 -i "${video.path}" -filter:v "scale=${COMPRESSED_VIDEO_WIDTH}:trunc(ow/a/2)*2,crop=${COMPRESSED_VIDEO_WIDTH}:min(in_h\\,${COMPRESSED_VIDEO_WIDTH}/2*3)" -c:a copy "${output}"`;
-
-  return await new Promise<MediaSource>((resolve, reject) => {
-    console.log('Running FFmpeg command:', command);
-    FFmpegKit.executeAsync(command, async session => {
-      const returnCode = await session.getReturnCode();
-      const duration = await session.getDuration();
-
-      if (!ReturnCode.isSuccess(returnCode)) {
-        if (ReturnCode.isCancel(returnCode)) {
-          console.warn('FFmpeg task cancelled!');
-        } else {
-          console.error(
-            'Failed to generate thumbnail with return code:',
-            returnCode,
-          );
-        }
-
-        reject(returnCode);
-      }
-
-      console.log(`Successfully generated thumbnail in ${duration} ms.`);
-      console.log('Getting media information....');
-
-      const outputURI = `file://${output}`;
-      const mediaInformation = await utilities.getMediaSourceForFile(outputURI);
-
-      resolve({
-        ...video,
-        ...mediaInformation,
-        duration: Math.min(video.duration ?? 0, 60 * 1000),
-      });
-    });
-  });
-}
 
 export default function CreateItemPreviewScreen(
   props: CreateItemPreviewScreenProps,
@@ -204,7 +156,11 @@ export default function CreateItemPreviewScreen(
             }));
         }, 20 * 1000);
 
-        const compressedVideo = await compressVideo(video);
+        const compressedVideo = await utilities.compressVideo(
+          video,
+          COMPRESSED_VIDEO_WIDTH,
+        );
+
         clearTimeout(timer);
 
         setOverlayContent({

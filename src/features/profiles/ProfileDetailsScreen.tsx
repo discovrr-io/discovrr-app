@@ -309,7 +309,7 @@ export function LoadedProfileDetailsScreen(
             screenOptions={{
               lazy: true,
               swipeEnabled: false, // This doesn't work anyway
-              tabBarLabelStyle: constants.font.defaultTabBarLabelStyle,
+              tabBarLabelStyle: constants.font.defaultTopTabBarLabelStyle,
               tabBarActiveTintColor: constants.color.accent,
               tabBarInactiveTintColor: constants.color.gray500,
               tabBarPressColor: constants.color.gray200,

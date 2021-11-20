@@ -1,7 +1,9 @@
 import RNFS from 'react-native-fs';
 import { Image, Video } from 'react-native-image-crop-picker';
+import { nanoid } from '@reduxjs/toolkit';
 
 import {
+  FFmpegKit,
   FFprobeKit,
   MediaInformationSession,
   ReturnCode,
@@ -10,6 +12,56 @@ import {
 import { MediaSource } from 'src/api';
 
 type MediaSourceOmitMime = Omit<MediaSource, 'mime'>;
+
+export async function compressVideo(
+  video: MediaSource,
+  scaleWidth: number,
+): Promise<MediaSource> {
+  const filename = `${nanoid()}.mp4`;
+  const outputDirectory = getCompressedVideoOutputDirectory();
+  const output = `${outputDirectory}/${filename}`;
+
+  if (!(await RNFS.exists(outputDirectory))) {
+    console.log("Creating 'videos' folder...");
+    await RNFS.mkdir(outputDirectory);
+  }
+
+  console.log(`Compressing video '${filename}'...`);
+  const command = `-t 60 -i "${video.path}" -filter:v "scale=${scaleWidth}:trunc(ow/a/2)*2,crop=${scaleWidth}:min(in_h\\,${scaleWidth}/2*3)" -c:a copy "${output}"`;
+
+  return await new Promise<MediaSource>((resolve, reject) => {
+    console.log('Running FFmpeg command:', command);
+    FFmpegKit.executeAsync(command, async session => {
+      const returnCode = await session.getReturnCode();
+      const duration = await session.getDuration();
+
+      if (!ReturnCode.isSuccess(returnCode)) {
+        if (ReturnCode.isCancel(returnCode)) {
+          console.warn('FFmpeg task cancelled!');
+        } else {
+          console.error(
+            'Failed to generate thumbnail with return code:',
+            returnCode,
+          );
+        }
+
+        reject(returnCode);
+      }
+
+      console.log(`Successfully generated thumbnail in ${duration} ms.`);
+      console.log('Getting media information....');
+
+      const outputURI = `file://${output}`;
+      const mediaInformation = await getMediaSourceForFile(outputURI);
+
+      resolve({
+        ...video,
+        ...mediaInformation,
+        duration: Math.min(video.duration ?? 0, 60 * 1000),
+      });
+    });
+  });
+}
 
 export async function getMediaSourceForFile(
   fileURI: string,
@@ -62,7 +114,7 @@ export function mapVideoToMediaSource(video: Video): MediaSource {
   return {
     ...mapImageToMediaSource(video),
     // TODO: Prefer higher quality source with sourceURL (only available on iOS)
-    path: /* video.sourceURL ?? */ video.path.replace('file://', ''),
+    // path: /* video.sourceURL ?? */ video.path.replace('file://', ''),
     duration: video.duration,
   };
 }

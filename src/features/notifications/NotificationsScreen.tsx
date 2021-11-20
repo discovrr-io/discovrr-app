@@ -17,7 +17,7 @@ import { useLinkTo } from '@react-navigation/native';
 
 import * as constants from 'src/constants';
 import * as notificationsSlice from './notifications-slice';
-import FeedFooter from 'src/features/feed/FeedFooter';
+// import FeedFooter from 'src/features/feed/FeedFooter';
 import { Button, EmptyContainer, Spacer } from 'src/components';
 import { useAppDispatch, useAppSelector } from 'src/hooks';
 import { Notification } from 'src/models';
@@ -93,9 +93,9 @@ export default function NotificationsScreen(props: NotificationsScreenProps) {
             message="You don't have any notifications at the moment."
           />
         }
-        ListFooterComponent={
-          notifications.length > 0 ? <FeedFooter didReachEnd /> : undefined
-        }
+        // ListFooterComponent={
+        //   notifications.length > 0 ? <FeedFooter didReachEnd /> : undefined
+        // }
       />
     </SafeAreaView>
   );

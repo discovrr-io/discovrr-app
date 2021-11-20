@@ -40,13 +40,13 @@ function shuffleVendorsAndProducts(
     .slice()
     .sort((a, b) => String(a).localeCompare(String(b)));
 
-  let currVendorIndex = 0;
+  let currentVendorIndex = 0;
   for (let i = 0; i < shuffledProductIds.length; i++) {
     const productId = shuffledProductIds[i];
 
-    if (currVendorIndex % 2 === 0) {
-      const merchantId = profileIds[currVendorIndex];
-      if (currVendorIndex < profileIds.length) currVendorIndex++;
+    if (currentVendorIndex % 2 === 0) {
+      const merchantId = profileIds[currentVendorIndex];
+      if (currentVendorIndex < profileIds.length) currentVendorIndex++;
 
       nearMeItems.push(
         { type: 'product', item: productId },
@@ -59,7 +59,7 @@ function shuffleVendorsAndProducts(
 
   // Get the remaining profile IDs of vendors and convert them to `NearMeItem`s
   const restProfileIds = profileIds
-    .slice(currVendorIndex)
+    .slice(currentVendorIndex)
     .map((item): NearMeItem => ({ type: 'profile', item }));
 
   return [...nearMeItems, ...restProfileIds];
@@ -82,7 +82,7 @@ export default function NearMeFeed(_: NearMeFeedProps) {
   const [shouldRefresh, setShouldRefresh] = React.useState(false);
   const [shouldFetchMore, setShouldFetchMore] = React.useState(false);
 
-  const [currentMerchantsPage, setCurrentMerchantsPage] =
+  const [currentMerchantsPage, setCurrentVendorsPage] =
     React.useState<CurrentPage>({ index: 0, didReachEnd: false });
   const [currentProductsPage, setCurrentProductsPage] =
     React.useState<CurrentPage>({ index: 0, didReachEnd: false });
@@ -96,7 +96,7 @@ export default function NearMeFeed(_: NearMeFeedProps) {
       async function fetchVendorsAndProducts() {
         try {
           console.log($FUNC, 'Fetching merchants and products...');
-          setCurrentMerchantsPage({ index: 0, didReachEnd: false });
+          setCurrentVendorsPage({ index: 0, didReachEnd: false });
           setCurrentProductsPage({ index: 0, didReachEnd: false });
 
           const fetchVendorsAction = fetchAllProfilesByKind({
@@ -127,7 +127,7 @@ export default function NearMeFeed(_: NearMeFeedProps) {
           );
 
           setNearMeItems(refreshedNearMeItems);
-          setCurrentMerchantsPage({
+          setCurrentVendorsPage({
             index: 1,
             didReachEnd: vendors.length === 0,
           });
@@ -198,7 +198,7 @@ export default function NearMeFeed(_: NearMeFeedProps) {
           );
 
           setNearMeItems(prev => [...prev, ...newNearMeItems]);
-          setCurrentMerchantsPage(prev => ({
+          setCurrentVendorsPage(prev => ({
             index: prev.index + 1,
             didReachEnd: vendors.length === 0,
           }));
