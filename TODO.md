@@ -12,10 +12,9 @@
 - [x] Use `ApiFetchStatuses` for other Redux slices
 - [x] Clean up Redux slices and API code
 - [x] Add a splash screen for both iOS and Android
-- [ ] Add `error` prop to `RouteError` to visually display the error message
 - [x] Fix issue in `ProfileSettingsScreen` where the unsaved changes alert
       still appears even if the form is saved
-- [ ] Fix issue where the bottom sheet does not provide enough space for the home
+- [x] Fix issue where the bottom sheet does not provide enough space for the home
       bar on iOS
 - [ ] Refactor API and UI code to separate yarn workspace packages
       (`@discovrr-api` and `@discovrr-ui` )

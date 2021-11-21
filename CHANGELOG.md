@@ -2,9 +2,14 @@
 
 ## [Unreleased]
 
+## [v3.0.7] (2021-11-21)
+
 ### Changed
 
 - Removed OneSignal integration
+- Integrate Firebase messaging extension for iOS
+- Finalise deep linking and notification link support
+- Generate a thumbnail when uploading a video for profile background
 
 ## [v3.0.6] (2021-11-21)
 
@@ -177,7 +182,8 @@
   - Discover tab (previously Home tab)
   - Notifications tab (previously in drawer)
 
-[unreleased]: https://github.com/discovrr-io/discovrr-app/compare/v3.0.6...HEAD
+[unreleased]: https://github.com/discovrr-io/discovrr-app/compare/v3.0.7...HEAD
+[v3.0.7]: https://github.com/discovrr-io/discovrr-app/compare/v3.0.6...v3.0.7
 [v3.0.6]: https://github.com/discovrr-io/discovrr-app/compare/v3.0.5...v3.0.6
 [v3.0.5]: https://github.com/discovrr-io/discovrr-app/compare/v3.0.4...v3.0.5
 [v3.0.4]: https://github.com/discovrr-io/discovrr-app/compare/v3.0.3...v3.0.4

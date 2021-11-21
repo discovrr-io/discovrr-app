@@ -73,6 +73,7 @@ function App() {
         console.error($FUNC, 'Failed to suppress in app messages:', error);
       });
 
+    // TODO: Maybe request permission later on in the app?
     console.log($FUNC, 'Requesting notification permission...');
     messaging()
       .requestPermission()

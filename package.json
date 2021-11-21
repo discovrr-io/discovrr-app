@@ -1,17 +1,17 @@
 {
   "name": "discovrr",
-  "version": "3.0.6",
+  "version": "3.0.7",
   "license": "Apache-2.0",
   "private": true,
   "scripts": {
     "android": "react-native run-android --appIdSuffix debug",
     "android:staging": "react-native run-android --variant releaseStaging --appId com.discovrr.discovrr_app.releaseStaging",
     "android:release": "react-native run-android --variant release",
-    "android:deploy": "appcenter codepush release-react -a discovrr-io/Discovrr-Android -d Staging -t 3.0.5",
+    "android:deploy": "appcenter codepush release-react -a discovrr-io/Discovrr-Android -d Staging -t 3.0.7",
     "ios": "react-native run-ios --configuration Debug",
     "ios:staging": "react-native run-ios --configuration Staging",
     "ios:release": "react-native run-ios --configuration Release",
-    "ios:deploy": "appcenter codepush release-react -a discovrr-io/Discovrr-iOS -d Staging -t 3.0.5",
+    "ios:deploy": "appcenter codepush release-react -a discovrr-io/Discovrr-iOS -d Staging -t 3.0.7",
     "start": "react-native start",
     "test": "jest",
     "lint": "eslint ."
