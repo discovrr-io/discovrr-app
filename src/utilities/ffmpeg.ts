@@ -48,7 +48,7 @@ export async function compressVideo(
         reject(returnCode);
       }
 
-      console.log(`Successfully generated thumbnail in ${duration} ms.`);
+      console.log(`Successfully compressed video in ${duration} ms.`);
       console.log('Getting media information....');
 
       const outputURI = `file://${output}`;
@@ -58,6 +58,56 @@ export async function compressVideo(
         ...video,
         ...mediaInformation,
         duration: Math.min(video.duration ?? 0, 60 * 1000),
+      });
+    });
+  });
+}
+
+export async function generateThumbnail(
+  video: MediaSource,
+): Promise<MediaSource> {
+  const filename = `${nanoid()}.jpg`;
+  const outputDirectory = getThumbnailOutputDirectory();
+  const output = `${outputDirectory}/${filename}`;
+
+  if (!(await RNFS.exists(outputDirectory))) {
+    console.log("Creating 'thumbnails' folder...");
+    await RNFS.mkdir(outputDirectory);
+  }
+
+  console.log(`Generating video thumbnail '${filename}'...`);
+  const command = `-i ${video.path} -vframes 1 -vf "scale=320:-1" "${output}"`;
+
+  // TODO: Refactor this out
+  // NOTE: This does not implement a `duration` field
+  return await new Promise<MediaSource>((resolve, reject) => {
+    console.log('Running FFmpeg command:', command);
+    FFmpegKit.executeAsync(command, async session => {
+      const returnCode = await session.getReturnCode();
+      const duration = await session.getDuration();
+
+      if (!ReturnCode.isSuccess(returnCode)) {
+        if (ReturnCode.isCancel(returnCode)) {
+          console.warn('FFmpeg task cancelled!');
+        } else {
+          console.error(
+            'Failed to generate thumbnail with return code:',
+            returnCode,
+          );
+        }
+
+        reject(returnCode);
+      }
+
+      console.log(`Successfully generated thumbnail in ${duration} ms.`);
+      console.log('Getting media information....');
+
+      const outputURI = `file://${output}`;
+      const mediaInformation = await getMediaSourceForFile(outputURI);
+
+      resolve({
+        mime: 'image/jpeg',
+        ...mediaInformation,
       });
     });
   });

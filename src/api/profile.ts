@@ -199,6 +199,7 @@ export namespace ProfileApi {
   > & {
     avatar?: Profile['avatar'] | null;
     background?: Profile['background'] | null;
+    backgroundThumbnail?: Profile['backgroundThumbnail'] | null;
   };
 
   export type UpdateProfileParams = {

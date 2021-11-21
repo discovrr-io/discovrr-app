@@ -212,6 +212,8 @@ function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
       // Then upload the new profile avatar (if it has been changed)
       let processedAvatar: MediaSource | null | undefined = undefined;
       let processedBackground: MediaSource | null | undefined = undefined;
+      let processedBackgroundThumbnail: MediaSource | null | undefined =
+        undefined;
 
       if (changes.avatar !== undefined) {
         console.log($FUNC, 'Removing current avatar...');
@@ -264,6 +266,7 @@ function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
       if (changes.background !== undefined) {
         console.log($FUNC, 'Removing current background...');
         processedBackground = null;
+        processedBackgroundThumbnail = null;
 
         if (profile.background) {
           try {
@@ -286,6 +289,32 @@ function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
             // We'll just continue on if this fails
             console.error(
               'Failed to delete old background from Firebase:',
+              error,
+            );
+          }
+        }
+
+        if (profile.backgroundThumbnail) {
+          try {
+            const filePath = profile.backgroundThumbnail.path;
+            if (filePath) {
+              console.log(
+                $FUNC,
+                'Deleting old background thumbnail from Cloud Storage:',
+                filePath,
+              );
+              const reference = storage().ref(filePath);
+              await reference.delete();
+            } else {
+              console.warn(
+                $FUNC,
+                'There is no way to delete the old background thumbnail',
+              );
+            }
+          } catch (error) {
+            // We'll just continue on if this fails
+            console.error(
+              'Failed to delete old background thumbnail from Firebase:',
               error,
             );
           }
@@ -352,21 +381,61 @@ function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
 
       if (changes.background) {
         let backgroundSource: MediaSource;
+        let backgroundThumbnailSource: MediaSource;
 
-        // TODO: Upload a thumbnail as well
         if (changes.background.mime.includes('video')) {
+          const uncompressed = utilities.mapVideoToMediaSource(
+            // @ts-ignore We'll ignore the fact that duration may not exist (it
+            // can be undefined anyway)
+            changes.background,
+          );
+
+          console.log($FUNC, 'Generating thumbnail for background...');
+          setOverlayContent({
+            message: 'Generating thumbnail…',
+            caption: `This won't take long`,
+            canCancel: true,
+          });
+
+          backgroundThumbnailSource = await utilities.generateThumbnail(
+            uncompressed,
+          );
+
+          console.log($FUNC, 'Uploading thumbnail for background...');
+          setOverlayContent({
+            message: 'Uploading thumbnail…',
+            caption: `This won't take too long`,
+            isUploading: true,
+          });
+
+          const [thumbnailFilename, thumbnailTask, thumbnailReference] =
+            utilities.createFirebaseUploadFileTask(
+              backgroundThumbnailSource,
+              ({ filename }) => `/profiles/background-thumbnails/${filename}`,
+            );
+
+          thumbnailTask.on('state_changed', snapshot => {
+            currentUploadProgress.value =
+              snapshot.bytesTransferred / snapshot.totalBytes;
+          });
+
+          await thumbnailTask.then(() => {
+            console.log($FUNC, 'Successfully uploaded background thumbnail');
+          });
+
+          processedBackgroundThumbnail = {
+            ...backgroundThumbnailSource,
+            filename: thumbnailFilename,
+            url: await thumbnailReference.getDownloadURL(),
+            path: thumbnailReference.fullPath,
+          };
+
           console.log($FUNC, 'Compressing background...');
           setOverlayContent({
             message: 'Compressing video…',
             caption: 'This may take a while',
             canCancel: true,
           });
-
-          const uncompressed = utilities.mapVideoToMediaSource(
-            // @ts-ignore We'll ignore the fact that duration may not exist (it
-            // can be undefined anyway)
-            changes.background,
-          );
 
           const timer = setTimeout(() => {
             if (isMounted.current)
@@ -392,7 +461,7 @@ function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
           isUploading: true,
         });
 
-        const [filename, task, reference] =
+        const [videoFilename, videoTask, videoReference] =
           utilities.createFirebaseUploadFileTask(
             backgroundSource,
             ({ filename, isVideo }) =>
@@ -401,20 +470,20 @@ function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
               }/${filename}`,
           );
 
-        task.on('state_changed', snapshot => {
+        videoTask.on('state_changed', snapshot => {
           currentUploadProgress.value =
             snapshot.bytesTransferred / snapshot.totalBytes;
         });
 
-        await task.then(() => {
+        await videoTask.then(() => {
           console.log($FUNC, 'Successfully uploaded background');
         });
 
         processedBackground = {
           ...backgroundSource,
-          filename,
-          url: await reference.getDownloadURL(),
-          path: reference.fullPath,
+          filename: videoFilename,
+          url: await videoReference.getDownloadURL(),
+          path: videoReference.fullPath,
         };
       }
 
@@ -450,6 +519,7 @@ function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
         changes: {
           avatar: processedAvatar,
           background: processedBackground,
+          backgroundThumbnail: processedBackgroundThumbnail,
           displayName: processedDisplayName,
           username: processedUsername,
           biography: processedBiography,

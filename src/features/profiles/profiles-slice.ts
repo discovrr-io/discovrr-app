@@ -237,6 +237,9 @@ const profilesSlice = createSlice({
         // Explicitly set a defined or null value if the background was changed
         if (changes.background !== undefined)
           finalChanges.background = changes.background;
+        // Explicitly set a defined or null value if the background was changed
+        if (changes.backgroundThumbnail !== undefined)
+          finalChanges.backgroundThumbnail = changes.backgroundThumbnail;
 
         profilesAdapter.updateOne(state, {
           id: profileId,
