@@ -5,11 +5,11 @@ import FastImage from 'react-native-fast-image';
 import { useNavigation } from '@react-navigation/core';
 
 import * as constants from 'src/constants';
+import { MediaSource } from 'src/api';
+import { AsyncGate, Card } from 'src/components';
 import { useIsMyProfile, useProfile } from 'src/features/profiles/hooks';
 import { ProfileId, VendorProfile } from 'src/models';
 import { RootStackNavigationProp } from 'src/navigation';
-
-import { AsyncGate, Card } from 'src/components';
 
 import {
   CardElementOptions,
@@ -35,12 +35,15 @@ export default function VendorProfileItemCard(
       )}
       onFulfilled={profile => {
         if (!profile) return null;
-        if (profile.kind !== 'vendor')
+
+        if (profile.kind !== 'vendor') {
           console.warn(
             '[VendorProfileItemCard] Received a non-vendor profile object with',
-            `ID '${profile.id}' of kind '${profile.kind}', which is unexpected.`,
-            'Continuing on...',
+            `ID '${profile.id}' of kind '${profile.kind}', which is`,
+            'unexpected. Continuing on...',
           );
+        }
+
         return (
           <LoadedVendorProfileItemCard
             vendorProfile={profile as VendorProfile}
@@ -53,13 +56,13 @@ export default function VendorProfileItemCard(
   );
 }
 
-type InnerVendorProfileItemCardProps = CardElementProps & {
+type LoadedVendorProfileItemCardProps = CardElementProps & {
   vendorProfile: VendorProfile;
   isMyProfile: boolean;
 };
 
 const LoadedVendorProfileItemCard = (
-  props: InnerVendorProfileItemCardProps,
+  props: LoadedVendorProfileItemCardProps,
 ) => {
   const { vendorProfile, isMyProfile, ...cardElementProps } = props;
 
@@ -67,17 +70,27 @@ const LoadedVendorProfileItemCard = (
 
   const renderCardBody = React.useCallback(
     (elementOptions: CardElementOptions) => {
-      const coverPhoto = vendorProfile.coverPhoto;
-      // const { width = 3, height = 2 } = coverPhoto ?? {};
-      // const aspectRatio = width / height; // Defaults to rectangle (3 / 2 = 1.5)
+      let background: MediaSource | undefined = undefined;
+
+      if (vendorProfile.background) {
+        if (
+          vendorProfile.background.mime.includes('video') &&
+          vendorProfile.backgroundThumbnail
+        ) {
+          background = vendorProfile.backgroundThumbnail;
+        } else {
+          background = vendorProfile.background;
+        }
+      }
+
       return (
         <View>
           <View>
             <Card.Indicator iconName="happy" position="top-right" />
             <FastImage
               source={
-                coverPhoto
-                  ? { uri: coverPhoto?.url }
+                background
+                  ? { uri: background.url }
                   : constants.media.DEFAULT_IMAGE
               }
               style={{
@@ -104,7 +117,11 @@ const LoadedVendorProfileItemCard = (
         </View>
       );
     },
-    [vendorProfile.biography, vendorProfile.coverPhoto],
+    [
+      vendorProfile.biography,
+      vendorProfile.background,
+      vendorProfile.backgroundThumbnail,
+    ],
   );
 
   const handlePressBody = () => {
@@ -129,7 +146,6 @@ const LoadedVendorProfileItemCard = (
           <Card.HeartIconButton
             didLike={vendorProfile.statistics?.didLike ?? false}
             totalLikes={vendorProfile.statistics?.totalLikes ?? 0}
-            // onToggleLike={() => alertUnavailableFeature()}
             onToggleLike={() => {}}
           />
         </Card.Actions>

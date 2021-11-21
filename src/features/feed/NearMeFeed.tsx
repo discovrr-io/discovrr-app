@@ -22,9 +22,9 @@ import {
 } from 'src/components';
 
 import FeedFooter from './FeedFooter';
+import * as profilesSlice from 'src/features/profiles/profiles-slice';
 import ProductItemCard from 'src/features/products/ProductItemCard';
-import VendorProfileItemCard from 'src/features/profiles/vendor/VendorProfileItemCard';
-import { fetchAllProfilesByKind } from '../profiles/profiles-slice';
+import VendorProfileItemCard from 'src/features/profiles/VendorProfileItemCard';
 
 const VENDOR_PAGINATION_LIMIT = 7;
 const PRODUCT_PAGINATION_LIMIT = 18;
@@ -105,7 +105,7 @@ export default function NearMeFeed(_: NearMeFeedProps) {
           setCurrentVendorsPage({ index: 0, didReachEnd: false });
           setCurrentProductsPage({ index: 0, didReachEnd: false });
 
-          const fetchVendorsAction = fetchAllProfilesByKind({
+          const fetchVendorsAction = profilesSlice.fetchAllProfilesByKind({
             kind: 'vendor',
             pagination: {
               currentPage: 0,
@@ -172,7 +172,7 @@ export default function NearMeFeed(_: NearMeFeedProps) {
         try {
           console.log($FUNC, 'Fetching more merchants and products...');
 
-          const fetchVendorsAction = fetchAllProfilesByKind({
+          const fetchVendorsAction = profilesSlice.fetchAllProfilesByKind({
             kind: 'vendor',
             pagination: {
               currentPage: currentProductsPage.index,
