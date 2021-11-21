@@ -2,13 +2,17 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Removed OneSignal integration
+
 ## [v3.0.6] (2021-11-21)
 
 ### Changed
 
-- Store post IDs from the Discover feed on a separate Redux slice to keep
-  posts sorted and to avoid posts jumping around
-- Display labels under the icons on the bottom tab bar
+- Configure Redux to store post IDs from the Discover feed on a separate Redux
+  slice to keep posts sorted and to avoid posts jumping around when refreshing
+- Display labels under the tab icons on the bottom tab bar
 
 ### Added
 

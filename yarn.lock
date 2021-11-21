@@ -8881,13 +8881,6 @@ react-native-masonry-list@^2.16.1:
   dependencies:
     prop-types "^15.6.2"
 
-react-native-onesignal@^4.0.4:
-  version "4.3.1"
-  resolved "https://registry.yarnpkg.com/react-native-onesignal/-/react-native-onesignal-4.3.1.tgz#c6ec7b7f34100e2330ba2772d28ee7134da344cc"
-  integrity sha512-Clcsflp8aWoz29F2J0B+u3GCtw0Yyzx5sSRSsPETSRL9sPmawjShFa/cxtIB1D3tB5I6lvvIpQxYKbpuL5wGJQ==
-  dependencies:
-    invariant "^2.2.2"
-
 react-native-pager-view@^5.4.6:
   version "5.4.6"
   resolved "https://registry.yarnpkg.com/react-native-pager-view/-/react-native-pager-view-5.4.6.tgz#21d16b67136301875da1355dc9d442a4aafab1c7"

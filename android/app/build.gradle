@@ -2,7 +2,6 @@ apply plugin: "com.android.application"
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
 apply plugin: 'com.google.firebase.firebase-perf'
-apply plugin: 'com.onesignal.androidsdk.onesignal-gradle-plugin'
 apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"
 
 import com.android.build.OutputFile
@@ -71,7 +70,7 @@ def enableHermes = project.ext.react.get("enableHermes", true);
 
 def versionMajor = 3 // Can be more than 2 digits
 def versionMinor = 0 // Must be between 0 and 99
-def versionPatch = 5 // Must be between 0 and 99
+def versionPatch = 7 // Must be between 0 and 99
 def versionBuild = 0 // Must be between 0 and 99
 
 android {

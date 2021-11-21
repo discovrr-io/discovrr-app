@@ -21,13 +21,10 @@
 		03997AD3270C1D43001E8B6A /* DiscovrrIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 03997AD2270C1D43001E8B6A /* DiscovrrIcons.ttf */; };
 		03D0FE0C2665B9BE00AD22DE /* Info-release.plist in Resources */ = {isa = PBXBuildFile; fileRef = 03D0FE0B2665B9BE00AD22DE /* Info-release.plist */; };
 		03DC1AE2262DDCF900A0D5C5 /* Discovrr.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03DC1AE1262DDCF900A0D5C5 /* Discovrr.swift */; };
-		03DC1B05262DE70600A0D5C5 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03DC1B04262DE70600A0D5C5 /* NotificationService.swift */; };
-		03DC1B09262DE70600A0D5C5 /* OneSignalNotificationServiceExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 03DC1B02262DE70600A0D5C5 /* OneSignalNotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		03ED367C26876304007B77D4 /* Info-staging.plist in Resources */ = {isa = PBXBuildFile; fileRef = 03ED367B26876304007B77D4 /* Info-staging.plist */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
-		3FD96597F9F46BAFAA8611DB /* libPods-OneSignalNotificationServiceExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AFAA6F5BC1342DBCE5924A88 /* libPods-OneSignalNotificationServiceExtension.a */; };
 		4E4D59428016FFC2A8086E19 /* libPods-Discovrr-DiscovrrTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1C5C06E0FFD78F1455E2A672 /* libPods-Discovrr-DiscovrrTests.a */; };
 		FB63ABD6F50CE2C54A2A5829 /* libPods-Discovrr.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DEFB0483F7BCB30B6BAA12D /* libPods-Discovrr.a */; };
 /* End PBXBuildFile section */
@@ -40,13 +37,6 @@
 			remoteGlobalIDString = 13B07F861A680F5B00A75B9A;
 			remoteInfo = Discovrr;
 		};
-		03DC1B07262DE70600A0D5C5 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 03DC1B01262DE70600A0D5C5;
-			remoteInfo = OneSignalNotificationServiceExtension;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -56,7 +46,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				03DC1B09262DE70600A0D5C5 /* OneSignalNotificationServiceExtension.appex in Embed App Extensions */,
 			);
 			name = "Embed App Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -78,11 +67,7 @@
 		03997AD2270C1D43001E8B6A /* DiscovrrIcons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = DiscovrrIcons.ttf; path = ../assets/fonts/DiscovrrIcons.ttf; sourceTree = "<group>"; };
 		03D0FE0B2665B9BE00AD22DE /* Info-release.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "Info-release.plist"; path = "Discovrr/Info-release.plist"; sourceTree = "<group>"; };
 		03DC1AE1262DDCF900A0D5C5 /* Discovrr.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Discovrr.swift; path = Discovrr/Discovrr.swift; sourceTree = "<group>"; };
-		03DC1B02262DE70600A0D5C5 /* OneSignalNotificationServiceExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = OneSignalNotificationServiceExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		03DC1B04262DE70600A0D5C5 /* NotificationService.swift */ = {isa = PBXFileReference; indentWidth = 4; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; tabWidth = 4; };
-		03DC1B06262DE70600A0D5C5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		03ED367B26876304007B77D4 /* Info-staging.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "Info-staging.plist"; path = "Discovrr/Info-staging.plist"; sourceTree = "<group>"; };
-		03ED368F26876716007B77D4 /* OneSignalNotificationServiceExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = OneSignalNotificationServiceExtension.entitlements; sourceTree = "<group>"; };
 		10415AB7DB500DCD1D6C4948 /* Pods-Discovrr.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Discovrr.release.xcconfig"; path = "Target Support Files/Pods-Discovrr/Pods-Discovrr.release.xcconfig"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* Discovrr D.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Discovrr D.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = Discovrr/AppDelegate.h; sourceTree = "<group>"; tabWidth = 4; };
@@ -121,14 +106,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				4E4D59428016FFC2A8086E19 /* libPods-Discovrr-DiscovrrTests.a in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		03DC1AFF262DE70600A0D5C5 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				3FD96597F9F46BAFAA8611DB /* libPods-OneSignalNotificationServiceExtension.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -173,16 +150,6 @@
 				00E356F11AD99517003FC87E /* Info.plist */,
 			);
 			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		03DC1B03262DE70600A0D5C5 /* OneSignalNotificationServiceExtension */ = {
-			isa = PBXGroup;
-			children = (
-				03ED368F26876716007B77D4 /* OneSignalNotificationServiceExtension.entitlements */,
-				03DC1B04262DE70600A0D5C5 /* NotificationService.swift */,
-				03DC1B06262DE70600A0D5C5 /* Info.plist */,
-			);
-			path = OneSignalNotificationServiceExtension;
 			sourceTree = "<group>";
 		};
 		13B07FAE1A68108700A75B9A /* Discovrr */ = {
@@ -250,13 +217,12 @@
 			isa = PBXGroup;
 			children = (
 				13B07FAE1A68108700A75B9A /* Discovrr */,
-				03DC1B03262DE70600A0D5C5 /* OneSignalNotificationServiceExtension */,
-				832341AE1AAA6A7D00B99B32 /* Libraries */,
+				0086AC63C35A48299C56A9E5 /* Resources */,
 				00E356EF1AD99517003FC87E /* DiscovrrTests */,
-				83CBBA001A601CBA00E9B192 /* Products */,
+				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				350012BBEE1AF27A53CD8809 /* Pods */,
-				0086AC63C35A48299C56A9E5 /* Resources */,
+				83CBBA001A601CBA00E9B192 /* Products */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -268,7 +234,6 @@
 			children = (
 				13B07F961A680F5B00A75B9A /* Discovrr D.app */,
 				00E356EE1AD99517003FC87E /* DiscovrrTests.xctest */,
-				03DC1B02262DE70600A0D5C5 /* OneSignalNotificationServiceExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -297,24 +262,6 @@
 			productReference = 00E356EE1AD99517003FC87E /* DiscovrrTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		03DC1B01262DE70600A0D5C5 /* OneSignalNotificationServiceExtension */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 03DC1B0A262DE70600A0D5C5 /* Build configuration list for PBXNativeTarget "OneSignalNotificationServiceExtension" */;
-			buildPhases = (
-				E1361F2A10A8E438806D6265 /* [CP] Check Pods Manifest.lock */,
-				03DC1AFE262DE70600A0D5C5 /* Sources */,
-				03DC1AFF262DE70600A0D5C5 /* Frameworks */,
-				03DC1B00262DE70600A0D5C5 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = OneSignalNotificationServiceExtension;
-			productName = OneSignalNotificationServiceExtension;
-			productReference = 03DC1B02262DE70600A0D5C5 /* OneSignalNotificationServiceExtension.appex */;
-			productType = "com.apple.product-type.app-extension";
-		};
 		13B07F861A680F5B00A75B9A /* Discovrr */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "Discovrr" */;
@@ -335,7 +282,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				03DC1B08262DE70600A0D5C5 /* PBXTargetDependency */,
 			);
 			name = Discovrr;
 			productName = Discovrr;
@@ -355,11 +301,6 @@
 						CreatedOnToolsVersion = 6.2;
 						DevelopmentTeam = K9APN5C6Z2;
 						TestTargetID = 13B07F861A680F5B00A75B9A;
-					};
-					03DC1B01262DE70600A0D5C5 = {
-						CreatedOnToolsVersion = 12.4;
-						DevelopmentTeam = K9APN5C6Z2;
-						ProvisioningStyle = Automatic;
 					};
 					13B07F861A680F5B00A75B9A = {
 						DevelopmentTeam = K9APN5C6Z2;
@@ -383,20 +324,12 @@
 			targets = (
 				13B07F861A680F5B00A75B9A /* Discovrr */,
 				00E356ED1AD99517003FC87E /* DiscovrrTests */,
-				03DC1B01262DE70600A0D5C5 /* OneSignalNotificationServiceExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		00E356EC1AD99517003FC87E /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		03DC1B00262DE70600A0D5C5 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -524,12 +457,10 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Discovrr/Pods-Discovrr-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/OneSignalXCFramework/OneSignal.framework/OneSignal",
 				"${PODS_XCFRAMEWORKS_BUILD_DIR}/OpenSSL-Universal/OpenSSL.framework/OpenSSL",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/OneSignal.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/OpenSSL.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -580,39 +511,15 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Discovrr-DiscovrrTests/Pods-Discovrr-DiscovrrTests-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/OneSignalXCFramework/OneSignal.framework/OneSignal",
 				"${PODS_XCFRAMEWORKS_BUILD_DIR}/OpenSSL-Universal/OpenSSL.framework/OpenSSL",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/OneSignal.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/OpenSSL.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Discovrr-DiscovrrTests/Pods-Discovrr-DiscovrrTests-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		E1361F2A10A8E438806D6265 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-OneSignalNotificationServiceExtension-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
 		E82C00EC222E8D91167DDB58 /* [CP] Check Pods Manifest.lock */ = {
@@ -738,14 +645,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		03DC1AFE262DE70600A0D5C5 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				03DC1B05262DE70600A0D5C5 /* NotificationService.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		13B07F871A680F5B00A75B9A /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -763,11 +662,6 @@
 			isa = PBXTargetDependency;
 			target = 13B07F861A680F5B00A75B9A /* Discovrr */;
 			targetProxy = 00E356F41AD99517003FC87E /* PBXContainerItemProxy */;
-		};
-		03DC1B08262DE70600A0D5C5 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 03DC1B01262DE70600A0D5C5 /* OneSignalNotificationServiceExtension */;
-			targetProxy = 03DC1B07262DE70600A0D5C5 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -888,7 +782,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 17D25EEF24D31996F7D51B92 /* Pods-Discovrr.testing.xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODEPUSH_KEY = "";
@@ -901,7 +794,7 @@
 				INFOPLIST_FILE = "Discovrr/Info-testing.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 3.0.5;
+				MARKETING_VERSION = 3.0.7;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -939,39 +832,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Discovrr.app/Discovrr";
-			};
-			name = Testing;
-		};
-		036F754327265168008001F7 /* Testing */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 9D0E56BADA639FA7263571C6 /* Pods-OneSignalNotificationServiceExtension.testing.xcconfig */;
-			buildSettings = {
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_ENTITLEMENTS = OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = K9APN5C6Z2;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = OneSignalNotificationServiceExtension/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
-				MARKETING_VERSION = 3.0.5;
-				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
-				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.discovrr.testing.OneSignalNotificationServiceExtension;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Testing;
 		};
@@ -1037,7 +897,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 25E30185216EE2F23A6F2CBA /* Pods-Discovrr.staging.xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODEPUSH_KEY = "JifUNCwdHstktjVKrZxx3KE-eE9hE2QaetqKk";
@@ -1049,7 +908,7 @@
 				INFOPLIST_FILE = "Discovrr/Info-staging.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 3.0.5;
+				MARKETING_VERSION = 3.0.7;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -1087,110 +946,10 @@
 			};
 			name = Staging;
 		};
-		03B7BDEB272573B6000C1736 /* Staging */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 19AEE43D14618FC9A9689C9B /* Pods-OneSignalNotificationServiceExtension.staging.xcconfig */;
-			buildSettings = {
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODEPUSH_KEY = "JifUNCwdHstktjVKrZxx3KE-eE9hE2QaetqKk";
-				CODE_SIGN_ENTITLEMENTS = OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = K9APN5C6Z2;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = OneSignalNotificationServiceExtension/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
-				MARKETING_VERSION = 3.0.5;
-				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.discovrr.staging.OneSignalNotificationServiceExtension;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
-			};
-			name = Staging;
-		};
-		03DC1B0B262DE70600A0D5C5 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = BCBFF7C25E6B59310E3A8066 /* Pods-OneSignalNotificationServiceExtension.debug.xcconfig */;
-			buildSettings = {
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_ENTITLEMENTS = OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = K9APN5C6Z2;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = OneSignalNotificationServiceExtension/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
-				MARKETING_VERSION = 3.0.5;
-				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
-				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.discovrr.debug.OneSignalNotificationServiceExtension;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
-			};
-			name = Debug;
-		};
-		03DC1B0C262DE70600A0D5C5 /* Release */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 156C92B444013D1483893ED4 /* Pods-OneSignalNotificationServiceExtension.release.xcconfig */;
-			buildSettings = {
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODEPUSH_KEY = vYu7b5Dg8cXZFg7RbIRSrSJjQCkKGOQFPrE03;
-				CODE_SIGN_ENTITLEMENTS = OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = K9APN5C6Z2;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = OneSignalNotificationServiceExtension/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
-				MARKETING_VERSION = 3.0.5;
-				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.discovrr.OneSignalNotificationServiceExtension;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
-			};
-			name = Release;
-		};
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = FB326D2388DF746A9C07A634 /* Pods-Discovrr.debug.xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODEPUSH_KEY = "";
@@ -1203,7 +962,7 @@
 				INFOPLIST_FILE = Discovrr/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 3.0.5;
+				MARKETING_VERSION = 3.0.7;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -1223,7 +982,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 10415AB7DB500DCD1D6C4948 /* Pods-Discovrr.release.xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODEPUSH_KEY = vYu7b5Dg8cXZFg7RbIRSrSJjQCkKGOQFPrE03;
@@ -1235,7 +993,7 @@
 				INFOPLIST_FILE = "Discovrr/Info-release.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 3.0.5;
+				MARKETING_VERSION = 3.0.7;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -1382,17 +1140,6 @@
 				036F754227265168008001F7 /* Testing */,
 				03B7BDEA272573B6000C1736 /* Staging */,
 				00E356F71AD99517003FC87E /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		03DC1B0A262DE70600A0D5C5 /* Build configuration list for PBXNativeTarget "OneSignalNotificationServiceExtension" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				03DC1B0B262DE70600A0D5C5 /* Debug */,
-				036F754327265168008001F7 /* Testing */,
-				03B7BDEB272573B6000C1736 /* Staging */,
-				03DC1B0C262DE70600A0D5C5 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
