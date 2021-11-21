@@ -37,3 +37,7 @@ target 'Discovrr' do
     flipper_post_install(installer)
   end
 end
+
+target 'FirebaseNotificationServiceExtension' do
+  pod 'Firebase/Messaging', '~> 8.8.0'
+end

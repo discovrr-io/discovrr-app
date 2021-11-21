@@ -361,7 +361,7 @@ export default function LandingScreen(_: LandingScreenProps) {
             ) : homeFeedData ? (
               <MakerOfTheWeek {...homeFeedData.makerOfTheWeek} />
             ) : null}
-            <SectionTitle title="Featured" />
+            <SectionTitle title="Our Picks For The Week" />
           </View>
         }
         ListFooterComponent={

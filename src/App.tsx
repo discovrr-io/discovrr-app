@@ -72,6 +72,24 @@ function App() {
       .catch(error => {
         console.error($FUNC, 'Failed to suppress in app messages:', error);
       });
+
+    console.log($FUNC, 'Requesting notification permission...');
+    messaging()
+      .requestPermission()
+      .then(authStatus => {
+        const enabled =
+          authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+          authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+        // TODO: Do something useful with this (e.g applying notification
+        // settings)
+        if (enabled) {
+          console.log($FUNC, 'Authorization status:', authStatus);
+        }
+      })
+      .catch(error => {
+        console.error($FUNC, 'Failed to request permission', error);
+      });
   }, []);
 
   return (
@@ -199,20 +217,27 @@ function PersistedApp() {
             },
           },
           getInitialURL: async () => {
-            // Check if app was opened from a deep link
+            // Check if app was opened from a deep link, and return it.
             const url = await Linking.getInitialURL();
 
             if (url != null) return url;
 
-            // Check if there is an initial Firebase notification
+            // Otherwise, check if there is an initial Firebase notification.
             const message = await messaging().getInitialNotification();
 
-            // Get deep link from notification's data
-            // If this is undefined, the app will open the default/home page
-            return message?.data?.link;
+            // Get the deep link from notification's data.
+            // If the return value is undefined, the app will open the first
+            // screen as normal.
+            if (message?.data?.link) {
+              // This requires the "discovrr:" scheme prepended to work.
+              return 'discovrr://' + message?.data?.link;
+            }
           },
           subscribe: listener => {
-            const onReceiveURL = ({ url }: { url: string }) => listener(url);
+            const onReceiveURL = ({ url }: { url: string }) => {
+              // This requires the "discovrr:" scheme prepended to work.
+              listener('discovrr://' + url);
+            };
 
             // Listen to incoming links from deep linking
             Linking.addEventListener('url', onReceiveURL);
@@ -220,7 +245,10 @@ function PersistedApp() {
             // Listen to Firebase push notifications
             const unsubscribe = messaging().onNotificationOpenedApp(message => {
               const url = message?.data?.link;
-              if (url) listener(url);
+              if (url) {
+                // This requires the "discovrr:" scheme prepended to work.
+                listener('discovrr://' + url);
+              }
             });
 
             return () => {

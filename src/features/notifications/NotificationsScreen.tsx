@@ -128,7 +128,12 @@ function NotificationItem(props: NotificationItemProps) {
 
   const handlePressNotification = () => {
     dispatch(notificationsSlice.markNotificationAsRead(notification.id));
-    if (notification.link) linkTo(notification.link);
+    if (notification.link)
+      linkTo(
+        notification.link.startsWith('/')
+          ? notification.link
+          : `/${notification.link}`,
+      );
   };
 
   return (

@@ -313,9 +313,11 @@ function MainSettingsScreenFooter() {
         <UpdateStatusLabel />
       </TouchableOpacity>
       <Spacer.Vertical value="sm" />
-      <Text style={[constants.font.small, footerStyles.text]}>
-        {Parse.serverURL}
-      </Text>
+      {Config.ENV !== 'production' && (
+        <Text style={[constants.font.small, footerStyles.text]}>
+          {Parse.serverURL}
+        </Text>
+      )}
     </View>
   );
 }
