@@ -431,7 +431,11 @@ function PostDetailsScreen({ post }: PostDetailsScreenProps) {
   return (
     <SafeAreaView
       edges={['left', 'right']}
-      style={{ flexGrow: 1, marginBottom: bottomInset }}>
+      style={{
+        flexGrow: 1,
+        marginBottom: bottomInset,
+        backgroundColor: constants.color.absoluteWhite,
+      }}>
       <KeyboardAvoidingView
         behavior="padding"
         keyboardVerticalOffset={

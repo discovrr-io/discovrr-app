@@ -6,7 +6,7 @@ const nodePackage = require('../../package.json');
 
 export const DEFAULT_ACTIVE_OPACITY = 0.75;
 export const DEFAULT_TILE_SPACING = spacing.sm * 1.1;
-export const DEFAULT_MIN_BOTTOM_TAB_BAR_HEIGHT = 54;
+export const DEFAULT_MIN_BOTTOM_TAB_BAR_HEIGHT = 58;
 export const DEFAULT_ICON_LIKE_ANIMATION: Animation = 'rubberBand';
 
 export const MAX_VID_DURATION_SECONDS = 60;

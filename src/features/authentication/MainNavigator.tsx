@@ -104,7 +104,7 @@ function FacadeNavigator() {
         },
         tabBarLabelStyle: [
           constants.font.defaultBottomTabLabelStyle,
-          { marginTop: -5, marginBottom: 4 },
+          { marginTop: -4, marginBottom: 6 },
         ],
         tabBarBadgeStyle: {
           fontFamily: constants.font.small.fontFamily,
@@ -112,7 +112,7 @@ function FacadeNavigator() {
         },
         tabBarIcon: ({ focused, color }) => {
           let iconName: string;
-          let iconSize = 25;
+          let iconSize = 26;
 
           if (Platform.OS === 'ios' && route.name === 'Home') {
             return <DiscovrrIcon size={iconSize * 0.9} color={color} />;
