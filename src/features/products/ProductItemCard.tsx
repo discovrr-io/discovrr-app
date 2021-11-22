@@ -7,7 +7,7 @@ import { useNavigation } from '@react-navigation/core';
 import * as constants from 'src/constants';
 import * as profilesSlice from 'src/features/profiles/profiles-slice';
 import { ApiFetchStatus, MediaSource, ProductApi } from 'src/api';
-import { useAppDispatch, useIsMounted } from 'src/hooks';
+import { useAppDispatch, useAppSelector, useIsMounted } from 'src/hooks';
 import { Product, ProductId, Profile, VendorProfileId } from 'src/models';
 import { RootStackNavigationProp } from 'src/navigation';
 
@@ -242,6 +242,12 @@ const ProductItemCardAuthor = (props: ProductItemCardAuthorProps) => {
     status: 'idle',
   });
 
+  const isMyProfile = useAppSelector(state => {
+    if (!foundProfile) return false;
+    if (!state.auth.user) return false;
+    return state.auth.user.profileId === foundProfile.profileId;
+  });
+
   const getProfileDisplayName = React.useCallback(
     (profile: Profile | undefined) => {
       if (!profile) {
@@ -308,6 +314,7 @@ const ProductItemCardAuthor = (props: ProductItemCardAuthorProps) => {
       onFulfilled={profile => (
         <Card.Author
           avatar={profile?.avatar}
+          isMyProfile={isMyProfile}
           displayName={getProfileDisplayName(profile)}
           onPress={() => handlePressAuthor(profile)}
           {...cardElementProps}

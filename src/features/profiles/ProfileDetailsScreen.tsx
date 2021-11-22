@@ -152,7 +152,7 @@ export function LoadedProfileDetailsScreen(
     const items: ActionBottomSheetItem[] = [];
 
     if (!isMyProfile) {
-      const displayName = (() => {
+      const publicName = (() => {
         if (profile.kind === 'vendor') {
           return profile.businessName || profile.displayName;
         } else {
@@ -163,13 +163,13 @@ export function LoadedProfileDetailsScreen(
       items.push(
         {
           id: 'block',
-          label: `Block ${displayName}`,
+          label: `Block ${publicName}`,
           iconName: 'hand-right-outline',
           destructive: true,
         },
         {
           id: 'report',
-          label: `Report ${profile.displayName}`,
+          label: `Report ${publicName}`,
           iconName: 'flag-outline',
         },
       );
@@ -419,6 +419,14 @@ function ProfileDetailsHeader(props: ProfileDetailsHeaderProps) {
       .reduce((acc, curr) => acc + curr, 0);
   });
 
+  const profilePublicName = React.useMemo(() => {
+    if (profile.kind === 'vendor') {
+      return profile.businessName || profile.displayName;
+    } else {
+      return profile.displayName;
+    }
+  }, [profile]);
+
   useFocusEffect(
     React.useCallback(() => {
       // FIXME: Video starts playing when header is collapsed after navigating
@@ -603,7 +611,7 @@ function ProfileDetailsHeader(props: ProfileDetailsHeaderProps) {
                 profileDetailsHeaderStyles.headerText,
                 { fontSize: constants.font.size.h3 },
               ]}>
-              {profile.displayName}
+              {profilePublicName}
             </Text>
             <Text
               style={[

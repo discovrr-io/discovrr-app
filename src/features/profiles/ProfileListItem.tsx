@@ -43,19 +43,17 @@ const LoadedProfileListItem = (props: InnerProfileListItemProps) => {
   const isMyProfile = useIsMyProfile(profile.profileId);
 
   const profileDisplayName = useMemo(() => {
-    if (isMyProfile) {
-      return 'You';
-    } else if (profile.kind === 'vendor') {
+    if (profile.kind === 'vendor') {
       return profile.businessName || profile.displayName;
     } else {
       return profile.displayName;
     }
-  }, [profile, isMyProfile]);
+  }, [profile]);
 
   const handlePressProfile = () => {
     navigation.push('ProfileDetails', {
       profileId: profile.profileId,
-      profileDisplayName: profile.displayName,
+      profileDisplayName: profileDisplayName,
     });
   };
 
@@ -76,7 +74,7 @@ const LoadedProfileListItem = (props: InnerProfileListItemProps) => {
                 ? [font.mediumBold, { color: color.accent }]
                 : font.medium,
             ]}>
-            {profileDisplayName}
+            {isMyProfile ? 'You' : profileDisplayName}
           </Text>
           <Spacer.Vertical value={layout.spacing.xs} />
           <Text

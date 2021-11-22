@@ -128,7 +128,7 @@ const LoadedVendorProfileItemCard = (
     navigation.navigate('ProfileDetails', {
       profileId: vendorProfile.profileId,
       profileDisplayName:
-        vendorProfile.businessEmail || vendorProfile.displayName,
+        vendorProfile.businessName || vendorProfile.displayName,
     });
   };
 

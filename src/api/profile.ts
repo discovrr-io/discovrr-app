@@ -91,6 +91,9 @@ export namespace ProfileApi {
         kind: 'vendor',
         ...commonProfileDetails,
         ...sharedProfileDetails,
+        businessName: result.get('profileVendor')?.get('businessName'),
+        businessEmail: result.get('profileVendor')?.get('businessEmail'),
+        address: result.get('profileVendor')?.get('address'),
       };
     }
 
