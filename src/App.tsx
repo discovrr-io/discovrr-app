@@ -72,25 +72,6 @@ function App() {
       .catch(error => {
         console.error($FUNC, 'Failed to suppress in app messages:', error);
       });
-
-    // TODO: Maybe request permission later on in the app?
-    console.log($FUNC, 'Requesting notification permission...');
-    messaging()
-      .requestPermission()
-      .then(authStatus => {
-        const enabled =
-          authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-          authStatus === messaging.AuthorizationStatus.PROVISIONAL;
-
-        // TODO: Do something useful with this (e.g applying notification
-        // settings)
-        if (enabled) {
-          console.log($FUNC, 'Authorization status:', authStatus);
-        }
-      })
-      .catch(error => {
-        console.error($FUNC, 'Failed to request permission', error);
-      });
   }, []);
 
   return (

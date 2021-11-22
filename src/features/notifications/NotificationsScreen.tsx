@@ -51,6 +51,7 @@ export default function NotificationsScreen(props: NotificationsScreenProps) {
           title="Clear All"
           size="medium"
           type="primary"
+          disabled={notifications.length === 0}
           textStyle={{ textAlign: 'right' }}
           containerStyle={{
             alignItems: 'flex-end',
@@ -61,7 +62,7 @@ export default function NotificationsScreen(props: NotificationsScreenProps) {
         />
       ),
     });
-  }, [dispatch, props.navigation]);
+  }, [dispatch, notifications.length, props.navigation]);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>

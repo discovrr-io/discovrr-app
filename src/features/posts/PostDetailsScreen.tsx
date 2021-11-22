@@ -822,10 +822,10 @@ function VideoPlayer(props: VideoPlayerProps) {
     <View style={[videoPostDetailsContentStyle.videoContainer, containerStyle]}>
       <Video
         {...videoProps}
-        controls
         ref={videoRef}
         paused={isPaused}
         onLoad={handleOnLoad}
+        controls={Platform.OS === 'ios'} // Only show controls on iOS for now
         style={[videoPostDetailsContentStyle.video, videoPlayerStyle]}
       />
       {showLoading && (

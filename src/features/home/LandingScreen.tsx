@@ -1,30 +1,34 @@
 import * as React from 'react';
 import {
   ActivityIndicator,
-  Platform,
+  // Platform,
   RefreshControl,
   ScrollView,
   StyleProp,
   StyleSheet,
   Text,
+  TouchableHighlight,
+  TouchableOpacity,
   View,
   ViewStyle,
 } from 'react-native';
 
 import analytics from '@react-native-firebase/analytics';
+import messaging from '@react-native-firebase/messaging';
+
 import FastImage from 'react-native-fast-image';
 import Parse from 'parse/react-native';
-import { useScrollToTop } from '@react-navigation/native';
+import { useNavigation, useScrollToTop } from '@react-navigation/native';
 
 import * as constants from 'src/constants';
 import * as utilities from 'src/utilities';
 import ProductItemCard from 'src/features/products/ProductItemCard';
 import { useAppDispatch, useAppSelector, useIsMounted } from 'src/hooks';
 import { ProductId } from 'src/models';
-import { HomeStackScreenProps } from 'src/navigation';
+import { HomeStackScreenProps, RootStackNavigationProp } from 'src/navigation';
 
 import {
-  DiscovrrIcon,
+  // DiscovrrIcon,
   EmptyContainer,
   LoadingContainer,
   MasonryList,
@@ -48,19 +52,43 @@ type HomeFeedData = {
     title: string;
     caption: string;
     coverImageUrl?: string;
+    link?: string;
+    linkTitle?: string;
   };
   featuredProductIds?: ProductId[];
   limitedOfferProductId?: ProductId;
 };
 
+async function requestNotificationPermission() {
+  try {
+    const authStatus = await messaging().requestPermission();
+    const enabled =
+      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+    // TODO: Do something useful with this (e.g applying notification
+    // settings)
+    if (enabled) {
+      console.log('Authorization status:', authStatus);
+    }
+  } catch (error) {
+    console.error('Failed to request permission', error);
+  }
+}
+
 async function fetchHomeFeedData(): Promise<HomeFeedData> {
   const homeFeedQuery = new Parse.Query(Parse.Object.extend('HomeFeed'));
-  homeFeedQuery.descending('createdAt');
-  homeFeedQuery.equalTo('active', true);
+  homeFeedQuery.descending('createdAt').equalTo('active', true);
 
   const homeFeedData = await homeFeedQuery.first();
   if (!homeFeedData)
     throw new Error('No home feed data found, which is unexpected');
+
+  const makersQuery = new Parse.Query(Parse.Object.extend('Profile'));
+  makersQuery
+    .include('profileVendor')
+    .equalTo('kind', 'vendor')
+    .equalTo('highest-role', 'verified-vendor');
 
   return {
     callToAction: {
@@ -71,6 +99,8 @@ async function fetchHomeFeedData(): Promise<HomeFeedData> {
       title: homeFeedData.get('makerOfTheWeekTitle'),
       caption: homeFeedData.get('makerOfTheWeekCaption'),
       coverImageUrl: homeFeedData.get('makerOfTheWeekCoverImageUrl'),
+      link: homeFeedData.get('makerOfTheWeekLink'),
+      linkTitle: homeFeedData.get('makerOfTheWeekLinkTitle'),
     },
     featuredProductIds: homeFeedData.get('featuredProductsArray'),
     limitedOfferProductId: homeFeedData.get('limitedOfferProduct')?.id,
@@ -83,22 +113,25 @@ function CallToAction(props: CallToActionProps) {
   return (
     <View style={[callToActionStyles.container]}>
       {/* FIXME: Try to get `DiscovrrIcon` to work on Android */}
-      {Platform.OS === 'ios' && (
+      {/* {Platform.OS === 'ios' && (
         <DiscovrrIcon
           color={constants.color.absoluteWhite}
           size={275}
           style={callToActionStyles.logo}
         />
-      )}
+      )} */}
       <Text
-        style={[constants.font.h2, { color: constants.color.absoluteWhite }]}>
+        style={[
+          constants.font.h2,
+          { color: constants.color.absoluteWhite /* textAlign: 'center' */ },
+        ]}>
         {props.title}
       </Text>
       <Spacer.Vertical value="md" />
       <Text
         style={[
           constants.font.large,
-          { color: constants.color.absoluteWhite },
+          { color: constants.color.absoluteWhite /* textAlign: 'center' */ },
         ]}>
         {props.caption}
       </Text>
@@ -109,8 +142,10 @@ function CallToAction(props: CallToActionProps) {
 const callToActionStyles = StyleSheet.create({
   container: {
     minHeight: 280,
+    // alignItems: 'center',
+    // justifyContent: 'center',
     padding: constants.layout.spacing.lg,
-    paddingBottom: constants.layout.spacing.xxl,
+    paddingBottom: constants.layout.spacing.xxl + constants.layout.spacing.sm,
     justifyContent: 'flex-end',
     backgroundColor: constants.color.blue700,
     borderRadius: constants.layout.radius.md,
@@ -122,11 +157,6 @@ const callToActionStyles = StyleSheet.create({
     right: -70,
     opacity: 0.15,
   },
-  shopNowText: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'flex-end',
-  },
 });
 
 type SectionTitleProps = {
@@ -137,7 +167,7 @@ type SectionTitleProps = {
 function SectionTitle(props: SectionTitleProps) {
   return (
     <View style={[sectionTitleProps.container, props.style]}>
-      <Text style={[constants.font.h3, sectionTitleProps.title]}>
+      <Text style={[constants.font.h2, sectionTitleProps.title]}>
         {props.title}
       </Text>
     </View>
@@ -150,6 +180,8 @@ const sectionTitleProps = StyleSheet.create({
   },
   title: {
     textAlign: 'center',
+    fontSize: constants.font.size.h2 * 0.8,
+    // fontWeight: '600',
   },
 });
 
@@ -157,39 +189,61 @@ type MakerOfTheWeekProps = HomeFeedData['makerOfTheWeek'];
 
 function MakerOfTheWeek(props: MakerOfTheWeekProps) {
   const [isLoading, setIsLoading] = React.useState(false);
+  const navigation = useNavigation<RootStackNavigationProp>();
+
+  const handlePressCard = () => {
+    if (props.link) {
+      navigation.navigate('InAppWebView', {
+        destination: { uri: props.link },
+        title: props.linkTitle || 'Maker of the Week',
+      });
+    }
+  };
+
   return (
     <View>
-      <SectionTitle title="Maker of the Week" />
-      <View
-        style={{
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}>
-        <FastImage
-          resizeMode="cover"
-          source={{ uri: props.coverImageUrl }}
-          style={makerOfTheWeekStyles.coverImage}
-          onLoadStart={() => setIsLoading(true)}
-          onLoadEnd={() => setIsLoading(false)}
-        />
-        {isLoading && (
-          <ActivityIndicator
-            size="large"
-            color={constants.color.gray500}
-            style={{ position: 'absolute' }}
+      <SectionTitle title="Maker of the week" />
+      <TouchableOpacity activeOpacity={1} onPress={handlePressCard}>
+        <View style={makerOfTheWeekStyles.coverImageContainer}>
+          <FastImage
+            resizeMode="cover"
+            source={{ uri: props.coverImageUrl }}
+            style={makerOfTheWeekStyles.coverImage}
+            onLoadStart={() => setIsLoading(true)}
+            onLoadEnd={() => setIsLoading(false)}
           />
-        )}
-      </View>
-      <Spacer.Vertical value="md" />
-      <View style={makerOfTheWeekStyles.textContainer}>
-        <Text numberOfLines={1} style={constants.font.mediumBold}>
-          {props.title}
+          {isLoading && (
+            <ActivityIndicator
+              size="large"
+              color={constants.color.gray500}
+              style={{ position: 'absolute' }}
+            />
+          )}
+        </View>
+        <Spacer.Vertical value="md" />
+        <View style={makerOfTheWeekStyles.textContainer}>
+          <Text numberOfLines={1} style={constants.font.mediumBold}>
+            {props.title}
+          </Text>
+          <Spacer.Vertical value="sm" />
+          <Text numberOfLines={3} style={constants.font.small}>
+            {props.caption}
+          </Text>
+        </View>
+      </TouchableOpacity>
+      <Spacer.Vertical value="sm" />
+      <TouchableOpacity
+        activeOpacity={constants.values.DEFAULT_ACTIVE_OPACITY}
+        onPress={handlePressCard}>
+        <Text
+          style={[
+            makerOfTheWeekStyles.textContainer,
+            constants.font.smallBold,
+            { color: constants.color.accent },
+          ]}>
+          Read more…
         </Text>
-        <Spacer.Vertical value="sm" />
-        <Text numberOfLines={3} style={constants.font.small}>
-          {props.caption}
-        </Text>
-      </View>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -219,6 +273,10 @@ MakerOfTheWeek.Pending = () => (
 );
 
 const makerOfTheWeekStyles = StyleSheet.create({
+  coverImageContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   coverImage: {
     height: 280,
     width: '100%',
@@ -237,7 +295,7 @@ type LimitedOfferProps = {
 function LimitedOffer(props: LimitedOfferProps) {
   return (
     <View>
-      <SectionTitle title="Limited Offer" />
+      <SectionTitle title="Limited offer" />
       <ProductItemCard productId={props.productId} />
     </View>
   );
@@ -245,7 +303,7 @@ function LimitedOffer(props: LimitedOfferProps) {
 
 type LandingScreenProps = HomeStackScreenProps<'Landing'>;
 
-export default function LandingScreen(_: LandingScreenProps) {
+export default function LandingScreen(props: LandingScreenProps) {
   const $FUNC = '[LandingScreen]';
   const dispatch = useAppDispatch();
   const isMounted = useIsMounted();
@@ -309,24 +367,44 @@ export default function LandingScreen(_: LandingScreenProps) {
     if (!isInitialRender && !shouldRefresh) setShouldRefresh(true);
   };
 
-  const handleConcludeOnboarding = (result: OnboardingResult) => {
+  const handleGoToNearMe = () => {
+    props.navigation.getParent<RootStackNavigationProp>().navigate('Main', {
+      screen: 'Facade',
+      params: {
+        screen: 'Explore',
+        params: { screen: 'Feed', params: { screen: 'NearMeFeed' } },
+      },
+    });
+  };
+
+  const handleConcludeOnboarding = async (result: OnboardingResult) => {
     setIsModalVisible(false);
     console.log($FUNC, 'Submitting onboarding response...');
     const submitResponseAction = onboardingSlice.submitOnboardingResponse({
       surveyResult: result.surveyResponse,
     });
+
     dispatch(submitResponseAction)
       .unwrap()
       .catch(error => {
         console.error($FUNC, 'Failed to submit onboarding result:', error);
       });
+
+    console.log($FUNC, 'Requesting notification permission...');
+    await requestNotificationPermission();
+  };
+
+  const handleSkipOnboarding = async () => {
+    setIsModalVisible(false);
+    console.log($FUNC, 'Requesting notification permission...');
+    await requestNotificationPermission();
   };
 
   return (
     <OnboardingModalContext.Provider
       value={{
         completeOnboarding: handleConcludeOnboarding,
-        skipOnboarding: () => setIsModalVisible(false),
+        skipOnboarding: handleSkipOnboarding,
       }}>
       <MasonryList
         ref={masonryListScrollViewRef}
@@ -356,12 +434,34 @@ export default function LandingScreen(_: LandingScreenProps) {
                   'our local makers'
               }
             />
+            <Spacer.Vertical value="lg" />
+            <TouchableHighlight
+              underlayColor={constants.color.teal300}
+              onPress={handleGoToNearMe}
+              style={{
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: constants.color.teal500,
+                borderRadius: constants.layout.radius.md,
+                minHeight: 190,
+              }}>
+              <Text
+                style={[
+                  constants.font.h2,
+                  {
+                    color: constants.color.absoluteWhite,
+                    fontSize: constants.font.size.h2 * 0.8,
+                  },
+                ]}>
+                Show Now
+              </Text>
+            </TouchableHighlight>
             {(isInitialRender || shouldRefresh) && !homeFeedData ? (
               <MakerOfTheWeek.Pending />
             ) : homeFeedData ? (
               <MakerOfTheWeek {...homeFeedData.makerOfTheWeek} />
             ) : null}
-            <SectionTitle title="Our Picks For The Week" />
+            <SectionTitle title="Our picks for the week" />
           </View>
         }
         ListFooterComponent={

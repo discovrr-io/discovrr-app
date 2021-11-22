@@ -2,6 +2,17 @@
 
 ## [Unreleased]
 
+## [v3.0.8] (2021-11-22)
+
+### Changed
+
+- Redesigned landing page
+- Display prompt for push notifications after the onboarding process
+
+### Fixed
+
+- Display business names instead of display names for vendor profiles
+
 ## [v3.0.7] (2021-11-21)
 
 ### Changed
