@@ -453,7 +453,7 @@ export default function LandingScreen(props: LandingScreenProps) {
                     fontSize: constants.font.size.h2 * 0.8,
                   },
                 ]}>
-                Show Now
+                Shop Now
               </Text>
             </TouchableHighlight>
             {(isInitialRender || shouldRefresh) && !homeFeedData ? (
