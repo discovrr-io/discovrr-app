@@ -495,13 +495,13 @@ function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
           ? changedDisplayName
           : undefined;
 
-      // let processedBusinessName: string | undefined = undefined;
-      // if (profile.kind === 'vendor') {
-      //   const changedBusinessName = changes.businessName?.trim();
-      //   if (profile.businessName !== changedBusinessName) {
-      //     processedBusinessName = changedBusinessName;
-      //   }
-      // }
+      let processedBusinessName: string | undefined = undefined;
+      if (profile.kind === 'vendor') {
+        const changedBusinessName = changes.businessName?.trim();
+        if (profile.businessName !== changedBusinessName) {
+          processedBusinessName = changedBusinessName;
+        }
+      }
 
       const changedUsername = changes.username.trim();
       const processedUsername =
@@ -523,6 +523,7 @@ function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
           displayName: processedDisplayName,
           username: processedUsername,
           biography: processedBiography,
+          businessName: processedBusinessName,
         },
       });
 
@@ -561,9 +562,7 @@ function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
               background: undefined,
               displayName: profile.displayName,
               businessName:
-                profile.kind === 'vendor'
-                  ? profile.businessName
-                  : profile.displayName,
+                profile.kind === 'vendor' ? profile.businessName : undefined,
               username: profile.username,
               biography: profile.biography,
             }}

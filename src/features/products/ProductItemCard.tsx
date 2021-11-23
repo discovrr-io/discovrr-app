@@ -248,24 +248,6 @@ const ProductItemCardAuthor = (props: ProductItemCardAuthorProps) => {
     return state.auth.user.profileId === foundProfile.profileId;
   });
 
-  const getProfileDisplayName = React.useCallback(
-    (profile: Profile | undefined) => {
-      if (!profile) {
-        return 'Anonymous';
-      } else if (profile.kind === 'vendor') {
-        return profile.businessName || profile.displayName;
-      } else {
-        console.warn(
-          $FUNC,
-          'ProductItemCard found a profile that is NOT a vendor,',
-          'which is unexpected.',
-        );
-        return profile.displayName;
-      }
-    },
-    [],
-  );
-
   React.useEffect(() => {
     (async () => {
       try {
@@ -300,7 +282,7 @@ const ProductItemCardAuthor = (props: ProductItemCardAuthorProps) => {
 
     navigation.navigate('ProfileDetails', {
       profileId: profile.profileId,
-      profileDisplayName: getProfileDisplayName(profile),
+      profileDisplayName: profile.__publicName,
     });
   };
 
@@ -315,7 +297,7 @@ const ProductItemCardAuthor = (props: ProductItemCardAuthorProps) => {
         <Card.Author
           avatar={profile?.avatar}
           isMyProfile={isMyProfile}
-          displayName={getProfileDisplayName(profile)}
+          displayName={profile?.__publicName}
           onPress={() => handlePressAuthor(profile)}
           {...cardElementProps}
         />

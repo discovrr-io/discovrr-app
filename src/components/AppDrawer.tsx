@@ -291,7 +291,7 @@ function AppDrawer(props: AppDrawerProps & { profileId: ProfileId }) {
             <Text
               numberOfLines={1}
               style={[constants.font.extraLargeBold, { textAlign: 'center' }]}>
-              {profile?.displayName || 'Anonymous'}
+              {profile?.__publicName || 'Anonymous'}
             </Text>
             <Spacer.Vertical value="xs" />
             <Text

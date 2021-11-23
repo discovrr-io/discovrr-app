@@ -122,7 +122,7 @@ function LoadedProfileFollowActivityScreen(
             message={`${
               isMyProfile
                 ? "You aren't"
-                : (profile.displayName || 'This user') + " isn't"
+                : (profile.__publicName || 'This user') + " isn't"
             } ${
               selector === 'followers'
                 ? 'followed by anyone'

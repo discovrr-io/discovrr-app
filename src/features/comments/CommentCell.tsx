@@ -147,7 +147,7 @@ const CommentCellAvatar = (props: { profile?: Profile }) => {
 
     navigation.push('ProfileDetails', {
       profileId: profile.profileId,
-      profileDisplayName: profile.displayName,
+      profileDisplayName: profile.__publicName,
     });
   };
 
@@ -191,7 +191,7 @@ const CommentCellAuthor = (props: { profile?: Profile }) => {
 
     navigation.push('ProfileDetails', {
       profileId: profile.profileId,
-      profileDisplayName: profile.displayName,
+      profileDisplayName: profile.__publicName,
     });
   };
 
@@ -206,7 +206,7 @@ const CommentCellAuthor = (props: { profile?: Profile }) => {
           font.smallBold,
           { color: isMyProfileId ? color.accent : color.gray700 },
         ]}>
-        {isMyProfileId ? 'You' : profile?.displayName ?? 'Anonymous'}
+        {isMyProfileId ? 'You' : profile?.__publicName || 'Anonymous'}
       </Text>
       {profile?.username && (
         <>

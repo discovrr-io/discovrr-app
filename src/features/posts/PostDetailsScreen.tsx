@@ -211,7 +211,7 @@ const PostHeaderComponent = ({ post }: { post: Post }) => {
             }
           : {
               title: `Share ${
-                posterProfile?.displayName ?? 'this user'
+                posterProfile?.__publicName ?? 'this user'
               }'s post`,
               message: ANDROID_SHARE_MESSAGE,
             },
@@ -495,7 +495,7 @@ function PostDetailsScreen({ post }: PostDetailsScreenProps) {
                   constants.font.smallBold,
                   postDetailsScreenStyles.commentBoxIndicatorText,
                 ]}>
-                Replying to {replyContext.recipient.displayName}…
+                Replying to {replyContext.recipient.__publicName}…
               </Text>
               <TouchableOpacity
                 activeOpacity={constants.values.DEFAULT_ACTIVE_OPACITY}

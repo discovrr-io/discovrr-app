@@ -69,18 +69,32 @@ export interface VendorProfile
     SharedProfileDetails {
   readonly businessName?: string;
   readonly businessEmail?: string;
-  readonly address?: VendorProfileAddress;
+  readonly businessAddress?: VendorProfileAddress;
   readonly coordinates?: Coordinates;
   readonly statistics?: Statistics;
 }
+
+type ProfilePublicName = {
+  /**
+   * Auto-generated property that will conveniently return the appropriate
+   * public name of the profile (either the business name of a vendor, if
+   * available, otherwise the display name).
+   *
+   * This property will not do anything special in the case that both strings
+   * are falsy (i.e. they are both empty strings).
+   */
+  readonly __publicName: string;
+};
+
+type PersonalOrVendorProfile =
+  | ({ kind: 'personal' } & PersonalProfile)
+  | ({ kind: 'vendor' } & VendorProfile);
 
 /**
  * A union of `PersonalProfile` and `VendorProfile` distinguished by the `kind`
  * property.
  */
-type Profile =
-  | ({ kind: 'personal' } & PersonalProfile)
-  | ({ kind: 'vendor' } & VendorProfile);
+type Profile = ProfilePublicName & PersonalOrVendorProfile;
 
 export type ProfileKind = Profile['kind'];
 

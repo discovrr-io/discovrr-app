@@ -66,6 +66,11 @@ export const fetchAllProfiles = createAsyncThunk<
   Reloadable<ProfileApi.FetchAllProfilesParams>
 >('profiles/fetchAllProfiles', ProfileApi.fetchAllProfiles);
 
+export const fetchAllProfilesByKind = createAsyncThunk(
+  'profiles/fetchAllProfilesByKind',
+  ProfileApi.fetchAllProfilesByKind,
+);
+
 export const fetchProfileByVendorProfileId = createAsyncThunk<
   Profile,
   Reloadable<ProfileApi.FetchProfileByVendorProfileIdParams>,
@@ -95,9 +100,9 @@ export const fetchProfileByVendorProfileId = createAsyncThunk<
   },
 );
 
-export const fetchAllProfilesByKind = createAsyncThunk(
-  'profiles/fetchAllProfilesByKind',
-  ProfileApi.fetchAllProfilesByKind,
+export const fetchAllVerifiedVendors = createAsyncThunk(
+  'profiles/fetchAllVerifiedVendors',
+  ProfileApi.fetchAllVerifiedVendors,
 );
 
 export const updateProfile = createAsyncThunk(
@@ -221,29 +226,43 @@ const profilesSlice = createSlice({
         profilesAdapter.upsertOne(state, action.payload);
         state.statuses[action.payload.profileId] = { status: 'fulfilled' };
       })
+      // -- fetchAllVerifiedVendors --
+      .addCase(fetchAllVerifiedVendors.fulfilled, (state, action) => {
+        profilesAdapter.upsertMany(state, action.payload);
+        for (const profileId of action.payload.map(p => p.profileId)) {
+          state.statuses[profileId] = { status: 'fulfilled' };
+        }
+      })
       // -- updateProfile --
       .addCase(updateProfile.fulfilled, (state, action) => {
         type Writeable<T> = { -readonly [P in keyof T]: T[P] };
 
         const { profileId, changes } = action.meta.arg;
-        const finalChanges: Partial<Writeable<Profile>> = {};
+        const changesDraft: Partial<Writeable<Profile>> =
+          state.entities[profileId] ?? {};
 
-        if (changes.displayName) finalChanges.displayName = changes.displayName;
-        if (changes.username) finalChanges.username = changes.username;
-        if (changes.biography) finalChanges.biography = changes.biography;
+        if (changes.displayName) changesDraft.displayName = changes.displayName;
+        if (changes.username) changesDraft.username = changes.username;
+        if (changes.biography) changesDraft.biography = changes.biography;
+
+        if (changesDraft.kind === 'vendor') {
+          changesDraft.businessName = changes.businessName;
+          changesDraft.businessEmail = changes.businessEmail;
+          changesDraft.businessAddress = changes.businessAddress;
+        }
 
         // Explicitly set a defined or null value if the avatar was changed
-        if (changes.avatar !== undefined) finalChanges.avatar = changes.avatar;
+        if (changes.avatar !== undefined) changesDraft.avatar = changes.avatar;
         // Explicitly set a defined or null value if the background was changed
         if (changes.background !== undefined)
-          finalChanges.background = changes.background;
+          changesDraft.background = changes.background;
         // Explicitly set a defined or null value if the background was changed
         if (changes.backgroundThumbnail !== undefined)
-          finalChanges.backgroundThumbnail = changes.backgroundThumbnail;
+          changesDraft.backgroundThumbnail = changes.backgroundThumbnail;
 
         profilesAdapter.updateOne(state, {
           id: profileId,
-          changes: finalChanges,
+          changes: changesDraft,
         });
       })
       // -- updateProfileFollowStatus --

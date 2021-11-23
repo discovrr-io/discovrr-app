@@ -58,7 +58,7 @@ const CardAuthorWrapper = (props: CardAuthorWrapperProps) => {
 //#region CardAuthor -----------------------------------------------------------
 
 export type CardAuthorProps = CardElementProps & {
-  displayName: string;
+  displayName: string | undefined;
   isMyProfile?: boolean;
   avatar?: MediaSource | null;
   onPress?: TouchableOpacityProps['onPress'];
@@ -148,7 +148,7 @@ CardAuthorAvatar.Pending = (props: CardElementProps) => {
 //#region CardAuthorName -------------------------------------------------------
 
 type CardAuthorNameProps = {
-  displayName: string;
+  displayName: string | undefined;
   elementOptions: CardElementOptions;
   isMyProfile?: boolean;
 };
@@ -163,7 +163,7 @@ const CardAuthorName = (props: CardAuthorNameProps) => (
         { fontFamily: font.FONT_FAMILY_MEDIUM, color: color.accent },
       ],
     ]}>
-    {props.isMyProfile ? 'You' : props.displayName}
+    {props.isMyProfile ? 'You' : props.displayName || 'Anonymous'}
   </Text>
 );
 

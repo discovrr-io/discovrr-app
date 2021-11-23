@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import * as React from 'react';
 import { StyleSheet, Text, TouchableHighlight, View } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
@@ -42,18 +42,10 @@ const LoadedProfileListItem = (props: InnerProfileListItemProps) => {
   const navigation = useNavigation<RootStackNavigationProp>();
   const isMyProfile = useIsMyProfile(profile.profileId);
 
-  const profileDisplayName = useMemo(() => {
-    if (profile.kind === 'vendor') {
-      return profile.businessName || profile.displayName;
-    } else {
-      return profile.displayName;
-    }
-  }, [profile]);
-
   const handlePressProfile = () => {
     navigation.push('ProfileDetails', {
       profileId: profile.profileId,
-      profileDisplayName: profileDisplayName,
+      profileDisplayName: profile.__publicName,
     });
   };
 
@@ -74,7 +66,7 @@ const LoadedProfileListItem = (props: InnerProfileListItemProps) => {
                 ? [font.mediumBold, { color: color.accent }]
                 : font.medium,
             ]}>
-            {isMyProfile ? 'You' : profileDisplayName}
+            {isMyProfile ? 'You' : profile.__publicName}
           </Text>
           <Spacer.Vertical value={layout.spacing.xs} />
           <Text

@@ -65,13 +65,11 @@ export default function CreateItemPreviewScreen(
     Profile,
     'displayName' | 'avatar' | 'highestRole'
   > = useAppSelector(state => {
-    if (!myProfileId) return { displayName: 'My Name', highestRole: 'user' };
-    return (
-      state.profiles.entities[myProfileId] ?? {
-        displayName: 'My Name',
-        highestRole: 'user',
-      }
-    );
+    const defaultDetails = { displayName: 'My Name', highestRole: 'user' };
+    if (!myProfileId) return defaultDetails;
+    const foundProfile = state.profiles.entities[myProfileId];
+    if (!foundProfile) return defaultDetails;
+    return { ...foundProfile, displayName: foundProfile.__publicName };
   });
 
   const [isSubmitting, setIsSubmitting] = React.useState(false);

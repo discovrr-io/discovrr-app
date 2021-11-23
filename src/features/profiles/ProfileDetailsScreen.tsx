@@ -152,24 +152,16 @@ export function LoadedProfileDetailsScreen(
     const items: ActionBottomSheetItem[] = [];
 
     if (!isMyProfile) {
-      const publicName = (() => {
-        if (profile.kind === 'vendor') {
-          return profile.businessName || profile.displayName;
-        } else {
-          return profile.displayName;
-        }
-      })();
-
       items.push(
         {
           id: 'block',
-          label: `Block ${publicName}`,
+          label: `Block ${profile.__publicName}`,
           iconName: 'hand-right-outline',
           destructive: true,
         },
         {
           id: 'report',
-          label: `Report ${publicName}`,
+          label: `Report ${profile.__publicName}`,
           iconName: 'flag-outline',
         },
       );
@@ -419,14 +411,6 @@ function ProfileDetailsHeader(props: ProfileDetailsHeaderProps) {
       .reduce((acc, curr) => acc + curr, 0);
   });
 
-  const profilePublicName = React.useMemo(() => {
-    if (profile.kind === 'vendor') {
-      return profile.businessName || profile.displayName;
-    } else {
-      return profile.displayName;
-    }
-  }, [profile]);
-
   useFocusEffect(
     React.useCallback(() => {
       // FIXME: Video starts playing when header is collapsed after navigating
@@ -480,7 +464,7 @@ function ProfileDetailsHeader(props: ProfileDetailsHeaderProps) {
   ) => {
     navigation.push('ProfileFollowActivity', {
       profileId: profile.profileId,
-      profileDisplayName: profile.displayName,
+      profileDisplayName: profile.__publicName,
       selector,
     });
   };
@@ -611,8 +595,9 @@ function ProfileDetailsHeader(props: ProfileDetailsHeaderProps) {
                 profileDetailsHeaderStyles.headerText,
                 { fontSize: constants.font.size.h3 },
               ]}>
-              {profilePublicName}
+              {profile.__publicName}
             </Text>
+            <Spacer.Vertical value="xs" />
             <Text
               style={[
                 constants.font.mediumBold,
@@ -621,14 +606,17 @@ function ProfileDetailsHeader(props: ProfileDetailsHeaderProps) {
               @{profile.username}
             </Text>
             {profile.biography && (
-              <Text
-                numberOfLines={2}
-                style={[
-                  constants.font.small,
-                  profileDetailsHeaderStyles.headerText,
-                ]}>
-                {profile.biography}
-              </Text>
+              <>
+                <Spacer.Vertical value="xs" />
+                <Text
+                  numberOfLines={2}
+                  style={[
+                    constants.font.small,
+                    profileDetailsHeaderStyles.headerText,
+                  ]}>
+                  {profile.biography}
+                </Text>
+              </>
             )}
           </View>
           <Spacer.Vertical value="md" />

@@ -3,11 +3,14 @@ import { EntityId } from '@reduxjs/toolkit';
 
 import { Profile, ProfileId } from 'src/models';
 import { Pagination } from 'src/models/common';
+
 import {
   CommonProfileDetails,
+  PersonalProfile,
   PersonalProfileId,
   ProfileKind,
   SharedProfileDetails,
+  VendorProfile,
   VendorProfileId,
 } from 'src/models/profile';
 
@@ -72,6 +75,7 @@ export namespace ProfileApi {
         kind: 'personal',
         ...commonProfileDetails,
         ...sharedProfileDetails,
+        __publicName: sharedProfileDetails.displayName,
       };
     } else if (kind === 'vendor') {
       const profileVendor: Parse.Object = result.get('profileVendor');
@@ -87,13 +91,20 @@ export namespace ProfileApi {
           profileVendor,
         );
 
+      const foundBusinessName: string | undefined = result
+        .get('profileVendor')
+        ?.get('businessName');
+
       return {
         kind: 'vendor',
         ...commonProfileDetails,
         ...sharedProfileDetails,
-        businessName: result.get('profileVendor')?.get('businessName'),
+        businessName: foundBusinessName,
         businessEmail: result.get('profileVendor')?.get('businessEmail'),
-        address: result.get('profileVendor')?.get('address'),
+        businessAddress: result.get('profileVendor')?.get('businessAddress'),
+        get __publicName(): string {
+          return foundBusinessName || this.displayName;
+        },
       };
     }
 
@@ -193,17 +204,45 @@ export namespace ProfileApi {
     return mapResultToProfile(profile);
   }
 
+  export async function fetchAllVerifiedVendors() {
+    const vendorsQuery = new Parse.Query(Parse.Object.extend('Profile'));
+
+    const vendors = await vendorsQuery
+      .include('profileVendor')
+      .equalTo('kind', 'vendor')
+      .notEqualTo('profileVendor', null)
+      .find();
+
+    return (
+      vendors
+        // We have to filter this after querying since this field is populated
+        // in the `afterFind` trigger
+        .filter(vendor => vendor.get('highestRole') === 'verified-vendor')
+        .map(mapResultToProfile)
+    );
+  }
+
   //#endregion READ OPERATIONS
 
   //#region UPDATE OPERATIONS
 
-  export type ProfileChanges = Partial<
-    Pick<Profile, 'displayName' | 'username' | 'biography'>
-  > & {
-    avatar?: Profile['avatar'] | null;
-    background?: Profile['background'] | null;
-    backgroundThumbnail?: Profile['backgroundThumbnail'] | null;
-  };
+  type SharedProfileChanges = Partial<
+    Pick<SharedProfileDetails, 'displayName' | 'username' | 'biography'>
+  >;
+
+  type PersonalProfileChanges = Partial<Pick<PersonalProfile, never>>;
+
+  type VendorProfileChanges = Partial<
+    Pick<VendorProfile, 'businessName' | 'businessEmail' | 'businessAddress'>
+  >;
+
+  export type ProfileChanges = SharedProfileChanges &
+    PersonalProfileChanges &
+    VendorProfileChanges & {
+      avatar?: Profile['avatar'] | null;
+      background?: Profile['background'] | null;
+      backgroundThumbnail?: Profile['backgroundThumbnail'] | null;
+    };
 
   export type UpdateProfileParams = {
     profileId: ProfileId;

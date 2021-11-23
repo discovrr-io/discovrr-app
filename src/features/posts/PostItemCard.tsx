@@ -441,7 +441,8 @@ function PostItemCardAuthor(props: PostItemCardAuthorProps) {
       name: 'ProfileDetails',
       params: {
         profileId: profile.profileId,
-        profileDisplayName: profile.displayName,
+        // profileDisplayName: profile.displayName,
+        profileDisplayName: profile.__publicName,
       },
     });
   };
@@ -453,15 +454,27 @@ function PostItemCardAuthor(props: PostItemCardAuthorProps) {
       onRejected={() => (
         <Card.Author displayName="Anonymous" {...cardElementProps} />
       )}
-      onFulfilled={profile => (
-        <Card.Author
-          avatar={profile?.avatar}
-          displayName={profile?.displayName ?? 'Anonymous'}
-          isMyProfile={isMyProfile}
-          onPress={() => handlePressAuthor(profile)}
-          {...cardElementProps}
-        />
-      )}
+      onFulfilled={profile => {
+        // const getPublicName = () => {
+        //   if (!profile) {
+        //     return 'Anonymous';
+        //   } else if (profile.kind === 'vendor') {
+        //     return profile.businessName || profile.displayName;
+        //   } else {
+        //     return profile.displayName;
+        //   }
+        // };
+
+        return (
+          <Card.Author
+            avatar={profile?.avatar}
+            displayName={profile?.__publicName}
+            isMyProfile={isMyProfile}
+            onPress={() => handlePressAuthor(profile)}
+            {...cardElementProps}
+          />
+        );
+      }}
     />
   );
 }
