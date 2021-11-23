@@ -95,8 +95,6 @@ type ProfileDetailsScreenProps = RootStackScreenProps<'ProfileDetails'>;
 
 export default function ProfileDetailsScreen(props: ProfileDetailsScreenProps) {
   const params = props.route.params;
-  console.log({ __LOOKUP: params.profileIdOrUsername });
-
   if (
     typeof params.profileIdOrUsername === 'string' &&
     params.profileIdOrUsername.startsWith('@')
@@ -223,6 +221,7 @@ function ProfileByIdDetailsScreen(props: ProfileByIdDetailsScreenProps) {
 
 export type LoadedProfileDetailsScreenProps = {
   profile: Profile;
+  preferredTitle?: string;
   preferredWindowHeight?: number;
 };
 
@@ -254,7 +253,6 @@ export function LoadedProfileDetailsScreen(
       windowHeight * BOTTOM_SHEET_HEIGHT_RATIO + BOTTOM_SHEET_NUDGE,
       windowHeight - headerHeight,
     ],
-    // () => [windowHeight * 0.45, windowHeight - headerHeight],
     [headerHeight, windowHeight],
   );
 
@@ -286,6 +284,7 @@ export function LoadedProfileDetailsScreen(
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
+      title: props.preferredTitle || profile.__publicName,
       headerTitleStyle: [
         constants.font.defaultHeaderTitleStyle,
         { opacity: headerTitleOpacity },
@@ -327,7 +326,13 @@ export function LoadedProfileDetailsScreen(
         </View>
       ),
     });
-  }, [headerTitleOpacity, navigation, profile.background?.mime]);
+  }, [
+    navigation,
+    headerTitleOpacity,
+    props.preferredTitle,
+    profile.__publicName,
+    profile.background?.mime,
+  ]);
 
   useFocusEffect(
     React.useCallback(() => {

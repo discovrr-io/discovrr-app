@@ -127,8 +127,6 @@ const LoadedVendorProfileItemCard = (
   const handlePressBody = () => {
     navigation.navigate('ProfileDetails', {
       profileIdOrUsername: vendorProfile.profileId,
-      profileDisplayName:
-        vendorProfile.businessName || vendorProfile.displayName,
     });
   };
 

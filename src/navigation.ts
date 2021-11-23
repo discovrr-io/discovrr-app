@@ -286,7 +286,6 @@ export type PostStackParamList = {
 export type ProfileStackParamList = {
   ProfileDetails: {
     profileIdOrUsername: ProfileId | string;
-    profileDisplayName?: string;
     windowHeight?: number;
   };
   ProfileFollowActivity: {

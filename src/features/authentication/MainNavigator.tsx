@@ -37,6 +37,7 @@ import {
   MainDrawerParamList,
   FacadeBottomTabScreenProps,
 } from 'src/navigation';
+import { ProfileId } from 'src/models';
 
 const RootDrawer = createDrawerNavigator<MainDrawerParamList>();
 const FacadeBottomTab = createBottomTabNavigator<FacadeBottomTabParamList>();
@@ -44,7 +45,10 @@ const FacadeBottomTab = createBottomTabNavigator<FacadeBottomTabParamList>();
 type MyProfileDetailsScreenProps = FacadeBottomTabScreenProps<'__MyProfile'>;
 
 function MyProfileDetailsScreen(props: MyProfileDetailsScreenProps) {
-  const profileData = useProfile(props.route.params.profileId);
+  // This will always be a profile ID
+  const profileId = props.route.params.profileIdOrUsername as ProfileId;
+
+  const profileData = useProfile(profileId);
   const headerHeight = useHeaderHeight();
   const bottomTabBarHeight = useBottomTabBarHeight();
   const { height: windowHeight } = useWindowDimensions();
@@ -71,6 +75,7 @@ function MyProfileDetailsScreen(props: MyProfileDetailsScreenProps) {
         return (
           <LoadedProfileDetailsScreen
             profile={profile}
+            preferredTitle="You"
             preferredWindowHeight={windowHeight - bottomTabBarHeight}
           />
         );
@@ -223,7 +228,7 @@ function FacadeNavigator() {
 
             // Directly pass parameters as if the caller did so
             navigation.navigate('__MyProfile', {
-              profileId: myProfileId,
+              profileIdOrUsername: myProfileId,
             });
           },
         })}

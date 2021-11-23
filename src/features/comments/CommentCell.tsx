@@ -147,7 +147,6 @@ const CommentCellAvatar = (props: { profile?: Profile }) => {
 
     navigation.push('ProfileDetails', {
       profileIdOrUsername: profile.profileId,
-      profileDisplayName: profile.__publicName,
     });
   };
 
@@ -191,7 +190,6 @@ const CommentCellAuthor = (props: { profile?: Profile }) => {
 
     navigation.push('ProfileDetails', {
       profileIdOrUsername: profile.profileId,
-      profileDisplayName: profile.__publicName,
     });
   };
 

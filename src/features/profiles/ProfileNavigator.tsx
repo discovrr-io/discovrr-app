@@ -11,11 +11,11 @@ export default function renderProfileNavigator() {
       <RootStack.Screen
         name="ProfileDetails"
         component={ProfileDetailsScreen}
-        options={({ route }) => ({
-          title: route.params.profileDisplayName || 'Profile',
+        options={{
+          title: 'Profile',
           headerTransparent: true,
           headerTintColor: color.absoluteWhite,
-        })}
+        }}
       />
       <RootStack.Screen
         name="ProfileFollowActivity"

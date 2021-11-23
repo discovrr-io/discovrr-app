@@ -441,7 +441,6 @@ function PostItemCardAuthor(props: PostItemCardAuthorProps) {
       name: 'ProfileDetails',
       params: {
         profileIdOrUsername: profile.profileId,
-        profileDisplayName: profile.__publicName,
       },
     });
   };

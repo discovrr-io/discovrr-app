@@ -282,7 +282,6 @@ const ProductItemCardAuthor = (props: ProductItemCardAuthorProps) => {
 
     navigation.navigate('ProfileDetails', {
       profileIdOrUsername: profile.profileId,
-      profileDisplayName: profile.__publicName,
     });
   };
 

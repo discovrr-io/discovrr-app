@@ -35,14 +35,6 @@ import {
 import * as constants from 'src/constants';
 import * as utilities from 'src/utilities';
 import { MediaSource } from 'src/api';
-import {
-  Comment,
-  CommentId,
-  GalleryPostContents,
-  Post,
-  Profile,
-  VideoPostContents,
-} from 'src/models';
 import { useAppDispatch, useAppSelector, useIsMounted } from 'src/hooks';
 import { RootStackNavigationProp, RootStackScreenProps } from 'src/navigation';
 
@@ -58,6 +50,15 @@ import {
   RouteError,
 } from 'src/components';
 
+import {
+  Comment,
+  CommentId,
+  GalleryPostContents,
+  Post,
+  Profile,
+  VideoPostContents,
+} from 'src/models';
+
 import CommentCell from 'src/features/comments/CommentCell';
 import { useIsMyProfile } from 'src/features/profiles/hooks';
 import { selectProfileById } from 'src/features/profiles/profiles-slice';
@@ -70,7 +71,6 @@ import {
 import { usePost } from './hooks';
 import { deletePost, fetchPostById } from './posts-slice';
 import { PostItemCardFooter } from './PostItemCard';
-import { useLinkTo } from '@react-navigation/native';
 
 const COMMENT_POST_BUTTON_WIDTH = 70;
 const COMMENT_REPLY_INDICATOR_HEIGHT = 50;
@@ -606,7 +606,7 @@ type PostDetailsContentProps = ViewProps & {
 
 function PostDetailsContent(props: PostDetailsContentProps) {
   const { post, ...restProps } = props;
-  const linkTo = useLinkTo();
+  const navigation = useNavigation<PostDetailsScreenProps['navigation']>();
 
   const renderPostContent = React.useCallback(() => {
     switch (post.contents.type) {
@@ -645,7 +645,9 @@ function PostDetailsContent(props: PostDetailsContentProps) {
                 {
                   ...constants.regex.USERNAME_MENTION_MATCHER,
                   onPress: match => {
-                    linkTo(`/profile/${match.getMatchedText()}`);
+                    navigation.push('ProfileDetails', {
+                      profileIdOrUsername: match.getMatchedText(),
+                    });
                   },
                 },
               ]}
@@ -653,7 +655,7 @@ function PostDetailsContent(props: PostDetailsContentProps) {
           </View>
         );
     }
-  }, [linkTo, post.contents, post.location]);
+  }, [navigation, post.contents, post.location]);
 
   return (
     <View style={[restProps.style]}>

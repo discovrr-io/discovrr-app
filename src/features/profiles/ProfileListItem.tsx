@@ -45,7 +45,6 @@ const LoadedProfileListItem = (props: InnerProfileListItemProps) => {
   const handlePressProfile = () => {
     navigation.push('ProfileDetails', {
       profileIdOrUsername: profile.profileId,
-      profileDisplayName: profile.__publicName,
     });
   };
 
