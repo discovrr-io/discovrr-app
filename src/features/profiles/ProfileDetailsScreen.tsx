@@ -57,7 +57,11 @@ import {
 import { useIsMyProfile, useProfile } from './hooks';
 
 const MaterialTopTab = createMaterialTopTabNavigator();
+
 const BACKGROUND_COLOR = constants.color.white;
+const HEADER_HEIGHT_RATIO = 0.58;
+const BOTTOM_SHEET_HEIGHT_RATIO = 1 - HEADER_HEIGHT_RATIO;
+const BOTTOM_SHEET_NUDGE = 24;
 
 const HEADER_ANIMATION_DURATION = 200;
 const PLAY_HEADER_VIDEO_FULLSCREEN_EVENT = 'playHeaderVideoFullscreen';
@@ -85,7 +89,7 @@ function useShouldFetchOnFocus() {
 type ProfileDetailsScreenProps = RootStackScreenProps<'ProfileDetails'>;
 
 export default function ProfileDetailsScreen(props: ProfileDetailsScreenProps) {
-  const profileData = useProfile(props.route.params.profileId, true);
+  const profileData = useProfile(props.route.params.profileId);
   const headerHeight = useHeaderHeight();
 
   const renderRouteError = (_error?: any) => (
@@ -128,9 +132,15 @@ export type LoadedProfileDetailsScreenProps = {
 export function LoadedProfileDetailsScreen(
   props: LoadedProfileDetailsScreenProps,
 ) {
+  const $FUNC = '[LoadedProfileDetailScreen]';
   const { profile, preferredWindowHeight } = props;
   const { height: calculatedWindowHeight } = useWindowDimensions();
+
+  const dispatch = useAppDispatch();
   const navigation = useNavigation<ProfileDetailsScreenProps['navigation']>();
+
+  const isMounted = useIsMounted();
+  const [shouldFetch, setShouldFetch] = useShouldFetchOnFocus();
 
   const windowHeight = React.useMemo(() => {
     if (preferredWindowHeight) return preferredWindowHeight;
@@ -143,7 +153,11 @@ export function LoadedProfileDetailsScreen(
 
   const bottomSheetRef = React.useRef<BottomSheet>(null);
   const snapPoints = React.useMemo(
-    () => [windowHeight * 0.45 + 24, windowHeight - headerHeight],
+    () => [
+      windowHeight * BOTTOM_SHEET_HEIGHT_RATIO + BOTTOM_SHEET_NUDGE,
+      windowHeight - headerHeight,
+    ],
+    // () => [windowHeight * 0.45, windowHeight - headerHeight],
     [headerHeight, windowHeight],
   );
 
@@ -225,6 +239,29 @@ export function LoadedProfileDetailsScreen(
     }, []),
   );
 
+  React.useEffect(
+    () => {
+      async function fetchProfile() {
+        try {
+          await dispatch(
+            profilesSlice.fetchProfileById({
+              profileId: profile.profileId,
+              reload: true,
+            }),
+          ).unwrap();
+        } catch (error) {
+          console.error($FUNC, 'Failed to fetch profile:', error);
+        } finally {
+          if (isMounted.current) setShouldFetch(false);
+        }
+      }
+
+      if (shouldFetch) fetchProfile();
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [dispatch, shouldFetch, profile.profileId],
+  );
+
   const handleSelectActionItem = (selectedItemId: string) => {
     switch (selectedItemId) {
       case 'block':
@@ -262,6 +299,7 @@ export function LoadedProfileDetailsScreen(
         </View>
         <BottomSheet
           ref={bottomSheetRef}
+          // index={-1}
           // animateOnMount={false}
           snapPoints={snapPoints}
           onChange={newIndex => {
@@ -288,12 +326,9 @@ export function LoadedProfileDetailsScreen(
             }
           }}
           handleStyle={{
-            // backgroundColor: constants.color.absoluteWhite,
             borderTopLeftRadius: constants.layout.radius.lg,
             borderTopRightRadius: constants.layout.radius.lg,
             backgroundColor: constants.color.absoluteWhite,
-            // borderTopLeftRadius: 0,
-            // borderTopRightRadius: 0,
             paddingBottom: 0,
           }}
           backgroundStyle={{ backgroundColor: BACKGROUND_COLOR }}>
@@ -505,7 +540,11 @@ function ProfileDetailsHeader(props: ProfileDetailsHeaderProps) {
   };
 
   return (
-    <View style={profileDetailsHeaderStyles.headerContainer}>
+    <View
+      style={[
+        profileDetailsHeaderStyles.headerContainer,
+        { height: windowHeight * HEADER_HEIGHT_RATIO + BOTTOM_SHEET_NUDGE },
+      ]}>
       {!fallbackToImage && profile.background?.mime.includes('video') ? (
         <>
           {Platform.OS === 'android' && (
@@ -568,7 +607,8 @@ function ProfileDetailsHeader(props: ProfileDetailsHeaderProps) {
       <View
         style={[
           profileDetailsHeaderStyles.headerInsetContainer,
-          { paddingTop: headerHeight / 8 },
+          { paddingTop: headerHeight / 4 },
+          { paddingBottom: BOTTOM_SHEET_NUDGE },
         ]}>
         <Animated.View
           style={[

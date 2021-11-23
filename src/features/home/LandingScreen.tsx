@@ -1,6 +1,7 @@
 import * as React from 'react';
 import {
   ActivityIndicator,
+  FlatList,
   // Platform,
   RefreshControl,
   ScrollView,
@@ -9,6 +10,7 @@ import {
   Text,
   TouchableHighlight,
   TouchableOpacity,
+  useWindowDimensions,
   View,
   ViewStyle,
 } from 'react-native';
@@ -22,9 +24,10 @@ import { useNavigation, useScrollToTop } from '@react-navigation/native';
 
 import * as constants from 'src/constants';
 import * as utilities from 'src/utilities';
+import * as profilesSlice from 'src/features/profiles/profiles-slice';
 import ProductItemCard from 'src/features/products/ProductItemCard';
 import { useAppDispatch, useAppSelector, useIsMounted } from 'src/hooks';
-import { ProductId } from 'src/models';
+import { ProductId, Profile } from 'src/models';
 import { HomeStackScreenProps, RootStackNavigationProp } from 'src/navigation';
 
 import {
@@ -42,6 +45,12 @@ import OnboardingModal, {
 } from './OnboardingModal';
 
 const TILE_SPACING = constants.values.DEFAULT_TILE_SPACING;
+const EXPLORE_OUR_MAKERS_NUM_COLUMNS = 3;
+
+const MAKER_OF_THE_WEEK_TITLE = 'Maker of the week';
+const OUR_PICKS_FOR_THE_WEEK_TITLE = 'Our picks for the week';
+const LIMITED_OFFER_TITLE = 'Limited offer';
+const EXPLORE_OUR_MAKERS_TITLE = 'Explore our makers';
 
 type HomeFeedData = {
   callToAction: {
@@ -123,7 +132,8 @@ function CallToAction(props: CallToActionProps) {
       <Text
         style={[
           constants.font.h2,
-          { color: constants.color.absoluteWhite /* textAlign: 'center' */ },
+          { color: constants.color.absoluteWhite },
+          { textAlign: 'center' },
         ]}>
         {props.title}
       </Text>
@@ -131,7 +141,8 @@ function CallToAction(props: CallToActionProps) {
       <Text
         style={[
           constants.font.large,
-          { color: constants.color.absoluteWhite /* textAlign: 'center' */ },
+          { color: constants.color.absoluteWhite },
+          { textAlign: 'center' },
         ]}>
         {props.caption}
       </Text>
@@ -142,11 +153,11 @@ function CallToAction(props: CallToActionProps) {
 const callToActionStyles = StyleSheet.create({
   container: {
     minHeight: 280,
-    // alignItems: 'center',
-    // justifyContent: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
     padding: constants.layout.spacing.lg,
-    paddingBottom: constants.layout.spacing.xxl + constants.layout.spacing.sm,
-    justifyContent: 'flex-end',
+    // paddingBottom: constants.layout.spacing.xxl + constants.layout.spacing.sm,
+    // justifyContent: 'flex-end',
     backgroundColor: constants.color.blue700,
     borderRadius: constants.layout.radius.md,
     overflow: 'hidden',
@@ -202,7 +213,7 @@ function MakerOfTheWeek(props: MakerOfTheWeekProps) {
 
   return (
     <View>
-      <SectionTitle title="Maker of the week" />
+      <SectionTitle title={MAKER_OF_THE_WEEK_TITLE} />
       <TouchableOpacity activeOpacity={1} onPress={handlePressCard}>
         <View style={makerOfTheWeekStyles.coverImageContainer}>
           <FastImage
@@ -250,7 +261,7 @@ function MakerOfTheWeek(props: MakerOfTheWeekProps) {
 
 MakerOfTheWeek.Pending = () => (
   <View>
-    <SectionTitle title="Maker of the Week" />
+    <SectionTitle title={MAKER_OF_THE_WEEK_TITLE} />
     <View style={{ alignItems: 'center', justifyContent: 'center' }}>
       <FastImage source={{}} style={makerOfTheWeekStyles.coverImage} />
       <ActivityIndicator
@@ -295,9 +306,88 @@ type LimitedOfferProps = {
 function LimitedOffer(props: LimitedOfferProps) {
   return (
     <View>
-      <SectionTitle title="Limited offer" />
+      <SectionTitle title={LIMITED_OFFER_TITLE} />
       <ProductItemCard productId={props.productId} />
     </View>
+  );
+}
+
+type ExploreOurMakersProps = {
+  profiles: Profile[];
+};
+
+function ExploreOurMakers(props: ExploreOurMakersProps) {
+  const { width: windowWidth } = useWindowDimensions();
+
+  const { columnWidth, avatarWidth } = React.useMemo(() => {
+    const containerWidth = windowWidth - constants.layout.spacing.md * 2;
+    const columnWidth = containerWidth / EXPLORE_OUR_MAKERS_NUM_COLUMNS;
+    const avatarWidth = columnWidth * 0.85;
+
+    return { containerWidth, columnWidth, avatarWidth };
+  }, [windowWidth]);
+
+  const navigation = useNavigation<LandingScreenProps['navigation']>();
+
+  const handlePressMaker = (profile: Profile) => {
+    navigation.getParent<RootStackNavigationProp>().navigate('ProfileDetails', {
+      profileId: profile.profileId,
+      profileDisplayName: profile.__publicName,
+    });
+  };
+
+  return (
+    <FlatList
+      data={props.profiles}
+      numColumns={EXPLORE_OUR_MAKERS_NUM_COLUMNS}
+      keyExtractor={profile => String(profile.id)}
+      ListHeaderComponent={<SectionTitle title={EXPLORE_OUR_MAKERS_TITLE} />}
+      renderItem={({ item: profile, index }) => (
+        <TouchableOpacity
+          activeOpacity={constants.values.DEFAULT_ACTIVE_OPACITY}
+          onPress={() => handlePressMaker(profile)}
+          style={[
+            {
+              width: columnWidth,
+              alignItems: 'center',
+              paddingBottom:
+                index <
+                props.profiles.length - 1 - EXPLORE_OUR_MAKERS_NUM_COLUMNS
+                  ? constants.layout.spacing.lg
+                  : 0,
+            },
+          ]}>
+          <FastImage
+            source={
+              profile.avatar
+                ? { uri: profile.avatar.url }
+                : constants.media.DEFAULT_AVATAR
+            }
+            style={{
+              width: avatarWidth,
+              aspectRatio: 1,
+              borderRadius: avatarWidth / 2,
+              backgroundColor: constants.color.placeholder,
+            }}
+          />
+          <Spacer.Vertical value="md" />
+          <Text
+            numberOfLines={1}
+            style={[constants.font.largeBold, { textAlign: 'center' }]}>
+            {profile.__publicName}
+          </Text>
+          <Text
+            numberOfLines={2}
+            style={[
+              constants.font.small,
+              { textAlign: 'center' },
+              !profile.biography && { fontStyle: 'italic' },
+            ]}>
+            {profile.biography || 'No biography'}
+          </Text>
+        </TouchableOpacity>
+      )}
+    />
   );
 }
 
@@ -309,6 +399,7 @@ export default function LandingScreen(props: LandingScreenProps) {
   const isMounted = useIsMounted();
 
   const [homeFeedData, setHomeFeedData] = React.useState<HomeFeedData>();
+  const [makers, setMakers] = React.useState<Profile[]>([]);
   const [isInitialRender, setIsInitialRender] = React.useState(true);
   const [shouldRefresh, setShouldRefresh] = React.useState(false);
 
@@ -343,25 +434,33 @@ export default function LandingScreen(props: LandingScreenProps) {
       .catch(error => console.warn($FUNC, 'Failed to log screen view:', error));
   }, []);
 
-  React.useEffect(() => {
-    if (isInitialRender || shouldRefresh)
-      (async () => {
-        try {
-          console.log($FUNC, 'Fetching home feed data...');
-          const homeFeedData = await fetchHomeFeedData();
-          setHomeFeedData(homeFeedData);
-          console.log($FUNC, 'Successfully fetched home feed data');
-        } catch (error) {
-          console.error($FUNC, 'Failed to load home feed data:', error);
-          utilities.alertSomethingWentWrong();
-        } finally {
-          if (isMounted.current) {
-            if (isInitialRender) setIsInitialRender(false);
-            if (shouldRefresh) setShouldRefresh(false);
+  React.useEffect(
+    () => {
+      if (isInitialRender || shouldRefresh)
+        (async () => {
+          try {
+            console.log($FUNC, 'Fetching home feed data...');
+            const homeFeedData = await fetchHomeFeedData();
+            const makers = await dispatch(
+              profilesSlice.fetchAllVerifiedVendors(),
+            ).unwrap();
+            setHomeFeedData(homeFeedData);
+            setMakers(makers);
+            console.log($FUNC, 'Successfully fetched home feed data');
+          } catch (error) {
+            console.error($FUNC, 'Failed to load home feed data:', error);
+            utilities.alertSomethingWentWrong();
+          } finally {
+            if (isMounted.current) {
+              if (isInitialRender) setIsInitialRender(false);
+              if (shouldRefresh) setShouldRefresh(false);
+            }
           }
-        }
-      })();
-  }, [isMounted, isInitialRender, shouldRefresh]);
+        })();
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [dispatch, isInitialRender, shouldRefresh],
+  );
 
   const handleRefresh = () => {
     if (!isInitialRender && !shouldRefresh) setShouldRefresh(true);
@@ -381,7 +480,7 @@ export default function LandingScreen(props: LandingScreenProps) {
     setIsModalVisible(false);
     console.log($FUNC, 'Submitting onboarding response...');
     const submitResponseAction = onboardingSlice.submitOnboardingResponse({
-      surveyResult: result.surveyResponse,
+      surveyResult: result.surveyResponse || 'no answer',
     });
 
     dispatch(submitResponseAction)
@@ -426,12 +525,11 @@ export default function LandingScreen(props: LandingScreenProps) {
             <CallToAction
               title={
                 homeFeedData?.callToAction.title ??
-                'Get inspired by local, Australian creativity'
+                'Get inspired by Australian creativity today!'
               }
               caption={
                 homeFeedData?.callToAction.caption ??
-                'Explore our carefully curated catalogue of products made by ' +
-                  'our local makers'
+                'Explore our carefully curated catalogue of products made by our local makers.'
               }
             />
             <Spacer.Vertical value="lg" />
@@ -445,23 +543,32 @@ export default function LandingScreen(props: LandingScreenProps) {
                 borderRadius: constants.layout.radius.md,
                 minHeight: 190,
               }}>
-              <Text
-                style={[
-                  constants.font.h2,
-                  {
-                    color: constants.color.absoluteWhite,
-                    fontSize: constants.font.size.h2 * 0.8,
-                  },
-                ]}>
-                Shop Now
-              </Text>
+              <View style={{ alignItems: 'center' }}>
+                <Text
+                  style={[
+                    constants.font.h2,
+                    {
+                      color: constants.color.absoluteWhite,
+                      fontSize: constants.font.size.h2 * 0.8,
+                    },
+                  ]}>
+                  Shop Now
+                </Text>
+                <Text
+                  style={[
+                    constants.font.mediumBold,
+                    { color: constants.color.absoluteWhite },
+                  ]}>
+                  Tap here to browse our products
+                </Text>
+              </View>
             </TouchableHighlight>
             {(isInitialRender || shouldRefresh) && !homeFeedData ? (
               <MakerOfTheWeek.Pending />
             ) : homeFeedData ? (
               <MakerOfTheWeek {...homeFeedData.makerOfTheWeek} />
             ) : null}
-            <SectionTitle title="Our picks for the week" />
+            <SectionTitle title={OUR_PICKS_FOR_THE_WEEK_TITLE} />
           </View>
         }
         ListFooterComponent={
@@ -473,6 +580,9 @@ export default function LandingScreen(props: LandingScreenProps) {
             }}>
             {homeFeedData?.limitedOfferProductId && (
               <LimitedOffer productId={homeFeedData.limitedOfferProductId} />
+            )}
+            {(!isInitialRender || !shouldRefresh) && makers.length > 0 && (
+              <ExploreOurMakers profiles={makers} />
             )}
           </View>
         }
