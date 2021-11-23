@@ -102,9 +102,7 @@ export namespace ProfileApi {
         businessName: foundBusinessName,
         businessEmail: result.get('profileVendor')?.get('businessEmail'),
         businessAddress: result.get('profileVendor')?.get('businessAddress'),
-        get __publicName(): string {
-          return foundBusinessName || this.displayName;
-        },
+        __publicName: foundBusinessName || sharedProfileDetails.displayName,
       };
     }
 
@@ -208,7 +206,7 @@ export namespace ProfileApi {
     const vendorsQuery = new Parse.Query(Parse.Object.extend('Profile'));
 
     const vendors = await vendorsQuery
-      .include('profileVendor')
+      .include('profilePersonal', 'profileVendor')
       .equalTo('kind', 'vendor')
       .notEqualTo('profileVendor', null)
       .find();

@@ -1,5 +1,6 @@
 import * as React from 'react';
 import {
+  ActivityIndicator,
   Alert,
   Linking,
   Text,
@@ -15,6 +16,7 @@ import {
   DrawerContentComponentProps,
   DrawerContentScrollView,
   DrawerItem,
+  useDrawerStatus,
 } from '@react-navigation/drawer';
 
 import * as constants from 'src/constants';
@@ -22,10 +24,12 @@ import * as utilities from 'src/utilities';
 import * as authSlice from 'src/features/authentication/auth-slice';
 import * as profilesSlice from 'src/features/profiles/profiles-slice';
 import { useAppDispatch, useAppSelector } from 'src/hooks';
-import { ProfileId } from 'src/models';
+import { Profile, ProfileId } from 'src/models';
 import { RootStackNavigationProp, RootStackParamList } from 'src/navigation';
 
 import Spacer from './Spacer';
+import { AsyncGate } from '.';
+import { useProfile } from 'src/features/profiles/hooks';
 
 const AVATAR_DIAMETER = 125;
 const DRAWER_ITEM_ICON_COLOR = constants.color.black;
@@ -182,7 +186,7 @@ export default function AppDrawerWrapper(props: AppDrawerProps) {
 
 function AppDrawer(props: AppDrawerProps & { profileId: ProfileId }) {
   const $FUNC = '[AppDrawer]';
-  const { profileId } = props;
+  const profileId = props.profileId;
 
   const dispatch = useAppDispatch();
   const navigation = props.navigation;
@@ -272,43 +276,7 @@ function AppDrawer(props: AppDrawerProps & { profileId: ProfileId }) {
               navigation.closeDrawer();
             }
           }}>
-          <View style={{ alignItems: 'center' }}>
-            <FastImage
-              source={
-                profile?.avatar
-                  ? { uri: profile.avatar.url }
-                  : constants.media.DEFAULT_AVATAR
-              }
-              resizeMode="cover"
-              style={{
-                width: AVATAR_DIAMETER,
-                height: AVATAR_DIAMETER,
-                borderRadius: AVATAR_DIAMETER / 2,
-                backgroundColor: constants.color.placeholder,
-              }}
-            />
-            <Spacer.Vertical value="lg" />
-            <Text
-              numberOfLines={1}
-              style={[constants.font.extraLargeBold, { textAlign: 'center' }]}>
-              {profile?.__publicName || 'Anonymous'}
-            </Text>
-            <Spacer.Vertical value="xs" />
-            <Text
-              numberOfLines={1}
-              style={[
-                constants.font.medium,
-                { color: constants.color.gray500, textAlign: 'center' },
-              ]}>
-              @{profile?.username || 'anonymous'}
-            </Text>
-            {profile?.highestRole && profile.highestRole !== 'user' && (
-              <>
-                <Spacer.Vertical value="md" />
-                <RoleChip label={profile.highestRole} />
-              </>
-            )}
-          </View>
+          <AppDrawerProfileDetails profileId={profileId} />
         </TouchableOpacity>
       </View>
 
@@ -351,3 +319,118 @@ function AppDrawer(props: AppDrawerProps & { profileId: ProfileId }) {
     </DrawerContentScrollView>
   );
 }
+
+type AppDrawerProfileDetailsProps = {
+  profileId: ProfileId;
+};
+
+const AppDrawerProfileDetails = (props: AppDrawerProfileDetailsProps) => {
+  const dispatch = useAppDispatch();
+  const drawerStatus = useDrawerStatus();
+  const profileData = useProfile(props.profileId);
+
+  React.useEffect(() => {
+    if (drawerStatus === 'open') {
+      const fetchProfileAction = profilesSlice.fetchProfileById({
+        profileId: props.profileId,
+        reload: true,
+      });
+      dispatch(fetchProfileAction)
+        .unwrap()
+        .catch(error => console.error('Failed to fetch profile:', error));
+    }
+  }, [dispatch, drawerStatus, props.profileId]);
+
+  return (
+    <AsyncGate
+      data={profileData}
+      onPending={AppDrawerProfileDetails.Pending}
+      onRejected={AppDrawerProfileDetails.Pending}
+      onFulfilled={profile => {
+        if (!profile) return <AppDrawerProfileDetails.Pending />;
+        return <AppDrawerProfileDetails.Fulfilled profile={profile} />;
+      }}
+    />
+  );
+};
+
+AppDrawerProfileDetails.Fulfilled = ({ profile }: { profile: Profile }) => {
+  return (
+    <View style={{ alignItems: 'center' }}>
+      <FastImage
+        source={
+          profile?.avatar
+            ? { uri: profile.avatar.url }
+            : constants.media.DEFAULT_AVATAR
+        }
+        resizeMode="cover"
+        style={{
+          aspectRatio: 1,
+          width: AVATAR_DIAMETER,
+          borderRadius: AVATAR_DIAMETER / 2,
+          backgroundColor: constants.color.placeholder,
+        }}
+      />
+      <Spacer.Vertical value="lg" />
+      <Text
+        numberOfLines={1}
+        style={[constants.font.extraLargeBold, { textAlign: 'center' }]}>
+        {profile?.__publicName || 'Anonymous'}
+      </Text>
+      <Spacer.Vertical value="xs" />
+      <Text
+        numberOfLines={1}
+        style={[
+          constants.font.medium,
+          { color: constants.color.gray500, textAlign: 'center' },
+        ]}>
+        @{profile?.username || 'anonymous'}
+      </Text>
+      {profile?.highestRole && profile.highestRole !== 'user' && (
+        <>
+          <Spacer.Vertical value="md" />
+          <RoleChip label={profile.highestRole} />
+        </>
+      )}
+    </View>
+  );
+};
+
+AppDrawerProfileDetails.Pending = () => {
+  return (
+    <View style={{ alignItems: 'center' }}>
+      <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+        <FastImage
+          source={{}}
+          style={{
+            aspectRatio: 1,
+            width: AVATAR_DIAMETER,
+            borderRadius: AVATAR_DIAMETER / 2,
+            backgroundColor: constants.color.placeholder,
+          }}
+        />
+        <ActivityIndicator
+          size="small"
+          color={constants.color.gray500}
+          style={{ position: 'absolute' }}
+        />
+      </View>
+      <Spacer.Vertical value="lg" />
+      <View
+        style={{
+          height: 24,
+          width: '50%',
+          backgroundColor: constants.color.placeholder,
+        }}
+      />
+      <Spacer.Vertical value="xs" />
+      <View
+        style={{
+          height: 19,
+          width: '25%',
+          backgroundColor: constants.color.placeholder,
+        }}
+      />
+    </View>
+  );
+};

@@ -527,12 +527,8 @@ function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
         },
       });
 
+      // Maybe show a custom toast notification here
       await dispatch(updateProfileAction).unwrap();
-
-      Alert.alert(
-        'Profile Updated',
-        'Your changes has been successfully saved.',
-      );
     } catch (error: any) {
       console.error($FUNC, 'Failed to update profile:', error);
       utilities.alertSomethingWentWrong(
