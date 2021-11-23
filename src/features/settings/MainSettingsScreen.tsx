@@ -248,7 +248,7 @@ function MainSettingsScreenFooter() {
   }, [checkUpdateStatus]);
 
   const UpdateStatusLabel = React.useCallback(() => {
-    const defaultTextStyles = [constants.font.small, footerStyles.text];
+    const defaultTextStyles = [constants.font.smallBold, footerStyles.text];
 
     if (checkUpdateStatus.state === 'checking') {
       return (
@@ -280,44 +280,57 @@ function MainSettingsScreenFooter() {
           />
           <Spacer.Horizontal value="sm" />
           <Text
-            style={[
-              footerStyles.text,
-              constants.font.smallBold,
-              { color: constants.color.orange500 },
-            ]}>
+            style={[defaultTextStyles, { color: constants.color.orange500 }]}>
             An update is available
           </Text>
         </>
       );
     } else {
       return (
-        <Text style={defaultTextStyles}>
-          <Text style={[constants.font.smallBold, footerStyles.text]}>
-            Discovrr {constants.values.APP_VERSION}
+        <>
+          <Animatable.View
+            animation="fadeIn"
+            direction="alternate"
+            iterationCount="infinite"
+            style={[
+              footerStyles.indicator,
+              { backgroundColor: constants.color.green500 },
+            ]}
+          />
+          <Spacer.Horizontal value="sm" />
+          <Text
+            style={[defaultTextStyles, { color: constants.color.green500 }]}>
+            You&apos;re up to date
           </Text>
-          <Text>&nbsp;({constants.values.STORE_VERSION})</Text>
-          {Config.ENV !== 'production' && (
-            <Text style={defaultTextStyles}>&nbsp;[{Config.ENV}]</Text>
-          )}
-        </Text>
+        </>
       );
     }
   }, [checkUpdateStatus]);
 
   return (
     <View>
+      <Text style={[constants.font.small, footerStyles.text]}>
+        <Text style={[constants.font.smallBold, footerStyles.text]}>
+          Discovrr {constants.values.APP_VERSION}
+        </Text>
+        <Text>&nbsp;({constants.values.STORE_VERSION})</Text>
+        {Config.ENV !== 'production' && <Text>&nbsp;[{Config.ENV}]</Text>}
+      </Text>
+      {Config.ENV !== 'production' && (
+        <>
+          <Spacer.Vertical value="sm" />
+          <Text style={[constants.font.small, footerStyles.text]}>
+            {Parse.serverURL}
+          </Text>
+        </>
+      )}
+      <Spacer.Vertical value="sm" />
       <TouchableOpacity
         activeOpacity={constants.values.DEFAULT_ACTIVE_OPACITY}
         onPress={handlePressUpdateStatusLabel}
         style={[footerStyles.container, { flexDirection: 'row' }]}>
         <UpdateStatusLabel />
       </TouchableOpacity>
-      <Spacer.Vertical value="sm" />
-      {Config.ENV !== 'production' && (
-        <Text style={[constants.font.small, footerStyles.text]}>
-          {Parse.serverURL}
-        </Text>
-      )}
     </View>
   );
 }

@@ -2,6 +2,7 @@ import * as React from 'react';
 import { SafeAreaView, useWindowDimensions } from 'react-native';
 
 import WebView, { WebViewProps } from 'react-native-webview';
+import { useNavigation } from '@react-navigation/core';
 
 import Animated, {
   interpolate,
@@ -13,10 +14,29 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-import { color } from 'src/constants';
+import * as constants from 'src/constants';
 
 export default function InAppWebView(props: WebViewProps) {
   const { width: windowWidth } = useWindowDimensions();
+  const navigation = useNavigation();
+  const webviewRef = React.useRef<WebView>(null);
+
+  const [canGoBack, setCanGoBack] = React.useState(false);
+  const [title, setTitle] = React.useState<string>();
+
+  React.useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', e => {
+      if (!canGoBack) return;
+      e.preventDefault();
+      webviewRef.current?.goBack();
+    });
+
+    return unsubscribe;
+  }, [navigation, canGoBack]);
+
+  React.useLayoutEffect(() => {
+    if (title) navigation.setOptions({ title });
+  }, [navigation, title]);
 
   const loading = useSharedValue(true);
   const progress = useSharedValue(0);
@@ -51,7 +71,7 @@ export default function InAppWebView(props: WebViewProps) {
       backgroundColor: interpolateColor(
         progressColor.value,
         [0, 1],
-        [color.blue500, color.teal300],
+        [constants.color.blue500, constants.color.teal300],
       ),
     };
   }, []);
@@ -68,13 +88,18 @@ export default function InAppWebView(props: WebViewProps) {
       )}
       <WebView
         {...props}
+        ref={webviewRef}
         onLoadStart={event => {
           loading.value = true;
           props.onLoadStart?.(event);
+          setCanGoBack(event.nativeEvent.canGoBack);
+          setTitle(event.nativeEvent.title);
         }}
         onLoadEnd={event => {
           loading.value = false;
           props.onLoadEnd?.(event);
+          setCanGoBack(event.nativeEvent.canGoBack);
+          setTitle(event.nativeEvent.title);
         }}
         onLoadProgress={event => {
           progress.value = event.nativeEvent.progress;
