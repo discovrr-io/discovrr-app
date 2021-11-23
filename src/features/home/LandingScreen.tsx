@@ -331,7 +331,7 @@ function ExploreOurMakers(props: ExploreOurMakersProps) {
 
   const handlePressMaker = (profile: Profile) => {
     navigation.getParent<RootStackNavigationProp>().navigate('ProfileDetails', {
-      profileId: profile.profileId,
+      profileIdOrUsername: profile.profileId,
       profileDisplayName: profile.__publicName,
     });
   };

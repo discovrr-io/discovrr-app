@@ -440,8 +440,7 @@ function PostItemCardAuthor(props: PostItemCardAuthorProps) {
       key: `ProfileDetails:${profile.profileId}`,
       name: 'ProfileDetails',
       params: {
-        profileId: profile.profileId,
-        // profileDisplayName: profile.displayName,
+        profileIdOrUsername: profile.profileId,
         profileDisplayName: profile.__publicName,
       },
     });

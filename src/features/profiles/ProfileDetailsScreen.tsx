@@ -18,8 +18,13 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import Video from 'react-native-video';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { useFocusEffect, useNavigation } from '@react-navigation/core';
 import { useHeaderHeight } from '@react-navigation/elements';
+
+import {
+  useFocusEffect,
+  useNavigation,
+  useRoute,
+} from '@react-navigation/core';
 
 import Animated, {
   interpolate,
@@ -39,7 +44,7 @@ import PostMasonryList from 'src/features/posts/PostMasonryList';
 import ProductMasonryList from 'src/features/products/ProductMasonryList';
 
 import { useAppDispatch, useAppSelector, useIsMounted } from 'src/hooks';
-import { PostId, Profile } from 'src/models';
+import { PostId, Profile, ProfileId } from 'src/models';
 import { RootStackNavigationProp, RootStackScreenProps } from 'src/navigation';
 
 import {
@@ -89,8 +94,101 @@ function useShouldFetchOnFocus() {
 type ProfileDetailsScreenProps = RootStackScreenProps<'ProfileDetails'>;
 
 export default function ProfileDetailsScreen(props: ProfileDetailsScreenProps) {
-  const profileData = useProfile(props.route.params.profileId);
+  const params = props.route.params;
+  console.log({ __LOOKUP: params.profileIdOrUsername });
+
+  if (
+    typeof params.profileIdOrUsername === 'string' &&
+    params.profileIdOrUsername.startsWith('@')
+  ) {
+    return (
+      <ProfileByUsernameDetailsScreen username={params.profileIdOrUsername} />
+    );
+  } else {
+    return (
+      <ProfileByIdDetailsScreen
+        profileId={params.profileIdOrUsername as ProfileId}
+      />
+    );
+  }
+}
+
+type ProfileByUsernameDetailsScreenProps = {
+  username: string;
+};
+
+function ProfileByUsernameDetailsScreen(
+  props: ProfileByUsernameDetailsScreenProps,
+) {
+  const dispatch = useAppDispatch();
+  const isMounted = useIsMounted();
   const headerHeight = useHeaderHeight();
+  const route = useRoute<ProfileDetailsScreenProps['route']>();
+
+  const [profile, setProfile] = React.useState<Profile>();
+  const [shouldFetch, setShouldFetch] = React.useState(true);
+  const [error, setError] = React.useState(false);
+
+  React.useEffect(() => {
+    async function fetchProfileByUsername() {
+      try {
+        setError(false);
+
+        const username = props.username.slice(1);
+        console.log(`Fetching profile by username '${username}'...`);
+
+        const fetchedProfile = await dispatch(
+          profilesSlice.fetchProfileByUsername({ username }),
+        ).unwrap();
+
+        setProfile(fetchedProfile);
+      } catch (error) {
+        console.error('Failed to fetch profile by username:', error);
+        setError(true);
+      } finally {
+        if (isMounted.current) setShouldFetch(false);
+      }
+    }
+
+    if (shouldFetch) fetchProfileByUsername();
+  }, [dispatch, shouldFetch, props.username, isMounted]);
+
+  if (error) {
+    return (
+      <RouteError
+        message={`We couldn't find anyone with the username '${props.username}'`}
+        containerStyle={{ backgroundColor: constants.color.white }}
+      />
+    );
+  } else if (shouldFetch || !profile) {
+    return (
+      <SafeAreaView
+        style={{
+          flexGrow: 1,
+          justifyContent: 'center',
+          paddingTop: headerHeight,
+        }}>
+        <LoadingContainer message="Loading profile…" />
+      </SafeAreaView>
+    );
+  } else {
+    return (
+      <LoadedProfileDetailsScreen
+        profile={profile}
+        preferredWindowHeight={route.params.windowHeight}
+      />
+    );
+  }
+}
+
+type ProfileByIdDetailsScreenProps = {
+  profileId: ProfileId;
+};
+
+function ProfileByIdDetailsScreen(props: ProfileByIdDetailsScreenProps) {
+  const profileData = useProfile(props.profileId);
+  const headerHeight = useHeaderHeight();
+  const route = useRoute<ProfileDetailsScreenProps['route']>();
 
   const renderRouteError = (_error?: any) => (
     <RouteError containerStyle={{ backgroundColor: constants.color.white }} />
@@ -106,16 +204,15 @@ export default function ProfileDetailsScreen(props: ProfileDetailsScreenProps) {
             justifyContent: 'center',
             paddingTop: headerHeight,
           }}>
-          <LoadingContainer message="Loading profile..." />
+          <LoadingContainer message="Loading profile…" />
         </SafeAreaView>
       )}
       onFulfilled={profile => {
         if (!profile) return renderRouteError();
         return (
           <LoadedProfileDetailsScreen
-            {...props}
             profile={profile}
-            preferredWindowHeight={props.route.params.windowHeight}
+            preferredWindowHeight={route.params.windowHeight}
           />
         );
       }}

@@ -19,6 +19,7 @@ import {
   ViewStyle,
 } from 'react-native';
 
+import Autolink from 'react-native-autolink';
 import Carousel, { Pagination } from 'react-native-snap-carousel';
 import BottomSheet from '@gorhom/bottom-sheet';
 import FastImage from 'react-native-fast-image';
@@ -69,6 +70,7 @@ import {
 import { usePost } from './hooks';
 import { deletePost, fetchPostById } from './posts-slice';
 import { PostItemCardFooter } from './PostItemCard';
+import { useLinkTo } from '@react-navigation/native';
 
 const COMMENT_POST_BUTTON_WIDTH = 70;
 const COMMENT_REPLY_INDICATOR_HEIGHT = 50;
@@ -206,9 +208,7 @@ const PostHeaderComponent = ({ post }: { post: Post }) => {
     try {
       const result = await Share.share(
         Platform.OS === 'ios'
-          ? {
-              url: 'https://apps.apple.com/au/app/discovrr/id1541137819',
-            }
+          ? { url: 'https://apps.apple.com/au/app/discovrr/id1541137819' }
           : {
               title: `Share ${
                 posterProfile?.__publicName ?? 'this user'
@@ -264,11 +264,9 @@ const AddCommentComponent = () => (
   </View>
 );
 
-type PostDetailsScreenWrapperProps = RootStackScreenProps<'PostDetails'>;
+type PostDetailsScreenProps = RootStackScreenProps<'PostDetails'>;
 
-export default function PostDetailsScreenWrapper(
-  props: PostDetailsScreenWrapperProps,
-) {
+export default function PostDetailsScreen(props: PostDetailsScreenProps) {
   const { postId } = props.route.params;
   const postData = usePost(postId);
 
@@ -290,7 +288,7 @@ export default function PostDetailsScreenWrapper(
               containerStyle={{ backgroundColor: constants.color.white }}
             />
           );
-        return <PostDetailsScreen post={post} />;
+        return <LoadedPostDetailsScreen post={post} />;
       }}
       onRejected={_ => (
         <RouteError
@@ -306,11 +304,11 @@ type PostReplyContext =
   | { type: 'comment'; recipient: Profile; index?: number }
   | { type: 'comment-reply'; recipient: Profile; index?: number };
 
-type PostDetailsScreenProps = {
+type LoadedPostDetailsScreenProps = {
   post: Post;
 };
 
-function PostDetailsScreen({ post }: PostDetailsScreenProps) {
+function LoadedPostDetailsScreen({ post }: LoadedPostDetailsScreenProps) {
   const $FUNC = '[PostDetailsScreen]';
   const { bottom: bottomInset } = useSafeAreaInsets();
 
@@ -608,6 +606,7 @@ type PostDetailsContentProps = ViewProps & {
 
 function PostDetailsContent(props: PostDetailsContentProps) {
   const { post, ...restProps } = props;
+  const linkTo = useLinkTo();
 
   const renderPostContent = React.useCallback(() => {
     switch (post.contents.type) {
@@ -629,17 +628,32 @@ function PostDetailsContent(props: PostDetailsContentProps) {
       default:
         return (
           <View style={postDetailsContentStyles.textPostContainer}>
-            <Text
-              style={[
+            <Autolink
+              text={post.contents.text}
+              textProps={{
+                style: [
+                  constants.font.large,
+                  postDetailsContentStyles.textPostText,
+                ],
+              }}
+              linkStyle={[
                 constants.font.large,
                 postDetailsContentStyles.textPostText,
-              ]}>
-              {post.contents.text}
-            </Text>
+                { color: constants.color.accent },
+              ]}
+              matchers={[
+                {
+                  ...constants.regex.USERNAME_MENTION_MATCHER,
+                  onPress: match => {
+                    linkTo(`/profile/${match.getMatchedText()}`);
+                  },
+                },
+              ]}
+            />
           </View>
         );
     }
-  }, [post]);
+  }, [linkTo, post.contents, post.location]);
 
   return (
     <View style={[restProps.style]}>

@@ -9,7 +9,7 @@ type LoadingContainerProps = ContainerProps & {
 };
 
 export default function LoadingContainer({
-  message = 'Loading...',
+  message = 'Loading…',
   ...props
 }: LoadingContainerProps) {
   return (

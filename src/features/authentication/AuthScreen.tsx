@@ -36,9 +36,9 @@ import {
   statusCodes,
 } from '@react-native-google-signin/google-signin';
 
+import * as constants from 'src/constants';
 import { AuthApi } from 'src/api';
 import { Button, FormikInput, LoadingOverlay } from 'src/components';
-import { color, font, layout } from 'src/constants';
 import { SOMETHING_WENT_WRONG } from 'src/constants/strings';
 import { APP_VERSION, STORE_VERSION } from 'src/constants/values';
 import { useAppDispatch, useIsMounted } from 'src/hooks';
@@ -92,10 +92,10 @@ const registerFormSchema = yup.object({
     .required('Please enter a username')
     .min(3, 'Your username should have at least 3 characters')
     .max(30, 'Your username should not be more than 30 characters')
-    .matches(/^[A-Za-z0-9_.][A-Za-z0-9_.]*$/, {
-      message:
-        'Your username should only contain letters, numbers, full stops and underscores with no spaces',
-    })
+    .matches(
+      constants.regex.USERNAME_REGEX,
+      'Your username should only contain letters, numbers, full stops and underscores with no spaces',
+    )
     .test(
       'is not a repeated symbol',
       `This username is not valid - please choose one that's more identifiable to everyone`,
@@ -284,8 +284,8 @@ function LoginForm({ setFormType }: LoginFormProps) {
           />
           <Text
             style={[
-              font.extraSmallBold,
-              { color: color.gray700, textAlign: 'center' },
+              constants.font.extraSmallBold,
+              { color: constants.color.gray700, textAlign: 'center' },
             ]}>
             Discovrr {APP_VERSION} ({STORE_VERSION})
           </Text>
@@ -297,13 +297,13 @@ function LoginForm({ setFormType }: LoginFormProps) {
 
 const formStyles = StyleSheet.create({
   textInputContainer: {
-    marginBottom: layout.spacing.xl,
+    marginBottom: constants.layout.spacing.xl,
   },
   textInput: {
-    marginBottom: layout.spacing.md,
+    marginBottom: constants.layout.spacing.md,
   },
   button: {
-    marginTop: layout.spacing.md,
+    marginTop: constants.layout.spacing.md,
   },
 });
 
@@ -361,16 +361,16 @@ function RegisterForm({ setFormType }: RegisterFormProps) {
         <View>
           <Text
             style={[
-              font.smallBold,
+              constants.font.smallBold,
               {
-                marginBottom: layout.spacing.lg,
-                marginHorizontal: layout.spacing.md,
+                marginBottom: constants.layout.spacing.lg,
+                marginHorizontal: constants.layout.spacing.md,
               },
             ]}>
             Welcome to Discovrr! To register an account with us, please fill in
             the details below.
           </Text>
-          <View style={{ marginBottom: layout.spacing.md }}>
+          <View style={{ marginBottom: constants.layout.spacing.md }}>
             <FormikInput
               formikProps={props}
               formikField="displayName"
@@ -422,10 +422,14 @@ function RegisterForm({ setFormType }: RegisterFormProps) {
           <View
             style={{
               alignItems: 'center',
-              marginTop: layout.spacing.md * 1.5,
-              marginBottom: layout.spacing.sm,
+              marginTop: constants.layout.spacing.md * 1.5,
+              marginBottom: constants.layout.spacing.sm,
             }}>
-            <Text style={[font.smallBold, { color: color.gray700 }]}>
+            <Text
+              style={[
+                constants.font.smallBold,
+                { color: constants.color.gray700 },
+              ]}>
               By signing up, you agree to our
             </Text>
             <TouchableOpacity
@@ -433,9 +437,9 @@ function RegisterForm({ setFormType }: RegisterFormProps) {
               onPress={handleOpenTermsAndConditions}>
               <Text
                 style={[
-                  font.smallBold,
+                  constants.font.smallBold,
                   {
-                    color: color.accent,
+                    color: constants.color.accent,
                     textDecorationLine: 'underline',
                   },
                 ]}>
@@ -503,10 +507,10 @@ function ForgotPasswordForm({ setFormType }: ForgotPasswordFormProps) {
         <>
           <Text
             style={[
-              font.smallBold,
+              constants.font.smallBold,
               {
-                marginBottom: layout.spacing.lg,
-                marginHorizontal: layout.spacing.md,
+                marginBottom: constants.layout.spacing.lg,
+                marginHorizontal: constants.layout.spacing.md,
               },
             ]}>
             Forgot your password? No worries! Just enter your email address
@@ -518,7 +522,7 @@ function ForgotPasswordForm({ setFormType }: ForgotPasswordFormProps) {
             placeholder="Email"
             keyboardType="email-address"
             autoCapitalize="none"
-            containerStyle={{ marginBottom: layout.spacing.md }}
+            containerStyle={{ marginBottom: constants.layout.spacing.md }}
           />
           <Button
             type="primary"
@@ -535,7 +539,7 @@ function ForgotPasswordForm({ setFormType }: ForgotPasswordFormProps) {
             onPress={() => setFormType('login')}
             containerStyle={[
               formStyles.button,
-              { marginBottom: layout.spacing.sm * 1.5 },
+              { marginBottom: constants.layout.spacing.sm * 1.5 },
             ]}
           />
         </>
@@ -663,7 +667,7 @@ export default function AuthScreen() {
           source={LOGIN_POSTER_SOURCE}
           style={[
             authScreenStyles.backgroundVideo,
-            { backgroundColor: color.placeholder },
+            { backgroundColor: constants.color.placeholder },
           ]}
         />
       )}
@@ -719,7 +723,7 @@ export default function AuthScreen() {
               <AppleButton
                 buttonType={AppleButton.Type.SIGN_IN}
                 buttonStyle={AppleButton.Style.WHITE}
-                cornerRadius={layout.radius.md}
+                cornerRadius={constants.layout.radius.md}
                 style={{ width: 195, height: 41, marginTop: 3 }}
                 onPress={handleSignInWithApple}
               />
@@ -751,7 +755,7 @@ const authScreenStyles = StyleSheet.create({
     right: 0,
     left: 0,
     bottom: 0,
-    backgroundColor: color.placeholder,
+    backgroundColor: constants.color.placeholder,
   },
   scrollView: {
     flexGrow: 1,
@@ -760,18 +764,18 @@ const authScreenStyles = StyleSheet.create({
   },
   formContainer: {
     backgroundColor: 'rgba(255, 255, 255, 0.85)',
-    borderRadius: layout.radius.lg * 1.25,
-    paddingTop: layout.spacing.lg * 1.5,
-    paddingBottom: layout.spacing.lg,
-    paddingHorizontal: layout.spacing.lg * 1.25,
+    borderRadius: constants.layout.radius.lg * 1.25,
+    paddingTop: constants.layout.spacing.lg * 1.5,
+    paddingBottom: constants.layout.spacing.lg,
+    paddingHorizontal: constants.layout.spacing.lg * 1.25,
   },
   discovrrLogo: {
-    marginBottom: layout.spacing.xl,
+    marginBottom: constants.layout.spacing.xl,
     alignSelf: 'center',
   },
   signInButtonsContainer: {
     position: 'absolute',
-    bottom: layout.spacing.xl,
+    bottom: constants.layout.spacing.xl,
     alignItems: 'center',
   },
 });

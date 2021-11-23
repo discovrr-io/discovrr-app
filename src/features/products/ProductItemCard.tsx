@@ -281,7 +281,7 @@ const ProductItemCardAuthor = (props: ProductItemCardAuthorProps) => {
     }
 
     navigation.navigate('ProfileDetails', {
-      profileId: profile.profileId,
+      profileIdOrUsername: profile.profileId,
       profileDisplayName: profile.__publicName,
     });
   };

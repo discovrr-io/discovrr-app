@@ -189,7 +189,7 @@ function PersistedApp() {
             screens: {
               Main: '',
               PostDetails: 'post/:postId',
-              ProfileDetails: 'profile/:profileId',
+              ProfileDetails: 'profile/:profileIdOrUsername',
               ProductDetails: 'product/:productId',
               MainSettings: 'settings',
               ProfileSettings: 'settings/profile',

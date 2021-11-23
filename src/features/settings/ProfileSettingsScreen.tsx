@@ -39,7 +39,7 @@ import { useMyProfileId, useProfile } from 'src/features/profiles/hooks';
 import { Profile, ProfileId } from 'src/models';
 import { RootStackScreenProps } from 'src/navigation';
 
-import { color, font, layout, media } from 'src/constants';
+import * as constants from 'src/constants';
 import { DEFAULT_AVATAR, DEFAULT_IMAGE } from 'src/constants/media';
 import { CELL_GROUP_VERTICAL_SPACING } from 'src/components/cells/CellGroup';
 import {
@@ -76,8 +76,10 @@ const AVATAR_DIAMETER = 100;
 const AVATAR_BOTTOM_OFFSET_DIVISOR = 3.2;
 
 const IMAGE_COMPRESSION_QUALITY = 0.7;
-const AVATAR_COMPRESSION_MAX_WIDTH = media.DEFAULT_AVATAR_DIMENSIONS.width;
-const AVATAR_COMPRESSION_MAX_HEIGHT = media.DEFAULT_AVATAR_DIMENSIONS.height;
+const AVATAR_COMPRESSION_MAX_WIDTH =
+  constants.media.DEFAULT_AVATAR_DIMENSIONS.width;
+const AVATAR_COMPRESSION_MAX_HEIGHT =
+  constants.media.DEFAULT_AVATAR_DIMENSIONS.height;
 const BACKGROUND_COMPRESSION_MAX_WIDTH = 400;
 const BACKGROUND_COMPRESSION_MAX_HEIGHT = 500;
 
@@ -110,7 +112,7 @@ const profileChangesSchema = yup.object({
       MAX_INPUT_LENGTH,
       `Your username should not be more than ${MAX_INPUT_LENGTH} characters`,
     )
-    .matches(/^[A-Za-z0-9_][A-Za-z0-9_]*$/, {
+    .matches(constants.regex.USERNAME_REGEX, {
       message:
         'Your username should only contain letters, numbers, and underscores with no spaces',
     }),
@@ -551,7 +553,10 @@ function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
       <SafeAreaView style={{ flex: 1 }}>
         <ScrollView
           keyboardShouldPersistTaps="handled"
-          contentContainerStyle={[layout.defaultScreenStyle, { flexGrow: 1 }]}>
+          contentContainerStyle={[
+            constants.layout.defaultScreenStyle,
+            { flexGrow: 1 },
+          ]}>
           <Formik<ProfileChangesForm>
             initialValues={{
               avatar: undefined,
@@ -650,7 +655,7 @@ function ProfileSettingsFormikForm() {
             containerStyle={{
               alignItems: 'flex-end',
               paddingHorizontal: 0,
-              marginRight: layout.defaultScreenMargins.horizontal,
+              marginRight: constants.layout.defaultScreenMargins.horizontal,
             }}
           />
         );
@@ -668,7 +673,7 @@ function ProfileSettingsFormikForm() {
             {
               position: 'absolute',
               bottom: -(AVATAR_DIAMETER / AVATAR_BOTTOM_OFFSET_DIVISOR),
-              left: layout.spacing.lg,
+              left: constants.layout.spacing.lg,
             },
           ]}
         />
@@ -678,7 +683,7 @@ function ProfileSettingsFormikForm() {
       <Cell.Group
         label="My Details"
         elementOptions={{
-          containerSpacingHorizontal: layout.spacing.md * 1.25,
+          containerSpacingHorizontal: constants.layout.spacing.md * 1.25,
         }}>
         <Cell.InputGroup labelFlex={1.1}>
           <Cell.Input
@@ -717,13 +722,13 @@ function ProfileSettingsFormikForm() {
               isGeneratingUsername ? (
                 <ActivityIndicator
                   size="small"
-                  color={color.accent}
+                  color={constants.color.accent}
                   style={{ width: 24 }}
                 />
               ) : (
                 <Cell.Input.Icon
                   name="reload-outline"
-                  color={color.accent}
+                  color={constants.color.accent}
                   onPress={handleGenerateRandomUsername}
                 />
               )
@@ -966,7 +971,7 @@ function ProfileBackgroundPicker() {
         {isLoading && (
           <ActivityIndicator
             size="large"
-            color={color.gray500}
+            color={constants.color.gray500}
             style={{ position: 'absolute' }}
           />
         )}
@@ -988,8 +993,8 @@ const profileBackgroundPickerStyles = StyleSheet.create({
   picker: {
     width: '100%',
     aspectRatio: 3 / 1.8,
-    backgroundColor: color.placeholder,
-    borderRadius: layout.radius.md,
+    backgroundColor: constants.color.placeholder,
+    borderRadius: constants.layout.radius.md,
   },
 });
 
@@ -1114,7 +1119,8 @@ function ProfileAvatarPicker(props: ProfileAvatarPickerProps) {
           style={[profileAvatarPickerStyles.image, props.imageStyle]}
         />
         <View style={profileAvatarPickerStyles.editTextContainer}>
-          <Text style={[font.medium, profileAvatarPickerStyles.editText]}>
+          <Text
+            style={[constants.font.medium, profileAvatarPickerStyles.editText]}>
             Edit
           </Text>
         </View>
@@ -1132,23 +1138,23 @@ const profileAvatarPickerStyles = StyleSheet.create({
   touchableContainer: {
     overflow: 'hidden',
     borderWidth: 6,
-    borderColor: color.white,
+    borderColor: constants.color.white,
   },
   image: {
     width: AVATAR_DIAMETER,
     aspectRatio: 1,
     borderRadius: AVATAR_DIAMETER / 2,
-    backgroundColor: color.placeholder,
+    backgroundColor: constants.color.placeholder,
   },
   editTextContainer: {
     position: 'absolute',
     bottom: 0,
     width: AVATAR_DIAMETER,
-    paddingVertical: layout.spacing.xs * 1.5,
+    paddingVertical: constants.layout.spacing.xs * 1.5,
     backgroundColor: '#4E4E4E88',
   },
   editText: {
     textAlign: 'center',
-    color: color.white,
+    color: constants.color.white,
   },
 });

@@ -135,6 +135,29 @@ export namespace ProfileApi {
     return mapResultToProfile(result);
   }
 
+  export type FetchProfileByUsernameParams = {
+    username: string;
+  };
+
+  export async function fetchProfileByUsername(
+    params: FetchProfileByUsernameParams,
+  ): Promise<Profile> {
+    const { username } = params;
+    const query = new Parse.Query(Parse.Object.extend('Profile'));
+
+    const result = await query
+      .include('profilePersonal', 'profileVendor')
+      .notEqualTo('status', ApiObjectStatus.DELETED)
+      .equalTo('username', username)
+      .first();
+
+    if (!result) {
+      throw new Error(`No profile was found with username '${username}'`);
+    }
+
+    return mapResultToProfile(result);
+  }
+
   export type FetchAllProfilesParams = {
     pagination?: Pagination;
   };

@@ -30,15 +30,22 @@ import {
 //#region Profile Adapter Initialization
 
 type ProfileApiFetchStatuses = ApiFetchStatuses<ProfileId>;
-export type ProfilesState = EntityState<Profile> & ProfileApiFetchStatuses;
+type ProfileApiCachedUsernames = { usernames: Record<string, ProfileId> };
+
+export type ProfilesState = EntityState<Profile> &
+  ProfileApiFetchStatuses &
+  ProfileApiCachedUsernames;
 
 const profilesAdapter = createEntityAdapter<Profile>({
   // We DO NOT want to index by `profile.id`
   selectId: profile => profile.profileId,
 });
 
-const initialState = profilesAdapter.getInitialState<ProfileApiFetchStatuses>({
+const initialState = profilesAdapter.getInitialState<
+  ProfileApiFetchStatuses & ProfileApiCachedUsernames
+>({
   statuses: {},
+  usernames: {},
 });
 
 //#endregion Profile Adapter Initialization
@@ -59,6 +66,30 @@ export const fetchProfileById = createAsyncThunk<
       status !== 'fulfilled' && status !== 'pending' && status !== 'refreshing'
     );
   },
+});
+
+export const fetchProfileByUsername = createAsyncThunk<
+  Profile,
+  Reloadable<ProfileApi.FetchProfileByUsernameParams>,
+  { dispatch: AppDispatch; state: RootState }
+>('profiles/fetchProfileByUsername', async ({ username, reload }, thunkApi) => {
+  const maybeProfileId = thunkApi.getState().profiles.usernames[username];
+
+  if (maybeProfileId) {
+    const maybeProfile = thunkApi.getState().profiles.entities[maybeProfileId];
+    if (maybeProfile) {
+      // NOTE: We won't attempt to reload or fetch here
+      return maybeProfile;
+    } else {
+      const fetchProfileByIdAction = fetchProfileById({
+        profileId: maybeProfileId,
+        reload: reload,
+      });
+      return await thunkApi.dispatch(fetchProfileByIdAction).unwrap();
+    }
+  }
+
+  return await ProfileApi.fetchProfileByUsername({ username });
 });
 
 export const fetchAllProfiles = createAsyncThunk<
@@ -131,6 +162,9 @@ export const updateProfileFollowStatus = createAsyncThunk(
 
 //#region Profile Slice
 
+const mapProfileIdAndUsername = (profile: Profile) =>
+  [profile.profileId, profile.username] as const;
+
 const profilesSlice = createSlice({
   name: 'profiles',
   initialState,
@@ -186,13 +220,17 @@ const profilesSlice = createSlice({
 
         if (reload) {
           profilesAdapter.setAll(state, action.payload);
+          state.usernames = {};
         } else {
           profilesAdapter.upsertMany(state, action.payload);
         }
 
         state.statuses = {};
-        for (const profileId of action.payload.map(p => p.profileId)) {
+        for (const [profileId, username] of action.payload.map(
+          mapProfileIdAndUsername,
+        )) {
           state.statuses[profileId] = { status: 'fulfilled' };
+          state.usernames[username] = profileId;
         }
       })
       // -- fetchProfileById --
@@ -204,9 +242,8 @@ const profilesSlice = createSlice({
       })
       .addCase(fetchProfileById.fulfilled, (state, action) => {
         profilesAdapter.upsertOne(state, action.payload);
-        state.statuses[action.meta.arg.profileId] = {
-          status: 'fulfilled',
-        };
+        state.statuses[action.meta.arg.profileId] = { status: 'fulfilled' };
+        state.usernames[action.payload.username] = action.meta.arg.profileId;
       })
       .addCase(fetchProfileById.rejected, (state, action) => {
         state.statuses[action.meta.arg.profileId] = {
@@ -214,23 +251,36 @@ const profilesSlice = createSlice({
           error: action.error,
         };
       })
+      // -- fetchProfileByUsername --
+      .addCase(fetchProfileByUsername.fulfilled, (state, action) => {
+        profilesAdapter.upsertOne(state, action.payload);
+        state.statuses[action.payload.profileId] = { status: 'fulfilled' };
+        state.usernames[action.payload.username] = action.payload.profileId;
+      })
       // -- fetchAllProfilesByKind --
       .addCase(fetchAllProfilesByKind.fulfilled, (state, action) => {
         profilesAdapter.upsertMany(state, action.payload);
-        for (const profileId of action.payload.map(p => p.profileId)) {
+        for (const [profileId, username] of action.payload.map(
+          mapProfileIdAndUsername,
+        )) {
           state.statuses[profileId] = { status: 'fulfilled' };
+          state.usernames[username] = profileId;
         }
       })
       // -- fetchProfileForVendorProfileId --
       .addCase(fetchProfileByVendorProfileId.fulfilled, (state, action) => {
         profilesAdapter.upsertOne(state, action.payload);
         state.statuses[action.payload.profileId] = { status: 'fulfilled' };
+        state.usernames[action.payload.username] = action.payload.profileId;
       })
       // -- fetchAllVerifiedVendors --
       .addCase(fetchAllVerifiedVendors.fulfilled, (state, action) => {
         profilesAdapter.upsertMany(state, action.payload);
-        for (const profileId of action.payload.map(p => p.profileId)) {
+        for (const [profileId, username] of action.payload.map(
+          mapProfileIdAndUsername,
+        )) {
           state.statuses[profileId] = { status: 'fulfilled' };
+          state.usernames[username] = profileId;
         }
       })
       // -- updateProfile --
