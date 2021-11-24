@@ -15,10 +15,10 @@ export const MAX_VID_DURATION_MILLISECONDS = MAX_VID_DURATION_SECONDS * 1000;
 export const APP_VERSION: string =
   nodePackage.version || `${getVersion()}-native` || '<unknown-version>';
 
-// Store version 3.0.0.9 (3000009)
-export const STORE_VERSION = createVersionString([3, 0, 0, 9] as const);
+// Store version 3.0.0.10 (3000010)
+export const STORE_VERSION = createVersionString([3, 0, 0, 10] as const);
 // Set this to the appropriate option any time the `STORE_VERSION` is changed
-export const STORE_SHOULD_SIGN_OUT = true;
+export const STORE_SHOULD_SIGN_OUT = false;
 
 function createVersionString(
   version: readonly [number, number, number, number],

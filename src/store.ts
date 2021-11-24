@@ -77,14 +77,7 @@ const persistedReducer = persistReducer<CombinedAppState>(
     key: 'root',
     storage: AsyncStorage,
     stateReconciler: autoMergeLevel2,
-    blacklist: [
-      'comments',
-      'commentReplies',
-      'feed',
-      'posts',
-      'products',
-      // 'profiles'
-    ],
+    whitelist: ['auth', 'notifications', 'onboarding', 'search', 'settings'],
   },
   rootReducer,
 );
