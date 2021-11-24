@@ -2,6 +2,19 @@
 
 ## [Unreleased]
 
+<!-- ## [v3.0.9] (2021-11-24) -->
+
+### Added
+
+- Ability to navigate to user profile by mentions (`@username`)
+- Add a `__publicName` property in the `Profile` model for convenience
+
+### Changed
+
+- Add an "Explore our makers" section in the landing screen
+- Fetch profile whenever the app drawer is open
+- Persist only whitelisted reducers with `redux-persist`
+
 ## [v3.0.8] (2021-11-22)
 
 ### Changed
@@ -17,12 +30,18 @@
 
 ### Changed
 
-- Removed OneSignal integration
+- Remove OneSignal integration
 - Integrate Firebase messaging extension for iOS
 - Finalise deep linking and notification link support
 - Generate a thumbnail when uploading a video for profile background
 
 ## [v3.0.6] (2021-11-21)
+
+### Added
+
+- Change profile background (images and video)
+  - Uploading video with camera isn't available yet
+- Implement notification screen with basic history and deep linking
 
 ### Changed
 
@@ -30,25 +49,11 @@
   slice to keep posts sorted and to avoid posts jumping around when refreshing
 - Display labels under the tab icons on the bottom tab bar
 
-### Added
-
-- Add ability to change profile background (images and video)
-  - Uploading video with camera isn't available yet
-- Implemented notification screen with basic history and deep linking
-
 ### Fixed
 
 - Products and maker profiles in Near Me should now be properly shuffled
 
 ## [v3.0.5] (2021-11-17)
-
-### Changed
-
-- Increased maximum username limit to 30 characters
-- Increased product name limit to 150 characters
-- Increased product description limit to 2000 characters
-- Allow full stops in profile username and disallow only repeated symbols
-- Revamped profile details screen with new UI and video header
 
 ### Added
 
@@ -59,16 +64,15 @@
   - [x] Replace old profile page on My Profile tab with new one
 - Add new onboarding process (WIP)
 
-## [v3.0.4] (2021-11-10)
-
-### Fixed
-
-- Fixed issue where creating a new account with email and password failed
-- Minor bug fixes and visual changes
-
 ### Changed
 
-- Show statistics and actions on maker profile pages
+- Increase maximum username limit to 30 characters
+- Increase product name limit to 150 characters
+- Increase product description limit to 2000 characters
+- Allow full stops in profile username and disallow only repeated symbols
+- Revamped profile details screen with new UI and video header
+
+## [v3.0.4] (2021-11-10)
 
 ### Added
 
@@ -77,6 +81,15 @@
 - Add ability to share feedback via email
 - Add ability to publish products and its images from verified vendors onto
   Squarespace
+
+### Changed
+
+- Show statistics and actions on maker profile pages
+
+### Fixed
+
+- Fix issue where creating a new account with email and password failed
+- Minor bug fixes and visual changes
 
 ## [v3.0.3] (2021-11-06)
 
@@ -87,16 +100,6 @@
 
 ## [v3.0.2] (2021-11-05)
 
-### Fixed
-
-- Fixed issue where the "Sign in with Google" button doesn't show the account
-  selection dialog after already signing into another Google account previously
-  ([issue #6](https://github.com/discovrr-io/discovrr-app/issues/6))
-
-### Changed
-
-- Display alert informing unsaved changes when navigation away from dirty forms
-
 ### Added
 
 - Add ability to switch account type from `"personal"` to `"vendor"` and
@@ -104,17 +107,27 @@
 - Add ability to create products
 - Add basic functionality to create video posts
 
-## [v3.0.1] (2021-10-30)
-
 ### Changed
 
-- Polished up `CreateItemPreview` screen
-- Compress photos when uploading to Firebase Cloud Storage
+- Display alert informing unsaved changes when navigation away from dirty forms
+
+### Fixed
+
+- Fix issue where the "Sign in with Google" button doesn't show the account
+  selection dialog after already signing into another Google account previously
+  ([issue #6](https://github.com/discovrr-io/discovrr-app/issues/6))
+
+## [v3.0.1] (2021-10-30)
 
 ### Added
 
 - Add ability to change profile picture
 - Add ability to create gallery posts
+
+### Changed
+
+- Polish up `CreateItemPreview` screen
+- Compress photos when uploading to Firebase Cloud Storage
 
 ## [v3.0.0] (2021-10-24)
 
@@ -127,15 +140,9 @@
 
 ### Fixed
 
-- Fixed issue where cancelling a search after holding the Explore tab will take
+- Fix issue where cancelling a search after holding the Explore tab will take
   you to your last viewed tab instead of the Explore feed
 - Searching by makers should only bring up makers and not regular users
-
-### Changed
-
-- Merge `"personal"` and `"vendor"` profile kinds into one common interface
-- Change `APP_VERSION` to be set to the node package version, falling back to
-  the device version if it could not be found
 
 ### Added
 
@@ -156,12 +163,13 @@
 - Add ability to clear app cache from Settings
 - Add placeholder UI for reporting comments, posts and profiles
 
+### Changed
+
+- Merge `"personal"` and `"vendor"` profile kinds into one common interface
+- Change `APP_VERSION` to be set to the node package version, falling back to
+  the device version if it could not be found
+
 ## [v2.3.0.3] (2021-10-15)
-
-### Fixed
-
-- Fix issue where `Slider` in `LocationQueryBottomSheet` doesn't properly
-  respond to gesture events on Android
 
 ### Added
 
@@ -169,6 +177,11 @@
 - Add `LocationQueryBottomSheet` component with basic UI
 - Display Parse server URL on the settings page for ease of troubleshooting
 - Add basic support for notifications with a `NotificationsScreen` component
+
+### Fixed
+
+- Fix issue where `Slider` in `LocationQueryBottomSheet` doesn't properly
+  respond to gesture events on Android
 
 ## [v2.3.0.2] (2021-10-06)
 
@@ -180,18 +193,18 @@
 
 ## [v2.3.0.1] (2021-10-05)
 
-### Changed
-
-- New user interface with a modern design
-- Migrate project to TypeScript
-- Upgrade React Native dependencies
-
 ### Added
 
 - New bottom bar tabs:
   - Home tab (WIP)
   - Discover tab (previously Home tab)
   - Notifications tab (previously in drawer)
+
+### Changed
+
+- New user interface with a modern design
+- Migrate project to TypeScript
+- Upgrade React Native dependencies
 
 [unreleased]: https://github.com/discovrr-io/discovrr-app/compare/v3.0.8...HEAD
 [v3.0.8]: https://github.com/discovrr-io/discovrr-app/compare/v3.0.7...v3.0.8
