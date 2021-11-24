@@ -539,7 +539,7 @@ export default function LandingScreen(props: LandingScreenProps) {
                 'Explore our carefully curated catalogue of products made by our local makers.'
               }
             />
-            <Spacer.Vertical value="lg" />
+            <Spacer.Vertical value="md" />
             <TouchableHighlight
               underlayColor={constants.color.teal300}
               onPress={handleGoToNearMe}
