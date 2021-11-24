@@ -124,7 +124,7 @@ function PersistedApp() {
         // Custom purging - purges everything in the store except authentication
         // FIXME: This is not asynchronous, so we'll need to wait for every
         // single part of the store to be cleared, one after the other.
-        const resetAction = resetAppState({
+        const resetAppStateAction = resetAppState({
           // Only reset the FCM registration token if we actually signed the
           // user out (and thus their associated Parse.Session object has been
           // deleted)
@@ -134,7 +134,7 @@ function PersistedApp() {
 
         // FIXME: Even if we don't sign out the user, the profile associated
         // with it will be purged
-        dispatch(resetAction);
+        dispatch(resetAppStateAction);
 
         // NOTE: User will only be signed out if the version has changed.
         // Subsequent app launches will not be affected.

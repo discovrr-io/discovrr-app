@@ -236,10 +236,12 @@ export namespace ProfileApi {
 
     return (
       vendors
-        // We have to filter this after querying since this field is populated
-        // in the `afterFind` trigger
+        // We have to filter after querying since this field is populated in the
+        // `afterFind` trigger
         .filter(vendor => vendor.get('highestRole') === 'verified-vendor')
         .map(mapResultToProfile)
+        .slice()
+        .sort((a, b) => a.__publicName.localeCompare(b.__publicName))
     );
   }
 

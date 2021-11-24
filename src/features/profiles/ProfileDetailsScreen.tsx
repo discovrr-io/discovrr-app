@@ -601,7 +601,6 @@ function ProfileDetailsHeader(props: ProfileDetailsHeaderProps) {
   ) => {
     navigation.push('ProfileFollowActivity', {
       profileId: profile.profileId,
-      profileDisplayName: profile.__publicName,
       selector,
     });
   };

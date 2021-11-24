@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import * as React from 'react';
 import {
   TextInput as RNTextInput,
   StyleProp,
@@ -22,7 +22,7 @@ import {
   StackHeaderProps,
 } from '@react-navigation/stack';
 
-import { color, font, layout } from 'src/constants';
+import * as constants from 'src/constants';
 import { Button, HeaderIcon, Spacer, TextInput } from 'src/components';
 import { useAppDispatch } from 'src/hooks';
 
@@ -35,24 +35,25 @@ import SearchQueryScreen from './SearchQueryScreen';
 import SearchResultsNavigator from './SearchResultsNavigator';
 import { addToSearchQueryHistory } from './search-slice';
 
-const HEADER_HORIZONTAL_PADDING = layout.defaultScreenMargins.horizontal;
+const HEADER_HORIZONTAL_PADDING =
+  constants.layout.defaultScreenMargins.horizontal;
 const HEADER_TEXT_INPUT_ICON_SIZE = 24;
 
 function SearchHeaderContent(props: { initialText?: string }) {
   const dispatch = useAppDispatch();
   const navigation = useNavigation<SearchStackNavigationProp>();
 
-  const textInputRef = useRef<RNTextInput>(null);
-  const [searchText, setSearchText] = useState('');
+  const textInputRef = React.useRef<RNTextInput>(null);
+  const [searchText, setSearchText] = React.useState('');
 
   // Focus the text input when the navigation is focused
   useFocusEffect(
-    useCallback(() => {
+    React.useCallback(() => {
       textInputRef.current?.focus();
     }, []),
   );
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (props.initialText) setSearchText(props.initialText);
   }, [props.initialText]);
 
@@ -93,7 +94,7 @@ function SearchHeaderContent(props: { initialText?: string }) {
           <TextInput.Icon
             name="close-circle"
             size={HEADER_TEXT_INPUT_ICON_SIZE}
-            color={color.black}
+            color={constants.color.black}
             onPress={handleClearQuery}
           />
         ) : undefined
@@ -115,7 +116,10 @@ function SearchHeader(
   return (
     <SafeAreaView
       edges={['top', 'left', 'right']}
-      style={[{ backgroundColor: color.absoluteWhite }, props.containerStyle]}>
+      style={[
+        { backgroundColor: constants.color.absoluteWhite },
+        props.containerStyle,
+      ]}>
       <View
         style={[
           {
@@ -175,17 +179,17 @@ function SearchResultsHeader(props: SearchResultsHeaderProps) {
       containerStyle={{ paddingRight: HEADER_HORIZONTAL_PADDING }}>
       <HeaderIcon.Back onPress={handleNavigateBackToQueryScreen} />
       <TouchableHighlight
-        underlayColor={color.gray200}
+        underlayColor={constants.color.gray200}
         onPress={handleNavigateBackToQueryScreen}
         onLongPress={handleNavigateBackToQueryScreen}
         style={{
           flexGrow: 1,
           justifyContent: 'center',
-          height: layout.buttonSizes.md,
-          paddingVertical: layout.spacing.sm,
-          paddingHorizontal: layout.spacing.md * 1.3,
-          borderRadius: layout.radius.sm,
-          backgroundColor: color.gray100,
+          height: constants.layout.buttonSizes.md,
+          paddingVertical: constants.layout.spacing.sm,
+          paddingHorizontal: constants.layout.spacing.md * 1.3,
+          borderRadius: constants.layout.radius.sm,
+          backgroundColor: constants.color.gray100,
         }}>
         <View
           style={{
@@ -195,7 +199,9 @@ function SearchResultsHeader(props: SearchResultsHeaderProps) {
           }}>
           <Icon name="search" size={18} />
           <Spacer.Horizontal value="sm" />
-          <Text style={font.medium}>{query ?? 'Search for anything…'}</Text>
+          <Text style={constants.font.medium}>
+            {query ?? 'Search for anything…'}
+          </Text>
         </View>
       </TouchableHighlight>
     </SearchHeader>
@@ -209,9 +215,9 @@ export default function SearchNavigator() {
     <SearchStack.Navigator
       initialRouteName="SearchQuery"
       screenOptions={{
-        headerTintColor: color.black,
+        headerTintColor: constants.color.black,
         headerBackTitleVisible: false,
-        headerTitleStyle: font.defaultHeaderTitleStyle,
+        headerTitleStyle: constants.font.defaultHeaderTitleStyle,
         headerStyleInterpolator: Platform.select({
           android: HeaderStyleInterpolators.forFade,
         }),

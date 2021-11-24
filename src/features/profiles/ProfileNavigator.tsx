@@ -20,17 +20,10 @@ export default function renderProfileNavigator() {
       <RootStack.Screen
         name="ProfileFollowActivity"
         component={ProfileFollowActivityScreen}
-        options={({ route }) => {
-          const { profileDisplayName, selector } = route.params;
-          const selectorTitle =
-            selector === 'followers' ? 'Followers' : 'Following';
-
-          return {
-            title: profileDisplayName
-              ? `${profileDisplayName} - ${selectorTitle}`
-              : selectorTitle,
-          };
-        }}
+        options={({ route }) => ({
+          title:
+            route.params.selector === 'followers' ? 'Followers' : 'Following',
+        })}
       />
     </RootStack.Group>
   );

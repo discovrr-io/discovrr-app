@@ -1,5 +1,7 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import * as React from 'react';
 import { FlatList, RefreshControl, SafeAreaView, View } from 'react-native';
+
+import { useNavigation } from '@react-navigation/core';
 
 import * as constants from 'src/constants';
 import * as utilities from 'src/utilities';
@@ -18,11 +20,11 @@ import ProfileListItem from './ProfileListItem';
 import { useIsMyProfile, useProfile } from './hooks';
 import { fetchProfileById } from './profiles-slice';
 
-type ProfileFollowActivityScreen =
+type ProfileFollowActivityScreenProps =
   RootStackScreenProps<'ProfileFollowActivity'>;
 
 export default function ProfileFollowActivityScreen(
-  props: ProfileFollowActivityScreen,
+  props: ProfileFollowActivityScreenProps,
 ) {
   const { profileId, selector } = props.route.params;
   const profileData = useProfile(profileId);
@@ -40,7 +42,7 @@ export default function ProfileFollowActivityScreen(
           />
         );
       }}
-      onRejected={_ => <RouteError />}
+      onRejected={() => <RouteError />}
     />
   );
 }
@@ -55,22 +57,34 @@ function LoadedProfileFollowActivityScreen(
 ) {
   const $FUNC = '[ProfileFollowActivityScreen]';
   const { profile, selector } = props;
-  const dispatch = useAppDispatch();
 
-  const data = useMemo(() => {
-    // Immutably sort latest profiles first by cloning them first via `slice`
-    return selector === 'followers'
-      ? profile.followers?.slice().reverse() ?? []
-      : profile.following?.slice().reverse() ?? [];
+  const dispatch = useAppDispatch();
+  const navigation =
+    useNavigation<ProfileFollowActivityScreenProps['navigation']>();
+
+  const data = React.useMemo(() => {
+    return (selector === 'followers' ? profile.followers : profile.following)
+      .slice()
+      .reverse();
   }, [profile.followers, profile.following, selector]);
+
+  const selectorTitle = React.useMemo(() => {
+    return selector === 'followers' ? 'Followers' : 'Following';
+  }, [selector]);
 
   const isMyProfile = useIsMyProfile(profile.profileId);
   const isMounted = useIsMounted();
 
-  const [isInitialRender, setIsInitialRender] = useState(true);
-  const [shouldRefresh, setShouldRefresh] = useState(false);
+  const [isInitialRender, setIsInitialRender] = React.useState(true);
+  const [shouldRefresh, setShouldRefresh] = React.useState(false);
 
-  useEffect(() => {
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      title: `${profile.__publicName} - ${selectorTitle}`,
+    });
+  }, [navigation, profile.__publicName, selectorTitle]);
+
+  React.useEffect(() => {
     if (isInitialRender || shouldRefresh)
       (async () => {
         try {

@@ -330,15 +330,25 @@ const AppDrawerProfileDetails = (props: AppDrawerProfileDetailsProps) => {
   const profileData = useProfile(props.profileId);
 
   React.useEffect(() => {
-    if (drawerStatus === 'open') {
+    async function fetchMyProfile() {
       const fetchProfileAction = profilesSlice.fetchProfileById({
         profileId: props.profileId,
         reload: true,
       });
-      dispatch(fetchProfileAction)
-        .unwrap()
-        .catch(error => console.error('Failed to fetch profile:', error));
+
+      try {
+        await new Promise<void>(() => {
+          // iOS: Wait a bit to let the dark-overlay animation to complete
+          setTimeout(async () => {
+            await dispatch(fetchProfileAction).unwrap();
+          }, 500);
+        });
+      } catch (error) {
+        console.error('Failed to fetch profile:', error);
+      }
     }
+
+    if (drawerStatus === 'open') fetchMyProfile();
   }, [dispatch, drawerStatus, props.profileId]);
 
   return (

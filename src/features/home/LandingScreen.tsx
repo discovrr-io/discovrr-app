@@ -45,7 +45,7 @@ import OnboardingModal, {
 } from './OnboardingModal';
 
 const TILE_SPACING = constants.values.DEFAULT_TILE_SPACING;
-const EXPLORE_OUR_MAKERS_NUM_COLUMNS = 3;
+const EXPLORE_OUR_MAKERS_NUM_COLUMNS = 2;
 
 const MAKER_OF_THE_WEEK_TITLE = 'Maker of the week';
 const OUR_PICKS_FOR_THE_WEEK_TITLE = 'Our picks for the week';
@@ -322,8 +322,7 @@ function ExploreOurMakers(props: ExploreOurMakersProps) {
   const { columnWidth, avatarWidth } = React.useMemo(() => {
     const containerWidth = windowWidth - constants.layout.spacing.md * 2;
     const columnWidth = containerWidth / EXPLORE_OUR_MAKERS_NUM_COLUMNS;
-    const avatarWidth = columnWidth * 0.85;
-
+    const avatarWidth = columnWidth * 0.7;
     return { containerWidth, columnWidth, avatarWidth };
   }, [windowWidth]);
 
@@ -332,7 +331,6 @@ function ExploreOurMakers(props: ExploreOurMakersProps) {
   const handlePressMaker = (profile: Profile) => {
     navigation.getParent<RootStackNavigationProp>().navigate('ProfileDetails', {
       profileIdOrUsername: profile.profileId,
-      profileDisplayName: profile.__publicName,
     });
   };
 
@@ -347,9 +345,9 @@ function ExploreOurMakers(props: ExploreOurMakersProps) {
           activeOpacity={constants.values.DEFAULT_ACTIVE_OPACITY}
           onPress={() => handlePressMaker(profile)}
           style={[
+            exploreOurMakersStyles.itemContainer,
             {
               width: columnWidth,
-              alignItems: 'center',
               paddingBottom:
                 index <
                 props.profiles.length - 1 - EXPLORE_OUR_MAKERS_NUM_COLUMNS
@@ -363,23 +361,21 @@ function ExploreOurMakers(props: ExploreOurMakersProps) {
                 ? { uri: profile.avatar.url }
                 : constants.media.DEFAULT_AVATAR
             }
-            style={{
-              width: avatarWidth,
-              aspectRatio: 1,
-              borderRadius: avatarWidth / 2,
-              backgroundColor: constants.color.placeholder,
-            }}
+            style={[
+              exploreOurMakersStyles.avatar,
+              { width: avatarWidth, borderRadius: avatarWidth / 2 },
+            ]}
           />
           <Spacer.Vertical value="md" />
           <Text
             numberOfLines={1}
-            style={[constants.font.largeBold, { textAlign: 'center' }]}>
+            style={[constants.font.mediumBold, { textAlign: 'center' }]}>
             {profile.__publicName}
           </Text>
           <Text
             numberOfLines={2}
             style={[
-              constants.font.small,
+              constants.font.extraSmall,
               { textAlign: 'center' },
               !profile.biography && { fontStyle: 'italic' },
             ]}>
@@ -390,6 +386,17 @@ function ExploreOurMakers(props: ExploreOurMakersProps) {
     />
   );
 }
+
+const exploreOurMakersStyles = StyleSheet.create({
+  itemContainer: {
+    alignItems: 'center',
+    paddingHorizontal: constants.layout.spacing.sm,
+  },
+  avatar: {
+    aspectRatio: 1,
+    backgroundColor: constants.color.placeholder,
+  },
+});
 
 type LandingScreenProps = HomeStackScreenProps<'Landing'>;
 

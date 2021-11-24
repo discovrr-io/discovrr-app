@@ -3,8 +3,8 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 // import { FacadeBottomTabParamList } from 'src/navigation';
 
 import { ProfileApi } from 'src/api';
-import * as globalActions from 'src/global-actions';
-import * as authSlice from '../authentication/auth-slice';
+import { resetAppState } from 'src/global-actions';
+import { signOut } from '../authentication/auth-slice';
 
 // type TabLayouts = Partial<
 //   Record<keyof FacadeBottomTabParamList, LayoutRectangle>
@@ -31,7 +31,7 @@ const onboardingSlice = createSlice({
   reducers: {},
   extraReducers: builder => {
     builder
-      .addCase(globalActions.resetAppState, state => {
+      .addCase(resetAppState, state => {
         console.log('Purging onboarding...');
         Object.assign(state, initialState);
       })
@@ -40,7 +40,7 @@ const onboardingSlice = createSlice({
       })
       // We'll assume that no one will frequently switch accounts on the same
       // device for now
-      .addCase(authSlice.signOut.fulfilled, state => {
+      .addCase(signOut.fulfilled, state => {
         console.log('Resetting onboarding state on sign out...');
         Object.assign(state, initialState);
       });

@@ -291,7 +291,6 @@ export type ProfileStackParamList = {
   ProfileFollowActivity: {
     profileId: ProfileId;
     selector: 'followers' | 'following';
-    profileDisplayName?: string;
   };
 };
 

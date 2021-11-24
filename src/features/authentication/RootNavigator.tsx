@@ -155,6 +155,9 @@ export default function RootNavigator() {
           headerBackTitleVisible: false,
           headerTitleStyle: constants.font.defaultHeaderTitleStyle,
           headerLeft: props => <HeaderIcon.Back {...props} />,
+          headerLeftContainerStyle: {
+            paddingLeft: constants.layout.spacing.xs,
+          },
           headerStyleInterpolator: Platform.select({
             ios: HeaderStyleInterpolators.forUIKit,
           }),
