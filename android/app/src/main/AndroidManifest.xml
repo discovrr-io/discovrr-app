@@ -75,12 +75,13 @@
         <meta-data
             android:name="com.google.android.gms.wallet.api.enabled"
             android:value="true" />
-        <!-- <meta-data
+        <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
-            android:resource="@mipmap/ic_notification" /> -->
-        <!-- <meta-data
+            android:resource="@drawable/ic_notification" />
+        <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
-            android:resource="@color/petrol" /> -->
+            android:resource="@color/notification_color"
+            tools:replace="android:resource" />
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="default"
