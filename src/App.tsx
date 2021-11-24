@@ -247,7 +247,8 @@ function PersistedApp() {
 
 const codePushOptions: CodePushOptions = {
   checkFrequency: codePush.CheckFrequency.ON_APP_RESUME,
-  installMode: codePush.InstallMode.ON_NEXT_RESTART,
+  installMode: codePush.InstallMode.ON_NEXT_SUSPEND,
+  minimumBackgroundDuration: 600, // 600 seconds === 10 minutes
 };
 
 export default codePush(codePushOptions)(App);

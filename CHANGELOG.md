@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 
-<!-- ## [v3.0.9] (2021-11-25) -->
+## [v3.0.9] (2021-11-25)
 
 ### Added
 
@@ -14,6 +14,7 @@
 - Add an "Explore our makers" section in the landing screen
 - Fetch profile whenever the app drawer is open
 - Persist only whitelisted reducers with `redux-persist`
+- Change CodePush install mode to `ON_NEXT_SUSPEND`
 
 ## [v3.0.8] (2021-11-22)
 
