@@ -70,7 +70,7 @@ def enableHermes = project.ext.react.get("enableHermes", true);
 
 def versionMajor = 3 // Can be more than 2 digits
 def versionMinor = 0 // Must be between 0 and 99
-def versionPatch = 7 // Must be between 0 and 99
+def versionPatch = 10 // Must be between 0 and 99
 def versionBuild = 0 // Must be between 0 and 99
 
 android {
@@ -185,6 +185,8 @@ dependencies {
     implementation 'com.facebook.fresco:animated-gif:2.2.0'
 
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
+
+    implementation "androidx.core:core-splashscreen:1.0.0-alpha02"
 
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}") {
       exclude group:'com.facebook.fbjni'

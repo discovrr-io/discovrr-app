@@ -27,7 +27,8 @@ import {
 
 import * as constants from './constants';
 import store from './store';
-import SplashScreen from './SplashScreen';
+// import SplashScreen from './SplashScreen';
+import { RootStackParamList } from './navigation';
 import { useAppDispatch } from './hooks';
 import { resetAppState } from './global-actions';
 
@@ -90,15 +91,10 @@ function PersistedApp() {
   const dispatch = useAppDispatch();
 
   const routeNameRef = React.useRef<string>();
-  const navigationRef = React.useRef<NavigationContainerRef<any>>(null);
+  const navigationRef =
+    React.useRef<NavigationContainerRef<RootStackParamList>>(null);
 
   useFlipper(navigationRef);
-
-  React.useEffect(() => {
-    RNBootSplash.hide({ fade: true }).catch(error => {
-      console.error($FUNC, 'Failed to hide boot splash screen:', error);
-    });
-  }, []);
 
   const handleBeforeLift = async () => {
     try {
@@ -149,6 +145,9 @@ function PersistedApp() {
 
   const handleNavigationReady = () => {
     routeNameRef.current = navigationRef.current?.getCurrentRoute()?.name;
+    RNBootSplash.hide({ fade: true }).catch(error => {
+      console.error($FUNC, 'Failed to hide boot splash screen:', error);
+    });
   };
 
   const handleNavigationStateChange = async () => {
@@ -171,9 +170,9 @@ function PersistedApp() {
   return (
     <PersistGate
       persistor={persistor}
-      loading={<SplashScreen />}
+      // loading={<SplashScreen />}
       onBeforeLift={handleBeforeLift}>
-      <NavigationContainer
+      <NavigationContainer<RootStackParamList>
         ref={navigationRef}
         onReady={handleNavigationReady}
         onStateChange={handleNavigationStateChange}
@@ -217,12 +216,12 @@ function PersistedApp() {
           },
           subscribe: listener => {
             const onReceiveURL = ({ url }: { url: string }) => {
-              // This requires the "discovrr:" scheme prepended to work.
+              // This requires the "discovrr" scheme prepended to work.
               listener('discovrr://' + url);
             };
 
             // Listen to incoming links from deep linking
-            Linking.addEventListener('url', onReceiveURL);
+            const urlListener = Linking.addEventListener('url', onReceiveURL);
 
             // Listen to Firebase push notifications
             const unsubscribe = messaging().onNotificationOpenedApp(message => {
@@ -234,7 +233,7 @@ function PersistedApp() {
             });
 
             return () => {
-              Linking.removeEventListener('url', onReceiveURL);
+              urlListener.remove();
               unsubscribe();
             };
           },

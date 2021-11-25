@@ -24,12 +24,12 @@ import * as utilities from 'src/utilities';
 import * as authSlice from 'src/features/authentication/auth-slice';
 import * as profilesSlice from 'src/features/profiles/profiles-slice';
 import { useAppDispatch, useAppSelector } from 'src/hooks';
+import { useProfile } from 'src/features/profiles/hooks';
 import { Profile, ProfileId } from 'src/models';
 import { RootStackNavigationProp, RootStackParamList } from 'src/navigation';
 
+import AsyncGate from './AsyncGate';
 import Spacer from './Spacer';
-import { AsyncGate } from '.';
-import { useProfile } from 'src/features/profiles/hooks';
 
 const AVATAR_DIAMETER = 125;
 const DRAWER_ITEM_ICON_COLOR = constants.color.black;

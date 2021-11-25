@@ -29,9 +29,11 @@
         <item name="android:textColor">#E53E3E</item>
     </style>
 
-    <style name="BootTheme" parent="AppTheme">
-        <!-- Set the generated bootsplash.xml drawable as activity background -->
-        <item name="android:background">@drawable/bootsplash</item>
+    <!-- BootTheme should inherit from Theme.SplashScreen -->
+    <style name="BootTheme" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/bootsplash_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/bootsplash_logo</item>
+        <item name="postSplashScreenTheme">@style/AppTheme</item>
     </style>
 
 </resources>
