@@ -151,8 +151,8 @@ export default function RootNavigator() {
       <RootStack.Navigator
         initialRouteName="Main"
         screenOptions={{
-          headerTintColor: constants.color.black,
           headerBackTitleVisible: false,
+          headerTintColor: constants.color.absoluteBlack,
           headerTitleStyle: constants.font.defaultHeaderTitleStyle,
           headerLeft: props => <HeaderIcon.Back {...props} />,
           headerLeftContainerStyle: {

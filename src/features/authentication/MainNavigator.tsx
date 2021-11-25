@@ -102,7 +102,7 @@ function FacadeNavigator() {
         headerLeftContainerStyle: {
           paddingLeft: constants.layout.defaultScreenMargins.horizontal,
         },
-        headerTintColor: constants.color.black,
+        headerTintColor: constants.color.absoluteBlack,
         headerTitleStyle: constants.font.defaultHeaderTitleStyle,
         tabBarStyle: {
           minHeight: constants.values.DEFAULT_MIN_BOTTOM_TAB_BAR_HEIGHT,
