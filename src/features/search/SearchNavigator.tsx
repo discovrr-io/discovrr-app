@@ -81,8 +81,8 @@ function SearchHeaderContent(props: { initialText?: string }) {
       selectTextOnFocus
       returnKeyType="search"
       autoCapitalize="none"
-      autoCompleteType="off"
       autoCorrect={false}
+      spellCheck={false}
       prefix={
         <TextInput.Icon
           name="search"

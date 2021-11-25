@@ -27,7 +27,7 @@ import {
 
 import * as constants from './constants';
 import store from './store';
-// import SplashScreen from './SplashScreen';
+import SplashScreen from './SplashScreen';
 import { RootStackParamList } from './navigation';
 import { useAppDispatch } from './hooks';
 import { resetAppState } from './global-actions';
@@ -170,7 +170,7 @@ function PersistedApp() {
   return (
     <PersistGate
       persistor={persistor}
-      // loading={<SplashScreen />}
+      loading={<SplashScreen />}
       onBeforeLift={handleBeforeLift}>
       <NavigationContainer<RootStackParamList>
         ref={navigationRef}
