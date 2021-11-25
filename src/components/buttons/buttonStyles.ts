@@ -188,9 +188,7 @@ export function makeContainedButtonColorStyles(
         },
         title: {
           default: {
-            color: isDarkTheme
-              ? color.defaultLightTextColor
-              : color.defaultDarkTextColor,
+            color: color.defaultDarkTextColor,
           },
           disabled: {
             color: color.disabledDarkTextColor,

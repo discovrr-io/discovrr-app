@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { ActivityIndicator, SafeAreaView, StatusBar } from 'react-native';
+import { useTheme } from '@react-navigation/native';
 
 import analytics from '@react-native-firebase/analytics';
 import FastImage from 'react-native-fast-image';
@@ -10,6 +11,8 @@ const LOGO = require('../assets/bootsplash_logo.png');
 const LOGO_WIDTH = 120;
 
 export default function SplashScreen() {
+  const { colors } = useTheme();
+
   React.useEffect(() => {
     analytics()
       .logScreenView({
@@ -27,6 +30,7 @@ export default function SplashScreen() {
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
+        backgroundColor: colors.background,
       }}>
       <StatusBar
         animated

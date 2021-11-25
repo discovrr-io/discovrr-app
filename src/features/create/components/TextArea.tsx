@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 
 import { useField } from 'formik';
+import { useTheme } from '@react-navigation/native';
 
 import CharacterCounter from './CharacterCounter';
 import { color, font, layout } from 'src/constants';
@@ -22,6 +23,7 @@ export type TextAreaProps = TextInputProps & {
 export default function TextArea(props: TextAreaProps) {
   const { fieldName, style, containerStyle, ...restProps } = props;
   const [field, meta] = useField<string>(fieldName);
+  const { colors } = useTheme();
 
   return (
     <View style={containerStyle}>
@@ -65,6 +67,7 @@ export default function TextArea(props: TextAreaProps) {
         style={[
           font.extraLarge,
           {
+            color: colors.text,
             textAlignVertical: 'top',
             minHeight: !meta.error ? '20%' : undefined,
           },

@@ -5,6 +5,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { useFocusEffect } from '@react-navigation/core';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTheme } from '@react-navigation/native';
 
 import {
   CardStyleInterpolators,
@@ -52,6 +53,7 @@ const CreateItemDetailsTopTab =
 function CreateItemDetailsNavigator() {
   const insets = useSafeAreaInsets();
   const { width: windowWidth } = useWindowDimensions();
+  const { dark } = useTheme();
 
   const myProfileKind = useAppSelector(
     globalSelectors.selectCurrentUserProfileKind,
@@ -68,10 +70,9 @@ function CreateItemDetailsNavigator() {
         tabBarScrollEnabled: true,
         tabBarActiveTintColor: constants.color.accent,
         tabBarInactiveTintColor: constants.color.gray500,
-        tabBarPressColor: constants.color.gray200,
-        tabBarStyle: {
-          backgroundColor: constants.color.absoluteWhite,
-        },
+        tabBarPressColor: dark
+          ? constants.color.gray700
+          : constants.color.gray200,
         tabBarContentContainerStyle: {
           paddingBottom: insets.bottom,
         },
@@ -137,19 +138,23 @@ function CreateItemDetailsNavigator() {
 }
 
 export default function CreateItemNavigator() {
+  const { colors, dark } = useTheme();
+
   useFocusEffect(
     React.useCallback(() => {
       if (Platform.OS !== 'ios') return;
       StatusBar.setBarStyle('light-content', true);
-      return () => StatusBar.setBarStyle('dark-content', true);
-    }, []),
+      return () => {
+        if (!dark) StatusBar.setBarStyle('dark-content', true);
+      };
+    }, [dark]),
   );
 
   return (
     <CreateItemStack.Navigator
       initialRouteName="CreateItemDetails"
       screenOptions={({ route }) => ({
-        headerTintColor: constants.color.black,
+        headerTintColor: colors.text,
         headerBackTitleVisible: false,
         headerTitleStyle: constants.font.defaultHeaderTitleStyle,
         headerLeft: props =>

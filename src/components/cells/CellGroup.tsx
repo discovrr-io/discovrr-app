@@ -8,9 +8,15 @@ import {
   ViewStyle,
 } from 'react-native';
 
+import { useTheme } from '@react-navigation/native';
+
 import { color, font, layout } from 'src/constants';
-import { disabledDarkTextColor } from 'src/constants/color';
 import { useCellElementContext } from './hooks';
+
+import {
+  disabledDarkTextColor,
+  disabledLightTextColor,
+} from 'src/constants/color';
 
 import {
   CellElementContext,
@@ -29,6 +35,7 @@ export type CellGroupProps = CellElementProps & {
 
 export default function CellGroup(props: CellGroupProps) {
   const cellElementOptions = useCellElementContext(props.elementOptions);
+  const { dark, colors } = useTheme();
   return (
     <CellElementContext.Provider value={cellElementOptions}>
       {props.label && (
@@ -36,7 +43,10 @@ export default function CellGroup(props: CellGroupProps) {
           style={[
             font.smallBold,
             styles.label,
-            cellElementOptions.disabled && { color: disabledDarkTextColor },
+            { color: dark ? color.gray500 : color.gray700 },
+            cellElementOptions.disabled && {
+              color: dark ? disabledLightTextColor : disabledDarkTextColor,
+            },
             props.labelStyle,
           ]}>
           {props.label}
@@ -45,10 +55,12 @@ export default function CellGroup(props: CellGroupProps) {
       <View
         style={[
           styles.contentContainer,
-          cellElementOptions.disabled && { backgroundColor: color.white },
+          { backgroundColor: colors.card },
+          // cellElementOptions.disabled && { backgroundColor: color.white },
           {
             borderWidth: cellElementOptions.borderWidth,
-            borderColor: cellElementOptions.borderColor,
+            // borderColor: cellElementOptions.borderColor,
+            borderColor: colors.border,
           },
           props.containerStyle,
         ]}>
@@ -60,7 +72,6 @@ export default function CellGroup(props: CellGroupProps) {
 
 const styles = StyleSheet.create({
   label: {
-    color: color.gray700,
     fontVariant: ['small-caps'],
     paddingLeft: layout.defaultScreenMargins.horizontal,
     paddingBottom: CELL_GROUP_VERTICAL_SPACING,
@@ -69,6 +80,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderWidth: StyleSheet.hairlineWidth,
     borderRadius: layout.radius.md,
-    backgroundColor: color.absoluteWhite,
+    // backgroundColor: color.absoluteWhite,
   },
 });

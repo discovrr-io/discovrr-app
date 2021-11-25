@@ -15,6 +15,7 @@ import BottomSheet from '@gorhom/bottom-sheet';
 import FastImage from 'react-native-fast-image';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/core';
+import { useTheme } from '@react-navigation/native';
 
 import * as values from 'src/constants/values';
 import { color, font, layout } from 'src/constants';
@@ -202,7 +203,7 @@ const CommentCellAuthor = (props: { profile?: Profile }) => {
       <Text
         style={[
           font.smallBold,
-          { color: isMyProfileId ? color.accent : color.gray700 },
+          { color: isMyProfileId ? color.accent : color.gray500 },
         ]}>
         {isMyProfileId ? 'You' : profile?.__publicName || 'Anonymous'}
       </Text>
@@ -243,6 +244,7 @@ const CommentCellContent = (props: CommentCellContentProps) => {
 
   const dispatch = useAppDispatch();
   const navigation = useNavigation<RootStackNavigationProp>();
+  const { colors } = useTheme();
 
   const isMounted = useIsMounted();
   const cellContext = useContext(CommentCellContext);
@@ -358,7 +360,10 @@ const CommentCellContent = (props: CommentCellContentProps) => {
 
   return (
     <View>
-      <Text style={font.small}>{comment.message}</Text>
+      <Text style={[font.small, { color: colors.text }]}>
+        {comment.message}
+      </Text>
+
       <Spacer.Vertical value={layout.spacing.md * 0.75} />
       <View style={{ flexDirection: 'row', alignItems: 'center', height: 22 }}>
         <TouchableOpacity
@@ -379,7 +384,8 @@ const CommentCellContent = (props: CommentCellContentProps) => {
               <Text
                 style={[
                   font.small,
-                  { color: didLike ? color.black : color.gray500 },
+                  { color: color.gray500 },
+                  didLike && { color: colors.text },
                 ]}>
                 {shortenLargeNumber(totalLikes)}
               </Text>

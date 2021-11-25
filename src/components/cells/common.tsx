@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleProp, StyleSheet, TextStyle, View } from 'react-native';
+import { useTheme } from '@react-navigation/native';
 
 import { color, font, layout } from 'src/constants';
 
@@ -65,6 +66,8 @@ export function renderChildrenWithDivider(
   children: React.ReactNode,
   cellElementOptions: CellElementOptions,
 ) {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const { colors } = useTheme();
   return React.Children.toArray(children)
     .filter(Boolean)
     .map((child, index, array) => (
@@ -76,7 +79,8 @@ export function renderChildrenWithDivider(
               width: '94%',
               alignSelf: 'center',
               borderBottomWidth: cellElementOptions.borderWidth,
-              borderColor: cellElementOptions.borderColor,
+              // borderColor: cellElementOptions.borderColor,
+              borderColor: colors.border,
             }}
           />
         )}

@@ -2,9 +2,10 @@ import React, { useContext } from 'react';
 import { Text, TouchableHighlight, View } from 'react-native';
 
 import Icon from 'react-native-vector-icons/Ionicons';
-import { color } from 'src/constants';
+import { useTheme } from '@react-navigation/native';
 
 import CellContainer from './CellContainer';
+import { color } from 'src/constants';
 import { CellSelectContext } from './CellSelect';
 import { useCellElementContext } from './hooks';
 
@@ -19,6 +20,7 @@ export type CellOptionProps = CellElementProps & {
 export default function CellOption(props: CellOptionProps) {
   const cellElementOptions = useCellElementContext(props.elementOptions);
   const cellSelectProps = useContext(CellSelectContext);
+  const { colors } = useTheme();
 
   const isSelectedOption = cellSelectProps.value === props.value;
   const isDisabled = cellSelectProps.disabled || cellElementOptions.disabled;
@@ -34,6 +36,7 @@ export default function CellOption(props: CellOptionProps) {
             style={[
               defaultCellElementOptions.labelStyle,
               cellElementOptions.labelStyle,
+              { color: colors.text },
               isDisabled && { color: color.disabledDarkTextColor },
             ]}>
             {props.label}

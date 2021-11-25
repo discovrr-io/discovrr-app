@@ -12,8 +12,13 @@ import {
 
 import Icon from 'react-native-vector-icons/Ionicons';
 import { getDefaultHeaderHeight } from '@react-navigation/elements';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+import {
+  useFocusEffect,
+  useNavigation,
+  useTheme,
+} from '@react-navigation/native';
 
 import {
   CardStyleInterpolators,
@@ -94,7 +99,6 @@ function SearchHeaderContent(props: { initialText?: string }) {
           <TextInput.Icon
             name="close-circle"
             size={HEADER_TEXT_INPUT_ICON_SIZE}
-            color={constants.color.black}
             onPress={handleClearQuery}
           />
         ) : undefined
@@ -113,13 +117,11 @@ function SearchHeader(
   >,
 ) {
   const headerHeight = getDefaultHeaderHeight(props.layout, false, 0);
+  const { colors } = useTheme();
   return (
     <SafeAreaView
       edges={['top', 'left', 'right']}
-      style={[
-        { backgroundColor: constants.color.absoluteWhite },
-        props.containerStyle,
-      ]}>
+      style={[{ backgroundColor: colors.card }, props.containerStyle]}>
       <View
         style={[
           {
@@ -168,6 +170,7 @@ type SearchResultsHeaderProps = StackHeaderProps & {
 
 function SearchResultsHeader(props: SearchResultsHeaderProps) {
   const { query, ...restProps } = props;
+  const { colors } = useTheme();
 
   const handleNavigateBackToQueryScreen = () => {
     restProps.navigation.navigate('SearchQuery', { query });
@@ -177,7 +180,10 @@ function SearchResultsHeader(props: SearchResultsHeaderProps) {
     <SearchHeader
       {...restProps}
       containerStyle={{ paddingRight: HEADER_HORIZONTAL_PADDING }}>
-      <HeaderIcon.Back onPress={handleNavigateBackToQueryScreen} />
+      <HeaderIcon.Back
+        onPress={handleNavigateBackToQueryScreen}
+        tintColor={colors.text}
+      />
       <TouchableHighlight
         underlayColor={constants.color.gray200}
         onPress={handleNavigateBackToQueryScreen}
@@ -189,17 +195,18 @@ function SearchResultsHeader(props: SearchResultsHeaderProps) {
           paddingVertical: constants.layout.spacing.sm,
           paddingHorizontal: constants.layout.spacing.md * 1.3,
           borderRadius: constants.layout.radius.sm,
-          backgroundColor: constants.color.gray100,
+          backgroundColor: colors.background,
         }}>
         <View
           style={{
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'center',
+            backgroundColor: colors.background,
           }}>
-          <Icon name="search" size={18} />
+          <Icon name="search" size={18} color={colors.text} />
           <Spacer.Horizontal value="sm" />
-          <Text style={constants.font.medium}>
+          <Text style={[constants.font.medium, { color: colors.text }]}>
             {query ?? 'Search for anything…'}
           </Text>
         </View>
@@ -211,11 +218,12 @@ function SearchResultsHeader(props: SearchResultsHeaderProps) {
 const SearchStack = createStackNavigator<SearchStackParamList>();
 
 export default function SearchNavigator() {
+  const { colors } = useTheme();
   return (
     <SearchStack.Navigator
       initialRouteName="SearchQuery"
       screenOptions={{
-        headerTintColor: constants.color.black,
+        headerTintColor: colors.text,
         headerBackTitleVisible: false,
         headerTitleStyle: constants.font.defaultHeaderTitleStyle,
         headerStyleInterpolator: Platform.select({

@@ -11,6 +11,7 @@ import {
 
 import * as yup from 'yup';
 import { Formik, useField, useFormikContext } from 'formik';
+import { useTheme } from '@react-navigation/native';
 
 import Animated, {
   interpolateColor,
@@ -99,6 +100,7 @@ type TextAreaProps = {
 
 function TextArea(props: TextAreaProps) {
   const [field, meta, _helpers] = useField<TextPostForm['text']>('text');
+  const { colors } = useTheme();
 
   const characterCount = React.useMemo(() => {
     return field.value.length;
@@ -168,7 +170,11 @@ function TextArea(props: TextAreaProps) {
           value={field.value}
           onChangeText={field.onChange('text')}
           onBlur={field.onBlur('text')}
-          style={[font.h3, { textAlignVertical: 'top', minHeight: '20%' }]}
+          style={[
+            font.h3,
+            { color: colors.text },
+            { textAlignVertical: 'top', minHeight: '20%' },
+          ]}
         />
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>

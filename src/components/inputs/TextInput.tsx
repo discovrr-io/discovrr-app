@@ -15,6 +15,7 @@ import {
 
 import Icon from 'react-native-vector-icons/Ionicons';
 import { IconProps } from 'react-native-vector-icons/Icon';
+import { useTheme } from '@react-navigation/native';
 
 import { color, font, layout } from 'src/constants';
 import { DEFAULT_ACTIVE_OPACITY } from 'src/constants/values';
@@ -50,15 +51,16 @@ export const __TextInput = React.forwardRef<RNTextInput, TextInputProps>(
       ...restProps
     } = props;
 
+    const { dark, colors } = useTheme();
     const [isFocused, setIsFocused] = useState(false);
 
-    const textInputVariantStyles: ViewStyle[] = useMemo(() => {
+    const textInputVariantStyles: StyleProp<ViewStyle> = useMemo(() => {
       switch (mode) {
         case 'outlined':
           return [
             outlinedTextInputStyles.container,
             isFocused
-              ? outlinedTextInputStyles.focused
+              ? { backgroundColor: color.gray100 }
               : outlinedTextInputStyles.default,
           ];
         case 'filled':
@@ -66,11 +68,11 @@ export const __TextInput = React.forwardRef<RNTextInput, TextInputProps>(
           return [
             filledTextInputStyles.container,
             isFocused
-              ? filledTextInputStyles.focused
-              : filledTextInputStyles.default,
+              ? { backgroundColor: dark ? color.gray500 : color.gray200 }
+              : { backgroundColor: dark ? color.absoluteBlack : color.gray100 },
           ];
       }
-    }, [mode, isFocused]);
+    }, [mode, dark, isFocused]);
 
     const textInputHeight = useMemo(() => {
       switch (size) {
@@ -102,12 +104,13 @@ export const __TextInput = React.forwardRef<RNTextInput, TextInputProps>(
         <RNTextInput
           {...restProps}
           ref={ref}
-          placeholderTextColor={color.gray500}
+          placeholderTextColor={dark ? color.gray700 : color.gray500}
           onPressIn={() => setIsFocused(true)}
           onPressOut={() => setIsFocused(false)}
           selectionColor={Platform.OS === 'ios' ? color.accent : undefined}
           style={[
             font.medium,
+            { color: colors.text },
             innerTextInputStyle,
             { flexGrow: 1, flexShrink: 1, padding: 0 },
           ]}
@@ -139,12 +142,8 @@ const filledTextInputStyles = StyleSheet.create({
   container: {
     ...commonTextInputContainerStyle,
   },
-  default: {
-    backgroundColor: color.gray100,
-  },
-  focused: {
-    backgroundColor: color.gray200,
-  },
+  default: {},
+  focused: {},
 });
 
 const outlinedTextInputStyles = StyleSheet.create({
@@ -155,9 +154,7 @@ const outlinedTextInputStyles = StyleSheet.create({
     paddingHorizontal: layout.spacing.md * 1.2,
   },
   default: {},
-  focused: {
-    backgroundColor: color.gray100,
-  },
+  focused: {},
 });
 
 type TextInputAffixProps = {
@@ -168,9 +165,15 @@ type TextInputAffixProps = {
 
 const TextInputAffix = (props: TextInputAffixProps) => {
   const { text, textStyle, containerStyle } = props;
+  const { dark } = useTheme();
   return (
     <View style={[{ justifyContent: 'center' }, containerStyle]}>
-      <Text style={[font.medium, { color: color.gray500 }, textStyle]}>
+      <Text
+        style={[
+          font.medium,
+          { color: dark ? color.gray700 : color.gray500 },
+          textStyle,
+        ]}>
         {text}
       </Text>
     </View>
@@ -185,14 +188,14 @@ type TextInputIconProps = IconProps & {
 const TextInputIcon = (props: TextInputIconProps) => {
   const { activeOpacity, containerStyle, onPress, onLongPress, ...iconProps } =
     props;
-
+  const { colors } = useTheme();
   return (
     <TouchableOpacity
       activeOpacity={activeOpacity ?? DEFAULT_ACTIVE_OPACITY * 0.5}
       onPress={onPress}
       onLongPress={onLongPress}
       style={[{ justifyContent: 'center' }, containerStyle]}>
-      <Icon {...iconProps} />
+      <Icon color={colors.text} {...iconProps} />
     </TouchableOpacity>
   );
 };

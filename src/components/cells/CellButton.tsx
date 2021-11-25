@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { StyleSheet, Text, TouchableHighlight, View } from 'react-native';
 
 import Icon from 'react-native-vector-icons/Ionicons';
+import { useTheme } from '@react-navigation/native';
 
 import { color } from 'src/constants';
 
@@ -22,6 +23,8 @@ export type CellButtonProps = CellElementProps & {
 
 export default function CellButton(props: CellButtonProps) {
   const cellElementOptions = useCellElementContext(props.elementOptions);
+  const { dark, colors } = useTheme();
+
   const isDisabled = cellElementOptions.disabled;
 
   const labelTextColor = useMemo(() => {
@@ -30,14 +33,14 @@ export default function CellButton(props: CellButtonProps) {
         ? color.dangerDisabled
         : color.disabledDarkTextColor;
     } else {
-      return props.destructive ? color.danger : color.defaultDarkTextColor;
+      return props.destructive ? color.danger : colors.text;
     }
-  }, [isDisabled, props.destructive]);
+  }, [isDisabled, props.destructive, colors.text]);
 
   return (
     <TouchableHighlight
       disabled={isDisabled}
-      underlayColor={cellElementOptions.highlightColor}
+      underlayColor={dark ? color.gray700 : color.gray100}
       onPress={props.onPress}>
       <CellContainer elementOptions={cellElementOptions}>
         {props.iconName && (
@@ -57,6 +60,7 @@ export default function CellButton(props: CellButtonProps) {
               defaultCellElementOptions.labelStyle,
               cellElementOptions.labelStyle,
               { color: labelTextColor },
+              isDisabled && { color: color.disabledDarkTextColor },
             ]}>
             {props.label}
           </Text>

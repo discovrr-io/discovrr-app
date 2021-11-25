@@ -26,6 +26,7 @@ import FastImage from 'react-native-fast-image';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Video, { OnLoadData, VideoProperties } from 'react-native-video';
 import { useFocusEffect, useNavigation } from '@react-navigation/core';
+import { useTheme } from '@react-navigation/native';
 
 import {
   SafeAreaView,
@@ -311,6 +312,7 @@ type LoadedPostDetailsScreenProps = {
 function LoadedPostDetailsScreen({ post }: LoadedPostDetailsScreenProps) {
   const $FUNC = '[PostDetailsScreen]';
   const { bottom: bottomInset } = useSafeAreaInsets();
+  const { colors } = useTheme();
 
   const dispatch = useAppDispatch();
   const isMounted = useIsMounted();
@@ -432,7 +434,7 @@ function LoadedPostDetailsScreen({ post }: LoadedPostDetailsScreenProps) {
       style={{
         flexGrow: 1,
         marginBottom: bottomInset,
-        backgroundColor: constants.color.absoluteWhite,
+        backgroundColor: colors.card,
       }}>
       <KeyboardAvoidingView
         behavior="padding"
@@ -450,11 +452,20 @@ function LoadedPostDetailsScreen({ post }: LoadedPostDetailsScreenProps) {
           ListHeaderComponentStyle={postDetailsScreenStyles.listHeader}
           ListEmptyComponent={
             isInitialRender ? (
-              <LoadingContainer message="Loading comments..." />
+              <LoadingContainer
+                message="Loading comments..."
+                containerStyle={{ backgroundColor: colors.card }}
+              />
             ) : error ? (
-              <ErrorContainer message="We weren't able to get the comments for this post. Please try again later." />
+              <ErrorContainer
+                message="We weren't able to get the comments for this post. Please try again later."
+                containerStyle={{ backgroundColor: colors.card }}
+              />
             ) : (
-              <EmptyContainer message="No comments here. Be the first one!" />
+              <EmptyContainer
+                message="No comments here. Be the first one!"
+                containerStyle={{ backgroundColor: colors.card }}
+              />
             )
           }
           ListFooterComponent={
@@ -503,7 +514,14 @@ function LoadedPostDetailsScreen({ post }: LoadedPostDetailsScreenProps) {
               </TouchableOpacity>
             </View>
           )}
-          <View style={postDetailsScreenStyles.commentBoxContainer}>
+          <View
+            style={[
+              postDetailsScreenStyles.commentBoxContainer,
+              {
+                backgroundColor: colors.background,
+                borderColor: colors.border,
+              },
+            ]}>
             <TextInput
               ref={textInputRef}
               multiline
@@ -583,9 +601,7 @@ const postDetailsScreenStyles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-end',
     minHeight: COMMENT_TEXT_INPUT_MIN_HEIGHT,
-    backgroundColor: constants.color.white,
     borderTopWidth: constants.layout.border.thin,
-    borderColor: constants.color.gray100,
   },
   commentBoxTextInput: {
     flexGrow: 1,
@@ -606,6 +622,7 @@ type PostDetailsContentProps = ViewProps & {
 
 function PostDetailsContent(props: PostDetailsContentProps) {
   const { post, ...restProps } = props;
+  const { colors } = useTheme();
   const navigation = useNavigation<PostDetailsScreenProps['navigation']>();
 
   const renderPostContent = React.useCallback(() => {
@@ -631,16 +648,9 @@ function PostDetailsContent(props: PostDetailsContentProps) {
             <Autolink
               text={post.contents.text}
               textProps={{
-                style: [
-                  constants.font.large,
-                  postDetailsContentStyles.textPostText,
-                ],
+                style: [constants.font.large, { color: colors.text }],
               }}
-              linkStyle={[
-                constants.font.large,
-                postDetailsContentStyles.textPostText,
-                { color: constants.color.accent },
-              ]}
+              linkStyle={[constants.font.large, { color: colors.primary }]}
               matchers={[
                 {
                   ...constants.regex.USERNAME_MENTION_MATCHER,
@@ -655,7 +665,7 @@ function PostDetailsContent(props: PostDetailsContentProps) {
           </View>
         );
     }
-  }, [navigation, post.contents, post.location]);
+  }, [navigation, post.contents, post.location, colors.text, colors.primary]);
 
   return (
     <View style={[restProps.style]}>
@@ -683,9 +693,6 @@ const postDetailsContentStyles = StyleSheet.create({
   textPostContainer: {
     paddingHorizontal: constants.layout.defaultScreenMargins.horizontal * 1.5,
     marginBottom: constants.layout.spacing.md,
-  },
-  textPostText: {
-    color: constants.color.black,
   },
 });
 
@@ -861,10 +868,12 @@ type PostDetailsContentCaptionProps = {
 };
 
 function PostDetailsContentCaption(props: PostDetailsContentCaptionProps) {
+  const { colors } = useTheme();
   return (
     <Text
       style={[
         constants.font.medium,
+        { color: colors.text },
         postDetailsContentCaptionStyles.caption,
         props.style,
       ]}>

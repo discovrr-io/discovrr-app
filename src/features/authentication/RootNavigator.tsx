@@ -5,6 +5,7 @@ import codePush from 'react-native-code-push';
 import messaging from '@react-native-firebase/messaging';
 import { nanoid } from '@reduxjs/toolkit';
 import { HeaderStyleInterpolators } from '@react-navigation/stack';
+import { useTheme } from '@react-navigation/native';
 
 import * as constants from 'src/constants';
 import { SessionApi } from 'src/api';
@@ -46,7 +47,7 @@ async function getFCMToken(): Promise<string> {
 export default function RootNavigator() {
   const $FUNC = '[RootNavigator]';
   const dispatch = useAppDispatch();
-  // const linkTo = useLinkTo();
+  const { dark, colors } = useTheme();
 
   const sessionId = useAppSelector(state => state.auth.sessionId);
   const didRegisterFCMToken = useAppSelector(state => {
@@ -145,14 +146,14 @@ export default function RootNavigator() {
       <StatusBar
         animated
         translucent
-        barStyle="dark-content"
+        barStyle={dark ? 'light-content' : 'dark-content'}
         backgroundColor="transparent"
       />
       <RootStack.Navigator
         initialRouteName="Main"
         screenOptions={{
           headerBackTitleVisible: false,
-          headerTintColor: constants.color.absoluteBlack,
+          headerTintColor: colors.text,
           headerTitleStyle: constants.font.defaultHeaderTitleStyle,
           headerLeft: props => <HeaderIcon.Back {...props} />,
           headerLeftContainerStyle: {

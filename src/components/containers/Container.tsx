@@ -7,6 +7,7 @@ import {
   ViewStyle,
 } from 'react-native';
 
+import { useTheme } from '@react-navigation/native';
 import { layout } from 'src/constants';
 
 export type ContainerProps = Omit<ViewProps, 'style'> & {
@@ -26,12 +27,15 @@ export default function Container(props: InnerContainerProps) {
     ...restProps
   } = props;
 
+  const { colors } = useTheme();
+
   return (
     <View
       {...restProps}
       style={[
         containerStyles.container,
         { justifyContent: justifyContentToCenter ? 'center' : 'flex-start' },
+        { backgroundColor: colors.background },
         givenStyles,
       ]}>
       {children}

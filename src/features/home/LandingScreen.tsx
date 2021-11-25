@@ -21,7 +21,11 @@ import messaging from '@react-native-firebase/messaging';
 
 import FastImage from 'react-native-fast-image';
 import Parse from 'parse/react-native';
-import { useNavigation, useScrollToTop } from '@react-navigation/native';
+import {
+  useNavigation,
+  useScrollToTop,
+  useTheme,
+} from '@react-navigation/native';
 
 import * as constants from 'src/constants';
 import * as utilities from 'src/utilities';
@@ -177,9 +181,15 @@ type SectionTitleProps = {
 };
 
 function SectionTitle(props: SectionTitleProps) {
+  const { colors } = useTheme();
   return (
     <View style={[sectionTitleProps.container, props.style]}>
-      <Text style={[constants.font.h2, sectionTitleProps.title]}>
+      <Text
+        style={[
+          constants.font.h2,
+          sectionTitleProps.title,
+          { color: colors.text },
+        ]}>
         {props.title}
       </Text>
     </View>
@@ -201,6 +211,8 @@ type MakerOfTheWeekProps = HomeFeedData['makerOfTheWeek'];
 
 function MakerOfTheWeek(props: MakerOfTheWeekProps) {
   const [isLoading, setIsLoading] = React.useState(false);
+
+  const { colors } = useTheme();
   const navigation = useNavigation<RootStackNavigationProp>();
 
   const handlePressCard = () => {
@@ -234,11 +246,15 @@ function MakerOfTheWeek(props: MakerOfTheWeekProps) {
         </View>
         <Spacer.Vertical value="md" />
         <View style={makerOfTheWeekStyles.textContainer}>
-          <Text numberOfLines={1} style={constants.font.mediumBold}>
+          <Text
+            numberOfLines={1}
+            style={[constants.font.mediumBold, { color: colors.text }]}>
             {props.title}
           </Text>
           <Spacer.Vertical value="sm" />
-          <Text numberOfLines={3} style={constants.font.small}>
+          <Text
+            numberOfLines={3}
+            style={[constants.font.small, { color: colors.text }]}>
             {props.caption}
           </Text>
         </View>
@@ -319,6 +335,7 @@ type ExploreOurMakersProps = {
 
 function ExploreOurMakers(props: ExploreOurMakersProps) {
   const { width: windowWidth } = useWindowDimensions();
+  const { colors } = useTheme();
 
   const { columnWidth, avatarWidth } = React.useMemo(() => {
     const containerWidth = windowWidth - constants.layout.spacing.md * 2;
@@ -370,14 +387,17 @@ function ExploreOurMakers(props: ExploreOurMakersProps) {
           <Spacer.Vertical value="md" />
           <Text
             numberOfLines={1}
-            style={[constants.font.mediumBold, { textAlign: 'center' }]}>
+            style={[
+              constants.font.mediumBold,
+              { textAlign: 'center', color: colors.text },
+            ]}>
             {profile.__publicName}
           </Text>
           <Text
             numberOfLines={2}
             style={[
               constants.font.extraSmall,
-              { textAlign: 'center' },
+              { textAlign: 'center', color: colors.text },
               !profile.biography && { fontStyle: 'italic' },
             ]}>
             {profile.biography || 'No biography'}

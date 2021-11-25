@@ -1,5 +1,6 @@
 import React from 'react';
 import { Platform, StyleSheet, Text } from 'react-native';
+import { useTheme } from '@react-navigation/native';
 
 import { color, font, layout } from 'src/constants';
 import Container, { ContainerProps } from './Container';
@@ -27,11 +28,29 @@ export default function InfoContainer(props: InfoContainerProps) {
     ...restProps
   } = props;
 
+  const { dark, colors } = useTheme();
+
   return (
     <Container {...restProps}>
-      {emoji && <Text style={emptyContainerProps.emoji}>{emoji}</Text>}
-      {title && <Text style={emptyContainerProps.title}>{title}</Text>}
-      {message && <Text style={emptyContainerProps.message}>{message}</Text>}
+      {emoji && (
+        <Text style={[emptyContainerProps.emoji, { color: colors.text }]}>
+          {emoji}
+        </Text>
+      )}
+      {title && (
+        <Text style={[emptyContainerProps.title, { color: colors.text }]}>
+          {title}
+        </Text>
+      )}
+      {message && (
+        <Text
+          style={[
+            emptyContainerProps.message,
+            { color: dark ? color.gray300 : color.gray700 },
+          ]}>
+          {message}
+        </Text>
+      )}
       {actionTitle && (
         <Button
           size="small"
@@ -49,19 +68,16 @@ export default function InfoContainer(props: InfoContainerProps) {
 const emptyContainerProps = StyleSheet.create({
   emoji: {
     ...(Platform.OS === 'ios' ? font.h2 : font.h3),
-    color: color.black,
     textAlign: 'center',
   },
   title: {
     ...font.mediumBold,
-    color: color.black,
     textAlign: 'center',
     marginTop: Platform.OS === 'android' ? layout.spacing.sm : 0,
   },
   message: {
     ...font.small,
     textAlign: 'center',
-    color: color.gray700,
     marginTop: layout.spacing.sm,
   },
 });

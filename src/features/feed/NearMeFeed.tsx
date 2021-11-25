@@ -3,6 +3,7 @@ import { RefreshControl, StyleSheet, Text, View } from 'react-native';
 
 import BottomSheet from '@gorhom/bottom-sheet';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { useTheme } from '@react-navigation/native';
 
 import { color, font, layout } from 'src/constants';
 import { DEFAULT_TILE_SPACING } from 'src/constants/values';
@@ -315,6 +316,7 @@ export default function NearMeFeed(_: NearMeFeedProps) {
 function SearchLocationOptions() {
   const _ = useAppSelector(state => state.settings.locationQueryPrefs);
   const bottomSheetRef = React.useRef<BottomSheet>(null);
+  const { colors } = useTheme();
 
   return (
     <View
@@ -324,14 +326,16 @@ function SearchLocationOptions() {
         justifyContent: 'space-between',
         paddingVertical: layout.spacing.sm,
         paddingHorizontal: layout.defaultScreenMargins.horizontal,
-        backgroundColor: color.white,
+        backgroundColor: colors.background,
         borderBottomWidth: StyleSheet.hairlineWidth,
-        borderBottomColor: color.gray200,
+        borderBottomColor: colors.border,
       }}>
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-        <Icon name="location" size={18} color={color.black} />
+        <Icon name="location" size={18} color={colors.text} />
         <Spacer.Horizontal value={layout.spacing.xs} />
-        <Text style={[font.smallBold]}>Searching in default location</Text>
+        <Text style={[font.smallBold, { color: colors.text }]}>
+          Searching in default location
+        </Text>
       </View>
       <Button
         title="Change Location"

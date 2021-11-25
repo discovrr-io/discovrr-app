@@ -24,6 +24,7 @@ import { FFmpegKit } from 'ffmpeg-kit-react-native';
 import { Formik, useField, useFormikContext } from 'formik';
 import { useNavigation } from '@react-navigation/core';
 import { useSharedValue } from 'react-native-reanimated';
+import { useTheme } from '@react-navigation/native';
 
 import ImageCropPicker, {
   Image,
@@ -1007,6 +1008,7 @@ function ProfileAvatarPicker(props: ProfileAvatarPickerProps) {
   const { currentProfile } = React.useContext(ProfileSettingsFormContext);
   const [_, meta, helpers] = useField<ProfileChangesForm['avatar']>('avatar');
 
+  const { colors } = useTheme();
   const [containerWidth, setContainerWidth] = React.useState(100);
 
   const avatarSource: FastImageProps['source'] = React.useMemo(() => {
@@ -1110,7 +1112,7 @@ function ProfileAvatarPicker(props: ProfileAvatarPickerProps) {
         }
         style={[
           profileAvatarPickerStyles.touchableContainer,
-          { borderRadius: containerWidth / 2 },
+          { borderRadius: containerWidth / 2, borderColor: colors.background },
           props.containerStyle,
         ]}>
         <FastImage
@@ -1138,7 +1140,6 @@ const profileAvatarPickerStyles = StyleSheet.create({
   touchableContainer: {
     overflow: 'hidden',
     borderWidth: 6,
-    borderColor: constants.color.white,
   },
   image: {
     width: AVATAR_DIAMETER,

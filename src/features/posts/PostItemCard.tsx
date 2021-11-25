@@ -4,6 +4,7 @@ import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import FastImage from 'react-native-fast-image';
 import Video from 'react-native-video';
 import { useNavigation } from '@react-navigation/core';
+import { useTheme } from '@react-navigation/native';
 
 import { MediaSource } from 'src/api';
 import { color, font, layout } from 'src/constants';
@@ -156,6 +157,7 @@ type PostItemCardBodyProps = CardElementOptions &
 
 function PostItemCardBody(props: PostItemCardBodyProps) {
   const { body, ...cardElementProps } = props;
+  const { colors } = useTheme();
 
   switch (body.contents.type) {
     case 'gallery':
@@ -182,9 +184,10 @@ function PostItemCardBody(props: PostItemCardBodyProps) {
           }}>
           <Text
             numberOfLines={cardElementProps.smallContent ? 4 : 8}
-            style={
-              cardElementProps.smallContent ? font.medium : font.extraLarge
-            }>
+            style={[
+              cardElementProps.smallContent ? font.medium : font.extraLarge,
+              { color: colors.text },
+            ]}>
             {body.contents.text}
           </Text>
         </View>
@@ -372,13 +375,16 @@ type PostItemCardCaptionProps = {
 
 function PostItemCardCaption(props: PostItemCardCaptionProps) {
   const cardElementOptions = useCardElementOptionsContext();
+  const { colors } = useTheme();
   return (
     <View
       style={{
         paddingHorizontal: cardElementOptions.insetHorizontal,
         paddingVertical: cardElementOptions.insetVertical,
       }}>
-      <Text numberOfLines={2} style={[cardElementOptions.captionTextStyle]}>
+      <Text
+        numberOfLines={2}
+        style={[cardElementOptions.captionTextStyle, { color: colors.text }]}>
         {props.caption}
       </Text>
     </View>

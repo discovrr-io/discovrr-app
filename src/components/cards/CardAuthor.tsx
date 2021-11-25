@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
+import { useTheme } from '@react-navigation/native';
 
 import { MediaSource } from 'src/api';
 import { color, font } from 'src/constants';
@@ -153,19 +154,23 @@ type CardAuthorNameProps = {
   isMyProfile?: boolean;
 };
 
-const CardAuthorName = (props: CardAuthorNameProps) => (
-  <Text
-    numberOfLines={1}
-    style={[
-      cardAuthorStyles.displayName,
-      props.elementOptions.captionTextStyle,
-      props.isMyProfile && [
-        { fontFamily: font.FONT_FAMILY_MEDIUM, color: color.accent },
-      ],
-    ]}>
-    {props.isMyProfile ? 'You' : props.displayName || 'Anonymous'}
-  </Text>
-);
+const CardAuthorName = (props: CardAuthorNameProps) => {
+  const { colors } = useTheme();
+  return (
+    <Text
+      numberOfLines={1}
+      style={[
+        cardAuthorStyles.displayName,
+        props.elementOptions.captionTextStyle,
+        { color: colors.text },
+        props.isMyProfile && [
+          { fontFamily: font.FONT_FAMILY_MEDIUM, color: colors.primary },
+        ],
+      ]}>
+      {props.isMyProfile ? 'You' : props.displayName || 'Anonymous'}
+    </Text>
+  );
+};
 
 type CardAuthorNamePendingProps = {
   elementOptions: CardElementOptions;

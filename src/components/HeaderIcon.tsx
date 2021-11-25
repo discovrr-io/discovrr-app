@@ -4,7 +4,6 @@ import { TouchableOpacity, TouchableOpacityProps } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/core';
 
-import { color } from 'src/constants';
 import { MainDrawerNavigationProp } from 'src/navigation';
 import { IconProps } from 'react-native-vector-icons/Icon';
 
@@ -23,7 +22,7 @@ const HeaderIcon = (props: HeaderIconProps) => {
   const { name, size, tintColor, ...restProps } = props;
   return (
     <TouchableOpacity {...restProps}>
-      <Icon name={name} size={size ?? 32} color={tintColor ?? color.black} />
+      <Icon name={name} size={size ?? 32} color={tintColor} />
     </TouchableOpacity>
   );
 };

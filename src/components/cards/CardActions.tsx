@@ -20,6 +20,7 @@ import * as constants from './constants';
 import Spacer from '../Spacer';
 import { CardElementProps } from './common';
 import { useCardElementOptionsContext } from './hooks';
+import { useTheme } from '@react-navigation/native';
 
 export type CardActionsProps = CardElementProps & {
   itemSpacing?: number;
@@ -132,6 +133,7 @@ export const CardActionsIconButton = React.forwardRef<
   } = props;
 
   const cardElementOptions = useCardElementOptionsContext(elementOptions);
+  const { dark } = useTheme();
 
   return (
     <TouchableOpacity
@@ -157,7 +159,7 @@ export const CardActionsIconButton = React.forwardRef<
             cardElementOptions.captionTextStyle,
             {
               textAlign: 'right',
-              color: labelColor ?? color.gray500,
+              color: labelColor ?? (dark ? color.gray300 : color.gray500),
               minWidth: cardElementOptions.smallContent ? 12 : 16,
             },
           ]}>
@@ -233,6 +235,7 @@ export const CardActionsHeartIconButton = (
   props: CardActionsHeartIconButtonProps,
 ) => {
   const { didLike, totalLikes, onToggleLike, ...restProps } = props;
+  const { colors } = useTheme();
   const animatableRef = useRef<AnimatableViewRef>(null);
 
   const handleToggleLike = async () => {
@@ -250,7 +253,7 @@ export const CardActionsHeartIconButton = (
       iconName={didLike ? 'heart' : 'heart-outline'}
       iconColor={didLike ? color.red500 : undefined}
       label={shortenLargeNumber(totalLikes)}
-      labelColor={didLike ? color.black : undefined}
+      labelColor={didLike ? colors.text : undefined}
       onPress={handleToggleLike}
       {...restProps}
     />

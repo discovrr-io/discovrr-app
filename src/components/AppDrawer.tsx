@@ -30,10 +30,11 @@ import { RootStackNavigationProp, RootStackParamList } from 'src/navigation';
 
 import AsyncGate from './AsyncGate';
 import Spacer from './Spacer';
+import { useTheme } from '@react-navigation/native';
 
 const AVATAR_DIAMETER = 125;
-const DRAWER_ITEM_ICON_COLOR = constants.color.black;
-const DRAWER_ITEM_TEXT_COLOR = constants.color.black;
+// const DRAWER_ITEM_ICON_COLOR = constants.color.black;
+// const DRAWER_ITEM_TEXT_COLOR = constants.color.black;
 const ROLE_CHIP_HIT_SLOP_INSET = 25;
 
 type AppDrawerItemProps = {
@@ -45,6 +46,7 @@ type AppDrawerItemProps = {
 
 function AppDrawerItem(props: AppDrawerItemProps) {
   const { label, iconName, tintColor, onPress } = props;
+  const { colors } = useTheme();
 
   return (
     <DrawerItem
@@ -54,7 +56,7 @@ function AppDrawerItem(props: AppDrawerItemProps) {
           numberOfLines={1}
           style={[
             constants.font.medium,
-            { color: tintColor ?? DRAWER_ITEM_TEXT_COLOR, marginLeft: -8 },
+            { color: tintColor ?? colors.text, marginLeft: -8 },
           ]}>
           {label}
         </Text>
@@ -63,7 +65,7 @@ function AppDrawerItem(props: AppDrawerItemProps) {
         <Icon
           name={iconName}
           size={size}
-          color={tintColor ?? DRAWER_ITEM_ICON_COLOR}
+          color={tintColor ?? colors.text}
           style={{ paddingLeft: constants.layout.spacing.md }}
         />
       )}
@@ -73,12 +75,13 @@ function AppDrawerItem(props: AppDrawerItemProps) {
 }
 
 function Divider() {
+  const { dark } = useTheme();
   return (
     <View
       style={{
         borderBottomWidth: 1,
-        borderColor: constants.color.gray100,
         marginVertical: constants.layout.spacing.sm,
+        borderColor: dark ? constants.color.gray700 : constants.color.gray100,
       }}
     />
   );
@@ -365,6 +368,9 @@ const AppDrawerProfileDetails = (props: AppDrawerProfileDetailsProps) => {
 };
 
 AppDrawerProfileDetails.Fulfilled = ({ profile }: { profile: Profile }) => {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const { colors } = useTheme();
+
   return (
     <View style={{ alignItems: 'center' }}>
       <FastImage
@@ -384,7 +390,10 @@ AppDrawerProfileDetails.Fulfilled = ({ profile }: { profile: Profile }) => {
       <Spacer.Vertical value="lg" />
       <Text
         numberOfLines={1}
-        style={[constants.font.extraLargeBold, { textAlign: 'center' }]}>
+        style={[
+          constants.font.extraLargeBold,
+          { textAlign: 'center', color: colors.text },
+        ]}>
         {profile?.__publicName || 'Anonymous'}
       </Text>
       <Spacer.Vertical value="xs" />

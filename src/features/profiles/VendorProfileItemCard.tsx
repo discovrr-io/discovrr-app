@@ -3,6 +3,7 @@ import { Text, View } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
 import { useNavigation } from '@react-navigation/core';
+import { useTheme } from '@react-navigation/native';
 
 import * as constants from 'src/constants';
 import { MediaSource } from 'src/api';
@@ -66,6 +67,7 @@ const LoadedVendorProfileItemCard = (
 ) => {
   const { vendorProfile, isMyProfile, ...cardElementProps } = props;
 
+  const { colors } = useTheme();
   const navigation = useNavigation<RootStackNavigationProp>();
 
   const renderCardBody = React.useCallback(
@@ -109,6 +111,7 @@ const LoadedVendorProfileItemCard = (
               numberOfLines={elementOptions.smallContent ? 2 : 4}
               style={[
                 elementOptions.captionTextStyle,
+                { color: colors.text },
                 !vendorProfile.biography && { fontStyle: 'italic' },
               ]}>
               {vendorProfile.biography ?? 'No biography'}
@@ -121,6 +124,7 @@ const LoadedVendorProfileItemCard = (
       vendorProfile.biography,
       vendorProfile.background,
       vendorProfile.backgroundThumbnail,
+      colors.text,
     ],
   );
 

@@ -4,6 +4,7 @@ import { Platform, SafeAreaView, useWindowDimensions } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { useHeaderHeight } from '@react-navigation/elements';
+import { useTheme } from '@react-navigation/native';
 
 import {
   createBottomTabNavigator,
@@ -19,6 +20,7 @@ import * as constants from 'src/constants';
 import * as notificationsSlice from 'src/features/notifications/notifications-slice';
 import { useMyProfileId, useProfile } from 'src/features/profiles/hooks';
 import { useAppSelector } from 'src/hooks';
+import { ProfileId } from 'src/models';
 
 import {
   AppDrawer,
@@ -37,7 +39,6 @@ import {
   MainDrawerParamList,
   FacadeBottomTabScreenProps,
 } from 'src/navigation';
-import { ProfileId } from 'src/models';
 
 const RootDrawer = createDrawerNavigator<MainDrawerParamList>();
 const FacadeBottomTab = createBottomTabNavigator<FacadeBottomTabParamList>();
@@ -88,6 +89,9 @@ function MyProfileDetailsScreen(props: MyProfileDetailsScreenProps) {
 function FacadeNavigator() {
   const $FUNC = '[FacadeNavigator]';
   const myProfileId = useMyProfileId();
+
+  const { colors } = useTheme();
+
   const unreadCount = useAppSelector(
     notificationsSlice.selectUnreadNotificationsCount,
   );
@@ -102,7 +106,7 @@ function FacadeNavigator() {
         headerLeftContainerStyle: {
           paddingLeft: constants.layout.defaultScreenMargins.horizontal,
         },
-        headerTintColor: constants.color.absoluteBlack,
+        headerTintColor: colors.text,
         headerTitleStyle: constants.font.defaultHeaderTitleStyle,
         tabBarStyle: {
           minHeight: constants.values.DEFAULT_MIN_BOTTOM_TAB_BAR_HEIGHT,

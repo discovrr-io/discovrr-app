@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 
 import Icon from 'react-native-vector-icons/Ionicons';
+import { useTheme } from '@react-navigation/native';
 
 import * as searchSlice from './search-slice';
 import { EmptyContainer, Spacer } from 'src/components';
@@ -26,6 +27,8 @@ export default function SearchQueryScreen(props: SearchQueryScreenProps) {
   const dispatch = useAppDispatch();
   const queryHistory = useAppSelector(state => state.search.queryHistory);
 
+  const { colors, dark } = useTheme();
+
   const handlePressSearchHistoryItem = (query: string) => {
     dispatch(searchSlice.addToSearchQueryHistory(query));
     props.navigation.push('SearchResults', { query });
@@ -36,7 +39,7 @@ export default function SearchQueryScreen(props: SearchQueryScreenProps) {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: color.absoluteWhite }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.card }}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <FlatList
           data={queryHistory}
@@ -47,7 +50,11 @@ export default function SearchQueryScreen(props: SearchQueryScreenProps) {
             paddingHorizontal: layout.defaultScreenMargins.horizontal,
           }}
           ListHeaderComponent={
-            <Text style={[font.smallBold, { color: color.gray700 }]}>
+            <Text
+              style={[
+                font.smallBold,
+                { color: dark ? color.gray500 : color.gray700 },
+              ]}>
               Previously searched
             </Text>
           }
@@ -81,6 +88,8 @@ type SearchHistoryItemProps = TouchableHighlightProps & {
 
 function SearchHistoryItem(props: SearchHistoryItemProps) {
   const { label, onPressRemove, ...restProps } = props;
+  const { colors } = useTheme();
+
   return (
     <TouchableHighlight
       {...restProps}
@@ -101,12 +110,15 @@ function SearchHistoryItem(props: SearchHistoryItemProps) {
         ]}>
         <Text
           numberOfLines={1}
-          style={[font.medium, { flexGrow: 1, flexShrink: 1 }]}>
+          style={[
+            font.medium,
+            { flexGrow: 1, flexShrink: 1, color: colors.text },
+          ]}>
           {label}
         </Text>
         <Spacer.Horizontal value="sm" />
         <TouchableOpacity onPress={onPressRemove}>
-          <Icon name="close-circle-outline" size={20} />
+          <Icon name="close-circle-outline" size={20} color={colors.text} />
         </TouchableOpacity>
       </View>
     </TouchableHighlight>

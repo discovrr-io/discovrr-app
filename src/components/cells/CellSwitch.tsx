@@ -1,8 +1,10 @@
 import React from 'react';
 import { Platform, Switch, SwitchProps, Text, View } from 'react-native';
-import { color } from 'src/constants';
-import CellContainer from './CellContainer';
 
+import { useTheme } from '@react-navigation/native';
+import { color } from 'src/constants';
+
+import CellContainer from './CellContainer';
 import { CellElementProps, defaultCellElementOptions } from './common';
 import { useCellElementContext } from './hooks';
 
@@ -15,6 +17,7 @@ export type CellSwitchProps = CellElementProps &
 export default function CellSwitch(props: CellSwitchProps) {
   const cellElementOptions = useCellElementContext(props.elementOptions);
   const isDisabled = props.disabled || cellElementOptions.disabled;
+  const { colors } = useTheme();
 
   return (
     <CellContainer elementOptions={cellElementOptions}>
@@ -28,6 +31,7 @@ export default function CellSwitch(props: CellSwitchProps) {
           style={[
             defaultCellElementOptions.labelStyle,
             cellElementOptions.labelStyle,
+            { color: colors.text },
             isDisabled && { color: color.disabledDarkTextColor },
           ]}>
           {props.label}

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Linking } from 'react-native';
+import { Linking, useColorScheme } from 'react-native';
 
 import analytics from '@react-native-firebase/analytics';
 import inAppMessaging from '@react-native-firebase/in-app-messaging';
@@ -19,6 +19,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { useFlipper } from '@react-navigation/devtools';
 import {
+  DarkTheme,
   DefaultTheme,
   NavigationContainer,
   NavigationContainerRef,
@@ -51,7 +52,7 @@ Parse.User.enableUnsafeCurrentUser();
 Parse.initialize(Config.PARSE_APP_ID || 'local-discovrr-dev-server');
 Parse.serverURL = Config.PARSE_SERVER_URL || 'http://localhost:1337/parse';
 
-const navigationTheme: Theme = {
+const lightTheme: Theme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
@@ -62,10 +63,22 @@ const navigationTheme: Theme = {
   },
 };
 
+const darkTheme: Theme = {
+  ...DarkTheme,
+  colors: {
+    ...DarkTheme.colors,
+    primary: constants.color.accent,
+    background: constants.color.black,
+    card: constants.color.absoluteBlack,
+    notification: constants.color.red500,
+  },
+};
+
 const persistor = persistStore(store);
 
 function App() {
   const $FUNC = '[App]';
+
   React.useEffect(() => {
     console.log($FUNC, 'Suppressing in app messages...');
     inAppMessaging()
@@ -76,19 +89,16 @@ function App() {
   }, []);
 
   return (
-    <SafeAreaProvider>
-      <PortalProvider>
-        <ReduxProvider store={store}>
-          <PersistedApp />
-        </ReduxProvider>
-      </PortalProvider>
-    </SafeAreaProvider>
+    <ReduxProvider store={store}>
+      <PersistedApp />
+    </ReduxProvider>
   );
 }
 
 function PersistedApp() {
   const $FUNC = '[PersistedApp]';
   const dispatch = useAppDispatch();
+  const scheme = useColorScheme();
 
   const routeNameRef = React.useRef<string>();
   const navigationRef =
@@ -151,7 +161,6 @@ function PersistedApp() {
   };
 
   const handleNavigationStateChange = async () => {
-    const $FUNC = '[Navigation]';
     const previousRouteName = routeNameRef.current;
     const currentRouteName = navigationRef.current?.getCurrentRoute()?.name;
 
@@ -176,7 +185,8 @@ function PersistedApp() {
         ref={navigationRef}
         onReady={handleNavigationReady}
         onStateChange={handleNavigationStateChange}
-        theme={navigationTheme}
+        // theme={navigationTheme}
+        theme={scheme === 'dark' ? darkTheme : lightTheme}
         linking={{
           prefixes: [
             'discovrr://',
@@ -238,7 +248,11 @@ function PersistedApp() {
             };
           },
         }}>
-        <AuthGate />
+        <PortalProvider>
+          <SafeAreaProvider>
+            <AuthGate />
+          </SafeAreaProvider>
+        </PortalProvider>
       </NavigationContainer>
     </PersistGate>
   );

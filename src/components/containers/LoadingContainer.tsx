@@ -13,10 +13,7 @@ export default function LoadingContainer({
   ...props
 }: LoadingContainerProps) {
   return (
-    <Container
-      {...props}
-      // style={[{ paddingVertical: layout.spacing.xl }, props.style]}
-    >
+    <Container {...props}>
       <ActivityIndicator size="large" color={color.gray500} />
       <Text style={[font.smallBold, loadingContainerStyles.message]}>
         {message}

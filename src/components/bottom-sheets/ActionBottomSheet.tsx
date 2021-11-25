@@ -4,6 +4,7 @@ import { StyleSheet, Text, TouchableHighlight, View } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { Portal } from '@gorhom/portal';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTheme } from '@react-navigation/native';
 
 import BottomSheet, {
   BottomSheetBackdrop,
@@ -41,6 +42,8 @@ type ActionBottomSheetProps = {
 
 const ActionBottomSheet = React.forwardRef<BottomSheet, ActionBottomSheetProps>(
   (props: ActionBottomSheetProps, ref) => {
+    const { colors } = useTheme();
+
     const initialSnapPoints = React.useMemo(() => ['CONTENT_HEIGHT'], []);
 
     const {
@@ -79,7 +82,8 @@ const ActionBottomSheet = React.forwardRef<BottomSheet, ActionBottomSheetProps>(
           snapPoints={animatedSnapPoints}
           handleHeight={animatedHandleHeight}
           contentHeight={animatedContentHeight}
-          backdropComponent={renderBackdrop}>
+          backdropComponent={renderBackdrop}
+          backgroundStyle={{ backgroundColor: colors.background }}>
           <BottomSheetView
             onLayout={handleContentLayout}
             style={styles.container}>
@@ -102,6 +106,7 @@ function ActionBottomSheetContents(props: ActionBottomSheetProps) {
   } = props;
 
   const { close } = useBottomSheet();
+  const { colors, dark } = useTheme();
 
   const handleSelectItem = async (id: string) => {
     close();
@@ -127,10 +132,12 @@ function ActionBottomSheetContents(props: ActionBottomSheetProps) {
                     props.disabled
                       ? props.destructive
                         ? constants.color.dangerDisabled
+                        : dark
+                        ? constants.color.disabledLightTextColor
                         : constants.color.disabledDarkTextColor
                       : props.destructive
                       ? constants.color.danger
-                      : constants.color.black
+                      : colors.text
                   }
                   style={[{ width: ICON_SIZE }]}
                 />
@@ -140,8 +147,11 @@ function ActionBottomSheetContents(props: ActionBottomSheetProps) {
                   style={[
                     styles.actionItemLabel,
                     constants.font.large,
+                    { color: colors.text },
                     props.disabled && {
-                      color: constants.color.disabledDarkTextColor,
+                      color: dark
+                        ? constants.color.disabledLightTextColor
+                        : constants.color.disabledDarkTextColor,
                     },
                     props.destructive && {
                       color: props.disabled

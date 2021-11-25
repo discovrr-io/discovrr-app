@@ -26,6 +26,7 @@ import {
 
 import { useProduct } from './hooks';
 import { CardIndicatorRow } from 'src/components/cards/CardIndicator';
+import { useTheme } from '@react-navigation/native';
 
 type ProductItemCardProps = CardElementProps & {
   productId: ProductId;
@@ -166,6 +167,7 @@ type ProductItemCardBodyProps = CardElementOptions & {
 
 function ProductItemCardBody(props: ProductItemCardBodyProps) {
   const { product, ...cardElementOptions } = props;
+  const { colors } = useTheme();
   const [dollars, cents] = product.price.toFixed(2).split('.');
   const thumbnail: MediaSource | undefined = product.media[0];
 
@@ -198,7 +200,7 @@ function ProductItemCardBody(props: ProductItemCardBodyProps) {
           numberOfLines={3}
           style={[
             cardElementOptions.captionTextStyle,
-            { flexGrow: 1, flexShrink: 1 },
+            { color: colors.text, flexGrow: 1, flexShrink: 1 },
           ]}>
           {product.name}
         </Text>
@@ -212,7 +214,7 @@ function ProductItemCardBody(props: ProductItemCardBodyProps) {
                     ...constants.font.extraLargeBold,
                     fontSize: constants.font.size.h3,
                   },
-              { textAlign: 'right' },
+              { color: colors.text, textAlign: 'right' },
             ]}>
             ${dollars}
             {cents !== '00' && <Text>{`.${cents}`}</Text>}

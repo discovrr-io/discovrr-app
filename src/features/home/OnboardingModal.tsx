@@ -4,6 +4,7 @@ import {
   ModalBaseProps,
   Text,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
 } from 'react-native';
 
@@ -12,6 +13,7 @@ import FastImage from 'react-native-fast-image';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTheme } from '@react-navigation/native';
 
 import * as constants from 'src/constants';
 import { Button, Cell, Spacer } from 'src/components';
@@ -65,6 +67,8 @@ const OnboardingModalResultContext = React.createContext<OnboardingResult>(
 
 export default function OnboardingModal(props: ModalBaseProps) {
   const bottomTabHeight = useBottomTabBarHeight();
+  const modalContext = React.useContext(OnboardingModalContext);
+  const { colors } = useTheme();
 
   const [currentIndex, setCurrentIndex] = React.useState(0);
   const [surveyResponse, setSurveyResponse] = React.useState('');
@@ -87,11 +91,11 @@ export default function OnboardingModal(props: ModalBaseProps) {
     <OnboardingModalResultContext.Provider
       value={{ surveyResponse, setSurveyResponse }}>
       <Modal {...props}>
-        <View
+        <TouchableWithoutFeedback
+          onPress={() => modalContext.skipOnboarding()}
           style={{
             width: '100%',
             height: '100%',
-            backgroundColor: constants.color.absoluteBlack + '80',
             paddingBottom: bottomTabHeight,
           }}>
           <SafeAreaView
@@ -100,19 +104,20 @@ export default function OnboardingModal(props: ModalBaseProps) {
               height: '100%',
               alignItems: 'center',
               justifyContent: 'center',
+              backgroundColor: constants.color.absoluteBlack + '80',
             }}>
             <View
               style={{
                 width: '85%',
                 height: '75%',
-                backgroundColor: 'white',
+                backgroundColor: colors.border,
                 borderRadius: constants.layout.radius.lg,
                 justifyContent: 'center',
               }}>
               {renderContent()}
             </View>
           </SafeAreaView>
-        </View>
+        </TouchableWithoutFeedback>
       </Modal>
     </OnboardingModalResultContext.Provider>
   );
@@ -122,6 +127,7 @@ function OnboardingModalGreetingContent(props: {
   onStartOnboarding: () => void;
 }) {
   const modalContext = React.useContext(OnboardingModalContext);
+  const { colors } = useTheme();
 
   return (
     <View
@@ -131,14 +137,16 @@ function OnboardingModalGreetingContent(props: {
         paddingTop: constants.layout.spacing.xxl * 1.75,
         paddingBottom: constants.layout.spacing.lg,
       }}>
-      <Text style={[constants.font.h2, { flexGrow: 1 }]}>Hi there 👋</Text>
+      <Text style={[constants.font.h2, { color: colors.text, flexGrow: 1 }]}>
+        Hi there 👋
+      </Text>
       <View style={{ flexGrow: 1 }}>
-        <Text style={[constants.font.medium]}>
+        <Text style={[constants.font.medium, { color: colors.text }]}>
           Welcome! Discovrr is a place where you can explore and see what local
           makers and creators are making in your community.
         </Text>
         <Spacer.Vertical value="lg" />
-        <Text style={[constants.font.medium]}>
+        <Text style={[constants.font.medium, { color: colors.text }]}>
           This is Discovrr v{constants.values.APP_VERSION}. Please report any
           bugs or give your feedback to{' '}
           <Text
@@ -173,6 +181,7 @@ function OnboardingModalInfoContent() {
   const [currentIndex, setCurrentIndex] = React.useState(0);
 
   const carouselRef = React.useRef<Carousel<OnboardingScreen> | null>(null);
+  const { colors } = useTheme();
 
   return (
     <View
@@ -208,11 +217,7 @@ function OnboardingModalInfoContent() {
             position: 'absolute',
             left: constants.layout.spacing.md,
           }}>
-          <Icon
-            name="chevron-back-outline"
-            size={30}
-            color={constants.color.defaultDarkTextColor}
-          />
+          <Icon name="chevron-back-outline" size={30} color={colors.text} />
         </TouchableOpacity>
       )}
       {currentIndex < ONBOARDING_SCREENS.length - 1 && (
@@ -222,11 +227,7 @@ function OnboardingModalInfoContent() {
             position: 'absolute',
             right: constants.layout.spacing.md,
           }}>
-          <Icon
-            name="chevron-forward-outline"
-            size={30}
-            color={constants.color.defaultDarkTextColor}
-          />
+          <Icon name="chevron-forward-outline" size={30} color={colors.text} />
         </TouchableOpacity>
       )}
     </View>
@@ -236,6 +237,7 @@ function OnboardingModalInfoContent() {
 function OnboardingModalInfoContentPage(props: OnboardingScreen) {
   const modalContext = React.useContext(OnboardingModalContext);
   const modalResultContext = React.useContext(OnboardingModalResultContext);
+  const { colors } = useTheme();
 
   return (
     <View
@@ -256,11 +258,19 @@ function OnboardingModalInfoContentPage(props: OnboardingScreen) {
           }}
         />
       )}
-      <Text style={[constants.font.extraLargeBold, { textAlign: 'center' }]}>
+      <Text
+        style={[
+          constants.font.extraLargeBold,
+          { color: colors.text, textAlign: 'center' },
+        ]}>
         {props.title}
       </Text>
       <Spacer.Vertical value="md" />
-      <Text style={[constants.font.medium, { textAlign: 'center' }]}>
+      <Text
+        style={[
+          constants.font.medium,
+          { color: colors.text, textAlign: 'center' },
+        ]}>
         {props.body}
       </Text>
       {props.id === 'survey' && (

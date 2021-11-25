@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { useTheme } from '@react-navigation/native';
 import {
   CardStyleInterpolators,
   createStackNavigator,
@@ -9,7 +10,7 @@ import {
 import FeedNavigator from 'src/features/feed/FeedNavigator';
 import SearchNavigator from 'src/features/search/SearchNavigator';
 
-import { color, font, layout } from 'src/constants';
+import * as constants from 'src/constants';
 import { HeaderIcon } from 'src/components';
 import {
   ExploreStackNavigationProp,
@@ -21,14 +22,14 @@ import {
 const ExploreStack = createStackNavigator<ExploreStackParamList>();
 
 export default function ExploreNavigator() {
+  const { colors } = useTheme();
   return (
     <ExploreStack.Navigator
       initialRouteName="Feed"
       screenOptions={{
-        headerTintColor: color.black,
+        headerTintColor: colors.text,
         headerBackTitleVisible: false,
-        headerTitleStyle: font.defaultHeaderTitleStyle,
-        headerStyle: { backgroundColor: color.white },
+        headerTitleStyle: constants.font.defaultHeaderTitleStyle,
         headerStyleInterpolator: HeaderStyleInterpolators.forFade,
         cardStyleInterpolator: CardStyleInterpolators.forFadeFromCenter,
       }}>
@@ -67,10 +68,10 @@ export default function ExploreNavigator() {
             />
           ),
           headerLeftContainerStyle: {
-            paddingLeft: layout.defaultScreenMargins.horizontal,
+            paddingLeft: constants.layout.defaultScreenMargins.horizontal,
           },
           headerRightContainerStyle: {
-            paddingRight: layout.defaultScreenMargins.horizontal,
+            paddingRight: constants.layout.defaultScreenMargins.horizontal,
           },
         })}
       />
