@@ -91,9 +91,7 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = Discovrr/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = Discovrr/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = Discovrr/main.m; sourceTree = "<group>"; tabWidth = 4; };
-		156C92B444013D1483893ED4 /* Pods-OneSignalNotificationServiceExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OneSignalNotificationServiceExtension.release.xcconfig"; path = "Target Support Files/Pods-OneSignalNotificationServiceExtension/Pods-OneSignalNotificationServiceExtension.release.xcconfig"; sourceTree = "<group>"; };
 		17D25EEF24D31996F7D51B92 /* Pods-Discovrr.testing.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Discovrr.testing.xcconfig"; path = "Target Support Files/Pods-Discovrr/Pods-Discovrr.testing.xcconfig"; sourceTree = "<group>"; };
-		19AEE43D14618FC9A9689C9B /* Pods-OneSignalNotificationServiceExtension.staging.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OneSignalNotificationServiceExtension.staging.xcconfig"; path = "Target Support Files/Pods-OneSignalNotificationServiceExtension/Pods-OneSignalNotificationServiceExtension.staging.xcconfig"; sourceTree = "<group>"; };
 		1C5C06E0FFD78F1455E2A672 /* libPods-Discovrr-DiscovrrTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Discovrr-DiscovrrTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1DEFB0483F7BCB30B6BAA12D /* libPods-Discovrr.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Discovrr.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		25E30185216EE2F23A6F2CBA /* Pods-Discovrr.staging.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Discovrr.staging.xcconfig"; path = "Target Support Files/Pods-Discovrr/Pods-Discovrr.staging.xcconfig"; sourceTree = "<group>"; };
@@ -103,13 +101,11 @@
 		6BD3252C05399F570B904D15 /* Pods-FirebaseNotificationServiceExtension.staging.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FirebaseNotificationServiceExtension.staging.xcconfig"; path = "Target Support Files/Pods-FirebaseNotificationServiceExtension/Pods-FirebaseNotificationServiceExtension.staging.xcconfig"; sourceTree = "<group>"; };
 		75477CA55F569F109F8392C8 /* Pods-FirebaseNotificationServiceExtension.testing.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FirebaseNotificationServiceExtension.testing.xcconfig"; path = "Target Support Files/Pods-FirebaseNotificationServiceExtension/Pods-FirebaseNotificationServiceExtension.testing.xcconfig"; sourceTree = "<group>"; };
 		940759826B744C8B9A60048C /* Rubik-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-Medium.ttf"; path = "../assets/fonts/Rubik-Medium.ttf"; sourceTree = "<group>"; };
-		9D0E56BADA639FA7263571C6 /* Pods-OneSignalNotificationServiceExtension.testing.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OneSignalNotificationServiceExtension.testing.xcconfig"; path = "Target Support Files/Pods-OneSignalNotificationServiceExtension/Pods-OneSignalNotificationServiceExtension.testing.xcconfig"; sourceTree = "<group>"; };
 		A7CEB5C8B529BCD249C1B8CD /* Pods-Discovrr-DiscovrrTests.testing.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Discovrr-DiscovrrTests.testing.xcconfig"; path = "Target Support Files/Pods-Discovrr-DiscovrrTests/Pods-Discovrr-DiscovrrTests.testing.xcconfig"; sourceTree = "<group>"; };
 		A89AF5D403EB4EE99C8FE135 /* Rubik-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-Bold.ttf"; path = "../assets/fonts/Rubik-Bold.ttf"; sourceTree = "<group>"; };
 		AC4F6A7ABEB31227BEB5F8C8 /* Pods-FirebaseNotificationServiceExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FirebaseNotificationServiceExtension.debug.xcconfig"; path = "Target Support Files/Pods-FirebaseNotificationServiceExtension/Pods-FirebaseNotificationServiceExtension.debug.xcconfig"; sourceTree = "<group>"; };
 		AFAA6F5BC1342DBCE5924A88 /* libPods-OneSignalNotificationServiceExtension.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-OneSignalNotificationServiceExtension.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B402E75D12184583A6F1494C /* Ionicons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Ionicons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Ionicons.ttf"; sourceTree = "<group>"; };
-		BCBFF7C25E6B59310E3A8066 /* Pods-OneSignalNotificationServiceExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OneSignalNotificationServiceExtension.debug.xcconfig"; path = "Target Support Files/Pods-OneSignalNotificationServiceExtension/Pods-OneSignalNotificationServiceExtension.debug.xcconfig"; sourceTree = "<group>"; };
 		D884BA1806B441D6938CB325 /* Rubik-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-Regular.ttf"; path = "../assets/fonts/Rubik-Regular.ttf"; sourceTree = "<group>"; };
 		D8CDED8E30D54BD9AE648079 /* MaterialIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = MaterialIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/MaterialIcons.ttf"; sourceTree = "<group>"; };
 		DF95F2E265D50C6E5EDC5F4B /* Pods-Discovrr-DiscovrrTests.staging.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Discovrr-DiscovrrTests.staging.xcconfig"; path = "Target Support Files/Pods-Discovrr-DiscovrrTests/Pods-Discovrr-DiscovrrTests.staging.xcconfig"; sourceTree = "<group>"; };
@@ -235,12 +231,8 @@
 				F906197FCE9704DF5097C466 /* Pods-Discovrr-DiscovrrTests.debug.xcconfig */,
 				F51BA83EFA181C8FD96A36C3 /* Pods-Discovrr-DiscovrrTests.release.xcconfig */,
 				DF95F2E265D50C6E5EDC5F4B /* Pods-Discovrr-DiscovrrTests.staging.xcconfig */,
-				BCBFF7C25E6B59310E3A8066 /* Pods-OneSignalNotificationServiceExtension.debug.xcconfig */,
-				156C92B444013D1483893ED4 /* Pods-OneSignalNotificationServiceExtension.release.xcconfig */,
-				19AEE43D14618FC9A9689C9B /* Pods-OneSignalNotificationServiceExtension.staging.xcconfig */,
 				17D25EEF24D31996F7D51B92 /* Pods-Discovrr.testing.xcconfig */,
 				A7CEB5C8B529BCD249C1B8CD /* Pods-Discovrr-DiscovrrTests.testing.xcconfig */,
-				9D0E56BADA639FA7263571C6 /* Pods-OneSignalNotificationServiceExtension.testing.xcconfig */,
 				AC4F6A7ABEB31227BEB5F8C8 /* Pods-FirebaseNotificationServiceExtension.debug.xcconfig */,
 				75477CA55F569F109F8392C8 /* Pods-FirebaseNotificationServiceExtension.testing.xcconfig */,
 				6BD3252C05399F570B904D15 /* Pods-FirebaseNotificationServiceExtension.staging.xcconfig */,
@@ -1023,7 +1015,7 @@
 				INFOPLIST_FILE = "Discovrr/Info-testing.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 3.0.7;
+				MARKETING_VERSION = 3.0.10;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -1138,7 +1130,7 @@
 				INFOPLIST_FILE = "Discovrr/Info-staging.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 3.0.7;
+				MARKETING_VERSION = 3.0.10;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -1193,7 +1185,7 @@
 				INFOPLIST_FILE = Discovrr/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 3.0.7;
+				MARKETING_VERSION = 3.0.10;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -1225,7 +1217,7 @@
 				INFOPLIST_FILE = "Discovrr/Info-release.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 3.0.7;
+				MARKETING_VERSION = 3.0.10;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
