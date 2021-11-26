@@ -135,7 +135,6 @@ export const CardActionsIconButton = React.forwardRef<
   } = props;
 
   const cardElementOptions = useCardElementOptionsContext(elementOptions);
-  const { colors } = useExtendedTheme();
 
   return (
     <TouchableOpacity
@@ -146,7 +145,7 @@ export const CardActionsIconButton = React.forwardRef<
       <Animatable.View ref={ref}>
         <Icon
           name={iconName}
-          color={iconColor ?? colors.caption}
+          color={iconColor ?? color.gray500}
           size={
             iconSize ?? cardElementOptions.smallContent
               ? constants.CARD_ICON_SMALL
@@ -161,7 +160,7 @@ export const CardActionsIconButton = React.forwardRef<
             cardElementOptions.captionTextStyle,
             {
               textAlign: 'right',
-              color: labelColor ?? colors.caption,
+              color: labelColor ?? color.gray500,
               minWidth: cardElementOptions.smallContent ? 12 : 16,
             },
           ]}>

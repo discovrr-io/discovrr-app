@@ -339,6 +339,8 @@ const AppDrawerProfileDetails = (props: AppDrawerProfileDetailsProps) => {
   const profileData = useProfile(props.profileId);
 
   React.useEffect(() => {
+    let timeout: NodeJS.Timeout | undefined;
+
     async function fetchMyProfile() {
       const fetchProfileAction = profilesSlice.fetchProfileById({
         profileId: props.profileId,
@@ -346,10 +348,11 @@ const AppDrawerProfileDetails = (props: AppDrawerProfileDetailsProps) => {
       });
 
       try {
-        await new Promise<void>(() => {
+        await new Promise<void>(resolve => {
           // iOS: Wait a bit to let the dark-overlay animation to complete
-          setTimeout(async () => {
+          timeout = setTimeout(async () => {
             await dispatch(fetchProfileAction).unwrap();
+            resolve(undefined);
           }, 500);
         });
       } catch (error) {
@@ -358,6 +361,10 @@ const AppDrawerProfileDetails = (props: AppDrawerProfileDetailsProps) => {
     }
 
     if (drawerStatus === 'open') fetchMyProfile();
+
+    return () => {
+      if (timeout) clearTimeout(timeout);
+    };
   }, [dispatch, drawerStatus, props.profileId]);
 
   return (

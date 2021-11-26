@@ -3,7 +3,7 @@ import {
   ActivityIndicator,
   FlatList,
   LogBox,
-  // Platform,
+  Platform,
   RefreshControl,
   ScrollView,
   StyleProp,
@@ -623,7 +623,7 @@ export default function LandingScreen(props: LandingScreenProps) {
             {homeFeedData?.limitedOfferProductId && (
               <LimitedOffer productId={homeFeedData.limitedOfferProductId} />
             )}
-            {false &&
+            {Platform.OS !== 'ios' &&
               (!isInitialRender || !shouldRefresh) &&
               makers.length > 0 && <ExploreOurMakers profiles={makers} />}
           </View>

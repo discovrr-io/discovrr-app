@@ -1,10 +1,5 @@
 import * as React from 'react';
-import {
-  Platform,
-  SafeAreaView,
-  Text,
-  useWindowDimensions,
-} from 'react-native';
+import { Platform, SafeAreaView, useWindowDimensions } from 'react-native';
 
 import Icon from 'react-native-vector-icons/Ionicons';
 import { createDrawerNavigator } from '@react-navigation/drawer';
@@ -43,7 +38,6 @@ import {
   MainDrawerParamList,
   FacadeBottomTabScreenProps,
 } from 'src/navigation';
-import { MAX_FONT_MULTIPLIER } from 'src/constants/values';
 
 const RootDrawer = createDrawerNavigator<MainDrawerParamList>();
 const FacadeBottomTab = createBottomTabNavigator<FacadeBottomTabParamList>();
@@ -252,10 +246,7 @@ export default function MainNavigator() {
     <RootDrawer.Navigator
       initialRouteName="Facade"
       drawerContent={props => <AppDrawer {...props} />}
-      screenOptions={{
-        headerShown: false,
-        drawerType: Platform.select({ ios: 'back', default: undefined }),
-      }}>
+      screenOptions={{ headerShown: false, drawerType: 'back' }}>
       <RootDrawer.Screen name="Facade" component={FacadeNavigator} />
     </RootDrawer.Navigator>
   );
