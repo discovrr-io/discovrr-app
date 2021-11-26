@@ -125,7 +125,6 @@ export default function ViewPreviewPicker(props: VideoPreviewPickerProps) {
       <PreviewPicker<Video>
         {...props}
         ref={previewPickerRef}
-        // iconName="film-outline"
         description={
           props.description ??
           `Tap on ${

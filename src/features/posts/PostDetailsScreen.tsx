@@ -520,6 +520,7 @@ function LoadedPostDetailsScreen({ post }: LoadedPostDetailsScreenProps) {
                 style={[
                   constants.font.smallBold,
                   postDetailsScreenStyles.commentBoxIndicatorText,
+                  { color: colors.text },
                 ]}>
                 Replying to {replyContext.recipient.__publicName}…
               </Text>
@@ -606,7 +607,6 @@ const postDetailsScreenStyles = StyleSheet.create({
   commentBoxIndicatorText: {
     flexGrow: 1,
     flexShrink: 1,
-    color: constants.color.gray700,
   },
   commentBoxIndicatorCloseIcon: {
     alignItems: 'center',

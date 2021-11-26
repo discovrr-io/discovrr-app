@@ -67,8 +67,8 @@ const LoadedVendorProfileItemCard = (
 ) => {
   const { vendorProfile, isMyProfile, ...cardElementProps } = props;
 
-  const { colors } = useExtendedTheme();
   const navigation = useNavigation<RootStackNavigationProp>();
+  const { colors, dark } = useExtendedTheme();
 
   const renderCardBody = React.useCallback(
     (elementOptions: CardElementOptions) => {
@@ -90,16 +90,25 @@ const LoadedVendorProfileItemCard = (
           <View>
             <Card.Indicator iconName="happy" position="top-right" />
             <FastImage
+              tintColor={
+                !background
+                  ? dark
+                    ? constants.color.gray300
+                    : constants.color.gray500
+                  : undefined
+              }
               source={
                 background
                   ? { uri: background.url }
                   : constants.media.DEFAULT_IMAGE
               }
-              style={{
-                width: '100%',
-                aspectRatio: 1,
-                backgroundColor: colors.placeholder,
-              }}
+              style={[
+                {
+                  width: '100%',
+                  aspectRatio: 1,
+                },
+                background && { backgroundColor: colors.placeholder },
+              ]}
             />
           </View>
           <View
@@ -126,6 +135,7 @@ const LoadedVendorProfileItemCard = (
       vendorProfile.backgroundThumbnail,
       colors.placeholder,
       colors.text,
+      dark,
     ],
   );
 

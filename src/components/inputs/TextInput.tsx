@@ -15,11 +15,11 @@ import {
 
 import Icon from 'react-native-vector-icons/Ionicons';
 import { IconProps } from 'react-native-vector-icons/Icon';
-import { useTheme } from '@react-navigation/native';
 
 import { color, font, layout } from 'src/constants';
 import { DEFAULT_ACTIVE_OPACITY } from 'src/constants/values';
 import { ButtonSize } from 'src/components/buttons/buttonStyles';
+import { useExtendedTheme } from 'src/hooks';
 
 export type TextInputProps = Omit<
   RNTextInputProps,
@@ -51,7 +51,7 @@ export const __TextInput = React.forwardRef<RNTextInput, TextInputProps>(
       ...restProps
     } = props;
 
-    const { dark, colors } = useTheme();
+    const { dark, colors } = useExtendedTheme();
     const [isFocused, setIsFocused] = useState(false);
 
     const textInputVariantStyles: StyleProp<ViewStyle> = useMemo(() => {
@@ -68,12 +68,14 @@ export const __TextInput = React.forwardRef<RNTextInput, TextInputProps>(
           return [
             filledTextInputStyles.container,
             // isFocused
-            //   ? { backgroundColor: dark ? color.gray500 : color.gray200 }
+            //   ? { backgroundColor: colors.highlight }
             //   : { backgroundColor: dark ? color.absoluteBlack : color.gray100 },
-            { backgroundColor: colors.background },
+            {
+              backgroundColor: isFocused ? colors.highlight : colors.background,
+            },
           ];
       }
-    }, [mode, dark, isFocused]);
+    }, [mode, isFocused, colors.highlight, colors.background]);
 
     const textInputHeight = useMemo(() => {
       switch (size) {
@@ -166,7 +168,8 @@ type TextInputAffixProps = {
 
 const TextInputAffix = (props: TextInputAffixProps) => {
   const { text, textStyle, containerStyle } = props;
-  const { dark } = useTheme();
+  const { dark } = useExtendedTheme();
+
   return (
     <View style={[{ justifyContent: 'center' }, containerStyle]}>
       <Text
@@ -189,7 +192,9 @@ type TextInputIconProps = IconProps & {
 const TextInputIcon = (props: TextInputIconProps) => {
   const { activeOpacity, containerStyle, onPress, onLongPress, ...iconProps } =
     props;
-  const { colors } = useTheme();
+
+  const { colors } = useExtendedTheme();
+
   return (
     <TouchableOpacity
       activeOpacity={activeOpacity ?? DEFAULT_ACTIVE_OPACITY * 0.5}

@@ -211,7 +211,7 @@ function PersistedApp() {
   return (
     <PersistGate
       persistor={persistor}
-      loading={<SplashScreen />}
+      loading={<SplashScreen navigationTheme={navigationTheme} />}
       onBeforeLift={handleBeforeLift}>
       <NavigationContainer<RootStackParamList>
         ref={navigationRef}

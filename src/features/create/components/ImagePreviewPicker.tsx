@@ -143,7 +143,6 @@ export default function ImagePreviewPicker(props: ImagePreviewPickerProps) {
       <PreviewPicker<Image>
         {...props}
         ref={previewPickerRef}
-        // iconName="images-outline"
         description={
           props.description ??
           `Tap on ${props.maxCount > 1 ? 'a' : 'the'} photo to crop it`

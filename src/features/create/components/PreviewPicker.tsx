@@ -17,6 +17,7 @@ import { useField } from 'formik';
 
 import { Spacer } from 'src/components';
 import { color, font, layout, values } from 'src/constants';
+import { useExtendedTheme } from 'src/hooks';
 
 export interface PreviewPickerMethods {
   scrollToEnd: () => void;
@@ -42,6 +43,7 @@ function PreviewPickerInner<ItemT>(
   const { setValue: setItems } = helpers;
 
   const { width: windowWidth } = useWindowDimensions();
+  const { colors } = useExtendedTheme();
   const itemWidth = React.useMemo(() => windowWidth * 0.7, [windowWidth]);
   const flatListRef = React.useRef<FlatList<ItemT>>(null);
 
@@ -114,12 +116,12 @@ function PreviewPickerInner<ItemT>(
           if (items.length >= props.maxCount) return null;
           return (
             <TouchableHighlight
-              underlayColor={color.gray100}
+              underlayColor={colors.highlight}
               onPress={props.onAddItem}
               style={[
                 previewPickerStyles.itemTouchableContainer,
                 previewPickerStyles.addItemButton,
-                { width: itemWidth },
+                { width: itemWidth, borderColor: colors.caption },
               ]}>
               <Icon
                 name={props.iconName ?? 'add-outline'}
@@ -195,7 +197,6 @@ const previewPickerStyles = StyleSheet.create({
     overflow: 'hidden',
   },
   addItemButton: {
-    borderColor: color.gray500,
     borderWidth: layout.border.thick,
     borderStyle: 'dashed',
     alignItems: 'center',

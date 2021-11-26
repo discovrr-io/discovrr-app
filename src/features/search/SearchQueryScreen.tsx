@@ -26,7 +26,7 @@ export default function SearchQueryScreen(props: SearchQueryScreenProps) {
   const dispatch = useAppDispatch();
   const queryHistory = useAppSelector(state => state.search.queryHistory);
 
-  const { colors /* , dark */ } = useExtendedTheme();
+  const { colors } = useExtendedTheme();
 
   const handlePressSearchHistoryItem = (query: string) => {
     dispatch(searchSlice.addToSearchQueryHistory(query));
@@ -66,6 +66,7 @@ export default function SearchQueryScreen(props: SearchQueryScreenProps) {
             <EmptyContainer
               emoji="🔍"
               message="You haven't searched for anything (yet!)"
+              containerStyle={{ backgroundColor: colors.card }}
             />
           }
           renderItem={({ item: query, index }) => (

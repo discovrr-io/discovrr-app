@@ -180,7 +180,7 @@ type ProductItemCardBodyProps = CardElementOptions & {
 
 function ProductItemCardBody(props: ProductItemCardBodyProps) {
   const { product, ...cardElementOptions } = props;
-  const { colors } = useExtendedTheme();
+  const { colors, dark } = useExtendedTheme();
 
   const [dollars, cents] = product.price.toFixed(2).split('.');
   const thumbnail: MediaSource | undefined = product.media[0];
@@ -194,14 +194,20 @@ function ProductItemCardBody(props: ProductItemCardBodyProps) {
         />
         <FastImage
           resizeMode="cover"
+          tintColor={
+            !thumbnail
+              ? dark
+                ? constants.color.gray300
+                : constants.color.gray500
+              : undefined
+          }
           source={
             thumbnail ? { uri: thumbnail.url } : constants.media.DEFAULT_IMAGE
           }
-          style={{
-            width: '100%',
-            aspectRatio: 1,
-            backgroundColor: colors.placeholder,
-          }}
+          style={[
+            { width: '100%', aspectRatio: 1 },
+            thumbnail && { backgroundColor: colors.placeholder },
+          ]}
         />
       </View>
       <View

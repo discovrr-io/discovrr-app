@@ -21,12 +21,6 @@ import { color, font, layout } from 'src/constants';
 import { DEFAULT_AVATAR } from 'src/constants/media';
 import { useIsMyProfile, useProfile } from 'src/features/profiles/hooks';
 import { selectIsCurrentUserProfile } from 'src/features/authentication/auth-slice';
-import {
-  useAppDispatch,
-  useAppSelector,
-  useExtendedTheme,
-  useIsMounted,
-} from 'src/hooks';
 import { Comment, CommentId, Profile } from 'src/models';
 import { RootStackNavigationProp } from 'src/navigation';
 import { alertSomethingWentWrong, shortenLargeNumber } from 'src/utilities';
@@ -37,6 +31,13 @@ import {
   AsyncGate,
   Spacer,
 } from 'src/components';
+
+import {
+  useAppDispatch,
+  useAppSelector,
+  useExtendedTheme,
+  useIsMounted,
+} from 'src/hooks';
 
 import { deleteComment, updateCommentLikeStatus } from './comments-slice';
 import { useComment } from './hooks';
@@ -130,7 +131,7 @@ function CommentCellContainer(props: CommentCellContainerProps) {
       <View
         style={[
           commentCellStyles.contentContainer,
-          { backgroundColor: colors.placeholder },
+          { borderBottomColor: colors.border },
         ]}>
         {AuthorComponent}
         <Spacer.Vertical value={layout.spacing.sm} />

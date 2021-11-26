@@ -411,8 +411,6 @@ export function LoadedProfileDetailsScreen(
         </View>
         <BottomSheet
           ref={bottomSheetRef}
-          // index={-1}
-          // animateOnMount={false}
           snapPoints={snapPoints}
           onChange={newIndex => {
             if (newIndex === 1) {
@@ -504,7 +502,7 @@ function ProfileDetailsHeader(props: ProfileDetailsHeaderProps) {
   const { profile, isMyProfile } = React.useContext(ProfileDetailsContext);
 
   const { height: calculatedWindowHeight } = useWindowDimensions();
-  const { colors } = useExtendedTheme();
+  const { colors, dark } = useExtendedTheme();
 
   const windowHeight = React.useMemo(() => {
     if (props.preferredWindowHeight) return props.preferredWindowHeight;
@@ -709,12 +707,22 @@ function ProfileDetailsHeader(props: ProfileDetailsHeaderProps) {
       ) : (
         <FastImage
           resizeMode="cover"
+          tintColor={
+            fallbackToImage || !profile.background
+              ? dark
+                ? constants.color.gray300
+                : constants.color.gray500
+              : undefined
+          }
           source={
             !fallbackToImage && profile.background
               ? { uri: profile.background?.url }
               : constants.media.DEFAULT_IMAGE
           }
-          style={[profileDetailsHeaderStyles.coverPhoto]}
+          style={[
+            profileDetailsHeaderStyles.coverPhoto,
+            profile.background && { backgroundColor: colors.placeholder },
+          ]}
         />
       )}
       <View

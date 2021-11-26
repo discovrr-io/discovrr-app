@@ -165,7 +165,7 @@ type SearchResultsHeaderProps = StackHeaderProps & {
 
 function SearchResultsHeader(props: SearchResultsHeaderProps) {
   const { query, ...restProps } = props;
-  const { colors /* , dark */ } = useExtendedTheme();
+  const { colors } = useExtendedTheme();
 
   const handleNavigateBackToQueryScreen = () => {
     restProps.navigation.navigate('SearchQuery', { query });
@@ -191,9 +191,6 @@ function SearchResultsHeader(props: SearchResultsHeaderProps) {
           paddingHorizontal: constants.layout.spacing.md * 1.3,
           borderRadius: constants.layout.radius.sm,
           backgroundColor: colors.background,
-          // backgroundColor: dark
-          //   ? constants.color.absoluteBlack
-          //   : constants.color.gray100,
         }}>
         <View
           style={{
