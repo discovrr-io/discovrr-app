@@ -26,7 +26,6 @@ import FastImage from 'react-native-fast-image';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Video, { OnLoadData, VideoProperties } from 'react-native-video';
 import { useFocusEffect, useNavigation } from '@react-navigation/core';
-import { useTheme } from '@react-navigation/native';
 
 import {
   SafeAreaView,
@@ -36,7 +35,6 @@ import {
 import * as constants from 'src/constants';
 import * as utilities from 'src/utilities';
 import { MediaSource } from 'src/api';
-import { useAppDispatch, useAppSelector, useIsMounted } from 'src/hooks';
 import { RootStackNavigationProp, RootStackScreenProps } from 'src/navigation';
 
 import {
@@ -52,6 +50,13 @@ import {
 } from 'src/components';
 
 import {
+  useAppDispatch,
+  useAppSelector,
+  useExtendedTheme,
+  useIsMounted,
+} from 'src/hooks';
+
+import {
   Comment,
   CommentId,
   GalleryPostContents,
@@ -62,16 +67,13 @@ import {
 
 import CommentCell from 'src/features/comments/CommentCell';
 import { useIsMyProfile } from 'src/features/profiles/hooks';
-import { selectProfileById } from 'src/features/profiles/profiles-slice';
-import {
-  addCommentForPost,
-  fetchCommentsForPost,
-  selectCommentsForPost,
-} from 'src/features/comments/comments-slice';
 
 import { usePost } from './hooks';
-import { deletePost, fetchPostById } from './posts-slice';
 import { PostItemCardFooter } from './PostItemCard';
+
+import * as commentsSlice from 'src/features/comments/comments-slice';
+import * as postsSlice from './posts-slice';
+import * as profilesSlice from 'src/features/profiles/profiles-slice';
 
 const COMMENT_POST_BUTTON_WIDTH = 70;
 const COMMENT_REPLY_INDICATOR_HEIGHT = 50;
@@ -99,6 +101,8 @@ function SliderImage({ item: source }: SliderImageProps) {
     height = constants.media.DEFAULT_IMAGE_DIMENSIONS.height,
   } = source;
 
+  const { colors } = useExtendedTheme();
+
   return (
     <FastImage
       source={{ uri: source.url }}
@@ -108,7 +112,7 @@ function SliderImage({ item: source }: SliderImageProps) {
         height: undefined,
         aspectRatio: width / height,
         borderRadius: constants.layout.radius.md,
-        backgroundColor: constants.color.placeholder,
+        backgroundColor: colors.placeholder,
       }}
     />
   );
@@ -121,8 +125,9 @@ const PostHeaderComponent = ({ post }: { post: Post }) => {
   const isMounted = useIsMounted();
 
   const isMyProfile = useIsMyProfile(post.profileId);
+
   const posterProfile = useAppSelector(state => {
-    return selectProfileById(state, post.profileId);
+    return profilesSlice.selectProfileById(state, post.profileId);
   });
 
   const [isDeletingPost, setIsDeletingPost] = React.useState(false);
@@ -161,7 +166,7 @@ const PostHeaderComponent = ({ post }: { post: Post }) => {
         try {
           setIsDeletingPost(true);
           console.log($FUNC, `Deleting post '${post.id}'...`);
-          await dispatch(deletePost({ postId: post.id })).unwrap();
+          await dispatch(postsSlice.deletePost({ postId: post.id })).unwrap();
           console.log($FUNC, 'Successfully deleted post');
           navigation.goBack();
         } catch (error: any) {
@@ -250,20 +255,27 @@ const PostHeaderComponent = ({ post }: { post: Post }) => {
   );
 };
 
-const AddCommentComponent = () => (
-  <View style={{ alignItems: 'center' }}>
-    <Text style={[constants.font.mediumBold, { textAlign: 'center' }]}>
-      Why not add to the conversation?
-    </Text>
-    <Text
-      style={[
-        constants.font.small,
-        { textAlign: 'center', color: constants.color.gray500 },
-      ]}>
-      Reply with your own comment below!
-    </Text>
-  </View>
-);
+const AddCommentComponent = () => {
+  const { colors } = useExtendedTheme();
+  return (
+    <View style={{ alignItems: 'center' }}>
+      <Text
+        style={[
+          constants.font.mediumBold,
+          { textAlign: 'center', color: colors.text },
+        ]}>
+        Why not add to the conversation?
+      </Text>
+      <Text
+        style={[
+          constants.font.small,
+          { textAlign: 'center', color: colors.caption },
+        ]}>
+        Reply with your own comment below!
+      </Text>
+    </View>
+  );
+};
 
 type PostDetailsScreenProps = RootStackScreenProps<'PostDetails'>;
 
@@ -312,7 +324,7 @@ type LoadedPostDetailsScreenProps = {
 function LoadedPostDetailsScreen({ post }: LoadedPostDetailsScreenProps) {
   const $FUNC = '[PostDetailsScreen]';
   const { bottom: bottomInset } = useSafeAreaInsets();
-  const { colors } = useTheme();
+  const { colors } = useExtendedTheme();
 
   const dispatch = useAppDispatch();
   const isMounted = useIsMounted();
@@ -330,7 +342,9 @@ function LoadedPostDetailsScreen({ post }: LoadedPostDetailsScreenProps) {
     type: 'post',
   });
 
-  const commentIds = useAppSelector(st => selectCommentsForPost(st, post.id));
+  const commentIds = useAppSelector(state => {
+    return commentsSlice.selectCommentsForPost(state, post.id);
+  });
 
   React.useEffect(
     () => {
@@ -339,12 +353,12 @@ function LoadedPostDetailsScreen({ post }: LoadedPostDetailsScreenProps) {
           try {
             console.log($FUNC, `Refreshing post '${post.id}'...`);
 
-            const fetchPostAction = fetchPostById({
+            const fetchPostAction = postsSlice.fetchPostById({
               postId: post.id,
               reload: true,
             });
 
-            const fetchCommentsAction = fetchCommentsForPost({
+            const fetchCommentsAction = commentsSlice.fetchCommentsForPost({
               postId: post.id,
               previousCommentIds: commentIds,
             });
@@ -387,7 +401,7 @@ function LoadedPostDetailsScreen({ post }: LoadedPostDetailsScreenProps) {
   };
 
   const handleReplyToPost = async () => {
-    const addCommentAction = addCommentForPost({
+    const addCommentAction = commentsSlice.addCommentForPost({
       postId: post.id,
       message: commentTextInput.trim(),
     });
@@ -446,7 +460,6 @@ function LoadedPostDetailsScreen({ post }: LoadedPostDetailsScreenProps) {
           ref={flatListRef}
           data={commentIds}
           keyExtractor={item => String(item)}
-          indicatorStyle="black"
           contentContainerStyle={{ flexGrow: 1 }}
           ListHeaderComponent={<PostHeaderComponent post={post} />}
           ListHeaderComponentStyle={postDetailsScreenStyles.listHeader}
@@ -489,7 +502,7 @@ function LoadedPostDetailsScreen({ post }: LoadedPostDetailsScreenProps) {
                 postDetailsScreenStyles.commentCell,
                 replyContext.type === 'comment' &&
                   index === replyContext.index && {
-                    backgroundColor: constants.color.gray100,
+                    backgroundColor: colors.highlight,
                   },
               ]}
             />
@@ -497,7 +510,11 @@ function LoadedPostDetailsScreen({ post }: LoadedPostDetailsScreenProps) {
         />
         <View>
           {replyContext.type !== 'post' && (
-            <View style={postDetailsScreenStyles.commentBoxIndicator}>
+            <View
+              style={[
+                postDetailsScreenStyles.commentReplyIndicator,
+                { backgroundColor: colors.highlight },
+              ]}>
               <Text
                 numberOfLines={1}
                 style={[
@@ -510,7 +527,7 @@ function LoadedPostDetailsScreen({ post }: LoadedPostDetailsScreenProps) {
                 activeOpacity={constants.values.DEFAULT_ACTIVE_OPACITY}
                 onPress={() => setReplyContext({ type: 'post' })}
                 style={postDetailsScreenStyles.commentBoxIndicatorCloseIcon}>
-                <Icon name="close" size={24} color={constants.color.gray700} />
+                <Icon name="close" size={24} color={colors.text} />
               </TouchableOpacity>
             </View>
           )}
@@ -538,6 +555,7 @@ function LoadedPostDetailsScreen({ post }: LoadedPostDetailsScreenProps) {
               }
               style={[
                 constants.font.small,
+                { color: colors.text },
                 postDetailsScreenStyles.commentBoxTextInput,
                 isProcessingComment && { color: constants.color.gray500 },
                 Platform.OS === 'ios' && {
@@ -579,10 +597,9 @@ const postDetailsScreenStyles = StyleSheet.create({
     paddingHorizontal: constants.layout.defaultScreenMargins.horizontal,
     paddingTop: constants.layout.spacing.md,
   },
-  commentBoxIndicator: {
+  commentReplyIndicator: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: constants.color.gray100,
     paddingLeft: constants.layout.spacing.md * 1.5,
     height: COMMENT_REPLY_INDICATOR_HEIGHT,
   },
@@ -601,12 +618,11 @@ const postDetailsScreenStyles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-end',
     minHeight: COMMENT_TEXT_INPUT_MIN_HEIGHT,
-    borderTopWidth: constants.layout.border.thin,
+    borderTopWidth: StyleSheet.hairlineWidth,
   },
   commentBoxTextInput: {
     flexGrow: 1,
     flexShrink: 1,
-    color: constants.color.black,
     paddingLeft: constants.layout.defaultScreenMargins.horizontal * 1.5,
   },
   commentBoxPostButton: {
@@ -622,7 +638,7 @@ type PostDetailsContentProps = ViewProps & {
 
 function PostDetailsContent(props: PostDetailsContentProps) {
   const { post, ...restProps } = props;
-  const { colors } = useTheme();
+  const { colors } = useExtendedTheme();
   const navigation = useNavigation<PostDetailsScreenProps['navigation']>();
 
   const renderPostContent = React.useCallback(() => {
@@ -806,7 +822,6 @@ const videoPostDetailsContentStyle = StyleSheet.create({
     justifyContent: 'center',
   },
   video: {
-    backgroundColor: constants.color.placeholder,
     borderRadius: constants.layout.radius.md,
   },
   activityIndicator: {
@@ -822,6 +837,7 @@ type VideoPlayerProps = Omit<VideoProperties, 'style'> & {
 
 function VideoPlayer(props: VideoPlayerProps) {
   const { containerStyle, videoPlayerStyle, onLoad, ...videoProps } = props;
+  const { colors } = useExtendedTheme();
 
   const videoRef = React.useRef<Video>(null);
   const [showLoading, setShowLoading] = React.useState(true);
@@ -849,7 +865,11 @@ function VideoPlayer(props: VideoPlayerProps) {
         paused={isPaused}
         onLoad={handleOnLoad}
         controls={Platform.OS === 'ios'} // Only show controls on iOS for now
-        style={[videoPostDetailsContentStyle.video, videoPlayerStyle]}
+        style={[
+          videoPostDetailsContentStyle.video,
+          { backgroundColor: colors.placeholder },
+          videoPlayerStyle,
+        ]}
       />
       {showLoading && (
         <ActivityIndicator
@@ -868,7 +888,7 @@ type PostDetailsContentCaptionProps = {
 };
 
 function PostDetailsContentCaption(props: PostDetailsContentCaptionProps) {
-  const { colors } = useTheme();
+  const { colors } = useExtendedTheme();
   return (
     <Text
       style={[

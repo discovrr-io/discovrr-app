@@ -1,10 +1,14 @@
 import * as React from 'react';
-import { Platform, SafeAreaView, useWindowDimensions } from 'react-native';
+import {
+  Platform,
+  SafeAreaView,
+  Text,
+  useWindowDimensions,
+} from 'react-native';
 
 import Icon from 'react-native-vector-icons/Ionicons';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { useHeaderHeight } from '@react-navigation/elements';
-import { useTheme } from '@react-navigation/native';
 
 import {
   createBottomTabNavigator,
@@ -19,7 +23,7 @@ import { LoadedProfileDetailsScreen } from 'src/features/profiles/ProfileDetails
 import * as constants from 'src/constants';
 import * as notificationsSlice from 'src/features/notifications/notifications-slice';
 import { useMyProfileId, useProfile } from 'src/features/profiles/hooks';
-import { useAppSelector } from 'src/hooks';
+import { useAppSelector, useExtendedTheme } from 'src/hooks';
 import { ProfileId } from 'src/models';
 
 import {
@@ -39,6 +43,7 @@ import {
   MainDrawerParamList,
   FacadeBottomTabScreenProps,
 } from 'src/navigation';
+import { MAX_FONT_MULTIPLIER } from 'src/constants/values';
 
 const RootDrawer = createDrawerNavigator<MainDrawerParamList>();
 const FacadeBottomTab = createBottomTabNavigator<FacadeBottomTabParamList>();
@@ -90,8 +95,7 @@ function FacadeNavigator() {
   const $FUNC = '[FacadeNavigator]';
   const myProfileId = useMyProfileId();
 
-  const { colors } = useTheme();
-
+  const { colors } = useExtendedTheme();
   const unreadCount = useAppSelector(
     notificationsSlice.selectUnreadNotificationsCount,
   );
@@ -102,6 +106,8 @@ function FacadeNavigator() {
       screenOptions={({ route }) => ({
         lazy: true,
         headerBackTitleVisible: false,
+        headerTitleAllowFontScaling: false,
+        tabBarAllowFontScaling: false,
         headerLeft: HeaderIcon.Menu,
         headerLeftContainerStyle: {
           paddingLeft: constants.layout.defaultScreenMargins.horizontal,
@@ -246,7 +252,10 @@ export default function MainNavigator() {
     <RootDrawer.Navigator
       initialRouteName="Facade"
       drawerContent={props => <AppDrawer {...props} />}
-      screenOptions={{ headerShown: false }}>
+      screenOptions={{
+        headerShown: false,
+        drawerType: Platform.select({ ios: 'back', default: undefined }),
+      }}>
       <RootDrawer.Screen name="Facade" component={FacadeNavigator} />
     </RootDrawer.Navigator>
   );

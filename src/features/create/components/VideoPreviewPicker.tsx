@@ -14,6 +14,7 @@ import RNVideo, {
 import * as constants from 'src/constants';
 import * as utilities from 'src/utilities';
 import { ActionBottomSheet, ActionBottomSheetItem } from 'src/components';
+import { useExtendedTheme } from 'src/hooks';
 
 import PreviewPicker, { PreviewPickerProps } from './PreviewPicker';
 
@@ -160,6 +161,7 @@ const VideoPreviewPickerItem = React.forwardRef<
   VideoPreviewPickerItemProps
 >((props, ref) => {
   const { item, itemWidth, onLoad, ...videoProps } = props;
+  const { colors } = useExtendedTheme();
 
   const [shouldPauseVideo, setShouldPauseVideo] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -193,7 +195,7 @@ const VideoPreviewPickerItem = React.forwardRef<
           aspectRatio: 1,
           borderRadius: constants.layout.radius.md,
           overflow: 'hidden',
-          backgroundColor: constants.color.placeholder,
+          backgroundColor: colors.placeholder,
         }}
       />
       {isLoading && (

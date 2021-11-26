@@ -3,12 +3,12 @@ import { Text, View } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
 import { useNavigation } from '@react-navigation/core';
-import { useTheme } from '@react-navigation/native';
 
 import * as constants from 'src/constants';
 import { MediaSource } from 'src/api';
 import { AsyncGate, Card } from 'src/components';
 import { useIsMyProfile, useProfile } from 'src/features/profiles/hooks';
+import { useExtendedTheme } from 'src/hooks';
 import { ProfileId, VendorProfile } from 'src/models';
 import { RootStackNavigationProp } from 'src/navigation';
 
@@ -67,7 +67,7 @@ const LoadedVendorProfileItemCard = (
 ) => {
   const { vendorProfile, isMyProfile, ...cardElementProps } = props;
 
-  const { colors } = useTheme();
+  const { colors } = useExtendedTheme();
   const navigation = useNavigation<RootStackNavigationProp>();
 
   const renderCardBody = React.useCallback(
@@ -98,7 +98,7 @@ const LoadedVendorProfileItemCard = (
               style={{
                 width: '100%',
                 aspectRatio: 1,
-                backgroundColor: constants.color.placeholder,
+                backgroundColor: colors.placeholder,
               }}
             />
           </View>
@@ -124,6 +124,7 @@ const LoadedVendorProfileItemCard = (
       vendorProfile.biography,
       vendorProfile.background,
       vendorProfile.backgroundThumbnail,
+      colors.placeholder,
       colors.text,
     ],
   );

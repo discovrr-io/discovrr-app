@@ -3,6 +3,7 @@ import {
   ActivityIndicator,
   Alert,
   Linking,
+  StyleSheet,
   Text,
   TouchableHighlight,
   TouchableOpacity,
@@ -23,14 +24,14 @@ import * as constants from 'src/constants';
 import * as utilities from 'src/utilities';
 import * as authSlice from 'src/features/authentication/auth-slice';
 import * as profilesSlice from 'src/features/profiles/profiles-slice';
-import { useAppDispatch, useAppSelector } from 'src/hooks';
+import { useAppDispatch, useAppSelector, useExtendedTheme } from 'src/hooks';
 import { useProfile } from 'src/features/profiles/hooks';
 import { Profile, ProfileId } from 'src/models';
 import { RootStackNavigationProp, RootStackParamList } from 'src/navigation';
 
 import AsyncGate from './AsyncGate';
 import Spacer from './Spacer';
-import { useTheme } from '@react-navigation/native';
+import { MAX_FONT_MULTIPLIER } from 'src/constants/values';
 
 const AVATAR_DIAMETER = 125;
 // const DRAWER_ITEM_ICON_COLOR = constants.color.black;
@@ -46,17 +47,18 @@ type AppDrawerItemProps = {
 
 function AppDrawerItem(props: AppDrawerItemProps) {
   const { label, iconName, tintColor, onPress } = props;
-  const { colors } = useTheme();
+  const { colors } = useExtendedTheme();
 
   return (
     <DrawerItem
       pressColor={constants.color.gray200}
       label={() => (
         <Text
+          maxFontSizeMultiplier={MAX_FONT_MULTIPLIER}
           numberOfLines={1}
           style={[
             constants.font.medium,
-            { color: tintColor ?? colors.text, marginLeft: -8 },
+            { color: tintColor || colors.text, marginLeft: -8 },
           ]}>
           {label}
         </Text>
@@ -75,13 +77,13 @@ function AppDrawerItem(props: AppDrawerItemProps) {
 }
 
 function Divider() {
-  const { dark } = useTheme();
+  const { colors } = useExtendedTheme();
   return (
     <View
       style={{
-        borderBottomWidth: 1,
+        borderColor: colors.border,
         marginVertical: constants.layout.spacing.sm,
-        borderColor: dark ? constants.color.gray700 : constants.color.gray100,
+        borderBottomWidth: StyleSheet.hairlineWidth,
       }}
     />
   );
@@ -166,6 +168,7 @@ function RoleChip(props: { label: string }) {
       }}>
       <Text
         numberOfLines={1}
+        maxFontSizeMultiplier={MAX_FONT_MULTIPLIER}
         style={[constants.font.smallBold, { color: chipColor }]}>
         {humanReadableRoleLabel}
       </Text>
@@ -190,6 +193,7 @@ export default function AppDrawerWrapper(props: AppDrawerProps) {
 function AppDrawer(props: AppDrawerProps & { profileId: ProfileId }) {
   const $FUNC = '[AppDrawer]';
   const profileId = props.profileId;
+  const { colors } = useExtendedTheme();
 
   const dispatch = useAppDispatch();
   const navigation = props.navigation;
@@ -267,7 +271,9 @@ function AppDrawer(props: AppDrawerProps & { profileId: ProfileId }) {
   };
 
   return (
-    <DrawerContentScrollView {...props}>
+    <DrawerContentScrollView
+      {...props}
+      style={{ backgroundColor: colors.card }}>
       <View style={{ padding: constants.layout.spacing.lg }}>
         <TouchableOpacity
           activeOpacity={constants.values.DEFAULT_ACTIVE_OPACITY}
@@ -369,7 +375,7 @@ const AppDrawerProfileDetails = (props: AppDrawerProfileDetailsProps) => {
 
 AppDrawerProfileDetails.Fulfilled = ({ profile }: { profile: Profile }) => {
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  const { colors } = useTheme();
+  const { colors } = useExtendedTheme();
 
   return (
     <View style={{ alignItems: 'center' }}>
@@ -384,12 +390,13 @@ AppDrawerProfileDetails.Fulfilled = ({ profile }: { profile: Profile }) => {
           aspectRatio: 1,
           width: AVATAR_DIAMETER,
           borderRadius: AVATAR_DIAMETER / 2,
-          backgroundColor: constants.color.placeholder,
+          backgroundColor: colors.placeholder,
         }}
       />
       <Spacer.Vertical value="lg" />
       <Text
         numberOfLines={1}
+        maxFontSizeMultiplier={MAX_FONT_MULTIPLIER}
         style={[
           constants.font.extraLargeBold,
           { textAlign: 'center', color: colors.text },
@@ -399,6 +406,7 @@ AppDrawerProfileDetails.Fulfilled = ({ profile }: { profile: Profile }) => {
       <Spacer.Vertical value="xs" />
       <Text
         numberOfLines={1}
+        maxFontSizeMultiplier={MAX_FONT_MULTIPLIER}
         style={[
           constants.font.medium,
           { color: constants.color.gray500, textAlign: 'center' },
@@ -416,6 +424,9 @@ AppDrawerProfileDetails.Fulfilled = ({ profile }: { profile: Profile }) => {
 };
 
 AppDrawerProfileDetails.Pending = () => {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const { colors } = useExtendedTheme();
+
   return (
     <View style={{ alignItems: 'center' }}>
       <View style={{ alignItems: 'center', justifyContent: 'center' }}>
@@ -425,7 +436,7 @@ AppDrawerProfileDetails.Pending = () => {
             aspectRatio: 1,
             width: AVATAR_DIAMETER,
             borderRadius: AVATAR_DIAMETER / 2,
-            backgroundColor: constants.color.placeholder,
+            backgroundColor: colors.placeholder,
           }}
         />
         <ActivityIndicator
@@ -439,7 +450,7 @@ AppDrawerProfileDetails.Pending = () => {
         style={{
           height: 24,
           width: '50%',
-          backgroundColor: constants.color.placeholder,
+          backgroundColor: colors.placeholder,
         }}
       />
       <Spacer.Vertical value="xs" />
@@ -447,7 +458,7 @@ AppDrawerProfileDetails.Pending = () => {
         style={{
           height: 19,
           width: '25%',
-          backgroundColor: constants.color.placeholder,
+          backgroundColor: colors.placeholder,
         }}
       />
     </View>

@@ -8,12 +8,15 @@ import {
 } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
-import { useTheme } from '@react-navigation/native';
 
+import * as globalConstants from 'src/constants';
 import { MediaSource } from 'src/api';
-import { color, font } from 'src/constants';
 import { DEFAULT_AVATAR } from 'src/constants/media';
-import { DEFAULT_ACTIVE_OPACITY } from 'src/constants/values';
+import { useExtendedTheme } from 'src/hooks';
+import {
+  DEFAULT_ACTIVE_OPACITY,
+  MAX_FONT_MULTIPLIER,
+} from 'src/constants/values';
 
 import * as constants from './constants';
 import Spacer from '../Spacer';
@@ -117,12 +120,19 @@ const CardAuthorAvatar = (props: CardAuthorAvatarProps) => {
   const avatarDiameter = props.elementOptions.smallContent
     ? constants.CARD_ICON_SMALL
     : constants.CARD_ICON_LARGE;
+
+  const { colors } = useExtendedTheme();
+
   return (
     <FastImage
       source={props.avatar ? { uri: props.avatar.url } : DEFAULT_AVATAR}
       style={[
         cardAuthorStyles.avatar,
-        { width: avatarDiameter, borderRadius: avatarDiameter / 2 },
+        {
+          width: avatarDiameter,
+          borderRadius: avatarDiameter / 2,
+          backgroundColor: colors.placeholder,
+        },
       ]}
     />
   );
@@ -155,17 +165,20 @@ type CardAuthorNameProps = {
 };
 
 const CardAuthorName = (props: CardAuthorNameProps) => {
-  const { colors } = useTheme();
+  const { colors } = useExtendedTheme();
   return (
     <Text
       numberOfLines={1}
+      maxFontSizeMultiplier={MAX_FONT_MULTIPLIER}
       style={[
         cardAuthorStyles.displayName,
         props.elementOptions.captionTextStyle,
         { color: colors.text },
-        props.isMyProfile && [
-          { fontFamily: font.FONT_FAMILY_MEDIUM, color: colors.primary },
-        ],
+        props.isMyProfile && {
+          fontFamily: globalConstants.font.FONT_FAMILY_MEDIUM,
+          color: colors.primary,
+        },
+        ,
       ]}>
       {props.isMyProfile ? 'You' : props.displayName || 'Anonymous'}
     </Text>
@@ -176,19 +189,22 @@ type CardAuthorNamePendingProps = {
   elementOptions: CardElementOptions;
 };
 
-const CardAuthorNamePending = (props: CardAuthorNamePendingProps) => (
-  <View
-    style={[
-      {
-        width: '60%',
-        height: props.elementOptions.smallContent
-          ? constants.CARD_PLACEHOLDER_TEXT_HEIGHT_SMALL
-          : constants.CARD_PLACEHOLDER_TEXT_HEIGHT_LARGE,
-        backgroundColor: color.placeholder,
-      },
-    ]}
-  />
-);
+function CardAuthorNamePending(props: CardAuthorNamePendingProps) {
+  const { colors } = useExtendedTheme();
+  return (
+    <View
+      style={[
+        {
+          width: '60%',
+          height: props.elementOptions.smallContent
+            ? constants.CARD_PLACEHOLDER_TEXT_HEIGHT_SMALL
+            : constants.CARD_PLACEHOLDER_TEXT_HEIGHT_LARGE,
+          backgroundColor: colors.placeholder,
+        },
+      ]}
+    />
+  );
+}
 
 //#endregion CardAuthorName
 
@@ -203,7 +219,6 @@ const cardAuthorStyles = StyleSheet.create({
   },
   avatar: {
     aspectRatio: 1,
-    backgroundColor: color.placeholder,
   },
   displayName: {
     flexGrow: 1,

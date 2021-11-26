@@ -9,6 +9,7 @@ import { useField } from 'formik';
 import * as constants from 'src/constants';
 import * as utilities from 'src/utilities';
 import { ActionBottomSheet, ActionBottomSheetItem } from 'src/components';
+import { useExtendedTheme } from 'src/hooks';
 
 import PreviewPicker, { PreviewPickerProps } from './PreviewPicker';
 
@@ -24,6 +25,7 @@ export type ImagePreviewPickerProps = Pick<
 export default function ImagePreviewPicker(props: ImagePreviewPickerProps) {
   const [_, meta, helpers] = useField<Image[]>(props.fieldName);
   const { value: images } = meta;
+  const { colors } = useExtendedTheme();
 
   const previewPickerRef = React.useRef<PreviewPicker>(null);
   const actionBottomSheetRef = React.useRef<BottomSheet>(null);
@@ -153,7 +155,7 @@ export default function ImagePreviewPicker(props: ImagePreviewPickerProps) {
             source={{ uri: item.path }}
             style={[
               imagePreviewPickerStyles.item,
-              { width: itemWidth },
+              { width: itemWidth, backgroundColor: colors.placeholder },
               isAboveLimit && { opacity: 0.25 },
             ]}
           />
@@ -172,7 +174,6 @@ const imagePreviewPickerStyles = StyleSheet.create({
   item: {
     aspectRatio: 1,
     borderRadius: constants.layout.radius.md,
-    backgroundColor: constants.color.placeholder,
     overflow: 'hidden',
   },
 });

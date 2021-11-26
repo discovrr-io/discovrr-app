@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Linking, useColorScheme } from 'react-native';
+import { Linking, StatusBar, useColorScheme } from 'react-native';
 
 import analytics from '@react-native-firebase/analytics';
 import inAppMessaging from '@react-native-firebase/in-app-messaging';
@@ -17,7 +17,7 @@ import { persistStore } from 'redux-persist';
 import { PortalProvider } from '@gorhom/portal';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { useFlipper } from '@react-navigation/devtools';
+// import { useFlipper } from '@react-navigation/devtools';
 import {
   DarkTheme,
   DefaultTheme,
@@ -30,7 +30,7 @@ import * as constants from './constants';
 import store from './store';
 import SplashScreen from './SplashScreen';
 import { RootStackParamList } from './navigation';
-import { useAppDispatch } from './hooks';
+import { useAppDispatch, useAppSelector } from './hooks';
 import { resetAppState } from './global-actions';
 
 import AuthGate from './features/authentication/AuthGate';
@@ -52,11 +52,24 @@ Parse.User.enableUnsafeCurrentUser();
 Parse.initialize(Config.PARSE_APP_ID || 'local-discovrr-dev-server');
 Parse.serverURL = Config.PARSE_SERVER_URL || 'http://localhost:1337/parse';
 
+const debugTheme: Theme = {
+  ...DefaultTheme,
+  colors: {
+    primary: 'orange',
+    background: 'paleturquoise',
+    card: 'lightcyan',
+    text: 'purple',
+    border: 'red',
+    notification: 'yellow',
+  },
+};
+
 const lightTheme: Theme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
     primary: constants.color.accent,
+    border: constants.color.gray200,
     background: constants.color.white,
     card: constants.color.absoluteWhite,
     notification: constants.color.red500,
@@ -68,8 +81,9 @@ const darkTheme: Theme = {
   colors: {
     ...DarkTheme.colors,
     primary: constants.color.accent,
-    background: constants.color.black,
-    card: constants.color.absoluteBlack,
+    border: constants.color.gray700,
+    background: constants.color.absoluteBlack,
+    card: constants.color.black,
     notification: constants.color.red500,
   },
 };
@@ -98,13 +112,31 @@ function App() {
 function PersistedApp() {
   const $FUNC = '[PersistedApp]';
   const dispatch = useAppDispatch();
-  const scheme = useColorScheme();
+
+  const systemScheme = useColorScheme();
+  const selectedAppearance = useAppSelector(
+    state => state.settings.appearancePrefs,
+  );
+
+  const navigationTheme = React.useMemo(() => {
+    switch (selectedAppearance) {
+      case 'light':
+        return lightTheme;
+      case 'dark':
+        return darkTheme;
+      case 'debug':
+        return debugTheme;
+      case 'system': /* FALLTHROUGH */
+      default:
+        return systemScheme === 'dark' ? darkTheme : lightTheme;
+    }
+  }, [systemScheme, selectedAppearance]);
 
   const routeNameRef = React.useRef<string>();
   const navigationRef =
     React.useRef<NavigationContainerRef<RootStackParamList>>(null);
 
-  useFlipper(navigationRef);
+  // useFlipper(navigationRef);
 
   const handleBeforeLift = async () => {
     try {
@@ -185,8 +217,7 @@ function PersistedApp() {
         ref={navigationRef}
         onReady={handleNavigationReady}
         onStateChange={handleNavigationStateChange}
-        // theme={navigationTheme}
-        theme={scheme === 'dark' ? darkTheme : lightTheme}
+        theme={navigationTheme}
         linking={{
           prefixes: [
             'discovrr://',
@@ -202,8 +233,8 @@ function PersistedApp() {
               ProductDetails: 'product/:productId',
               MainSettings: 'settings',
               ProfileSettings: 'settings/profile',
-              LocationAccuracySettings: 'settings/location',
               NotificationSettings: 'settings/notifications',
+              AppearanceSettings: 'settings/appearance',
               RouteError: '*',
             },
           },
@@ -250,6 +281,12 @@ function PersistedApp() {
         }}>
         <PortalProvider>
           <SafeAreaProvider>
+            <StatusBar
+              animated
+              translucent
+              barStyle={navigationTheme.dark ? 'light-content' : 'dark-content'}
+              backgroundColor="transparent"
+            />
             <AuthGate />
           </SafeAreaProvider>
         </PortalProvider>

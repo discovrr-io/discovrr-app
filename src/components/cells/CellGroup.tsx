@@ -8,15 +8,9 @@ import {
   ViewStyle,
 } from 'react-native';
 
-import { useTheme } from '@react-navigation/native';
-
-import { color, font, layout } from 'src/constants';
+import * as constants from 'src/constants';
+import { useExtendedTheme } from 'src/hooks';
 import { useCellElementContext } from './hooks';
-
-import {
-  disabledDarkTextColor,
-  disabledLightTextColor,
-} from 'src/constants/color';
 
 import {
   CellElementContext,
@@ -24,7 +18,7 @@ import {
   renderChildrenWithDivider,
 } from './common';
 
-export const CELL_GROUP_VERTICAL_SPACING = layout.spacing.md;
+export const CELL_GROUP_VERTICAL_SPACING = constants.layout.spacing.md;
 
 export type CellGroupProps = CellElementProps & {
   label?: string;
@@ -35,17 +29,19 @@ export type CellGroupProps = CellElementProps & {
 
 export default function CellGroup(props: CellGroupProps) {
   const cellElementOptions = useCellElementContext(props.elementOptions);
-  const { dark, colors } = useTheme();
+  const { colors } = useExtendedTheme();
+
   return (
     <CellElementContext.Provider value={cellElementOptions}>
       {props.label && (
         <Text
           style={[
-            font.smallBold,
+            constants.font.smallBold,
             styles.label,
-            { color: dark ? color.gray500 : color.gray700 },
-            cellElementOptions.disabled && {
-              color: dark ? disabledLightTextColor : disabledDarkTextColor,
+            {
+              color: cellElementOptions.disabled
+                ? colors.captionDisabled
+                : colors.caption,
             },
             props.labelStyle,
           ]}>
@@ -55,11 +51,13 @@ export default function CellGroup(props: CellGroupProps) {
       <View
         style={[
           styles.contentContainer,
-          { backgroundColor: colors.card },
-          // cellElementOptions.disabled && { backgroundColor: color.white },
+          {
+            backgroundColor: cellElementOptions.disabled
+              ? colors.background
+              : colors.card,
+          },
           {
             borderWidth: cellElementOptions.borderWidth,
-            // borderColor: cellElementOptions.borderColor,
             borderColor: colors.border,
           },
           props.containerStyle,
@@ -73,13 +71,12 @@ export default function CellGroup(props: CellGroupProps) {
 const styles = StyleSheet.create({
   label: {
     fontVariant: ['small-caps'],
-    paddingLeft: layout.defaultScreenMargins.horizontal,
+    paddingLeft: constants.layout.defaultScreenMargins.horizontal,
     paddingBottom: CELL_GROUP_VERTICAL_SPACING,
   },
   contentContainer: {
     overflow: 'hidden',
     borderWidth: StyleSheet.hairlineWidth,
-    borderRadius: layout.radius.md,
-    // backgroundColor: color.absoluteWhite,
+    borderRadius: constants.layout.radius.md,
   },
 });

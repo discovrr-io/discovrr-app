@@ -67,9 +67,10 @@ export const __TextInput = React.forwardRef<RNTextInput, TextInputProps>(
         default:
           return [
             filledTextInputStyles.container,
-            isFocused
-              ? { backgroundColor: dark ? color.gray500 : color.gray200 }
-              : { backgroundColor: dark ? color.absoluteBlack : color.gray100 },
+            // isFocused
+            //   ? { backgroundColor: dark ? color.gray500 : color.gray200 }
+            //   : { backgroundColor: dark ? color.absoluteBlack : color.gray100 },
+            { backgroundColor: colors.background },
           ];
       }
     }, [mode, dark, isFocused]);

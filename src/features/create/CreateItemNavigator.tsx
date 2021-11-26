@@ -5,7 +5,6 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { useFocusEffect } from '@react-navigation/core';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useTheme } from '@react-navigation/native';
 
 import {
   CardStyleInterpolators,
@@ -15,7 +14,7 @@ import {
 import * as constants from 'src/constants';
 import * as globalSelectors from 'src/global-selectors';
 import { HeaderIcon, PlaceholderScreen } from 'src/components';
-import { useAppSelector } from 'src/hooks';
+import { useAppSelector, useExtendedTheme } from 'src/hooks';
 
 import {
   CreateItemDetailsTopTabParamList,
@@ -53,7 +52,7 @@ const CreateItemDetailsTopTab =
 function CreateItemDetailsNavigator() {
   const insets = useSafeAreaInsets();
   const { width: windowWidth } = useWindowDimensions();
-  const { dark } = useTheme();
+  const { colors } = useExtendedTheme();
 
   const myProfileKind = useAppSelector(
     globalSelectors.selectCurrentUserProfileKind,
@@ -68,11 +67,9 @@ function CreateItemDetailsNavigator() {
         swipeEnabled: false,
         tabBarShowIcon: true,
         tabBarScrollEnabled: true,
-        tabBarActiveTintColor: constants.color.accent,
-        tabBarInactiveTintColor: constants.color.gray500,
-        tabBarPressColor: dark
-          ? constants.color.gray700
-          : constants.color.gray200,
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.caption,
+        tabBarPressColor: colors.highlight,
         tabBarContentContainerStyle: {
           paddingBottom: insets.bottom,
         },
@@ -138,7 +135,7 @@ function CreateItemDetailsNavigator() {
 }
 
 export default function CreateItemNavigator() {
-  const { colors, dark } = useTheme();
+  const { colors, dark } = useExtendedTheme();
 
   useFocusEffect(
     React.useCallback(() => {

@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import {
   StyleProp,
   StyleSheet,
@@ -7,8 +7,8 @@ import {
   ViewStyle,
 } from 'react-native';
 
-import { useTheme } from '@react-navigation/native';
 import { layout } from 'src/constants';
+import { useExtendedTheme } from 'src/hooks';
 
 export type ContainerProps = Omit<ViewProps, 'style'> & {
   justifyContentToCenter?: boolean;
@@ -27,7 +27,7 @@ export default function Container(props: InnerContainerProps) {
     ...restProps
   } = props;
 
-  const { colors } = useTheme();
+  const { colors } = useExtendedTheme();
 
   return (
     <View

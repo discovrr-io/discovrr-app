@@ -4,19 +4,20 @@ import {
   ModalBaseProps,
   Text,
   TouchableOpacity,
-  TouchableWithoutFeedback,
+  // TouchableWithoutFeedback,
   View,
 } from 'react-native';
 
 import Carousel, { Pagination } from 'react-native-snap-carousel';
 import FastImage from 'react-native-fast-image';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTheme } from '@react-navigation/native';
+// import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 
 import * as constants from 'src/constants';
 import { Button, Cell, Spacer } from 'src/components';
+import { MAX_FONT_MULTIPLIER } from 'src/constants/values';
+import { useExtendedTheme } from 'src/hooks';
 
 type OnboardingScreen = {
   id: 'home' | 'explore' | 'survey' | 'post';
@@ -66,9 +67,9 @@ const OnboardingModalResultContext = React.createContext<OnboardingResult>(
 );
 
 export default function OnboardingModal(props: ModalBaseProps) {
-  const bottomTabHeight = useBottomTabBarHeight();
-  const modalContext = React.useContext(OnboardingModalContext);
-  const { colors } = useTheme();
+  // const bottomTabHeight = useBottomTabBarHeight();
+  // const modalContext = React.useContext(OnboardingModalContext);
+  const { colors } = useExtendedTheme();
 
   const [currentIndex, setCurrentIndex] = React.useState(0);
   const [surveyResponse, setSurveyResponse] = React.useState('');
@@ -91,12 +92,11 @@ export default function OnboardingModal(props: ModalBaseProps) {
     <OnboardingModalResultContext.Provider
       value={{ surveyResponse, setSurveyResponse }}>
       <Modal {...props}>
-        <TouchableWithoutFeedback
-          onPress={() => modalContext.skipOnboarding()}
+        <View
           style={{
             width: '100%',
             height: '100%',
-            paddingBottom: bottomTabHeight,
+            // paddingBottom: bottomTabHeight,
           }}>
           <SafeAreaView
             style={{
@@ -110,14 +110,14 @@ export default function OnboardingModal(props: ModalBaseProps) {
               style={{
                 width: '85%',
                 height: '75%',
-                backgroundColor: colors.border,
+                backgroundColor: colors.card,
                 borderRadius: constants.layout.radius.lg,
                 justifyContent: 'center',
               }}>
               {renderContent()}
             </View>
           </SafeAreaView>
-        </TouchableWithoutFeedback>
+        </View>
       </Modal>
     </OnboardingModalResultContext.Provider>
   );
@@ -127,7 +127,7 @@ function OnboardingModalGreetingContent(props: {
   onStartOnboarding: () => void;
 }) {
   const modalContext = React.useContext(OnboardingModalContext);
-  const { colors } = useTheme();
+  const { colors } = useExtendedTheme();
 
   return (
     <View
@@ -137,16 +137,22 @@ function OnboardingModalGreetingContent(props: {
         paddingTop: constants.layout.spacing.xxl * 1.75,
         paddingBottom: constants.layout.spacing.lg,
       }}>
-      <Text style={[constants.font.h2, { color: colors.text, flexGrow: 1 }]}>
+      <Text
+        maxFontSizeMultiplier={MAX_FONT_MULTIPLIER}
+        style={[constants.font.h2, { color: colors.text, flexGrow: 1 }]}>
         Hi there 👋
       </Text>
       <View style={{ flexGrow: 1 }}>
-        <Text style={[constants.font.medium, { color: colors.text }]}>
+        <Text
+          maxFontSizeMultiplier={MAX_FONT_MULTIPLIER}
+          style={[constants.font.medium, { color: colors.text }]}>
           Welcome! Discovrr is a place where you can explore and see what local
           makers and creators are making in your community.
         </Text>
         <Spacer.Vertical value="lg" />
-        <Text style={[constants.font.medium, { color: colors.text }]}>
+        <Text
+          maxFontSizeMultiplier={MAX_FONT_MULTIPLIER}
+          style={[constants.font.medium, { color: colors.text }]}>
           This is Discovrr v{constants.values.APP_VERSION}. Please report any
           bugs or give your feedback to{' '}
           <Text
@@ -181,7 +187,7 @@ function OnboardingModalInfoContent() {
   const [currentIndex, setCurrentIndex] = React.useState(0);
 
   const carouselRef = React.useRef<Carousel<OnboardingScreen> | null>(null);
-  const { colors } = useTheme();
+  const { colors } = useExtendedTheme();
 
   return (
     <View
@@ -204,6 +210,8 @@ function OnboardingModalInfoContent() {
       />
       <Pagination
         activeDotIndex={currentIndex}
+        dotColor={colors.caption}
+        inactiveDotColor={colors.captionDisabled}
         dotsLength={ONBOARDING_SCREENS.length}
         containerStyle={{
           paddingTop: 0,
@@ -237,7 +245,7 @@ function OnboardingModalInfoContent() {
 function OnboardingModalInfoContentPage(props: OnboardingScreen) {
   const modalContext = React.useContext(OnboardingModalContext);
   const modalResultContext = React.useContext(OnboardingModalResultContext);
-  const { colors } = useTheme();
+  const { colors } = useExtendedTheme();
 
   return (
     <View
@@ -259,6 +267,7 @@ function OnboardingModalInfoContentPage(props: OnboardingScreen) {
         />
       )}
       <Text
+        maxFontSizeMultiplier={MAX_FONT_MULTIPLIER}
         style={[
           constants.font.extraLargeBold,
           { color: colors.text, textAlign: 'center' },
@@ -267,6 +276,7 @@ function OnboardingModalInfoContentPage(props: OnboardingScreen) {
       </Text>
       <Spacer.Vertical value="md" />
       <Text
+        maxFontSizeMultiplier={MAX_FONT_MULTIPLIER}
         style={[
           constants.font.medium,
           { color: colors.text, textAlign: 'center' },
@@ -278,8 +288,9 @@ function OnboardingModalInfoContentPage(props: OnboardingScreen) {
           containerStyle={{
             width: '90%',
             marginTop: constants.layout.spacing.lg,
+            backgroundColor: colors.card,
           }}>
-          <Cell.Select
+          <Cell.OptionGroup
             value={modalResultContext.surveyResponse || ''}
             onValueChanged={value =>
               modalResultContext.setSurveyResponse?.(value)
@@ -290,7 +301,7 @@ function OnboardingModalInfoContentPage(props: OnboardingScreen) {
             <Cell.Option label="Discovrr Website" value="website" />
             <Cell.Option label="A Friend" value="friend" />
             <Cell.Option label="Other" value="other" />
-          </Cell.Select>
+          </Cell.OptionGroup>
         </Cell.Group>
       )}
       {props.id === 'post' && (

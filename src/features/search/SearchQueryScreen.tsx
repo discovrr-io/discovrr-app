@@ -13,12 +13,11 @@ import {
 } from 'react-native';
 
 import Icon from 'react-native-vector-icons/Ionicons';
-import { useTheme } from '@react-navigation/native';
 
+import * as constants from 'src/constants';
 import * as searchSlice from './search-slice';
 import { EmptyContainer, Spacer } from 'src/components';
-import { color, font, layout } from 'src/constants';
-import { useAppDispatch, useAppSelector } from 'src/hooks';
+import { useAppDispatch, useAppSelector, useExtendedTheme } from 'src/hooks';
 import { SearchStackScreenProps } from 'src/navigation';
 
 type SearchQueryScreenProps = SearchStackScreenProps<'SearchQuery'>;
@@ -27,7 +26,7 @@ export default function SearchQueryScreen(props: SearchQueryScreenProps) {
   const dispatch = useAppDispatch();
   const queryHistory = useAppSelector(state => state.search.queryHistory);
 
-  const { colors, dark } = useTheme();
+  const { colors /* , dark */ } = useExtendedTheme();
 
   const handlePressSearchHistoryItem = (query: string) => {
     dispatch(searchSlice.addToSearchQueryHistory(query));
@@ -47,20 +46,21 @@ export default function SearchQueryScreen(props: SearchQueryScreenProps) {
           keyExtractor={(item, index) => `${item}-${index}`}
           contentContainerStyle={{
             flexGrow: 1,
-            paddingHorizontal: layout.defaultScreenMargins.horizontal,
+            paddingHorizontal: constants.layout.defaultScreenMargins.horizontal,
           }}
           ListHeaderComponent={
             <Text
               style={[
-                font.smallBold,
-                { color: dark ? color.gray500 : color.gray700 },
+                constants.font.smallBold,
+                // { color: dark ? color.gray500 : color.gray700 },
+                { color: colors.caption },
               ]}>
               Previously searched
             </Text>
           }
           ListHeaderComponentStyle={{
-            paddingVertical: layout.defaultScreenMargins.vertical,
-            paddingHorizontal: layout.defaultScreenMargins.horizontal,
+            paddingVertical: constants.layout.defaultScreenMargins.vertical,
+            paddingHorizontal: constants.layout.defaultScreenMargins.horizontal,
           }}
           ListEmptyComponent={
             <EmptyContainer
@@ -88,30 +88,28 @@ type SearchHistoryItemProps = TouchableHighlightProps & {
 
 function SearchHistoryItem(props: SearchHistoryItemProps) {
   const { label, onPressRemove, ...restProps } = props;
-  const { colors } = useTheme();
+  const { colors } = useExtendedTheme();
 
   return (
     <TouchableHighlight
       {...restProps}
-      underlayColor={color.gray100}
-      style={{
-        borderRadius: layout.radius.sm,
-      }}>
+      underlayColor={colors.highlight}
+      style={{ borderRadius: constants.layout.radius.sm }}>
       <View
         style={[
           {
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'space-between',
-            paddingVertical: layout.spacing.md,
-            paddingHorizontal: layout.spacing.md * 1.5,
+            paddingVertical: constants.layout.spacing.md,
+            paddingHorizontal: constants.layout.spacing.md * 1.5,
           },
           restProps.style,
         ]}>
         <Text
           numberOfLines={1}
           style={[
-            font.medium,
+            constants.font.medium,
             { flexGrow: 1, flexShrink: 1, color: colors.text },
           ]}>
           {label}

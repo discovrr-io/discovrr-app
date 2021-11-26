@@ -16,7 +16,7 @@ import {
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import autoMergeLevel2 from 'redux-persist/lib/stateReconciler/autoMergeLevel2';
-import createDebugger from 'redux-flipper';
+// import createDebugger from 'redux-flipper';
 
 import authReducer from './features/authentication/auth-slice';
 import commentRepliesReducer from './features/comments/comment-replies-slice';
@@ -91,10 +91,10 @@ const store = configureStore({
       },
     });
 
-    if (__DEV__) {
-      console.log('Attaching Redux Flipper debugger');
-      return defaultMiddleware.concat(createDebugger());
-    }
+    // if (__DEV__) {
+    //   console.log('Attaching Redux Flipper debugger');
+    //   return defaultMiddleware.concat(createDebugger());
+    // }
 
     return defaultMiddleware;
   },

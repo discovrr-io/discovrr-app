@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import * as React from 'react';
 import { SafeAreaView, ScrollView } from 'react-native';
 
+import * as constants from 'src/constants';
 import { Cell, Spacer } from 'src/components';
 import { CELL_GROUP_VERTICAL_SPACING } from 'src/components/cells/CellGroup';
-import { layout } from 'src/constants';
 import { RootStackScreenProps } from 'src/navigation';
 
 type NotificationSettings = {
@@ -22,16 +22,17 @@ const defaultNotificationSettings = {
   profileMessage: true,
 };
 
-// type NotificationsSettingsScreenProps =
-//   SettingsStackScreenProps<'NotificationSettings'>;
 type NotificationsSettingsScreenProps =
   RootStackScreenProps<'NotificationSettings'>;
 
 export default function NotificationsSettingsScreen(
   _: NotificationsSettingsScreenProps,
 ) {
-  const [enableAllNotifications, setEnableAllNotifications] = useState(true);
-  const [notifPrefs, setNotifPrefs] = useState(defaultNotificationSettings);
+  const [enableAllNotifications, setEnableAllNotifications] =
+    React.useState(true);
+  const [notifPrefs, setNotifPrefs] = React.useState(
+    defaultNotificationSettings,
+  );
 
   const handleChange = (
     setting: keyof NotificationSettings,
@@ -42,10 +43,12 @@ export default function NotificationsSettingsScreen(
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <ScrollView style={layout.defaultScreenStyle}>
+      <ScrollView style={constants.layout.defaultScreenStyle}>
         <Cell.Group
           label="Global preferences"
-          elementOptions={{ containerSpacingVertical: layout.spacing.md }}>
+          elementOptions={{
+            containerSpacingVertical: constants.layout.spacing.md,
+          }}>
           <Cell.Switch
             label="Enable all notifications"
             caption={
@@ -61,7 +64,7 @@ export default function NotificationsSettingsScreen(
         <Cell.Group
           elementOptions={{
             disabled: !enableAllNotifications,
-            containerSpacingVertical: layout.spacing.md,
+            containerSpacingVertical: constants.layout.spacing.md,
           }}
           label="Notify me when...">
           <Cell.Switch

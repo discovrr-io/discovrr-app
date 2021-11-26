@@ -1,11 +1,17 @@
 import * as React from 'react';
-import { FlatList, RefreshControl, SafeAreaView, View } from 'react-native';
+import {
+  FlatList,
+  RefreshControl,
+  SafeAreaView,
+  StyleSheet,
+  View,
+} from 'react-native';
 
 import { useNavigation } from '@react-navigation/core';
 
 import * as constants from 'src/constants';
 import * as utilities from 'src/utilities';
-import { useAppDispatch, useIsMounted } from 'src/hooks';
+import { useAppDispatch, useExtendedTheme, useIsMounted } from 'src/hooks';
 import { Profile } from 'src/models';
 import { ProfileStackParamList, RootStackScreenProps } from 'src/navigation';
 
@@ -61,6 +67,7 @@ function LoadedProfileFollowActivityScreen(
   const dispatch = useAppDispatch();
   const navigation =
     useNavigation<ProfileFollowActivityScreenProps['navigation']>();
+  const { colors } = useExtendedTheme();
 
   const data = React.useMemo(() => {
     return (selector === 'followers' ? profile.followers : profile.following)
@@ -80,7 +87,9 @@ function LoadedProfileFollowActivityScreen(
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      title: `${profile.__publicName} - ${selectorTitle}`,
+      title: profile.__publicName
+        ? `${profile.__publicName} - ${selectorTitle}`
+        : selectorTitle,
     });
   }, [navigation, profile.__publicName, selectorTitle]);
 
@@ -126,8 +135,8 @@ function LoadedProfileFollowActivityScreen(
           <View
             style={{
               marginHorizontal: constants.layout.spacing.md,
-              borderBottomWidth: constants.layout.border.thin,
-              borderColor: constants.color.gray100,
+              borderBottomWidth: StyleSheet.hairlineWidth,
+              borderColor: colors.border,
             }}
           />
         )}

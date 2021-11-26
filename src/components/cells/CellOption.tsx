@@ -1,14 +1,14 @@
-import React, { useContext } from 'react';
+import * as React from 'react';
 import { Text, TouchableHighlight, View } from 'react-native';
 
 import Icon from 'react-native-vector-icons/Ionicons';
-import { useTheme } from '@react-navigation/native';
+
+import * as constants from 'src/constants';
+import { useExtendedTheme } from 'src/hooks';
 
 import CellContainer from './CellContainer';
-import { color } from 'src/constants';
-import { CellSelectContext } from './CellSelect';
+import { CellOptionGroupContext } from './CellOptionGroup';
 import { useCellElementContext } from './hooks';
-
 import { CellElementProps, defaultCellElementOptions } from './common';
 
 export type CellOptionProps = CellElementProps & {
@@ -19,25 +19,25 @@ export type CellOptionProps = CellElementProps & {
 
 export default function CellOption(props: CellOptionProps) {
   const cellElementOptions = useCellElementContext(props.elementOptions);
-  const cellSelectProps = useContext(CellSelectContext);
-  const { colors } = useTheme();
+  const cellOptionGroupProps = React.useContext(CellOptionGroupContext);
+  const { colors } = useExtendedTheme();
 
-  const isSelectedOption = cellSelectProps.value === props.value;
-  const isDisabled = cellSelectProps.disabled || cellElementOptions.disabled;
+  const isSelectedOption = cellOptionGroupProps.value === props.value;
+  const isDisabled =
+    cellOptionGroupProps.disabled || cellElementOptions.disabled;
 
   return (
     <TouchableHighlight
       disabled={isDisabled}
-      underlayColor={cellElementOptions.highlightColor}
-      onPress={() => cellSelectProps.onValueChanged(props.value)}>
+      underlayColor={colors.highlight}
+      onPress={() => cellOptionGroupProps.onValueChanged(props.value)}>
       <CellContainer elementOptions={cellElementOptions}>
         <View style={{ flexGrow: 1, flexShrink: 1 }}>
           <Text
             style={[
               defaultCellElementOptions.labelStyle,
               cellElementOptions.labelStyle,
-              { color: colors.text },
-              isDisabled && { color: color.disabledDarkTextColor },
+              { color: isDisabled ? colors.textDisabled : colors.text },
             ]}>
             {props.label}
           </Text>
@@ -47,7 +47,7 @@ export default function CellOption(props: CellOptionProps) {
               style={[
                 defaultCellElementOptions.captionStyle,
                 cellElementOptions.captionStyle,
-                isDisabled && { color: color.disabledDarkTextColor },
+                { color: isDisabled ? colors.captionDisabled : colors.caption },
               ]}>
               {props.caption}
             </Text>
@@ -58,10 +58,10 @@ export default function CellOption(props: CellOptionProps) {
           name={isSelectedOption ? 'checkmark-circle' : 'ellipse-outline'}
           color={
             isDisabled
-              ? color.disabledDarkTextColor
+              ? colors.captionDisabled
               : isSelectedOption
-              ? color.green500
-              : color.gray500
+              ? constants.color.green500
+              : colors.caption
           }
         />
       </CellContainer>

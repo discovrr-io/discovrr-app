@@ -17,6 +17,7 @@ import { IconProps } from 'react-native-vector-icons/Icon';
 
 import { color, font, layout } from 'src/constants';
 import { DEFAULT_ACTIVE_OPACITY } from 'src/constants/values';
+import { useExtendedTheme } from 'src/hooks';
 
 import Spacer from '../Spacer';
 import CellContainer from './CellContainer';
@@ -46,6 +47,7 @@ export type CellInputProps = CellElementProps &
 
 const CellInput = (props: CellInputProps) => {
   const { label, prefix, suffix, error, ...textInputProps } = props;
+  const { colors } = useExtendedTheme();
 
   const cellElementOptions = useCellElementContext(props.elementOptions);
   const cellInputGroupProps = React.useContext(CellInputGroupContext);
@@ -58,15 +60,17 @@ const CellInput = (props: CellInputProps) => {
           flex: cellInputGroupProps.labelFlex,
           flexDirection: 'row',
           justifyContent: 'space-between',
-          backgroundColor: cellElementOptions.highlightColor,
+          backgroundColor: colors.background,
         }}>
         <Text
           numberOfLines={1}
           style={[
             defaultCellElementOptions.labelStyle,
             cellElementOptions.labelStyle,
-            cellElementOptions.disabled && {
-              color: color.disabledDarkTextColor,
+            {
+              color: cellElementOptions.disabled
+                ? colors.textDisabled
+                : colors.text,
             },
             {
               paddingVertical: cellElementOptions.containerSpacingVertical,
@@ -78,7 +82,7 @@ const CellInput = (props: CellInputProps) => {
         <View
           style={{
             borderLeftWidth: cellElementOptions.borderWidth,
-            borderColor: cellElementOptions.borderColor,
+            borderColor: colors.border,
           }}
         />
       </View>
@@ -100,20 +104,22 @@ const CellInput = (props: CellInputProps) => {
             maxLength={140}
             editable={!cellElementOptions.disabled}
             placeholder="Enter some text..."
-            placeholderTextColor={color.gray500}
+            placeholderTextColor={colors.caption}
             selectionColor={Platform.OS === 'ios' ? color.accent : undefined}
             style={[
               { flexGrow: 1, flexShrink: 1, padding: 0 },
-              font.medium,
               textInputProps.multiline && { minHeight: 90, maxHeight: 140 },
-              cellElementOptions.disabled && {
-                color: color.disabledDarkTextColor,
-              },
-              textInputProps.multiline &&
-                Platform.OS === 'android' && {
+              Platform.OS === 'android' &&
+                textInputProps.multiline && {
                   textAlignVertical: 'top',
                   paddingTop: layout.spacing.sm,
                 },
+              font.medium,
+              {
+                color: cellElementOptions.disabled
+                  ? colors.textDisabled
+                  : colors.text,
+              },
             ]}
             {...textInputProps}
           />
@@ -128,7 +134,7 @@ const CellInput = (props: CellInputProps) => {
           <Text
             style={[
               font.small,
-              { color: color.danger, marginTop: layout.spacing.sm },
+              { color: colors.danger, marginTop: layout.spacing.sm },
             ]}>
             {error}
           </Text>
@@ -146,6 +152,7 @@ type CellInputAffixProps = {
 
 export const CellInputAffix = (props: CellInputAffixProps) => {
   const { text, textStyle, containerStyle } = props;
+  const { colors } = useExtendedTheme();
   const cellElementOptions = useCellElementContext({});
 
   return (
@@ -153,7 +160,7 @@ export const CellInputAffix = (props: CellInputAffixProps) => {
       <Text
         style={[
           cellElementOptions.labelStyle,
-          { color: color.gray500 },
+          { color: colors.caption },
           textStyle,
         ]}>
         {text}
@@ -176,6 +183,8 @@ const CellInputIcon = (props: CellInputIconProps) => {
     onPress,
     ...iconProps
   } = props;
+
+  const { colors } = useExtendedTheme();
   const cellElementOptions = useCellElementContext(elementOptions);
 
   return (
@@ -184,7 +193,11 @@ const CellInputIcon = (props: CellInputIconProps) => {
       activeOpacity={activeOpacity ?? DEFAULT_ACTIVE_OPACITY}
       onPress={onPress}
       style={[containerStyle]}>
-      <Icon size={24} {...iconProps} />
+      <Icon
+        size={24}
+        color={cellElementOptions.disabled ? colors.textDisabled : colors.text}
+        {...iconProps}
+      />
     </TouchableOpacity>
   );
 };

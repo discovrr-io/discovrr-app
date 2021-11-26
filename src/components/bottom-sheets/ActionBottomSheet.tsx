@@ -1,10 +1,9 @@
-import React from 'react';
+import * as React from 'react';
 import { StyleSheet, Text, TouchableHighlight, View } from 'react-native';
 
 import Icon from 'react-native-vector-icons/Ionicons';
 import { Portal } from '@gorhom/portal';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTheme } from '@react-navigation/native';
 
 import BottomSheet, {
   BottomSheetBackdrop,
@@ -15,9 +14,10 @@ import BottomSheet, {
   useBottomSheetTimingConfigs,
 } from '@gorhom/bottom-sheet';
 
+import * as constants from 'src/constants';
 import Spacer from '../Spacer';
 import Button, { ButtonProps } from '../buttons/Button';
-import * as constants from 'src/constants';
+import { useExtendedTheme } from 'src/hooks';
 
 const ICON_SIZE = 24;
 const ITEM_SPACING = constants.layout.spacing.sm;
@@ -42,7 +42,7 @@ type ActionBottomSheetProps = {
 
 const ActionBottomSheet = React.forwardRef<BottomSheet, ActionBottomSheetProps>(
   (props: ActionBottomSheetProps, ref) => {
-    const { colors } = useTheme();
+    const { colors } = useExtendedTheme();
 
     const initialSnapPoints = React.useMemo(() => ['CONTENT_HEIGHT'], []);
 
@@ -83,7 +83,8 @@ const ActionBottomSheet = React.forwardRef<BottomSheet, ActionBottomSheetProps>(
           handleHeight={animatedHandleHeight}
           contentHeight={animatedContentHeight}
           backdropComponent={renderBackdrop}
-          backgroundStyle={{ backgroundColor: colors.background }}>
+          handleIndicatorStyle={{ backgroundColor: colors.text }}
+          backgroundStyle={{ backgroundColor: colors.card }}>
           <BottomSheetView
             onLayout={handleContentLayout}
             style={styles.container}>
@@ -106,7 +107,7 @@ function ActionBottomSheetContents(props: ActionBottomSheetProps) {
   } = props;
 
   const { close } = useBottomSheet();
-  const { colors, dark } = useTheme();
+  const { colors } = useExtendedTheme();
 
   const handleSelectItem = async (id: string) => {
     close();
@@ -119,7 +120,7 @@ function ActionBottomSheetContents(props: ActionBottomSheetProps) {
         {items.map((props: ActionBottomSheetItem, index) => (
           <View key={`action-bottom-sheet-item-${index}`}>
             <TouchableHighlight
-              underlayColor={constants.color.gray100}
+              underlayColor={colors.highlight}
               disabled={props.disabled}
               onPress={async () => await handleSelectItem(props.id)}
               style={styles.actionItemTouchableContainer}>
@@ -127,16 +128,13 @@ function ActionBottomSheetContents(props: ActionBottomSheetProps) {
                 <Icon
                   name={props.iconName}
                   size={props.iconSize ?? ICON_SIZE}
-                  // color={props.destructive ? color.danger : color.black}
                   color={
                     props.disabled
                       ? props.destructive
-                        ? constants.color.dangerDisabled
-                        : dark
-                        ? constants.color.disabledLightTextColor
-                        : constants.color.disabledDarkTextColor
+                        ? colors.dangerDisabled
+                        : colors.textDisabled
                       : props.destructive
-                      ? constants.color.danger
+                      ? colors.danger
                       : colors.text
                   }
                   style={[{ width: ICON_SIZE }]}
@@ -147,16 +145,13 @@ function ActionBottomSheetContents(props: ActionBottomSheetProps) {
                   style={[
                     styles.actionItemLabel,
                     constants.font.large,
-                    { color: colors.text },
-                    props.disabled && {
-                      color: dark
-                        ? constants.color.disabledLightTextColor
-                        : constants.color.disabledDarkTextColor,
+                    {
+                      color: props.destructive ? colors.danger : colors.text,
                     },
-                    props.destructive && {
-                      color: props.disabled
-                        ? constants.color.dangerDisabled
-                        : constants.color.danger,
+                    props.disabled && {
+                      color: props.destructive
+                        ? colors.dangerDisabled
+                        : colors.textDisabled,
                     },
                   ]}>
                   {props.label}
@@ -187,7 +182,6 @@ const styles = StyleSheet.create({
   },
   actionItemTouchableContainer: {
     borderRadius: constants.layout.radius.md,
-    // height: BOTTOM_SHEET_ITEM_HEIGHT,
     overflow: 'hidden',
   },
   actionItemContainer: {

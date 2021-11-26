@@ -1,15 +1,14 @@
 import * as React from 'react';
-import { Platform, StatusBar } from 'react-native';
+import { Platform } from 'react-native';
 
 import codePush from 'react-native-code-push';
 import messaging from '@react-native-firebase/messaging';
 import { nanoid } from '@reduxjs/toolkit';
 import { HeaderStyleInterpolators } from '@react-navigation/stack';
-import { useTheme } from '@react-navigation/native';
 
 import * as constants from 'src/constants';
 import { SessionApi } from 'src/api';
-import { useAppDispatch, useAppSelector } from 'src/hooks';
+import { useAppDispatch, useAppSelector, useExtendedTheme } from 'src/hooks';
 import { NotificationId } from 'src/models';
 import { RootStack } from 'src/navigation';
 
@@ -47,7 +46,7 @@ async function getFCMToken(): Promise<string> {
 export default function RootNavigator() {
   const $FUNC = '[RootNavigator]';
   const dispatch = useAppDispatch();
-  const { dark, colors } = useTheme();
+  const { colors } = useExtendedTheme();
 
   const sessionId = useAppSelector(state => state.auth.sessionId);
   const didRegisterFCMToken = useAppSelector(state => {
@@ -143,17 +142,12 @@ export default function RootNavigator() {
 
   return (
     <>
-      <StatusBar
-        animated
-        translucent
-        barStyle={dark ? 'light-content' : 'dark-content'}
-        backgroundColor="transparent"
-      />
       <RootStack.Navigator
         initialRouteName="Main"
         screenOptions={{
           headerBackTitleVisible: false,
           headerTintColor: colors.text,
+          headerTitleAllowFontScaling: false,
           headerTitleStyle: constants.font.defaultHeaderTitleStyle,
           headerLeft: props => <HeaderIcon.Back {...props} />,
           headerLeftContainerStyle: {

@@ -24,7 +24,6 @@ import { FFmpegKit } from 'ffmpeg-kit-react-native';
 import { Formik, useField, useFormikContext } from 'formik';
 import { useNavigation } from '@react-navigation/core';
 import { useSharedValue } from 'react-native-reanimated';
-import { useTheme } from '@react-navigation/native';
 
 import ImageCropPicker, {
   Image,
@@ -66,6 +65,7 @@ import {
 import {
   useAppDispatch,
   useAppSelector,
+  useExtendedTheme,
   useIsMounted,
   useNavigationAlertUnsavedChangesOnRemove,
 } from 'src/hooks';
@@ -779,6 +779,8 @@ type ProfileBackgroundPickerSource =
 
 function ProfileBackgroundPicker() {
   const { currentProfile } = React.useContext(ProfileSettingsFormContext);
+  const { colors } = useExtendedTheme();
+
   const [_, meta, helpers] =
     useField<ProfileChangesForm['background']>('background');
 
@@ -948,7 +950,10 @@ function ProfileBackgroundPicker() {
           <FastImage
             resizeMode="cover"
             source={backgroundSource.source}
-            style={[profileBackgroundPickerStyles.picker]}
+            style={[
+              profileBackgroundPickerStyles.picker,
+              { backgroundColor: colors.placeholder },
+            ]}
             onLoadStart={() => setIsLoading(true)}
             onLoadEnd={() => setIsLoading(false)}
           />
@@ -959,7 +964,10 @@ function ProfileBackgroundPicker() {
             playWhenInactive
             resizeMode="cover"
             source={backgroundSource.source}
-            style={[profileBackgroundPickerStyles.picker]}
+            style={[
+              profileBackgroundPickerStyles.picker,
+              { backgroundColor: colors.placeholder },
+            ]}
             onLoadStart={() => setIsLoading(true)}
             onLoad={() => setIsLoading(false)}
           />
@@ -994,7 +1002,6 @@ const profileBackgroundPickerStyles = StyleSheet.create({
   picker: {
     width: '100%',
     aspectRatio: 3 / 1.8,
-    backgroundColor: constants.color.placeholder,
     borderRadius: constants.layout.radius.md,
   },
 });
@@ -1008,7 +1015,7 @@ function ProfileAvatarPicker(props: ProfileAvatarPickerProps) {
   const { currentProfile } = React.useContext(ProfileSettingsFormContext);
   const [_, meta, helpers] = useField<ProfileChangesForm['avatar']>('avatar');
 
-  const { colors } = useTheme();
+  const { colors } = useExtendedTheme();
   const [containerWidth, setContainerWidth] = React.useState(100);
 
   const avatarSource: FastImageProps['source'] = React.useMemo(() => {
@@ -1118,7 +1125,11 @@ function ProfileAvatarPicker(props: ProfileAvatarPickerProps) {
         <FastImage
           resizeMode="cover"
           source={avatarSource}
-          style={[profileAvatarPickerStyles.image, props.imageStyle]}
+          style={[
+            profileAvatarPickerStyles.image,
+            { backgroundColor: colors.placeholder },
+            props.imageStyle,
+          ]}
         />
         <View style={profileAvatarPickerStyles.editTextContainer}>
           <Text
@@ -1145,7 +1156,6 @@ const profileAvatarPickerStyles = StyleSheet.create({
     width: AVATAR_DIAMETER,
     aspectRatio: 1,
     borderRadius: AVATAR_DIAMETER / 2,
-    backgroundColor: constants.color.placeholder,
   },
   editTextContainer: {
     position: 'absolute',

@@ -5,6 +5,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 
 import { Button, Spacer } from 'src/components';
 import { color, font, layout } from 'src/constants';
+import { useExtendedTheme } from 'src/hooks';
 
 import {
   ReportItemStackScreenParams,
@@ -17,6 +18,7 @@ type ReportItemSuccessScreenProps =
 export default function ReportItemSuccessScreen(
   props: ReportItemSuccessScreenProps,
 ) {
+  const { colors } = useExtendedTheme();
   return (
     <SafeAreaView
       style={[
@@ -26,11 +28,13 @@ export default function ReportItemSuccessScreen(
       <View style={{ alignItems: 'center' }}>
         <Icon name="checkmark-circle" color={color.green500} size={100} />
         <Spacer.Vertical value="xs" />
-        <Text style={[font.largeBold, { textAlign: 'center' }]}>
+        <Text
+          style={[font.largeBold, { textAlign: 'center', color: colors.text }]}>
           We&apos;ve received your report
         </Text>
         <Spacer.Vertical value="xs" />
-        <Text style={[font.medium, { textAlign: 'center' }]}>
+        <Text
+          style={[font.medium, { textAlign: 'center', color: colors.caption }]}>
           We&apos;ll let you know of the outcome soon.
         </Text>
         <Spacer.Vertical value="md" />

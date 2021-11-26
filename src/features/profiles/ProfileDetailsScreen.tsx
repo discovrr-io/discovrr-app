@@ -19,7 +19,6 @@ import Video from 'react-native-video';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { useHeaderHeight } from '@react-navigation/elements';
-import { useTheme } from '@react-navigation/native';
 
 import {
   useFocusEffect,
@@ -44,7 +43,6 @@ import * as utilities from 'src/utilities';
 import PostMasonryList from 'src/features/posts/PostMasonryList';
 import ProductMasonryList from 'src/features/products/ProductMasonryList';
 
-import { useAppDispatch, useAppSelector, useIsMounted } from 'src/hooks';
 import { PostId, Profile, ProfileId } from 'src/models';
 import { RootStackNavigationProp, RootStackScreenProps } from 'src/navigation';
 
@@ -61,6 +59,12 @@ import {
 } from 'src/components';
 
 import { useIsMyProfile, useProfile } from './hooks';
+import {
+  useAppDispatch,
+  useAppSelector,
+  useExtendedTheme,
+  useIsMounted,
+} from 'src/hooks';
 
 const MaterialTopTab = createMaterialTopTabNavigator();
 
@@ -235,7 +239,7 @@ export function LoadedProfileDetailsScreen(
 
   const dispatch = useAppDispatch();
   const navigation = useNavigation<ProfileDetailsScreenProps['navigation']>();
-  const { colors, dark } = useTheme();
+  const { colors, dark } = useExtendedTheme();
 
   const isMounted = useIsMounted();
   const [shouldFetch, setShouldFetch] = useShouldFetchOnFocus();
@@ -393,7 +397,9 @@ export function LoadedProfileDetailsScreen(
 
   return (
     <ProfileDetailsContext.Provider value={{ profile, isMyProfile }}>
-      {Platform.OS === 'ios' && <StatusBar animated barStyle="light-content" />}
+      {Platform.OS === 'ios' && !dark && (
+        <StatusBar animated barStyle="light-content" />
+      )}
       <SafeAreaView
         edges={['bottom', 'left', 'right']}
         style={{ flex: 1, backgroundColor: colors.background }}>
@@ -437,15 +443,18 @@ export function LoadedProfileDetailsScreen(
             backgroundColor: colors.card,
             paddingBottom: 0,
           }}
+          handleIndicatorStyle={{
+            backgroundColor: colors.text,
+          }}
           backgroundStyle={{ backgroundColor: colors.background }}>
           <MaterialTopTab.Navigator
             screenOptions={{
               lazy: true,
               swipeEnabled: false, // This doesn't work anyway
               tabBarLabelStyle: constants.font.defaultTopTabBarLabelStyle,
-              tabBarActiveTintColor: constants.color.accent,
-              tabBarInactiveTintColor: constants.color.gray500,
-              tabBarPressColor: constants.color.gray200,
+              tabBarActiveTintColor: colors.primary,
+              tabBarInactiveTintColor: colors.caption,
+              tabBarPressColor: colors.highlight,
               // lazyPreloadDistance: 1,
               lazyPlaceholder: () => (
                 <LoadingContainer
@@ -493,7 +502,9 @@ type ProfileDetailsHeaderProps = {
 function ProfileDetailsHeader(props: ProfileDetailsHeaderProps) {
   const $FUNC = '[ProfileDetailsHeader]';
   const { profile, isMyProfile } = React.useContext(ProfileDetailsContext);
+
   const { height: calculatedWindowHeight } = useWindowDimensions();
+  const { colors } = useExtendedTheme();
 
   const windowHeight = React.useMemo(() => {
     if (props.preferredWindowHeight) return props.preferredWindowHeight;
@@ -653,8 +664,8 @@ function ProfileDetailsHeader(props: ProfileDetailsHeaderProps) {
             <FastImage
               source={{ uri: profile.backgroundThumbnail?.url }}
               style={[
-                { position: 'absolute' },
                 profileDetailsHeaderStyles.coverPhoto,
+                { position: 'absolute', backgroundColor: colors.placeholder },
               ]}
             />
           )}
@@ -679,7 +690,7 @@ function ProfileDetailsHeader(props: ProfileDetailsHeaderProps) {
               {
                 backgroundColor: Platform.select({
                   android: 'transparent',
-                  default: constants.color.placeholder,
+                  default: colors.placeholder,
                 }),
               },
             ]}
@@ -727,7 +738,8 @@ function ProfileDetailsHeader(props: ProfileDetailsHeaderProps) {
               style={[
                 profileDetailsHeaderStyles.avatar,
                 { height: avatarHeight, borderRadius: avatarHeight / 2 },
-                Platform.OS === 'android' && { backgroundColor: 'transparent' },
+                { backgroundColor: colors.placeholder },
+                // Platform.OS === 'android' && { backgroundColor: 'transparent' },
               ]}
             />
             <Spacer.Vertical value="sm" />
@@ -797,7 +809,11 @@ function ProfileDetailsHeader(props: ProfileDetailsHeaderProps) {
                   : constants.color.gray200
               }
               textStyle={isToggled => [
-                isToggled && { color: constants.color.defaultLightTextColor },
+                {
+                  color: isToggled
+                    ? constants.color.defaultLightTextColor
+                    : constants.color.defaultDarkTextColor,
+                },
               ]}
               loadingIndicatorColor={isToggled =>
                 isToggled
@@ -824,12 +840,10 @@ function ProfileDetailsHeader(props: ProfileDetailsHeaderProps) {
 const profileDetailsHeaderStyles = StyleSheet.create({
   avatar: {
     aspectRatio: 1,
-    backgroundColor: constants.color.placeholder,
   },
   coverPhoto: {
     width: '100%',
     height: '100%',
-    backgroundColor: constants.color.placeholder,
   },
   headerContainer: {
     width: '100%',
@@ -909,7 +923,7 @@ const profileDetailsHeaderStatisticStyles = StyleSheet.create({
 function ProfileDetailsContentProductsTab() {
   const $FUNC = '[ProfileDetailsContentProductsTab]';
   const { profile, isMyProfile } = React.useContext(ProfileDetailsContext);
-  const { colors } = useTheme();
+  const { colors } = useExtendedTheme();
 
   const productIds = useAppSelector(state => {
     // There shouldn't be a case where we encounter a personal profile here
@@ -1014,7 +1028,7 @@ function ProfileDetailsContentPostsTab() {
   const dispatch = useAppDispatch();
   const navigation = useNavigation<ProfileDetailsScreenProps['navigation']>();
   const isMounted = useIsMounted();
-  const { colors } = useTheme();
+  const { colors } = useExtendedTheme();
 
   const [shouldFetch, setShouldFetch] = useShouldFetchOnFocus();
 
@@ -1100,7 +1114,7 @@ function ProfileDetailsContentLikedTab() {
 
   const dispatch = useAppDispatch();
   const isMounted = useIsMounted();
-  const { colors } = useTheme();
+  const { colors } = useExtendedTheme();
 
   const [likedPostIds, setLikedPostIds] = React.useState<PostId[]>([]);
   const [shouldFetch, setShouldFetch] = useShouldFetchOnFocus();

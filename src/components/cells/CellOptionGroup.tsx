@@ -2,27 +2,26 @@ import React, { useContext } from 'react';
 
 import { CellElementContext, renderChildrenWithDivider } from './common';
 
-type CellSelectContextProps = {
+type CellOptionGroupContextProps = {
   value: string;
   onValueChanged: (value: string) => void | Promise<void>;
   disabled?: boolean;
 };
 
-export const CellSelectContext = React.createContext<CellSelectContextProps>(
-  null as any,
-);
+export const CellOptionGroupContext =
+  React.createContext<CellOptionGroupContextProps>(null as any);
 
-export type CellSelectProps = CellSelectContextProps & {
+export type CellOptionGroupProps = CellOptionGroupContextProps & {
   children?: React.ReactNode;
 };
 
-export default function CellSelect(props: CellSelectProps) {
+export default function CellOptionGroup(props: CellOptionGroupProps) {
   const { children, ...cellSelectProps } = props;
   const cellElementProps = useContext(CellElementContext);
 
   return (
-    <CellSelectContext.Provider value={cellSelectProps}>
+    <CellOptionGroupContext.Provider value={cellSelectProps}>
       {renderChildrenWithDivider(children, cellElementProps)}
-    </CellSelectContext.Provider>
+    </CellOptionGroupContext.Provider>
   );
 }

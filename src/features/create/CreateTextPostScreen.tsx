@@ -11,7 +11,6 @@ import {
 
 import * as yup from 'yup';
 import { Formik, useField, useFormikContext } from 'formik';
-import { useTheme } from '@react-navigation/native';
 
 import Animated, {
   interpolateColor,
@@ -22,7 +21,11 @@ import Animated, {
 
 import * as utilities from 'src/utilities';
 import { color, font, layout } from 'src/constants';
-import { useNavigationAlertUnsavedChangesOnRemove } from 'src/hooks';
+
+import {
+  useExtendedTheme,
+  useNavigationAlertUnsavedChangesOnRemove,
+} from 'src/hooks';
 
 import {
   CreateItemDetailsTopTabScreenProps,
@@ -100,7 +103,7 @@ type TextAreaProps = {
 
 function TextArea(props: TextAreaProps) {
   const [field, meta, _helpers] = useField<TextPostForm['text']>('text');
-  const { colors } = useTheme();
+  const { colors } = useExtendedTheme();
 
   const characterCount = React.useMemo(() => {
     return field.value.length;

@@ -21,17 +21,12 @@ import messaging from '@react-native-firebase/messaging';
 
 import FastImage from 'react-native-fast-image';
 import Parse from 'parse/react-native';
-import {
-  useNavigation,
-  useScrollToTop,
-  useTheme,
-} from '@react-navigation/native';
+import { useNavigation, useScrollToTop } from '@react-navigation/native';
 
 import * as constants from 'src/constants';
 import * as utilities from 'src/utilities';
 import * as profilesSlice from 'src/features/profiles/profiles-slice';
 import ProductItemCard from 'src/features/products/ProductItemCard';
-import { useAppDispatch, useAppSelector, useIsMounted } from 'src/hooks';
 import { ProductId, Profile } from 'src/models';
 import { HomeStackScreenProps, RootStackNavigationProp } from 'src/navigation';
 
@@ -42,6 +37,13 @@ import {
   MasonryList,
   Spacer,
 } from 'src/components';
+
+import {
+  useAppDispatch,
+  useAppSelector,
+  useExtendedTheme,
+  useIsMounted,
+} from 'src/hooks';
 
 import * as onboardingSlice from 'src/features/onboarding/onboarding-slice';
 import OnboardingModal, {
@@ -135,6 +137,7 @@ function CallToAction(props: CallToActionProps) {
         />
       )} */}
       <Text
+        allowFontScaling={false}
         style={[
           constants.font.h2,
           { color: constants.color.absoluteWhite },
@@ -144,6 +147,7 @@ function CallToAction(props: CallToActionProps) {
       </Text>
       <Spacer.Vertical value="md" />
       <Text
+        allowFontScaling={false}
         style={[
           constants.font.large,
           { color: constants.color.absoluteWhite },
@@ -181,10 +185,11 @@ type SectionTitleProps = {
 };
 
 function SectionTitle(props: SectionTitleProps) {
-  const { colors } = useTheme();
+  const { colors } = useExtendedTheme();
   return (
     <View style={[sectionTitleProps.container, props.style]}>
       <Text
+        allowFontScaling={false}
         style={[
           constants.font.h2,
           sectionTitleProps.title,
@@ -212,7 +217,7 @@ type MakerOfTheWeekProps = HomeFeedData['makerOfTheWeek'];
 function MakerOfTheWeek(props: MakerOfTheWeekProps) {
   const [isLoading, setIsLoading] = React.useState(false);
 
-  const { colors } = useTheme();
+  const { colors } = useExtendedTheme();
   const navigation = useNavigation<RootStackNavigationProp>();
 
   const handlePressCard = () => {
@@ -232,7 +237,10 @@ function MakerOfTheWeek(props: MakerOfTheWeekProps) {
           <FastImage
             resizeMode="cover"
             source={{ uri: props.coverImageUrl }}
-            style={makerOfTheWeekStyles.coverImage}
+            style={[
+              makerOfTheWeekStyles.coverImage,
+              { backgroundColor: colors.placeholder },
+            ]}
             onLoadStart={() => setIsLoading(true)}
             onLoadEnd={() => setIsLoading(false)}
           />
@@ -276,29 +284,29 @@ function MakerOfTheWeek(props: MakerOfTheWeekProps) {
   );
 }
 
-MakerOfTheWeek.Pending = () => (
-  <View>
-    <SectionTitle title={MAKER_OF_THE_WEEK_TITLE} />
-    <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-      <FastImage source={{}} style={makerOfTheWeekStyles.coverImage} />
-      <ActivityIndicator
-        size="large"
-        color={constants.color.gray500}
-        style={{ position: 'absolute' }}
-      />
+MakerOfTheWeek.Pending = () => {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const { colors } = useExtendedTheme();
+  return (
+    <View>
+      <SectionTitle title={MAKER_OF_THE_WEEK_TITLE} />
+      <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+        <FastImage source={{}} style={makerOfTheWeekStyles.coverImage} />
+        <ActivityIndicator
+          size="large"
+          color={constants.color.gray500}
+          style={{ position: 'absolute' }}
+        />
+      </View>
+      <Spacer.Vertical value="md" />
+      <View style={makerOfTheWeekStyles.textContainer}>
+        <View style={{ height: 19, backgroundColor: colors.placeholder }} />
+        <Spacer.Vertical value="sm" />
+        <View style={{ height: 17, backgroundColor: colors.placeholder }} />
+      </View>
     </View>
-    <Spacer.Vertical value="md" />
-    <View style={makerOfTheWeekStyles.textContainer}>
-      <View
-        style={{ height: 19, backgroundColor: constants.color.placeholder }}
-      />
-      <Spacer.Vertical value="sm" />
-      <View
-        style={{ height: 17, backgroundColor: constants.color.placeholder }}
-      />
-    </View>
-  </View>
-);
+  );
+};
 
 const makerOfTheWeekStyles = StyleSheet.create({
   coverImageContainer: {
@@ -308,7 +316,6 @@ const makerOfTheWeekStyles = StyleSheet.create({
   coverImage: {
     height: 280,
     width: '100%',
-    backgroundColor: constants.color.placeholder,
     borderRadius: constants.layout.radius.md,
   },
   textContainer: {
@@ -335,7 +342,7 @@ type ExploreOurMakersProps = {
 
 function ExploreOurMakers(props: ExploreOurMakersProps) {
   const { width: windowWidth } = useWindowDimensions();
-  const { colors } = useTheme();
+  const { colors } = useExtendedTheme();
 
   const { columnWidth, avatarWidth } = React.useMemo(() => {
     const containerWidth = windowWidth - constants.layout.spacing.md * 2;
@@ -381,7 +388,11 @@ function ExploreOurMakers(props: ExploreOurMakersProps) {
             }
             style={[
               exploreOurMakersStyles.avatar,
-              { width: avatarWidth, borderRadius: avatarWidth / 2 },
+              {
+                width: avatarWidth,
+                borderRadius: avatarWidth / 2,
+                backgroundColor: colors.placeholder,
+              },
             ]}
           />
           <Spacer.Vertical value="md" />
@@ -415,7 +426,6 @@ const exploreOurMakersStyles = StyleSheet.create({
   },
   avatar: {
     aspectRatio: 1,
-    backgroundColor: constants.color.placeholder,
   },
 });
 
@@ -576,6 +586,7 @@ export default function LandingScreen(props: LandingScreenProps) {
               }}>
               <View style={{ alignItems: 'center' }}>
                 <Text
+                  allowFontScaling={false}
                   style={[
                     constants.font.h2,
                     {
@@ -612,9 +623,9 @@ export default function LandingScreen(props: LandingScreenProps) {
             {homeFeedData?.limitedOfferProductId && (
               <LimitedOffer productId={homeFeedData.limitedOfferProductId} />
             )}
-            {(!isInitialRender || !shouldRefresh) && makers.length > 0 && (
-              <ExploreOurMakers profiles={makers} />
-            )}
+            {false &&
+              (!isInitialRender || !shouldRefresh) &&
+              makers.length > 0 && <ExploreOurMakers profiles={makers} />}
           </View>
         }
         ListEmptyComponent={

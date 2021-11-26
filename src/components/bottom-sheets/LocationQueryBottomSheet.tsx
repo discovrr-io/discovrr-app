@@ -13,7 +13,6 @@ import Slider from '@react-native-community/slider';
 import { Portal } from '@gorhom/portal';
 import { BlurView } from '@react-native-community/blur';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTheme } from '@react-navigation/native';
 
 import BottomSheet, {
   BottomSheetBackdrop,
@@ -23,7 +22,7 @@ import BottomSheet, {
 } from '@gorhom/bottom-sheet';
 
 import { color, font, layout } from 'src/constants';
-import { useAppSelector } from 'src/hooks';
+import { useAppSelector, useExtendedTheme } from 'src/hooks';
 import { alertUnavailableFeature } from 'src/utilities';
 
 import {
@@ -48,7 +47,7 @@ const LocationQueryBottomSheet = React.forwardRef<
 >((_props: LocationQueryBottomSheetProps, ref) => {
   const _ = useAppSelector(state => state.settings.locationQueryPrefs);
   const snapPoints = React.useMemo(() => ['95%'], []);
-  const { colors } = useTheme();
+  const { colors } = useExtendedTheme();
 
   // const [searchRegion, setSearchRegion] = React.useState<Region>(() => ({
   //   ...(queryPrefs?.coordinates ?? DEFAULT_COORDINATES),
@@ -83,6 +82,7 @@ const LocationQueryBottomSheet = React.forwardRef<
         failOffsetX={[-5, 5]}
         snapPoints={snapPoints}
         backdropComponent={renderBackdrop}
+        handleIndicatorStyle={{ backgroundColor: colors.text }}
         backgroundStyle={{ backgroundColor: colors.card }}>
         <LocationQueryBottomSheetContent />
       </BottomSheet>
@@ -113,7 +113,7 @@ const bottomSheetStyles = StyleSheet.create({
 });
 
 function LocationQueryBottomSheetContent() {
-  const { dark, colors } = useTheme();
+  const { dark, colors } = useExtendedTheme();
   const { close } = useBottomSheet();
 
   return (
@@ -127,7 +127,7 @@ function LocationQueryBottomSheetContent() {
               onRegionChange={setSearchRegion}
               style={{ height: 300 }}
             /> */}
-          <View style={{ width: 300, backgroundColor: color.placeholder }} />
+          <View style={{ width: 300, backgroundColor: colors.placeholder }} />
         </View>
         <Spacer.Vertical value="md" />
         <Slider
@@ -199,7 +199,7 @@ type LocationQueryBottomSheetHeaderProps = {
 function LocationQueryBottomSheetHeader(
   props: LocationQueryBottomSheetHeaderProps,
 ) {
-  const { colors } = useTheme();
+  const { colors } = useExtendedTheme();
   return (
     <View
       style={{
@@ -209,7 +209,7 @@ function LocationQueryBottomSheetHeader(
         paddingBottom: layout.spacing.md,
       }}>
       <TouchableHighlight
-        underlayColor={color.gray200}
+        underlayColor={colors.highlight}
         onPress={props.onPressClose}
         style={{
           alignItems: 'center',
@@ -217,7 +217,7 @@ function LocationQueryBottomSheetHeader(
           width: ICON_DIAMETER,
           height: ICON_DIAMETER,
           borderRadius: ICON_DIAMETER / 2,
-          backgroundColor: color.gray100,
+          backgroundColor: colors.background,
         }}>
         <Icon name="close" size={ICON_SIZE} />
       </TouchableHighlight>

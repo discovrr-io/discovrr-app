@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import * as React from 'react';
 import { FlatListProps, RefreshControl, SafeAreaView } from 'react-native';
 
 import _ from 'lodash';
@@ -128,11 +128,11 @@ function SearchResultsTabWrapper<ItemT>(
   const { query, fetchData, renderItem, keyExtractor } = props;
   const isMounted = useIsMounted();
 
-  const [data, setData] = useState<ItemT[]>([]);
-  const [isInitialRender, setIsInitialRender] = useState(true);
-  const [shouldRefresh, setShouldRefresh] = useState(false);
+  const [data, setData] = React.useState<ItemT[]>([]);
+  const [isInitialRender, setIsInitialRender] = React.useState(true);
+  const [shouldRefresh, setShouldRefresh] = React.useState(false);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (isInitialRender || shouldRefresh)
       (async () => {
         try {

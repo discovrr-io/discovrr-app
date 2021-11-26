@@ -1,6 +1,5 @@
-import React from 'react';
+import * as React from 'react';
 
-import { useTheme } from '@react-navigation/native';
 import {
   CardStyleInterpolators,
   createStackNavigator,
@@ -12,6 +11,8 @@ import SearchNavigator from 'src/features/search/SearchNavigator';
 
 import * as constants from 'src/constants';
 import { HeaderIcon } from 'src/components';
+import { useExtendedTheme } from 'src/hooks';
+
 import {
   ExploreStackNavigationProp,
   ExploreStackParamList,
@@ -22,7 +23,7 @@ import {
 const ExploreStack = createStackNavigator<ExploreStackParamList>();
 
 export default function ExploreNavigator() {
-  const { colors } = useTheme();
+  const { colors } = useExtendedTheme();
   return (
     <ExploreStack.Navigator
       initialRouteName="Feed"

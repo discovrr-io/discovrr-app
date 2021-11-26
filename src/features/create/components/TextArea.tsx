@@ -10,10 +10,10 @@ import {
 } from 'react-native';
 
 import { useField } from 'formik';
-import { useTheme } from '@react-navigation/native';
 
 import CharacterCounter from './CharacterCounter';
 import { color, font, layout } from 'src/constants';
+import { useExtendedTheme } from 'src/hooks';
 
 export type TextAreaProps = TextInputProps & {
   fieldName: string;
@@ -22,8 +22,9 @@ export type TextAreaProps = TextInputProps & {
 
 export default function TextArea(props: TextAreaProps) {
   const { fieldName, style, containerStyle, ...restProps } = props;
+  const { colors } = useExtendedTheme();
+
   const [field, meta] = useField<string>(fieldName);
-  const { colors } = useTheme();
 
   return (
     <View style={containerStyle}>

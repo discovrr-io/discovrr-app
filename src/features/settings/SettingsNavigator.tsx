@@ -6,6 +6,7 @@ import MainSettingsScreen from './MainSettingsScreen';
 import ProfileSettingsScreen from './ProfileSettingsScreen';
 import AccountTypeSettingsScreen from './AccountTypeSettingsScreen';
 import NotificationsSettingsScreen from './NotificationSettings';
+import AppearanceSettingsScreen from './AppearanceSettings';
 
 export default function renderSettingsNavigator() {
   return (
@@ -29,6 +30,11 @@ export default function renderSettingsNavigator() {
         name="NotificationSettings"
         component={NotificationsSettingsScreen}
         options={{ title: 'Notification Settings' }}
+      />
+      <RootStack.Screen
+        name="AppearanceSettings"
+        component={AppearanceSettingsScreen}
+        options={{ title: 'Appearance Settings' }}
       />
     </RootStack.Group>
   );

@@ -14,13 +14,13 @@ import { IconProps } from 'react-native-vector-icons/Icon';
 
 import * as values from 'src/constants/values';
 import { color } from 'src/constants';
+import { useExtendedTheme } from 'src/hooks';
 import { shortenLargeNumber } from 'src/utilities';
 
 import * as constants from './constants';
 import Spacer from '../Spacer';
 import { CardElementProps } from './common';
 import { useCardElementOptionsContext } from './hooks';
-import { useTheme } from '@react-navigation/native';
 
 export type CardActionsProps = CardElementProps & {
   itemSpacing?: number;
@@ -29,6 +29,7 @@ export type CardActionsProps = CardElementProps & {
 
 const CardActions = (props: CardActionsProps) => {
   const cardElementOptions = useCardElementOptionsContext(props.elementOptions);
+
   return (
     <View
       style={[
@@ -74,6 +75,7 @@ export type CardActionsPendingProps = CardElementProps & {
 
 const CardActionsPending = (props: CardActionsPendingProps) => {
   const cardElementOptions = useCardElementOptionsContext(props.elementOptions);
+  const { colors } = useExtendedTheme();
 
   const numberOfActions = props.numberOfActions ?? 1;
   const iconSize = cardElementOptions.smallContent
@@ -90,7 +92,7 @@ const CardActionsPending = (props: CardActionsPendingProps) => {
             style={{
               width: iconSize,
               height: iconSize,
-              backgroundColor: color.placeholder,
+              backgroundColor: colors.placeholder,
             }}
           />
           {index < numberOfActions - 1 && (
@@ -133,7 +135,7 @@ export const CardActionsIconButton = React.forwardRef<
   } = props;
 
   const cardElementOptions = useCardElementOptionsContext(elementOptions);
-  const { dark } = useTheme();
+  const { colors } = useExtendedTheme();
 
   return (
     <TouchableOpacity
@@ -144,7 +146,7 @@ export const CardActionsIconButton = React.forwardRef<
       <Animatable.View ref={ref}>
         <Icon
           name={iconName}
-          color={iconColor ?? color.gray500}
+          color={iconColor ?? colors.caption}
           size={
             iconSize ?? cardElementOptions.smallContent
               ? constants.CARD_ICON_SMALL
@@ -159,7 +161,7 @@ export const CardActionsIconButton = React.forwardRef<
             cardElementOptions.captionTextStyle,
             {
               textAlign: 'right',
-              color: labelColor ?? (dark ? color.gray300 : color.gray500),
+              color: labelColor ?? colors.caption,
               minWidth: cardElementOptions.smallContent ? 12 : 16,
             },
           ]}>
@@ -235,7 +237,7 @@ export const CardActionsHeartIconButton = (
   props: CardActionsHeartIconButtonProps,
 ) => {
   const { didLike, totalLikes, onToggleLike, ...restProps } = props;
-  const { colors } = useTheme();
+  const { colors } = useExtendedTheme();
   const animatableRef = useRef<AnimatableViewRef>(null);
 
   const handleToggleLike = async () => {

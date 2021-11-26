@@ -13,12 +13,7 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 import { getDefaultHeaderHeight } from '@react-navigation/elements';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-import {
-  useFocusEffect,
-  useNavigation,
-  useTheme,
-} from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 
 import {
   CardStyleInterpolators,
@@ -29,7 +24,7 @@ import {
 
 import * as constants from 'src/constants';
 import { Button, HeaderIcon, Spacer, TextInput } from 'src/components';
-import { useAppDispatch } from 'src/hooks';
+import { useAppDispatch, useExtendedTheme } from 'src/hooks';
 
 import {
   SearchStackNavigationProp,
@@ -117,7 +112,7 @@ function SearchHeader(
   >,
 ) {
   const headerHeight = getDefaultHeaderHeight(props.layout, false, 0);
-  const { colors } = useTheme();
+  const { colors } = useExtendedTheme();
   return (
     <SafeAreaView
       edges={['top', 'left', 'right']}
@@ -170,7 +165,7 @@ type SearchResultsHeaderProps = StackHeaderProps & {
 
 function SearchResultsHeader(props: SearchResultsHeaderProps) {
   const { query, ...restProps } = props;
-  const { colors } = useTheme();
+  const { colors /* , dark */ } = useExtendedTheme();
 
   const handleNavigateBackToQueryScreen = () => {
     restProps.navigation.navigate('SearchQuery', { query });
@@ -185,7 +180,7 @@ function SearchResultsHeader(props: SearchResultsHeaderProps) {
         tintColor={colors.text}
       />
       <TouchableHighlight
-        underlayColor={constants.color.gray200}
+        underlayColor={colors.highlight}
         onPress={handleNavigateBackToQueryScreen}
         onLongPress={handleNavigateBackToQueryScreen}
         style={{
@@ -196,13 +191,15 @@ function SearchResultsHeader(props: SearchResultsHeaderProps) {
           paddingHorizontal: constants.layout.spacing.md * 1.3,
           borderRadius: constants.layout.radius.sm,
           backgroundColor: colors.background,
+          // backgroundColor: dark
+          //   ? constants.color.absoluteBlack
+          //   : constants.color.gray100,
         }}>
         <View
           style={{
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'center',
-            backgroundColor: colors.background,
           }}>
           <Icon name="search" size={18} color={colors.text} />
           <Spacer.Horizontal value="sm" />
@@ -218,7 +215,7 @@ function SearchResultsHeader(props: SearchResultsHeaderProps) {
 const SearchStack = createStackNavigator<SearchStackParamList>();
 
 export default function SearchNavigator() {
-  const { colors } = useTheme();
+  const { colors } = useExtendedTheme();
   return (
     <SearchStack.Navigator
       initialRouteName="SearchQuery"

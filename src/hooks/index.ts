@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { Theme, useNavigation, useTheme } from '@react-navigation/native';
 import { AsyncThunkAction } from '@reduxjs/toolkit';
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 
@@ -161,4 +161,39 @@ export function useNavigationAlertUnsavedChangesOnRemove(dirty: boolean) {
 
     return unsubscribe;
   }, [navigation, dirty]);
+}
+
+export type ExtendedTheme = Theme & {
+  colors: Theme['colors'] & {
+    textDisabled: string;
+    caption: string;
+    captionDisabled: string;
+    danger: string;
+    dangerDisabled: string;
+    highlight: string;
+    placeholder: string;
+  };
+};
+
+export function useExtendedTheme(): ExtendedTheme {
+  const theme = useTheme();
+  return {
+    ...theme,
+    colors: {
+      ...theme.colors,
+      textDisabled: theme.dark
+        ? constants.color.disabledDarkTextColor
+        : constants.color.disabledLightTextColor,
+      caption: constants.color.gray500,
+      captionDisabled: theme.dark
+        ? constants.color.gray700
+        : constants.color.gray300,
+      danger: constants.color.danger,
+      dangerDisabled: constants.color.dangerDisabled,
+      highlight: theme.dark ? constants.color.gray700 : constants.color.gray100,
+      placeholder: theme.dark
+        ? constants.color.placeholderDark
+        : constants.color.placeholderLight,
+    },
+  };
 }

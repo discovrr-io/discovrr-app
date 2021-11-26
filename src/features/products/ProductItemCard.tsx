@@ -7,7 +7,6 @@ import { useNavigation } from '@react-navigation/core';
 import * as constants from 'src/constants';
 import * as profilesSlice from 'src/features/profiles/profiles-slice';
 import { ApiFetchStatus, MediaSource, ProductApi } from 'src/api';
-import { useAppDispatch, useAppSelector, useIsMounted } from 'src/hooks';
 import { Product, ProductId, Profile, VendorProfileId } from 'src/models';
 import { RootStackNavigationProp } from 'src/navigation';
 
@@ -24,9 +23,15 @@ import {
   CARD_PLACEHOLDER_TEXT_HEIGHT_LARGE,
 } from 'src/components/cards/constants';
 
-import { useProduct } from './hooks';
 import { CardIndicatorRow } from 'src/components/cards/CardIndicator';
-import { useTheme } from '@react-navigation/native';
+
+import { useProduct } from './hooks';
+import {
+  useAppDispatch,
+  useAppSelector,
+  useExtendedTheme,
+  useIsMounted,
+} from 'src/hooks';
 
 type ProductItemCardProps = CardElementProps & {
   productId: ProductId;
@@ -102,12 +107,18 @@ const LoadedProductItemCard = (props: InnerProductItemCardProps) => {
 };
 
 LoadedProductItemCard.Pending = (props: CardElementProps) => {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const { colors } = useExtendedTheme();
   return (
     <Card {...props}>
       <Card.Body>
         {elementOptions => (
           <View>
-            <View style={[productItemCardStyles.cardBodyPlaceholder]}>
+            <View
+              style={[
+                productItemCardStyles.cardBodyPlaceholder,
+                { backgroundColor: colors.placeholder },
+              ]}>
               <ActivityIndicator
                 color={constants.color.gray300}
                 style={{
@@ -127,6 +138,7 @@ LoadedProductItemCard.Pending = (props: CardElementProps) => {
                 style={[
                   productItemCardStyles.cardCaptionText,
                   {
+                    backgroundColor: colors.placeholder,
                     height: elementOptions.smallContent
                       ? CARD_PLACEHOLDER_TEXT_HEIGHT_SMALL * 1.1
                       : CARD_PLACEHOLDER_TEXT_HEIGHT_LARGE * 1.4,
@@ -138,6 +150,7 @@ LoadedProductItemCard.Pending = (props: CardElementProps) => {
                 style={[
                   productItemCardStyles.cardCaptionPrice,
                   {
+                    backgroundColor: colors.placeholder,
                     height: elementOptions.smallContent
                       ? CARD_PLACEHOLDER_TEXT_HEIGHT_SMALL * 1.25
                       : CARD_PLACEHOLDER_TEXT_HEIGHT_LARGE * 1.4,
@@ -167,7 +180,8 @@ type ProductItemCardBodyProps = CardElementOptions & {
 
 function ProductItemCardBody(props: ProductItemCardBodyProps) {
   const { product, ...cardElementOptions } = props;
-  const { colors } = useTheme();
+  const { colors } = useExtendedTheme();
+
   const [dollars, cents] = product.price.toFixed(2).split('.');
   const thumbnail: MediaSource | undefined = product.media[0];
 
@@ -186,7 +200,7 @@ function ProductItemCardBody(props: ProductItemCardBodyProps) {
           style={{
             width: '100%',
             aspectRatio: 1,
-            backgroundColor: constants.color.placeholder,
+            backgroundColor: colors.placeholder,
           }}
         />
       </View>
@@ -367,7 +381,6 @@ const productItemCardStyles = StyleSheet.create({
   cardBodyPlaceholder: {
     width: '100%',
     aspectRatio: 1,
-    backgroundColor: constants.color.placeholder,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -378,10 +391,8 @@ const productItemCardStyles = StyleSheet.create({
   },
   cardCaptionText: {
     width: '55%',
-    backgroundColor: constants.color.placeholder,
   },
   cardCaptionPrice: {
     width: '20%',
-    backgroundColor: constants.color.placeholder,
   },
 });

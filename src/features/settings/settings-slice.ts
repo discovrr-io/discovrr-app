@@ -4,7 +4,10 @@ import { persistReducer } from 'redux-persist';
 import { PersistPartial } from 'redux-persist/es/persistReducer';
 
 import { AppSettings } from 'src/models';
-import { LocationQueryPreferences } from 'src/models/common';
+import {
+  AppearancePreferences,
+  LocationQueryPreferences,
+} from 'src/models/common';
 
 //#region Settings State Initialization
 
@@ -12,6 +15,7 @@ export type SettingsState = AppSettings & PersistPartial;
 
 const initialState: AppSettings = {
   locationQueryPrefs: undefined,
+  appearancePrefs: 'light',
 };
 
 //#endregion Settings State Initialization
@@ -22,7 +26,7 @@ const settingsSlice = createSlice({
   name: 'settings',
   initialState,
   reducers: {
-    didUpdateSearchRadius: (state, action: PayloadAction<number>) => {
+    updateSearchRadius: (state, action: PayloadAction<number>) => {
       const searchRadius = action.payload;
       if (state.locationQueryPrefs) {
         state.locationQueryPrefs.searchRadius = searchRadius;
@@ -30,7 +34,7 @@ const settingsSlice = createSlice({
         state.locationQueryPrefs = { searchRadius };
       }
     },
-    didUpdateLocationQueryPrefs: (
+    updateLocationQueryPrefs: (
       state,
       action: PayloadAction<LocationQueryPreferences>,
     ) => {
@@ -42,7 +46,7 @@ const settingsSlice = createSlice({
         state.locationQueryPrefs = { ...newSettings };
       }
     },
-    // didUpdateSearchRadius: (state, action) => {
+    // updateSearchRadius: (state, action) => {
     //   const { searchRadius } = action.payload;
     //   const locationQueryPrefs = state.locationQueryPrefs;
     //   if (locationQueryPrefs) {
@@ -60,11 +64,20 @@ const settingsSlice = createSlice({
     //     locationQueryPrefs = { coordinates };
     //   }
     // },
+    updateAppearancePreference: (
+      state,
+      action: PayloadAction<AppearancePreferences>,
+    ) => {
+      state.appearancePrefs = action.payload;
+    },
   },
 });
 
-export const { didUpdateSearchRadius, didUpdateLocationQueryPrefs } =
-  settingsSlice.actions;
+export const {
+  updateSearchRadius,
+  updateLocationQueryPrefs,
+  updateAppearancePreference,
+} = settingsSlice.actions;
 
 //#endregion Settings Slice
 

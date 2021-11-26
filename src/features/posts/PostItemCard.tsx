@@ -4,13 +4,22 @@ import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import FastImage from 'react-native-fast-image';
 import Video from 'react-native-video';
 import { useNavigation } from '@react-navigation/core';
-import { useTheme } from '@react-navigation/native';
 
+import {
+  runOnJS,
+  useAnimatedStyle,
+  useDerivedValue,
+  useSharedValue,
+  withDelay,
+  withTiming,
+} from 'react-native-reanimated';
+
+import * as constants from 'src/constants';
 import { MediaSource } from 'src/api';
-import { color, font, layout } from 'src/constants';
 import { DEFAULT_IMAGE_DIMENSIONS } from 'src/constants/media';
 import { Post, PostId, Profile, ProfileId } from 'src/models';
 import { RootStackNavigationProp } from 'src/navigation';
+import { Statistics } from 'src/models/common';
 
 import { AsyncGate, Card, PlayButton } from 'src/components';
 import { CardActionsProps } from 'src/components/cards/CardActions';
@@ -28,20 +37,15 @@ import {
   shortenLargeNumber,
 } from 'src/utilities';
 
-import { useIsMyProfile, useProfile } from 'src/features/profiles/hooks';
-import { useAppDispatch, useOverridableContextOptions } from 'src/hooks';
-
 import { usePost } from './hooks';
-import { updatePostLikeStatus } from './posts-slice';
-import { Statistics } from 'src/models/common';
+import { useIsMyProfile, useProfile } from 'src/features/profiles/hooks';
 import {
-  runOnJS,
-  useAnimatedStyle,
-  useDerivedValue,
-  useSharedValue,
-  withDelay,
-  withTiming,
-} from 'react-native-reanimated';
+  useAppDispatch,
+  useExtendedTheme,
+  useOverridableContextOptions,
+} from 'src/hooks';
+
+import { updatePostLikeStatus } from './posts-slice';
 
 const ASPECT_RATIOS = [
   1 / 1, // 1:1 (Square)
@@ -134,7 +138,7 @@ InnerPostItemCard.Pending = (props: CardElementProps) => {
         ]}>
         {elementOptions => (
           <ActivityIndicator
-            color={color.gray300}
+            color={constants.color.gray300}
             style={{
               transform: [{ scale: elementOptions.smallContent ? 2 : 3 }],
             }}
@@ -157,7 +161,7 @@ type PostItemCardBodyProps = CardElementOptions &
 
 function PostItemCardBody(props: PostItemCardBodyProps) {
   const { body, ...cardElementProps } = props;
-  const { colors } = useTheme();
+  const { colors } = useExtendedTheme();
 
   switch (body.contents.type) {
     case 'gallery':
@@ -185,7 +189,9 @@ function PostItemCardBody(props: PostItemCardBodyProps) {
           <Text
             numberOfLines={cardElementProps.smallContent ? 4 : 8}
             style={[
-              cardElementProps.smallContent ? font.medium : font.extraLarge,
+              cardElementProps.smallContent
+                ? constants.font.medium
+                : constants.font.extraLarge,
               { color: colors.text },
             ]}>
             {body.contents.text}
@@ -213,6 +219,8 @@ function PostItemCardBodyImageGallery(
     height: imageHeight = DEFAULT_IMAGE_DIMENSIONS.width,
   } = imagePreviewSource;
 
+  const { colors } = useExtendedTheme();
+
   return (
     <View>
       <View>
@@ -239,7 +247,7 @@ function PostItemCardBodyImageGallery(
             width: '100%',
             height: undefined,
             aspectRatio: imageWidth / imageHeight,
-            backgroundColor: color.placeholder,
+            backgroundColor: colors.placeholder,
           }}
         />
       </View>
@@ -263,6 +271,8 @@ function PostItemCardBodyVideoThumbnailProps(
 
   const elementOptions = useCardElementOptionsContext();
   const [viewWidth, setViewWidth] = React.useState(0);
+
+  const { colors } = useExtendedTheme();
 
   return (
     <View onLayout={e => setViewWidth(e.nativeEvent.layout.width)}>
@@ -291,7 +301,7 @@ function PostItemCardBodyVideoThumbnailProps(
                 style={{
                   width: '100%',
                   aspectRatio: (thumbnail.width ?? 1) / (thumbnail.height ?? 1),
-                  backgroundColor: color.placeholder,
+                  backgroundColor: colors.placeholder,
                 }}
               />
               <PlayButton
@@ -319,6 +329,8 @@ function PostItemCardBodyVideoPreview(
 ) {
   const source = props.source;
   const elementOptions = useCardElementOptionsContext();
+
+  const { colors } = useExtendedTheme();
 
   const [isPreviewLoaded, setIsPreviewLoaded] = React.useState(false);
   const [isPreviewFinished, setIsPreviewFinished] = React.useState(false);
@@ -354,7 +366,7 @@ function PostItemCardBodyVideoPreview(
         style={{
           width: '100%',
           aspectRatio: (source.width ?? 1) / (source.height ?? 1),
-          backgroundColor: color.placeholder,
+          backgroundColor: colors.placeholder,
         }}
       />
       <PlayButton
@@ -375,7 +387,7 @@ type PostItemCardCaptionProps = {
 
 function PostItemCardCaption(props: PostItemCardCaptionProps) {
   const cardElementOptions = useCardElementOptionsContext();
-  const { colors } = useTheme();
+  const { colors } = useExtendedTheme();
   return (
     <View
       style={{
@@ -458,27 +470,15 @@ function PostItemCardAuthor(props: PostItemCardAuthorProps) {
       onRejected={() => (
         <Card.Author displayName="Anonymous" {...cardElementProps} />
       )}
-      onFulfilled={profile => {
-        // const getPublicName = () => {
-        //   if (!profile) {
-        //     return 'Anonymous';
-        //   } else if (profile.kind === 'vendor') {
-        //     return profile.businessName || profile.displayName;
-        //   } else {
-        //     return profile.displayName;
-        //   }
-        // };
-
-        return (
-          <Card.Author
-            avatar={profile?.avatar}
-            displayName={profile?.__publicName}
-            isMyProfile={isMyProfile}
-            onPress={() => handlePressAuthor(profile)}
-            {...cardElementProps}
-          />
-        );
-      }}
+      onFulfilled={profile => (
+        <Card.Author
+          avatar={profile?.avatar}
+          displayName={profile?.__publicName}
+          isMyProfile={isMyProfile}
+          onPress={() => handlePressAuthor(profile)}
+          {...cardElementProps}
+        />
+      )}
     />
   );
 }
@@ -609,9 +609,8 @@ export function PostItemCardPreview(props: PostItemCardPreviewProps) {
 const postItemCardStyles = StyleSheet.create({
   cardBodyPlaceholder: {
     width: '100%',
-    backgroundColor: color.placeholder,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: layout.spacing.md,
+    marginBottom: constants.layout.spacing.md,
   },
 });

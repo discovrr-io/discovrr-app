@@ -1,9 +1,9 @@
-import React from 'react';
+import * as React from 'react';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { useTheme } from '@react-navigation/native';
 
-import { color, font } from 'src/constants';
+import * as constants from 'src/constants';
 import { FeedTopTabParamList } from 'src/navigation';
+import { useExtendedTheme } from 'src/hooks';
 
 import DiscoverFeed from './DiscoverFeed';
 // import DiscoverFeed from './DiscoverFeed.new';
@@ -13,16 +13,16 @@ import FollowingFeed from './FollowingFeed';
 const FeedTopTab = createMaterialTopTabNavigator<FeedTopTabParamList>();
 
 export default function FeedNavigator() {
-  const { dark } = useTheme();
+  const { colors } = useExtendedTheme();
   return (
     <FeedTopTab.Navigator
       initialRouteName="DiscoverFeed"
       screenOptions={{
         lazy: true,
-        tabBarLabelStyle: font.defaultTopTabBarLabelStyle,
-        tabBarActiveTintColor: color.accent,
-        tabBarInactiveTintColor: dark ? color.gray300 : color.gray500,
-        tabBarPressColor: dark ? color.gray700 : color.gray200,
+        tabBarLabelStyle: constants.font.defaultTopTabBarLabelStyle,
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.caption,
+        tabBarPressColor: colors.highlight,
       }}>
       <FeedTopTab.Screen
         name="DiscoverFeed"

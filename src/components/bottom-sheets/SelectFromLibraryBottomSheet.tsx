@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { StyleSheet, Text, TouchableHighlight, View } from 'react-native';
+import { Text, TouchableHighlight, View } from 'react-native';
 
 import Icon from 'react-native-vector-icons/Ionicons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -8,27 +8,28 @@ import { Portal } from '@gorhom/portal';
 import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetBackdropProps,
-  BottomSheetProps,
   BottomSheetView,
   useBottomSheet,
   useBottomSheetDynamicSnapPoints,
   useBottomSheetTimingConfigs,
 } from '@gorhom/bottom-sheet';
 
-import * as constants from 'src/constants';
 import Spacer from '../Spacer';
 import Button from '../buttons/Button';
+import * as constants from 'src/constants';
+import { useExtendedTheme } from 'src/hooks';
 
-type SelectFromLibraryBottomSheetProps = Omit<
-  BottomSheetProps,
-  'snapPoints' | 'children'
-> &
-  Pick<SelectFromLibraryBottomSheetContentsProps, 'onSelectItem'>;
+type SelectFromLibraryBottomSheetProps = Pick<
+  SelectFromLibraryBottomSheetContentsProps,
+  'onSelectItem'
+>;
 
 const SelectFromLibraryBottomSheet = React.forwardRef<
   BottomSheet,
   SelectFromLibraryBottomSheetProps
 >((props, ref) => {
+  const { colors } = useExtendedTheme();
+
   const initialSnapPoints = React.useMemo(() => ['CONTENT_HEIGHT'], []);
 
   const {
@@ -68,7 +69,8 @@ const SelectFromLibraryBottomSheet = React.forwardRef<
         handleHeight={animatedHandleHeight}
         contentHeight={animatedContentHeight}
         backdropComponent={renderBackdrop}
-        {...props}>
+        handleIndicatorStyle={{ backgroundColor: colors.text }}
+        backgroundStyle={{ backgroundColor: colors.card }}>
         <BottomSheetView
           onLayout={handleContentLayout}
           style={{
@@ -155,28 +157,27 @@ type SelectFromLibraryBottomSheetIconProps = {
 function SelectFromLibraryBottomSheetIcon(
   props: SelectFromLibraryBottomSheetIconProps,
 ) {
+  const { colors } = useExtendedTheme();
   return (
     <TouchableHighlight
-      underlayColor={constants.color.gray100}
+      underlayColor={colors.highlight}
       onPress={props.onPress}
       style={{
-        borderWidth: StyleSheet.hairlineWidth,
-        borderColor: constants.color.gray500,
         flexGrow: 1,
         flexShrink: 1,
         height: 120,
         alignItems: 'center',
         justifyContent: 'center',
+        borderColor: colors.border,
         borderRadius: constants.layout.radius.md,
+        borderWidth: 1,
       }}>
       <View style={{ alignItems: 'center' }}>
-        <Icon
-          name={props.iconName}
-          size={40}
-          color={constants.color.defaultDarkTextColor}
-        />
+        <Icon name={props.iconName} size={40} color={colors.text} />
         <Spacer.Vertical value="sm" />
-        <Text style={[constants.font.mediumBold]}>{props.iconLabel}</Text>
+        <Text style={[constants.font.mediumBold, { color: colors.text }]}>
+          {props.iconLabel}
+        </Text>
       </View>
     </TouchableHighlight>
   );

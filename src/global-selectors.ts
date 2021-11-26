@@ -17,3 +17,7 @@ export const selectCurrentUserProfile = (state: RootState) => {
 export const selectCurrentUserProfileKind = (state: RootState) => {
   return selectCurrentUserProfile(state)?.kind;
 };
+
+export const selectCurrentUserHighestRole = (state: RootState) => {
+  return selectCurrentUserProfile(state)?.highestRole;
+};
