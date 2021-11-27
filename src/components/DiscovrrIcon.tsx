@@ -1,9 +1,12 @@
-import React from 'react';
+import * as React from 'react';
 import { createIconSetFromFontello } from 'react-native-vector-icons';
 import { IconProps } from 'react-native-vector-icons/Icon';
 
-const fontelloConfig = require('../../assets/discovrr-icons-font-config.json');
-const DiscovrrIconSet = createIconSetFromFontello(fontelloConfig);
+const DiscovrrIconSet = createIconSetFromFontello(
+  require('../../assets/fonts/discovrr-icons-font-config.json'),
+  'fontello',
+  'DiscovrrIcons.ttf',
+);
 
 type DiscovrrIconProps = Omit<IconProps, 'name'>;
 

@@ -15,6 +15,7 @@ export default function renderProfileNavigator() {
           title: 'Profile',
           headerTransparent: true,
           headerTintColor: color.absoluteWhite,
+          headerShown: false, // Don't show the header while profile is loading
         }}
       />
       <RootStack.Screen

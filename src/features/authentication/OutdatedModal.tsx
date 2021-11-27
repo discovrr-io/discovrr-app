@@ -98,7 +98,14 @@ export default function OutdatedModal() {
       visible={isModalVisible}>
       <SafeAreaView
         style={[{ flexGrow: 1, backgroundColor: constants.color.blue700 }]}>
-        <View style={[{ flexGrow: 1, padding: constants.layout.spacing.xxl }]}>
+        <View
+          style={[
+            { flexGrow: 1, padding: constants.layout.spacing.xxl },
+            Platform.OS === 'android' && {
+              paddingTop:
+                constants.layout.spacing.xxl + constants.layout.spacing.xl,
+            },
+          ]}>
           <View
             style={{
               flexDirection: 'row',
@@ -119,7 +126,11 @@ export default function OutdatedModal() {
           </View>
           <Spacer.Vertical value="lg" />
           <ScrollView
-            contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}>
+            contentContainerStyle={{
+              flexGrow: 1,
+              justifyContent: 'center',
+              paddingBottom: constants.layout.spacing.xxl * 1.5,
+            }}>
             <Text
               allowFontScaling={false}
               style={[

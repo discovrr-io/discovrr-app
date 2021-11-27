@@ -779,7 +779,7 @@ type ProfileBackgroundPickerSource =
 
 function ProfileBackgroundPicker() {
   const { currentProfile } = React.useContext(ProfileSettingsFormContext);
-  const { colors } = useExtendedTheme();
+  const { colors, dark } = useExtendedTheme();
 
   const [_, meta, helpers] =
     useField<ProfileChangesForm['background']>('background');
@@ -955,10 +955,19 @@ function ProfileBackgroundPicker() {
         {backgroundSource.type === 'image' ? (
           <FastImage
             resizeMode="cover"
+            tintColor={
+              typeof backgroundSource.source === 'number'
+                ? dark
+                  ? constants.color.gray300
+                  : constants.color.gray500
+                : undefined
+            }
             source={backgroundSource.source}
             style={[
               profileBackgroundPickerStyles.picker,
-              { backgroundColor: colors.placeholder },
+              typeof backgroundSource.source !== 'number' && {
+                backgroundColor: colors.placeholder,
+              },
             ]}
             onLoadStart={() => setIsLoading(true)}
             onLoadEnd={() => setIsLoading(false)}

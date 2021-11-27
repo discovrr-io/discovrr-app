@@ -23,8 +23,13 @@ project.ext.react = [
     devDisabledInReleaseStaging: true, // Disable dev-mode in staging mode
 ]
 
+// Name of the font files you want to copy
 project.ext.vectoricons = [
-    iconFontNames: ['Ionicons.ttf', 'MaterialIcons.ttf', 'MaterialCommunityIcons.ttf'] // Name of the font files you want to copy
+    iconFontNames: [
+        'Ionicons.ttf',
+        'MaterialIcons.ttf',
+        'MaterialCommunityIcons.ttf'
+    ]
 ]
 
 apply from: "../../node_modules/react-native/react.gradle"

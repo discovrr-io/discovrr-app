@@ -287,6 +287,7 @@ export function LoadedProfileDetailsScreen(
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
+      headerShown: true,
       title: props.preferredTitle || profile.__publicName,
       headerTitleStyle: [
         constants.font.defaultHeaderTitleStyle,

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Platform, SafeAreaView, useWindowDimensions } from 'react-native';
+import { SafeAreaView, useWindowDimensions } from 'react-native';
 
 import Icon from 'react-native-vector-icons/Ionicons';
 import { createDrawerNavigator } from '@react-navigation/drawer';
@@ -124,14 +124,9 @@ function FacadeNavigator() {
           let iconName: string;
           let iconSize = 26;
 
-          if (Platform.OS === 'ios' && route.name === 'Home') {
-            return <DiscovrrIcon size={iconSize * 0.9} color={color} />;
-          }
-
           switch (route.name) {
             case 'Home':
-              iconName = focused ? 'home' : 'home-outline';
-              break;
+              return <DiscovrrIcon size={iconSize * 0.9} color={color} />;
             case 'Explore':
               iconName = focused ? 'compass' : 'compass-outline';
               iconSize *= 1.12;
