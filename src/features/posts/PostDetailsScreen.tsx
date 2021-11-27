@@ -83,10 +83,10 @@ const COMMENT_TEXT_INPUT_MIN_HEIGHT =
 
 const MEDIA_WIDTH_SCALE = 0.85;
 
-const ANDROID_SHARE_MESSAGE = `\
-Hey there! I want to show you something I found on Discovrr. Download the \
-app from the Play Store to view it: \
-https://play.google.com/store/apps/details?id=com.discovrr.discovrr_app`;
+const ANDROID_SHARE_MESSAGE =
+  'Hey there! I want to show you something I found on Discovrr. Download ' +
+  'the app from the Play Store to view it: ' +
+  constants.values.ANDROID_PLAY_STORE_LINK;
 
 type SliderImageProps = {
   item: MediaSource;

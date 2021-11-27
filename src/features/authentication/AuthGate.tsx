@@ -17,6 +17,7 @@ import * as authSlice from './auth-slice';
 import AuthScreen from './AuthScreen';
 import TermsAndConditionsScreen from './TermsAndConditions';
 import RootNavigator from './RootNavigator';
+import OutdatedModal from './OutdatedModal';
 
 const AuthStack = createStackNavigator<AuthStackParamList>();
 
@@ -124,14 +125,19 @@ export default function AuthGate() {
     if (isFirstLogin && !!user) fetchCurrentUserProfile(user);
   }, [dispatch, isFirstLogin, user]);
 
-  return isAuthenticated ? (
-    <>
-      {status === 'signing-out' && !!user && (
-        <LoadingOverlay message="Signing you out.." />
+  return (
+    <React.Fragment>
+      {isAuthenticated ? (
+        <React.Fragment>
+          {status === 'signing-out' && !!user && (
+            <LoadingOverlay message="Signing you out.." />
+          )}
+          <RootNavigator />
+        </React.Fragment>
+      ) : (
+        <AuthNavigator />
       )}
-      <RootNavigator />
-    </>
-  ) : (
-    <AuthNavigator />
+      <OutdatedModal />
+    </React.Fragment>
   );
 }

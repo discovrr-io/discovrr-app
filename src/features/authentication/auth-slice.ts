@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { BaseThunkAPI } from '@reduxjs/toolkit/dist/createAsyncThunk';
 
 import { ApiFetchStatus, AuthApi } from 'src/api';
@@ -25,6 +25,7 @@ export type AuthState = AuthFetchStatus & {
   isAuthenticated: boolean;
   isFirstLogin: boolean;
   didAbortSignOut: boolean;
+  isOutdatedModalVisible: boolean;
 };
 
 const initialState: AuthState = {
@@ -35,6 +36,7 @@ const initialState: AuthState = {
   isAuthenticated: false,
   isFirstLogin: false,
   didAbortSignOut: false,
+  isOutdatedModalVisible: false,
 };
 
 //#endregion Authentication State Initialization
@@ -102,6 +104,9 @@ const authSlice = createSlice({
     },
     dismissAbortSignOutAlert: state => {
       state.didAbortSignOut = false;
+    },
+    setOutdatedModalVisibility: (state, action: PayloadAction<boolean>) => {
+      state.isOutdatedModalVisible = action.payload;
     },
   },
   extraReducers: builder => {
@@ -183,7 +188,11 @@ const authSlice = createSlice({
   },
 });
 
-export const { dismissInfoModal, dismissAbortSignOutAlert } = authSlice.actions;
+export const {
+  dismissInfoModal,
+  dismissAbortSignOutAlert,
+  setOutdatedModalVisibility,
+} = authSlice.actions;
 
 //#endregion Authentication Slice
 

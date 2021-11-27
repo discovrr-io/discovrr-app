@@ -212,9 +212,7 @@ function AppDrawer(props: AppDrawerProps & { profileId: ProfileId }) {
       `Please send your feedback to ${address} instead. We'll get back to ` +
       `you shortly.\n\nThank you for considering sending us feedback.`;
 
-    const canOpen = await Linking.canOpenURL(link);
-
-    if (!canOpen) {
+    if (!(await Linking.canOpenURL(link))) {
       Alert.alert(
         'Cannot Open Link',
         "Looks like your device doesn't support email links. " + errorMessage,
@@ -225,6 +223,7 @@ function AppDrawer(props: AppDrawerProps & { profileId: ProfileId }) {
     try {
       await Linking.openURL(link);
     } catch (error) {
+      console.warn($FUNC, 'Failed to open link:', error);
       Alert.alert(
         'Cannot Open Link',
         "We couldn't open this link for you. " + errorMessage,

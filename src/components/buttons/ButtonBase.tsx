@@ -32,12 +32,14 @@ export default function ButtonBase(props: ButtonBaseProps) {
     containerStyle,
     textStyle,
     useTouchableOpacity,
+    innerTextProps,
     ...restProps
   } = props;
 
   const Touchable = useTouchableOpacity ? TouchableOpacity : TouchableHighlight;
 
   return (
+    // @ts-ignore Touchable is valid here
     <Touchable
       {...restProps}
       testID={'btn-container'}
@@ -58,6 +60,7 @@ export default function ButtonBase(props: ButtonBaseProps) {
         />
       ) : (
         <Text
+          {...innerTextProps}
           testID={'btn-text'}
           style={[
             disabled ? buttonStyles?.disabledTitle : buttonStyles?.defaultTitle,

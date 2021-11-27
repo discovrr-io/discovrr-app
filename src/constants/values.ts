@@ -14,6 +14,11 @@ export const MAX_VID_DURATION_MILLISECONDS = MAX_VID_DURATION_SECONDS * 1000;
 
 export const BOTTOM_SHEET_WAIT_DURATION = 80;
 
+export const IOS_APP_STORE_LINK =
+  'https://apps.apple.com/au/app/discovrr/id1541137819';
+export const ANDROID_PLAY_STORE_LINK =
+  'https://play.google.com/store/apps/details?id=com.discovrr.discovrr_app';
+
 export const APP_VERSION: string =
   nodePackage.version || `${getVersion()}-native` || '<unknown-version>';
 

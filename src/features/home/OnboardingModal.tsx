@@ -90,13 +90,8 @@ export default function OnboardingModal(props: ModalBaseProps) {
   return (
     <OnboardingModalResultContext.Provider
       value={{ surveyResponse, setSurveyResponse }}>
-      <Modal {...props}>
-        <View
-          style={{
-            width: '100%',
-            height: '100%',
-            // paddingBottom: bottomTabHeight,
-          }}>
+      <Modal statusBarTranslucent {...props}>
+        <View style={{ width: '100%', height: '100%' }}>
           <SafeAreaView
             style={{
               width: '100%',

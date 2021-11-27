@@ -2,6 +2,7 @@ import {
   ColorValue,
   StyleProp,
   StyleSheet,
+  TextProps,
   TextStyle,
   ViewProps,
   ViewStyle,
@@ -23,6 +24,7 @@ export type CommonButtonProps = Omit<ViewProps, 'style'> & {
   loadingIndicatorColor?: ColorValue | undefined;
   containerStyle?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
+  innerTextProps?: Omit<TextProps, 'style' | 'testID'>;
 };
 
 export type SizeStyles = {

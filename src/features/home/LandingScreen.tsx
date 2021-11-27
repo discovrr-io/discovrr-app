@@ -441,6 +441,8 @@ export default function LandingScreen(props: LandingScreenProps) {
   const dispatch = useAppDispatch();
   const isMounted = useIsMounted();
 
+  const { isOutdatedModalVisible } = useAppSelector(state => state.auth);
+
   const [homeFeedData, setHomeFeedData] = React.useState<HomeFeedData>();
   const [makers, setMakers] = React.useState<Profile[]>([]);
   const [isInitialRender, setIsInitialRender] = React.useState(true);
@@ -657,7 +659,7 @@ export default function LandingScreen(props: LandingScreenProps) {
       <OnboardingModal
         transparent
         animationType="fade"
-        visible={isModalVisible}
+        visible={!isOutdatedModalVisible && isModalVisible}
       />
     </OnboardingModalContext.Provider>
   );
