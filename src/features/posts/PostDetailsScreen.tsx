@@ -711,6 +711,7 @@ type GalleryPostDetailsContentProps = {
 function GalleryPostDetailsContent(props: GalleryPostDetailsContentProps) {
   const { contents, location } = props;
   const { width: windowWidth } = useWindowDimensions();
+  const { colors } = useExtendedTheme();
 
   const carouselRef = React.useRef<Carousel<MediaSource> | null>(null);
   const [activeMediaIndex, setActiveMediaIndex] = React.useState(0);
@@ -733,6 +734,8 @@ function GalleryPostDetailsContent(props: GalleryPostDetailsContentProps) {
       <Pagination
         activeDotIndex={activeMediaIndex}
         dotsLength={contents.sources.length}
+        dotColor={colors.caption}
+        inactiveDotColor={colors.captionDisabled}
         dotStyle={{
           width: 10,
           height: 10,

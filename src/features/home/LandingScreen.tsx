@@ -208,7 +208,6 @@ const sectionTitleProps = StyleSheet.create({
   title: {
     textAlign: 'center',
     fontSize: constants.font.size.h2 * 0.8,
-    // fontWeight: '600',
   },
 });
 

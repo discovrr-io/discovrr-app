@@ -115,6 +115,8 @@ function PersistedApp() {
   const $FUNC = '[PersistedApp]';
   const dispatch = useAppDispatch();
 
+  const authStatus = useAppSelector(state => state.auth.status);
+
   const systemScheme = useColorScheme();
   const selectedAppearance = useAppSelector(
     state => state.settings.appearancePrefs,
@@ -254,8 +256,16 @@ function PersistedApp() {
           getInitialURL: async () => {
             // Check if app was opened from a deep link, and return it.
             const url = await Linking.getInitialURL();
-
             if (url != null) return url;
+
+            // Only pass the initial URL if the current user is authenticated
+            if (authStatus !== 'fulfilled') {
+              console.warn(
+                $FUNC,
+                'User is not signed in. Skipping initial URL...',
+              );
+              return;
+            }
 
             // Otherwise, check if there is an initial Firebase notification.
             const message = await messaging().getInitialNotification();
