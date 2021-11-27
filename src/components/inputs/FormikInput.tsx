@@ -36,17 +36,22 @@ export default function FormikInput<FormValues>({
         value={fieldValue}
         onChangeText={formikProps.handleChange(formikField)}
         onBlur={formikProps.handleBlur(String(formikField))}
+        placeholderTextColor={color.gray500}
+        secureTextEntry={hidePassword && secureTextEntry}
+        innerTextInputStyle={{
+          color: color.defaultDarkTextColor,
+        }}
         containerStyle={{
-          backgroundColor: color.white,
+          backgroundColor: color.absoluteWhite,
           borderColor: hasError ? color.danger : color.black,
         }}
-        secureTextEntry={hidePassword && secureTextEntry}
         suffix={
           secureTextEntry && (
             <TextInput.Icon
               activeOpacity={1}
               name={hidePassword ? 'eye' : 'eye-off'}
               size={24}
+              color={color.defaultDarkTextColor}
               onPress={() => setHidePassword(prev => !prev)}
             />
           )

@@ -870,24 +870,27 @@ function ProfileBackgroundPicker() {
       }
     };
 
-    switch (selectedItemId) {
-      case 'remove':
-        if (currentProfile.background === undefined) {
-          helpers.setValue(undefined);
-        } else {
-          helpers.setValue(null);
-        }
-        break;
-      case 'camera-photo':
-        await handleTakePhoto();
-        break;
-      case 'camera-video':
-        await handleRecordVideo();
-        break;
-      case 'library':
-        selectFromLibraryBottomSheetRef.current?.expand();
-        break;
-    }
+    // We'll wait a short period of time to let the bottom sheet fully close
+    setTimeout(async () => {
+      switch (selectedItemId) {
+        case 'remove':
+          if (currentProfile.background === undefined) {
+            helpers.setValue(undefined);
+          } else {
+            helpers.setValue(null);
+          }
+          break;
+        case 'camera-photo':
+          await handleTakePhoto();
+          break;
+        case 'camera-video':
+          await handleRecordVideo();
+          break;
+        case 'library':
+          selectFromLibraryBottomSheetRef.current?.expand();
+          break;
+      }
+    }, constants.values.BOTTOM_SHEET_WAIT_DURATION);
   };
 
   const handleSelectUploadTypeAction = async (selectedItemId: string) => {
@@ -922,22 +925,25 @@ function ProfileBackgroundPicker() {
       }
     };
 
-    switch (selectedItemId) {
-      case 'photo':
-        await handleSelectFromPhotoLibrary({
-          mediaType: 'photo',
-          forceJpg: true,
-          cropping: true,
-          loadingLabelText: 'Processing photo…',
-        });
-        break;
-      case 'video':
-        await handleSelectFromPhotoLibrary({
-          mediaType: 'video',
-          loadingLabelText: 'Processing video…',
-        });
-        break;
-    }
+    // We'll wait a short period of time to let the bottom sheet fully close
+    setTimeout(async () => {
+      switch (selectedItemId) {
+        case 'photo':
+          await handleSelectFromPhotoLibrary({
+            mediaType: 'photo',
+            forceJpg: true,
+            cropping: true,
+            loadingLabelText: 'Processing photo…',
+          });
+          break;
+        case 'video':
+          await handleSelectFromPhotoLibrary({
+            mediaType: 'video',
+            loadingLabelText: 'Processing video…',
+          });
+          break;
+      }
+    }, constants.values.BOTTOM_SHEET_WAIT_DURATION);
   };
 
   return (

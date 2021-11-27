@@ -21,7 +21,6 @@ import {
 } from '@react-navigation/drawer';
 
 import * as constants from 'src/constants';
-import * as utilities from 'src/utilities';
 import * as authSlice from 'src/features/authentication/auth-slice';
 import * as profilesSlice from 'src/features/profiles/profiles-slice';
 import { useAppDispatch, useAppSelector, useExtendedTheme } from 'src/hooks';
@@ -31,7 +30,6 @@ import { RootStackNavigationProp, RootStackParamList } from 'src/navigation';
 
 import AsyncGate from './AsyncGate';
 import Spacer from './Spacer';
-import { MAX_FONT_MULTIPLIER } from 'src/constants/values';
 
 const AVATAR_DIAMETER = 125;
 // const DRAWER_ITEM_ICON_COLOR = constants.color.black;
@@ -51,10 +49,9 @@ function AppDrawerItem(props: AppDrawerItemProps) {
 
   return (
     <DrawerItem
-      pressColor={constants.color.gray200}
+      pressColor={colors.highlight}
       label={() => (
         <Text
-          maxFontSizeMultiplier={MAX_FONT_MULTIPLIER}
           numberOfLines={1}
           style={[
             constants.font.medium,
@@ -168,7 +165,6 @@ function RoleChip(props: { label: string }) {
       }}>
       <Text
         numberOfLines={1}
-        maxFontSizeMultiplier={MAX_FONT_MULTIPLIER}
         style={[constants.font.smallBold, { color: chipColor }]}>
         {humanReadableRoleLabel}
       </Text>
@@ -278,12 +274,7 @@ function AppDrawer(props: AppDrawerProps & { profileId: ProfileId }) {
         <TouchableOpacity
           activeOpacity={constants.values.DEFAULT_ACTIVE_OPACITY}
           onPress={() => {
-            if (profile) {
-              handleNavigation('ProfileSettings');
-            } else {
-              utilities.alertSomethingWentWrong();
-              navigation.closeDrawer();
-            }
+            if (profile) handleNavigation('ProfileSettings');
           }}>
           <AppDrawerProfileDetails profileId={profileId} />
         </TouchableOpacity>
@@ -347,17 +338,17 @@ const AppDrawerProfileDetails = (props: AppDrawerProfileDetailsProps) => {
         reload: true,
       });
 
-      try {
-        await new Promise<void>(resolve => {
-          // iOS: Wait a bit to let the dark-overlay animation to complete
-          timeout = setTimeout(async () => {
+      await new Promise<void>(resolve => {
+        // iOS: Wait a bit to let the dark-overlay animation to complete
+        timeout = setTimeout(async () => {
+          try {
             await dispatch(fetchProfileAction).unwrap();
             resolve(undefined);
-          }, 500);
-        });
-      } catch (error) {
-        console.error('Failed to fetch profile:', error);
-      }
+          } catch (error) {
+            console.error('Failed to fetch profile:', error);
+          }
+        }, 500);
+      });
     }
 
     if (drawerStatus === 'open') fetchMyProfile();
@@ -403,7 +394,6 @@ AppDrawerProfileDetails.Fulfilled = ({ profile }: { profile: Profile }) => {
       <Spacer.Vertical value="lg" />
       <Text
         numberOfLines={1}
-        maxFontSizeMultiplier={MAX_FONT_MULTIPLIER}
         style={[
           constants.font.extraLargeBold,
           { textAlign: 'center', color: colors.text },
@@ -413,7 +403,6 @@ AppDrawerProfileDetails.Fulfilled = ({ profile }: { profile: Profile }) => {
       <Spacer.Vertical value="xs" />
       <Text
         numberOfLines={1}
-        maxFontSizeMultiplier={MAX_FONT_MULTIPLIER}
         style={[
           constants.font.medium,
           { color: constants.color.gray500, textAlign: 'center' },

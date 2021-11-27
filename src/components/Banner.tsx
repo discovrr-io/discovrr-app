@@ -10,6 +10,7 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 
 import { color, font, layout } from 'src/constants';
+import { useExtendedTheme } from 'src/hooks';
 import Spacer from './Spacer';
 
 export type BannerType = 'information' | 'hint' | 'warning' | 'error';
@@ -25,14 +26,7 @@ export type BannerProps = {
 };
 
 export default function Banner(props: BannerProps) {
-  const textColorStyles = React.useMemo<TextStyle>(() => {
-    switch (props.type ?? 'information') {
-      case 'information':
-        return { color: color.defaultDarkTextColor };
-      default:
-        return { color: color.defaultLightTextColor };
-    }
-  }, [props.type]);
+  const { dark, colors } = useExtendedTheme();
 
   const leadingIconName = React.useMemo(() => {
     switch (props.type) {
@@ -51,36 +45,42 @@ export default function Banner(props: BannerProps) {
     <View
       style={[
         bannerStyles.container,
+        { backgroundColor: colors.border },
         props.type === 'hint' && {
-          backgroundColor: color.blue300,
-          borderColor: color.blue700,
+          backgroundColor: dark ? color.blue700 : color.blue300,
+          borderColor: dark ? color.blue300 : color.blue700,
         },
         props.type === 'warning' && {
-          backgroundColor: color.orange300,
-          borderColor: color.orange700,
+          backgroundColor: dark ? color.orange700 : color.orange300,
+          borderColor: dark ? color.orange300 : color.orange700,
         },
         props.type === 'error' && {
-          backgroundColor: color.red300,
-          borderColor: color.red700,
+          backgroundColor: dark ? color.red700 : color.red300,
+          borderColor: dark ? color.red300 : color.red700,
         },
         props.containerStyles,
       ]}>
       {!props.hideLeadingIcon && (
         <>
-          <Icon
-            name={leadingIconName}
-            size={24}
-            color={textColorStyles.color}
-          />
+          <Icon name={leadingIconName} size={24} color={colors.text} />
           <Spacer.Horizontal value="sm" />
         </>
       )}
       <View style={[bannerStyles.textContainer]}>
-        <Text style={[font.smallBold, textColorStyles, props.titleTextStyle]}>
+        <Text
+          style={[
+            font.smallBold,
+            { color: colors.text },
+            props.titleTextStyle,
+          ]}>
           {props.title}
         </Text>
         <Text
-          style={[font.extraSmall, textColorStyles, props.captionTextStyle]}>
+          style={[
+            font.extraSmall,
+            { color: colors.text },
+            props.captionTextStyle,
+          ]}>
           {props.caption}
         </Text>
       </View>
@@ -93,7 +93,6 @@ const bannerStyles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: layout.spacing.md,
-    backgroundColor: color.gray100,
     borderColor: color.gray500,
     borderRadius: layout.radius.sm,
     borderWidth: StyleSheet.hairlineWidth,

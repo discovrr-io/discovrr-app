@@ -91,7 +91,12 @@ LoadedProfileListItem.Pending = () => {
   const { colors } = useExtendedTheme();
   return (
     <View style={profileListItemStyles.container}>
-      <View style={profileListItemStyles.avatar} />
+      <View
+        style={[
+          profileListItemStyles.avatar,
+          { backgroundColor: colors.placeholder },
+        ]}
+      />
       <View style={profileListItemStyles.innerContainer}>
         <View
           style={{

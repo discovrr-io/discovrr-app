@@ -54,7 +54,7 @@ function MyProfileDetailsScreen(props: MyProfileDetailsScreenProps) {
   const { height: windowHeight } = useWindowDimensions();
 
   const renderRouteError = (_error?: any) => (
-    <RouteError containerStyle={{ backgroundColor: constants.color.white }} />
+    <RouteError message="We weren't able to find your profile." />
   );
 
   return (
@@ -100,14 +100,15 @@ function FacadeNavigator() {
       screenOptions={({ route }) => ({
         lazy: true,
         headerBackTitleVisible: false,
-        headerTitleAllowFontScaling: false,
-        tabBarAllowFontScaling: false,
         headerLeft: HeaderIcon.Menu,
         headerLeftContainerStyle: {
           paddingLeft: constants.layout.defaultScreenMargins.horizontal,
         },
         headerTintColor: colors.text,
         headerTitleStyle: constants.font.defaultHeaderTitleStyle,
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.caption,
+        tabBarAllowFontScaling: false,
         tabBarStyle: {
           minHeight: constants.values.DEFAULT_MIN_BOTTOM_TAB_BAR_HEIGHT,
         },

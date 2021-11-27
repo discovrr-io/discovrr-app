@@ -12,7 +12,7 @@ export const DEFAULT_ICON_LIKE_ANIMATION: Animation = 'rubberBand';
 export const MAX_VID_DURATION_SECONDS = 60;
 export const MAX_VID_DURATION_MILLISECONDS = MAX_VID_DURATION_SECONDS * 1000;
 
-export const MAX_FONT_MULTIPLIER = 1.5;
+export const BOTTOM_SHEET_WAIT_DURATION = 80;
 
 export const APP_VERSION: string =
   nodePackage.version || `${getVersion()}-native` || '<unknown-version>';

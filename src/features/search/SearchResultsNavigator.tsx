@@ -7,8 +7,8 @@ import { FlatList } from 'react-native-gesture-handler';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
 import ProfileListItem from 'src/features/profiles/ProfileListItem';
-import { color, font } from 'src/constants';
-import { useIsMounted } from 'src/hooks';
+import { font } from 'src/constants';
+import { useExtendedTheme, useIsMounted } from 'src/hooks';
 import { ProfileId } from 'src/models';
 import { alertSomethingWentWrong } from 'src/utilities';
 
@@ -194,6 +194,7 @@ export default function SearchResultsNavigator(
   props: SearchResultsNavigatorProps,
 ) {
   const query = props.route.params.query;
+  const { colors } = useExtendedTheme();
   return (
     <SearchResultsTopTab.Navigator
       initialRouteName="SearchResultsUsers"
@@ -202,9 +203,9 @@ export default function SearchResultsNavigator(
         tabBarScrollEnabled: true,
         tabBarItemStyle: { width: 120 },
         tabBarLabelStyle: font.defaultTopTabBarLabelStyle,
-        tabBarActiveTintColor: color.accent,
-        tabBarInactiveTintColor: color.gray500,
-        tabBarPressColor: color.gray200,
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.caption,
+        tabBarPressColor: colors.highlight,
       }}>
       <SearchResultsTopTab.Screen
         name="SearchResultsUsers"

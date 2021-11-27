@@ -291,7 +291,13 @@ MakerOfTheWeek.Pending = () => {
     <View>
       <SectionTitle title={MAKER_OF_THE_WEEK_TITLE} />
       <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-        <FastImage source={{}} style={makerOfTheWeekStyles.coverImage} />
+        <FastImage
+          source={{}}
+          style={[
+            makerOfTheWeekStyles.coverImage,
+            { backgroundColor: colors.placeholder },
+          ]}
+        />
         <ActivityIndicator
           size="large"
           color={constants.color.gray500}
@@ -623,9 +629,10 @@ export default function LandingScreen(props: LandingScreenProps) {
             {homeFeedData?.limitedOfferProductId && (
               <LimitedOffer productId={homeFeedData.limitedOfferProductId} />
             )}
-            {Platform.OS !== 'ios' &&
-              (!isInitialRender || !shouldRefresh) &&
-              makers.length > 0 && <ExploreOurMakers profiles={makers} />}
+            {__DEV__ && Platform.OS === 'ios'
+              ? null
+              : (!isInitialRender || !shouldRefresh) &&
+                makers.length > 0 && <ExploreOurMakers profiles={makers} />}
           </View>
         }
         ListEmptyComponent={

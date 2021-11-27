@@ -295,19 +295,10 @@ export default function PostDetailsScreen(props: PostDetailsScreenProps) {
       )}
       onFulfilled={post => {
         if (!post)
-          return (
-            <RouteError
-              message="There doesn't seem to be a post here"
-              containerStyle={{ backgroundColor: constants.color.white }}
-            />
-          );
+          return <RouteError message="There doesn't seem to be a post here" />;
         return <LoadedPostDetailsScreen post={post} />;
       }}
-      onRejected={_ => (
-        <RouteError
-          containerStyle={{ backgroundColor: constants.color.white }}
-        />
-      )}
+      onRejected={_ => <RouteError />}
     />
   );
 }

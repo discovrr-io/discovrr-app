@@ -147,7 +147,6 @@ export default function RootNavigator() {
         screenOptions={{
           headerBackTitleVisible: false,
           headerTintColor: colors.text,
-          headerTitleAllowFontScaling: false,
           headerTitleStyle: constants.font.defaultHeaderTitleStyle,
           headerLeft: props => <HeaderIcon.Back {...props} />,
           headerLeftContainerStyle: {

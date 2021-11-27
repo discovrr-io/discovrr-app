@@ -300,6 +300,8 @@ export function makeTextButtonColorStyles(
     },
   };
 
+  const disabledTitleColor = isDarkTheme ? color.gray700 : color.gray300;
+
   switch (type) {
     case 'primary':
       return {
@@ -309,7 +311,7 @@ export function makeTextButtonColorStyles(
             color: color.accent,
           },
           disabled: {
-            color: color.disabledDarkTextColor,
+            color: disabledTitleColor,
           },
         },
       };
@@ -321,7 +323,7 @@ export function makeTextButtonColorStyles(
             color: color.danger,
           },
           disabled: {
-            color: color.disabledDarkTextColor,
+            color: disabledTitleColor,
           },
         },
       };
@@ -336,7 +338,7 @@ export function makeTextButtonColorStyles(
               : color.defaultDarkTextColor,
           },
           disabled: {
-            color: color.disabledDarkTextColor,
+            color: disabledTitleColor,
           },
         },
       };

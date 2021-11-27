@@ -40,7 +40,7 @@ const TabBarIcon = (props: TabBarIconProps) => (
   <Icon
     name={`${props.name}-outline`}
     // name={props.focused ? props.name : props.name + '-outline'}
-    color={props.focused ? props.color : constants.color.gray500}
+    color={props.color}
     size={props.size ?? TAB_ICON_SIZE}
   />
 );

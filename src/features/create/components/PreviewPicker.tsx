@@ -1,8 +1,6 @@
 import * as React from 'react';
 import {
   FlatList,
-  ImageStyle,
-  StyleProp,
   StyleSheet,
   Text,
   TouchableHighlight,
@@ -43,11 +41,11 @@ function PreviewPickerInner<ItemT>(
   const { setValue: setItems } = helpers;
 
   const { width: windowWidth } = useWindowDimensions();
-  const { colors } = useExtendedTheme();
+  const { colors, dark } = useExtendedTheme();
   const itemWidth = React.useMemo(() => windowWidth * 0.7, [windowWidth]);
   const flatListRef = React.useRef<FlatList<ItemT>>(null);
 
-  const handleRemoveImageAtIndex = async (index: number) => {
+  const handleRemoveItemAtIndex = async (index: number) => {
     const newItemArray = [...items.slice(0, index), ...items.slice(index + 1)];
     setItems(newItemArray);
   };
@@ -108,15 +106,14 @@ function PreviewPickerInner<ItemT>(
             renderItem={props.renderItem}
             isAboveLimit={index >= props.maxCount}
             onPressItem={async () => await props.onSelectItemAtIndex?.(index)}
-            onPressRemove={async () => await handleRemoveImageAtIndex(index)}
-            style={{ width: itemWidth }}
+            onPressRemove={async () => await handleRemoveItemAtIndex(index)}
           />
         )}
         ListFooterComponent={() => {
           if (items.length >= props.maxCount) return null;
           return (
             <TouchableHighlight
-              underlayColor={colors.highlight}
+              underlayColor={dark ? color.black : colors.highlight}
               onPress={props.onAddItem}
               style={[
                 previewPickerStyles.itemTouchableContainer,
@@ -157,7 +154,6 @@ type PreviewPickerItemProps<ItemT> = {
   renderItem: (info: PreviewPickerRenderItemInfo<ItemT>) => React.ReactNode;
   onPressItem?: TouchableOpacityProps['onPress'];
   onPressRemove?: TouchableOpacityProps['onPress'];
-  style?: StyleProp<ImageStyle>;
 };
 
 function PickerItem<ItemT>(props: PreviewPickerItemProps<ItemT>) {

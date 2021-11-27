@@ -183,8 +183,8 @@ export function useExtendedTheme(): ExtendedTheme {
       ...theme.colors,
       textDisabled: theme.dark
         ? constants.color.gray700
-        : constants.color.gray500,
-      caption: theme.dark ? constants.color.gray500 : constants.color.gray700,
+        : constants.color.gray300,
+      caption: constants.color.gray500,
       captionDisabled: theme.dark
         ? constants.color.gray700
         : constants.color.gray300,

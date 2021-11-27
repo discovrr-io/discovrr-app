@@ -104,20 +104,17 @@ export default function ViewPreviewPicker(props: VideoPreviewPickerProps) {
       }
     };
 
-    switch (selectedItemId) {
-      case 'camera':
-        // We'll wait a short period of time to let the bottom sheet fully close
-        setTimeout(async () => {
+    // We'll wait a short period of time to let the bottom sheet fully close
+    setTimeout(async () => {
+      switch (selectedItemId) {
+        case 'camera':
           await handleRecordVideo();
-        }, 80);
-        break;
-      case 'library':
-        // We'll wait a short period of time to let the bottom sheet fully close
-        setTimeout(async () => {
+          break;
+        case 'library':
           await handleSelectFromPhotoLibrary();
-        }, 80);
-        break;
-    }
+          break;
+      }
+    }, constants.values.BOTTOM_SHEET_WAIT_DURATION);
   };
 
   return (

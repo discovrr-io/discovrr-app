@@ -47,7 +47,7 @@ export default function SplashScreen(props: SplashScreenProps) {
       <Spacer.Vertical value="lg" />
       <ActivityIndicator
         size="large"
-        color={props.navigationTheme.colors.text}
+        color={props.navigationTheme.colors.border}
         style={{ transform: [{ scale: 0.75 }] }}
       />
     </SafeAreaView>

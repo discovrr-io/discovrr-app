@@ -8,10 +8,7 @@ import {
 
 import { color } from 'src/constants';
 import { CommonButtonProps, ButtonStyles } from './buttonStyles';
-import {
-  DEFAULT_ACTIVE_OPACITY,
-  MAX_FONT_MULTIPLIER,
-} from 'src/constants/values';
+import { DEFAULT_ACTIVE_OPACITY } from 'src/constants/values';
 
 export enum ButtonBaseTestId {
   ACTIVITY_INDICATOR = 'btn-activity-indicator',
@@ -61,7 +58,6 @@ export default function ButtonBase(props: ButtonBaseProps) {
         />
       ) : (
         <Text
-          maxFontSizeMultiplier={MAX_FONT_MULTIPLIER}
           testID={'btn-text'}
           style={[
             disabled ? buttonStyles?.disabledTitle : buttonStyles?.defaultTitle,

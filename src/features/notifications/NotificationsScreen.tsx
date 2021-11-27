@@ -28,6 +28,7 @@ type NotificationsScreenProps = FacadeBottomTabScreenProps<'Notifications'>;
 export default function NotificationsScreen(props: NotificationsScreenProps) {
   const $FUNC = '[NotificationsScreen]';
   const dispatch = useAppDispatch();
+  const { colors } = useExtendedTheme();
 
   const notifications = useAppSelector(
     notificationsSlice.selectAllNotifications,
@@ -81,9 +82,9 @@ export default function NotificationsScreen(props: NotificationsScreenProps) {
           <View
             style={{
               width: '100%',
-              borderWidth: StyleSheet.hairlineWidth,
-              borderColor: constants.color.gray200,
               alignSelf: 'center',
+              borderWidth: StyleSheet.hairlineWidth,
+              borderColor: colors.border,
             }}
           />
         )}

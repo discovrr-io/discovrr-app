@@ -13,10 +13,7 @@ import * as globalConstants from 'src/constants';
 import { MediaSource } from 'src/api';
 import { DEFAULT_AVATAR } from 'src/constants/media';
 import { useExtendedTheme } from 'src/hooks';
-import {
-  DEFAULT_ACTIVE_OPACITY,
-  MAX_FONT_MULTIPLIER,
-} from 'src/constants/values';
+import { DEFAULT_ACTIVE_OPACITY } from 'src/constants/values';
 
 import * as constants from './constants';
 import Spacer from '../Spacer';
@@ -138,17 +135,24 @@ const CardAuthorAvatar = (props: CardAuthorAvatarProps) => {
   );
 };
 
-// eslint-disable-next-line react/display-name
 CardAuthorAvatar.Pending = (props: CardElementProps) => {
   const avatarDiameter = props.elementOptions?.smallContent
     ? constants.CARD_ICON_SMALL
     : constants.CARD_ICON_LARGE;
+
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const { colors } = useExtendedTheme();
+
   return (
     <FastImage
       source={{}} // No image - this'll just render the background color
       style={[
         cardAuthorStyles.avatar,
-        { width: avatarDiameter, borderRadius: avatarDiameter / 2 },
+        {
+          width: avatarDiameter,
+          borderRadius: avatarDiameter / 2,
+          backgroundColor: colors.placeholder,
+        },
       ]}
     />
   );
@@ -169,7 +173,6 @@ const CardAuthorName = (props: CardAuthorNameProps) => {
   return (
     <Text
       numberOfLines={1}
-      maxFontSizeMultiplier={MAX_FONT_MULTIPLIER}
       style={[
         cardAuthorStyles.displayName,
         props.elementOptions.captionTextStyle,

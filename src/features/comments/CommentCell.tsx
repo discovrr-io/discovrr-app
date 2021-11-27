@@ -189,7 +189,9 @@ const CommentCellAvatar = (props: { profile?: Profile }) => {
 
 const CommentCellAuthor = (props: { profile?: Profile }) => {
   const { profile } = props;
+
   const navigation = useNavigation<RootStackNavigationProp>();
+  const { colors, dark } = useExtendedTheme();
 
   const isMyProfileId = useAppSelector(state => {
     if (!profile) return false;
@@ -216,14 +218,15 @@ const CommentCellAuthor = (props: { profile?: Profile }) => {
       <Text
         style={[
           font.smallBold,
-          { color: isMyProfileId ? color.accent : color.gray500 },
+          { color: dark ? color.gray200 : color.gray700 },
+          isMyProfileId && { color: colors.primary },
         ]}>
         {isMyProfileId ? 'You' : profile?.__publicName || 'Anonymous'}
       </Text>
       {profile?.username && (
         <>
           <Spacer.Horizontal value={layout.spacing.sm} />
-          <Text style={[font.small, { color: color.gray500 }]}>
+          <Text style={[font.small, { color: colors.caption }]}>
             @{profile.username}
           </Text>
         </>
@@ -517,7 +520,7 @@ const commentCellStyles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
-    borderBottomWidth: 1,
+    borderBottomWidth: StyleSheet.hairlineWidth,
   },
   authorContainer: {
     flexDirection: 'row',

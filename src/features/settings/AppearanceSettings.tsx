@@ -26,7 +26,7 @@ export default function AppearanceSettingsScreen(
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <ScrollView style={constants.layout.defaultScreenStyle}>
-        <Cell.Group label="Appearance">
+        <Cell.Group label="App Theme">
           <Cell.OptionGroup
             value={appearance}
             onValueChanged={handleChangeAppearancePrefs}>

@@ -160,7 +160,6 @@ function ProfileByUsernameDetailsScreen(
     return (
       <RouteError
         message={`We couldn't find anyone with the username '${props.username}'`}
-        containerStyle={{ backgroundColor: constants.color.white }}
       />
     );
   } else if (shouldFetch || !profile) {
@@ -193,9 +192,7 @@ function ProfileByIdDetailsScreen(props: ProfileByIdDetailsScreenProps) {
   const headerHeight = useHeaderHeight();
   const route = useRoute<ProfileDetailsScreenProps['route']>();
 
-  const renderRouteError = (_error?: any) => (
-    <RouteError containerStyle={{ backgroundColor: constants.color.white }} />
-  );
+  const renderRouteError = (_error?: any) => <RouteError />;
 
   return (
     <AsyncGate
@@ -902,10 +899,16 @@ function ProfileDetailsHeaderStatistics(
       activeOpacity={constants.values.DEFAULT_ACTIVE_OPACITY}
       style={profileDetailsHeaderStatisticStyles.container}
       onPress={onPress}>
-      <Text numberOfLines={1} style={profileDetailsHeaderStatisticStyles.label}>
+      <Text
+        allowFontScaling={false}
+        numberOfLines={1}
+        style={profileDetailsHeaderStatisticStyles.label}>
         {label}
       </Text>
-      <Text numberOfLines={1} style={profileDetailsHeaderStatisticStyles.count}>
+      <Text
+        allowFontScaling={false}
+        numberOfLines={1}
+        style={profileDetailsHeaderStatisticStyles.count}>
         {utilities.shortenLargeNumber(count)}
       </Text>
     </TouchableOpacity>

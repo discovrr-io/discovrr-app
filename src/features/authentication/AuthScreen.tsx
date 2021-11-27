@@ -20,8 +20,8 @@ import * as yup from 'yup';
 import auth from '@react-native-firebase/auth';
 import codePush from 'react-native-code-push';
 import crashlytics from '@react-native-firebase/crashlytics';
+import FastImage from 'react-native-fast-image';
 import Video from 'react-native-video';
-
 import { Formik } from 'formik';
 import { useNavigation } from '@react-navigation/native';
 
@@ -38,15 +38,20 @@ import {
 
 import * as constants from 'src/constants';
 import { AuthApi } from 'src/api';
-import { Button, FormikInput, LoadingOverlay } from 'src/components';
 import { SOMETHING_WENT_WRONG } from 'src/constants/strings';
 import { APP_VERSION, STORE_VERSION } from 'src/constants/values';
-import { useAppDispatch, useIsMounted } from 'src/hooks';
+import { useAppDispatch, useExtendedTheme, useIsMounted } from 'src/hooks';
 import { AuthStackNavigationProp } from 'src/navigation';
+
+import {
+  Button,
+  ButtonProps,
+  FormikInput,
+  LoadingOverlay,
+} from 'src/components';
 
 import * as authSlice from './auth-slice';
 import { useAuthState } from './hooks';
-import FastImage from 'react-native-fast-image';
 
 const DISCOVRR_LOGO = require('../../../assets/images/logo-horizontal.png');
 const LOGIN_VIDEO_SOURCE = require('../../../assets/videos/login-video.mp4');
@@ -197,6 +202,33 @@ function createReportMessage(
   return `${message}\n\n${REPORT_MESSAGE}:\n\n${errorMessage}`;
 }
 
+function LegacyButton(props: Omit<ButtonProps, 'underlayColor' | 'textStyle'>) {
+  const isPrimaryContainedButton = React.useMemo(() => {
+    return props.variant === 'contained' && props.type === 'primary';
+  }, [props.type, props.variant]);
+
+  return (
+    <Button
+      {...props}
+      loadingIndicatorColor={
+        isPrimaryContainedButton
+          ? constants.color.defaultLightTextColor
+          : undefined
+      }
+      underlayColor={
+        isPrimaryContainedButton
+          ? constants.color.accentFocused
+          : constants.color.gray200
+      }
+      textStyle={{
+        color: isPrimaryContainedButton
+          ? constants.color.defaultLightTextColor
+          : constants.color.defaultDarkTextColor,
+      }}
+    />
+  );
+}
+
 type FormType = 'login' | 'register' | 'forgot-password';
 
 type LoginFormValues = AuthApi.SignInWithEmailAndPasswordParams;
@@ -256,28 +288,24 @@ function LoginForm({ setFormType }: LoginFormProps) {
               // editable={!isProcessing}
             />
           </View>
-          <Button
+          <LegacyButton
             type="primary"
             variant="contained"
             title="Sign In"
-            // disabled={isProcessing}
             onPress={props.handleSubmit}
             containerStyle={formStyles.button}
           />
-          <Button
+          <LegacyButton
             variant="outlined"
             title="Create New Account"
-            // disabled={isProcessing}
             onPress={() => setFormType('register')}
             containerStyle={formStyles.button}
           />
           <Button
-            // hyperlink
             size="small"
             type="primary"
             variant="text"
             title="Forgot your password?"
-            // disabled={isProcessing}
             onPress={() => setFormType('forgot-password')}
             containerStyle={formStyles.button}
             textStyle={{ textDecorationLine: 'underline' }}
@@ -401,21 +429,18 @@ function RegisterForm({ setFormType }: RegisterFormProps) {
               formikProps={props}
               formikField="password"
               placeholder="Password"
-              // editable={!isProcessing}
             />
           </View>
-          <Button
+          <LegacyButton
             type="primary"
             variant="contained"
             title="Register"
             onPress={props.handleSubmit}
-            // disabled={isProcessing}
             containerStyle={formStyles.button}
           />
-          <Button
+          <LegacyButton
             variant="outlined"
             title="Go Back"
-            // disabled={isProcessing}
             onPress={() => setFormType('login')}
             containerStyle={formStyles.button}
           />
@@ -432,9 +457,7 @@ function RegisterForm({ setFormType }: RegisterFormProps) {
               ]}>
               By signing up, you agree to our
             </Text>
-            <TouchableOpacity
-              // disabled={isProcessing}
-              onPress={handleOpenTermsAndConditions}>
+            <TouchableOpacity onPress={handleOpenTermsAndConditions}>
               <Text
                 style={[
                   constants.font.smallBold,
@@ -524,16 +547,15 @@ function ForgotPasswordForm({ setFormType }: ForgotPasswordFormProps) {
             autoCapitalize="none"
             containerStyle={{ marginBottom: constants.layout.spacing.md }}
           />
-          <Button
+          <LegacyButton
             type="primary"
             variant="contained"
             title="Email Me Reset Link"
             loading={isProcessing}
-            // disabled={isProcessing}
             onPress={props.handleSubmit}
             containerStyle={formStyles.button}
           />
-          <Button
+          <LegacyButton
             variant="outlined"
             title="Go Back"
             onPress={() => setFormType('login')}
@@ -551,7 +573,9 @@ function ForgotPasswordForm({ setFormType }: ForgotPasswordFormProps) {
 export default function AuthScreen() {
   const $FUNC = '[AuthScreen]';
   const dispatch = useAppDispatch();
+
   const { width: windowWidth } = useWindowDimensions();
+  const { colors } = useExtendedTheme();
 
   const isMounted = useIsMounted();
   const [isProcessing, setIsProcessing] = React.useState(false);
@@ -667,7 +691,7 @@ export default function AuthScreen() {
           source={LOGIN_POSTER_SOURCE}
           style={[
             authScreenStyles.backgroundVideo,
-            { backgroundColor: constants.color.placeholder },
+            { backgroundColor: colors.placeholder },
           ]}
         />
       )}
@@ -686,7 +710,12 @@ export default function AuthScreen() {
         poster={LOGIN_POSTER_ASSET_SOURCE.uri}
         style={[
           authScreenStyles.backgroundVideo,
-          Platform.OS === 'android' && { backgroundColor: 'transparent' },
+          {
+            backgroundColor: Platform.select({
+              android: 'transparent',
+              default: colors.placeholder,
+            }),
+          },
         ]}
       />
       <ScrollView
@@ -700,7 +729,10 @@ export default function AuthScreen() {
             <View
               style={[
                 authScreenStyles.formContainer,
-                { width: windowWidth * 0.9 },
+                {
+                  width: windowWidth * 0.9,
+                  backgroundColor: constants.color.absoluteWhite + 'DF',
+                },
               ]}>
               <Image
                 source={DISCOVRR_LOGO}
@@ -755,7 +787,6 @@ const authScreenStyles = StyleSheet.create({
     right: 0,
     left: 0,
     bottom: 0,
-    backgroundColor: constants.color.placeholder,
   },
   scrollView: {
     flexGrow: 1,
@@ -763,7 +794,6 @@ const authScreenStyles = StyleSheet.create({
     alignItems: 'center',
   },
   formContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.85)',
     borderRadius: constants.layout.radius.lg * 1.25,
     paddingTop: constants.layout.spacing.lg * 1.5,
     paddingBottom: constants.layout.spacing.lg,

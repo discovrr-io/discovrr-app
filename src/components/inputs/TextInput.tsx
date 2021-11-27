@@ -23,12 +23,7 @@ import { useExtendedTheme } from 'src/hooks';
 
 export type TextInputProps = Omit<
   RNTextInputProps,
-  | 'style'
-  | 'multiline'
-  | 'selectionColor'
-  | 'placeholderTextColor'
-  | 'onPressIn'
-  | 'onPressOut'
+  'style' | 'multiline' | 'selectionColor' | 'onPressIn' | 'onPressOut'
 > & {
   size?: ButtonSize;
   mode?: 'filled' | 'outlined';
@@ -46,6 +41,7 @@ export const __TextInput = React.forwardRef<RNTextInput, TextInputProps>(
       mode = 'filled',
       containerStyle,
       innerTextInputStyle,
+      placeholderTextColor,
       prefix,
       suffix,
       ...restProps
@@ -67,9 +63,6 @@ export const __TextInput = React.forwardRef<RNTextInput, TextInputProps>(
         default:
           return [
             filledTextInputStyles.container,
-            // isFocused
-            //   ? { backgroundColor: colors.highlight }
-            //   : { backgroundColor: dark ? color.absoluteBlack : color.gray100 },
             {
               backgroundColor: isFocused ? colors.highlight : colors.background,
             },
@@ -107,7 +100,9 @@ export const __TextInput = React.forwardRef<RNTextInput, TextInputProps>(
         <RNTextInput
           {...restProps}
           ref={ref}
-          placeholderTextColor={dark ? color.gray700 : color.gray500}
+          placeholderTextColor={
+            placeholderTextColor ?? (dark ? color.gray700 : color.gray500)
+          }
           onPressIn={() => setIsFocused(true)}
           onPressOut={() => setIsFocused(false)}
           selectionColor={Platform.OS === 'ios' ? color.accent : undefined}

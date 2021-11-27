@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Linking, StatusBar, useColorScheme } from 'react-native';
+import { Linking, Platform, StatusBar, useColorScheme } from 'react-native';
 
 import analytics from '@react-native-firebase/analytics';
 import inAppMessaging from '@react-native-firebase/in-app-messaging';
@@ -103,9 +103,11 @@ function App() {
   }, []);
 
   return (
-    <ReduxProvider store={store}>
-      <PersistedApp />
-    </ReduxProvider>
+    <SafeAreaProvider>
+      <ReduxProvider store={store}>
+        <PersistedApp />
+      </ReduxProvider>
+    </SafeAreaProvider>
   );
 }
 
@@ -131,6 +133,17 @@ function PersistedApp() {
         return systemScheme === 'dark' ? darkTheme : lightTheme;
     }
   }, [systemScheme, selectedAppearance]);
+
+  React.useEffect(() => {
+    if (Platform.OS === 'android') {
+      StatusBar.setBackgroundColor('transparent');
+      StatusBar.setTranslucent(true);
+    }
+    StatusBar.setBarStyle(
+      navigationTheme.dark ? 'light-content' : 'dark-content',
+      true,
+    );
+  }, [navigationTheme]);
 
   const routeNameRef = React.useRef<string>();
   const navigationRef =
@@ -280,15 +293,7 @@ function PersistedApp() {
           },
         }}>
         <PortalProvider>
-          <SafeAreaProvider>
-            <StatusBar
-              animated
-              translucent
-              barStyle={navigationTheme.dark ? 'light-content' : 'dark-content'}
-              backgroundColor="transparent"
-            />
-            <AuthGate />
-          </SafeAreaProvider>
+          <AuthGate />
         </PortalProvider>
       </NavigationContainer>
     </PersistGate>
