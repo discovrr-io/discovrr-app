@@ -2,7 +2,8 @@ import * as React from 'react';
 import { SafeAreaView, Text, View } from 'react-native';
 import { Button, Cell, Spacer } from 'src/components';
 
-import { color, font, layout } from 'src/constants';
+import * as constants from 'src/constants';
+import { useExtendedTheme } from 'src/hooks';
 import { ReportItemStackScreenParams } from 'src/navigation';
 
 type ReportItemReasonScreenProps =
@@ -13,6 +14,8 @@ export default function ReportItemReasonScreen(
 ) {
   const contentType = props.route.params.type;
   const [selection, setSelection] = React.useState('');
+
+  const { colors } = useExtendedTheme();
 
   React.useLayoutEffect(() => {
     props.navigation.setOptions({
@@ -30,21 +33,23 @@ export default function ReportItemReasonScreen(
   }, [props.navigation, selection.length]);
 
   return (
-    <SafeAreaView style={layout.defaultScreenStyle}>
+    <SafeAreaView style={constants.layout.defaultScreenStyle}>
       <View
-        style={{ paddingHorizontal: layout.defaultScreenMargins.horizontal }}>
-        <Text style={[font.mediumBold]}>
+        style={{
+          paddingHorizontal: constants.layout.defaultScreenMargins.horizontal,
+        }}>
+        <Text style={[constants.font.mediumBold, { color: colors.text }]}>
           Why are you reporting this {contentType}?
         </Text>
         <Spacer.Vertical value="sm" />
-        <Text style={[font.small, { color: color.gray700 }]}>
+        <Text style={[constants.font.small, { color: colors.caption }]}>
           Let us know what&apos;s happening and we&apos;ll look into it. Your
           report will be anonymous.
         </Text>
       </View>
       <Spacer.Vertical value="md" />
       <Cell.Group>
-        <Cell.Select value={selection} onValueChanged={setSelection}>
+        <Cell.OptionGroup value={selection} onValueChanged={setSelection}>
           <Cell.Option
             label={`I'm not interested in this ${contentType}`}
             value="not-interested"
@@ -56,7 +61,7 @@ export default function ReportItemReasonScreen(
             value="explicit"
           />
           <Cell.Option label="Some other reason" value="other" />
-        </Cell.Select>
+        </Cell.OptionGroup>
       </Cell.Group>
       <Spacer.Vertical value="md" />
     </SafeAreaView>

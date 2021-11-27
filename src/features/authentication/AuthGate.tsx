@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import * as React from 'react';
 import { Alert } from 'react-native';
 
 import analytics from '@react-native-firebase/analytics';
@@ -6,10 +6,10 @@ import crashlytics from '@react-native-firebase/crashlytics';
 import inAppMessaging from '@react-native-firebase/in-app-messaging';
 import { createStackNavigator } from '@react-navigation/stack';
 
+import * as constants from 'src/constants';
 import { HeaderIcon, LoadingOverlay } from 'src/components';
-import { color, font } from 'src/constants';
 import { fetchProfileById } from 'src/features/profiles/profiles-slice';
-import { useAppDispatch, useAppSelector } from 'src/hooks';
+import { useAppDispatch, useAppSelector, useExtendedTheme } from 'src/hooks';
 import { User } from 'src/models';
 import { AuthStackParamList } from 'src/navigation';
 
@@ -21,13 +21,14 @@ import RootNavigator from './RootNavigator';
 const AuthStack = createStackNavigator<AuthStackParamList>();
 
 function AuthNavigator() {
+  const { colors } = useExtendedTheme();
   return (
     <AuthStack.Navigator
       initialRouteName="Auth"
       screenOptions={{
-        headerTintColor: color.black,
+        headerTintColor: colors.text,
         headerBackTitleVisible: false,
-        headerTitleStyle: font.defaultHeaderTitleStyle,
+        headerTitleStyle: constants.font.defaultHeaderTitleStyle,
         headerLeft: props => <HeaderIcon.Back {...props} />,
       }}>
       <AuthStack.Screen
@@ -54,7 +55,7 @@ export default function AuthGate() {
     useAppSelector(state => state.auth);
   console.log($FUNC, 'Is authenticated?', isAuthenticated);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (didAbortSignOut) {
       Alert.alert(
         'We had to sign you out',
@@ -69,7 +70,7 @@ export default function AuthGate() {
     }
   }, [dispatch, didAbortSignOut]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     async function fetchCurrentUserProfile(user: User) {
       try {
         crashlytics().log("Fetching current user's profile...");

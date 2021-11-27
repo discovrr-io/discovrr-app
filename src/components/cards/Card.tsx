@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
 import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 
-import { color, font } from 'src/constants';
+import { font } from 'src/constants';
+import { useExtendedTheme } from 'src/hooks';
 
 import * as constants from './constants';
 import CardAuthor from './CardAuthor';
@@ -29,6 +30,7 @@ type CardProps = CardElementProps & {
 
 const Card = (props: CardProps) => {
   const { elementOptions, children, style } = props;
+  const { colors } = useExtendedTheme();
 
   const cardElementOptions = useMemo(
     () => ({
@@ -61,7 +63,11 @@ const Card = (props: CardProps) => {
       <View
         style={[
           cardStyles.container,
-          { borderRadius: cardElementOptions.borderRadius },
+          {
+            borderRadius: cardElementOptions.borderRadius,
+            backgroundColor: colors.card,
+            borderColor: colors.border,
+          },
           style,
         ]}>
         {children}
@@ -72,9 +78,7 @@ const Card = (props: CardProps) => {
 
 const cardStyles = StyleSheet.create({
   container: {
-    backgroundColor: color.absoluteWhite,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: color.gray200,
     overflow: 'hidden',
   },
 });

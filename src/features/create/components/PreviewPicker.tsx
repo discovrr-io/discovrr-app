@@ -1,8 +1,6 @@
 import * as React from 'react';
 import {
   FlatList,
-  ImageStyle,
-  StyleProp,
   StyleSheet,
   Text,
   TouchableHighlight,
@@ -17,6 +15,7 @@ import { useField } from 'formik';
 
 import { Spacer } from 'src/components';
 import { color, font, layout, values } from 'src/constants';
+import { useExtendedTheme } from 'src/hooks';
 
 export interface PreviewPickerMethods {
   scrollToEnd: () => void;
@@ -42,10 +41,11 @@ function PreviewPickerInner<ItemT>(
   const { setValue: setItems } = helpers;
 
   const { width: windowWidth } = useWindowDimensions();
+  const { colors, dark } = useExtendedTheme();
   const itemWidth = React.useMemo(() => windowWidth * 0.7, [windowWidth]);
   const flatListRef = React.useRef<FlatList<ItemT>>(null);
 
-  const handleRemoveImageAtIndex = async (index: number) => {
+  const handleRemoveItemAtIndex = async (index: number) => {
     const newItemArray = [...items.slice(0, index), ...items.slice(index + 1)];
     setItems(newItemArray);
   };
@@ -106,20 +106,19 @@ function PreviewPickerInner<ItemT>(
             renderItem={props.renderItem}
             isAboveLimit={index >= props.maxCount}
             onPressItem={async () => await props.onSelectItemAtIndex?.(index)}
-            onPressRemove={async () => await handleRemoveImageAtIndex(index)}
-            style={{ width: itemWidth }}
+            onPressRemove={async () => await handleRemoveItemAtIndex(index)}
           />
         )}
         ListFooterComponent={() => {
           if (items.length >= props.maxCount) return null;
           return (
             <TouchableHighlight
-              underlayColor={color.gray100}
+              underlayColor={dark ? color.black : colors.highlight}
               onPress={props.onAddItem}
               style={[
                 previewPickerStyles.itemTouchableContainer,
                 previewPickerStyles.addItemButton,
-                { width: itemWidth },
+                { width: itemWidth, borderColor: colors.caption },
               ]}>
               <Icon
                 name={props.iconName ?? 'add-outline'}
@@ -155,7 +154,6 @@ type PreviewPickerItemProps<ItemT> = {
   renderItem: (info: PreviewPickerRenderItemInfo<ItemT>) => React.ReactNode;
   onPressItem?: TouchableOpacityProps['onPress'];
   onPressRemove?: TouchableOpacityProps['onPress'];
-  style?: StyleProp<ImageStyle>;
 };
 
 function PickerItem<ItemT>(props: PreviewPickerItemProps<ItemT>) {
@@ -195,7 +193,6 @@ const previewPickerStyles = StyleSheet.create({
     overflow: 'hidden',
   },
   addItemButton: {
-    borderColor: color.gray500,
     borderWidth: layout.border.thick,
     borderStyle: 'dashed',
     alignItems: 'center',

@@ -8,8 +8,8 @@ import {
   ViewStyle,
 } from 'react-native';
 
-import { color, font, layout } from 'src/constants';
-import { disabledDarkTextColor } from 'src/constants/color';
+import * as constants from 'src/constants';
+import { useExtendedTheme } from 'src/hooks';
 import { useCellElementContext } from './hooks';
 
 import {
@@ -18,7 +18,7 @@ import {
   renderChildrenWithDivider,
 } from './common';
 
-export const CELL_GROUP_VERTICAL_SPACING = layout.spacing.md;
+export const CELL_GROUP_VERTICAL_SPACING = constants.layout.spacing.md;
 
 export type CellGroupProps = CellElementProps & {
   label?: string;
@@ -29,14 +29,20 @@ export type CellGroupProps = CellElementProps & {
 
 export default function CellGroup(props: CellGroupProps) {
   const cellElementOptions = useCellElementContext(props.elementOptions);
+  const { colors } = useExtendedTheme();
+
   return (
     <CellElementContext.Provider value={cellElementOptions}>
       {props.label && (
         <Text
           style={[
-            font.smallBold,
+            constants.font.smallBold,
             styles.label,
-            cellElementOptions.disabled && { color: disabledDarkTextColor },
+            {
+              color: cellElementOptions.disabled
+                ? colors.captionDisabled
+                : colors.caption,
+            },
             props.labelStyle,
           ]}>
           {props.label}
@@ -45,10 +51,14 @@ export default function CellGroup(props: CellGroupProps) {
       <View
         style={[
           styles.contentContainer,
-          cellElementOptions.disabled && { backgroundColor: color.white },
+          {
+            backgroundColor: cellElementOptions.disabled
+              ? colors.background
+              : colors.card,
+          },
           {
             borderWidth: cellElementOptions.borderWidth,
-            borderColor: cellElementOptions.borderColor,
+            borderColor: colors.border,
           },
           props.containerStyle,
         ]}>
@@ -60,15 +70,13 @@ export default function CellGroup(props: CellGroupProps) {
 
 const styles = StyleSheet.create({
   label: {
-    color: color.gray700,
     fontVariant: ['small-caps'],
-    paddingLeft: layout.defaultScreenMargins.horizontal,
+    paddingLeft: constants.layout.defaultScreenMargins.horizontal,
     paddingBottom: CELL_GROUP_VERTICAL_SPACING,
   },
   contentContainer: {
     overflow: 'hidden',
     borderWidth: StyleSheet.hairlineWidth,
-    borderRadius: layout.radius.md,
-    backgroundColor: color.absoluteWhite,
+    borderRadius: constants.layout.radius.md,
   },
 });

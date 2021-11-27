@@ -9,6 +9,7 @@ import { useField } from 'formik';
 import * as constants from 'src/constants';
 import * as utilities from 'src/utilities';
 import { ActionBottomSheet, ActionBottomSheetItem } from 'src/components';
+import { useExtendedTheme } from 'src/hooks';
 
 import PreviewPicker, { PreviewPickerProps } from './PreviewPicker';
 
@@ -24,6 +25,7 @@ export type ImagePreviewPickerProps = Pick<
 export default function ImagePreviewPicker(props: ImagePreviewPickerProps) {
   const [_, meta, helpers] = useField<Image[]>(props.fieldName);
   const { value: images } = meta;
+  const { colors } = useExtendedTheme();
 
   const previewPickerRef = React.useRef<PreviewPicker>(null);
   const actionBottomSheetRef = React.useRef<BottomSheet>(null);
@@ -120,20 +122,17 @@ export default function ImagePreviewPicker(props: ImagePreviewPickerProps) {
       }
     };
 
-    switch (selectedItemId) {
-      case 'camera':
-        // We'll wait a short period of time to let the bottom sheet fully close
-        setTimeout(async () => {
+    // We'll wait a short period of time to let the bottom sheet fully close
+    setTimeout(async () => {
+      switch (selectedItemId) {
+        case 'camera':
           await handleTakePhoto();
-        }, 80);
-        break;
-      case 'library':
-        // We'll wait a short period of time to let the bottom sheet fully close
-        setTimeout(async () => {
+          break;
+        case 'library':
           await handleSelectFromPhotoLibrary();
-        }, 80);
-        break;
-    }
+          break;
+      }
+    }, constants.values.BOTTOM_SHEET_WAIT_DURATION);
   };
 
   return (
@@ -141,7 +140,6 @@ export default function ImagePreviewPicker(props: ImagePreviewPickerProps) {
       <PreviewPicker<Image>
         {...props}
         ref={previewPickerRef}
-        // iconName="images-outline"
         description={
           props.description ??
           `Tap on ${props.maxCount > 1 ? 'a' : 'the'} photo to crop it`
@@ -153,7 +151,7 @@ export default function ImagePreviewPicker(props: ImagePreviewPickerProps) {
             source={{ uri: item.path }}
             style={[
               imagePreviewPickerStyles.item,
-              { width: itemWidth },
+              { width: itemWidth, backgroundColor: colors.placeholder },
               isAboveLimit && { opacity: 0.25 },
             ]}
           />
@@ -172,7 +170,6 @@ const imagePreviewPickerStyles = StyleSheet.create({
   item: {
     aspectRatio: 1,
     borderRadius: constants.layout.radius.md,
-    backgroundColor: constants.color.placeholder,
     overflow: 'hidden',
   },
 });

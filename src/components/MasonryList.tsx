@@ -64,7 +64,6 @@ function MasonryListInner<ItemT>(
       {...scrollViewProps}
       // @ts-ignore For now, we won't care if we can't pass in ref
       ref={ref}
-      indicatorStyle="black"
       removeClippedSubviews
       scrollEventThrottle={16}
       onScroll={({ nativeEvent }: { nativeEvent: NativeScrollEvent }) => {

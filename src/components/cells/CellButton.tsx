@@ -1,9 +1,9 @@
-import React, { useMemo } from 'react';
+import * as React from 'react';
 import { StyleSheet, Text, TouchableHighlight, View } from 'react-native';
 
 import Icon from 'react-native-vector-icons/Ionicons';
 
-import { color } from 'src/constants';
+import { useExtendedTheme } from 'src/hooks';
 
 import Spacer from '../Spacer';
 import CellContainer from './CellContainer';
@@ -23,21 +23,27 @@ export type CellButtonProps = CellElementProps & {
 export default function CellButton(props: CellButtonProps) {
   const cellElementOptions = useCellElementContext(props.elementOptions);
   const isDisabled = cellElementOptions.disabled;
+  const { colors } = useExtendedTheme();
 
-  const labelTextColor = useMemo(() => {
+  const labelTextColor = React.useMemo(() => {
     if (isDisabled) {
-      return props.destructive
-        ? color.dangerDisabled
-        : color.disabledDarkTextColor;
+      return props.destructive ? colors.dangerDisabled : colors.textDisabled;
     } else {
-      return props.destructive ? color.danger : color.defaultDarkTextColor;
+      return props.destructive ? colors.danger : colors.text;
     }
-  }, [isDisabled, props.destructive]);
+  }, [
+    isDisabled,
+    props.destructive,
+    colors.dangerDisabled,
+    colors.textDisabled,
+    colors.danger,
+    colors.text,
+  ]);
 
   return (
     <TouchableHighlight
       disabled={isDisabled}
-      underlayColor={cellElementOptions.highlightColor}
+      underlayColor={colors.highlight}
       onPress={props.onPress}>
       <CellContainer elementOptions={cellElementOptions}>
         {props.iconName && (
@@ -66,7 +72,7 @@ export default function CellButton(props: CellButtonProps) {
               style={[
                 defaultCellElementOptions.captionStyle,
                 cellElementOptions.captionStyle,
-                isDisabled && { color: color.disabledDarkTextColor },
+                { color: isDisabled ? colors.captionDisabled : colors.caption },
               ]}>
               {props.caption}
             </Text>
@@ -81,11 +87,7 @@ export default function CellButton(props: CellButtonProps) {
                 defaultCellElementOptions.labelStyle,
                 cellElementOptions.labelStyle,
                 styles.previewValueText,
-                {
-                  color: isDisabled
-                    ? color.disabledDarkTextColor
-                    : color.gray500,
-                },
+                { color: isDisabled ? colors.captionDisabled : colors.caption },
               ]}>
               {props.previewValue}
             </Text>

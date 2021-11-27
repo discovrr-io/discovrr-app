@@ -7,8 +7,8 @@ import {
 } from 'react-native';
 
 import { color } from 'src/constants';
-import { DEFAULT_ACTIVE_OPACITY } from 'src/constants/values';
 import { CommonButtonProps, ButtonStyles } from './buttonStyles';
+import { DEFAULT_ACTIVE_OPACITY } from 'src/constants/values';
 
 export enum ButtonBaseTestId {
   ACTIVITY_INDICATOR = 'btn-activity-indicator',

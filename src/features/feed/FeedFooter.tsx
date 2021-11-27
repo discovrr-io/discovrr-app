@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import {
   ActivityIndicator,
   StyleProp,
@@ -8,8 +8,9 @@ import {
   ViewStyle,
 } from 'react-native';
 
+import * as constants from 'src/constants';
 import { Spacer } from 'src/components';
-import { color, font, layout } from 'src/constants';
+import { useExtendedTheme } from 'src/hooks';
 
 type FeedFooterProps = {
   didReachEnd?: boolean;
@@ -17,10 +18,15 @@ type FeedFooterProps = {
 };
 
 export default function FeedFooter(props: FeedFooterProps) {
+  const { colors } = useExtendedTheme();
   return (
     <View style={[styles.container, props.style]}>
       {props.didReachEnd ? (
-        <Text style={[font.largeBold, { textAlign: 'center' }]}>
+        <Text
+          style={[
+            constants.font.largeBold,
+            { textAlign: 'center', color: colors.text },
+          ]}>
           You&apos;re all caught up!
         </Text>
       ) : (
@@ -30,9 +36,11 @@ export default function FeedFooter(props: FeedFooterProps) {
             alignItems: 'center',
             justifyContent: 'center',
           }}>
-          <ActivityIndicator color={color.gray700} />
-          <Spacer.Horizontal value={layout.spacing.md} />
-          <Text style={[font.largeBold]}>Loading...</Text>
+          <ActivityIndicator color={constants.color.gray700} />
+          <Spacer.Horizontal value={constants.layout.spacing.md} />
+          <Text style={[constants.font.largeBold, { color: colors.text }]}>
+            Loading...
+          </Text>
         </View>
       )}
     </View>
@@ -41,6 +49,6 @@ export default function FeedFooter(props: FeedFooterProps) {
 
 const styles = StyleSheet.create({
   container: {
-    paddingVertical: layout.spacing.lg,
+    paddingVertical: constants.layout.spacing.lg,
   },
 });

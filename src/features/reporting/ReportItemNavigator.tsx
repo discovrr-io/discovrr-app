@@ -6,20 +6,22 @@ import {
   createStackNavigator,
 } from '@react-navigation/stack';
 
-import ReportItemReasonScreen from './ReportItemReasonScreen';
-import ReportItemSuccessScreen from './ReportItemSuccessScreen';
+import * as constants from 'src/constants';
 import { HeaderIcon } from 'src/components';
-import { color, font, layout } from 'src/constants';
-
+import { useExtendedTheme } from 'src/hooks';
 import {
   ReportItemStackNavigationProp,
   ReportItemStackParamList,
   RootStackNavigationProp,
 } from 'src/navigation';
 
+import ReportItemReasonScreen from './ReportItemReasonScreen';
+import ReportItemSuccessScreen from './ReportItemSuccessScreen';
+
 const ReportItemStack = createStackNavigator<ReportItemStackParamList>();
 
 export default function ReportItemNavigator() {
+  const { colors } = useExtendedTheme();
   return (
     <ReportItemStack.Navigator
       initialRouteName="ReportItemReason"
@@ -29,9 +31,9 @@ export default function ReportItemNavigator() {
         navigation: ReportItemStackNavigationProp;
       }) => ({
         title: 'Report',
-        headerTintColor: color.black,
+        headerTintColor: colors.text,
         headerBackTitleVisible: false,
-        headerTitleStyle: font.defaultHeaderTitleStyle,
+        headerTitleStyle: constants.font.defaultHeaderTitleStyle,
         headerLeft: props => (
           <HeaderIcon.Close
             {...props}
@@ -41,7 +43,7 @@ export default function ReportItemNavigator() {
           />
         ),
         headerLeftContainerStyle: {
-          paddingLeft: layout.defaultScreenMargins.horizontal,
+          paddingLeft: constants.layout.defaultScreenMargins.horizontal,
         },
       })}>
       <ReportItemStack.Screen

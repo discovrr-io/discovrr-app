@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import * as React from 'react';
 import { FlatListProps, RefreshControl, SafeAreaView } from 'react-native';
 
 import _ from 'lodash';
@@ -7,8 +7,8 @@ import { FlatList } from 'react-native-gesture-handler';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
 import ProfileListItem from 'src/features/profiles/ProfileListItem';
-import { color, font } from 'src/constants';
-import { useIsMounted } from 'src/hooks';
+import { font } from 'src/constants';
+import { useExtendedTheme, useIsMounted } from 'src/hooks';
 import { ProfileId } from 'src/models';
 import { alertSomethingWentWrong } from 'src/utilities';
 
@@ -128,11 +128,11 @@ function SearchResultsTabWrapper<ItemT>(
   const { query, fetchData, renderItem, keyExtractor } = props;
   const isMounted = useIsMounted();
 
-  const [data, setData] = useState<ItemT[]>([]);
-  const [isInitialRender, setIsInitialRender] = useState(true);
-  const [shouldRefresh, setShouldRefresh] = useState(false);
+  const [data, setData] = React.useState<ItemT[]>([]);
+  const [isInitialRender, setIsInitialRender] = React.useState(true);
+  const [shouldRefresh, setShouldRefresh] = React.useState(false);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (isInitialRender || shouldRefresh)
       (async () => {
         try {
@@ -194,6 +194,7 @@ export default function SearchResultsNavigator(
   props: SearchResultsNavigatorProps,
 ) {
   const query = props.route.params.query;
+  const { colors } = useExtendedTheme();
   return (
     <SearchResultsTopTab.Navigator
       initialRouteName="SearchResultsUsers"
@@ -202,9 +203,9 @@ export default function SearchResultsNavigator(
         tabBarScrollEnabled: true,
         tabBarItemStyle: { width: 120 },
         tabBarLabelStyle: font.defaultTopTabBarLabelStyle,
-        tabBarActiveTintColor: color.accent,
-        tabBarInactiveTintColor: color.gray500,
-        tabBarPressColor: color.gray200,
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.caption,
+        tabBarPressColor: colors.highlight,
       }}>
       <SearchResultsTopTab.Screen
         name="SearchResultsUsers"

@@ -500,7 +500,7 @@ export default function CreateItemPreviewScreen(
           myProfileDetails.highestRole !== 'verified-vendor' && (
             <Banner
               title="You're not a verified vendor yet"
-              caption="Your product won't be visible to anyone until we verify you. To be verified, start by posting this product. We'll let you know shortly of the outcome."
+              caption="Your product won't be visible to anyone until we verify you. To be verified, start by posting this product. We'll let you know of the outcome shortly."
             />
           )}
         <View

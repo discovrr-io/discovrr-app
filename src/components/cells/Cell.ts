@@ -5,7 +5,7 @@ import CellInput from './CellInput';
 import CellInputGroup from './CellInputGroup';
 import CellNavigator from './CellNavigator';
 import CellOption from './CellOption';
-import CellSelect from './CellSelect';
+import CellOptionGroup from './CellOptionGroup';
 import CellSwitch from './CellSwitch';
 
 export type { CellButtonProps } from './CellButton';
@@ -15,7 +15,7 @@ export type { CellInputProps } from './CellInput';
 export type { CellInputGroupProps } from './CellInputGroup';
 export type { CellNavigatorProps } from './CellNavigator';
 export type { CellOptionProps } from './CellOption';
-export type { CellSelectProps } from './CellSelect';
+export type { CellOptionGroupProps } from './CellOptionGroup';
 export type { CellSwitchProps } from './CellSwitch';
 
 const Cell = {
@@ -26,7 +26,7 @@ const Cell = {
   InputGroup: CellInputGroup,
   Navigator: CellNavigator,
   Option: CellOption,
-  Select: CellSelect,
+  OptionGroup: CellOptionGroup,
   Switch: CellSwitch,
 };
 

@@ -2,7 +2,8 @@ import * as React from 'react';
 import {
   ActivityIndicator,
   FlatList,
-  // Platform,
+  LogBox,
+  Platform,
   RefreshControl,
   ScrollView,
   StyleProp,
@@ -26,7 +27,6 @@ import * as constants from 'src/constants';
 import * as utilities from 'src/utilities';
 import * as profilesSlice from 'src/features/profiles/profiles-slice';
 import ProductItemCard from 'src/features/products/ProductItemCard';
-import { useAppDispatch, useAppSelector, useIsMounted } from 'src/hooks';
 import { ProductId, Profile } from 'src/models';
 import { HomeStackScreenProps, RootStackNavigationProp } from 'src/navigation';
 
@@ -37,6 +37,13 @@ import {
   MasonryList,
   Spacer,
 } from 'src/components';
+
+import {
+  useAppDispatch,
+  useAppSelector,
+  useExtendedTheme,
+  useIsMounted,
+} from 'src/hooks';
 
 import * as onboardingSlice from 'src/features/onboarding/onboarding-slice';
 import OnboardingModal, {
@@ -130,6 +137,7 @@ function CallToAction(props: CallToActionProps) {
         />
       )} */}
       <Text
+        allowFontScaling={false}
         style={[
           constants.font.h2,
           { color: constants.color.absoluteWhite },
@@ -139,6 +147,7 @@ function CallToAction(props: CallToActionProps) {
       </Text>
       <Spacer.Vertical value="md" />
       <Text
+        allowFontScaling={false}
         style={[
           constants.font.large,
           { color: constants.color.absoluteWhite },
@@ -176,9 +185,16 @@ type SectionTitleProps = {
 };
 
 function SectionTitle(props: SectionTitleProps) {
+  const { colors } = useExtendedTheme();
   return (
     <View style={[sectionTitleProps.container, props.style]}>
-      <Text style={[constants.font.h2, sectionTitleProps.title]}>
+      <Text
+        allowFontScaling={false}
+        style={[
+          constants.font.h2,
+          sectionTitleProps.title,
+          { color: colors.text },
+        ]}>
         {props.title}
       </Text>
     </View>
@@ -200,6 +216,8 @@ type MakerOfTheWeekProps = HomeFeedData['makerOfTheWeek'];
 
 function MakerOfTheWeek(props: MakerOfTheWeekProps) {
   const [isLoading, setIsLoading] = React.useState(false);
+
+  const { colors } = useExtendedTheme();
   const navigation = useNavigation<RootStackNavigationProp>();
 
   const handlePressCard = () => {
@@ -219,7 +237,10 @@ function MakerOfTheWeek(props: MakerOfTheWeekProps) {
           <FastImage
             resizeMode="cover"
             source={{ uri: props.coverImageUrl }}
-            style={makerOfTheWeekStyles.coverImage}
+            style={[
+              makerOfTheWeekStyles.coverImage,
+              { backgroundColor: colors.placeholder },
+            ]}
             onLoadStart={() => setIsLoading(true)}
             onLoadEnd={() => setIsLoading(false)}
           />
@@ -233,11 +254,15 @@ function MakerOfTheWeek(props: MakerOfTheWeekProps) {
         </View>
         <Spacer.Vertical value="md" />
         <View style={makerOfTheWeekStyles.textContainer}>
-          <Text numberOfLines={1} style={constants.font.mediumBold}>
+          <Text
+            numberOfLines={1}
+            style={[constants.font.mediumBold, { color: colors.text }]}>
             {props.title}
           </Text>
           <Spacer.Vertical value="sm" />
-          <Text numberOfLines={3} style={constants.font.small}>
+          <Text
+            numberOfLines={3}
+            style={[constants.font.small, { color: colors.text }]}>
             {props.caption}
           </Text>
         </View>
@@ -259,29 +284,35 @@ function MakerOfTheWeek(props: MakerOfTheWeekProps) {
   );
 }
 
-MakerOfTheWeek.Pending = () => (
-  <View>
-    <SectionTitle title={MAKER_OF_THE_WEEK_TITLE} />
-    <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-      <FastImage source={{}} style={makerOfTheWeekStyles.coverImage} />
-      <ActivityIndicator
-        size="large"
-        color={constants.color.gray500}
-        style={{ position: 'absolute' }}
-      />
+MakerOfTheWeek.Pending = () => {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const { colors } = useExtendedTheme();
+  return (
+    <View>
+      <SectionTitle title={MAKER_OF_THE_WEEK_TITLE} />
+      <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+        <FastImage
+          source={{}}
+          style={[
+            makerOfTheWeekStyles.coverImage,
+            { backgroundColor: colors.placeholder },
+          ]}
+        />
+        <ActivityIndicator
+          size="large"
+          color={constants.color.gray500}
+          style={{ position: 'absolute' }}
+        />
+      </View>
+      <Spacer.Vertical value="md" />
+      <View style={makerOfTheWeekStyles.textContainer}>
+        <View style={{ height: 19, backgroundColor: colors.placeholder }} />
+        <Spacer.Vertical value="sm" />
+        <View style={{ height: 17, backgroundColor: colors.placeholder }} />
+      </View>
     </View>
-    <Spacer.Vertical value="md" />
-    <View style={makerOfTheWeekStyles.textContainer}>
-      <View
-        style={{ height: 19, backgroundColor: constants.color.placeholder }}
-      />
-      <Spacer.Vertical value="sm" />
-      <View
-        style={{ height: 17, backgroundColor: constants.color.placeholder }}
-      />
-    </View>
-  </View>
-);
+  );
+};
 
 const makerOfTheWeekStyles = StyleSheet.create({
   coverImageContainer: {
@@ -291,7 +322,6 @@ const makerOfTheWeekStyles = StyleSheet.create({
   coverImage: {
     height: 280,
     width: '100%',
-    backgroundColor: constants.color.placeholder,
     borderRadius: constants.layout.radius.md,
   },
   textContainer: {
@@ -318,6 +348,7 @@ type ExploreOurMakersProps = {
 
 function ExploreOurMakers(props: ExploreOurMakersProps) {
   const { width: windowWidth } = useWindowDimensions();
+  const { colors } = useExtendedTheme();
 
   const { columnWidth, avatarWidth } = React.useMemo(() => {
     const containerWidth = windowWidth - constants.layout.spacing.md * 2;
@@ -363,20 +394,27 @@ function ExploreOurMakers(props: ExploreOurMakersProps) {
             }
             style={[
               exploreOurMakersStyles.avatar,
-              { width: avatarWidth, borderRadius: avatarWidth / 2 },
+              {
+                width: avatarWidth,
+                borderRadius: avatarWidth / 2,
+                backgroundColor: colors.placeholder,
+              },
             ]}
           />
           <Spacer.Vertical value="md" />
           <Text
             numberOfLines={1}
-            style={[constants.font.mediumBold, { textAlign: 'center' }]}>
+            style={[
+              constants.font.mediumBold,
+              { textAlign: 'center', color: colors.text },
+            ]}>
             {profile.__publicName}
           </Text>
           <Text
             numberOfLines={2}
             style={[
               constants.font.extraSmall,
-              { textAlign: 'center' },
+              { textAlign: 'center', color: colors.text },
               !profile.biography && { fontStyle: 'italic' },
             ]}>
             {profile.biography || 'No biography'}
@@ -394,7 +432,6 @@ const exploreOurMakersStyles = StyleSheet.create({
   },
   avatar: {
     aspectRatio: 1,
-    backgroundColor: constants.color.placeholder,
   },
 });
 
@@ -433,6 +470,9 @@ export default function LandingScreen(props: LandingScreenProps) {
   // NOTE: This will log this screen twice if the user starts from the Auth
   // screen and then navigates to the Landing screen.
   React.useEffect(() => {
+    // Temporarily disable error from VirtualizedLists
+    LogBox.ignoreLogs(['VirtualizedLists']);
+
     analytics()
       .logScreenView({
         screen_name: 'Landing',
@@ -552,6 +592,7 @@ export default function LandingScreen(props: LandingScreenProps) {
               }}>
               <View style={{ alignItems: 'center' }}>
                 <Text
+                  allowFontScaling={false}
                   style={[
                     constants.font.h2,
                     {
@@ -588,9 +629,10 @@ export default function LandingScreen(props: LandingScreenProps) {
             {homeFeedData?.limitedOfferProductId && (
               <LimitedOffer productId={homeFeedData.limitedOfferProductId} />
             )}
-            {(!isInitialRender || !shouldRefresh) && makers.length > 0 && (
-              <ExploreOurMakers profiles={makers} />
-            )}
+            {__DEV__ && Platform.OS === 'ios'
+              ? null
+              : (!isInitialRender || !shouldRefresh) &&
+                makers.length > 0 && <ExploreOurMakers profiles={makers} />}
           </View>
         }
         ListEmptyComponent={

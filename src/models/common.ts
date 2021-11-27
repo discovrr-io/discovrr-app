@@ -18,6 +18,8 @@ export type LocationQueryPreferences = {
   readonly coordinates?: Coordinates;
 };
 
+export type AppearancePreferences = 'system' | 'light' | 'dark' | 'debug';
+
 export const MIN_SEARCH_RADIUS = 3;
 export const MAX_SEARCH_RADIUS = 25;
 

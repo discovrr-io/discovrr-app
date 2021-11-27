@@ -21,7 +21,6 @@ import { color, font, layout } from 'src/constants';
 import { DEFAULT_AVATAR } from 'src/constants/media';
 import { useIsMyProfile, useProfile } from 'src/features/profiles/hooks';
 import { selectIsCurrentUserProfile } from 'src/features/authentication/auth-slice';
-import { useAppDispatch, useAppSelector, useIsMounted } from 'src/hooks';
 import { Comment, CommentId, Profile } from 'src/models';
 import { RootStackNavigationProp } from 'src/navigation';
 import { alertSomethingWentWrong, shortenLargeNumber } from 'src/utilities';
@@ -33,11 +32,17 @@ import {
   Spacer,
 } from 'src/components';
 
+import {
+  useAppDispatch,
+  useAppSelector,
+  useExtendedTheme,
+  useIsMounted,
+} from 'src/hooks';
+
 import { deleteComment, updateCommentLikeStatus } from './comments-slice';
 import { useComment } from './hooks';
 
 const AVATAR_DIAMETER = 32;
-const PLACEHOLDER_COLOR = color.gray100;
 const NUMBER_OF_ACTIONS = 3;
 
 type CommentCellContextProps = {
@@ -116,13 +121,18 @@ type CommentCellContainerProps = {
 
 function CommentCellContainer(props: CommentCellContainerProps) {
   const { AvatarComponent, AuthorComponent, ContentComponent } = props;
+  const { colors } = useExtendedTheme();
   const cellContext = useContext(CommentCellContext);
 
   return (
     <View style={[commentCellStyles.container, cellContext.style]}>
       {AvatarComponent}
       <Spacer.Horizontal value={layout.spacing.md} />
-      <View style={commentCellStyles.contentContainer}>
+      <View
+        style={[
+          commentCellStyles.contentContainer,
+          { borderBottomColor: colors.border },
+        ]}>
         {AuthorComponent}
         <Spacer.Vertical value={layout.spacing.sm} />
         {ContentComponent}
@@ -137,6 +147,7 @@ function CommentCellContainer(props: CommentCellContainerProps) {
 
 const CommentCellAvatar = (props: { profile?: Profile }) => {
   const { profile } = props;
+  const { colors } = useExtendedTheme();
   const navigation = useNavigation<RootStackNavigationProp>();
 
   const handlePressAvatar = () => {
@@ -163,7 +174,10 @@ const CommentCellAvatar = (props: { profile?: Profile }) => {
             ? { uri: profile.avatar.url }
             : DEFAULT_AVATAR
         }
-        style={commentCellStyles.avatar}
+        style={[
+          commentCellStyles.avatar,
+          { backgroundColor: colors.placeholder },
+        ]}
       />
     </TouchableOpacity>
   );
@@ -175,7 +189,9 @@ const CommentCellAvatar = (props: { profile?: Profile }) => {
 
 const CommentCellAuthor = (props: { profile?: Profile }) => {
   const { profile } = props;
+
   const navigation = useNavigation<RootStackNavigationProp>();
+  const { colors, dark } = useExtendedTheme();
 
   const isMyProfileId = useAppSelector(state => {
     if (!profile) return false;
@@ -202,14 +218,15 @@ const CommentCellAuthor = (props: { profile?: Profile }) => {
       <Text
         style={[
           font.smallBold,
-          { color: isMyProfileId ? color.accent : color.gray700 },
+          { color: dark ? color.gray200 : color.gray700 },
+          isMyProfileId && { color: colors.primary },
         ]}>
         {isMyProfileId ? 'You' : profile?.__publicName || 'Anonymous'}
       </Text>
       {profile?.username && (
         <>
           <Spacer.Horizontal value={layout.spacing.sm} />
-          <Text style={[font.small, { color: color.gray500 }]}>
+          <Text style={[font.small, { color: colors.caption }]}>
             @{profile.username}
           </Text>
         </>
@@ -218,14 +235,27 @@ const CommentCellAuthor = (props: { profile?: Profile }) => {
   );
 };
 
-// eslint-disable-next-line react/display-name
-CommentCellAuthor.Pending = () => (
-  <View style={commentCellStyles.authorContainer}>
-    <View style={[commentCellStyles.placeholderText, { width: '35%' }]} />
-    <Spacer.Horizontal value={layout.spacing.sm} />
-    <View style={[commentCellStyles.placeholderText, { width: '20%' }]} />
-  </View>
-);
+CommentCellAuthor.Pending = () => {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const { colors } = useExtendedTheme();
+  return (
+    <View style={commentCellStyles.authorContainer}>
+      <View
+        style={[
+          commentCellStyles.placeholderText,
+          { width: '35%', backgroundColor: colors.placeholder },
+        ]}
+      />
+      <Spacer.Horizontal value={layout.spacing.sm} />
+      <View
+        style={[
+          commentCellStyles.placeholderText,
+          { width: '20%', backgroundColor: colors.placeholder },
+        ]}
+      />
+    </View>
+  );
+};
 
 //#endregion CommentCellAuthor
 
@@ -243,6 +273,7 @@ const CommentCellContent = (props: CommentCellContentProps) => {
 
   const dispatch = useAppDispatch();
   const navigation = useNavigation<RootStackNavigationProp>();
+  const { colors } = useExtendedTheme();
 
   const isMounted = useIsMounted();
   const cellContext = useContext(CommentCellContext);
@@ -358,7 +389,10 @@ const CommentCellContent = (props: CommentCellContentProps) => {
 
   return (
     <View>
-      <Text style={font.small}>{comment.message}</Text>
+      <Text style={[font.small, { color: colors.text }]}>
+        {comment.message}
+      </Text>
+
       <Spacer.Vertical value={layout.spacing.md * 0.75} />
       <View style={{ flexDirection: 'row', alignItems: 'center', height: 22 }}>
         <TouchableOpacity
@@ -370,7 +404,7 @@ const CommentCellContent = (props: CommentCellContentProps) => {
             <Icon
               name={didLike ? 'heart' : 'heart-outline'}
               size={21}
-              color={didLike ? color.red500 : color.gray500}
+              color={didLike ? color.red500 : colors.caption}
             />
           </Animatable.View>
           {totalLikes > 0 && (
@@ -379,7 +413,8 @@ const CommentCellContent = (props: CommentCellContentProps) => {
               <Text
                 style={[
                   font.small,
-                  { color: didLike ? color.black : color.gray500 },
+                  { color: colors.caption },
+                  didLike && { color: colors.text },
                 ]}>
                 {shortenLargeNumber(totalLikes)}
               </Text>
@@ -409,9 +444,16 @@ const CommentCellContent = (props: CommentCellContentProps) => {
 
 const CommentCellContentPending = () => {
   const cellContext = useContext(CommentCellContext);
+  const { colors } = useExtendedTheme();
+
   return (
     <View>
-      <View style={[commentCellStyles.placeholderText, { width: '100%' }]} />
+      <View
+        style={[
+          commentCellStyles.placeholderText,
+          { width: '100%', backgroundColor: colors.placeholder },
+        ]}
+      />
       <Spacer.Vertical value={layout.spacing.md * 0.75} />
       <View style={{ flexDirection: 'row', alignItems: 'center', height: 22 }}>
         {[...Array(NUMBER_OF_ACTIONS)].map((_, idx) => (
@@ -453,10 +495,15 @@ const CommentCellActionButton = (props: CommentCellActionButtonProps) => (
   </TouchableOpacity>
 );
 
-// eslint-disable-next-line react/display-name
-CommentCellActionButton.Pending = () => (
-  <View style={{ width: 18, height: 18, backgroundColor: PLACEHOLDER_COLOR }} />
-);
+CommentCellActionButton.Pending = () => {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const { colors } = useExtendedTheme();
+  return (
+    <View
+      style={{ width: 18, height: 18, backgroundColor: colors.placeholder }}
+    />
+  );
+};
 
 //#endregion CommentCellActionButton
 
@@ -470,19 +517,16 @@ const commentCellStyles = StyleSheet.create({
     width: AVATAR_DIAMETER,
     height: AVATAR_DIAMETER,
     borderRadius: AVATAR_DIAMETER / 2,
-    backgroundColor: PLACEHOLDER_COLOR,
   },
   contentContainer: {
     flex: 1,
-    borderBottomWidth: 1,
-    borderColor: PLACEHOLDER_COLOR,
+    borderBottomWidth: StyleSheet.hairlineWidth,
   },
   authorContainer: {
     flexDirection: 'row',
   },
   placeholderText: {
     height: 16.5,
-    backgroundColor: PLACEHOLDER_COLOR,
   },
 });
 

@@ -18,10 +18,11 @@ import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetBackdropProps,
   BottomSheetScrollView,
+  useBottomSheet,
 } from '@gorhom/bottom-sheet';
 
 import { color, font, layout } from 'src/constants';
-import { useAppSelector } from 'src/hooks';
+import { useAppSelector, useExtendedTheme } from 'src/hooks';
 import { alertUnavailableFeature } from 'src/utilities';
 
 import {
@@ -46,6 +47,7 @@ const LocationQueryBottomSheet = React.forwardRef<
 >((_props: LocationQueryBottomSheetProps, ref) => {
   const _ = useAppSelector(state => state.settings.locationQueryPrefs);
   const snapPoints = React.useMemo(() => ['95%'], []);
+  const { colors } = useExtendedTheme();
 
   // const [searchRegion, setSearchRegion] = React.useState<Region>(() => ({
   //   ...(queryPrefs?.coordinates ?? DEFAULT_COORDINATES),
@@ -67,14 +69,6 @@ const LocationQueryBottomSheet = React.forwardRef<
     [],
   );
 
-  const handleCloseBottomSheet = () => {
-    if (typeof ref === 'function') {
-      console.warn('REF IS FUNCTION');
-    } else {
-      ref?.current?.close();
-    }
-  };
-
   return (
     <Portal>
       <BottomSheet
@@ -87,81 +81,10 @@ const LocationQueryBottomSheet = React.forwardRef<
         activeOffsetY={[-1, 1]}
         failOffsetX={[-5, 5]}
         snapPoints={snapPoints}
-        backdropComponent={renderBackdrop}>
-        <SafeAreaView edges={['bottom', 'left', 'right']} style={{ flex: 1 }}>
-          <LocationQueryBottomSheetHeader
-            onPressClose={handleCloseBottomSheet}
-          />
-          <BottomSheetScrollView
-            contentContainerStyle={bottomSheetStyles.scrollView}>
-            <View style={bottomSheetStyles.mapView}>
-              {/* <MapView
-              initialRegion={searchRegion}
-              onRegionChange={setSearchRegion}
-              style={{ height: 300 }}
-            /> */}
-              <View
-                style={{ width: 300, backgroundColor: color.placeholder }}
-              />
-            </View>
-            <Spacer.Vertical value="md" />
-            <Slider
-              step={1}
-              minimumValue={MIN_SEARCH_RADIUS}
-              maximumValue={MAX_SEARCH_RADIUS}
-              minimumTrackTintColor={color.accent}
-              thumbTintColor={Platform.select({ android: color.accent })}
-            />
-          </BottomSheetScrollView>
-          <View style={bottomSheetStyles.buttonFooterContainer}>
-            <Button
-              title="Reset"
-              type="secondary"
-              variant="contained"
-              onPress={() => alertUnavailableFeature()}
-              containerStyle={{ flex: 1 }}
-            />
-            <Spacer.Horizontal value="md" />
-            <Button
-              title="Apply"
-              type="primary"
-              variant="contained"
-              onPress={() => alertUnavailableFeature()}
-              containerStyle={{ flex: 1 }}
-            />
-          </View>
-          <BlurView
-            blurType="light"
-            blurRadius={20}
-            style={bottomSheetStyles.blurView}
-          />
-          <View
-            style={[
-              bottomSheetStyles.blurView,
-              {
-                alignItems: 'center',
-                justifyContent: 'center',
-                paddingHorizontal: layout.spacing.xl,
-              },
-            ]}>
-            <Text style={[font.largeBold, { textAlign: 'center' }]}>
-              Feature Not Available Yet
-            </Text>
-            <Spacer.Vertical value="xs" />
-            <Text style={[font.medium, { textAlign: 'center' }]}>
-              We&apos;re still working on this feature. We&apos;ll let you know
-              when it&apos;s ready.
-            </Text>
-            <Spacer.Vertical value="md" />
-            <Button
-              title="Close"
-              type="primary"
-              size="small"
-              variant="contained"
-              onPress={handleCloseBottomSheet}
-            />
-          </View>
-        </SafeAreaView>
+        backdropComponent={renderBackdrop}
+        handleIndicatorStyle={{ backgroundColor: colors.text }}
+        backgroundStyle={{ backgroundColor: colors.card }}>
+        <LocationQueryBottomSheetContent />
       </BottomSheet>
     </Portal>
   );
@@ -189,6 +112,86 @@ const bottomSheetStyles = StyleSheet.create({
   },
 });
 
+function LocationQueryBottomSheetContent() {
+  const { dark, colors } = useExtendedTheme();
+  const { close } = useBottomSheet();
+
+  return (
+    <SafeAreaView edges={['bottom', 'left', 'right']} style={{ flex: 1 }}>
+      <LocationQueryBottomSheetHeader onPressClose={close} />
+      <BottomSheetScrollView
+        contentContainerStyle={bottomSheetStyles.scrollView}>
+        <View style={bottomSheetStyles.mapView}>
+          {/* <MapView
+              initialRegion={searchRegion}
+              onRegionChange={setSearchRegion}
+              style={{ height: 300 }}
+            /> */}
+          <View style={{ width: 300, backgroundColor: colors.placeholder }} />
+        </View>
+        <Spacer.Vertical value="md" />
+        <Slider
+          step={1}
+          minimumValue={MIN_SEARCH_RADIUS}
+          maximumValue={MAX_SEARCH_RADIUS}
+          minimumTrackTintColor={color.accent}
+          thumbTintColor={Platform.select({ android: color.accent })}
+        />
+      </BottomSheetScrollView>
+      <View style={bottomSheetStyles.buttonFooterContainer}>
+        <Button
+          title="Reset"
+          type="secondary"
+          variant="contained"
+          onPress={() => alertUnavailableFeature()}
+          containerStyle={{ flex: 1 }}
+        />
+        <Spacer.Horizontal value="md" />
+        <Button
+          title="Apply"
+          type="primary"
+          variant="contained"
+          onPress={() => alertUnavailableFeature()}
+          containerStyle={{ flex: 1 }}
+        />
+      </View>
+      <BlurView
+        blurType={dark ? 'dark' : 'light'}
+        blurRadius={20}
+        style={bottomSheetStyles.blurView}
+      />
+      <View
+        style={[
+          bottomSheetStyles.blurView,
+          {
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingHorizontal: layout.spacing.xl,
+          },
+        ]}>
+        <Text
+          style={[font.largeBold, { textAlign: 'center', color: colors.text }]}>
+          Feature Not Available Yet
+        </Text>
+        <Spacer.Vertical value="xs" />
+        <Text
+          style={[font.medium, { textAlign: 'center', color: colors.text }]}>
+          We&apos;re still working on this feature. We&apos;ll let you know when
+          it&apos;s ready.
+        </Text>
+        <Spacer.Vertical value="md" />
+        <Button
+          title="Close"
+          type="primary"
+          size="small"
+          variant="contained"
+          onPress={() => close()}
+        />
+      </View>
+    </SafeAreaView>
+  );
+}
+
 type LocationQueryBottomSheetHeaderProps = {
   onPressClose?: () => void;
 };
@@ -196,6 +199,7 @@ type LocationQueryBottomSheetHeaderProps = {
 function LocationQueryBottomSheetHeader(
   props: LocationQueryBottomSheetHeaderProps,
 ) {
+  const { colors } = useExtendedTheme();
   return (
     <View
       style={{
@@ -205,7 +209,7 @@ function LocationQueryBottomSheetHeader(
         paddingBottom: layout.spacing.md,
       }}>
       <TouchableHighlight
-        underlayColor={color.gray200}
+        underlayColor={colors.highlight}
         onPress={props.onPressClose}
         style={{
           alignItems: 'center',
@@ -213,11 +217,15 @@ function LocationQueryBottomSheetHeader(
           width: ICON_DIAMETER,
           height: ICON_DIAMETER,
           borderRadius: ICON_DIAMETER / 2,
-          backgroundColor: color.gray100,
+          backgroundColor: colors.background,
         }}>
         <Icon name="close" size={ICON_SIZE} />
       </TouchableHighlight>
-      <Text style={[font.largeBold, { flex: 1, textAlign: 'center' }]}>
+      <Text
+        style={[
+          font.largeBold,
+          { flex: 1, textAlign: 'center', color: colors.text },
+        ]}>
         Search Location
       </Text>
       <Spacer.Horizontal value={ICON_DIAMETER} />

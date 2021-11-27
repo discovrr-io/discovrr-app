@@ -14,6 +14,7 @@ import RNVideo, {
 import * as constants from 'src/constants';
 import * as utilities from 'src/utilities';
 import { ActionBottomSheet, ActionBottomSheetItem } from 'src/components';
+import { useExtendedTheme } from 'src/hooks';
 
 import PreviewPicker, { PreviewPickerProps } from './PreviewPicker';
 
@@ -103,20 +104,17 @@ export default function ViewPreviewPicker(props: VideoPreviewPickerProps) {
       }
     };
 
-    switch (selectedItemId) {
-      case 'camera':
-        // We'll wait a short period of time to let the bottom sheet fully close
-        setTimeout(async () => {
+    // We'll wait a short period of time to let the bottom sheet fully close
+    setTimeout(async () => {
+      switch (selectedItemId) {
+        case 'camera':
           await handleRecordVideo();
-        }, 80);
-        break;
-      case 'library':
-        // We'll wait a short period of time to let the bottom sheet fully close
-        setTimeout(async () => {
+          break;
+        case 'library':
           await handleSelectFromPhotoLibrary();
-        }, 80);
-        break;
-    }
+          break;
+      }
+    }, constants.values.BOTTOM_SHEET_WAIT_DURATION);
   };
 
   return (
@@ -124,7 +122,6 @@ export default function ViewPreviewPicker(props: VideoPreviewPickerProps) {
       <PreviewPicker<Video>
         {...props}
         ref={previewPickerRef}
-        // iconName="film-outline"
         description={
           props.description ??
           `Tap on ${
@@ -160,6 +157,7 @@ const VideoPreviewPickerItem = React.forwardRef<
   VideoPreviewPickerItemProps
 >((props, ref) => {
   const { item, itemWidth, onLoad, ...videoProps } = props;
+  const { colors } = useExtendedTheme();
 
   const [shouldPauseVideo, setShouldPauseVideo] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -193,7 +191,7 @@ const VideoPreviewPickerItem = React.forwardRef<
           aspectRatio: 1,
           borderRadius: constants.layout.radius.md,
           overflow: 'hidden',
-          backgroundColor: constants.color.placeholder,
+          backgroundColor: colors.placeholder,
         }}
       />
       {isLoading && (

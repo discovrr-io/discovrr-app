@@ -45,10 +45,13 @@ export const danger = red500;
 export const dangerFocused = red700;
 export const dangerDisabled = red300;
 
+/** @deprecated Use the placeholder value in `useExtendedTheme` hook */
 export const placeholder = gray100;
+export const placeholderLight = gray100;
+export const placeholderDark = gray700;
 
 export const defaultDarkTextColor = black;
-export const disabledDarkTextColor = gray300;
+export const disabledDarkTextColor = gray700;
 
 export const defaultLightTextColor = white;
 export const disabledLightTextColor = gray100;

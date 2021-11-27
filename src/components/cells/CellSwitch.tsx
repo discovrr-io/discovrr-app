@@ -1,8 +1,10 @@
-import React from 'react';
+import * as React from 'react';
 import { Platform, Switch, SwitchProps, Text, View } from 'react-native';
-import { color } from 'src/constants';
-import CellContainer from './CellContainer';
 
+import { color } from 'src/constants';
+import { useExtendedTheme } from 'src/hooks';
+
+import CellContainer from './CellContainer';
 import { CellElementProps, defaultCellElementOptions } from './common';
 import { useCellElementContext } from './hooks';
 
@@ -15,6 +17,7 @@ export type CellSwitchProps = CellElementProps &
 export default function CellSwitch(props: CellSwitchProps) {
   const cellElementOptions = useCellElementContext(props.elementOptions);
   const isDisabled = props.disabled || cellElementOptions.disabled;
+  const { colors } = useExtendedTheme();
 
   return (
     <CellContainer elementOptions={cellElementOptions}>
@@ -28,7 +31,7 @@ export default function CellSwitch(props: CellSwitchProps) {
           style={[
             defaultCellElementOptions.labelStyle,
             cellElementOptions.labelStyle,
-            isDisabled && { color: color.disabledDarkTextColor },
+            { color: isDisabled ? colors.textDisabled : colors.text },
           ]}>
           {props.label}
         </Text>
@@ -37,7 +40,7 @@ export default function CellSwitch(props: CellSwitchProps) {
             style={[
               defaultCellElementOptions.captionStyle,
               cellElementOptions.captionStyle,
-              isDisabled && { color: color.disabledDarkTextColor },
+              { color: isDisabled ? colors.captionDisabled : colors.caption },
             ]}>
             {props.caption}
           </Text>

@@ -3,6 +3,7 @@ import {
   ActivityIndicator,
   Alert,
   Linking,
+  StyleSheet,
   Text,
   TouchableHighlight,
   TouchableOpacity,
@@ -20,20 +21,19 @@ import {
 } from '@react-navigation/drawer';
 
 import * as constants from 'src/constants';
-import * as utilities from 'src/utilities';
 import * as authSlice from 'src/features/authentication/auth-slice';
 import * as profilesSlice from 'src/features/profiles/profiles-slice';
-import { useAppDispatch, useAppSelector } from 'src/hooks';
+import { useAppDispatch, useAppSelector, useExtendedTheme } from 'src/hooks';
+import { useProfile } from 'src/features/profiles/hooks';
 import { Profile, ProfileId } from 'src/models';
 import { RootStackNavigationProp, RootStackParamList } from 'src/navigation';
 
+import AsyncGate from './AsyncGate';
 import Spacer from './Spacer';
-import { AsyncGate } from '.';
-import { useProfile } from 'src/features/profiles/hooks';
 
 const AVATAR_DIAMETER = 125;
-const DRAWER_ITEM_ICON_COLOR = constants.color.black;
-const DRAWER_ITEM_TEXT_COLOR = constants.color.black;
+// const DRAWER_ITEM_ICON_COLOR = constants.color.black;
+// const DRAWER_ITEM_TEXT_COLOR = constants.color.black;
 const ROLE_CHIP_HIT_SLOP_INSET = 25;
 
 type AppDrawerItemProps = {
@@ -45,16 +45,17 @@ type AppDrawerItemProps = {
 
 function AppDrawerItem(props: AppDrawerItemProps) {
   const { label, iconName, tintColor, onPress } = props;
+  const { colors } = useExtendedTheme();
 
   return (
     <DrawerItem
-      pressColor={constants.color.gray200}
+      pressColor={colors.highlight}
       label={() => (
         <Text
           numberOfLines={1}
           style={[
             constants.font.medium,
-            { color: tintColor ?? DRAWER_ITEM_TEXT_COLOR, marginLeft: -8 },
+            { color: tintColor || colors.text, marginLeft: -8 },
           ]}>
           {label}
         </Text>
@@ -63,7 +64,7 @@ function AppDrawerItem(props: AppDrawerItemProps) {
         <Icon
           name={iconName}
           size={size}
-          color={tintColor ?? DRAWER_ITEM_ICON_COLOR}
+          color={tintColor ?? colors.text}
           style={{ paddingLeft: constants.layout.spacing.md }}
         />
       )}
@@ -73,12 +74,13 @@ function AppDrawerItem(props: AppDrawerItemProps) {
 }
 
 function Divider() {
+  const { colors } = useExtendedTheme();
   return (
     <View
       style={{
-        borderBottomWidth: 1,
-        borderColor: constants.color.gray100,
+        borderColor: colors.border,
         marginVertical: constants.layout.spacing.sm,
+        borderBottomWidth: StyleSheet.hairlineWidth,
       }}
     />
   );
@@ -187,6 +189,7 @@ export default function AppDrawerWrapper(props: AppDrawerProps) {
 function AppDrawer(props: AppDrawerProps & { profileId: ProfileId }) {
   const $FUNC = '[AppDrawer]';
   const profileId = props.profileId;
+  const { colors } = useExtendedTheme();
 
   const dispatch = useAppDispatch();
   const navigation = props.navigation;
@@ -264,17 +267,14 @@ function AppDrawer(props: AppDrawerProps & { profileId: ProfileId }) {
   };
 
   return (
-    <DrawerContentScrollView {...props}>
+    <DrawerContentScrollView
+      {...props}
+      style={{ backgroundColor: colors.card }}>
       <View style={{ padding: constants.layout.spacing.lg }}>
         <TouchableOpacity
           activeOpacity={constants.values.DEFAULT_ACTIVE_OPACITY}
           onPress={() => {
-            if (profile) {
-              handleNavigation('ProfileSettings');
-            } else {
-              utilities.alertSomethingWentWrong();
-              navigation.closeDrawer();
-            }
+            if (profile) handleNavigation('ProfileSettings');
           }}>
           <AppDrawerProfileDetails profileId={profileId} />
         </TouchableOpacity>
@@ -330,25 +330,32 @@ const AppDrawerProfileDetails = (props: AppDrawerProfileDetailsProps) => {
   const profileData = useProfile(props.profileId);
 
   React.useEffect(() => {
+    let timeout: NodeJS.Timeout | undefined;
+
     async function fetchMyProfile() {
       const fetchProfileAction = profilesSlice.fetchProfileById({
         profileId: props.profileId,
         reload: true,
       });
 
-      try {
-        await new Promise<void>(() => {
-          // iOS: Wait a bit to let the dark-overlay animation to complete
-          setTimeout(async () => {
+      await new Promise<void>(resolve => {
+        // iOS: Wait a bit to let the dark-overlay animation to complete
+        timeout = setTimeout(async () => {
+          try {
             await dispatch(fetchProfileAction).unwrap();
-          }, 500);
-        });
-      } catch (error) {
-        console.error('Failed to fetch profile:', error);
-      }
+            resolve(undefined);
+          } catch (error) {
+            console.error('Failed to fetch profile:', error);
+          }
+        }, 500);
+      });
     }
 
     if (drawerStatus === 'open') fetchMyProfile();
+
+    return () => {
+      if (timeout) clearTimeout(timeout);
+    };
   }, [dispatch, drawerStatus, props.profileId]);
 
   return (
@@ -365,6 +372,9 @@ const AppDrawerProfileDetails = (props: AppDrawerProfileDetailsProps) => {
 };
 
 AppDrawerProfileDetails.Fulfilled = ({ profile }: { profile: Profile }) => {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const { colors } = useExtendedTheme();
+
   return (
     <View style={{ alignItems: 'center' }}>
       <FastImage
@@ -378,13 +388,16 @@ AppDrawerProfileDetails.Fulfilled = ({ profile }: { profile: Profile }) => {
           aspectRatio: 1,
           width: AVATAR_DIAMETER,
           borderRadius: AVATAR_DIAMETER / 2,
-          backgroundColor: constants.color.placeholder,
+          backgroundColor: colors.placeholder,
         }}
       />
       <Spacer.Vertical value="lg" />
       <Text
         numberOfLines={1}
-        style={[constants.font.extraLargeBold, { textAlign: 'center' }]}>
+        style={[
+          constants.font.extraLargeBold,
+          { textAlign: 'center', color: colors.text },
+        ]}>
         {profile?.__publicName || 'Anonymous'}
       </Text>
       <Spacer.Vertical value="xs" />
@@ -407,6 +420,9 @@ AppDrawerProfileDetails.Fulfilled = ({ profile }: { profile: Profile }) => {
 };
 
 AppDrawerProfileDetails.Pending = () => {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const { colors } = useExtendedTheme();
+
   return (
     <View style={{ alignItems: 'center' }}>
       <View style={{ alignItems: 'center', justifyContent: 'center' }}>
@@ -416,7 +432,7 @@ AppDrawerProfileDetails.Pending = () => {
             aspectRatio: 1,
             width: AVATAR_DIAMETER,
             borderRadius: AVATAR_DIAMETER / 2,
-            backgroundColor: constants.color.placeholder,
+            backgroundColor: colors.placeholder,
           }}
         />
         <ActivityIndicator
@@ -430,7 +446,7 @@ AppDrawerProfileDetails.Pending = () => {
         style={{
           height: 24,
           width: '50%',
-          backgroundColor: constants.color.placeholder,
+          backgroundColor: colors.placeholder,
         }}
       />
       <Spacer.Vertical value="xs" />
@@ -438,7 +454,7 @@ AppDrawerProfileDetails.Pending = () => {
         style={{
           height: 19,
           width: '25%',
-          backgroundColor: constants.color.placeholder,
+          backgroundColor: colors.placeholder,
         }}
       />
     </View>

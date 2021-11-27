@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Platform, StatusBar } from 'react-native';
+import { Platform } from 'react-native';
 
 import codePush from 'react-native-code-push';
 import messaging from '@react-native-firebase/messaging';
@@ -8,7 +8,7 @@ import { HeaderStyleInterpolators } from '@react-navigation/stack';
 
 import * as constants from 'src/constants';
 import { SessionApi } from 'src/api';
-import { useAppDispatch, useAppSelector } from 'src/hooks';
+import { useAppDispatch, useAppSelector, useExtendedTheme } from 'src/hooks';
 import { NotificationId } from 'src/models';
 import { RootStack } from 'src/navigation';
 
@@ -46,7 +46,7 @@ async function getFCMToken(): Promise<string> {
 export default function RootNavigator() {
   const $FUNC = '[RootNavigator]';
   const dispatch = useAppDispatch();
-  // const linkTo = useLinkTo();
+  const { colors } = useExtendedTheme();
 
   const sessionId = useAppSelector(state => state.auth.sessionId);
   const didRegisterFCMToken = useAppSelector(state => {
@@ -142,17 +142,11 @@ export default function RootNavigator() {
 
   return (
     <>
-      <StatusBar
-        animated
-        translucent
-        barStyle="dark-content"
-        backgroundColor="transparent"
-      />
       <RootStack.Navigator
         initialRouteName="Main"
         screenOptions={{
-          headerTintColor: constants.color.black,
           headerBackTitleVisible: false,
+          headerTintColor: colors.text,
           headerTitleStyle: constants.font.defaultHeaderTitleStyle,
           headerLeft: props => <HeaderIcon.Back {...props} />,
           headerLeftContainerStyle: {

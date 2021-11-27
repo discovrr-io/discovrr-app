@@ -13,6 +13,7 @@ import { useField } from 'formik';
 
 import CharacterCounter from './CharacterCounter';
 import { color, font, layout } from 'src/constants';
+import { useExtendedTheme } from 'src/hooks';
 
 export type TextAreaProps = TextInputProps & {
   fieldName: string;
@@ -21,6 +22,8 @@ export type TextAreaProps = TextInputProps & {
 
 export default function TextArea(props: TextAreaProps) {
   const { fieldName, style, containerStyle, ...restProps } = props;
+  const { colors } = useExtendedTheme();
+
   const [field, meta] = useField<string>(fieldName);
 
   return (
@@ -65,6 +68,7 @@ export default function TextArea(props: TextAreaProps) {
         style={[
           font.extraLarge,
           {
+            color: colors.text,
             textAlignVertical: 'top',
             minHeight: !meta.error ? '20%' : undefined,
           },

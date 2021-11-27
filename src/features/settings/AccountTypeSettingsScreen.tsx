@@ -166,7 +166,9 @@ function AccountTypeForm() {
     <Cell.Group
       label="What best describes you?"
       elementOptions={{ iconSize: CELL_ICON_SIZE * 1.5 }}>
-      <Cell.Select value={meta.value} onValueChanged={handleChangeSelection}>
+      <Cell.OptionGroup
+        value={meta.value}
+        onValueChanged={handleChangeSelection}>
         <Cell.Option
           label="I'm a user"
           value="personal"
@@ -177,7 +179,7 @@ function AccountTypeForm() {
           value="vendor"
           caption="Advertise products and workshops to help your business grow"
         />
-      </Cell.Select>
+      </Cell.OptionGroup>
     </Cell.Group>
   );
 }

@@ -6,12 +6,11 @@ import MainSettingsScreen from './MainSettingsScreen';
 import ProfileSettingsScreen from './ProfileSettingsScreen';
 import AccountTypeSettingsScreen from './AccountTypeSettingsScreen';
 import NotificationsSettingsScreen from './NotificationSettings';
-import { color } from 'src/constants';
+import AppearanceSettingsScreen from './AppearanceSettings';
 
 export default function renderSettingsNavigator() {
   return (
-    <RootStack.Group
-      screenOptions={{ cardStyle: { backgroundColor: color.white } }}>
+    <RootStack.Group>
       <RootStack.Screen
         name="MainSettings"
         component={MainSettingsScreen}
@@ -31,6 +30,11 @@ export default function renderSettingsNavigator() {
         name="NotificationSettings"
         component={NotificationsSettingsScreen}
         options={{ title: 'Notification Settings' }}
+      />
+      <RootStack.Screen
+        name="AppearanceSettings"
+        component={AppearanceSettingsScreen}
+        options={{ title: 'Appearance Settings' }}
       />
     </RootStack.Group>
   );

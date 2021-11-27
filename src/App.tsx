@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Linking } from 'react-native';
+import { Linking, Platform, StatusBar, useColorScheme } from 'react-native';
 
 import analytics from '@react-native-firebase/analytics';
 import inAppMessaging from '@react-native-firebase/in-app-messaging';
@@ -17,8 +17,9 @@ import { persistStore } from 'redux-persist';
 import { PortalProvider } from '@gorhom/portal';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { useFlipper } from '@react-navigation/devtools';
+// import { useFlipper } from '@react-navigation/devtools';
 import {
+  DarkTheme,
   DefaultTheme,
   NavigationContainer,
   NavigationContainerRef,
@@ -28,7 +29,8 @@ import {
 import * as constants from './constants';
 import store from './store';
 import SplashScreen from './SplashScreen';
-import { useAppDispatch } from './hooks';
+import { RootStackParamList } from './navigation';
+import { useAppDispatch, useAppSelector } from './hooks';
 import { resetAppState } from './global-actions';
 
 import AuthGate from './features/authentication/AuthGate';
@@ -50,13 +52,38 @@ Parse.User.enableUnsafeCurrentUser();
 Parse.initialize(Config.PARSE_APP_ID || 'local-discovrr-dev-server');
 Parse.serverURL = Config.PARSE_SERVER_URL || 'http://localhost:1337/parse';
 
-const navigationTheme: Theme = {
+const debugTheme: Theme = {
+  ...DefaultTheme,
+  colors: {
+    primary: 'orange',
+    background: 'paleturquoise',
+    card: 'lightcyan',
+    text: 'purple',
+    border: 'red',
+    notification: 'yellow',
+  },
+};
+
+const lightTheme: Theme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
     primary: constants.color.accent,
+    border: constants.color.gray200,
     background: constants.color.white,
     card: constants.color.absoluteWhite,
+    notification: constants.color.red500,
+  },
+};
+
+const darkTheme: Theme = {
+  ...DarkTheme,
+  colors: {
+    ...DarkTheme.colors,
+    primary: constants.color.accent,
+    border: constants.color.gray700,
+    background: constants.color.absoluteBlack,
+    card: constants.color.black,
     notification: constants.color.red500,
   },
 };
@@ -65,6 +92,7 @@ const persistor = persistStore(store);
 
 function App() {
   const $FUNC = '[App]';
+
   React.useEffect(() => {
     console.log($FUNC, 'Suppressing in app messages...');
     inAppMessaging()
@@ -76,11 +104,9 @@ function App() {
 
   return (
     <SafeAreaProvider>
-      <PortalProvider>
-        <ReduxProvider store={store}>
-          <PersistedApp />
-        </ReduxProvider>
-      </PortalProvider>
+      <ReduxProvider store={store}>
+        <PersistedApp />
+      </ReduxProvider>
     </SafeAreaProvider>
   );
 }
@@ -89,16 +115,41 @@ function PersistedApp() {
   const $FUNC = '[PersistedApp]';
   const dispatch = useAppDispatch();
 
-  const routeNameRef = React.useRef<string>();
-  const navigationRef = React.useRef<NavigationContainerRef<any>>(null);
+  const systemScheme = useColorScheme();
+  const selectedAppearance = useAppSelector(
+    state => state.settings.appearancePrefs,
+  );
 
-  useFlipper(navigationRef);
+  const navigationTheme = React.useMemo(() => {
+    switch (selectedAppearance) {
+      case 'light':
+        return lightTheme;
+      case 'dark':
+        return darkTheme;
+      case 'debug':
+        return debugTheme;
+      case 'system': /* FALLTHROUGH */
+      default:
+        return systemScheme === 'dark' ? darkTheme : lightTheme;
+    }
+  }, [systemScheme, selectedAppearance]);
 
   React.useEffect(() => {
-    RNBootSplash.hide({ fade: true }).catch(error => {
-      console.error($FUNC, 'Failed to hide boot splash screen:', error);
-    });
-  }, []);
+    if (Platform.OS === 'android') {
+      StatusBar.setBackgroundColor('transparent');
+      StatusBar.setTranslucent(true);
+    }
+    StatusBar.setBarStyle(
+      navigationTheme.dark ? 'light-content' : 'dark-content',
+      true,
+    );
+  }, [navigationTheme]);
+
+  const routeNameRef = React.useRef<string>();
+  const navigationRef =
+    React.useRef<NavigationContainerRef<RootStackParamList>>(null);
+
+  // useFlipper(navigationRef);
 
   const handleBeforeLift = async () => {
     try {
@@ -149,10 +200,12 @@ function PersistedApp() {
 
   const handleNavigationReady = () => {
     routeNameRef.current = navigationRef.current?.getCurrentRoute()?.name;
+    RNBootSplash.hide({ fade: true }).catch(error => {
+      console.error($FUNC, 'Failed to hide boot splash screen:', error);
+    });
   };
 
   const handleNavigationStateChange = async () => {
-    const $FUNC = '[Navigation]';
     const previousRouteName = routeNameRef.current;
     const currentRouteName = navigationRef.current?.getCurrentRoute()?.name;
 
@@ -171,9 +224,9 @@ function PersistedApp() {
   return (
     <PersistGate
       persistor={persistor}
-      loading={<SplashScreen />}
+      loading={<SplashScreen navigationTheme={navigationTheme} />}
       onBeforeLift={handleBeforeLift}>
-      <NavigationContainer
+      <NavigationContainer<RootStackParamList>
         ref={navigationRef}
         onReady={handleNavigationReady}
         onStateChange={handleNavigationStateChange}
@@ -193,8 +246,8 @@ function PersistedApp() {
               ProductDetails: 'product/:productId',
               MainSettings: 'settings',
               ProfileSettings: 'settings/profile',
-              LocationAccuracySettings: 'settings/location',
               NotificationSettings: 'settings/notifications',
+              AppearanceSettings: 'settings/appearance',
               RouteError: '*',
             },
           },
@@ -217,12 +270,12 @@ function PersistedApp() {
           },
           subscribe: listener => {
             const onReceiveURL = ({ url }: { url: string }) => {
-              // This requires the "discovrr:" scheme prepended to work.
+              // This requires the "discovrr" scheme prepended to work.
               listener('discovrr://' + url);
             };
 
             // Listen to incoming links from deep linking
-            Linking.addEventListener('url', onReceiveURL);
+            const urlListener = Linking.addEventListener('url', onReceiveURL);
 
             // Listen to Firebase push notifications
             const unsubscribe = messaging().onNotificationOpenedApp(message => {
@@ -234,12 +287,14 @@ function PersistedApp() {
             });
 
             return () => {
-              Linking.removeEventListener('url', onReceiveURL);
+              urlListener.remove();
               unsubscribe();
             };
           },
         }}>
-        <AuthGate />
+        <PortalProvider>
+          <AuthGate />
+        </PortalProvider>
       </NavigationContainer>
     </PersistGate>
   );

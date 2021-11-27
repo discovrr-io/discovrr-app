@@ -43,7 +43,6 @@ import * as utilities from 'src/utilities';
 import PostMasonryList from 'src/features/posts/PostMasonryList';
 import ProductMasonryList from 'src/features/products/ProductMasonryList';
 
-import { useAppDispatch, useAppSelector, useIsMounted } from 'src/hooks';
 import { PostId, Profile, ProfileId } from 'src/models';
 import { RootStackNavigationProp, RootStackScreenProps } from 'src/navigation';
 
@@ -60,10 +59,16 @@ import {
 } from 'src/components';
 
 import { useIsMyProfile, useProfile } from './hooks';
+import {
+  useAppDispatch,
+  useAppSelector,
+  useExtendedTheme,
+  useIsMounted,
+} from 'src/hooks';
 
 const MaterialTopTab = createMaterialTopTabNavigator();
 
-const BACKGROUND_COLOR = constants.color.white;
+// const BACKGROUND_COLOR = constants.color.white;
 const HEADER_HEIGHT_RATIO = 0.58;
 const BOTTOM_SHEET_HEIGHT_RATIO = 1 - HEADER_HEIGHT_RATIO;
 const BOTTOM_SHEET_NUDGE = 24;
@@ -155,7 +160,6 @@ function ProfileByUsernameDetailsScreen(
     return (
       <RouteError
         message={`We couldn't find anyone with the username '${props.username}'`}
-        containerStyle={{ backgroundColor: constants.color.white }}
       />
     );
   } else if (shouldFetch || !profile) {
@@ -188,9 +192,7 @@ function ProfileByIdDetailsScreen(props: ProfileByIdDetailsScreenProps) {
   const headerHeight = useHeaderHeight();
   const route = useRoute<ProfileDetailsScreenProps['route']>();
 
-  const renderRouteError = (_error?: any) => (
-    <RouteError containerStyle={{ backgroundColor: constants.color.white }} />
-  );
+  const renderRouteError = (_error?: any) => <RouteError />;
 
   return (
     <AsyncGate
@@ -234,6 +236,7 @@ export function LoadedProfileDetailsScreen(
 
   const dispatch = useAppDispatch();
   const navigation = useNavigation<ProfileDetailsScreenProps['navigation']>();
+  const { colors, dark } = useExtendedTheme();
 
   const isMounted = useIsMounted();
   const [shouldFetch, setShouldFetch] = useShouldFetchOnFocus();
@@ -337,8 +340,10 @@ export function LoadedProfileDetailsScreen(
   useFocusEffect(
     React.useCallback(() => {
       StatusBar.setBarStyle('light-content', true);
-      return () => StatusBar.setBarStyle('dark-content', true);
-    }, []),
+      return () => {
+        if (!dark) StatusBar.setBarStyle('dark-content', true);
+      };
+    }, [dark]),
   );
 
   React.useEffect(
@@ -389,10 +394,12 @@ export function LoadedProfileDetailsScreen(
 
   return (
     <ProfileDetailsContext.Provider value={{ profile, isMyProfile }}>
-      {Platform.OS === 'ios' && <StatusBar animated barStyle="light-content" />}
+      {Platform.OS === 'ios' && !dark && (
+        <StatusBar animated barStyle="light-content" />
+      )}
       <SafeAreaView
         edges={['bottom', 'left', 'right']}
-        style={{ flex: 1, backgroundColor: constants.color.absoluteWhite }}>
+        style={{ flex: 1, backgroundColor: colors.background }}>
         <ProfileDetailsHeader preferredWindowHeight={windowHeight} />
         {/* TODO: Don't render this when the bottom sheet is open */}
         <View
@@ -401,8 +408,6 @@ export function LoadedProfileDetailsScreen(
         </View>
         <BottomSheet
           ref={bottomSheetRef}
-          // index={-1}
-          // animateOnMount={false}
           snapPoints={snapPoints}
           onChange={newIndex => {
             if (newIndex === 1) {
@@ -430,21 +435,21 @@ export function LoadedProfileDetailsScreen(
           handleStyle={{
             borderTopLeftRadius: constants.layout.radius.lg,
             borderTopRightRadius: constants.layout.radius.lg,
-            backgroundColor: constants.color.absoluteWhite,
+            backgroundColor: colors.card,
             paddingBottom: 0,
           }}
-          backgroundStyle={{ backgroundColor: BACKGROUND_COLOR }}>
+          handleIndicatorStyle={{
+            backgroundColor: colors.text,
+          }}
+          backgroundStyle={{ backgroundColor: colors.background }}>
           <MaterialTopTab.Navigator
             screenOptions={{
               lazy: true,
               swipeEnabled: false, // This doesn't work anyway
               tabBarLabelStyle: constants.font.defaultTopTabBarLabelStyle,
-              tabBarActiveTintColor: constants.color.accent,
-              tabBarInactiveTintColor: constants.color.gray500,
-              tabBarPressColor: constants.color.gray200,
-              tabBarStyle: {
-                backgroundColor: constants.color.absoluteWhite,
-              },
+              tabBarActiveTintColor: colors.primary,
+              tabBarInactiveTintColor: colors.caption,
+              tabBarPressColor: colors.highlight,
               // lazyPreloadDistance: 1,
               lazyPlaceholder: () => (
                 <LoadingContainer
@@ -492,7 +497,9 @@ type ProfileDetailsHeaderProps = {
 function ProfileDetailsHeader(props: ProfileDetailsHeaderProps) {
   const $FUNC = '[ProfileDetailsHeader]';
   const { profile, isMyProfile } = React.useContext(ProfileDetailsContext);
+
   const { height: calculatedWindowHeight } = useWindowDimensions();
+  const { colors, dark } = useExtendedTheme();
 
   const windowHeight = React.useMemo(() => {
     if (props.preferredWindowHeight) return props.preferredWindowHeight;
@@ -652,8 +659,8 @@ function ProfileDetailsHeader(props: ProfileDetailsHeaderProps) {
             <FastImage
               source={{ uri: profile.backgroundThumbnail?.url }}
               style={[
-                { position: 'absolute' },
                 profileDetailsHeaderStyles.coverPhoto,
+                { position: 'absolute', backgroundColor: colors.placeholder },
               ]}
             />
           )}
@@ -678,7 +685,7 @@ function ProfileDetailsHeader(props: ProfileDetailsHeaderProps) {
               {
                 backgroundColor: Platform.select({
                   android: 'transparent',
-                  default: constants.color.placeholder,
+                  default: colors.placeholder,
                 }),
               },
             ]}
@@ -697,12 +704,22 @@ function ProfileDetailsHeader(props: ProfileDetailsHeaderProps) {
       ) : (
         <FastImage
           resizeMode="cover"
+          tintColor={
+            fallbackToImage || !profile.background
+              ? dark
+                ? constants.color.gray300
+                : constants.color.gray500
+              : undefined
+          }
           source={
             !fallbackToImage && profile.background
               ? { uri: profile.background?.url }
               : constants.media.DEFAULT_IMAGE
           }
-          style={[profileDetailsHeaderStyles.coverPhoto]}
+          style={[
+            profileDetailsHeaderStyles.coverPhoto,
+            profile.background && { backgroundColor: colors.placeholder },
+          ]}
         />
       )}
       <View
@@ -726,7 +743,8 @@ function ProfileDetailsHeader(props: ProfileDetailsHeaderProps) {
               style={[
                 profileDetailsHeaderStyles.avatar,
                 { height: avatarHeight, borderRadius: avatarHeight / 2 },
-                Platform.OS === 'android' && { backgroundColor: 'transparent' },
+                { backgroundColor: colors.placeholder },
+                // Platform.OS === 'android' && { backgroundColor: 'transparent' },
               ]}
             />
             <Spacer.Vertical value="sm" />
@@ -796,7 +814,11 @@ function ProfileDetailsHeader(props: ProfileDetailsHeaderProps) {
                   : constants.color.gray200
               }
               textStyle={isToggled => [
-                isToggled && { color: constants.color.defaultLightTextColor },
+                {
+                  color: isToggled
+                    ? constants.color.defaultLightTextColor
+                    : constants.color.defaultDarkTextColor,
+                },
               ]}
               loadingIndicatorColor={isToggled =>
                 isToggled
@@ -823,12 +845,10 @@ function ProfileDetailsHeader(props: ProfileDetailsHeaderProps) {
 const profileDetailsHeaderStyles = StyleSheet.create({
   avatar: {
     aspectRatio: 1,
-    backgroundColor: constants.color.placeholder,
   },
   coverPhoto: {
     width: '100%',
     height: '100%',
-    backgroundColor: constants.color.placeholder,
   },
   headerContainer: {
     width: '100%',
@@ -879,10 +899,16 @@ function ProfileDetailsHeaderStatistics(
       activeOpacity={constants.values.DEFAULT_ACTIVE_OPACITY}
       style={profileDetailsHeaderStatisticStyles.container}
       onPress={onPress}>
-      <Text numberOfLines={1} style={profileDetailsHeaderStatisticStyles.label}>
+      <Text
+        allowFontScaling={false}
+        numberOfLines={1}
+        style={profileDetailsHeaderStatisticStyles.label}>
         {label}
       </Text>
-      <Text numberOfLines={1} style={profileDetailsHeaderStatisticStyles.count}>
+      <Text
+        allowFontScaling={false}
+        numberOfLines={1}
+        style={profileDetailsHeaderStatisticStyles.count}>
         {utilities.shortenLargeNumber(count)}
       </Text>
     </TouchableOpacity>
@@ -908,6 +934,7 @@ const profileDetailsHeaderStatisticStyles = StyleSheet.create({
 function ProfileDetailsContentProductsTab() {
   const $FUNC = '[ProfileDetailsContentProductsTab]';
   const { profile, isMyProfile } = React.useContext(ProfileDetailsContext);
+  const { colors } = useExtendedTheme();
 
   const productIds = useAppSelector(state => {
     // There shouldn't be a case where we encounter a personal profile here
@@ -966,7 +993,7 @@ function ProfileDetailsContentProductsTab() {
     <ProductMasonryList
       smallContent
       productIds={productIds}
-      style={{ backgroundColor: BACKGROUND_COLOR }}
+      style={{ backgroundColor: colors.background }}
       contentContainerStyle={{
         flexGrow: 1,
         paddingBottom: constants.layout.spacing.md,
@@ -1012,6 +1039,7 @@ function ProfileDetailsContentPostsTab() {
   const dispatch = useAppDispatch();
   const navigation = useNavigation<ProfileDetailsScreenProps['navigation']>();
   const isMounted = useIsMounted();
+  const { colors } = useExtendedTheme();
 
   const [shouldFetch, setShouldFetch] = useShouldFetchOnFocus();
 
@@ -1058,7 +1086,7 @@ function ProfileDetailsContentPostsTab() {
     <PostMasonryList
       smallContent
       postIds={postIds}
-      style={{ backgroundColor: BACKGROUND_COLOR }}
+      style={{ backgroundColor: colors.background }}
       contentContainerStyle={{
         flexGrow: 1,
         paddingBottom: constants.layout.spacing.md,
@@ -1097,6 +1125,7 @@ function ProfileDetailsContentLikedTab() {
 
   const dispatch = useAppDispatch();
   const isMounted = useIsMounted();
+  const { colors } = useExtendedTheme();
 
   const [likedPostIds, setLikedPostIds] = React.useState<PostId[]>([]);
   const [shouldFetch, setShouldFetch] = useShouldFetchOnFocus();
@@ -1136,7 +1165,7 @@ function ProfileDetailsContentLikedTab() {
     <PostMasonryList
       smallContent
       postIds={likedPostIds}
-      style={{ backgroundColor: BACKGROUND_COLOR }}
+      style={{ backgroundColor: colors.background }}
       contentContainerStyle={{
         flexGrow: 1,
         paddingBottom: constants.layout.spacing.md,
@@ -1169,6 +1198,5 @@ function ProfileDetailsContentLikedTab() {
 const profileDetailsContentCommonTabStyles = StyleSheet.create({
   container: {
     paddingTop: constants.layout.spacing.xl,
-    backgroundColor: BACKGROUND_COLOR,
   },
 });

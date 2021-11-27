@@ -19,7 +19,7 @@ import * as constants from 'src/constants';
 import * as notificationsSlice from './notifications-slice';
 // import FeedFooter from 'src/features/feed/FeedFooter';
 import { Button, EmptyContainer, Spacer } from 'src/components';
-import { useAppDispatch, useAppSelector } from 'src/hooks';
+import { useAppDispatch, useAppSelector, useExtendedTheme } from 'src/hooks';
 import { Notification } from 'src/models';
 import { FacadeBottomTabScreenProps } from 'src/navigation';
 
@@ -28,6 +28,7 @@ type NotificationsScreenProps = FacadeBottomTabScreenProps<'Notifications'>;
 export default function NotificationsScreen(props: NotificationsScreenProps) {
   const $FUNC = '[NotificationsScreen]';
   const dispatch = useAppDispatch();
+  const { colors } = useExtendedTheme();
 
   const notifications = useAppSelector(
     notificationsSlice.selectAllNotifications,
@@ -81,9 +82,9 @@ export default function NotificationsScreen(props: NotificationsScreenProps) {
           <View
             style={{
               width: '100%',
-              borderWidth: StyleSheet.hairlineWidth,
-              borderColor: constants.color.gray200,
               alignSelf: 'center',
+              borderWidth: StyleSheet.hairlineWidth,
+              borderColor: colors.border,
             }}
           />
         )}
@@ -108,6 +109,7 @@ type NotificationItemProps = {
 
 function NotificationItem(props: NotificationItemProps) {
   const { notification } = props;
+  const { colors, dark } = useExtendedTheme();
 
   const dispatch = useAppDispatch();
   const linkTo = useLinkTo();
@@ -139,11 +141,7 @@ function NotificationItem(props: NotificationItemProps) {
 
   return (
     <TouchableHighlight
-      underlayColor={
-        !notification.read
-          ? constants.color.teal500 + '40'
-          : constants.color.gray500
-      }
+      underlayColor={colors.highlight}
       onPress={handlePressNotification}>
       <View
         style={[
@@ -151,34 +149,35 @@ function NotificationItem(props: NotificationItemProps) {
             flexDirection: 'row',
             alignItems: 'center',
             padding: constants.layout.spacing.md * 1.5,
-            backgroundColor: constants.color.absoluteWhite,
+            backgroundColor: colors.card,
           },
           !notification.read && {
-            backgroundColor: constants.color.teal500 + '40',
+            backgroundColor: constants.color.teal500 + (dark ? '60' : '40'),
           },
         ]}>
         <Icon
           name={iconName + '-outline'}
           size={24}
           style={{ width: 24 }}
-          color={constants.color.defaultDarkTextColor}
+          color={colors.text}
         />
         <Spacer.Horizontal value="md" />
         <View style={[{ flex: 1 }]}>
-          <Text numberOfLines={1} style={[constants.font.mediumBold]}>
+          <Text
+            numberOfLines={1}
+            style={[constants.font.mediumBold, { color: colors.text }]}>
             {notification.title}
           </Text>
           <Spacer.Vertical value="xs" />
-          <Text numberOfLines={2} style={[constants.font.small]}>
+          <Text
+            numberOfLines={2}
+            style={[constants.font.small, { color: colors.text }]}>
             {notification.message}
           </Text>
           <Spacer.Vertical value="xs" />
           <Text
             numberOfLines={1}
-            style={[
-              constants.font.extraSmall,
-              { color: constants.color.gray500 },
-            ]}>
+            style={[constants.font.extraSmall, { color: colors.caption }]}>
             {formatDistance(new Date(notification.receivedAt), new Date(), {
               addSuffix: true,
               includeSeconds: true,
@@ -194,17 +193,13 @@ function NotificationItem(props: NotificationItemProps) {
                 height: 40,
                 aspectRatio: 1,
                 borderRadius: constants.layout.spacing.md,
-                backgroundColor: constants.color.placeholder,
+                backgroundColor: colors.placeholder,
               }}
             />
           </>
         )}
         <Spacer.Horizontal value="md" />
-        <Icon
-          name="chevron-forward"
-          size={24}
-          color={constants.color.defaultDarkTextColor}
-        />
+        <Icon name="chevron-forward" size={24} color={colors.text} />
       </View>
     </TouchableHighlight>
   );

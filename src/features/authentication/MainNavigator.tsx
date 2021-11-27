@@ -18,7 +18,8 @@ import { LoadedProfileDetailsScreen } from 'src/features/profiles/ProfileDetails
 import * as constants from 'src/constants';
 import * as notificationsSlice from 'src/features/notifications/notifications-slice';
 import { useMyProfileId, useProfile } from 'src/features/profiles/hooks';
-import { useAppSelector } from 'src/hooks';
+import { useAppSelector, useExtendedTheme } from 'src/hooks';
+import { ProfileId } from 'src/models';
 
 import {
   AppDrawer,
@@ -37,7 +38,6 @@ import {
   MainDrawerParamList,
   FacadeBottomTabScreenProps,
 } from 'src/navigation';
-import { ProfileId } from 'src/models';
 
 const RootDrawer = createDrawerNavigator<MainDrawerParamList>();
 const FacadeBottomTab = createBottomTabNavigator<FacadeBottomTabParamList>();
@@ -54,7 +54,7 @@ function MyProfileDetailsScreen(props: MyProfileDetailsScreenProps) {
   const { height: windowHeight } = useWindowDimensions();
 
   const renderRouteError = (_error?: any) => (
-    <RouteError containerStyle={{ backgroundColor: constants.color.white }} />
+    <RouteError message="We weren't able to find your profile." />
   );
 
   return (
@@ -88,6 +88,8 @@ function MyProfileDetailsScreen(props: MyProfileDetailsScreenProps) {
 function FacadeNavigator() {
   const $FUNC = '[FacadeNavigator]';
   const myProfileId = useMyProfileId();
+
+  const { colors } = useExtendedTheme();
   const unreadCount = useAppSelector(
     notificationsSlice.selectUnreadNotificationsCount,
   );
@@ -102,8 +104,11 @@ function FacadeNavigator() {
         headerLeftContainerStyle: {
           paddingLeft: constants.layout.defaultScreenMargins.horizontal,
         },
-        headerTintColor: constants.color.black,
+        headerTintColor: colors.text,
         headerTitleStyle: constants.font.defaultHeaderTitleStyle,
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.caption,
+        tabBarAllowFontScaling: false,
         tabBarStyle: {
           minHeight: constants.values.DEFAULT_MIN_BOTTOM_TAB_BAR_HEIGHT,
         },
@@ -242,7 +247,7 @@ export default function MainNavigator() {
     <RootDrawer.Navigator
       initialRouteName="Facade"
       drawerContent={props => <AppDrawer {...props} />}
-      screenOptions={{ headerShown: false }}>
+      screenOptions={{ headerShown: false, drawerType: 'back' }}>
       <RootDrawer.Screen name="Facade" component={FacadeNavigator} />
     </RootDrawer.Navigator>
   );

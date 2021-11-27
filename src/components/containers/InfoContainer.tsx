@@ -1,10 +1,11 @@
-import React from 'react';
+import * as React from 'react';
 import { Platform, StyleSheet, Text } from 'react-native';
 
-import { color, font, layout } from 'src/constants';
+import * as constants from 'src/constants';
 import Container, { ContainerProps } from './Container';
 
 import { Button } from '../buttons';
+import { useExtendedTheme } from 'src/hooks';
 import { ButtonType } from '../buttons/buttonStyles';
 
 export type InfoContainerProps = ContainerProps & {
@@ -27,11 +28,25 @@ export default function InfoContainer(props: InfoContainerProps) {
     ...restProps
   } = props;
 
+  const { colors } = useExtendedTheme();
+
   return (
     <Container {...restProps}>
-      {emoji && <Text style={emptyContainerProps.emoji}>{emoji}</Text>}
-      {title && <Text style={emptyContainerProps.title}>{title}</Text>}
-      {message && <Text style={emptyContainerProps.message}>{message}</Text>}
+      {emoji && (
+        <Text style={[emptyContainerProps.emoji, { color: colors.text }]}>
+          {emoji}
+        </Text>
+      )}
+      {title && (
+        <Text style={[emptyContainerProps.title, { color: colors.text }]}>
+          {title}
+        </Text>
+      )}
+      {message && (
+        <Text style={[emptyContainerProps.message, { color: colors.caption }]}>
+          {message}
+        </Text>
+      )}
       {actionTitle && (
         <Button
           size="small"
@@ -39,7 +54,7 @@ export default function InfoContainer(props: InfoContainerProps) {
           type={actionButtonType}
           title={actionTitle}
           onPress={actionOnPress}
-          containerStyle={{ marginTop: layout.spacing.md }}
+          containerStyle={{ marginTop: constants.layout.spacing.md }}
         />
       )}
     </Container>
@@ -48,20 +63,17 @@ export default function InfoContainer(props: InfoContainerProps) {
 
 const emptyContainerProps = StyleSheet.create({
   emoji: {
-    ...(Platform.OS === 'ios' ? font.h2 : font.h3),
-    color: color.black,
+    ...(Platform.OS === 'ios' ? constants.font.h2 : constants.font.h3),
     textAlign: 'center',
   },
   title: {
-    ...font.mediumBold,
-    color: color.black,
+    ...constants.font.mediumBold,
     textAlign: 'center',
-    marginTop: Platform.OS === 'android' ? layout.spacing.sm : 0,
+    marginTop: Platform.OS === 'android' ? constants.layout.spacing.sm : 0,
   },
   message: {
-    ...font.small,
+    ...constants.font.small,
     textAlign: 'center',
-    color: color.gray700,
-    marginTop: layout.spacing.sm,
+    marginTop: constants.layout.spacing.sm,
   },
 });

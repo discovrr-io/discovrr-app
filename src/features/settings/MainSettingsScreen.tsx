@@ -119,18 +119,10 @@ export default function MainSettingsScreen(props: MainSettingsScreenProps) {
               iconName="notifications-outline"
               onPress={navigation => navigation.push('NotificationSettings')}
             />
-          </Cell.Group>
-          <Spacer.Vertical value={CELL_GROUP_VERTICAL_SPACING} />
-          <Cell.Group label="Display">
             <Cell.Navigator
-              label="Dark mode"
-              iconName="moon-outline"
-              onPress={handleAlertNotAvailable}
-            />
-            <Cell.Navigator
-              label="Font size"
-              iconName="text-outline"
-              onPress={handleAlertNotAvailable}
+              label="Appearance"
+              iconName="color-palette-outline"
+              onPress={navigation => navigation.push('AppearanceSettings')}
             />
           </Cell.Group>
           <Spacer.Vertical value={CELL_GROUP_VERTICAL_SPACING} />

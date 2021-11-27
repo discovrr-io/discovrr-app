@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { useTheme } from '@react-navigation/native';
 
 import ButtonBase from './ButtonBase';
 import {
@@ -24,7 +25,7 @@ export default function Button(props: ButtonProps) {
     ...restProps
   } = props;
 
-  const isDarkTheme = false;
+  const { dark: isDarkTheme } = useTheme();
   const sizeStyles = useMemo(() => makeSizeStyles(size), [size]);
   const colorStyles = useMemo(() => {
     switch (variant) {

@@ -14,6 +14,7 @@ import { IconProps } from 'react-native-vector-icons/Icon';
 
 import * as values from 'src/constants/values';
 import { color } from 'src/constants';
+import { useExtendedTheme } from 'src/hooks';
 import { shortenLargeNumber } from 'src/utilities';
 
 import * as constants from './constants';
@@ -28,6 +29,7 @@ export type CardActionsProps = CardElementProps & {
 
 const CardActions = (props: CardActionsProps) => {
   const cardElementOptions = useCardElementOptionsContext(props.elementOptions);
+
   return (
     <View
       style={[
@@ -73,6 +75,7 @@ export type CardActionsPendingProps = CardElementProps & {
 
 const CardActionsPending = (props: CardActionsPendingProps) => {
   const cardElementOptions = useCardElementOptionsContext(props.elementOptions);
+  const { colors } = useExtendedTheme();
 
   const numberOfActions = props.numberOfActions ?? 1;
   const iconSize = cardElementOptions.smallContent
@@ -89,7 +92,7 @@ const CardActionsPending = (props: CardActionsPendingProps) => {
             style={{
               width: iconSize,
               height: iconSize,
-              backgroundColor: color.placeholder,
+              backgroundColor: colors.placeholder,
             }}
           />
           {index < numberOfActions - 1 && (
@@ -132,6 +135,7 @@ export const CardActionsIconButton = React.forwardRef<
   } = props;
 
   const cardElementOptions = useCardElementOptionsContext(elementOptions);
+  const { colors } = useExtendedTheme();
 
   return (
     <TouchableOpacity
@@ -142,7 +146,7 @@ export const CardActionsIconButton = React.forwardRef<
       <Animatable.View ref={ref}>
         <Icon
           name={iconName}
-          color={iconColor ?? color.gray500}
+          color={iconColor ?? colors.caption}
           size={
             iconSize ?? cardElementOptions.smallContent
               ? constants.CARD_ICON_SMALL
@@ -157,7 +161,7 @@ export const CardActionsIconButton = React.forwardRef<
             cardElementOptions.captionTextStyle,
             {
               textAlign: 'right',
-              color: labelColor ?? color.gray500,
+              color: labelColor ?? colors.caption,
               minWidth: cardElementOptions.smallContent ? 12 : 16,
             },
           ]}>
@@ -233,6 +237,7 @@ export const CardActionsHeartIconButton = (
   props: CardActionsHeartIconButtonProps,
 ) => {
   const { didLike, totalLikes, onToggleLike, ...restProps } = props;
+  const { colors } = useExtendedTheme();
   const animatableRef = useRef<AnimatableViewRef>(null);
 
   const handleToggleLike = async () => {
@@ -250,7 +255,7 @@ export const CardActionsHeartIconButton = (
       iconName={didLike ? 'heart' : 'heart-outline'}
       iconColor={didLike ? color.red500 : undefined}
       label={shortenLargeNumber(totalLikes)}
-      labelColor={didLike ? color.black : undefined}
+      labelColor={didLike ? colors.text : undefined}
       onPress={handleToggleLike}
       {...restProps}
     />

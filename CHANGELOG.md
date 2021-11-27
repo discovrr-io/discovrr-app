@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 
+<!-- ## [v3.1.0] (2021-XX-XX) -->
+
+### Added
+
+- Dark mode (can be configured to follow system's scheme or manually set)
+  - Authentication screen still retains light theme for now
+
+### Fixed
+
+- App-wide font scaling should now be capped at a certain scale when
+  accessibility font size is very large ([issue #11])
+
 ## [v3.0.9] (2021-11-25)
 
 ### Added
@@ -116,7 +128,7 @@
 
 - Fix issue where the "Sign in with Google" button doesn't show the account
   selection dialog after already signing into another Google account previously
-  ([issue #6](https://github.com/discovrr-io/discovrr-app/issues/6))
+  ([issue #6])
 
 ## [v3.0.1] (2021-10-30)
 
@@ -207,7 +219,15 @@
 - Migrate project to TypeScript
 - Upgrade React Native dependencies
 
-[unreleased]: https://github.com/discovrr-io/discovrr-app/compare/v3.0.9...HEAD
+<!-- Issues -->
+
+[issue #6]: https://github.com/discovrr-io/discovrr-app/issues/6
+[issue #11]: https://github.com/discovrr-io/discovrr-app/issues/11
+
+<!-- Releases -->
+
+[unreleased]: https://github.com/discovrr-io/discovrr-app/compare/v3.1.0...HEAD
+[v3.1.0]: https://github.com/discovrr-io/discovrr-app/compare/v3.0.9...v3.1.0
 [v3.0.9]: https://github.com/discovrr-io/discovrr-app/compare/v3.0.8...v3.0.9
 [v3.0.8]: https://github.com/discovrr-io/discovrr-app/compare/v3.0.7...v3.0.8
 [v3.0.7]: https://github.com/discovrr-io/discovrr-app/compare/v3.0.6...v3.0.7

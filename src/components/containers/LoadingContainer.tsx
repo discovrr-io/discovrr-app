@@ -1,7 +1,8 @@
 import React from 'react';
 import { ActivityIndicator, StyleSheet, Text } from 'react-native';
 
-import { color, font, layout } from 'src/constants';
+import * as constants from 'src/constants';
+import { useExtendedTheme } from 'src/hooks';
 import Container, { ContainerProps } from './Container';
 
 type LoadingContainerProps = ContainerProps & {
@@ -12,13 +13,19 @@ export default function LoadingContainer({
   message = 'Loading…',
   ...props
 }: LoadingContainerProps) {
+  const { dark } = useExtendedTheme();
   return (
-    <Container
-      {...props}
-      // style={[{ paddingVertical: layout.spacing.xl }, props.style]}
-    >
-      <ActivityIndicator size="large" color={color.gray500} />
-      <Text style={[font.smallBold, loadingContainerStyles.message]}>
+    <Container {...props}>
+      <ActivityIndicator
+        size="large"
+        color={dark ? constants.color.gray300 : constants.color.gray700}
+      />
+      <Text
+        style={[
+          constants.font.smallBold,
+          loadingContainerStyles.message,
+          { color: dark ? constants.color.gray300 : constants.color.gray700 },
+        ]}>
         {message}
       </Text>
     </Container>
@@ -28,7 +35,6 @@ export default function LoadingContainer({
 const loadingContainerStyles = StyleSheet.create({
   message: {
     textAlign: 'center',
-    color: color.gray700,
-    marginTop: layout.spacing.sm,
+    marginTop: constants.layout.spacing.sm,
   },
 });

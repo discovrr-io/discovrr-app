@@ -4,10 +4,10 @@ import { RefreshControl, StyleSheet, Text, View } from 'react-native';
 import BottomSheet from '@gorhom/bottom-sheet';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-import { color, font, layout } from 'src/constants';
+import * as constants from 'src/constants';
+import * as profilesSlice from 'src/features/profiles/profiles-slice';
 import { DEFAULT_TILE_SPACING } from 'src/constants/values';
 import { fetchAllProducts } from 'src/features/products/products-slice';
-import { useAppDispatch, useAppSelector, useIsMounted } from 'src/hooks';
 import { NearMeItem, ProductId, ProfileId } from 'src/models';
 import { FeedTopTabScreenProps } from 'src/navigation';
 import { alertSomethingWentWrong } from 'src/utilities';
@@ -21,8 +21,14 @@ import {
   Spacer,
 } from 'src/components';
 
+import {
+  useAppDispatch,
+  useAppSelector,
+  useExtendedTheme,
+  useIsMounted,
+} from 'src/hooks';
+
 import FeedFooter from './FeedFooter';
-import * as profilesSlice from 'src/features/profiles/profiles-slice';
 import ProductItemCard from 'src/features/products/ProductItemCard';
 import VendorProfileItemCard from 'src/features/profiles/VendorProfileItemCard';
 
@@ -252,7 +258,7 @@ export default function NearMeFeed(_: NearMeFeedProps) {
         contentContainerStyle={{ flexGrow: 1 }}
         refreshControl={
           <RefreshControl
-            tintColor={color.gray500}
+            tintColor={constants.color.gray500}
             refreshing={
               nearMeItems.length > 0 &&
               !isInitialRender &&
@@ -315,6 +321,7 @@ export default function NearMeFeed(_: NearMeFeedProps) {
 function SearchLocationOptions() {
   const _ = useAppSelector(state => state.settings.locationQueryPrefs);
   const bottomSheetRef = React.useRef<BottomSheet>(null);
+  const { colors } = useExtendedTheme();
 
   return (
     <View
@@ -322,16 +329,18 @@ function SearchLocationOptions() {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingVertical: layout.spacing.sm,
-        paddingHorizontal: layout.defaultScreenMargins.horizontal,
-        backgroundColor: color.white,
+        paddingVertical: constants.layout.spacing.sm,
+        paddingHorizontal: constants.layout.defaultScreenMargins.horizontal,
+        backgroundColor: colors.background,
+        borderBottomColor: colors.border,
         borderBottomWidth: StyleSheet.hairlineWidth,
-        borderBottomColor: color.gray200,
       }}>
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-        <Icon name="location" size={18} color={color.black} />
-        <Spacer.Horizontal value={layout.spacing.xs} />
-        <Text style={[font.smallBold]}>Searching in default location</Text>
+        <Icon name="location" size={18} color={colors.text} />
+        <Spacer.Horizontal value={constants.layout.spacing.xs} />
+        <Text style={[constants.font.smallBold, { color: colors.text }]}>
+          Searching in default location
+        </Text>
       </View>
       <Button
         title="Change Location"

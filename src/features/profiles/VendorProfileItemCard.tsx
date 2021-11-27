@@ -8,6 +8,7 @@ import * as constants from 'src/constants';
 import { MediaSource } from 'src/api';
 import { AsyncGate, Card } from 'src/components';
 import { useIsMyProfile, useProfile } from 'src/features/profiles/hooks';
+import { useExtendedTheme } from 'src/hooks';
 import { ProfileId, VendorProfile } from 'src/models';
 import { RootStackNavigationProp } from 'src/navigation';
 
@@ -67,6 +68,7 @@ const LoadedVendorProfileItemCard = (
   const { vendorProfile, isMyProfile, ...cardElementProps } = props;
 
   const navigation = useNavigation<RootStackNavigationProp>();
+  const { colors, dark } = useExtendedTheme();
 
   const renderCardBody = React.useCallback(
     (elementOptions: CardElementOptions) => {
@@ -88,16 +90,25 @@ const LoadedVendorProfileItemCard = (
           <View>
             <Card.Indicator iconName="happy" position="top-right" />
             <FastImage
+              tintColor={
+                !background
+                  ? dark
+                    ? constants.color.gray300
+                    : constants.color.gray500
+                  : undefined
+              }
               source={
                 background
                   ? { uri: background.url }
                   : constants.media.DEFAULT_IMAGE
               }
-              style={{
-                width: '100%',
-                aspectRatio: 1,
-                backgroundColor: constants.color.placeholder,
-              }}
+              style={[
+                {
+                  width: '100%',
+                  aspectRatio: 1,
+                },
+                background && { backgroundColor: colors.placeholder },
+              ]}
             />
           </View>
           <View
@@ -109,6 +120,7 @@ const LoadedVendorProfileItemCard = (
               numberOfLines={elementOptions.smallContent ? 2 : 4}
               style={[
                 elementOptions.captionTextStyle,
+                { color: colors.text },
                 !vendorProfile.biography && { fontStyle: 'italic' },
               ]}>
               {vendorProfile.biography ?? 'No biography'}
@@ -121,6 +133,9 @@ const LoadedVendorProfileItemCard = (
       vendorProfile.biography,
       vendorProfile.background,
       vendorProfile.backgroundThumbnail,
+      colors.placeholder,
+      colors.text,
+      dark,
     ],
   );
 

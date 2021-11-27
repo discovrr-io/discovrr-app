@@ -72,8 +72,8 @@ export type RootStackParamList = {
   MainSettings: SettingsStackParamList['MainSettings'];
   ProfileSettings: SettingsStackParamList['ProfileSettings'];
   AccountTypeSettings: SettingsStackParamList['AccountTypeSettings'];
-  LocationAccuracySettings: SettingsStackParamList['LocationAccuracySettings'];
   NotificationSettings: SettingsStackParamList['NotificationSettings'];
+  AppearanceSettings: SettingsStackParamList['AppearanceSettings'];
   // -- Miscellaneous --
   ReportItem: NavigatorScreenParams<ReportItemStackParamList>;
   InAppWebView: InAppWebViewNavigationScreenParams;
@@ -311,7 +311,7 @@ export type SettingsStackParamList = {
   ProfileSettings: undefined;
   AccountTypeSettings: undefined;
   NotificationSettings: undefined;
-  LocationAccuracySettings: undefined;
+  AppearanceSettings: undefined;
 };
 
 export type SettingsStackNavigationProp = StackNavigationProp<

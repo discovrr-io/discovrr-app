@@ -21,7 +21,11 @@ import Animated, {
 
 import * as utilities from 'src/utilities';
 import { color, font, layout } from 'src/constants';
-import { useNavigationAlertUnsavedChangesOnRemove } from 'src/hooks';
+
+import {
+  useExtendedTheme,
+  useNavigationAlertUnsavedChangesOnRemove,
+} from 'src/hooks';
 
 import {
   CreateItemDetailsTopTabScreenProps,
@@ -99,6 +103,7 @@ type TextAreaProps = {
 
 function TextArea(props: TextAreaProps) {
   const [field, meta, _helpers] = useField<TextPostForm['text']>('text');
+  const { colors } = useExtendedTheme();
 
   const characterCount = React.useMemo(() => {
     return field.value.length;
@@ -168,7 +173,11 @@ function TextArea(props: TextAreaProps) {
           value={field.value}
           onChangeText={field.onChange('text')}
           onBlur={field.onBlur('text')}
-          style={[font.h3, { textAlignVertical: 'top', minHeight: '20%' }]}
+          style={[
+            font.h3,
+            { color: colors.text },
+            { textAlignVertical: 'top', minHeight: '20%' },
+          ]}
         />
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>

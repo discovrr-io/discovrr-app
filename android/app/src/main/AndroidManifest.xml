@@ -22,36 +22,23 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
-        android:theme="@style/AppTheme">
+        android:theme="@style/BootTheme">
+
         <activity
             android:name=".MainActivity"
-            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode"
             android:exported="true"
             android:label="@string/app_name"
             android:launchMode="singleTask"
             android:screenOrientation="sensorPortrait"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode"
             android:windowSoftInputMode="adjustPan">
             <!-- These lines are to be removed for RNBootSplash -->
-            <!-- <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter> -->
-        </activity>
-        <activity
-            android:name="com.zoontek.rnbootsplash.RNBootSplashActivity"
-            android:launchMode="singleTask"
-            android:theme="@style/BootTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="discovrr" />
-            </intent-filter>
         </activity>
+
         <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" />
 
         <provider
@@ -75,12 +62,13 @@
         <meta-data
             android:name="com.google.android.gms.wallet.api.enabled"
             android:value="true" />
-        <!-- <meta-data
+        <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
-            android:resource="@mipmap/ic_notification" /> -->
-        <!-- <meta-data
+            android:resource="@drawable/ic_notification" />
+        <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
-            android:resource="@color/petrol" /> -->
+            android:resource="@color/notification_color"
+            tools:replace="android:resource" />
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="default"
@@ -93,5 +81,7 @@
         <uses-library
             android:name="org.apache.http.legacy"
             android:required="false" />
+
     </application>
+
 </manifest>

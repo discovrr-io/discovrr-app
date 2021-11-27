@@ -19,6 +19,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import * as constants from 'src/constants';
+import { useExtendedTheme } from 'src/hooks';
 
 import CellContainer from './CellContainer';
 import { CellElementProps } from './common';
@@ -57,6 +58,8 @@ export const CellField = React.forwardRef<CellFieldMethods, CellFieldProps>(
     const cellElementOptions = useCellElementContext(props.elementOptions);
     const spacingTop = cellElementOptions.containerSpacingVertical * 1.9;
     const spacingBottom = cellElementOptions.containerSpacingVertical;
+
+    const { colors } = useExtendedTheme();
 
     const [text, setText] = React.useState(initialValue);
     const textInputRef = React.useRef<TextInput>(null);
@@ -162,7 +165,9 @@ export const CellField = React.forwardRef<CellFieldMethods, CellFieldProps>(
                 pointerEvents={isFocused() ? 'auto' : 'none'}
                 multiline={multiline}
                 placeholder={placeholder}
-                placeholderTextColor={placeholderTextColor}
+                placeholderTextColor={
+                  placeholderTextColor ?? colors.captionDisabled
+                }
                 value={text}
                 onChangeText={handleChangeText}
                 onFocus={e => {
@@ -181,6 +186,7 @@ export const CellField = React.forwardRef<CellFieldMethods, CellFieldProps>(
                   constants.font.medium,
                   {
                     flex: 1,
+                    color: colors.text,
                     textAlignVertical: 'top',
                     paddingTop: spacingTop,
                     paddingBottom: Platform.select({

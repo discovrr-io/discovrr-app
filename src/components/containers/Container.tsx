@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import {
   StyleProp,
   StyleSheet,
@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 
 import { layout } from 'src/constants';
+import { useExtendedTheme } from 'src/hooks';
 
 export type ContainerProps = Omit<ViewProps, 'style'> & {
   justifyContentToCenter?: boolean;
@@ -26,12 +27,15 @@ export default function Container(props: InnerContainerProps) {
     ...restProps
   } = props;
 
+  const { colors } = useExtendedTheme();
+
   return (
     <View
       {...restProps}
       style={[
         containerStyles.container,
         { justifyContent: justifyContentToCenter ? 'center' : 'flex-start' },
+        { backgroundColor: colors.background },
         givenStyles,
       ]}>
       {children}

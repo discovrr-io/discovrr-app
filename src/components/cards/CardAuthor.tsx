@@ -9,9 +9,10 @@ import {
 
 import FastImage from 'react-native-fast-image';
 
+import * as globalConstants from 'src/constants';
 import { MediaSource } from 'src/api';
-import { color, font } from 'src/constants';
 import { DEFAULT_AVATAR } from 'src/constants/media';
+import { useExtendedTheme } from 'src/hooks';
 import { DEFAULT_ACTIVE_OPACITY } from 'src/constants/values';
 
 import * as constants from './constants';
@@ -116,28 +117,42 @@ const CardAuthorAvatar = (props: CardAuthorAvatarProps) => {
   const avatarDiameter = props.elementOptions.smallContent
     ? constants.CARD_ICON_SMALL
     : constants.CARD_ICON_LARGE;
+
+  const { colors } = useExtendedTheme();
+
   return (
     <FastImage
       source={props.avatar ? { uri: props.avatar.url } : DEFAULT_AVATAR}
       style={[
         cardAuthorStyles.avatar,
-        { width: avatarDiameter, borderRadius: avatarDiameter / 2 },
+        {
+          width: avatarDiameter,
+          borderRadius: avatarDiameter / 2,
+          backgroundColor: colors.placeholder,
+        },
       ]}
     />
   );
 };
 
-// eslint-disable-next-line react/display-name
 CardAuthorAvatar.Pending = (props: CardElementProps) => {
   const avatarDiameter = props.elementOptions?.smallContent
     ? constants.CARD_ICON_SMALL
     : constants.CARD_ICON_LARGE;
+
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const { colors } = useExtendedTheme();
+
   return (
     <FastImage
       source={{}} // No image - this'll just render the background color
       style={[
         cardAuthorStyles.avatar,
-        { width: avatarDiameter, borderRadius: avatarDiameter / 2 },
+        {
+          width: avatarDiameter,
+          borderRadius: avatarDiameter / 2,
+          backgroundColor: colors.placeholder,
+        },
       ]}
     />
   );
@@ -153,37 +168,46 @@ type CardAuthorNameProps = {
   isMyProfile?: boolean;
 };
 
-const CardAuthorName = (props: CardAuthorNameProps) => (
-  <Text
-    numberOfLines={1}
-    style={[
-      cardAuthorStyles.displayName,
-      props.elementOptions.captionTextStyle,
-      props.isMyProfile && [
-        { fontFamily: font.FONT_FAMILY_MEDIUM, color: color.accent },
-      ],
-    ]}>
-    {props.isMyProfile ? 'You' : props.displayName || 'Anonymous'}
-  </Text>
-);
+const CardAuthorName = (props: CardAuthorNameProps) => {
+  const { colors } = useExtendedTheme();
+  return (
+    <Text
+      numberOfLines={1}
+      style={[
+        cardAuthorStyles.displayName,
+        props.elementOptions.captionTextStyle,
+        { color: colors.text },
+        props.isMyProfile && {
+          fontFamily: globalConstants.font.FONT_FAMILY_MEDIUM,
+          color: colors.primary,
+        },
+        ,
+      ]}>
+      {props.isMyProfile ? 'You' : props.displayName || 'Anonymous'}
+    </Text>
+  );
+};
 
 type CardAuthorNamePendingProps = {
   elementOptions: CardElementOptions;
 };
 
-const CardAuthorNamePending = (props: CardAuthorNamePendingProps) => (
-  <View
-    style={[
-      {
-        width: '60%',
-        height: props.elementOptions.smallContent
-          ? constants.CARD_PLACEHOLDER_TEXT_HEIGHT_SMALL
-          : constants.CARD_PLACEHOLDER_TEXT_HEIGHT_LARGE,
-        backgroundColor: color.placeholder,
-      },
-    ]}
-  />
-);
+function CardAuthorNamePending(props: CardAuthorNamePendingProps) {
+  const { colors } = useExtendedTheme();
+  return (
+    <View
+      style={[
+        {
+          width: '60%',
+          height: props.elementOptions.smallContent
+            ? constants.CARD_PLACEHOLDER_TEXT_HEIGHT_SMALL
+            : constants.CARD_PLACEHOLDER_TEXT_HEIGHT_LARGE,
+          backgroundColor: colors.placeholder,
+        },
+      ]}
+    />
+  );
+}
 
 //#endregion CardAuthorName
 
@@ -198,7 +222,6 @@ const cardAuthorStyles = StyleSheet.create({
   },
   avatar: {
     aspectRatio: 1,
-    backgroundColor: color.placeholder,
   },
   displayName: {
     flexGrow: 1,
