@@ -16,7 +16,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import * as constants from 'src/constants';
 import { Button, Cell, Spacer } from 'src/components';
-import { MAX_FONT_MULTIPLIER } from 'src/constants/values';
 import { useExtendedTheme } from 'src/hooks';
 
 type OnboardingScreen = {
@@ -137,22 +136,16 @@ function OnboardingModalGreetingContent(props: {
         paddingTop: constants.layout.spacing.xxl * 1.75,
         paddingBottom: constants.layout.spacing.lg,
       }}>
-      <Text
-        maxFontSizeMultiplier={MAX_FONT_MULTIPLIER}
-        style={[constants.font.h2, { color: colors.text, flexGrow: 1 }]}>
+      <Text style={[constants.font.h2, { color: colors.text, flexGrow: 1 }]}>
         Hi there 👋
       </Text>
       <View style={{ flexGrow: 1 }}>
-        <Text
-          maxFontSizeMultiplier={MAX_FONT_MULTIPLIER}
-          style={[constants.font.medium, { color: colors.text }]}>
+        <Text style={[constants.font.medium, { color: colors.text }]}>
           Welcome! Discovrr is a place where you can explore and see what local
           makers and creators are making in your community.
         </Text>
         <Spacer.Vertical value="lg" />
-        <Text
-          maxFontSizeMultiplier={MAX_FONT_MULTIPLIER}
-          style={[constants.font.medium, { color: colors.text }]}>
+        <Text style={[constants.font.medium, { color: colors.text }]}>
           This is Discovrr v{constants.values.APP_VERSION}. Please report any
           bugs or give your feedback to{' '}
           <Text
@@ -267,7 +260,6 @@ function OnboardingModalInfoContentPage(props: OnboardingScreen) {
         />
       )}
       <Text
-        maxFontSizeMultiplier={MAX_FONT_MULTIPLIER}
         style={[
           constants.font.extraLargeBold,
           { color: colors.text, textAlign: 'center' },
@@ -276,7 +268,6 @@ function OnboardingModalInfoContentPage(props: OnboardingScreen) {
       </Text>
       <Spacer.Vertical value="md" />
       <Text
-        maxFontSizeMultiplier={MAX_FONT_MULTIPLIER}
         style={[
           constants.font.medium,
           { color: colors.text, textAlign: 'center' },
