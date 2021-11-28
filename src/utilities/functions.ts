@@ -58,3 +58,23 @@ export function generateRandomNumberBetween(min: number, max: number) {
 export function getWordCount(input: string): number {
   return (input.trim().match(/\S+/g) ?? []).length;
 }
+
+/**
+ * Calculates the hexadecimal representation of a decimal number representing a
+ * percentage.
+ *
+ * Adopted from https://gist.github.com/lopspower/03fb1cc0ac9f32ef38f4#gistcomment-3036936
+ *
+ * @param percent A decimal between `0.0` up to and including `1.0`.
+ * @returns The hexadecimal representation of `percentage`.
+ */
+export function percentToHex(percent: number) {
+  // Bound percent from 0 to 1
+  const bounded = Math.max(0, Math.min(1, percent));
+  // Map percent to nearest integer (0 - 255)
+  const decValue = Math.round(bounded * 255);
+  // Get hexadecimal representation
+  const hexValue = decValue.toString(16);
+  // Format with leading 0 and upper case characters
+  return hexValue.padStart(2, '0').toUpperCase();
+}

@@ -21,6 +21,7 @@ import {
 } from '@react-navigation/drawer';
 
 import * as constants from 'src/constants';
+import * as utilities from 'src/utilities';
 import * as authSlice from 'src/features/authentication/auth-slice';
 import * as profilesSlice from 'src/features/profiles/profiles-slice';
 import { useAppDispatch, useAppSelector, useExtendedTheme } from 'src/hooks';
@@ -146,7 +147,7 @@ function RoleChip(props: { label: string }) {
 
   return (
     <TouchableHighlight
-      underlayColor={chipColor + '40'}
+      underlayColor={chipColor + utilities.percentToHex(0.5)}
       onLayout={({ nativeEvent }) => setChipHeight(nativeEvent.layout.height)}
       onPress={handlePressChip}
       hitSlop={{
@@ -158,7 +159,7 @@ function RoleChip(props: { label: string }) {
       style={{
         paddingVertical: constants.layout.spacing.xs,
         paddingHorizontal: constants.layout.spacing.md,
-        backgroundColor: chipColor + '20', // alpha channel
+        backgroundColor: chipColor + utilities.percentToHex(0.2),
         borderWidth: 1,
         borderColor: chipColor,
         borderRadius: chipHeight / 2,

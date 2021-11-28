@@ -15,6 +15,7 @@ import * as semver from 'semver';
 import Parse from 'parse/react-native';
 
 import * as constants from 'src/constants';
+import * as utilities from 'src/utilities';
 import * as authSlice from 'src/features/authentication/auth-slice';
 import { Button, DiscovrrIcon, Spacer } from 'src/components';
 import { useAppDispatch, useExtendedTheme } from 'src/hooks';
@@ -165,7 +166,9 @@ export default function OutdatedModal() {
               <Button
                 title={`Take me to the ${appStoreName}`}
                 variant="outlined"
-                underlayColor={constants.color.accentDisabled + '4F'}
+                underlayColor={
+                  constants.color.accentDisabled + utilities.percentToHex(0.25)
+                }
                 textStyle={{ color: constants.color.defaultLightTextColor }}
                 innerTextProps={{ allowFontScaling: false }}
                 onPress={handleGoToAppStore}

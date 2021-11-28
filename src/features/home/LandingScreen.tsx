@@ -45,6 +45,7 @@ import {
 } from 'src/hooks';
 
 import * as onboardingSlice from 'src/features/onboarding/onboarding-slice';
+import TabOnboardingModal from 'src/features/onboarding/TabOnboardingModal';
 import OnboardingModal, {
   OnboardingModalContext,
   OnboardingResult,
@@ -649,10 +650,9 @@ export default function LandingScreen(props: LandingScreenProps) {
         )}
       />
       <OnboardingModal
-        transparent
-        animationType="fade"
-        visible={!isOutdatedModalVisible && isModalVisible}
+        visible={false && !isOutdatedModalVisible && isModalVisible}
       />
+      <TabOnboardingModal visible={true} />
     </OnboardingModalContext.Provider>
   );
 }

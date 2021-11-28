@@ -858,7 +858,8 @@ const profileDetailsHeaderStyles = StyleSheet.create({
     position: 'absolute',
     justifyContent: 'center',
     paddingHorizontal: constants.layout.spacing.lg,
-    backgroundColor: constants.color.absoluteBlack + '70',
+    backgroundColor:
+      constants.color.absoluteBlack + utilities.percentToHex(0.45),
   },
   headerContentContainer: {
     alignItems: 'center',

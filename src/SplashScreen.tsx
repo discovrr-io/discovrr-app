@@ -3,9 +3,9 @@ import { ActivityIndicator, SafeAreaView, StatusBar } from 'react-native';
 
 import analytics from '@react-native-firebase/analytics';
 import FastImage from 'react-native-fast-image';
+import { Theme } from '@react-navigation/native';
 
 import { Spacer } from './components';
-import { Theme } from '@react-navigation/native';
 
 const LOGO = require('../assets/bootsplash_logo.png');
 const LOGO_WIDTH = 120;

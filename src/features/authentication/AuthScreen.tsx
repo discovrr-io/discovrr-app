@@ -37,6 +37,7 @@ import {
 } from '@react-native-google-signin/google-signin';
 
 import * as constants from 'src/constants';
+import * as utilities from 'src/utilities';
 import { AuthApi } from 'src/api';
 import { SOMETHING_WENT_WRONG } from 'src/constants/strings';
 import { APP_VERSION, STORE_VERSION } from 'src/constants/values';
@@ -731,7 +732,8 @@ export default function AuthScreen() {
                 authScreenStyles.formContainer,
                 {
                   width: windowWidth * 0.9,
-                  backgroundColor: constants.color.absoluteWhite + 'DF',
+                  backgroundColor:
+                    constants.color.absoluteWhite + utilities.percentToHex(0.9),
                 },
               ]}>
               <Image

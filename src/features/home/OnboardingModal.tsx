@@ -15,6 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 // import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 
 import * as constants from 'src/constants';
+import * as utilities from 'src/utilities';
 import { Button, Cell, Spacer } from 'src/components';
 import { useExtendedTheme } from 'src/hooks';
 
@@ -90,7 +91,7 @@ export default function OnboardingModal(props: ModalBaseProps) {
   return (
     <OnboardingModalResultContext.Provider
       value={{ surveyResponse, setSurveyResponse }}>
-      <Modal statusBarTranslucent {...props}>
+      <Modal transparent statusBarTranslucent animationType="fade" {...props}>
         <View style={{ width: '100%', height: '100%' }}>
           <SafeAreaView
             style={{
@@ -98,7 +99,8 @@ export default function OnboardingModal(props: ModalBaseProps) {
               height: '100%',
               alignItems: 'center',
               justifyContent: 'center',
-              backgroundColor: constants.color.absoluteBlack + '80',
+              backgroundColor:
+                constants.color.absoluteBlack + utilities.percentToHex(0.5),
             }}>
             <View
               style={{
