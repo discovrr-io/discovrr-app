@@ -285,6 +285,10 @@ export type PostStackParamList = {
 
 export type ProfileStackParamList = {
   ProfileDetails: {
+    /**
+     * Either a string representing the ID of the profile (typically a mix of
+     * letters and digits), or a username (*MUST* be preceded by a `'@'`).
+     */
     profileIdOrUsername: ProfileId | string;
     windowHeight?: number;
   };

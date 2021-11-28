@@ -157,11 +157,7 @@ function ProfileByUsernameDetailsScreen(
   }, [dispatch, shouldFetch, props.username, isMounted]);
 
   if (error) {
-    return (
-      <RouteError
-        message={`We couldn't find anyone with the username '${props.username}'`}
-      />
-    );
+    return <RouteError message="We couldn't find anyone with that username" />;
   } else if (shouldFetch || !profile) {
     return (
       <SafeAreaView
@@ -254,7 +250,7 @@ export function LoadedProfileDetailsScreen(
   const snapPoints = React.useMemo(
     () => [
       windowHeight * BOTTOM_SHEET_HEIGHT_RATIO + BOTTOM_SHEET_NUDGE,
-      windowHeight - headerHeight,
+      Math.max(1, windowHeight - headerHeight), // Must be larger than 0
     ],
     [headerHeight, windowHeight],
   );

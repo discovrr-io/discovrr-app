@@ -1,7 +1,5 @@
 import { TextStyle } from 'react-native';
 
-import * as color from './color';
-
 export const FONT_FAMILY_BOLD = 'Rubik-Bold';
 export const FONT_FAMILY_ITALIC = 'Rubik-Italic';
 export const FONT_FAMILY_MEDIUM = 'Rubik-Medium';
@@ -20,7 +18,6 @@ export const size = {
 };
 
 const regularFontTextStyles: TextStyle = {
-  color: color.defaultDarkTextColor,
   fontFamily: FONT_FAMILY_REGULAR,
 };
 
@@ -104,14 +101,11 @@ export const extraSmallBold: TextStyle = {
   ...mediumFontTextStyles,
 };
 
-const { color: _1, ...defaultHeaderTitleStyleNoColor } = largeBold;
-export const defaultHeaderTitleStyle = defaultHeaderTitleStyleNoColor;
+export const defaultHeaderTitleStyle = largeBold;
 
-const { color: _2, ...defaultBottomTabLabelStyleNoColor } = extraSmallBold;
-export const defaultBottomTabLabelStyle = defaultBottomTabLabelStyleNoColor;
+export const defaultBottomTabLabelStyle = extraSmallBold;
 
-const { color: _3, ...defaultTopTabBarLabelStyleNoColor } = medium;
 export const defaultTopTabBarLabelStyle: TextStyle = {
-  ...defaultTopTabBarLabelStyleNoColor,
+  ...medium,
   textTransform: 'none',
 };

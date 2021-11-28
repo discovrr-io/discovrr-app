@@ -19,7 +19,6 @@ import {
   ViewStyle,
 } from 'react-native';
 
-import Autolink from 'react-native-autolink';
 import Carousel, { Pagination } from 'react-native-snap-carousel';
 import BottomSheet from '@gorhom/bottom-sheet';
 import FastImage from 'react-native-fast-image';
@@ -44,6 +43,7 @@ import {
   Button,
   EmptyContainer,
   ErrorContainer,
+  GlobalAutolink,
   LoadingContainer,
   LoadingOverlay,
   RouteError,
@@ -629,8 +629,6 @@ type PostDetailsContentProps = ViewProps & {
 
 function PostDetailsContent(props: PostDetailsContentProps) {
   const { post, ...restProps } = props;
-  const { colors } = useExtendedTheme();
-  const navigation = useNavigation<PostDetailsScreenProps['navigation']>();
 
   const renderPostContent = React.useCallback(() => {
     switch (post.contents.type) {
@@ -652,27 +650,14 @@ function PostDetailsContent(props: PostDetailsContentProps) {
       default:
         return (
           <View style={postDetailsContentStyles.textPostContainer}>
-            <Autolink
+            <GlobalAutolink
               text={post.contents.text}
-              textProps={{
-                style: [constants.font.large, { color: colors.text }],
-              }}
-              linkStyle={[constants.font.large, { color: colors.primary }]}
-              matchers={[
-                {
-                  ...constants.regex.USERNAME_MENTION_MATCHER,
-                  onPress: match => {
-                    navigation.push('ProfileDetails', {
-                      profileIdOrUsername: match.getMatchedText(),
-                    });
-                  },
-                },
-              ]}
+              textProps={{ style: [constants.font.large] }}
             />
           </View>
         );
     }
-  }, [navigation, post.contents, post.location, colors.text, colors.primary]);
+  }, [post.contents, post.location]);
 
   return (
     <View style={[restProps.style]}>
@@ -882,22 +867,18 @@ type PostDetailsContentCaptionProps = {
 };
 
 function PostDetailsContentCaption(props: PostDetailsContentCaptionProps) {
-  const { colors } = useExtendedTheme();
   return (
-    <Text
-      style={[
-        constants.font.medium,
-        { color: colors.text },
-        postDetailsContentCaptionStyles.caption,
-        props.style,
-      ]}>
-      {props.caption}
-    </Text>
+    <View style={[postDetailsContentCaptionStyles.captionContainer]}>
+      <GlobalAutolink
+        text={props.caption}
+        textProps={{ style: [constants.font.medium, props.style] }}
+      />
+    </View>
   );
 }
 
 const postDetailsContentCaptionStyles = StyleSheet.create({
-  caption: {
+  captionContainer: {
     marginVertical: constants.layout.spacing.md * 1.5,
     marginHorizontal: constants.layout.defaultScreenMargins.horizontal * 1.5,
   },

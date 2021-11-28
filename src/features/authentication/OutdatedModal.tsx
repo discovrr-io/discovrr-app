@@ -146,9 +146,9 @@ export default function OutdatedModal() {
                   constants.font.large,
                   { color: constants.color.defaultLightTextColor },
                 ]}>
-                You&apos;re currently using an unsupported version of Discovrr.
-                This means that you won&apos;t get the latest features and bug
-                fixes from us.
+                You&apos;re using an unsupported version of Discovrr. This means
+                that you won&apos;t get the latest features and bug fixes from
+                us.
               </Text>
               <Spacer.Vertical value="md" />
               <Text
@@ -156,7 +156,7 @@ export default function OutdatedModal() {
                   constants.font.large,
                   { color: constants.color.defaultLightTextColor },
                 ]}>
-                To avoid this, go to the {appStoreName} and update Discovrr to
+                To avoid this, head to the {appStoreName} and update Discovrr to
                 the latest version.
               </Text>
             </View>

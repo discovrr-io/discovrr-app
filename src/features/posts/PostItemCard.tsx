@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
 import Video from 'react-native-video';
@@ -21,7 +21,7 @@ import { Post, PostId, Profile, ProfileId } from 'src/models';
 import { RootStackNavigationProp } from 'src/navigation';
 import { Statistics } from 'src/models/common';
 
-import { AsyncGate, Card, PlayButton } from 'src/components';
+import { AsyncGate, Card, GlobalAutolink, PlayButton } from 'src/components';
 import { CardActionsProps } from 'src/components/cards/CardActions';
 import { CardAuthorProps } from 'src/components/cards/CardAuthor';
 import { useCardElementOptionsContext } from 'src/components/cards/hooks';
@@ -161,7 +161,6 @@ type PostItemCardBodyProps = CardElementOptions &
 
 function PostItemCardBody(props: PostItemCardBodyProps) {
   const { body, ...cardElementProps } = props;
-  const { colors } = useExtendedTheme();
 
   switch (body.contents.type) {
     case 'gallery':
@@ -186,16 +185,15 @@ function PostItemCardBody(props: PostItemCardBodyProps) {
             paddingVertical: cardElementProps.insetVertical,
             paddingHorizontal: cardElementProps.insetHorizontal,
           }}>
-          <Text
+          <GlobalAutolink
+            text={body.contents.text}
             numberOfLines={cardElementProps.smallContent ? 4 : 8}
-            style={[
-              cardElementProps.smallContent
+            textProps={{
+              style: cardElementProps.smallContent
                 ? constants.font.medium
                 : constants.font.extraLarge,
-              { color: colors.text },
-            ]}>
-            {body.contents.text}
-          </Text>
+            }}
+          />
         </View>
       );
   }
@@ -387,18 +385,17 @@ type PostItemCardCaptionProps = {
 
 function PostItemCardCaption(props: PostItemCardCaptionProps) {
   const cardElementOptions = useCardElementOptionsContext();
-  const { colors } = useExtendedTheme();
   return (
     <View
       style={{
         paddingHorizontal: cardElementOptions.insetHorizontal,
         paddingVertical: cardElementOptions.insetVertical,
       }}>
-      <Text
+      <GlobalAutolink
+        text={props.caption}
         numberOfLines={2}
-        style={[cardElementOptions.captionTextStyle, { color: colors.text }]}>
-        {props.caption}
-      </Text>
+        textProps={{ style: cardElementOptions.captionTextStyle }}
+      />
     </View>
   );
 }
