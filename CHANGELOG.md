@@ -9,12 +9,14 @@
 - Dark mode (can be configured to follow system's scheme or manually set)
   - Authentication screen still retains light theme for now
 - Display modal when current app version is not supported anymore
+- Mentions now show up as interactive links on post item cards and on the post
+  details screen
 
 ### Fixed
 
 - App-wide font scaling should now be capped at a certain scale when
   accessibility font size is very large ([issue #11])
-- Discovrr logo icon font file now displays properly on Android
+- Discovrr logo icon font file now displays correctly on Android
 
 ## [v3.0.9] (2021-11-25)
 

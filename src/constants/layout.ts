@@ -1,4 +1,4 @@
-import { ViewStyle } from 'react-native';
+import { Platform, ViewStyle } from 'react-native';
 
 const SPACING_UNIT = 8;
 const RADIUS_UNIT = 8;
@@ -38,6 +38,12 @@ export const border = {
   zero: 0,
 };
 
+export const buttonSizes = {
+  lg: 48,
+  md: 40,
+  sm: 32,
+};
+
 export const defaultScreenMargins = {
   horizontalHeader: spacing.lg,
   verticalHeader: spacing.xl,
@@ -50,8 +56,7 @@ export const defaultScreenStyle: ViewStyle = {
   paddingHorizontal: defaultScreenMargins.horizontal,
 };
 
-export const buttonSizes = {
-  lg: 48,
-  md: 40,
-  sm: 32,
+export const defaultHeaderTitleContainerStyle: ViewStyle = {
+  width: Platform.OS === 'ios' ? '75%' : '90%',
+  alignItems: Platform.OS === 'ios' ? 'center' : 'flex-start',
 };

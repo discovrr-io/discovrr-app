@@ -690,7 +690,7 @@ export default function AuthScreen() {
         <FastImage
           source={LOGIN_POSTER_SOURCE}
           style={[
-            authScreenStyles.backgroundVideo,
+            StyleSheet.absoluteFill,
             { backgroundColor: colors.placeholder },
           ]}
         />
@@ -709,7 +709,7 @@ export default function AuthScreen() {
         source={LOGIN_VIDEO_SOURCE}
         poster={LOGIN_POSTER_ASSET_SOURCE.uri}
         style={[
-          authScreenStyles.backgroundVideo,
+          StyleSheet.absoluteFill,
           {
             backgroundColor: Platform.select({
               android: 'transparent',
@@ -780,13 +780,6 @@ export default function AuthScreen() {
 const authScreenStyles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  backgroundVideo: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    left: 0,
-    bottom: 0,
   },
   scrollView: {
     flexGrow: 1,

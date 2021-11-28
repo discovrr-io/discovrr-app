@@ -741,11 +741,11 @@ function ProfileDetailsHeader(props: ProfileDetailsHeaderProps) {
                 profileDetailsHeaderStyles.avatar,
                 { height: avatarHeight, borderRadius: avatarHeight / 2 },
                 { backgroundColor: colors.placeholder },
-                // Platform.OS === 'android' && { backgroundColor: 'transparent' },
               ]}
             />
             <Spacer.Vertical value="sm" />
             <Text
+              numberOfLines={2}
               style={[
                 constants.font.extraLargeBold,
                 profileDetailsHeaderStyles.headerText,
@@ -755,6 +755,7 @@ function ProfileDetailsHeader(props: ProfileDetailsHeaderProps) {
             </Text>
             <Spacer.Vertical value="xs" />
             <Text
+              numberOfLines={1}
               style={[
                 constants.font.mediumBold,
                 profileDetailsHeaderStyles.headerText,

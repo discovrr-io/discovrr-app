@@ -103,13 +103,6 @@ const bottomSheetStyles = StyleSheet.create({
     paddingVertical: layout.spacing.lg,
     paddingHorizontal: layout.spacing.lg,
   },
-  blurView: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
-  },
 });
 
 function LocationQueryBottomSheetContent() {
@@ -158,11 +151,11 @@ function LocationQueryBottomSheetContent() {
       <BlurView
         blurType={dark ? 'dark' : 'light'}
         blurRadius={20}
-        style={bottomSheetStyles.blurView}
+        style={StyleSheet.absoluteFill}
       />
       <View
         style={[
-          bottomSheetStyles.blurView,
+          StyleSheet.absoluteFill,
           {
             alignItems: 'center',
             justifyContent: 'center',

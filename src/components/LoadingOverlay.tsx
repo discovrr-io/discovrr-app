@@ -50,12 +50,13 @@ export default function LoadingOverlay(props: LoadingOverlayProps) {
         <BlurView
           blurRadius={5}
           blurType="dark"
-          style={{ position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 }}
+          style={StyleSheet.absoluteFill}
         />
       )}
       <View
         style={[
           styles.container,
+          StyleSheet.absoluteFill,
           !preferBlur && { backgroundColor: 'rgba(0,0,0,0.75)' },
         ]}>
         <View style={styles.contentContainer}>
@@ -121,11 +122,6 @@ function CancelButton(props: { onCancel?: LoadingOverlayProps['onCancel'] }) {
 
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    right: 0,
-    left: 0,
     alignContent: 'center',
     justifyContent: 'center',
     paddingVertical: layout.spacing.lg,

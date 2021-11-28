@@ -148,6 +148,8 @@ export default function RootNavigator() {
           headerBackTitleVisible: false,
           headerTintColor: colors.text,
           headerTitleStyle: constants.font.defaultHeaderTitleStyle,
+          headerTitleContainerStyle:
+            constants.layout.defaultHeaderTitleContainerStyle,
           headerLeft: props => <HeaderIcon.Back {...props} />,
           headerLeftContainerStyle: {
             paddingLeft: constants.layout.spacing.xs,
@@ -199,10 +201,8 @@ export default function RootNavigator() {
                 presentation === 'modal' || presentation === 'transparentModal'
                   ? HeaderIcon.Close
                   : HeaderIcon.Back,
-              headerTitleContainerStyle: {
-                width: Platform.OS === 'ios' ? '75%' : '90%',
-                alignItems: Platform.OS === 'ios' ? 'center' : 'flex-start',
-              },
+              headerTitleContainerStyle:
+                constants.layout.defaultHeaderTitleContainerStyle,
             };
           }}
         />

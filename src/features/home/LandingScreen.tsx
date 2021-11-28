@@ -31,7 +31,6 @@ import { ProductId, Profile } from 'src/models';
 import { HomeStackScreenProps, RootStackNavigationProp } from 'src/navigation';
 
 import {
-  // DiscovrrIcon,
   EmptyContainer,
   LoadingContainer,
   MasonryList,
@@ -128,14 +127,6 @@ type CallToActionProps = HomeFeedData['callToAction'];
 function CallToAction(props: CallToActionProps) {
   return (
     <View style={[callToActionStyles.container]}>
-      {/* FIXME: Try to get `DiscovrrIcon` to work on Android */}
-      {/* {Platform.OS === 'ios' && (
-        <DiscovrrIcon
-          color={constants.color.absoluteWhite}
-          size={275}
-          style={callToActionStyles.logo}
-        />
-      )} */}
       <Text
         allowFontScaling={false}
         style={[
@@ -155,6 +146,7 @@ function CallToAction(props: CallToActionProps) {
         ]}>
         {props.caption}
       </Text>
+      {/* Scroll down to learn more... */}
     </View>
   );
 }
