@@ -392,6 +392,7 @@ function RegisterForm({ setFormType }: RegisterFormProps) {
             style={[
               constants.font.smallBold,
               {
+                color: constants.color.defaultDarkTextColor,
                 marginBottom: constants.layout.spacing.lg,
                 marginHorizontal: constants.layout.spacing.md,
               },
@@ -533,6 +534,7 @@ function ForgotPasswordForm({ setFormType }: ForgotPasswordFormProps) {
             style={[
               constants.font.smallBold,
               {
+                color: constants.color.defaultDarkTextColor,
                 marginBottom: constants.layout.spacing.lg,
                 marginHorizontal: constants.layout.spacing.md,
               },

@@ -50,8 +50,8 @@ export const placeholder = gray100;
 export const placeholderLight = gray100;
 export const placeholderDark = gray700;
 
-export const defaultDarkTextColor = black;
+export const defaultDarkTextColor = absoluteBlack;
 export const disabledDarkTextColor = gray700;
 
-export const defaultLightTextColor = white;
+export const defaultLightTextColor = absoluteWhite;
 export const disabledLightTextColor = gray100;

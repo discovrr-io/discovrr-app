@@ -15,7 +15,7 @@ export type SettingsState = AppSettings & PersistPartial;
 
 const initialState: AppSettings = {
   locationQueryPrefs: undefined,
-  appearancePrefs: 'light',
+  appearancePrefs: 'system',
 };
 
 //#endregion Settings State Initialization
