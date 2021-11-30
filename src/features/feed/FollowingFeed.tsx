@@ -37,7 +37,11 @@ export default function FollowingFeed() {
         <EmptyContainer message="Follow someone to see their posts here." />
       }
       renderItem={({ item: postId }) => (
-        <PostItemCard postId={postId} style={{ marginBottom: TILE_SPACING }} />
+        <PostItemCard
+          showRepliesIcon
+          postId={postId}
+          style={{ marginBottom: TILE_SPACING }}
+        />
       )}
     />
   );

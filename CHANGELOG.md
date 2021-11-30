@@ -12,6 +12,7 @@
 - Mentions now show up as interactive links on post item cards and on the post
   details screen
 - Add ability to like products
+- Display number of replies on post item cards
 
 ### Fixed
 

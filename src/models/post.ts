@@ -74,6 +74,13 @@ export default interface Post {
    */
   readonly createdAt: string;
 
+  readonly commentsCount: number;
+
+  /**
+   * An optional record of statistics associated with this post.
+   */
+  readonly statistics: Statistics;
+
   /**
    * The optional location of a given post.
    *
@@ -81,9 +88,4 @@ export default interface Post {
    * coordinates and its location in human-readable form.
    */
   readonly location?: PostLocation;
-
-  /**
-   * An optional record of statistics associated with this post.
-   */
-  readonly statistics: Statistics;
 }

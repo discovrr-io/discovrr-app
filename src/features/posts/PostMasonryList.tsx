@@ -14,6 +14,7 @@ type PostMasonryListProps<ItemT> = Omit<
   postIds: PostId[];
   tileSpacing?: number;
   smallContent?: boolean;
+  showRepliesIcon?: boolean;
 };
 
 function PostMasonryListInner<ItemT>(
@@ -24,6 +25,7 @@ function PostMasonryListInner<ItemT>(
     postIds,
     tileSpacing = DEFAULT_TILE_SPACING,
     smallContent = false,
+    showRepliesIcon = true,
     contentContainerStyle,
     ...restProps
   } = props;
@@ -41,6 +43,7 @@ function PostMasonryListInner<ItemT>(
         <PostItemCard
           postId={postId}
           key={postId}
+          showRepliesIcon={showRepliesIcon}
           elementOptions={{ smallContent }}
           style={{
             marginTop: tileSpacing,

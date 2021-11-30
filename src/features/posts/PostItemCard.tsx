@@ -49,8 +49,10 @@ const ASPECT_RATIOS = [
 ];
 
 type PostItemCardContext = {
+  showRepliesIcon?: boolean;
   showMenuIcon?: boolean;
   showShareIcon?: boolean;
+  onPressReplies?: (post: Post) => void | Promise<void>;
   onPressMenu?: (post: Post) => void | Promise<void>;
   onPressShare?: (post: Post) => void | Promise<void>;
 };
@@ -71,8 +73,10 @@ type PostItemCardProps = CardElementProps &
 export default function PostItemCard(props: PostItemCardProps) {
   const {
     postId,
+    showRepliesIcon,
     showMenuIcon,
     showShareIcon,
+    onPressReplies,
     onPressMenu,
     onPressShare,
     ...cardElementProps
@@ -82,13 +86,20 @@ export default function PostItemCard(props: PostItemCardProps) {
 
   return (
     <PostItemCardContext.Provider
-      value={{ showMenuIcon, showShareIcon, onPressMenu, onPressShare }}>
+      value={{
+        showRepliesIcon,
+        showMenuIcon,
+        showShareIcon,
+        onPressReplies,
+        onPressMenu,
+        onPressShare,
+      }}>
       <AsyncGate
         data={postData}
-        onPending={() => <InnerPostItemCard.Pending {...cardElementProps} />}
+        onPending={() => <LoadedPostItemCard.Pending {...cardElementProps} />}
         onFulfilled={post => {
           if (!post) return null;
-          return <InnerPostItemCard post={post} {...cardElementProps} />;
+          return <LoadedPostItemCard post={post} {...cardElementProps} />;
         }}
       />
     </PostItemCardContext.Provider>
@@ -99,11 +110,11 @@ export default function PostItemCard(props: PostItemCardProps) {
 
 //#region InnerPostItemCard ----------------------------------------------------
 
-type InnerPostItemCardProps = CardElementProps & {
+type LoadedPostItemCardProps = CardElementProps & {
   post: Post;
 };
 
-export const InnerPostItemCard = (props: InnerPostItemCardProps) => {
+export const LoadedPostItemCard = (props: LoadedPostItemCardProps) => {
   const { post, ...cardElementProps } = props;
   const navigation = useNavigation<RootStackNavigationProp>();
 
@@ -122,7 +133,7 @@ export const InnerPostItemCard = (props: InnerPostItemCardProps) => {
 };
 
 // eslint-disable-next-line react/display-name
-InnerPostItemCard.Pending = (props: CardElementProps) => {
+LoadedPostItemCard.Pending = (props: CardElementProps) => {
   const aspectRatioIndex = utilities.generateRandomNumberBetween(
     0,
     ASPECT_RATIOS.length,
@@ -492,10 +503,16 @@ function PostItemCardActions(props: PostItemCardActionsProps) {
   const { didLike, totalLikes } = post.statistics;
 
   const dispatch = useAppDispatch();
+  const navigation = useNavigation<RootStackNavigationProp>();
+
   const handlersContext = useOverridableContextOptions(
     PostItemCardContext,
     handlersProps,
   );
+
+  const handlePressReplies = () => {
+    navigation.push('PostDetails', { postId: post.id, focusCommentBox: true });
+  };
 
   const handleToggleLike = async (didLike: boolean) => {
     try {
@@ -520,6 +537,21 @@ function PostItemCardActions(props: PostItemCardActionsProps) {
         totalLikes={totalLikes}
         onToggleLike={handleToggleLike}
       />
+      {handlersContext.showRepliesIcon /* && post.commentsCount !== 0 */ && (
+        <Card.IconButton
+          iconName="chatbubble-outline"
+          iconSize={original => original * 0.9}
+          label={
+            post.commentsCount > 0
+              ? utilities.shortenLargeNumber(post.commentsCount)
+              : undefined
+          }
+          onPress={() =>
+            handlersContext.onPressReplies?.(post) ?? handlePressReplies()
+          }
+          style={{ paddingTop: 0.5 }}
+        />
+      )}
       {handlersContext.showShareIcon && (
         <Card.IconButton
           iconName="ios-share-outline"

@@ -61,6 +61,7 @@ export namespace PostApi {
       profileId: result.get('profile')?.id,
       contents: postContents,
       createdAt: result.createdAt.toISOString(),
+      commentsCount: result.get('commentsCount') ?? 0,
       location: result.get('location'),
       statistics: {
         didLike,
@@ -189,9 +190,9 @@ export namespace PostApi {
       postsQuery.skip(pagination.currentPage * pagination.limit);
     }
 
-    const results = await postsQuery.find();
+    const posts = await postsQuery.find();
     // TODO: Filter out posts from blocked profiles
-    return results.map(post => mapResultToPost(post, myProfile?.id));
+    return posts.map(post => mapResultToPost(post, myProfile?.id));
   }
   // */
 

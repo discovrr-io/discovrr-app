@@ -275,7 +275,7 @@ export type CreateItemDetailsTopTabScreenProps<
 //#region POST STACK
 
 export type PostStackParamList = {
-  PostDetails: { postId: PostId };
+  PostDetails: { postId: PostId; focusCommentBox?: boolean };
   EditPost: { postId: PostId };
 };
 

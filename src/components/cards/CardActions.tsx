@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -12,12 +12,12 @@ import * as Animatable from 'react-native-animatable';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { IconProps } from 'react-native-vector-icons/Icon';
 
+import * as constants from 'src/constants';
 import * as values from 'src/constants/values';
-import { color } from 'src/constants';
+import * as utilities from 'src/utilities';
 import { useExtendedTheme } from 'src/hooks';
-import { shortenLargeNumber } from 'src/utilities';
 
-import * as constants from './constants';
+import * as cardConstants from './constants';
 import Spacer from '../Spacer';
 import { CardElementProps } from './common';
 import { useCardElementOptionsContext } from './hooks';
@@ -36,8 +36,8 @@ const CardActions = (props: CardActionsProps) => {
         cardActionsStyles.cardContainer,
         {
           height: cardElementOptions.smallContent
-            ? constants.CARD_ICON_SMALL
-            : constants.CARD_ICON_LARGE,
+            ? cardConstants.CARD_ICON_SMALL
+            : cardConstants.CARD_ICON_LARGE,
         },
         props.style,
       ]}>
@@ -48,7 +48,11 @@ const CardActions = (props: CardActionsProps) => {
             key={`card-action-item-${index}`}
             style={{ flexDirection: 'row', alignItems: 'center' }}>
             {index < children.length - 1 && (
-              <Spacer.Horizontal value={cardElementOptions.insetHorizontal} />
+              <Spacer.Horizontal
+                value={
+                  props.itemSpacing ?? cardElementOptions.insetHorizontal * 0.75
+                }
+              />
             )}
             {child}
           </View>
@@ -79,8 +83,8 @@ const CardActionsPending = (props: CardActionsPendingProps) => {
 
   const numberOfActions = props.numberOfActions ?? 1;
   const iconSize = cardElementOptions.smallContent
-    ? constants.CARD_PLACEHOLDER_ICON_HEIGHT_SMALL
-    : constants.CARD_PLACEHOLDER_ICON_HEIGHT_LARGE;
+    ? cardConstants.CARD_PLACEHOLDER_ICON_HEIGHT_SMALL
+    : cardConstants.CARD_PLACEHOLDER_ICON_HEIGHT_LARGE;
 
   return (
     <View style={[cardActionsStyles.cardContainer, props.style]}>
@@ -97,7 +101,9 @@ const CardActionsPending = (props: CardActionsPendingProps) => {
           />
           {index < numberOfActions - 1 && (
             <Spacer.Horizontal
-              value={props.itemSpacing ?? cardElementOptions.insetHorizontal}
+              value={
+                props.itemSpacing ?? cardElementOptions.insetHorizontal * 0.75
+              }
             />
           )}
         </View>
@@ -114,7 +120,7 @@ type CardActionsIconButtonProps = CardElementProps &
   TouchableOpacityProps & {
     iconName: string;
     iconColor?: IconProps['color'];
-    iconSize?: IconProps['size'];
+    iconSize?: IconProps['size'] | ((size: number) => number);
     label?: string;
     labelColor?: TextStyle['color'];
   };
@@ -137,6 +143,12 @@ export const CardActionsIconButton = React.forwardRef<
   const cardElementOptions = useCardElementOptionsContext(elementOptions);
   const { colors } = useExtendedTheme();
 
+  const cardIconSize = useMemo(() => {
+    return cardElementOptions.smallContent
+      ? cardConstants.CARD_ICON_SMALL
+      : cardConstants.CARD_ICON_LARGE;
+  }, [cardElementOptions.smallContent]);
+
   return (
     <TouchableOpacity
       {...restProps}
@@ -148,9 +160,9 @@ export const CardActionsIconButton = React.forwardRef<
           name={iconName}
           color={iconColor ?? colors.caption}
           size={
-            iconSize ?? cardElementOptions.smallContent
-              ? constants.CARD_ICON_SMALL
-              : constants.CARD_ICON_LARGE
+            typeof iconSize === 'function'
+              ? iconSize(cardIconSize)
+              : iconSize ?? cardIconSize
           }
         />
       </Animatable.View>
@@ -162,7 +174,7 @@ export const CardActionsIconButton = React.forwardRef<
             {
               textAlign: 'right',
               color: labelColor ?? colors.caption,
-              minWidth: cardElementOptions.smallContent ? 12 : 16,
+              minWidth: cardElementOptions.smallContent ? 10 : 14,
             },
           ]}>
           {label}
@@ -253,8 +265,10 @@ export const CardActionsHeartIconButton = (
     <CardActionsIconButton
       ref={animatableRef}
       iconName={didLike ? 'heart' : 'heart-outline'}
-      iconColor={didLike ? color.red500 : undefined}
-      label={shortenLargeNumber(totalLikes)}
+      iconColor={didLike ? constants.color.red500 : undefined}
+      label={
+        totalLikes > 0 ? utilities.shortenLargeNumber(totalLikes) : undefined
+      }
       labelColor={didLike ? colors.text : undefined}
       onPress={handleToggleLike}
       {...restProps}

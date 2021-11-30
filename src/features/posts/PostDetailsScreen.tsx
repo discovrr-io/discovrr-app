@@ -280,7 +280,7 @@ const AddCommentComponent = () => {
 type PostDetailsScreenProps = RootStackScreenProps<'PostDetails'>;
 
 export default function PostDetailsScreen(props: PostDetailsScreenProps) {
-  const { postId } = props.route.params;
+  const { postId, focusCommentBox } = props.route.params;
   const postData = usePost(postId);
 
   return (
@@ -296,7 +296,12 @@ export default function PostDetailsScreen(props: PostDetailsScreenProps) {
       onFulfilled={post => {
         if (!post)
           return <RouteError message="There doesn't seem to be a post here" />;
-        return <LoadedPostDetailsScreen post={post} />;
+        return (
+          <LoadedPostDetailsScreen
+            post={post}
+            focusCommentBox={focusCommentBox}
+          />
+        );
       }}
       onRejected={_ => <RouteError />}
     />
@@ -310,10 +315,13 @@ type PostReplyContext =
 
 type LoadedPostDetailsScreenProps = {
   post: Post;
+  focusCommentBox?: boolean;
 };
 
-function LoadedPostDetailsScreen({ post }: LoadedPostDetailsScreenProps) {
+function LoadedPostDetailsScreen(props: LoadedPostDetailsScreenProps) {
   const $FUNC = '[PostDetailsScreen]';
+  const { post, focusCommentBox } = props;
+
   const { bottom: bottomInset } = useSafeAreaInsets();
   const { colors } = useExtendedTheme();
 
@@ -336,6 +344,13 @@ function LoadedPostDetailsScreen({ post }: LoadedPostDetailsScreenProps) {
   const commentIds = useAppSelector(state => {
     return commentsSlice.selectCommentsForPost(state, post.id);
   });
+
+  React.useEffect(() => {
+    // FIXME: Keyboard avoiding view doesn't work nicely on Android
+    if (Platform.OS === 'ios' && focusCommentBox) {
+      textInputRef.current?.focus();
+    }
+  }, [focusCommentBox]);
 
   React.useEffect(
     () => {
