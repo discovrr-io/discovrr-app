@@ -11,6 +11,7 @@
 - Display modal when current app version is not supported anymore
 - Mentions now show up as interactive links on post item cards and on the post
   details screen
+- Add ability to like products
 
 ### Fixed
 

@@ -133,12 +133,15 @@ export namespace PostApi {
   export async function fetchPostById(
     params: FetchPostByIdParams,
   ): Promise<Post> {
-    const { postId } = params;
+    const postId = String(params.postId);
     const myProfile = await UserApi.getCurrentUserProfile();
-    const postQuery = new Parse.Query(Parse.Object.extend('Post'));
-    postQuery.include('profile', 'statistics');
 
-    const result = await postQuery.get(String(postId));
+    const postQuery = new Parse.Query(Parse.Object.extend('Post'));
+    const result = await postQuery
+      .include('profile', 'statistics')
+      .notEqualTo('status', ApiObjectStatus.DELETED)
+      .get(postId);
+
     return mapResultToPost(result, myProfile?.id);
   }
   // */

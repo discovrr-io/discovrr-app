@@ -57,6 +57,6 @@ export const defaultScreenStyle: ViewStyle = {
 };
 
 export const defaultHeaderTitleContainerStyle: ViewStyle = {
-  width: Platform.OS === 'ios' ? '75%' : '90%',
+  width: Platform.OS === 'ios' ? '65%' : '90%',
   alignItems: Platform.OS === 'ios' ? 'center' : 'flex-start',
 };

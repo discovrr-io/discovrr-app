@@ -65,10 +65,10 @@ export const fetchProductsForVendorProfile = createAsyncThunk(
   ProductApi.fetchProductsForVendorProfile,
 );
 
-// export const updateProductLikeStatus = createAsyncThunk(
-//   'products/updateProductLikeStatus',
-//   ProductApi.updateProductLikeStatus,
-// );
+export const updateProductLikeStatus = createAsyncThunk(
+  'products/updateProductLikeStatus',
+  ProductApi.updateProductLikeStatus,
+);
 
 // export const updateProductViewCounter = createAsyncThunk(
 //   'products/updateProductViewCounter',
@@ -89,10 +89,15 @@ const productsSlice = createSlice({
       action: PayloadAction<{ productId: ProductId; didLike: boolean }>,
     ) => {
       const { productId, didLike } = action.payload;
-      const existingProduct = state.entities[productId];
-      if (existingProduct && existingProduct.statistics) {
-        existingProduct.statistics.didLike = didLike;
-        existingProduct.statistics.totalLikes += didLike ? 1 : -1;
+      const selectedProduct = state.entities[productId];
+      if (selectedProduct && selectedProduct.statistics) {
+        selectedProduct.statistics.didLike = didLike;
+        if (didLike) {
+          selectedProduct.statistics.totalLikes += 1;
+        } else {
+          const decremented = selectedProduct.statistics.totalLikes - 1;
+          selectedProduct.statistics.totalLikes = Math.max(0, decremented);
+        }
       }
     },
   },
@@ -152,21 +157,21 @@ const productsSlice = createSlice({
         for (const productId of action.payload.map(productId => productId.id)) {
           state.statuses[productId] = { status: 'fulfilled' };
         }
+      })
+      // -- updateProductLikeStatus --
+      .addCase(updateProductLikeStatus.pending, (state, action) => {
+        productsSlice.caseReducers.productLikeStatusChanged(state, {
+          ...action,
+          payload: action.meta.arg,
+        });
+      })
+      .addCase(updateProductLikeStatus.rejected, (state, action) => {
+        const oldLike = !action.meta.arg.didLike;
+        productsSlice.caseReducers.productLikeStatusChanged(state, {
+          ...action,
+          payload: { ...action.meta.arg, didLike: oldLike },
+        });
       });
-    // -- updateProductLikeStatus --
-    // .addCase(updateProductLikeStatus.pending, (state, action) => {
-    //   productsSlice.caseReducers.productLikeStatusChanged(state, {
-    //     ...action,
-    //     payload: action.meta.arg,
-    //   });
-    // })
-    // .addCase(updateProductLikeStatus.rejected, (state, action) => {
-    //   const oldLike = !action.meta.arg.didLike;
-    //   productsSlice.caseReducers.productLikeStatusChanged(state, {
-    //     ...action,
-    //     payload: { ...action.meta.arg, didLike: oldLike },
-    //   });
-    // })
     // -- updateProductViewCounter --
     // .addCase(updateProductViewCounter.fulfilled, (state, action) => {
     //   const { productId, lastViewed = new Date().toJSON() } = action.meta.arg;

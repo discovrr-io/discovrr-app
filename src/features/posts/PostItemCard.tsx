@@ -15,6 +15,9 @@ import {
 } from 'react-native-reanimated';
 
 import * as constants from 'src/constants';
+import * as utilities from 'src/utilities';
+import * as postsSlice from './posts-slice';
+
 import { MediaSource } from 'src/api';
 import { DEFAULT_IMAGE_DIMENSIONS } from 'src/constants/media';
 import { Post, PostId, Profile, ProfileId } from 'src/models';
@@ -31,12 +34,6 @@ import {
   CardElementProps,
 } from 'src/components/cards/common';
 
-import {
-  alertSomethingWentWrong,
-  generateRandomNumberBetween,
-  shortenLargeNumber,
-} from 'src/utilities';
-
 import { usePost } from './hooks';
 import { useIsMyProfile, useProfile } from 'src/features/profiles/hooks';
 import {
@@ -44,8 +41,6 @@ import {
   useExtendedTheme,
   useOverridableContextOptions,
 } from 'src/hooks';
-
-import { updatePostLikeStatus } from './posts-slice';
 
 const ASPECT_RATIOS = [
   1 / 1, // 1:1 (Square)
@@ -128,7 +123,10 @@ export const InnerPostItemCard = (props: InnerPostItemCardProps) => {
 
 // eslint-disable-next-line react/display-name
 InnerPostItemCard.Pending = (props: CardElementProps) => {
-  const aspectRatioIndex = generateRandomNumberBetween(0, ASPECT_RATIOS.length);
+  const aspectRatioIndex = utilities.generateRandomNumberBetween(
+    0,
+    ASPECT_RATIOS.length,
+  );
   return (
     <Card {...props}>
       <Card.Body
@@ -234,7 +232,7 @@ function PostItemCardBodyImageGallery(
           <Card.Indicator
             iconName="eye"
             position="bottom-left"
-            label={shortenLargeNumber(statistics.totalViews)}
+            label={utilities.shortenLargeNumber(statistics.totalViews)}
             elementOptions={elementOptions}
           />
         )}
@@ -279,7 +277,7 @@ function PostItemCardBodyVideoThumbnailProps(
           <Card.Indicator
             iconName="eye"
             position="bottom-left"
-            label={shortenLargeNumber(statistics.totalViews)}
+            label={utilities.shortenLargeNumber(statistics.totalViews)}
             elementOptions={elementOptions}
           />
         )}
@@ -501,14 +499,14 @@ function PostItemCardActions(props: PostItemCardActionsProps) {
 
   const handleToggleLike = async (didLike: boolean) => {
     try {
-      const action = updatePostLikeStatus({
+      const action = postsSlice.updatePostLikeStatus({
         postId: post.id,
         didLike,
         sendNotification: true,
       });
       await dispatch(action).unwrap();
     } catch (error) {
-      alertSomethingWentWrong();
+      utilities.alertSomethingWentWrong();
     }
   };
 

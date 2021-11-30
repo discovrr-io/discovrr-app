@@ -5,6 +5,8 @@ import FastImage from 'react-native-fast-image';
 import { useNavigation } from '@react-navigation/core';
 
 import * as constants from 'src/constants';
+import * as utilities from 'src/utilities';
+import * as productsSlice from 'src/features/products/products-slice';
 import * as profilesSlice from 'src/features/profiles/profiles-slice';
 import { ApiFetchStatus, MediaSource, ProductApi } from 'src/api';
 import { Product, ProductId, Profile, VendorProfileId } from 'src/models';
@@ -62,6 +64,8 @@ type InnerProductItemCardProps = CardElementProps & {
 const LoadedProductItemCard = (props: InnerProductItemCardProps) => {
   const { product, ...cardElementProps } = props;
   const { didLike, totalLikes } = product.statistics;
+
+  const dispatch = useAppDispatch();
   const navigation = useNavigation<RootStackNavigationProp>();
 
   const handlePressProduct = () => {
@@ -79,6 +83,19 @@ const LoadedProductItemCard = (props: InnerProductItemCardProps) => {
     });
   };
 
+  const handleToggleLike = async (didLike: boolean) => {
+    try {
+      const action = productsSlice.updateProductLikeStatus({
+        productId: product.id,
+        didLike,
+        sendNotification: true,
+      });
+      await dispatch(action).unwrap();
+    } catch (error) {
+      utilities.alertSomethingWentWrong();
+    }
+  };
+
   return (
     <Card
       elementOptions={cardElementProps.elementOptions}
@@ -94,7 +111,7 @@ const LoadedProductItemCard = (props: InnerProductItemCardProps) => {
           <Card.HeartIconButton
             didLike={didLike}
             totalLikes={totalLikes}
-            onToggleLike={() => {}}
+            onToggleLike={handleToggleLike}
             elementOptions={{
               ...cardElementProps.elementOptions,
               disabled: product.hidden,

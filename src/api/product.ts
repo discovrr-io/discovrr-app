@@ -13,13 +13,15 @@ export namespace ProductApi {
   function mapResultToProduct(
     result: Parse.Object,
     vendorProfileId?: string,
-    _myProfileId?: string,
+    myProfileId?: string,
   ): Product {
-    // const likersArray: string[] = result.get('likersArray') ?? [];
-    // const totalLikes = likersArray.length;
-    // const didLike = myProfileId
-    //   ? likersArray.some(liker => myProfileId === liker)
-    //   : false;
+    const statistics: Parse.Object | undefined = result.get('statistics');
+    const likersArray: string[] = statistics?.get('likersArray') ?? [];
+    const viewersArray: string[] = statistics?.get('viewersArray') ?? [];
+
+    const didLike = myProfileId
+      ? likersArray.some(liker => myProfileId === liker)
+      : false;
 
     return {
       id: result.id as ProductId,
@@ -32,10 +34,10 @@ export namespace ProductApi {
       media: result.get('media') ?? [],
       hidden: result.get('hidden') ?? false,
       statistics: {
+        didLike,
         didSave: false,
-        didLike: false,
-        totalLikes: 0,
-        totalViews: 0,
+        totalLikes: likersArray.length,
+        totalViews: viewersArray.length,
       },
     };
   }
@@ -71,13 +73,15 @@ export namespace ProductApi {
     params: FetchProductByIdParams,
   ): Promise<Product> {
     const productId = String(params.productId);
+    const myProfile = await UserApi.getCurrentUserProfile();
+
     const productQuery = new Parse.Query(Parse.Object.extend('Product'));
     const result = await productQuery
-      .include('statistics')
+      .include('profileVendor', 'statistics')
       .notEqualTo('status', ApiObjectStatus.DELETED)
       .get(productId);
 
-    return mapResultToProduct(result);
+    return mapResultToProduct(result, undefined, myProfile?.id);
   }
 
   export type FetchAllProductsParams = {
@@ -92,6 +96,7 @@ export namespace ProductApi {
     const productsQuery = new Parse.Query(Parse.Object.extend('Product'));
 
     productsQuery
+      .include('statistics')
       .notEqualTo('status', ApiObjectStatus.DELETED)
       .notEqualTo('hidden', true);
 
@@ -130,6 +135,7 @@ export namespace ProductApi {
     const productsQuery = new Parse.Query(Parse.Object.extend('Product'));
 
     productsQuery
+      .include('statistics')
       .notEqualTo('status', ApiObjectStatus.DELETED)
       .equalTo('profileVendor', profileVendorPointer);
 
@@ -149,4 +155,20 @@ export namespace ProductApi {
   }
 
   //#endregion READ OPERATIONS
+
+  //#region UPDATE OPERATIONS
+
+  export type UpdateProductLikeStatusParams = {
+    productId: ProductId;
+    didLike: boolean;
+    sendNotification?: boolean;
+  };
+
+  export async function updateProductLikeStatus(
+    params: UpdateProductLikeStatusParams,
+  ) {
+    await Parse.Cloud.run('updateProductLikeStatus', params);
+  }
+
+  //#endregion UPDATE OPERATIONS
 }
