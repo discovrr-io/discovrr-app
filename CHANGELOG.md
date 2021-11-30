@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 
-<!-- ## [v3.1.0] (2021-XX-XX) -->
+## [v3.1.0] (2021-11-30)
 
 ### Added
 
@@ -12,6 +12,7 @@
 - Mentions now show up as interactive links on post item cards and on the post
   details screen
 - Add ability to like products
+- Add search icon on home tab header
 - Display number of replies on post item cards
 
 ### Fixed

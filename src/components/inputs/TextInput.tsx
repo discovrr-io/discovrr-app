@@ -16,7 +16,8 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 import { IconProps } from 'react-native-vector-icons/Icon';
 
-import { color, font, layout } from 'src/constants';
+import * as constants from 'src/constants';
+import * as utilities from 'src/utilities';
 import { DEFAULT_ACTIVE_OPACITY } from 'src/constants/values';
 import { ButtonSize } from 'src/components/buttons/buttonStyles';
 import { useExtendedTheme } from 'src/hooks';
@@ -56,7 +57,7 @@ export const __TextInput = React.forwardRef<RNTextInput, TextInputProps>(
           return [
             outlinedTextInputStyles.container,
             isFocused
-              ? { backgroundColor: color.gray100 }
+              ? { backgroundColor: constants.color.gray100 }
               : outlinedTextInputStyles.default,
           ];
         case 'filled':
@@ -64,20 +65,22 @@ export const __TextInput = React.forwardRef<RNTextInput, TextInputProps>(
           return [
             filledTextInputStyles.container,
             {
-              backgroundColor: isFocused ? colors.highlight : colors.background,
+              backgroundColor: isFocused
+                ? colors.highlight + (dark ? utilities.percentToHex(0.35) : '')
+                : colors.background,
             },
           ];
       }
-    }, [mode, isFocused, colors.highlight, colors.background]);
+    }, [mode, isFocused, dark, colors.highlight, colors.background]);
 
     const textInputHeight = useMemo(() => {
       switch (size) {
         case 'large':
-          return layout.buttonSizes.lg;
+          return constants.layout.buttonSizes.lg;
         case 'medium':
-          return layout.buttonSizes.md;
+          return constants.layout.buttonSizes.md;
         case 'small':
-          return layout.buttonSizes.sm;
+          return constants.layout.buttonSizes.sm;
       }
     }, [size]);
 
@@ -93,7 +96,7 @@ export const __TextInput = React.forwardRef<RNTextInput, TextInputProps>(
               containerStyle: {
                 marginRight:
                   commonTextInputContainerStyle.paddingHorizontal ??
-                  layout.spacing.sm,
+                  constants.layout.spacing.sm,
               },
             })
           : prefix}
@@ -101,13 +104,16 @@ export const __TextInput = React.forwardRef<RNTextInput, TextInputProps>(
           {...restProps}
           ref={ref}
           placeholderTextColor={
-            placeholderTextColor ?? (dark ? color.gray700 : color.gray500)
+            placeholderTextColor ??
+            (dark ? constants.color.gray700 : constants.color.gray500)
           }
           onPressIn={() => setIsFocused(true)}
           onPressOut={() => setIsFocused(false)}
-          selectionColor={Platform.OS === 'ios' ? color.accent : undefined}
+          selectionColor={
+            Platform.OS === 'ios' ? constants.color.accent : undefined
+          }
           style={[
-            font.medium,
+            constants.font.medium,
             { color: colors.text },
             innerTextInputStyle,
             { flexGrow: 1, flexShrink: 1, padding: 0 },
@@ -118,7 +124,7 @@ export const __TextInput = React.forwardRef<RNTextInput, TextInputProps>(
               containerStyle: {
                 marginLeft:
                   commonTextInputContainerStyle.paddingHorizontal ??
-                  layout.spacing.sm,
+                  constants.layout.spacing.sm,
               },
             })
           : suffix}
@@ -131,9 +137,9 @@ const commonTextInputContainerStyle: ViewStyle = {
   flexGrow: 1,
   flexDirection: 'row',
   justifyContent: 'center',
-  paddingVertical: layout.spacing.sm,
-  paddingHorizontal: layout.spacing.md * 1.3,
-  borderRadius: layout.radius.sm,
+  paddingVertical: constants.layout.spacing.sm,
+  paddingHorizontal: constants.layout.spacing.md * 1.3,
+  borderRadius: constants.layout.radius.sm,
 };
 
 const filledTextInputStyles = StyleSheet.create({
@@ -147,9 +153,9 @@ const filledTextInputStyles = StyleSheet.create({
 const outlinedTextInputStyles = StyleSheet.create({
   container: {
     ...commonTextInputContainerStyle,
-    borderWidth: layout.border.thin,
-    borderColor: color.black,
-    paddingHorizontal: layout.spacing.md * 1.2,
+    borderWidth: constants.layout.border.thin,
+    borderColor: constants.color.black,
+    paddingHorizontal: constants.layout.spacing.md * 1.2,
   },
   default: {},
   focused: {},
@@ -169,8 +175,8 @@ const TextInputAffix = (props: TextInputAffixProps) => {
     <View style={[{ justifyContent: 'center' }, containerStyle]}>
       <Text
         style={[
-          font.medium,
-          { color: dark ? color.gray700 : color.gray500 },
+          constants.font.medium,
+          { color: dark ? constants.color.gray700 : constants.color.gray500 },
           textStyle,
         ]}>
         {text}

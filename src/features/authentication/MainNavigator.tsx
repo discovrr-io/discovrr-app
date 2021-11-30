@@ -11,7 +11,7 @@ import {
 } from '@react-navigation/bottom-tabs';
 
 import HomeNavigator from 'src/features/home/HomeNavigator';
-import ExploreNavigator from 'src/features/explore/ExploreNavigator';
+import ExploreNavigator from 'src/features/feed/ExploreNavigator';
 import NotificationsScreen from 'src/features/notifications/NotificationsScreen';
 import { LoadedProfileDetailsScreen } from 'src/features/profiles/ProfileDetailsScreen';
 
@@ -150,7 +150,11 @@ function FacadeNavigator() {
           return <Icon name={iconName} size={iconSize} color={color} />;
         },
       })}>
-      <FacadeBottomTab.Screen name="Home" component={HomeNavigator} />
+      <FacadeBottomTab.Screen
+        name="Home"
+        component={HomeNavigator}
+        options={{ headerShown: false }}
+      />
       <FacadeBottomTab.Screen
         name="Explore"
         component={ExploreNavigator}

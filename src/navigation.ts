@@ -135,6 +135,8 @@ export type FacadeBottomTabScreenProps<
 export type HomeStackParamList = {
   Landing: undefined;
   Filter: undefined;
+  /** TEMPORARY */
+  __Search: NavigatorScreenParams<SearchStackParamList>;
 };
 
 export type HomeStackNavigationProp = StackNavigationProp<
