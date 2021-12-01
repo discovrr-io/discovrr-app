@@ -102,12 +102,14 @@ export default function MainSettingsScreen(props: MainSettingsScreenProps) {
               label="My profile"
               iconName="happy-outline"
               onPress={navigation => navigation.push('ProfileSettings')}
+              elementOptions={{ disabled: !currentProfileKind }}
             />
             <Cell.Navigator
               label="Account Type"
               iconName="person-outline"
               previewValue={currentProfileKind === 'vendor' ? 'Maker' : 'User'}
               onPress={navigation => navigation.push('AccountTypeSettings')}
+              elementOptions={{ disabled: !currentProfileKind }}
             />
             {/* <Cell.Navigator
               label="Location accuracy"

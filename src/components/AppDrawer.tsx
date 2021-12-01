@@ -264,7 +264,13 @@ export default function AppDrawer(props: AppDrawerProps) {
         <TouchableOpacity
           activeOpacity={constants.values.DEFAULT_ACTIVE_OPACITY}
           onPress={() => {
-            if (profile) handleNavigation('ProfileSettings');
+            if (profile) {
+              handleNavigation('ProfileSettings');
+            } else {
+              navigation
+                .getParent<RootStackNavigationProp>()
+                .navigate('AuthPrompt', { screen: 'Start' });
+            }
           }}>
           {profileId ? (
             <AppDrawerProfileDetails profileId={profileId} />

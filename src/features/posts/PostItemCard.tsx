@@ -38,6 +38,7 @@ import { usePost } from './hooks';
 import { useIsMyProfile, useProfile } from 'src/features/profiles/hooks';
 import {
   useAppDispatch,
+  useAppSelector,
   useExtendedTheme,
   useOverridableContextOptions,
 } from 'src/hooks';
@@ -504,6 +505,7 @@ function PostItemCardActions(props: PostItemCardActionsProps) {
 
   const dispatch = useAppDispatch();
   const navigation = useNavigation<RootStackNavigationProp>();
+  const currentUser = useAppSelector(state => state.auth.user);
 
   const handlersContext = useOverridableContextOptions(
     PostItemCardContext,
@@ -515,6 +517,11 @@ function PostItemCardActions(props: PostItemCardActionsProps) {
   };
 
   const handleToggleLike = async (didLike: boolean) => {
+    if (!currentUser) {
+      navigation.navigate('AuthPrompt', { screen: 'Start' });
+      return;
+    }
+
     try {
       const action = postsSlice.updatePostLikeStatus({
         postId: post.id,

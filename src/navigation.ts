@@ -37,7 +37,7 @@ declare global {
 
 export type RootStackParamList = {
   // -- Authentication --
-  AuthPrompt: undefined;
+  AuthPrompt: NavigatorScreenParams<AuthPromptStackParamList>;
   // -- Top Level --
   Main: NavigatorScreenParams<MainDrawerParamList>;
   Create: NavigatorScreenParams<CreateItemStackParamList>;
@@ -81,13 +81,16 @@ export const RootStack = createStackNavigator<RootStackParamList>();
 //#region AUTH PROMPT STACK
 
 export type AuthPromptStackParamList = {
-  Auth: undefined;
+  Start: undefined;
+  Login: undefined;
+  Register: undefined;
+  ForgotPassword: undefined;
   TermsAndConditions: undefined;
 };
 
 export type AuthPromptStackNavigationPrompt = StackNavigationProp<
   AuthPromptStackParamList,
-  'Auth'
+  'Start'
 >;
 
 export type AuthPromptStackScreenProps<
@@ -95,24 +98,6 @@ export type AuthPromptStackScreenProps<
 > = StackScreenProps<AuthPromptStackParamList, K>;
 
 //#endregion AUTH PROMPT STACK
-
-//#region AUTH STACK
-
-export type AuthStackParamList = {
-  Login: undefined;
-  Register: undefined;
-  ForgotPassword: undefined;
-};
-
-export type AuthStackNavigationPrompt = StackNavigationProp<
-  AuthPromptStackParamList,
-  'Auth'
->;
-
-export type AuthStackScreenProps<K extends keyof AuthStackParamList> =
-  StackScreenProps<AuthStackParamList, K>;
-
-//#endregion AUTH  STACK
 
 //#region MAIN DRAWER
 

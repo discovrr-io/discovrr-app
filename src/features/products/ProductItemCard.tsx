@@ -67,6 +67,7 @@ const LoadedProductItemCard = (props: InnerProductItemCardProps) => {
 
   const dispatch = useAppDispatch();
   const navigation = useNavigation<RootStackNavigationProp>();
+  const currentUser = useAppSelector(state => state.auth.user);
 
   const handlePressProduct = () => {
     if (product.hidden) {
@@ -84,6 +85,11 @@ const LoadedProductItemCard = (props: InnerProductItemCardProps) => {
   };
 
   const handleToggleLike = async (didLike: boolean) => {
+    if (!currentUser) {
+      navigation.navigate('AuthPrompt', { screen: 'Start' });
+      return;
+    }
+
     try {
       const action = productsSlice.updateProductLikeStatus({
         productId: product.id,

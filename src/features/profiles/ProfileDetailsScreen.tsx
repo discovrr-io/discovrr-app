@@ -617,18 +617,15 @@ function ProfileDetailsHeader(props: ProfileDetailsHeaderProps) {
   };
 
   const handlePressFollow = async (didFollow: boolean) => {
+    if (!currentUserProfileId) {
+      navigation.navigate('AuthPrompt', { screen: 'Start' });
+      // Throw error to avoid toggle button from changing
+      throw new Error('User is not signed in. Aborting...');
+    }
+
     const action = didFollow ? 'follow' : 'unfollow';
 
     try {
-      if (!currentUserProfileId) {
-        console.warn(
-          $FUNC,
-          'No profile ID was found for the current user, which is unexpected.',
-          'Aborting `updateProfileFollowStatus` action...',
-        );
-        throw new Error('Failed to find profile for the current user');
-      }
-
       console.log($FUNC, `Will ${action} profile...`);
 
       const updateProfileFollowStatusAction =
