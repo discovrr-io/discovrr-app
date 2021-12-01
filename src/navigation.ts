@@ -78,6 +78,42 @@ export const RootStack = createStackNavigator<RootStackParamList>();
 
 //#endregion
 
+//#region AUTH PROMPT STACK
+
+export type AuthPromptStackParamList = {
+  Auth: undefined;
+  TermsAndConditions: undefined;
+};
+
+export type AuthPromptStackNavigationPrompt = StackNavigationProp<
+  AuthPromptStackParamList,
+  'Auth'
+>;
+
+export type AuthPromptStackScreenProps<
+  K extends keyof AuthPromptStackParamList,
+> = StackScreenProps<AuthPromptStackParamList, K>;
+
+//#endregion AUTH PROMPT STACK
+
+//#region AUTH STACK
+
+export type AuthStackParamList = {
+  Login: undefined;
+  Register: undefined;
+  ForgotPassword: undefined;
+};
+
+export type AuthStackNavigationPrompt = StackNavigationProp<
+  AuthPromptStackParamList,
+  'Auth'
+>;
+
+export type AuthStackScreenProps<K extends keyof AuthStackParamList> =
+  StackScreenProps<AuthStackParamList, K>;
+
+//#endregion AUTH  STACK
+
 //#region MAIN DRAWER
 
 export type MainDrawerParamList = {

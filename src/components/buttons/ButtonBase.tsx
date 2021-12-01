@@ -4,11 +4,16 @@ import {
   Text,
   TouchableHighlight,
   TouchableOpacity,
+  View,
 } from 'react-native';
 
-import { color } from 'src/constants';
+import Icon from 'react-native-vector-icons/Ionicons';
+
+import Spacer from '../Spacer';
+import * as constants from 'src/constants';
 import { CommonButtonProps, ButtonStyles } from './buttonStyles';
 import { DEFAULT_ACTIVE_OPACITY } from 'src/constants/values';
+import { useExtendedTheme } from 'src/hooks';
 
 export enum ButtonBaseTestId {
   ACTIVITY_INDICATOR = 'btn-activity-indicator',
@@ -25,6 +30,7 @@ export default function ButtonBase(props: ButtonBaseProps) {
   const {
     title,
     disabled,
+    icon,
     loading,
     buttonStyles,
     underlayColor,
@@ -35,6 +41,8 @@ export default function ButtonBase(props: ButtonBaseProps) {
     innerTextProps,
     ...restProps
   } = props;
+
+  const { colors } = useExtendedTheme();
 
   const Touchable = useTouchableOpacity ? TouchableOpacity : TouchableHighlight;
 
@@ -56,18 +64,36 @@ export default function ButtonBase(props: ButtonBaseProps) {
         <ActivityIndicator
           testID={'btn-activity-indicator'}
           size="small"
-          color={loadingIndicatorColor ?? color.accent}
+          color={loadingIndicatorColor ?? constants.color.accent}
         />
       ) : (
-        <Text
-          {...innerTextProps}
-          testID={'btn-text'}
-          style={[
-            disabled ? buttonStyles?.disabledTitle : buttonStyles?.defaultTitle,
-            textStyle,
-          ]}>
-          {title}
-        </Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          {icon && (
+            <>
+              <Icon
+                name={icon}
+                size={22}
+                color={
+                  disabled
+                    ? buttonStyles?.disabledTitle.color ?? colors.textDisabled
+                    : buttonStyles?.defaultTitle.color ?? colors.text
+                }
+              />
+              <Spacer.Horizontal value="md" />
+            </>
+          )}
+          <Text
+            {...innerTextProps}
+            testID={'btn-text'}
+            style={[
+              disabled
+                ? buttonStyles?.disabledTitle
+                : buttonStyles?.defaultTitle,
+              textStyle,
+            ]}>
+            {title}
+          </Text>
+        </View>
       )}
     </Touchable>
   );

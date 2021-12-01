@@ -18,6 +18,7 @@ export type CommonButtonProps = Omit<ViewProps, 'style'> & {
   size?: ButtonSize;
   type?: ButtonType;
   disabled?: boolean;
+  icon?: string;
   loading?: boolean;
   onPress?: () => void;
   underlayColor?: ColorValue | undefined;

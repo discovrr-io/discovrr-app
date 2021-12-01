@@ -20,6 +20,7 @@ import {
 } from 'src/features/notifications/notifications-slice';
 
 import MainNavigator from './MainNavigator';
+import AuthPromptNavigator from './AuthPromptNavigator';
 import CreateItemNavigator from 'src/features/create/CreateItemNavigator';
 import ReportItemNavigator from 'src/features/reporting/ReportItemNavigator';
 import InAppWebViewScreen from './InAppWebViewScreen';
@@ -161,8 +162,8 @@ export default function RootNavigator() {
         <RootStack.Group>
           <RootStack.Screen
             name="AuthPrompt"
-            component={PlaceholderScreen}
-            options={{ presentation: 'modal' }}
+            component={AuthPromptNavigator}
+            options={{ headerShown: false, presentation: 'modal' }}
           />
         </RootStack.Group>
 
