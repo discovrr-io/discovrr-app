@@ -2,6 +2,7 @@ import * as React from 'react';
 import {
   Modal,
   ModalBaseProps,
+  ScrollView,
   Text,
   TouchableOpacity,
   // TouchableWithoutFeedback,
@@ -126,8 +127,8 @@ function OnboardingModalGreetingContent(props: {
   const { colors } = useExtendedTheme();
 
   return (
-    <View
-      style={{
+    <ScrollView
+      contentContainerStyle={{
         flexGrow: 1,
         paddingHorizontal: constants.layout.spacing.xxl,
         paddingTop: constants.layout.spacing.xxl * 1.75,
@@ -168,7 +169,7 @@ function OnboardingModalGreetingContent(props: {
           onPress={() => modalContext.skipOnboarding()}
         />
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -180,8 +181,8 @@ function OnboardingModalInfoContent() {
   const { colors } = useExtendedTheme();
 
   return (
-    <View
-      style={{
+    <ScrollView
+      contentContainerStyle={{
         flexGrow: 1,
         flexShrink: 1,
         justifyContent: 'center',
@@ -228,7 +229,7 @@ function OnboardingModalInfoContent() {
           <Icon name="chevron-forward-outline" size={30} color={colors.text} />
         </TouchableOpacity>
       )}
-    </View>
+    </ScrollView>
   );
 }
 

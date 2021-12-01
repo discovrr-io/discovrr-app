@@ -33,17 +33,23 @@ export default function InfoContainer(props: InfoContainerProps) {
   return (
     <Container {...restProps}>
       {emoji && (
-        <Text style={[emptyContainerProps.emoji, { color: colors.text }]}>
+        <Text
+          maxFontSizeMultiplier={1.2}
+          style={[emptyContainerProps.emoji, { color: colors.text }]}>
           {emoji}
         </Text>
       )}
       {title && (
-        <Text style={[emptyContainerProps.title, { color: colors.text }]}>
+        <Text
+          maxFontSizeMultiplier={1.2}
+          style={[emptyContainerProps.title, { color: colors.text }]}>
           {title}
         </Text>
       )}
       {message && (
-        <Text style={[emptyContainerProps.message, { color: colors.caption }]}>
+        <Text
+          maxFontSizeMultiplier={1.2}
+          style={[emptyContainerProps.message, { color: colors.caption }]}>
           {message}
         </Text>
       )}

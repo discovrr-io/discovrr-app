@@ -153,6 +153,7 @@ function SearchQueryHeader(props: SearchQueryHeaderProps) {
         title="Cancel"
         size="medium"
         onPress={handleCancelSearch}
+        innerTextProps={{ allowFontScaling: false }}
         containerStyle={{ alignItems: 'flex-end', paddingHorizontal: 0 }}
       />
     </SearchHeader>

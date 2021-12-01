@@ -169,6 +169,7 @@ export const CardActionsIconButton = React.forwardRef<
       {label && (
         <Text
           numberOfLines={1}
+          allowFontScaling={false}
           style={[
             cardElementOptions.captionTextStyle,
             {

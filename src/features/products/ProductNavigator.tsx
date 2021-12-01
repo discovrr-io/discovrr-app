@@ -12,7 +12,7 @@ export default function renderProductNavigator() {
         component={ProductDetailsScreen}
         options={({ route }) => ({
           title: route.params.productName || 'Product',
-          headerTitleContainerStyle: layout.defaultHeaderTitleContainerStyle,
+          headerTitleContainerStyle: layout.narrowHeaderTitleContainerStyle,
         })}
       />
     </RootStack.Group>

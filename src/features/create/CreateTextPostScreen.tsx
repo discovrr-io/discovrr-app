@@ -4,7 +4,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Text,
-  TextInput as RNTextInput,
+  TextInput,
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
@@ -164,8 +164,9 @@ function TextArea(props: TextAreaProps) {
             </Text>
           )}
         </View>
-        <RNTextInput
+        <TextInput
           multiline
+          maxFontSizeMultiplier={1.25}
           maxLength={MAX_TEXT_POST_LENGTH}
           placeholder={props.placeholder}
           placeholderTextColor={color.gray500}

@@ -54,12 +54,13 @@ export default function NotificationsScreen(props: NotificationsScreenProps) {
           type="primary"
           disabled={notifications.length === 0}
           textStyle={{ textAlign: 'right' }}
+          innerTextProps={{ allowFontScaling: false }}
+          onPress={() => dispatch(notificationsSlice.clearAllNotifications())}
           containerStyle={{
             alignItems: 'flex-end',
             paddingHorizontal: 0,
             marginRight: constants.layout.defaultScreenMargins.horizontal,
           }}
-          onPress={() => dispatch(notificationsSlice.clearAllNotifications())}
         />
       ),
     });

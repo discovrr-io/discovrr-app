@@ -493,7 +493,8 @@ export default function CreateItemPreviewScreen(
       <ScrollView
         contentContainerStyle={{
           flexGrow: 1,
-          paddingVertical: constants.layout.spacing.lg,
+          paddingTop: constants.layout.spacing.md,
+          paddingBottom: constants.layout.spacing.lg,
           paddingHorizontal: constants.layout.spacing.lg,
         }}>
         {previewContent.type !== 'post' &&
@@ -508,7 +509,7 @@ export default function CreateItemPreviewScreen(
             flexGrow: 1,
             alignContent: 'center',
             justifyContent: 'center',
-            marginBottom: constants.layout.spacing.md,
+            marginVertical: constants.layout.spacing.md,
           }}>
           {renderCardPreview()}
         </View>

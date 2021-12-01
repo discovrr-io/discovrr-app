@@ -6,6 +6,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import * as constants from 'src/constants';
 import { useExtendedTheme } from 'src/hooks';
 
+import Spacer from '../Spacer';
 import CellContainer from './CellContainer';
 import { CellOptionGroupContext } from './CellOptionGroup';
 import { useCellElementContext } from './hooks';
@@ -53,6 +54,7 @@ export default function CellOption(props: CellOptionProps) {
             </Text>
           )}
         </View>
+        <Spacer.Horizontal value={cellElementOptions.itemSpacing} />
         <Icon
           size={cellElementOptions.iconSize}
           name={isSelectedOption ? 'checkmark-circle' : 'ellipse-outline'}

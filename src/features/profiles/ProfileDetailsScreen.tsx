@@ -444,6 +444,7 @@ export function LoadedProfileDetailsScreen(
               lazy: true,
               swipeEnabled: false, // This doesn't work anyway
               tabBarLabelStyle: constants.font.defaultTopTabBarLabelStyle,
+              tabBarAllowFontScaling: false,
               tabBarActiveTintColor: colors.primary,
               tabBarInactiveTintColor: colors.caption,
               tabBarPressColor: colors.highlight,
@@ -746,6 +747,7 @@ function ProfileDetailsHeader(props: ProfileDetailsHeaderProps) {
             <Spacer.Vertical value="sm" />
             <Text
               numberOfLines={2}
+              allowFontScaling={false}
               style={[
                 constants.font.extraLargeBold,
                 profileDetailsHeaderStyles.headerText,
@@ -756,6 +758,8 @@ function ProfileDetailsHeader(props: ProfileDetailsHeaderProps) {
             <Spacer.Vertical value="xs" />
             <Text
               numberOfLines={1}
+              // maxFontSizeMultiplier={1.2}
+              allowFontScaling={false}
               style={[
                 constants.font.mediumBold,
                 profileDetailsHeaderStyles.headerText,
@@ -767,6 +771,8 @@ function ProfileDetailsHeader(props: ProfileDetailsHeaderProps) {
                 <Spacer.Vertical value="xs" />
                 <Text
                   numberOfLines={2}
+                  // maxFontSizeMultiplier={1.2}
+                  allowFontScaling={false}
                   style={[
                     constants.font.small,
                     profileDetailsHeaderStyles.headerText,

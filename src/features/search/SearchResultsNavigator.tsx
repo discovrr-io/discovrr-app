@@ -202,10 +202,11 @@ export default function SearchResultsNavigator(
         lazy: true,
         tabBarScrollEnabled: true,
         tabBarItemStyle: { width: 120 },
-        tabBarLabelStyle: font.defaultTopTabBarLabelStyle,
+        tabBarAllowFontScaling: false,
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.caption,
         tabBarPressColor: colors.highlight,
+        tabBarLabelStyle: font.defaultTopTabBarLabelStyle,
       }}>
       <SearchResultsTopTab.Screen
         name="SearchResultsUsers"

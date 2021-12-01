@@ -338,8 +338,10 @@ function SearchLocationOptions() {
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
         <Icon name="location" size={18} color={colors.text} />
         <Spacer.Horizontal value={constants.layout.spacing.xs} />
-        <Text style={[constants.font.smallBold, { color: colors.text }]}>
-          Searching in default location
+        <Text
+          numberOfLines={1}
+          style={[constants.font.smallBold, { color: colors.text }]}>
+          Default location
         </Text>
       </View>
       <Button

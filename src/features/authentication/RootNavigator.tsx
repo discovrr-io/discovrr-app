@@ -147,9 +147,9 @@ export default function RootNavigator() {
         screenOptions={{
           headerBackTitleVisible: false,
           headerTintColor: colors.text,
+          headerBackAllowFontScaling: false,
+          headerTitleAllowFontScaling: false,
           headerTitleStyle: constants.font.defaultHeaderTitleStyle,
-          headerTitleContainerStyle:
-            constants.layout.defaultHeaderTitleContainerStyle,
           headerLeft: props => <HeaderIcon.Back {...props} />,
           headerLeftContainerStyle: {
             paddingLeft: constants.layout.spacing.xs,
@@ -202,7 +202,7 @@ export default function RootNavigator() {
                   ? HeaderIcon.Close
                   : HeaderIcon.Back,
               headerTitleContainerStyle:
-                constants.layout.defaultHeaderTitleContainerStyle,
+                constants.layout.narrowHeaderTitleContainerStyle,
             };
           }}
         />

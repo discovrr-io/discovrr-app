@@ -56,7 +56,7 @@ export const defaultScreenStyle: ViewStyle = {
   paddingHorizontal: defaultScreenMargins.horizontal,
 };
 
-export const defaultHeaderTitleContainerStyle: ViewStyle = {
-  width: Platform.OS === 'ios' ? '65%' : '90%',
+export const narrowHeaderTitleContainerStyle: ViewStyle = {
+  width: Platform.OS === 'ios' ? '70%' : '90%',
   alignItems: Platform.OS === 'ios' ? 'center' : 'flex-start',
 };

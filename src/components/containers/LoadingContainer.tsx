@@ -21,6 +21,7 @@ export default function LoadingContainer({
         color={dark ? constants.color.gray300 : constants.color.gray700}
       />
       <Text
+        maxFontSizeMultiplier={1.2}
         style={[
           constants.font.smallBold,
           loadingContainerStyles.message,

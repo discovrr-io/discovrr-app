@@ -65,7 +65,7 @@ function CreateItemDetailsNavigator() {
       screenOptions={{
         swipeEnabled: false,
         tabBarShowIcon: true,
-        tabBarScrollEnabled: true,
+        tabBarAllowFontScaling: false,
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.caption,
         tabBarPressColor: colors.highlight,
@@ -152,6 +152,8 @@ export default function CreateItemNavigator() {
       screenOptions={({ route }) => ({
         headerTintColor: colors.text,
         headerBackTitleVisible: false,
+        headerBackAllowFontScaling: false,
+        headerTitleAllowFontScaling: false,
         headerTitleStyle: constants.font.defaultHeaderTitleStyle,
         headerLeft: props =>
           route.name === 'CreateItemDetails' ? (

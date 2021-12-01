@@ -27,6 +27,8 @@ export default function HomeNavigator() {
       screenOptions={{
         headerTintColor: colors.text,
         headerBackTitleVisible: false,
+        headerBackAllowFontScaling: false,
+        headerTitleAllowFontScaling: false,
         headerTitleStyle: constants.font.defaultHeaderTitleStyle,
         headerStyleInterpolator: HeaderStyleInterpolators.forFade,
         cardStyleInterpolator: CardStyleInterpolators.forFadeFromCenter,

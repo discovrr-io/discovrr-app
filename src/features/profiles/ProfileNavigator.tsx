@@ -1,13 +1,17 @@
 import * as React from 'react';
-import { color } from 'src/constants';
+import { Platform } from 'react-native';
 
+import { color, layout } from 'src/constants';
 import { RootStack } from 'src/navigation';
 import ProfileDetailsScreen from './ProfileDetailsScreen';
 import ProfileFollowActivityScreen from './ProfileFollowActivityScreen';
 
 export default function renderProfileNavigator() {
   return (
-    <RootStack.Group>
+    <RootStack.Group
+      screenOptions={{
+        headerTitleContainerStyle: layout.narrowHeaderTitleContainerStyle,
+      }}>
       <RootStack.Screen
         name="ProfileDetails"
         component={ProfileDetailsScreen}

@@ -260,6 +260,7 @@ const AddCommentComponent = () => {
   return (
     <View style={{ alignItems: 'center' }}>
       <Text
+        maxFontSizeMultiplier={1.2}
         style={[
           constants.font.mediumBold,
           { textAlign: 'center', color: colors.text },
@@ -267,6 +268,7 @@ const AddCommentComponent = () => {
         Why not add to the conversation?
       </Text>
       <Text
+        maxFontSizeMultiplier={1.2}
         style={[
           constants.font.small,
           { textAlign: 'center', color: colors.caption },
@@ -584,6 +586,7 @@ function LoadedPostDetailsScreen(props: LoadedPostDetailsScreenProps) {
               loading={isProcessingComment}
               onPress={handlePressPostButton}
               containerStyle={postDetailsScreenStyles.commentBoxPostButton}
+              innerTextProps={{ maxFontSizeMultiplier: 1.2 }}
             />
           </View>
         </View>

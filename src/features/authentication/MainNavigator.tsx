@@ -100,12 +100,13 @@ function FacadeNavigator() {
       screenOptions={({ route }) => ({
         lazy: true,
         headerBackTitleVisible: false,
+        headerTintColor: colors.text,
         headerLeft: HeaderIcon.Menu,
         headerLeftContainerStyle: {
           paddingLeft: constants.layout.defaultScreenMargins.horizontal,
         },
-        headerTintColor: colors.text,
         headerTitleStyle: constants.font.defaultHeaderTitleStyle,
+        headerTitleAllowFontScaling: false,
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.caption,
         tabBarAllowFontScaling: false,
