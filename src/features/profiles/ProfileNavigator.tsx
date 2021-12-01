@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { Platform } from 'react-native';
 
 import { color, layout } from 'src/constants';
 import { RootStack } from 'src/navigation';

@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Disabled font scaling for some areas of the app (e.g. navigation headers)
+
 ## [v3.1.0] (2021-11-30)
 
 ### Added
