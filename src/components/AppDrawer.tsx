@@ -175,28 +175,18 @@ function RoleChip(props: { label: string }) {
 
 type AppDrawerProps = DrawerContentComponentProps;
 
-export default function AppDrawerWrapper(props: AppDrawerProps) {
-  const $FUNC = '[AppDrawerWrapper]';
-  const authState = useAppSelector(state => state.auth);
-
-  if (!authState.user) {
-    console.error($FUNC, 'No user found in store');
-    return null;
-  }
-
-  return <AppDrawer profileId={authState.user.profileId} {...props} />;
-}
-
-function AppDrawer(props: AppDrawerProps & { profileId: ProfileId }) {
+export default function AppDrawer(props: AppDrawerProps) {
   const $FUNC = '[AppDrawer]';
-  const profileId = props.profileId;
-  const { colors } = useExtendedTheme();
-
   const dispatch = useAppDispatch();
   const navigation = props.navigation;
-  const profile = useAppSelector(state =>
-    profilesSlice.selectProfileById(state, profileId),
-  );
+  const { colors } = useExtendedTheme();
+
+  const profileId = useAppSelector(state => state.auth.user?.profileId);
+
+  const profile = useAppSelector(state => {
+    if (!profileId) return undefined;
+    return profilesSlice.selectProfileById(state, profileId);
+  });
 
   const handleNavigation = (screen: keyof RootStackParamList) => {
     navigation.closeDrawer();
@@ -276,7 +266,13 @@ function AppDrawer(props: AppDrawerProps & { profileId: ProfileId }) {
           onPress={() => {
             if (profile) handleNavigation('ProfileSettings');
           }}>
-          <AppDrawerProfileDetails profileId={profileId} />
+          {profileId ? (
+            <AppDrawerProfileDetails profileId={profileId} />
+          ) : (
+            <Text style={[constants.font.medium, { color: colors.text }]}>
+              SIGN IN TO CONTINUE
+            </Text>
+          )}
         </TouchableOpacity>
       </View>
 

@@ -10,8 +10,7 @@ export namespace UserApi {
 
     const currentUser = await Parse.User.currentAsync();
     if (!currentUser) {
-      const message = 'Failed to get current user.';
-      console.error($FUNC, message);
+      console.warn($FUNC, 'User is not signed in');
       return null;
     }
 
@@ -22,8 +21,7 @@ export namespace UserApi {
       .first();
 
     if (!profile) {
-      const message = 'Failed to find profile for the current user.';
-      console.error($FUNC, message);
+      console.warn($FUNC, 'Failed to find profile for the current user.');
       return null;
     }
 

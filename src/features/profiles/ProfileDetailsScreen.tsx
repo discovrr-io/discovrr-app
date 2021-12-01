@@ -68,7 +68,6 @@ import {
 
 const MaterialTopTab = createMaterialTopTabNavigator();
 
-// const BACKGROUND_COLOR = constants.color.white;
 const HEADER_HEIGHT_RATIO = 0.58;
 const BOTTOM_SHEET_HEIGHT_RATIO = 1 - HEADER_HEIGHT_RATIO;
 const BOTTOM_SHEET_NUDGE = 24;
@@ -100,6 +99,9 @@ type ProfileDetailsScreenProps = RootStackScreenProps<'ProfileDetails'>;
 
 export default function ProfileDetailsScreen(props: ProfileDetailsScreenProps) {
   const params = props.route.params;
+
+  console.log({ __ID: params.profileIdOrUsername });
+
   if (
     typeof params.profileIdOrUsername === 'string' &&
     params.profileIdOrUsername.startsWith('@')

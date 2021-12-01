@@ -27,6 +27,7 @@ import * as constants from 'src/constants';
 import * as utilities from 'src/utilities';
 import * as profilesSlice from 'src/features/profiles/profiles-slice';
 import ProductItemCard from 'src/features/products/ProductItemCard';
+import { useAppDispatch, useExtendedTheme, useIsMounted } from 'src/hooks';
 import { ProductId, Profile } from 'src/models';
 import { HomeStackScreenProps, RootStackNavigationProp } from 'src/navigation';
 
@@ -36,19 +37,6 @@ import {
   MasonryList,
   Spacer,
 } from 'src/components';
-
-import {
-  useAppDispatch,
-  useAppSelector,
-  useExtendedTheme,
-  useIsMounted,
-} from 'src/hooks';
-
-import * as onboardingSlice from 'src/features/onboarding/onboarding-slice';
-import OnboardingModal, {
-  OnboardingModalContext,
-  OnboardingResult,
-} from './OnboardingModal';
 
 const TILE_SPACING = constants.values.DEFAULT_TILE_SPACING;
 const EXPLORE_OUR_MAKERS_NUM_COLUMNS = 2;
@@ -433,30 +421,13 @@ export default function LandingScreen(props: LandingScreenProps) {
   const dispatch = useAppDispatch();
   const isMounted = useIsMounted();
 
-  const { isOutdatedModalVisible } = useAppSelector(state => state.auth);
-
   const [homeFeedData, setHomeFeedData] = React.useState<HomeFeedData>();
   const [makers, setMakers] = React.useState<Profile[]>([]);
   const [isInitialRender, setIsInitialRender] = React.useState(true);
   const [shouldRefresh, setShouldRefresh] = React.useState(false);
 
-  const [isModalVisible, setIsModalVisible] = React.useState(false);
-  const shouldShowModal = useAppSelector(state => {
-    return !state.onboarding.didCompleteMainOnboarding;
-  });
-
   const masonryListScrollViewRef = React.useRef<ScrollView>(null);
   useScrollToTop(masonryListScrollViewRef);
-
-  React.useEffect(() => {
-    if (!shouldShowModal) return;
-
-    const timer = setTimeout(() => {
-      setIsModalVisible(true);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, [shouldShowModal]);
 
   // Firebase does not log screen view when the first screen the user jumps into
   // is the landing page, so we'll manually log it here.
@@ -516,139 +487,107 @@ export default function LandingScreen(props: LandingScreenProps) {
     });
   };
 
-  const handleConcludeOnboarding = async (result: OnboardingResult) => {
-    setIsModalVisible(false);
-    console.log($FUNC, 'Submitting onboarding response...');
-    const submitResponseAction = onboardingSlice.submitOnboardingResponse({
-      surveyResult: result.surveyResponse || 'no answer',
-    });
-
-    dispatch(submitResponseAction)
-      .unwrap()
-      .catch(error => {
-        console.error($FUNC, 'Failed to submit onboarding result:', error);
-      });
-
-    console.log($FUNC, 'Requesting notification permission...');
-    await requestNotificationPermission();
-  };
-
-  const handleSkipOnboarding = async () => {
-    setIsModalVisible(false);
-    console.log($FUNC, 'Requesting notification permission...');
-    await requestNotificationPermission();
-  };
-
   return (
-    <OnboardingModalContext.Provider
-      value={{
-        completeOnboarding: handleConcludeOnboarding,
-        skipOnboarding: handleSkipOnboarding,
-      }}>
-      <MasonryList
-        ref={masonryListScrollViewRef}
-        data={homeFeedData?.featuredProductIds ?? []}
-        refreshControl={
-          <RefreshControl
-            tintColor={constants.color.gray500}
-            refreshing={!isInitialRender && shouldRefresh}
-            onRefresh={handleRefresh}
+    <MasonryList
+      ref={masonryListScrollViewRef}
+      data={homeFeedData?.featuredProductIds ?? []}
+      refreshControl={
+        <RefreshControl
+          tintColor={constants.color.gray500}
+          refreshing={!isInitialRender && shouldRefresh}
+          onRefresh={handleRefresh}
+        />
+      }
+      ListHeaderComponent={
+        <View
+          style={{
+            paddingTop: constants.layout.defaultScreenMargins.vertical,
+            paddingHorizontal: constants.layout.defaultScreenMargins.horizontal,
+          }}>
+          <CallToAction
+            title={
+              homeFeedData?.callToAction.title ??
+              'Get inspired by Australian creativity today!'
+            }
+            caption={
+              homeFeedData?.callToAction.caption ??
+              'Explore our carefully curated catalogue of products made by our local makers.'
+            }
           />
-        }
-        ListHeaderComponent={
-          <View
+          <Spacer.Vertical value="lg" />
+          <TouchableHighlight
+            underlayColor={constants.color.teal300}
+            onPress={handleGoToNearMe}
             style={{
-              paddingTop: constants.layout.defaultScreenMargins.vertical,
-              paddingHorizontal:
-                constants.layout.defaultScreenMargins.horizontal,
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: constants.color.teal500,
+              borderRadius: constants.layout.radius.md,
+              minHeight: 190,
             }}>
-            <CallToAction
-              title={
-                homeFeedData?.callToAction.title ??
-                'Get inspired by Australian creativity today!'
-              }
-              caption={
-                homeFeedData?.callToAction.caption ??
-                'Explore our carefully curated catalogue of products made by our local makers.'
-              }
-            />
-            <Spacer.Vertical value="lg" />
-            <TouchableHighlight
-              underlayColor={constants.color.teal300}
-              onPress={handleGoToNearMe}
-              style={{
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: constants.color.teal500,
-                borderRadius: constants.layout.radius.md,
-                minHeight: 190,
-              }}>
-              <View style={{ alignItems: 'center' }}>
-                <Text
-                  allowFontScaling={false}
-                  style={[
-                    constants.font.h2,
-                    {
-                      color: constants.color.absoluteWhite,
-                      fontSize: constants.font.size.h2 * 0.8,
-                    },
-                  ]}>
-                  Shop Now
-                </Text>
-                <Text
-                  style={[
-                    constants.font.mediumBold,
-                    { color: constants.color.absoluteWhite },
-                  ]}>
-                  Tap here to browse our products
-                </Text>
-              </View>
-            </TouchableHighlight>
-            {(isInitialRender || shouldRefresh) && !homeFeedData ? (
-              <MakerOfTheWeek.Pending />
-            ) : homeFeedData ? (
-              <MakerOfTheWeek {...homeFeedData.makerOfTheWeek} />
-            ) : null}
-            <SectionTitle title={OUR_PICKS_FOR_THE_WEEK_TITLE} />
-          </View>
-        }
-        ListFooterComponent={
-          <View
-            style={{
-              paddingBottom: constants.layout.defaultScreenMargins.vertical,
-              paddingHorizontal:
-                constants.layout.defaultScreenMargins.horizontal,
-            }}>
-            {homeFeedData?.limitedOfferProductId && (
-              <LimitedOffer productId={homeFeedData.limitedOfferProductId} />
-            )}
-            {__DEV__ && Platform.OS === 'ios'
-              ? null
-              : (!isInitialRender || !shouldRefresh) &&
-                makers.length > 0 && <ExploreOurMakers profiles={makers} />}
-          </View>
-        }
-        ListEmptyComponent={
-          isInitialRender || shouldRefresh ? (
-            <LoadingContainer />
-          ) : (
-            <EmptyContainer message="There aren't any featured products at the moment" />
-          )
-        }
-        renderItem={({ item: productId, column, index }) => (
-          <ProductItemCard
-            key={productId}
-            productId={productId}
-            elementOptions={{ smallContent: true }}
-            style={{
-              marginTop: index < 2 ? 0 : TILE_SPACING,
-              marginLeft: column % 2 === 0 ? TILE_SPACING : TILE_SPACING / 2,
-              marginRight: column % 2 !== 0 ? TILE_SPACING : TILE_SPACING / 2,
-            }}
-          />
-        )}
-      />
-      <OnboardingModal visible={!isOutdatedModalVisible && isModalVisible} />
-    </OnboardingModalContext.Provider>
+            <View style={{ alignItems: 'center' }}>
+              <Text
+                allowFontScaling={false}
+                style={[
+                  constants.font.h2,
+                  {
+                    color: constants.color.absoluteWhite,
+                    fontSize: constants.font.size.h2 * 0.8,
+                  },
+                ]}>
+                Shop Now
+              </Text>
+              <Text
+                style={[
+                  constants.font.mediumBold,
+                  { color: constants.color.absoluteWhite },
+                ]}>
+                Tap here to browse our products
+              </Text>
+            </View>
+          </TouchableHighlight>
+          {(isInitialRender || shouldRefresh) && !homeFeedData ? (
+            <MakerOfTheWeek.Pending />
+          ) : homeFeedData ? (
+            <MakerOfTheWeek {...homeFeedData.makerOfTheWeek} />
+          ) : null}
+          <SectionTitle title={OUR_PICKS_FOR_THE_WEEK_TITLE} />
+        </View>
+      }
+      ListFooterComponent={
+        <View
+          style={{
+            paddingBottom: constants.layout.defaultScreenMargins.vertical,
+            paddingHorizontal: constants.layout.defaultScreenMargins.horizontal,
+          }}>
+          {homeFeedData?.limitedOfferProductId && (
+            <LimitedOffer productId={homeFeedData.limitedOfferProductId} />
+          )}
+          {__DEV__ && Platform.OS === 'ios'
+            ? null
+            : (!isInitialRender || !shouldRefresh) &&
+              makers.length > 0 && <ExploreOurMakers profiles={makers} />}
+        </View>
+      }
+      ListEmptyComponent={
+        isInitialRender || shouldRefresh ? (
+          <LoadingContainer />
+        ) : (
+          <EmptyContainer message="There aren't any featured products at the moment" />
+        )
+      }
+      renderItem={({ item: productId, column, index }) => (
+        <ProductItemCard
+          key={productId}
+          productId={productId}
+          elementOptions={{ smallContent: true }}
+          style={{
+            marginTop: index < 2 ? 0 : TILE_SPACING,
+            marginLeft: column % 2 === 0 ? TILE_SPACING : TILE_SPACING / 2,
+            marginRight: column % 2 !== 0 ? TILE_SPACING : TILE_SPACING / 2,
+          }}
+        />
+      )}
+    />
   );
 }

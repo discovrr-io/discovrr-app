@@ -119,7 +119,6 @@ export default function RootNavigator() {
   }, [sessionId]);
 
   React.useEffect(() => {
-    if (!sessionId) console.warn('Session ID is not set, which is unexpected');
     if (!didRegisterFCMToken && sessionId)
       (async () => {
         try {
@@ -158,7 +157,16 @@ export default function RootNavigator() {
             ios: HeaderStyleInterpolators.forUIKit,
           }),
         }}>
-        {/* -- Header-less Navigators -- */}
+        {/* -- Authentication -- */}
+        <RootStack.Group>
+          <RootStack.Screen
+            name="AuthPrompt"
+            component={PlaceholderScreen}
+            options={{ presentation: 'modal' }}
+          />
+        </RootStack.Group>
+
+        {/* -- Top Level Screens -- */}
         <RootStack.Group screenOptions={{ headerShown: false }}>
           <RootStack.Screen name="Main" component={MainNavigator} />
           <RootStack.Screen
@@ -173,7 +181,7 @@ export default function RootNavigator() {
         {renderProfileNavigator()}
         {renderProductNavigator()}
 
-        {/* -- Drawer Navigators -- */}
+        {/* -- Drawer Screens -- */}
         <RootStack.Screen name="Notifications" component={PlaceholderScreen} />
         <RootStack.Screen
           name="MyShopping"

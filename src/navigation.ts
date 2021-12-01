@@ -27,32 +27,18 @@ import { CreateItemPreviewNavigationScreenParams } from './features/create/Creat
 
 declare global {
   namespace ReactNavigation {
-    type AppParamList = AuthStackParamList & RootStackParamList;
+    type AppParamList = RootStackParamList;
     // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface RootParamList extends AppParamList {}
   }
 }
 
-//#region AUTH STACK
-
-export type AuthStackParamList = {
-  Auth: { action: 'login' | 'register' | 'forgot-password' } | undefined;
-  TermsAndConditions: undefined;
-};
-
-export type AuthStackNavigationProp = StackNavigationProp<
-  AuthStackParamList,
-  'Auth'
->;
-
-export type AuthStackScreenProps<K extends keyof AuthStackParamList> =
-  StackScreenProps<AuthStackParamList, K>;
-
-//#endregion AUTH STACK
-
 //#region ROOT STACK
 
 export type RootStackParamList = {
+  // -- Authentication --
+  AuthPrompt: undefined;
+  // -- Top Level --
   Main: NavigatorScreenParams<MainDrawerParamList>;
   Create: NavigatorScreenParams<CreateItemStackParamList>;
   // -- Post Screens --
@@ -344,77 +330,3 @@ export type ReportItemStackScreenParams<
 > = StackScreenProps<ReportItemStackParamList, K>;
 
 //#endregion REPORT ITEM STACK
-
-/*
-
-App = Auth | Root
-
-AuthStack = Stack {
-  AuthScreen
-  TermsAndConditionsScreen
-}
-
-Root = Stack {
-  Main = Drawer {
-    Facade = BottomTab {
-      Home = Stack {
-        Landing
-        Filter
-      }
-      Explore = Stack {
-        Feed = TopTab {
-          Discover
-          NearMe
-          Following
-        }
-        Search = Stack {
-          SearchQuery
-          SearchResults
-        }
-      }
-      Notifications
-      __Create
-      __MyProfile
-    }
-  }
-  CreateItem = Stack {
-    CreateItemDetails = TopTab {
-      CreateTextPost
-      CreateGalleryPost
-      CreateVideoPost
-      // CreateProduct
-      // CreateWorkshop
-    }
-    CreateItemPreview
-  }
-  // -- Item Navigators --
-  (Post) = Group {
-    PostDetails
-    EditPost
-  }
-  (Profile) = Group {
-    ProfileDetails
-    ProfileFollowActivity
-    // EditProfile
-    // ReportProfile
-  }
-  (Product) = Group {
-    ProductDetails
-    EditProduct
-  }
-  // -- Drawer Navigators --
-  MyShopping
-  Saved
-  (Settings) = Group {
-    MainSettings
-    ProfileSettings
-    AccountTypeSettings
-    LocationSettings
-    NotificationSettings
-  }
-  // -- Miscellaneous --
-  InAppWebView
-  RouteError
-}
-
-*/

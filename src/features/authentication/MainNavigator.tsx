@@ -227,14 +227,15 @@ function FacadeNavigator() {
             e.preventDefault();
 
             if (!myProfileId) {
-              console.error('Profile ID is not defined for current user');
-              return;
+              navigation
+                .getParent<RootStackNavigationProp>()
+                .navigate('AuthPrompt');
+            } else {
+              // Directly pass parameters as if the caller did so
+              navigation.navigate('__MyProfile', {
+                profileIdOrUsername: myProfileId,
+              });
             }
-
-            // Directly pass parameters as if the caller did so
-            navigation.navigate('__MyProfile', {
-              profileIdOrUsername: myProfileId,
-            });
           },
         })}
       />

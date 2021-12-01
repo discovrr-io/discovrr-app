@@ -4,49 +4,15 @@ import { Alert } from 'react-native';
 import analytics from '@react-native-firebase/analytics';
 import crashlytics from '@react-native-firebase/crashlytics';
 import inAppMessaging from '@react-native-firebase/in-app-messaging';
-import { createStackNavigator } from '@react-navigation/stack';
 
-import * as constants from 'src/constants';
-import { HeaderIcon, LoadingOverlay } from 'src/components';
+import { LoadingOverlay } from 'src/components';
 import { fetchProfileById } from 'src/features/profiles/profiles-slice';
-import { useAppDispatch, useAppSelector, useExtendedTheme } from 'src/hooks';
+import { useAppDispatch, useAppSelector } from 'src/hooks';
 import { User } from 'src/models';
-import { AuthStackParamList } from 'src/navigation';
 
 import * as authSlice from './auth-slice';
-import AuthScreen from './AuthScreen';
-import TermsAndConditionsScreen from './TermsAndConditions';
 import RootNavigator from './RootNavigator';
 import OutdatedModal from './OutdatedModal';
-
-const AuthStack = createStackNavigator<AuthStackParamList>();
-
-function AuthNavigator() {
-  const { colors } = useExtendedTheme();
-  return (
-    <AuthStack.Navigator
-      initialRouteName="Auth"
-      screenOptions={{
-        headerTintColor: colors.text,
-        headerBackTitleVisible: false,
-        headerTitleStyle: constants.font.defaultHeaderTitleStyle,
-        headerLeft: props => <HeaderIcon.Back {...props} />,
-      }}>
-      <AuthStack.Screen
-        name="Auth"
-        component={AuthScreen}
-        options={{ headerShown: false }}
-      />
-      <AuthStack.Screen
-        name="TermsAndConditions"
-        component={TermsAndConditionsScreen}
-        options={{
-          title: 'Terms & Conditions',
-        }}
-      />
-    </AuthStack.Navigator>
-  );
-}
 
 export default function AuthGate() {
   const $FUNC = '[AuthGate]';
@@ -126,18 +92,12 @@ export default function AuthGate() {
   }, [dispatch, isFirstLogin, user]);
 
   return (
-    <React.Fragment>
-      {isAuthenticated ? (
-        <React.Fragment>
-          {status === 'signing-out' && !!user && (
-            <LoadingOverlay message="Signing you out.." />
-          )}
-          <RootNavigator />
-        </React.Fragment>
-      ) : (
-        <AuthNavigator />
+    <>
+      {status === 'signing-out' && !!user && (
+        <LoadingOverlay message="Signing you out.." />
       )}
+      <RootNavigator />
       <OutdatedModal />
-    </React.Fragment>
+    </>
   );
 }
