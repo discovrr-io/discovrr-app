@@ -194,10 +194,18 @@ function FacadeNavigator() {
         }) => ({
           tabPress: e => {
             e.preventDefault();
-            navigation.getParent<RootStackNavigationProp>().navigate('Create', {
-              screen: 'CreateItemDetails',
-              params: { screen: 'CreateTextPost' },
-            });
+            if (!myProfileId) {
+              navigation
+                .getParent<RootStackNavigationProp>()
+                .navigate('AuthPrompt', { screen: 'Start' });
+            } else {
+              navigation
+                .getParent<RootStackNavigationProp>()
+                .navigate('Create', {
+                  screen: 'CreateItemDetails',
+                  params: { screen: 'CreateTextPost' },
+                });
+            }
           },
         })}
       />
@@ -229,7 +237,7 @@ function FacadeNavigator() {
             if (!myProfileId) {
               navigation
                 .getParent<RootStackNavigationProp>()
-                .navigate('AuthPrompt');
+                .navigate('AuthPrompt', { screen: 'Start' });
             } else {
               // Directly pass parameters as if the caller did so
               navigation.navigate('__MyProfile', {

@@ -12,6 +12,7 @@ import AuthPromptLoginScreen from './AuthPromptLoginScreen';
 import AuthPromptRegisterScreen from './AuthPromptRegisterScreen';
 import AuthPromptForgotPasswordScreen from './AuthPromptForgotPasswordScreen';
 import TermsAndConditionsScreen from './TermsAndConditions';
+import { StyleSheet } from 'react-native';
 
 const AuthPromptStack = createStackNavigator<AuthPromptStackParamList>();
 
@@ -21,12 +22,45 @@ export default function AuthPromptNavigator() {
     <AuthPromptStack.Navigator
       initialRouteName="Start"
       screenOptions={{
+        headerTransparent: true,
         headerTintColor: colors.text,
-        headerTitleStyle: constants.font.defaultHeaderTitleStyle,
         headerBackTitleVisible: false,
         headerTitleAllowFontScaling: false,
+        headerTitleStyle: constants.font.defaultHeaderTitleStyle,
+        headerTitleContainerStyle: {
+          opacity: 0,
+        },
+        headerLeft: props => (
+          <HeaderIcon.Back
+            {...props}
+            style={[
+              styles.headerLeftIcon,
+              { backgroundColor: colors.captionDisabled },
+            ]}
+          />
+        ),
+        headerLeftContainerStyle: {
+          paddingLeft: constants.layout.defaultScreenMargins.horizontal,
+        },
+        cardStyle: {
+          backgroundColor: colors.card,
+        },
       }}>
-      <AuthPromptStack.Screen name="Start" component={AuthPromptStartScreen} />
+      <AuthPromptStack.Screen
+        name="Start"
+        component={AuthPromptStartScreen}
+        options={{
+          headerLeft: props => (
+            <HeaderIcon.Close
+              {...props}
+              style={[
+                styles.headerLeftIcon,
+                { backgroundColor: colors.captionDisabled },
+              ]}
+            />
+          ),
+        }}
+      />
       <AuthPromptStack.Screen name="Login" component={AuthPromptLoginScreen} />
       <AuthPromptStack.Screen
         name="Register"
@@ -44,3 +78,12 @@ export default function AuthPromptNavigator() {
     </AuthPromptStack.Navigator>
   );
 }
+
+const styles = StyleSheet.create({
+  headerLeftIcon: {
+    borderRadius: 20,
+    aspectRatio: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});

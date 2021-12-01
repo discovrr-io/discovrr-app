@@ -66,7 +66,7 @@ export const __TextInput = React.forwardRef<RNTextInput, TextInputProps>(
             filledTextInputStyles.container,
             {
               backgroundColor: isFocused
-                ? colors.highlight + (dark ? utilities.percentToHex(0.35) : '')
+                ? colors.highlight + (dark ? utilities.percentToHex(0.1) : '')
                 : colors.background,
             },
           ];
