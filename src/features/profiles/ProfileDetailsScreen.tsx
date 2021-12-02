@@ -618,7 +618,10 @@ function ProfileDetailsHeader(props: ProfileDetailsHeaderProps) {
 
   const handlePressFollow = async (didFollow: boolean) => {
     if (!currentUserProfileId) {
-      navigation.navigate('AuthPrompt', { screen: 'Start' });
+      navigation.navigate('AuthPrompt', {
+        screen: 'AuthStart',
+        params: { redirected: true },
+      });
       // Throw error to avoid toggle button from changing
       throw new Error('User is not signed in. Aborting...');
     }

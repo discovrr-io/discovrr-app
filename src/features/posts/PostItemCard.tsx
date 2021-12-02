@@ -518,7 +518,10 @@ function PostItemCardActions(props: PostItemCardActionsProps) {
 
   const handleToggleLike = async (didLike: boolean) => {
     if (!currentUser) {
-      navigation.navigate('AuthPrompt', { screen: 'Start' });
+      navigation.navigate('AuthPrompt', {
+        screen: 'AuthStart',
+        params: { redirected: true },
+      });
       return;
     }
 

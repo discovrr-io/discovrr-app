@@ -16,10 +16,16 @@ import Animated, {
 
 import * as constants from 'src/constants';
 
-export default function InAppWebView(props: WebViewProps) {
-  const { width: windowWidth } = useWindowDimensions();
+type InAppWebViewProps = WebViewProps & {
+  staticTitle?: boolean;
+};
+
+export default function InAppWebView(props: InAppWebViewProps) {
+  const { staticTitle, ...restProps } = props;
   const navigation = useNavigation();
+
   const webviewRef = React.useRef<WebView>(null);
+  const { width: windowWidth } = useWindowDimensions();
 
   const [canGoBack, setCanGoBack] = React.useState(false);
   const [title, setTitle] = React.useState<string>();
@@ -35,8 +41,8 @@ export default function InAppWebView(props: WebViewProps) {
   }, [navigation, canGoBack]);
 
   React.useLayoutEffect(() => {
-    if (title) navigation.setOptions({ title });
-  }, [navigation, title]);
+    if (title && staticTitle !== true) navigation.setOptions({ title });
+  }, [navigation, title, staticTitle]);
 
   const loading = useSharedValue(true);
   const progress = useSharedValue(0);
@@ -87,19 +93,19 @@ export default function InAppWebView(props: WebViewProps) {
         />
       )}
       <WebView
-        {...props}
+        {...restProps}
         ref={webviewRef}
         onLoadStart={event => {
           loading.value = true;
           props.onLoadStart?.(event);
           setCanGoBack(event.nativeEvent.canGoBack);
-          setTitle(event.nativeEvent.title);
+          staticTitle !== true && setTitle(event.nativeEvent.title);
         }}
         onLoadEnd={event => {
           loading.value = false;
           props.onLoadEnd?.(event);
           setCanGoBack(event.nativeEvent.canGoBack);
-          setTitle(event.nativeEvent.title);
+          staticTitle !== true && setTitle(event.nativeEvent.title);
         }}
         onLoadProgress={event => {
           progress.value = event.nativeEvent.progress;

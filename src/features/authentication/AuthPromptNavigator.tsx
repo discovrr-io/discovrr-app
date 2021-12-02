@@ -20,25 +20,13 @@ export default function AuthPromptNavigator() {
   const { colors } = useExtendedTheme();
   return (
     <AuthPromptStack.Navigator
-      initialRouteName="Start"
+      initialRouteName="AuthStart"
       screenOptions={{
-        headerTransparent: true,
+        detachPreviousScreen: false,
         headerTintColor: colors.text,
         headerBackTitleVisible: false,
         headerTitleAllowFontScaling: false,
         headerTitleStyle: constants.font.defaultHeaderTitleStyle,
-        headerTitleContainerStyle: {
-          opacity: 0,
-        },
-        headerLeft: props => (
-          <HeaderIcon.Back
-            {...props}
-            style={[
-              styles.headerLeftIcon,
-              { backgroundColor: colors.captionDisabled },
-            ]}
-          />
-        ),
         headerLeftContainerStyle: {
           paddingLeft: constants.layout.defaultScreenMargins.horizontal,
         },
@@ -46,12 +34,14 @@ export default function AuthPromptNavigator() {
           backgroundColor: colors.card,
         },
       }}>
-      <AuthPromptStack.Screen
-        name="Start"
-        component={AuthPromptStartScreen}
-        options={{
+      <AuthPromptStack.Group
+        screenOptions={{
+          headerTransparent: true,
+          headerTitleContainerStyle: {
+            opacity: 0,
+          },
           headerLeft: props => (
-            <HeaderIcon.Close
+            <HeaderIcon.Back
               {...props}
               style={[
                 styles.headerLeftIcon,
@@ -59,21 +49,42 @@ export default function AuthPromptNavigator() {
               ]}
             />
           ),
-        }}
-      />
-      <AuthPromptStack.Screen name="Login" component={AuthPromptLoginScreen} />
-      <AuthPromptStack.Screen
-        name="Register"
-        component={AuthPromptRegisterScreen}
-      />
-      <AuthPromptStack.Screen
-        name="ForgotPassword"
-        component={AuthPromptForgotPasswordScreen}
-      />
+        }}>
+        <AuthPromptStack.Screen
+          name="AuthStart"
+          component={AuthPromptStartScreen}
+          options={{
+            headerLeft: props => (
+              <HeaderIcon.Close
+                {...props}
+                style={[
+                  styles.headerLeftIcon,
+                  { backgroundColor: colors.captionDisabled },
+                ]}
+              />
+            ),
+          }}
+        />
+        <AuthPromptStack.Screen
+          name="Login"
+          component={AuthPromptLoginScreen}
+        />
+        <AuthPromptStack.Screen
+          name="Register"
+          component={AuthPromptRegisterScreen}
+        />
+        <AuthPromptStack.Screen
+          name="ForgotPassword"
+          component={AuthPromptForgotPasswordScreen}
+        />
+      </AuthPromptStack.Group>
       <AuthPromptStack.Screen
         name="TermsAndConditions"
         component={TermsAndConditionsScreen}
-        options={{ headerLeft: props => <HeaderIcon.Back {...props} /> }}
+        options={{
+          title: 'Terms & Conditions',
+          headerLeft: props => <HeaderIcon.Back {...props} />,
+        }}
       />
     </AuthPromptStack.Navigator>
   );

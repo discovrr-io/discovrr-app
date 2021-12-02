@@ -15,6 +15,7 @@ export default function TermsAndConditionsScreen() {
         backgroundColor="transparent"
       />
       <InAppWebView
+        staticTitle
         allowFileAccess
         source={{ uri: 'https://api.discovrrio.com/terms' }}
       />

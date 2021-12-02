@@ -197,7 +197,10 @@ function FacadeNavigator() {
             if (!myProfileId) {
               navigation
                 .getParent<RootStackNavigationProp>()
-                .navigate('AuthPrompt', { screen: 'Start' });
+                .navigate('AuthPrompt', {
+                  screen: 'AuthStart',
+                  params: { redirected: true },
+                });
             } else {
               navigation
                 .getParent<RootStackNavigationProp>()
@@ -237,7 +240,10 @@ function FacadeNavigator() {
             if (!myProfileId) {
               navigation
                 .getParent<RootStackNavigationProp>()
-                .navigate('AuthPrompt', { screen: 'Start' });
+                .navigate('AuthPrompt', {
+                  screen: 'AuthStart',
+                  params: { redirected: true },
+                });
             } else {
               // Directly pass parameters as if the caller did so
               navigation.navigate('__MyProfile', {

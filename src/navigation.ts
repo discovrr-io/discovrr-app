@@ -81,7 +81,7 @@ export const RootStack = createStackNavigator<RootStackParamList>();
 //#region AUTH PROMPT STACK
 
 export type AuthPromptStackParamList = {
-  Start: undefined;
+  AuthStart: { redirected: boolean } | undefined;
   Login: undefined;
   Register: undefined;
   ForgotPassword: undefined;
@@ -90,7 +90,7 @@ export type AuthPromptStackParamList = {
 
 export type AuthPromptStackNavigationPrompt = StackNavigationProp<
   AuthPromptStackParamList,
-  'Start'
+  'AuthStart'
 >;
 
 export type AuthPromptStackScreenProps<

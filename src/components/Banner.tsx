@@ -17,7 +17,7 @@ export type BannerType = 'information' | 'hint' | 'warning' | 'error';
 
 export type BannerProps = {
   title: string;
-  caption: string;
+  caption?: string;
   type?: BannerType;
   hideLeadingIcon?: string;
   containerStyles?: StyleProp<ViewStyle>;
@@ -75,14 +75,16 @@ export default function Banner(props: BannerProps) {
           ]}>
           {props.title}
         </Text>
-        <Text
-          style={[
-            font.extraSmall,
-            { color: colors.text },
-            props.captionTextStyle,
-          ]}>
-          {props.caption}
-        </Text>
+        {!!props.caption && (
+          <Text
+            style={[
+              font.extraSmall,
+              { color: colors.text },
+              props.captionTextStyle,
+            ]}>
+            {props.caption}
+          </Text>
+        )}
       </View>
     </View>
   );

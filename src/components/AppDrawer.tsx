@@ -269,7 +269,7 @@ export default function AppDrawer(props: AppDrawerProps) {
             } else {
               navigation
                 .getParent<RootStackNavigationProp>()
-                .navigate('AuthPrompt', { screen: 'Start' });
+                .navigate('AuthPrompt', { screen: 'AuthStart' });
             }
           }}>
           {profileId ? (

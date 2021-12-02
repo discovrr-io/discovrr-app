@@ -20,6 +20,10 @@ export default function AuthPromptRegisterScreen(
 ) {
   const { colors } = useExtendedTheme();
 
+  const handleShowTermsAndConditions = () => {
+    props.navigation.push('TermsAndConditions');
+  };
+
   return (
     <ScrollView
       contentContainerStyle={{
@@ -58,7 +62,7 @@ export default function AuthPromptRegisterScreen(
               <Text
                 maxFontSizeMultiplier={1.2}
                 style={[constants.font.largeBold, { color: colors.text }]}>
-                Hello there!
+                Hi there!
               </Text>
               <Text
                 maxFontSizeMultiplier={1.2}
@@ -99,19 +103,19 @@ export default function AuthPromptRegisterScreen(
             style={{
               flexDirection: 'row',
               alignItems: 'center',
-              justifyContent: 'center',
             }}>
-            <Text style={[constants.font.medium, { color: colors.text }]}>
-              I&apos;m a maker
-            </Text>
-            <Spacer.Horizontal value="md" />
             <Switch value={false} />
+            <Spacer.Horizontal value="md" />
+            <Text
+              style={[constants.font.medium, { flex: 1, color: colors.text }]}>
+              I&apos;m signing up as a maker
+            </Text>
           </View>
         </View>
         <Spacer.Vertical value="xl" />
         <View>
           <Button title="Create Account" type="primary" variant="contained" />
-          <Spacer.Vertical value="md" />
+          <Spacer.Vertical value="lg" />
           <Text
             style={[
               constants.font.extraSmall,
@@ -119,6 +123,7 @@ export default function AuthPromptRegisterScreen(
             ]}>
             By continuing, you agree to our&nbsp;
             <Text
+              onPress={handleShowTermsAndConditions}
               style={[
                 { color: colors.primary, textDecorationLine: 'underline' },
               ]}>
