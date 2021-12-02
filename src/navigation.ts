@@ -21,7 +21,7 @@ import {
   MaterialTopTabScreenProps,
 } from '@react-navigation/material-top-tabs';
 
-import { PostId, ProductId, ProfileId } from './models';
+import { PostId, ProductId, Profile, ProfileId } from './models';
 import { InAppWebViewNavigationScreenParams } from './features/authentication/InAppWebViewScreen';
 import { CreateItemPreviewNavigationScreenParams } from './features/create/CreateItemPreviewScreen';
 
@@ -82,7 +82,7 @@ export const RootStack = createStackNavigator<RootStackParamList>();
 
 export type AuthPromptStackParamList = {
   AuthStart: { redirected: boolean } | undefined;
-  Login: undefined;
+  Login: { profileDetails: Pick<Profile, 'avatar' | '__publicName'> };
   Register: undefined;
   ForgotPassword: undefined;
   TermsAndConditions: undefined;

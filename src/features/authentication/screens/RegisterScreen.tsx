@@ -8,7 +8,9 @@ import { Button, Spacer } from 'src/components';
 import { useExtendedTheme } from 'src/hooks';
 import { AuthPromptStackScreenProps } from 'src/navigation';
 
+import AuthFormContainer from './AuthFormContainer';
 import { LabelledTextInput } from '../components';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 const COVER_IMAGE = require('../../../../assets/images/authentication/sculpting.png');
 const COVER_IMAGE_ASSET_SOURCE = Image.resolveAssetSource(COVER_IMAGE);
@@ -25,114 +27,84 @@ export default function AuthPromptRegisterScreen(
   };
 
   return (
-    <ScrollView
-      contentContainerStyle={{
-        flexGrow: 1,
-        paddingVertical: constants.layout.spacing.xxl,
+    <AuthFormContainer
+      title="Register"
+      coverImageSource={COVER_IMAGE_ASSET_SOURCE}
+      caption={{
+        title: 'Hi there!',
+        body: "Fill in the details below to create a new account with Discovrr. It's that easy!",
+        image: constants.media.DEFAULT_AVATAR,
       }}>
-      <FastImage
-        resizeMode="contain"
-        source={COVER_IMAGE}
-        style={{
-          width: '100%',
-          aspectRatio:
-            COVER_IMAGE_ASSET_SOURCE.width / COVER_IMAGE_ASSET_SOURCE.height,
-        }}
-      />
-      <Spacer.Vertical value="xxl" />
-      <View style={{ paddingHorizontal: constants.layout.spacing.xl }}>
-        <View>
-          <Text
-            allowFontScaling={false}
-            style={[constants.font.h2, { color: colors.text }]}>
-            Register
-          </Text>
-          <Spacer.Vertical value="xl" />
-          <View style={{ flexDirection: 'row' }}>
-            <FastImage
-              source={constants.media.DEFAULT_AVATAR}
-              style={{
-                width: 40,
-                aspectRatio: 1,
-                borderRadius: 20,
-                backgroundColor: colors.placeholder,
-              }}
-            />
-            <View style={{ flex: 1, paddingLeft: constants.layout.spacing.lg }}>
-              <Text
-                maxFontSizeMultiplier={1.2}
-                style={[constants.font.largeBold, { color: colors.text }]}>
-                Hi there!
-              </Text>
-              <Text
-                maxFontSizeMultiplier={1.2}
-                style={[constants.font.small, { color: colors.text }]}>
-                Fill in the details below to create a new account with Discovrr.
-                It&apos;s that easy!
-              </Text>
-            </View>
-          </View>
-        </View>
+      <View>
+        <LabelledTextInput
+          label="Email"
+          placeholder="Enter your email"
+          size="large"
+        />
         <Spacer.Vertical value="lg" />
-        <View>
-          <LabelledTextInput
-            label="Email"
-            placeholder="Enter your email"
-            size="large"
-          />
-          <Spacer.Vertical value="lg" />
-          <LabelledTextInput
-            label="Password"
-            placeholder="Type in a secure password"
-            size="large"
-          />
-          <Spacer.Vertical value="lg" />
-          <LabelledTextInput
-            label="Personal or Business Name"
-            placeholder="How should we call you?"
-            size="large"
-          />
-          <Spacer.Vertical value="lg" />
-          <LabelledTextInput
-            label="Username"
-            placeholder="Type in a unique username"
-            size="large"
-          />
-          <Spacer.Vertical value="xl" />
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-            }}>
-            <Switch value={false} />
-            <Spacer.Horizontal value="md" />
-            <Text
-              style={[constants.font.medium, { flex: 1, color: colors.text }]}>
-              I&apos;m signing up as a maker
-            </Text>
-          </View>
-        </View>
+        <LabelledTextInput
+          label="Password"
+          placeholder="Type in a secure password"
+          size="large"
+        />
+        <Spacer.Vertical value="lg" />
+        <LabelledTextInput
+          label="Personal or Business Name"
+          placeholder="How should we call you?"
+          size="large"
+        />
+        <Spacer.Vertical value="lg" />
+        <LabelledTextInput
+          label="Username"
+          placeholder="Type in a unique username"
+          size="large"
+        />
         <Spacer.Vertical value="xl" />
-        <View>
-          <Button title="Create Account" type="primary" variant="contained" />
-          <Spacer.Vertical value="lg" />
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+          }}>
+          <Switch value={false} />
           <Text
             style={[
-              constants.font.extraSmall,
-              { color: colors.caption, textAlign: 'center' },
+              constants.font.medium,
+              {
+                flex: 1,
+                color: colors.text,
+                paddingHorizontal: constants.layout.spacing.md,
+              },
             ]}>
-            By continuing, you agree to our&nbsp;
-            <Text
-              onPress={handleShowTermsAndConditions}
-              style={[
-                { color: colors.primary, textDecorationLine: 'underline' },
-              ]}>
-              Terms & Conditions
-            </Text>
-            {'.'}
+            I&apos;m signing up as a maker
           </Text>
+          <Icon
+            name="information-circle-outline"
+            size={24}
+            color={colors.primary}
+            onPress={() => {}}
+          />
         </View>
       </View>
-    </ScrollView>
+      <Spacer.Vertical value="xl" />
+      <View>
+        <Button title="Create Account" type="primary" variant="contained" />
+        <Spacer.Vertical value="lg" />
+        <Text
+          style={[
+            constants.font.extraSmall,
+            { color: colors.caption, textAlign: 'center' },
+          ]}>
+          By continuing, you agree to our&nbsp;
+          <Text
+            onPress={handleShowTermsAndConditions}
+            style={[
+              { color: colors.primary, textDecorationLine: 'underline' },
+            ]}>
+            Terms & Conditions
+          </Text>
+          {'.'}
+        </Text>
+      </View>
+    </AuthFormContainer>
   );
 }

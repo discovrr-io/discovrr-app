@@ -8,7 +8,7 @@ import {
   View,
 } from 'react-native';
 
-// import FastImage from 'react-native-fast-image';
+import FastImage from 'react-native-fast-image';
 import Video from 'react-native-video';
 import { useFocusEffect } from '@react-navigation/native';
 
@@ -39,21 +39,19 @@ export default function AuthPromptStartScreen(
     }, []),
   );
 
-  const handleSubmit = async () => {
-    props.navigation.navigate('Register');
-  };
+  const handleSubmit = async () => {};
 
   return (
     <ScrollView contentContainerStyle={{ flex: 1 }}>
-      {/* <FastImage
+      <FastImage
         source={LOGIN_POSTER_SOURCE}
         style={{
           flexGrow: 1,
           width: '100%',
           backgroundColor: colors.placeholder,
         }}
-      /> */}
-      <Video
+      />
+      {/* <Video
         muted
         repeat
         disableFocus
@@ -71,7 +69,7 @@ export default function AuthPromptStartScreen(
           width: '100%',
           backgroundColor: colors.placeholder,
         }}
-      />
+      /> */}
       <View style={{ padding: constants.layout.spacing.xl }}>
         <View>
           {props.route.params?.redirected && (
@@ -82,8 +80,8 @@ export default function AuthPromptStartScreen(
             />
           )}
           <LabelledTextInput
-            label="Enter your email address to sign in or register"
             size="large"
+            label="Enter your email address to sign in or register"
             placeholder="Enter your email address here"
             suffix={
               <TextInput.Icon
