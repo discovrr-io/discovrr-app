@@ -83,7 +83,7 @@ const darkTheme: Theme = {
     primary: constants.color.accent,
     border: constants.color.gray700,
     background: constants.color.absoluteBlack,
-    card: constants.color.black,
+    card: constants.color.gray900,
     notification: constants.color.red500,
   },
 };

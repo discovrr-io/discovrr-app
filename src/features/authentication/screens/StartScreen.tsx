@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {
   ActivityIndicator,
-  Image,
+  // Image,
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
-import Video from 'react-native-video';
+// import Video from 'react-native-video';
 import { useFocusEffect } from '@react-navigation/native';
 
 import * as constants from 'src/constants';
@@ -28,9 +28,9 @@ import {
   TextInput,
 } from 'src/components';
 
-const LOGIN_VIDEO_SOURCE = require('../../../../assets/videos/login-video.mp4');
+// const LOGIN_VIDEO_SOURCE = require('../../../../assets/videos/login-video.mp4');
 const LOGIN_POSTER_SOURCE = require('../../../../assets/images/login-video-poster.jpg');
-const LOGIN_POSTER_ASSET_SOURCE = Image.resolveAssetSource(LOGIN_POSTER_SOURCE);
+// const LOGIN_POSTER_ASSET_SOURCE = Image.resolveAssetSource(LOGIN_POSTER_SOURCE);
 
 type StartScreenProps = AuthPromptStackScreenProps<'AuthStart'>;
 
@@ -39,7 +39,7 @@ export default function StartScreen(props: StartScreenProps) {
 
   const [email, setEmail] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
-  const [isVideoPaused, setIsVideoPaused] = React.useState(false);
+  const [_isVideoPaused, setIsVideoPaused] = React.useState(false);
 
   useFocusEffect(
     React.useCallback(() => {

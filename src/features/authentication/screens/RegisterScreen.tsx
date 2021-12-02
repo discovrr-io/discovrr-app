@@ -22,7 +22,7 @@ const COVER_IMAGE_ASSET_SOURCE = Image.resolveAssetSource(COVER_IMAGE);
 type RegisterScreenProps = AuthPromptStackScreenProps<'Register'>;
 
 export default function RegisterScreen(props: RegisterScreenProps) {
-  const { email } = props.route.params ?? {};
+  // const { email } = props.route.params ?? {};
   const { colors } = useExtendedTheme();
 
   const handleShowTermsAndConditions = () => {
@@ -92,7 +92,7 @@ export default function RegisterScreen(props: RegisterScreenProps) {
       <Spacer.Vertical value="xl" />
       <View>
         <Button title="Create Account" type="primary" variant="contained" />
-        <Spacer.Vertical value="lg" />
+        <Spacer.Vertical value="md" />
         <Text
           style={[
             constants.font.extraSmall,

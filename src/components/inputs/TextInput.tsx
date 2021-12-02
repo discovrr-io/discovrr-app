@@ -106,13 +106,8 @@ export const __TextInput = React.forwardRef<RNTextInput, TextInputProps>(
     }, [size]);
 
     return (
-      <View>
-        <View
-          style={[
-            textInputVariantStyles,
-            { height: textInputHeight },
-            containerStyle,
-          ]}>
+      <View style={[containerStyle, { minHeight: textInputHeight }]}>
+        <View style={[textInputVariantStyles, { height: textInputHeight }]}>
           {React.isValidElement(prefix)
             ? React.cloneElement(prefix, {
                 containerStyle: {

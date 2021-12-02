@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Image, Text } from 'react-native';
+import { Image } from 'react-native';
 
 import { Button, LabelledTextInput, Spacer } from 'src/components';
 import { AuthPromptStackScreenProps } from 'src/navigation';

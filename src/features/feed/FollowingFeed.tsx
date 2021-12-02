@@ -16,7 +16,7 @@ export default function FollowingFeed() {
 
   const followingPostIds = useAppSelector(state => {
     if (!userProfileId) {
-      console.warn('Current user is undefined. Are you signed in?');
+      // console.warn('Current user is undefined. Are you signed in?');
       return [];
     }
 
