@@ -267,7 +267,7 @@ export function makeOutlinedButtonColorStyles(
           disabled: {
             backgroundColor: 'transparent',
             borderWidth: layout.border.thick,
-            borderColor: isDarkTheme ? color.gray300 : color.gray500,
+            borderColor: isDarkTheme ? color.gray700 : color.gray300,
           },
         },
         title: {
@@ -277,7 +277,7 @@ export function makeOutlinedButtonColorStyles(
               : color.defaultDarkTextColor,
           },
           disabled: {
-            color: color.disabledDarkTextColor,
+            color: isDarkTheme ? color.disabledDarkTextColor : color.gray300,
           },
         },
       };

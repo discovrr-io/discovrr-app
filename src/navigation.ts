@@ -83,8 +83,8 @@ export const RootStack = createStackNavigator<RootStackParamList>();
 export type AuthPromptStackParamList = {
   AuthStart: { redirected: boolean } | undefined;
   Login: { profileDetails: Pick<Profile, 'avatar' | '__publicName'> };
-  Register: undefined;
-  ForgotPassword: undefined;
+  Register: { email: string } | undefined;
+  ForgotPassword: { email: string } | undefined;
   TermsAndConditions: undefined;
 };
 

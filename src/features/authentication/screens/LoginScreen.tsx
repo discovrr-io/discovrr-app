@@ -2,11 +2,10 @@ import * as React from 'react';
 import { Image, View } from 'react-native';
 
 import * as constants from 'src/constants';
-import { Button, Spacer } from 'src/components';
+import { Button, LabelledPasswordInput, Spacer } from 'src/components';
 import { AuthPromptStackScreenProps } from 'src/navigation';
 
 import AuthFormContainer from './AuthFormContainer';
-import { LabelledTextInput } from '../components';
 
 const COVER_IMAGE = require('../../../../assets/images/authentication/painting.png');
 const COVER_IMAGE_ASSET_SOURCE = Image.resolveAssetSource(COVER_IMAGE);
@@ -33,8 +32,7 @@ export default function AuthPromptLoginScreen(
           ? { uri: profileDetails.avatar.url }
           : constants.media.DEFAULT_AVATAR,
       }}>
-      <LabelledTextInput
-        secureTextEntry
+      <LabelledPasswordInput
         size="large"
         label="Password"
         placeholder="Enter your password"

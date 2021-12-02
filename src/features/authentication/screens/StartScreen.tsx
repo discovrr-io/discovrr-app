@@ -1,5 +1,6 @@
 import * as React from 'react';
 import {
+  ActivityIndicator,
   Image,
   Platform,
   ScrollView,
@@ -13,11 +14,17 @@ import Video from 'react-native-video';
 import { useFocusEffect } from '@react-navigation/native';
 
 import * as constants from 'src/constants';
-import { Banner, Button, Spacer, TextInput } from 'src/components';
+import { ProfileApi } from 'src/api';
 import { useExtendedTheme } from 'src/hooks';
 import { AuthPromptStackScreenProps } from 'src/navigation';
 
-import { LabelledTextInput } from '../components';
+import {
+  Banner,
+  Button,
+  LabelledTextInput,
+  Spacer,
+  TextInput,
+} from 'src/components';
 
 const LOGIN_VIDEO_SOURCE = require('../../../../assets/videos/login-video.mp4');
 const LOGIN_POSTER_SOURCE = require('../../../../assets/images/login-video-poster.jpg');
@@ -30,7 +37,18 @@ export default function AuthPromptStartScreen(
 ) {
   const { colors } = useExtendedTheme();
 
+  const [email, setEmail] = React.useState('');
+  const [isLoading, setIsLoading] = React.useState(false);
   const [isVideoPaused, setIsVideoPaused] = React.useState(false);
+
+  React.useLayoutEffect(() => {
+    const unsubscribe = props.navigation.addListener('beforeRemove', event => {
+      if (!isLoading) return;
+      event.preventDefault();
+    });
+
+    return unsubscribe;
+  }, [props.navigation, isLoading]);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -39,7 +57,21 @@ export default function AuthPromptStartScreen(
     }, []),
   );
 
-  const handleSubmit = async () => {};
+  const handleSubmit = async () => {
+    const trimmedEmail = email.trim();
+    try {
+      if (!trimmedEmail) throw undefined; // Go to catch block
+      setIsLoading(true);
+      const profile = await ProfileApi.fetchProfileByEmail({
+        email: trimmedEmail,
+      });
+      props.navigation.navigate('Login', { profileDetails: profile });
+    } catch (_) {
+      props.navigation.navigate('Register', { email: trimmedEmail });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <ScrollView contentContainerStyle={{ flex: 1 }}>
@@ -80,16 +112,24 @@ export default function AuthPromptStartScreen(
             />
           )}
           <LabelledTextInput
+            hasError
             size="large"
+            editable={!isLoading}
             label="Enter your email address to sign in or register"
             placeholder="Enter your email address here"
+            value={email}
+            onChangeText={setEmail}
             suffix={
-              <TextInput.Icon
-                name="arrow-forward"
-                size={24}
-                color={colors.primary}
-                onPress={handleSubmit}
-              />
+              isLoading ? (
+                <ActivityIndicator size="small" color={colors.primary} />
+              ) : (
+                <TextInput.Icon
+                  name="arrow-forward"
+                  size={24}
+                  color={colors.primary}
+                  onPress={handleSubmit}
+                />
+              )
             }
           />
         </View>
@@ -110,24 +150,27 @@ export default function AuthPromptStartScreen(
               title="Continue with Apple"
               icon="logo-apple"
               variant="outlined"
-              onPress={() => {}}
               innerTextProps={{ allowFontScaling: false }}
               containerStyle={[styles.thirdPartyAuthButton]}
+              disabled={isLoading}
+              onPress={() => {}}
             />
           )}
           <Button
             title="Continue with Google"
             icon="logo-google"
             variant="outlined"
-            onPress={() => {}}
             innerTextProps={{ allowFontScaling: false }}
             containerStyle={[styles.thirdPartyAuthButton]}
+            disabled={isLoading}
+            onPress={() => {}}
           />
           <Button
             title="Continue with Facebook"
             icon="logo-facebook"
             variant="outlined"
             innerTextProps={{ allowFontScaling: false }}
+            disabled={isLoading}
             onPress={() => {}}
           />
         </View>

@@ -6,22 +6,30 @@ import { useNavigation } from '@react-navigation/core';
 
 import { MainDrawerNavigationProp } from 'src/navigation';
 import { IconProps } from 'react-native-vector-icons/Icon';
+import { HeaderBackButtonProps } from '@react-navigation/elements';
 
-type HeaderIconProps = Pick<
-  TouchableOpacityProps,
-  'activeOpacity' | 'onPress' | 'style'
-> &
-  Pick<IconProps, 'name' | 'size'> & {
-    tintColor?: string;
-    pressColor?: string;
-    pressOpacity?: number;
-    labelVisible?: boolean;
-  };
+// type HeaderIconProps = Pick<
+//   TouchableOpacityProps,
+//   'activeOpacity' | 'onPress' | 'style'
+// > &
+//   Pick<IconProps, 'name' | 'size'> & {
+//     tintColor?: string;
+//     pressColor?: string;
+//     pressOpacity?: number;
+//     labelVisible?: boolean;
+//   };
+
+type HeaderIconProps = HeaderBackButtonProps & Pick<IconProps, 'name' | 'size'>;
 
 const HeaderIcon = (props: HeaderIconProps) => {
-  const { name, size, tintColor, ...restProps } = props;
+  const { name, size, disabled, pressOpacity, tintColor, style, ...restProps } =
+    props;
   return (
-    <TouchableOpacity {...restProps}>
+    <TouchableOpacity
+      activeOpacity={pressOpacity}
+      disabled={disabled}
+      {...restProps}
+      style={[{ opacity: disabled ? 0.5 : 1 }, style]}>
       <Icon name={name} size={size ?? 32} color={tintColor} />
     </TouchableOpacity>
   );

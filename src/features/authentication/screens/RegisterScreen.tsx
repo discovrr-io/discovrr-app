@@ -1,15 +1,18 @@
 import * as React from 'react';
-import { Image, ScrollView, Switch, Text, View } from 'react-native';
-
-import FastImage from 'react-native-fast-image';
+import { Image, Switch, Text, View } from 'react-native';
 
 import * as constants from 'src/constants';
-import { Button, Spacer } from 'src/components';
 import { useExtendedTheme } from 'src/hooks';
 import { AuthPromptStackScreenProps } from 'src/navigation';
 
+import {
+  Button,
+  LabelledPasswordInput,
+  LabelledTextInput,
+  Spacer,
+} from 'src/components';
+
 import AuthFormContainer from './AuthFormContainer';
-import { LabelledTextInput } from '../components';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 const COVER_IMAGE = require('../../../../assets/images/authentication/sculpting.png');
@@ -20,6 +23,7 @@ type AuthPromptRegisterScreenProps = AuthPromptStackScreenProps<'Register'>;
 export default function AuthPromptRegisterScreen(
   props: AuthPromptRegisterScreenProps,
 ) {
+  const { email } = props.route.params ?? {};
   const { colors } = useExtendedTheme();
 
   const handleShowTermsAndConditions = () => {
@@ -37,27 +41,28 @@ export default function AuthPromptRegisterScreen(
       }}>
       <View>
         <LabelledTextInput
+          size="large"
           label="Email"
           placeholder="Enter your email"
-          size="large"
+          value={email}
         />
         <Spacer.Vertical value="lg" />
-        <LabelledTextInput
+        <LabelledPasswordInput
+          size="large"
           label="Password"
           placeholder="Type in a secure password"
-          size="large"
         />
         <Spacer.Vertical value="lg" />
         <LabelledTextInput
+          size="large"
           label="Personal or Business Name"
           placeholder="How should we call you?"
-          size="large"
         />
         <Spacer.Vertical value="lg" />
         <LabelledTextInput
+          size="large"
           label="Username"
           placeholder="Type in a unique username"
-          size="large"
         />
         <Spacer.Vertical value="xl" />
         <View

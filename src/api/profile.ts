@@ -158,6 +158,29 @@ export namespace ProfileApi {
     return mapResultToProfile(result);
   }
 
+  export type FetchProfileByEmailParams = {
+    email: string;
+  };
+
+  export async function fetchProfileByEmail(
+    params: FetchProfileByEmailParams,
+  ): Promise<Profile> {
+    const { email } = params;
+    const query = new Parse.Query(Parse.Object.extend('Profile'));
+
+    const result = await query
+      .include('profilePersonal', 'profileVendor')
+      .notEqualTo('status', ApiObjectStatus.DELETED)
+      .equalTo('email', email)
+      .first();
+
+    if (!result) {
+      throw new Error(`No profile was found with username '${email}'`);
+    }
+
+    return mapResultToProfile(result);
+  }
+
   export type FetchAllProfilesParams = {
     pagination?: Pagination;
   };

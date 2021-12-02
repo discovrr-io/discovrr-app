@@ -22,12 +22,15 @@ import { DEFAULT_ACTIVE_OPACITY } from 'src/constants/values';
 import { ButtonSize } from 'src/components/buttons/buttonStyles';
 import { useExtendedTheme } from 'src/hooks';
 
+import { withLabelledVariant } from './hocs';
+
 export type TextInputProps = Omit<
   RNTextInputProps,
   'style' | 'multiline' | 'selectionColor' | 'onPressIn' | 'onPressOut'
 > & {
   size?: ButtonSize;
-  mode?: 'filled' | 'outlined';
+  variant?: 'filled' | 'outlined';
+  /** @deprecated */
   hasError?: boolean;
   containerStyle?: StyleProp<ViewStyle>;
   innerTextInputStyle?: StyleProp<TextStyle>;
@@ -39,7 +42,7 @@ export const __TextInput = React.forwardRef<RNTextInput, TextInputProps>(
   (props: TextInputProps, ref) => {
     const {
       size = 'medium',
-      mode = 'filled',
+      variant = 'filled',
       containerStyle,
       innerTextInputStyle,
       placeholderTextColor,
@@ -52,7 +55,7 @@ export const __TextInput = React.forwardRef<RNTextInput, TextInputProps>(
     const [isFocused, setIsFocused] = useState(false);
 
     const textInputVariantStyles: StyleProp<ViewStyle> = useMemo(() => {
-      switch (mode) {
+      switch (variant) {
         case 'outlined':
           return [
             outlinedTextInputStyles.container,
@@ -71,7 +74,7 @@ export const __TextInput = React.forwardRef<RNTextInput, TextInputProps>(
             },
           ];
       }
-    }, [mode, isFocused, dark, colors.highlight, colors.background]);
+    }, [variant, isFocused, dark, colors.highlight, colors.background]);
 
     const textInputHeight = useMemo(() => {
       switch (size) {
@@ -186,18 +189,26 @@ const TextInputAffix = (props: TextInputAffixProps) => {
 };
 
 type TextInputIconProps = IconProps & {
+  disabled?: TouchableOpacityProps['disabled'];
   activeOpacity?: TouchableOpacityProps['activeOpacity'];
   containerStyle?: StyleProp<ViewStyle>;
 };
 
 const TextInputIcon = (props: TextInputIconProps) => {
-  const { activeOpacity, containerStyle, onPress, onLongPress, ...iconProps } =
-    props;
+  const {
+    disabled,
+    activeOpacity,
+    containerStyle,
+    onPress,
+    onLongPress,
+    ...iconProps
+  } = props;
 
   const { colors } = useExtendedTheme();
 
   return (
     <TouchableOpacity
+      disabled={disabled}
       activeOpacity={activeOpacity ?? DEFAULT_ACTIVE_OPACITY * 0.5}
       onPress={onPress}
       onLongPress={onLongPress}
@@ -214,5 +225,7 @@ const TextInput = __TextInput as typeof __TextInput & {
 
 TextInput.Affix = TextInputAffix;
 TextInput.Icon = TextInputIcon;
+
+export const LabelledTextInput = withLabelledVariant(TextInput);
 
 export default TextInput;
