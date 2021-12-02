@@ -9,12 +9,9 @@ import AuthFormContainer from './AuthFormContainer';
 const COVER_IMAGE = require('../../../../assets/images/authentication/sewing.png');
 const COVER_IMAGE_ASSET_SOURCE = Image.resolveAssetSource(COVER_IMAGE);
 
-type AuthPromptForgotPasswordScreenProps =
-  AuthPromptStackScreenProps<'ForgotPassword'>;
+type ForgotPasswordScreenProps = AuthPromptStackScreenProps<'ForgotPassword'>;
 
-export default function AuthPromptForgotPasswordScreen(
-  _: AuthPromptForgotPasswordScreenProps,
-) {
+export default function ForgotPasswordScreen(_: ForgotPasswordScreenProps) {
   return (
     <AuthFormContainer
       title="Forgot your password?"

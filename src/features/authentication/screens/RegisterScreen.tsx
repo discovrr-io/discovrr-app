@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { Image, Switch, Text, View } from 'react-native';
 
+import Icon from 'react-native-vector-icons/Ionicons';
+
 import * as constants from 'src/constants';
 import { useExtendedTheme } from 'src/hooks';
 import { AuthPromptStackScreenProps } from 'src/navigation';
@@ -13,16 +15,13 @@ import {
 } from 'src/components';
 
 import AuthFormContainer from './AuthFormContainer';
-import Icon from 'react-native-vector-icons/Ionicons';
 
 const COVER_IMAGE = require('../../../../assets/images/authentication/sculpting.png');
 const COVER_IMAGE_ASSET_SOURCE = Image.resolveAssetSource(COVER_IMAGE);
 
-type AuthPromptRegisterScreenProps = AuthPromptStackScreenProps<'Register'>;
+type RegisterScreenProps = AuthPromptStackScreenProps<'Register'>;
 
-export default function AuthPromptRegisterScreen(
-  props: AuthPromptRegisterScreenProps,
-) {
+export default function RegisterScreen(props: RegisterScreenProps) {
   const { email } = props.route.params ?? {};
   const { colors } = useExtendedTheme();
 
@@ -44,7 +43,7 @@ export default function AuthPromptRegisterScreen(
           size="large"
           label="Email"
           placeholder="Enter your email"
-          value={email}
+          // value={email}
         />
         <Spacer.Vertical value="lg" />
         <LabelledPasswordInput

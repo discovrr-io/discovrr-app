@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import * as React from 'react';
 import {
   Platform,
   StyleProp,
@@ -22,7 +22,11 @@ import { DEFAULT_ACTIVE_OPACITY } from 'src/constants/values';
 import { ButtonSize } from 'src/components/buttons/buttonStyles';
 import { useExtendedTheme } from 'src/hooks';
 
-import { withLabelledVariant } from './hocs';
+import {
+  withFormikVariant,
+  withLabelledFormikVariant,
+  withLabelledVariant,
+} from './hocs';
 
 export type TextInputProps = Omit<
   RNTextInputProps,
@@ -30,12 +34,11 @@ export type TextInputProps = Omit<
 > & {
   size?: ButtonSize;
   variant?: 'filled' | 'outlined';
-  /** @deprecated */
-  hasError?: boolean;
   containerStyle?: StyleProp<ViewStyle>;
   innerTextInputStyle?: StyleProp<TextStyle>;
   prefix?: React.ReactNode;
   suffix?: React.ReactNode;
+  error?: string;
 };
 
 export const __TextInput = React.forwardRef<RNTextInput, TextInputProps>(
@@ -46,37 +49,52 @@ export const __TextInput = React.forwardRef<RNTextInput, TextInputProps>(
       containerStyle,
       innerTextInputStyle,
       placeholderTextColor,
+      error,
       prefix,
       suffix,
       ...restProps
     } = props;
 
     const { dark, colors } = useExtendedTheme();
-    const [isFocused, setIsFocused] = useState(false);
+    const [isFocused, setIsFocused] = React.useState(false);
 
-    const textInputVariantStyles: StyleProp<ViewStyle> = useMemo(() => {
+    const textInputVariantStyles: StyleProp<ViewStyle> = React.useMemo(() => {
       switch (variant) {
         case 'outlined':
           return [
             outlinedTextInputStyles.container,
-            isFocused
-              ? { backgroundColor: constants.color.gray100 }
-              : outlinedTextInputStyles.default,
+            outlinedTextInputStyles.default,
+            isFocused && { backgroundColor: constants.color.gray100 },
           ];
         case 'filled':
         default:
           return [
             filledTextInputStyles.container,
-            {
-              backgroundColor: isFocused
-                ? colors.highlight + (dark ? utilities.percentToHex(0.1) : '')
-                : colors.background,
+            { backgroundColor: colors.background },
+            isFocused && {
+              backgroundColor:
+                colors.highlight + (dark ? utilities.percentToHex(0.1) : ''),
+            },
+            !!error && {
+              backgroundColor:
+                colors.dangerDisabled + utilities.percentToHex(0.5),
+              borderWidth: 1,
+              borderColor: colors.danger,
             },
           ];
       }
-    }, [variant, isFocused, dark, colors.highlight, colors.background]);
+    }, [
+      variant,
+      isFocused,
+      colors.background,
+      colors.highlight,
+      colors.dangerDisabled,
+      colors.danger,
+      dark,
+      error,
+    ]);
 
-    const textInputHeight = useMemo(() => {
+    const textInputHeight = React.useMemo(() => {
       switch (size) {
         case 'large':
           return constants.layout.buttonSizes.lg;
@@ -88,49 +106,68 @@ export const __TextInput = React.forwardRef<RNTextInput, TextInputProps>(
     }, [size]);
 
     return (
-      <View
-        style={[
-          textInputVariantStyles,
-          { height: textInputHeight },
-          containerStyle,
-        ]}>
-        {React.isValidElement(prefix)
-          ? React.cloneElement(prefix, {
-              containerStyle: {
-                marginRight:
-                  commonTextInputContainerStyle.paddingHorizontal ??
-                  constants.layout.spacing.sm,
-              },
-            })
-          : prefix}
-        <RNTextInput
-          {...restProps}
-          ref={ref}
-          placeholderTextColor={
-            placeholderTextColor ??
-            (dark ? constants.color.gray700 : constants.color.gray500)
-          }
-          onPressIn={() => setIsFocused(true)}
-          onPressOut={() => setIsFocused(false)}
-          selectionColor={
-            Platform.OS === 'ios' ? constants.color.accent : undefined
-          }
+      <View>
+        <View
           style={[
-            constants.font.medium,
-            { color: colors.text },
-            innerTextInputStyle,
-            { flexGrow: 1, flexShrink: 1, padding: 0 },
-          ]}
-        />
-        {React.isValidElement(suffix)
-          ? React.cloneElement(suffix, {
-              containerStyle: {
-                marginLeft:
-                  commonTextInputContainerStyle.paddingHorizontal ??
-                  constants.layout.spacing.sm,
+            textInputVariantStyles,
+            { height: textInputHeight },
+            containerStyle,
+          ]}>
+          {React.isValidElement(prefix)
+            ? React.cloneElement(prefix, {
+                containerStyle: {
+                  marginRight:
+                    commonTextInputContainerStyle.paddingHorizontal ??
+                    constants.layout.spacing.sm,
+                },
+              })
+            : prefix}
+          <RNTextInput
+            {...restProps}
+            ref={ref}
+            placeholderTextColor={
+              placeholderTextColor ??
+              (dark
+                ? error
+                  ? constants.color.gray500
+                  : constants.color.gray700
+                : constants.color.gray500)
+            }
+            onPressIn={() => setIsFocused(true)}
+            onPressOut={() => setIsFocused(false)}
+            selectionColor={
+              Platform.OS === 'ios' ? constants.color.accent : undefined
+            }
+            style={[
+              constants.font.medium,
+              { color: colors.text },
+              innerTextInputStyle,
+              { flexGrow: 1, flexShrink: 1, padding: 0 },
+            ]}
+          />
+          {React.isValidElement(suffix)
+            ? React.cloneElement(suffix, {
+                containerStyle: {
+                  marginLeft:
+                    commonTextInputContainerStyle.paddingHorizontal ??
+                    constants.layout.spacing.sm,
+                },
+              })
+            : suffix}
+        </View>
+        {error && (
+          <Text
+            style={[
+              constants.font.medium,
+              {
+                color: colors.danger,
+                paddingTop: constants.layout.spacing.sm,
+                paddingHorizontal: constants.layout.spacing.sm,
               },
-            })
-          : suffix}
+            ]}>
+            {error}
+          </Text>
+        )}
       </View>
     );
   },
@@ -226,6 +263,8 @@ const TextInput = __TextInput as typeof __TextInput & {
 TextInput.Affix = TextInputAffix;
 TextInput.Icon = TextInputIcon;
 
+export const FormikTextInput = withFormikVariant(TextInput);
 export const LabelledTextInput = withLabelledVariant(TextInput);
+export const LabelledFormikTextInput = withLabelledFormikVariant(TextInput);
 
 export default TextInput;

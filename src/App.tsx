@@ -259,6 +259,7 @@ function PersistedApp() {
             if (url != null) return url;
 
             // Only pass the initial URL if the current user is authenticated
+            // TODO: Remove this now that authentication is optional
             if (authStatus !== 'fulfilled') {
               console.warn(
                 $FUNC,
@@ -274,7 +275,7 @@ function PersistedApp() {
             // If the return value is undefined, the app will open the first
             // screen as normal.
             if (message?.data?.link) {
-              // This requires the "discovrr:" scheme prepended to work.
+              // This requires the "discovrr" scheme prepended to work.
               return 'discovrr://' + message?.data?.link;
             }
           },
@@ -291,7 +292,7 @@ function PersistedApp() {
             const unsubscribe = messaging().onNotificationOpenedApp(message => {
               const url = message?.data?.link;
               if (url) {
-                // This requires the "discovrr:" scheme prepended to work.
+                // This requires the "discovrr" scheme prepended to work.
                 listener('discovrr://' + url);
               }
             });

@@ -10,11 +10,9 @@ import AuthFormContainer from './AuthFormContainer';
 const COVER_IMAGE = require('../../../../assets/images/authentication/painting.png');
 const COVER_IMAGE_ASSET_SOURCE = Image.resolveAssetSource(COVER_IMAGE);
 
-type AuthPromptLoginScreenProps = AuthPromptStackScreenProps<'Login'>;
+type LoginScreenProps = AuthPromptStackScreenProps<'Login'>;
 
-export default function AuthPromptLoginScreen(
-  props: AuthPromptLoginScreenProps,
-) {
+export default function LoginScreen(props: LoginScreenProps) {
   const { profileDetails } = props.route.params;
 
   const handlePressForgotPassword = () => {

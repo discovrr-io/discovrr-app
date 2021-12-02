@@ -2,7 +2,11 @@ import * as React from 'react';
 import { useExtendedTheme } from 'src/hooks';
 
 import TextInput, { TextInputProps } from './TextInput';
-import { withLabelledVariant } from './hocs';
+import {
+  withFormikVariant,
+  withLabelledFormikVariant,
+  withLabelledVariant,
+} from './hocs';
 
 export type PasswordInputProps = Omit<
   TextInputProps,
@@ -31,4 +35,7 @@ export default function PasswordInput(props: PasswordInputProps) {
   );
 }
 
+export const FormikPasswordInput = withFormikVariant(PasswordInput);
 export const LabelledPasswordInput = withLabelledVariant(PasswordInput);
+export const LabelledFormikPasswordInput =
+  withLabelledFormikVariant(PasswordInput);
