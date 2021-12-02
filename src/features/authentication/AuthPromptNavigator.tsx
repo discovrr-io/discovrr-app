@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { StyleSheet } from 'react-native';
 
 import { createStackNavigator } from '@react-navigation/stack';
 
@@ -7,12 +8,13 @@ import { HeaderIcon } from 'src/components';
 import { useExtendedTheme } from 'src/hooks';
 import { AuthPromptStackParamList } from 'src/navigation';
 
-import AuthPromptStartScreen from './AuthPromptStartScreen';
-import AuthPromptLoginScreen from './AuthPromptLoginScreen';
-import AuthPromptRegisterScreen from './AuthPromptRegisterScreen';
-import AuthPromptForgotPasswordScreen from './AuthPromptForgotPasswordScreen';
-import TermsAndConditionsScreen from './TermsAndConditions';
-import { StyleSheet } from 'react-native';
+import {
+  ForgotPasswordScreen,
+  LoginScreen,
+  RegisterScreen,
+  StartScreen,
+  TermsAndConditionsScreen,
+} from './screens';
 
 const AuthPromptStack = createStackNavigator<AuthPromptStackParamList>();
 
@@ -52,7 +54,7 @@ export default function AuthPromptNavigator() {
         }}>
         <AuthPromptStack.Screen
           name="AuthStart"
-          component={AuthPromptStartScreen}
+          component={StartScreen}
           options={{
             headerLeft: props => (
               <HeaderIcon.Close
@@ -65,17 +67,11 @@ export default function AuthPromptNavigator() {
             ),
           }}
         />
-        <AuthPromptStack.Screen
-          name="Login"
-          component={AuthPromptLoginScreen}
-        />
-        <AuthPromptStack.Screen
-          name="Register"
-          component={AuthPromptRegisterScreen}
-        />
+        <AuthPromptStack.Screen name="Login" component={LoginScreen} />
+        <AuthPromptStack.Screen name="Register" component={RegisterScreen} />
         <AuthPromptStack.Screen
           name="ForgotPassword"
-          component={AuthPromptForgotPasswordScreen}
+          component={ForgotPasswordScreen}
         />
       </AuthPromptStack.Group>
       <AuthPromptStack.Screen

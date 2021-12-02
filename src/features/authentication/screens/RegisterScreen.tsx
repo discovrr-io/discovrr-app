@@ -8,9 +8,9 @@ import { Button, Spacer } from 'src/components';
 import { useExtendedTheme } from 'src/hooks';
 import { AuthPromptStackScreenProps } from 'src/navigation';
 
-import { LabelledTextInput } from './components';
+import { LabelledTextInput } from '../components';
 
-const COVER_IMAGE = require('../../../assets/images/authentication/sculpting.png');
+const COVER_IMAGE = require('../../../../assets/images/authentication/sculpting.png');
 const COVER_IMAGE_ASSET_SOURCE = Image.resolveAssetSource(COVER_IMAGE);
 
 type AuthPromptRegisterScreenProps = AuthPromptStackScreenProps<'Register'>;

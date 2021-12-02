@@ -17,10 +17,10 @@ import { Banner, Button, Spacer, TextInput } from 'src/components';
 import { useExtendedTheme } from 'src/hooks';
 import { AuthPromptStackScreenProps } from 'src/navigation';
 
-import { LabelledTextInput } from './components';
+import { LabelledTextInput } from '../components';
 
-const LOGIN_VIDEO_SOURCE = require('../../../assets/videos/login-video.mp4');
-const LOGIN_POSTER_SOURCE = require('../../../assets/images/login-video-poster.jpg');
+const LOGIN_VIDEO_SOURCE = require('../../../../assets/videos/login-video.mp4');
+const LOGIN_POSTER_SOURCE = require('../../../../assets/images/login-video-poster.jpg');
 const LOGIN_POSTER_ASSET_SOURCE = Image.resolveAssetSource(LOGIN_POSTER_SOURCE);
 
 type AuthPromptStartScreenProps = AuthPromptStackScreenProps<'AuthStart'>;
