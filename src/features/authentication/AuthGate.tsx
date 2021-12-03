@@ -26,7 +26,7 @@ export default function AuthGate() {
     if (didAbortSignOut) {
       Alert.alert(
         'We had to sign you out',
-        'Due to security reasons, we had sign you out. Please sign back in again.',
+        'Due to security reasons, we had to sign you out. Please sign back in again.',
         [
           {
             text: 'Dismiss',

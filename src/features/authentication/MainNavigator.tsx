@@ -115,7 +115,7 @@ function FacadeNavigator() {
         },
         tabBarLabelStyle: [
           constants.font.defaultBottomTabLabelStyle,
-          { marginTop: -5, marginBottom: 4 },
+          { marginTop: -6, marginBottom: 4 },
         ],
         tabBarBadgeStyle: {
           fontFamily: constants.font.small.fontFamily,

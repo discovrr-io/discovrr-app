@@ -1,3 +1,5 @@
+import { ProfileId } from './profile';
+
 /**
  * Representation of the source of an image file.
  *
@@ -42,19 +44,24 @@ export type Pagination = {
  * property.
  */
 export type Statistics = {
-  readonly didSave: boolean;
+  /** @deprecated Use `likers` array instead. */
   readonly didLike: boolean;
+
+  /** @deprecated Use `likers` array instead. */
   readonly totalLikes: number;
+
+  readonly likers: ProfileId[];
+
   readonly totalViews: number;
 
   /**
    * An optional date-time string of the when the item associated with this
    * `Statistics` object was last viewed.
    *
-   * This is only available in the client app to record in the Redux store. This
-   * is also why its type is `string` – for serialization purposes.
+   * This should only be used in the client to be recorded in the Redux store.
+   * This is also why its type is `string` – for serialization purposes.
    */
-  readonly lastViewed?: string;
+  readonly __lastViewed?: string;
 };
 
 export type SessionId = string & { __sessionIdBrand: any };

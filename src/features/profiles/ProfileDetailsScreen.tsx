@@ -446,6 +446,7 @@ export function LoadedProfileDetailsScreen(
               lazy: true,
               swipeEnabled: false, // This doesn't work anyway
               tabBarLabelStyle: constants.font.defaultTopTabBarLabelStyle,
+              tabBarContentContainerStyle: { minHeight: 48 },
               tabBarAllowFontScaling: false,
               tabBarActiveTintColor: colors.primary,
               tabBarInactiveTintColor: colors.caption,

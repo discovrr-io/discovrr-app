@@ -501,7 +501,6 @@ type PostItemCardActionsProps = Omit<CardActionsProps, 'children'> &
 
 function PostItemCardActions(props: PostItemCardActionsProps) {
   const { post, itemSpacing, elementOptions, style, ...handlersProps } = props;
-  const { didLike, totalLikes } = post.statistics;
 
   const dispatch = useAppDispatch();
   const navigation = useNavigation<RootStackNavigationProp>();
@@ -543,11 +542,14 @@ function PostItemCardActions(props: PostItemCardActionsProps) {
       elementOptions={elementOptions}
       style={style}>
       <Card.HeartIconButton
-        didLike={didLike}
-        totalLikes={totalLikes}
+        didLike={
+          !!currentUser &&
+          post.statistics.likers.includes(currentUser.profileId)
+        }
+        totalLikes={post.statistics.likers.length}
         onToggleLike={handleToggleLike}
       />
-      {handlersContext.showRepliesIcon /* && post.commentsCount !== 0 */ && (
+      {handlersContext.showRepliesIcon && (
         <Card.IconButton
           iconName="chatbubble-outline"
           iconSize={original => original * 0.9}
@@ -616,9 +618,9 @@ export function PostItemCardPreview(props: PostItemCardPreviewProps) {
               contents: contents,
               statistics: {
                 didLike: false,
-                didSave: false,
                 totalLikes: 0,
                 totalViews: 0,
+                likers: [],
                 ...statistics,
               },
             }}

@@ -682,7 +682,7 @@ function ProfileSettingsFormikForm() {
       <Spacer.Vertical value={AVATAR_DIAMETER / AVATAR_BOTTOM_OFFSET_DIVISOR} />
       <Spacer.Vertical value={CELL_GROUP_VERTICAL_SPACING * 2} />
       <Cell.Group
-        label="My Details"
+        label="My details"
         elementOptions={{
           containerSpacingHorizontal: constants.layout.spacing.md * 1.25,
         }}>
@@ -747,7 +747,7 @@ function ProfileSettingsFormikForm() {
         </Cell.InputGroup>
       </Cell.Group>
       <Spacer.Vertical value={CELL_GROUP_VERTICAL_SPACING} />
-      <Cell.Group label="Account Type">
+      <Cell.Group label="Account type">
         <Cell.Navigator
           label="Change account type"
           iconName="person-outline"
@@ -756,13 +756,13 @@ function ProfileSettingsFormikForm() {
         />
       </Cell.Group>
       <Spacer.Vertical value={CELL_GROUP_VERTICAL_SPACING} />
-      <Cell.Group label="Account Settings" elementOptions={{ disabled: true }}>
+      <Cell.Group label="Account settings" elementOptions={{ disabled: true }}>
         <Cell.Navigator label="Add public email" iconName="mail-outline" />
         <Cell.Navigator label="Add my hometown" iconName="location-outline" />
         <Cell.Navigator label="Change password" iconName="key-outline" />
       </Cell.Group>
       <Spacer.Vertical value={CELL_GROUP_VERTICAL_SPACING} />
-      <Cell.Group label="Danger Zone" elementOptions={{ disabled: true }}>
+      <Cell.Group label="Danger zone" elementOptions={{ disabled: true }}>
         <Cell.Navigator
           destructive
           label="Deactivate my account"

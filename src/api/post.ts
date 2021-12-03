@@ -65,9 +65,9 @@ export namespace PostApi {
       location: result.get('location'),
       statistics: {
         didLike,
-        didSave: false,
         totalLikes: likersArray.length,
         totalViews: viewersArray.length,
+        likers: likersArray as ProfileId[],
       },
     };
   }
@@ -314,6 +314,7 @@ export namespace PostApi {
     pagination: Pagination;
   };
 
+  /*
   export async function fetchLikedPostsForProfile(
     params: FetchLikedPostsForProfile,
   ) {
@@ -339,6 +340,37 @@ export namespace PostApi {
 
     const results = await likedPostsQuery.find();
     return results.map(post => mapResultToPost(post, myProfile?.id));
+  }
+  */
+
+  export async function fetchLikedPostsForProfile(
+    params: FetchLikedPostsForProfile,
+  ): Promise<Post[]> {
+    const { profileId, pagination } = params;
+
+    const myProfile = await UserApi.getCurrentUserProfile();
+
+    const statistics = await new Parse.Query('Statistics')
+      .equalTo('likersArray', String(profileId))
+      .skip(pagination.currentPage * pagination.limit)
+      .descending('createdAt')
+      .find();
+
+    const posts = await new Parse.Query('Post')
+      .descending('createdAt')
+      .containedIn(
+        'statistics',
+        statistics.map(
+          (statistic): Parse.Pointer => ({
+            __type: 'Pointer',
+            className: 'Statistics',
+            objectId: statistic.id,
+          }),
+        ),
+      )
+      .find();
+
+    return posts.map(post => mapResultToPost(post, myProfile?.id));
   }
 
   //#endregion READ OPERATIONS

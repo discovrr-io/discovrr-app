@@ -190,7 +190,7 @@ export function useExtendedTheme(): ExtendedTheme {
         : constants.color.gray300,
       danger: constants.color.danger,
       dangerDisabled: constants.color.dangerDisabled,
-      highlight: theme.dark ? constants.color.gray700 : constants.color.gray100,
+      highlight: theme.dark ? constants.color.gray800 : constants.color.gray100,
       placeholder: theme.dark
         ? constants.color.placeholderDark
         : constants.color.placeholderLight,

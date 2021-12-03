@@ -1,7 +1,12 @@
 import * as React from 'react';
-import { Image } from 'react-native';
+import { Alert, Image, View } from 'react-native';
 
-import { Button, LabelledTextInput, Spacer } from 'src/components';
+import * as yup from 'yup';
+import auth from '@react-native-firebase/auth';
+import { Formik } from 'formik';
+
+import * as utilities from 'src/utilities';
+import { Button, LabelledFormikTextInput, Spacer } from 'src/components';
 import { AuthPromptStackScreenProps } from 'src/navigation';
 
 import AuthFormContainer from './AuthFormContainer';
@@ -9,9 +14,37 @@ import AuthFormContainer from './AuthFormContainer';
 const COVER_IMAGE = require('../../../../assets/images/authentication/sewing.png');
 const COVER_IMAGE_ASSET_SOURCE = Image.resolveAssetSource(COVER_IMAGE);
 
+const forgotPasswordSchema = yup.object({
+  email: yup
+    .string()
+    .trim()
+    .email('Please enter a valid email address.')
+    .required('Please provide your email address.'),
+});
+
+type ForgotPasswordForm = yup.InferType<typeof forgotPasswordSchema>;
+
 type ForgotPasswordScreenProps = AuthPromptStackScreenProps<'ForgotPassword'>;
 
 export default function ForgotPasswordScreen(props: ForgotPasswordScreenProps) {
+  const handleSubmit = async (values: ForgotPasswordForm) => {
+    try {
+      await auth().sendPasswordResetEmail(values.email.trim());
+    } catch (error: any) {
+      if (error.code === 'auth/user-not-found') {
+        Alert.alert(
+          'Invalid Email Address',
+          'The email address you provided is not registered with us. Did you type it in correctly?',
+        );
+      } else {
+        utilities.alertFirebaseAuthError(
+          error,
+          "We weren't able to reset your password for you at this time. Please try again later.",
+        );
+      }
+    }
+  };
+
   return (
     <AuthFormContainer
       title="Forgot your password?"
@@ -19,14 +52,29 @@ export default function ForgotPasswordScreen(props: ForgotPasswordScreenProps) {
       caption={{
         body: "Don't worry, it happens! Just enter your email address below and we'll send you a reset link.",
       }}>
-      <LabelledTextInput
-        label="Email"
-        placeholder="Enter your email"
-        size="large"
-        value={props.route.params?.email}
-      />
-      <Spacer.Vertical value="xl" />
-      <Button title="Send Me Reset Link" type="primary" variant="contained" />
+      <Formik<ForgotPasswordForm>
+        initialValues={{ email: props.route.params?.email ?? '' }}
+        validationSchema={forgotPasswordSchema}
+        onSubmit={handleSubmit}>
+        {({ handleSubmit, isSubmitting }) => (
+          <View>
+            <LabelledFormikTextInput
+              fieldName="email"
+              label="Email"
+              placeholder="Enter your email address"
+              size="large"
+            />
+            <Spacer.Vertical value="xl" />
+            <Button
+              title="Send Me Reset Link"
+              type="primary"
+              variant="contained"
+              loading={isSubmitting}
+              onPress={handleSubmit}
+            />
+          </View>
+        )}
+      </Formik>
     </AuthFormContainer>
   );
 }

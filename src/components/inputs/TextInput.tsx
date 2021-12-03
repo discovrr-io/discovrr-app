@@ -133,8 +133,10 @@ export const __TextInput = React.forwardRef<RNTextInput, TextInputProps>(
               placeholderTextColor ??
               (dark
                 ? error
-                  ? constants.color.gray500
+                  ? constants.color.red100
                   : constants.color.gray700
+                : error
+                ? constants.color.red300
                 : constants.color.gray500)
             }
             onPressIn={() => setIsFocused(true)}

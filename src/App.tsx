@@ -81,7 +81,7 @@ const darkTheme: Theme = {
   colors: {
     ...DarkTheme.colors,
     primary: constants.color.accent,
-    border: constants.color.gray700,
+    border: constants.color.gray800,
     background: constants.color.absoluteBlack,
     card: constants.color.gray900,
     notification: constants.color.red500,

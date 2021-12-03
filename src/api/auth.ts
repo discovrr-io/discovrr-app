@@ -8,8 +8,7 @@ import Parse from 'parse/react-native';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
 import * as constants from 'src/constants';
-import { SessionId, User, UserId } from 'src/models';
-import { ProfileId, ProfileKind } from 'src/models/profile';
+import { ProfileId, SessionId, User, UserId } from 'src/models';
 
 import {
   ApiError,
@@ -329,7 +328,6 @@ export namespace AuthApi {
   }
 
   export type RegisterNewAccountParams = {
-    kind: ProfileKind;
     displayName: string;
     username: string;
     email: string;
@@ -340,7 +338,7 @@ export namespace AuthApi {
     params: RegisterNewAccountParams,
   ): Promise<AuthenticatedResult> {
     const $FUNC = `[${$PREFIX}.registerNewAccount]`;
-    const { kind, displayName, username, email, password } = params;
+    const { displayName, username, email, password } = params;
 
     let didLoginViaFirebase = false;
     let didLoginViaParse = false;
@@ -375,14 +373,12 @@ export namespace AuthApi {
         firebaseUser.providerData[0]?.providerId;
 
       // We'll update the profile here as the server will automatically generate
-      // a profile for us when signing up (or logging in for the first time via
-      // Google or Apple).
+      // a profile for us when signing up
       console.log($FUNC, `Updating new profile...`);
       const updatedProfile: Parse.Object = await Parse.Cloud.run(
         'updateProfileForCurrentUser',
         {
           changes: {
-            kind,
             email: email.trim(),
             displayName: displayName.trim(),
             username: username.trim(),
@@ -441,6 +437,7 @@ export namespace AuthApi {
       await GoogleSignin.signOut();
     }
 
+    console.log($FUNC, 'Deleting FCM token...');
     await messaging()
       .deleteToken()
       .catch(error => console.warn('Failed to delete FCM token:', error));
