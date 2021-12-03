@@ -2,6 +2,8 @@ import { Image } from 'react-native';
 
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import analytics from '@react-native-firebase/analytics';
+import messaging from '@react-native-firebase/messaging';
+
 import Parse from 'parse/react-native';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
@@ -438,6 +440,10 @@ export namespace AuthApi {
       console.log($FUNC, 'Signing out of Google...');
       await GoogleSignin.signOut();
     }
+
+    await messaging()
+      .deleteToken()
+      .catch(error => console.warn('Failed to delete FCM token:', error));
   }
 
   //#endregion SIGN OUT

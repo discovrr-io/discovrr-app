@@ -127,8 +127,10 @@ export default function StartScreen(props: StartScreenProps) {
                 placeholder="Enter your email address here"
                 autoCapitalize="none"
                 keyboardType="email-address"
+                returnKeyType="done"
                 value={email}
                 onChangeText={setEmail}
+                onSubmitEditing={handleSubmit}
                 suffix={
                   isLoading ? (
                     <ActivityIndicator size="small" color={colors.primary} />

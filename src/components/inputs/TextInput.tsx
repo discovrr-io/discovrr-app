@@ -49,6 +49,7 @@ export const __TextInput = React.forwardRef<RNTextInput, TextInputProps>(
       containerStyle,
       innerTextInputStyle,
       placeholderTextColor,
+      editable,
       error,
       prefix,
       suffix,
@@ -64,17 +65,23 @@ export const __TextInput = React.forwardRef<RNTextInput, TextInputProps>(
           return [
             outlinedTextInputStyles.container,
             outlinedTextInputStyles.default,
-            isFocused && { backgroundColor: constants.color.gray100 },
+            editable &&
+              isFocused && { backgroundColor: constants.color.gray100 },
           ];
         case 'filled':
         default:
           return [
             filledTextInputStyles.container,
-            { backgroundColor: colors.background },
-            isFocused && {
+            {
               backgroundColor:
-                colors.highlight + (dark ? utilities.percentToHex(0.1) : ''),
+                colors.background +
+                (editable === false ? utilities.percentToHex(0.35) : ''),
             },
+            editable &&
+              isFocused && {
+                backgroundColor:
+                  colors.highlight + (dark ? utilities.percentToHex(0.1) : ''),
+              },
             !!error && {
               backgroundColor:
                 colors.dangerDisabled + utilities.percentToHex(0.5),
@@ -91,6 +98,7 @@ export const __TextInput = React.forwardRef<RNTextInput, TextInputProps>(
       colors.dangerDisabled,
       colors.danger,
       dark,
+      editable,
       error,
     ]);
 
@@ -120,6 +128,7 @@ export const __TextInput = React.forwardRef<RNTextInput, TextInputProps>(
           <RNTextInput
             {...restProps}
             ref={ref}
+            editable={editable}
             placeholderTextColor={
               placeholderTextColor ??
               (dark

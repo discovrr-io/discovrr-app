@@ -216,7 +216,7 @@ function ProductItemCardBody(props: ProductItemCardBodyProps) {
       <View>
         <CardIndicatorRow
           position="top-right"
-          iconNames={['pricetags'].concat(product.hidden ? 'eye-off' : [])}
+          iconNames={['pricetags', product.hidden && 'eye-off']}
         />
         <FastImage
           resizeMode="cover"

@@ -11,7 +11,7 @@ const COVER_IMAGE_ASSET_SOURCE = Image.resolveAssetSource(COVER_IMAGE);
 
 type ForgotPasswordScreenProps = AuthPromptStackScreenProps<'ForgotPassword'>;
 
-export default function ForgotPasswordScreen(_: ForgotPasswordScreenProps) {
+export default function ForgotPasswordScreen(props: ForgotPasswordScreenProps) {
   return (
     <AuthFormContainer
       title="Forgot your password?"
@@ -23,6 +23,7 @@ export default function ForgotPasswordScreen(_: ForgotPasswordScreenProps) {
         label="Email"
         placeholder="Enter your email"
         size="large"
+        value={props.route.params?.email}
       />
       <Spacer.Vertical value="xl" />
       <Button title="Send Me Reset Link" type="primary" variant="contained" />

@@ -120,11 +120,13 @@ const cardIndicatorStyles = StyleSheet.create({
   },
 });
 
+type CardIndicatorRowIconNames = (false | string)[];
+
 type CardIndicatorRowProps = Pick<
   CardIndicatorProps,
   'elementOptions' | 'position'
 > & {
-  iconNames: string[];
+  iconNames: CardIndicatorRowIconNames;
   spacing?: SpacingValue;
 };
 
@@ -146,29 +148,31 @@ export function CardIndicatorRow(props: CardIndicatorRowProps) {
         },
         positionStyle,
       ]}>
-      {iconNames.map((iconName, index) => (
-        <View
-          key={`card-indicator-${index}`}
-          style={{
-            flexDirection: position.includes('right') ? 'row-reverse' : 'row',
-          }}>
-          <CardIndicator
-            iconName={iconName}
+      {iconNames
+        .filter((iconName): iconName is string => Boolean(iconName))
+        .map((iconName, index) => (
+          <View
+            key={`card-indicator-${index}`}
             style={{
-              position: 'relative',
-              top: undefined,
-              bottom: undefined,
-              left: undefined,
-              right: undefined,
-            }}
-          />
-          {index < iconNames.length - 1 && (
-            <Spacer.Horizontal
-              value={spacing ?? cardElementOptions.smallContent ? 'sm' : 'md'}
+              flexDirection: position.includes('right') ? 'row-reverse' : 'row',
+            }}>
+            <CardIndicator
+              iconName={iconName}
+              style={{
+                position: 'relative',
+                top: undefined,
+                bottom: undefined,
+                left: undefined,
+                right: undefined,
+              }}
             />
-          )}
-        </View>
-      ))}
+            {index < iconNames.length - 1 && (
+              <Spacer.Horizontal
+                value={spacing ?? cardElementOptions.smallContent ? 'sm' : 'md'}
+              />
+            )}
+          </View>
+        ))}
     </View>
   );
 }

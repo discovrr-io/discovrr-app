@@ -175,8 +175,8 @@ function TextArea(props: TextAreaProps) {
           onChangeText={field.onChange('text')}
           onBlur={field.onBlur('text')}
           style={[
-            font.h3,
-            { color: colors.text },
+            font.extraLarge,
+            { color: colors.text, fontSize: font.size.h3 },
             { textAlignVertical: 'top', minHeight: '20%' },
           ]}
         />

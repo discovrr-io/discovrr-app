@@ -47,7 +47,7 @@ export const h2: TextStyle = {
 };
 
 export const h3: TextStyle = {
-  ...regularFontTextStyles,
+  ...boldFontTextStyles,
   fontSize: size.h3,
 };
 

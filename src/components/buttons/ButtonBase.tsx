@@ -10,7 +10,6 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 
 import Spacer from '../Spacer';
-import * as constants from 'src/constants';
 import { CommonButtonProps, ButtonStyles } from './buttonStyles';
 import { DEFAULT_ACTIVE_OPACITY } from 'src/constants/values';
 import { useExtendedTheme } from 'src/hooks';
@@ -64,7 +63,11 @@ export default function ButtonBase(props: ButtonBaseProps) {
         <ActivityIndicator
           testID={'btn-activity-indicator'}
           size="small"
-          color={loadingIndicatorColor ?? constants.color.accent}
+          color={
+            loadingIndicatorColor ??
+            buttonStyles?.defaultTitle.color ??
+            colors.text
+          }
         />
       ) : (
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>

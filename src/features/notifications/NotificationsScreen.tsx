@@ -16,12 +16,17 @@ import { useFocusEffect } from '@react-navigation/core';
 import { useLinkTo } from '@react-navigation/native';
 
 import * as constants from 'src/constants';
+import * as globalSelectors from 'src/global-selectors';
 import * as notificationsSlice from './notifications-slice';
 // import FeedFooter from 'src/features/feed/FeedFooter';
 import { Button, EmptyContainer, Spacer } from 'src/components';
 import { useAppDispatch, useAppSelector, useExtendedTheme } from 'src/hooks';
 import { Notification } from 'src/models';
-import { FacadeBottomTabScreenProps } from 'src/navigation';
+
+import {
+  FacadeBottomTabScreenProps,
+  RootStackNavigationProp,
+} from 'src/navigation';
 
 type NotificationsScreenProps = FacadeBottomTabScreenProps<'Notifications'>;
 
@@ -29,6 +34,8 @@ export default function NotificationsScreen(props: NotificationsScreenProps) {
   const $FUNC = '[NotificationsScreen]';
   const dispatch = useAppDispatch();
   const { colors } = useExtendedTheme();
+
+  const profile = useAppSelector(globalSelectors.selectCurrentUserProfile);
 
   const notifications = useAppSelector(
     notificationsSlice.selectAllNotifications,
@@ -66,40 +73,82 @@ export default function NotificationsScreen(props: NotificationsScreenProps) {
     });
   }, [dispatch, notifications.length, props.navigation]);
 
+  const handlePressSignIn = () => {
+    props.navigation
+      .getParent<RootStackNavigationProp>()
+      .navigate('AuthPrompt', { screen: 'AuthStart' });
+  };
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <FlatList
-        data={notifications}
-        keyExtractor={item => String(item.id)}
-        renderItem={({ item }) => <NotificationItem notification={item} />}
-        refreshControl={
-          <RefreshControl
-            refreshing={false}
-            tintColor={constants.color.gray500}
+      {profile ? (
+        <FlatList
+          data={notifications}
+          keyExtractor={item => String(item.id)}
+          renderItem={({ item }) => <NotificationItem notification={item} />}
+          refreshControl={
+            <RefreshControl
+              refreshing={false}
+              tintColor={constants.color.gray500}
+            />
+          }
+          contentContainerStyle={{ flexGrow: 1 }}
+          ItemSeparatorComponent={() => (
+            <View
+              style={{
+                width: '100%',
+                alignSelf: 'center',
+                borderWidth: StyleSheet.hairlineWidth,
+                borderColor: colors.border,
+              }}
+            />
+          )}
+          ListEmptyComponent={
+            <EmptyContainer
+              emoji="🔔"
+              title="You're up to date"
+              message="You don't have any notifications at the moment."
+            />
+          }
+          // ListFooterComponent={
+          //   notifications.length > 0 ? <FeedFooter didReachEnd /> : undefined
+          // }
+        />
+      ) : (
+        <View
+          style={{
+            flexGrow: 1,
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingHorizontal: constants.layout.spacing.xxl,
+          }}>
+          <Text
+            maxFontSizeMultiplier={1.2}
+            style={[
+              constants.font.h3,
+              { color: colors.text, textAlign: 'center' },
+            ]}>
+            You&apos;re not signed in
+          </Text>
+          <Spacer.Vertical value="sm" />
+          <Text
+            maxFontSizeMultiplier={1.2}
+            style={[
+              constants.font.medium,
+              { color: colors.text, textAlign: 'center' },
+            ]}>
+            Sign in to get the most out of Discovrr.
+          </Text>
+          <Spacer.Vertical value="md" />
+          <Button
+            title="Sign In"
+            variant="contained"
+            containerStyle={{ width: 120 }}
+            innerTextProps={{ allowFontScaling: false }}
+            onPress={handlePressSignIn}
           />
-        }
-        contentContainerStyle={{ flexGrow: 1 }}
-        ItemSeparatorComponent={() => (
-          <View
-            style={{
-              width: '100%',
-              alignSelf: 'center',
-              borderWidth: StyleSheet.hairlineWidth,
-              borderColor: colors.border,
-            }}
-          />
-        )}
-        ListEmptyComponent={
-          <EmptyContainer
-            emoji="🔔"
-            title="You're up to date"
-            message="You don't have any notifications at the moment."
-          />
-        }
-        // ListFooterComponent={
-        //   notifications.length > 0 ? <FeedFooter didReachEnd /> : undefined
-        // }
-      />
+        </View>
+      )}
     </SafeAreaView>
   );
 }

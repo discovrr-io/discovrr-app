@@ -52,7 +52,7 @@ export const withFormikVariant =
         {...restProps}
         value={meta.value}
         onChange={field.onChange(fieldName)}
-        onBlur={field.onBlur(fieldName)}
+        // onBlur={field.onBlur(fieldName)}
         error={meta.touched ? meta.error : undefined}
       />
     );
@@ -81,8 +81,8 @@ export const withLabelledFormikVariant =
         <WrappedComponent
           {...restProps}
           value={meta.value}
-          onChange={field.onChange(fieldName)}
-          onBlur={field.onBlur(fieldName)}
+          onChangeText={field.onChange(fieldName)}
+          // onBlur={field.onBlur(fieldName)}
           error={meta.touched ? meta.error : undefined}
         />
       </View>

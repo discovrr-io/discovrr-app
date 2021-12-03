@@ -277,7 +277,7 @@ export function makeOutlinedButtonColorStyles(
               : color.defaultDarkTextColor,
           },
           disabled: {
-            color: isDarkTheme ? color.disabledDarkTextColor : color.gray300,
+            color: isDarkTheme ? color.gray700 : color.gray300,
           },
         },
       };

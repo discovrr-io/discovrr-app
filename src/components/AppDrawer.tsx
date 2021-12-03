@@ -24,6 +24,7 @@ import * as constants from 'src/constants';
 import * as utilities from 'src/utilities';
 import * as authSlice from 'src/features/authentication/auth-slice';
 import * as profilesSlice from 'src/features/profiles/profiles-slice';
+import * as globalSelectors from 'src/global-selectors';
 import { useAppDispatch, useAppSelector, useExtendedTheme } from 'src/hooks';
 import { useProfile } from 'src/features/profiles/hooks';
 import { Profile, ProfileId } from 'src/models';
@@ -177,20 +178,14 @@ type AppDrawerProps = DrawerContentComponentProps;
 
 export default function AppDrawer(props: AppDrawerProps) {
   const $FUNC = '[AppDrawer]';
+
   const dispatch = useAppDispatch();
-  const navigation = props.navigation;
+  const profile = useAppSelector(globalSelectors.selectCurrentUserProfile);
   const { colors } = useExtendedTheme();
 
-  const profileId = useAppSelector(state => state.auth.user?.profileId);
-
-  const profile = useAppSelector(state => {
-    if (!profileId) return undefined;
-    return profilesSlice.selectProfileById(state, profileId);
-  });
-
   const handleNavigation = (screen: keyof RootStackParamList) => {
-    navigation.closeDrawer();
-    navigation.getParent<RootStackNavigationProp>().navigate(screen);
+    props.navigation.closeDrawer();
+    props.navigation.getParent<RootStackNavigationProp>().navigate(screen);
   };
 
   const handleSendFeedback = async () => {
@@ -233,7 +228,7 @@ export default function AppDrawer(props: AppDrawerProps) {
       }
     };
 
-    navigation.closeDrawer();
+    props.navigation.closeDrawer();
     Alert.alert(
       'Are you sure you want to sign out?',
       'You will need to sign in again.',
@@ -267,13 +262,13 @@ export default function AppDrawer(props: AppDrawerProps) {
             if (profile) {
               handleNavigation('ProfileSettings');
             } else {
-              navigation
+              props.navigation
                 .getParent<RootStackNavigationProp>()
                 .navigate('AuthPrompt', { screen: 'AuthStart' });
             }
           }}>
-          {profileId ? (
-            <AppDrawerProfileDetails profileId={profileId} />
+          {profile ? (
+            <AppDrawerProfileDetails profileId={profile.profileId} />
           ) : (
             <Text style={[constants.font.medium, { color: colors.text }]}>
               SIGN IN TO CONTINUE
@@ -308,14 +303,18 @@ export default function AppDrawer(props: AppDrawerProps) {
         onPress={handleSendFeedback}
       />
 
-      <Divider />
+      {!!profile && (
+        <>
+          <Divider />
 
-      <AppDrawerItem
-        label="Sign Out"
-        iconName="log-out-outline"
-        tintColor={constants.color.red500}
-        onPress={handleLogOut}
-      />
+          <AppDrawerItem
+            label="Sign Out"
+            iconName="log-out-outline"
+            tintColor={constants.color.red500}
+            onPress={handleLogOut}
+          />
+        </>
+      )}
 
       <Divider />
     </DrawerContentScrollView>

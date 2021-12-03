@@ -21,7 +21,6 @@ type AuthFormContainerProps = {
   caption?: {
     title?: string;
     body: string;
-    link?: string;
     image?: FastImageProps['source'];
   };
   children?: React.ReactChild | React.ReactChild[];
