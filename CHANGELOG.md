@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Added
+
+- Ability to sign in with Apple (iOS) and Google (iOS and Android)
+- Ability to reset forgotten password
+- Basic registration screen
+
 ### Changed
 
 - Disabled font scaling for some areas of the app (e.g. navigation headers)

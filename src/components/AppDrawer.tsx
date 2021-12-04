@@ -270,9 +270,7 @@ export default function AppDrawer(props: AppDrawerProps) {
           {profile ? (
             <AppDrawerProfileDetails profileId={profile.profileId} />
           ) : (
-            <Text style={[constants.font.medium, { color: colors.text }]}>
-              SIGN IN TO CONTINUE
-            </Text>
+            <AppDrawerProfileDetails.Anonymous />
           )}
         </TouchableOpacity>
       </View>
@@ -379,12 +377,12 @@ AppDrawerProfileDetails.Fulfilled = ({ profile }: { profile: Profile }) => {
   return (
     <View style={{ alignItems: 'center' }}>
       <FastImage
+        resizeMode="cover"
         source={
-          profile?.avatar
+          profile.avatar
             ? { uri: profile.avatar.url }
             : constants.media.DEFAULT_AVATAR
         }
-        resizeMode="cover"
         style={{
           aspectRatio: 1,
           width: AVATAR_DIAMETER,
@@ -399,7 +397,7 @@ AppDrawerProfileDetails.Fulfilled = ({ profile }: { profile: Profile }) => {
           constants.font.extraLargeBold,
           { textAlign: 'center', color: colors.text },
         ]}>
-        {profile?.__publicName || 'Anonymous'}
+        {profile.__publicName || 'Anonymous'}
       </Text>
       <Spacer.Vertical value="xs" />
       <Text
@@ -408,9 +406,9 @@ AppDrawerProfileDetails.Fulfilled = ({ profile }: { profile: Profile }) => {
           constants.font.medium,
           { color: constants.color.gray500, textAlign: 'center' },
         ]}>
-        @{profile?.username || 'anonymous'}
+        @{profile.username || 'anonymous'}
       </Text>
-      {profile?.highestRole && profile.highestRole !== 'user' && (
+      {profile.highestRole && profile.highestRole !== 'user' && (
         <>
           <Spacer.Vertical value="md" />
           <RoleChip label={profile.highestRole} />
@@ -458,6 +456,42 @@ AppDrawerProfileDetails.Pending = () => {
           backgroundColor: colors.placeholder,
         }}
       />
+    </View>
+  );
+};
+
+AppDrawerProfileDetails.Anonymous = () => {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const { colors } = useExtendedTheme();
+
+  return (
+    <View style={{ alignItems: 'center' }}>
+      <FastImage
+        resizeMode="cover"
+        source={constants.media.DEFAULT_AVATAR}
+        style={{
+          aspectRatio: 1,
+          width: AVATAR_DIAMETER,
+          borderRadius: AVATAR_DIAMETER / 2,
+          backgroundColor: colors.placeholder,
+        }}
+      />
+      <Spacer.Vertical value="lg" />
+      <Text
+        style={[
+          constants.font.extraLargeBold,
+          { textAlign: 'center', color: colors.text },
+        ]}>
+        You&apos;re not signed in
+      </Text>
+      <Spacer.Vertical value="xs" />
+      <Text
+        style={[
+          constants.font.medium,
+          { textAlign: 'center', color: colors.text },
+        ]}>
+        Tap here to sign in
+      </Text>
     </View>
   );
 };

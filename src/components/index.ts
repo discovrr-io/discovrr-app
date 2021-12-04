@@ -17,6 +17,7 @@ export { default as MasonryList } from './MasonryList';
 export { default as PlaceholderScreen } from './PlaceholderScreen';
 export { default as PlayButton } from './PlayButton';
 export { default as RouteError } from './RouteError';
+export { default as SignInPrompt } from './SignInPrompt';
 export { default as Spacer } from './Spacer';
 
 export type { MasonryListProps } from './MasonryList';

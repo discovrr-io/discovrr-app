@@ -13,17 +13,27 @@ import {
 
 // import FastImage from 'react-native-fast-image';
 import Video from 'react-native-video';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+
+import auth from '@react-native-firebase/auth';
+import { appleAuth } from '@invertase/react-native-apple-authentication';
+import {
+  GoogleSignin,
+  statusCodes,
+} from '@react-native-google-signin/google-signin';
 
 import * as constants from 'src/constants';
+import * as utilities from 'src/utilities';
+import * as authSlice from 'src/features/authentication/auth-slice';
 import { ProfileApi } from 'src/api';
-import { useExtendedTheme } from 'src/hooks';
+import { useAppDispatch, useExtendedTheme, useIsMounted } from 'src/hooks';
 import { AuthPromptStackScreenProps } from 'src/navigation';
 
 import {
   Banner,
   Button,
   LabelledTextInput,
+  LoadingOverlay,
   Spacer,
   TextInput,
 } from 'src/components';
@@ -156,40 +166,127 @@ export default function StartScreen(props: StartScreenProps) {
               <View style={[styles.dividerLine]} />
             </View>
             <Spacer.Vertical value="lg" />
-            <View>
-              {Platform.OS === 'ios' && (
-                <Button
-                  title="Continue with Apple"
-                  icon="logo-apple"
-                  variant="outlined"
-                  innerTextProps={{ allowFontScaling: false }}
-                  containerStyle={[styles.thirdPartyAuthButton]}
-                  disabled={isLoading}
-                  onPress={() => {}}
-                />
-              )}
-              <Button
-                title="Continue with Google"
-                icon="logo-google"
-                variant="outlined"
-                innerTextProps={{ allowFontScaling: false }}
-                containerStyle={[styles.thirdPartyAuthButton]}
-                disabled={isLoading}
-                onPress={() => {}}
-              />
-              <Button
-                title="Continue with Facebook"
-                icon="logo-facebook"
-                variant="outlined"
-                innerTextProps={{ allowFontScaling: false }}
-                disabled={isLoading}
-                onPress={() => {}}
-              />
-            </View>
+            <StartScreenThirdPartyAuthProviders />
           </View>
         </KeyboardAvoidingView>
       </ScrollView>
     </SafeAreaView>
+  );
+}
+
+function StartScreenThirdPartyAuthProviders() {
+  const $FUNC = '[StartScreenThirdPartyProviders]';
+
+  const dispatch = useAppDispatch();
+  const navigation = useNavigation<StartScreenProps['navigation']>();
+  const isMounted = useIsMounted();
+
+  const [isProcessing, setIsProcessing] = React.useState(false);
+
+  const handleSignInWithApple = async () => {
+    try {
+      console.log($FUNC, 'Authenticating via Apple...');
+
+      const appleAuthRequestResponse = await appleAuth.performRequest({
+        requestedOperation: appleAuth.Operation.LOGIN,
+        requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME],
+      });
+
+      if (!appleAuthRequestResponse.identityToken) {
+        console.error($FUNC, 'Apple identity token is undefined. Aborting...');
+        throw new Error(
+          'No identity token was found when authenticating with Apple',
+        );
+      }
+
+      const { identityToken, nonce } = appleAuthRequestResponse;
+      const credential = auth.AppleAuthProvider.credential(
+        identityToken,
+        nonce,
+      );
+
+      console.log($FUNC, 'Signing in with Apple credential...');
+      setIsProcessing(true);
+      await dispatch(authSlice.signInWithCredential({ credential })).unwrap();
+
+      console.log($FUNC, 'Successfully authenticated. Dismissing prompt...');
+      navigation.goBack();
+    } catch (error: any) {
+      if (error.code === appleAuth.Error.CANCELED) return;
+      console.error($FUNC, 'Failed to sign in via Apple:', error);
+      utilities.alertFirebaseAuthError(error);
+    } finally {
+      if (isMounted.current) setIsProcessing(false);
+    }
+  };
+
+  const handleSignInWithGoogle = async () => {
+    try {
+      console.log($FUNC, 'Authenticating via Google...');
+
+      const { idToken } = await GoogleSignin.signIn();
+      const { accessToken } = await GoogleSignin.getTokens();
+      const credential = auth.GoogleAuthProvider.credential(
+        idToken,
+        accessToken,
+      );
+
+      console.log($FUNC, 'Signing in with Google credential...');
+      setIsProcessing(true);
+      await dispatch(authSlice.signInWithCredential({ credential })).unwrap();
+
+      console.log($FUNC, 'Successfully authenticated. Dismissing prompt...');
+      navigation.goBack();
+    } catch (error: any) {
+      if (error.code === statusCodes.SIGN_IN_CANCELLED) return;
+      console.error($FUNC, 'Failed to sign in via Google:', error);
+      utilities.alertFirebaseAuthError(error);
+    } finally {
+      if (isMounted.current) setIsProcessing(false);
+    }
+  };
+
+  return (
+    <View>
+      {Platform.OS === 'ios' && (
+        <Button
+          title="Continue with Apple"
+          icon="logo-apple"
+          variant="outlined"
+          innerTextProps={{ allowFontScaling: false }}
+          containerStyle={[styles.thirdPartyAuthButton]}
+          disabled={isProcessing}
+          onPress={handleSignInWithApple}
+        />
+      )}
+      <Button
+        title="Continue with Google"
+        icon="logo-google"
+        variant="outlined"
+        innerTextProps={{ allowFontScaling: false }}
+        containerStyle={[styles.thirdPartyAuthButton]}
+        disabled={isProcessing}
+        onPress={handleSignInWithGoogle}
+      />
+      <Button
+        title="Continue with Facebook"
+        icon="logo-facebook"
+        variant="outlined"
+        innerTextProps={{ allowFontScaling: false }}
+        disabled={isProcessing}
+        onPress={() =>
+          utilities.alertUnavailableFeature({
+            message: 'Signing in with Facebook will be available soon!',
+          })
+        }
+      />
+      {isProcessing && (
+        <LoadingOverlay
+          message="Signing you in…"
+          caption="This may take a while"
+        />
+      )}
+    </View>
   );
 }
 

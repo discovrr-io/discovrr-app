@@ -21,7 +21,8 @@ import BottomSheet, {
   useBottomSheet,
 } from '@gorhom/bottom-sheet';
 
-import { color, font, layout } from 'src/constants';
+import * as constants from 'src/constants';
+import * as strings from 'src/constants/strings';
 import { useAppSelector, useExtendedTheme } from 'src/hooks';
 import { alertUnavailableFeature } from 'src/utilities';
 
@@ -35,7 +36,7 @@ import Spacer from '../Spacer';
 import { Button } from '../buttons';
 
 const ICON_SIZE = 22;
-const ICON_PADDING = layout.spacing.md;
+const ICON_PADDING = constants.layout.spacing.md;
 const ICON_DIAMETER = ICON_SIZE + ICON_PADDING;
 
 // eslint-disable-next-line @typescript-eslint/ban-types
@@ -92,16 +93,16 @@ const LocationQueryBottomSheet = React.forwardRef<
 
 const bottomSheetStyles = StyleSheet.create({
   scrollView: {
-    paddingHorizontal: layout.spacing.lg,
+    paddingHorizontal: constants.layout.spacing.lg,
   },
   mapView: {
     overflow: 'hidden',
-    borderRadius: layout.radius.md,
+    borderRadius: constants.layout.radius.md,
   },
   buttonFooterContainer: {
     flexDirection: 'row',
-    paddingVertical: layout.spacing.lg,
-    paddingHorizontal: layout.spacing.lg,
+    paddingVertical: constants.layout.spacing.lg,
+    paddingHorizontal: constants.layout.spacing.lg,
   },
 });
 
@@ -127,8 +128,8 @@ function LocationQueryBottomSheetContent() {
           step={1}
           minimumValue={MIN_SEARCH_RADIUS}
           maximumValue={MAX_SEARCH_RADIUS}
-          minimumTrackTintColor={color.accent}
-          thumbTintColor={Platform.select({ android: color.accent })}
+          minimumTrackTintColor={constants.color.accent}
+          thumbTintColor={Platform.select({ android: constants.color.accent })}
         />
       </BottomSheetScrollView>
       <View style={bottomSheetStyles.buttonFooterContainer}>
@@ -159,16 +160,22 @@ function LocationQueryBottomSheetContent() {
           {
             alignItems: 'center',
             justifyContent: 'center',
-            paddingHorizontal: layout.spacing.xl,
+            paddingHorizontal: constants.layout.spacing.xl,
           },
         ]}>
         <Text
-          style={[font.largeBold, { textAlign: 'center', color: colors.text }]}>
-          Feature Not Available Yet
+          style={[
+            constants.font.largeBold,
+            { textAlign: 'center', color: colors.text },
+          ]}>
+          {strings.FEATURE_UNAVAILABLE.title}
         </Text>
         <Spacer.Vertical value="xs" />
         <Text
-          style={[font.medium, { textAlign: 'center', color: colors.text }]}>
+          style={[
+            constants.font.medium,
+            { textAlign: 'center', color: colors.text },
+          ]}>
           We&apos;re still working on this feature. We&apos;ll let you know when
           it&apos;s ready.
         </Text>
@@ -198,8 +205,8 @@ function LocationQueryBottomSheetHeader(
       style={{
         flexDirection: 'row-reverse',
         alignItems: 'center',
-        paddingHorizontal: layout.spacing.lg,
-        paddingBottom: layout.spacing.md,
+        paddingHorizontal: constants.layout.spacing.lg,
+        paddingBottom: constants.layout.spacing.md,
       }}>
       <TouchableHighlight
         underlayColor={colors.highlight}
@@ -216,7 +223,7 @@ function LocationQueryBottomSheetHeader(
       </TouchableHighlight>
       <Text
         style={[
-          font.largeBold,
+          constants.font.largeBold,
           { flex: 1, textAlign: 'center', color: colors.text },
         ]}>
         Search Location

@@ -1,7 +1,7 @@
 export type AlertMessage = { title: string; message: string };
 
 export const FEATURE_UNAVAILABLE: AlertMessage = {
-  title: 'Feature Not Available Yet',
+  title: "We're still working on this",
   message: "We'll let you know when this feature is ready for you.",
 };
 

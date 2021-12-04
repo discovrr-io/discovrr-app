@@ -29,6 +29,7 @@ import {
   LoadingContainer,
   PlaceholderScreen,
   RouteError,
+  SignInPrompt,
 } from 'src/components';
 
 import {
@@ -36,19 +37,17 @@ import {
   FacadeBottomTabParamList,
   RootStackNavigationProp,
   MainDrawerParamList,
-  FacadeBottomTabScreenProps,
 } from 'src/navigation';
 
 const RootDrawer = createDrawerNavigator<MainDrawerParamList>();
 const FacadeBottomTab = createBottomTabNavigator<FacadeBottomTabParamList>();
 
-type MyProfileDetailsScreenProps = FacadeBottomTabScreenProps<'__MyProfile'>;
+type MyProfileDetailsScreenProps = {
+  myProfileId: ProfileId;
+};
 
 function MyProfileDetailsScreen(props: MyProfileDetailsScreenProps) {
-  // This will always be a profile ID
-  const profileId = props.route.params.profileIdOrUsername as ProfileId;
-
-  const profileData = useProfile(profileId);
+  const profileData = useProfile(props.myProfileId);
   const headerHeight = useHeaderHeight();
   const bottomTabBarHeight = useBottomTabBarHeight();
   const { height: windowHeight } = useWindowDimensions();
@@ -115,7 +114,7 @@ function FacadeNavigator() {
         },
         tabBarLabelStyle: [
           constants.font.defaultBottomTabLabelStyle,
-          { marginTop: -6, marginBottom: 4 },
+          { marginTop: -5, marginBottom: 4 },
         ],
         tabBarBadgeStyle: {
           fontFamily: constants.font.small.fontFamily,
@@ -223,36 +222,19 @@ function FacadeNavigator() {
       />
       <FacadeBottomTab.Screen
         name="__MyProfile"
-        component={MyProfileDetailsScreen}
         options={{
           title: 'You',
-          headerTransparent: true,
+          headerTransparent: Boolean(myProfileId),
           headerTintColor: constants.color.defaultLightTextColor,
-        }}
-        listeners={({
-          navigation,
-        }: {
-          navigation: FacadeBottomTabNavigationProp;
-        }) => ({
-          tabPress: e => {
-            e.preventDefault();
-
-            if (!myProfileId) {
-              navigation
-                .getParent<RootStackNavigationProp>()
-                .navigate('AuthPrompt', {
-                  screen: 'AuthStart',
-                  params: { redirected: true },
-                });
-            } else {
-              // Directly pass parameters as if the caller did so
-              navigation.navigate('__MyProfile', {
-                profileIdOrUsername: myProfileId,
-              });
-            }
-          },
-        })}
-      />
+        }}>
+        {() =>
+          myProfileId ? (
+            <MyProfileDetailsScreen myProfileId={myProfileId} />
+          ) : (
+            <SignInPrompt clearHeaderRight />
+          )
+        }
+      </FacadeBottomTab.Screen>
     </FacadeBottomTab.Navigator>
   );
 }

@@ -19,14 +19,10 @@ import * as constants from 'src/constants';
 import * as globalSelectors from 'src/global-selectors';
 import * as notificationsSlice from './notifications-slice';
 // import FeedFooter from 'src/features/feed/FeedFooter';
-import { Button, EmptyContainer, Spacer } from 'src/components';
+import { Button, EmptyContainer, SignInPrompt, Spacer } from 'src/components';
 import { useAppDispatch, useAppSelector, useExtendedTheme } from 'src/hooks';
 import { Notification } from 'src/models';
-
-import {
-  FacadeBottomTabScreenProps,
-  RootStackNavigationProp,
-} from 'src/navigation';
+import { FacadeBottomTabScreenProps } from 'src/navigation';
 
 type NotificationsScreenProps = FacadeBottomTabScreenProps<'Notifications'>;
 
@@ -73,12 +69,6 @@ export default function NotificationsScreen(props: NotificationsScreenProps) {
     });
   }, [dispatch, notifications.length, props.navigation]);
 
-  const handlePressSignIn = () => {
-    props.navigation
-      .getParent<RootStackNavigationProp>()
-      .navigate('AuthPrompt', { screen: 'AuthStart' });
-  };
-
   return (
     <SafeAreaView style={{ flex: 1 }}>
       {profile ? (
@@ -115,39 +105,7 @@ export default function NotificationsScreen(props: NotificationsScreenProps) {
           // }
         />
       ) : (
-        <View
-          style={{
-            flexGrow: 1,
-            alignItems: 'center',
-            justifyContent: 'center',
-            paddingHorizontal: constants.layout.spacing.xxl,
-          }}>
-          <Text
-            maxFontSizeMultiplier={1.2}
-            style={[
-              constants.font.h3,
-              { color: colors.text, textAlign: 'center' },
-            ]}>
-            You&apos;re not signed in
-          </Text>
-          <Spacer.Vertical value="sm" />
-          <Text
-            maxFontSizeMultiplier={1.2}
-            style={[
-              constants.font.medium,
-              { color: colors.text, textAlign: 'center' },
-            ]}>
-            Sign in to get the most out of Discovrr.
-          </Text>
-          <Spacer.Vertical value="md" />
-          <Button
-            title="Sign In"
-            variant="contained"
-            containerStyle={{ width: 120 }}
-            innerTextProps={{ allowFontScaling: false }}
-            onPress={handlePressSignIn}
-          />
-        </View>
+        <SignInPrompt />
       )}
     </SafeAreaView>
   );
