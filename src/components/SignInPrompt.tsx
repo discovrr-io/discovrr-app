@@ -17,8 +17,8 @@ export type SignInPromptProps = {
 };
 
 export default function SignInPrompt(props: SignInPromptProps) {
-  const { colors } = useExtendedTheme();
   const navigation = useNavigation<RootStackNavigationProp>();
+  const { colors, dark } = useExtendedTheme();
 
   const handlePressSignIn = () => {
     navigation.navigate('AuthPrompt', { screen: 'AuthStart' });
@@ -63,9 +63,13 @@ export default function SignInPrompt(props: SignInPromptProps) {
       <Button
         title="Sign In"
         variant="contained"
-        containerStyle={{ width: 120 }}
         innerTextProps={{ allowFontScaling: false }}
         onPress={handlePressSignIn}
+        underlayColor={constants.color.gray300}
+        containerStyle={[
+          { width: 120 },
+          !dark && { backgroundColor: constants.color.gray200 },
+        ]}
       />
     </ScrollView>
   );

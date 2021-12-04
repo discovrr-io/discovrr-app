@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, TouchableOpacityProps } from 'react-native';
+import { TouchableOpacity } from 'react-native';
 
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/core';
@@ -7,17 +7,6 @@ import { useNavigation } from '@react-navigation/core';
 import { MainDrawerNavigationProp } from 'src/navigation';
 import { IconProps } from 'react-native-vector-icons/Icon';
 import { HeaderBackButtonProps } from '@react-navigation/elements';
-
-// type HeaderIconProps = Pick<
-//   TouchableOpacityProps,
-//   'activeOpacity' | 'onPress' | 'style'
-// > &
-//   Pick<IconProps, 'name' | 'size'> & {
-//     tintColor?: string;
-//     pressColor?: string;
-//     pressOpacity?: number;
-//     labelVisible?: boolean;
-//   };
 
 type HeaderIconProps = HeaderBackButtonProps & Pick<IconProps, 'name' | 'size'>;
 

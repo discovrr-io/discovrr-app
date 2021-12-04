@@ -21,6 +21,7 @@ export type CommonButtonProps = Omit<ViewProps, 'style'> & {
   icon?: string;
   loading?: boolean;
   onPress?: () => void;
+  overrideTheme?: 'light-content' | 'dark-content' | undefined;
   underlayColor?: ColorValue | undefined;
   loadingIndicatorColor?: ColorValue | undefined;
   containerStyle?: StyleProp<ViewStyle>;
@@ -168,13 +169,13 @@ export function makeContainedButtonColorStyles(
       return {
         container: {
           default: {
-            backgroundColor: isDarkTheme ? color.gray200 : color.gray100,
+            backgroundColor: isDarkTheme ? color.gray100 : color.gray100,
           },
           focused: {
             backgroundColor: isDarkTheme ? color.gray300 : color.gray200,
           },
           disabled: {
-            backgroundColor: color.white,
+            backgroundColor: isDarkTheme ? color.gray700 : color.gray100,
           },
         },
         title: {
@@ -182,7 +183,9 @@ export function makeContainedButtonColorStyles(
             color: color.defaultDarkTextColor,
           },
           disabled: {
-            color: color.disabledDarkTextColor,
+            color: isDarkTheme
+              ? color.defaultDarkTextColor
+              : color.disabledDarkTextColor,
           },
         },
       };

@@ -118,6 +118,11 @@ const LoadedProductItemCard = (props: InnerProductItemCardProps) => {
         <ProductItemCardAuthor vendorProfileId={product.vendorId} />
         <Card.Actions>
           <Card.HeartIconButton
+            // didLike={
+            //   !!currentUser &&
+            //   product.statistics.likers.includes(currentUser.profileId)
+            // }
+            // totalLikes={product.statistics.likers.length}
             didLike={didLike}
             totalLikes={totalLikes}
             onToggleLike={handleToggleLike}
@@ -382,9 +387,9 @@ export function ProductItemCardPreview(props: ProductItemCardPreviewProps) {
               hidden: false,
               statistics: {
                 didLike: false,
-                didSave: false,
                 totalLikes: 0,
                 totalViews: 0,
+                likers: [],
                 ...statistics,
               },
             }}

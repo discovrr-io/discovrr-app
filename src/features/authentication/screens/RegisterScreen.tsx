@@ -26,6 +26,7 @@ import AuthFormContainer from './AuthFormContainer';
 
 const COVER_IMAGE = require('../../../../assets/images/authentication/sculpting.png');
 const COVER_IMAGE_ASSET_SOURCE = Image.resolveAssetSource(COVER_IMAGE);
+const DISCOVRR_LOGO_MARK = require('../../../../assets/images/logomark.png');
 
 const registerFormSchema = yup.object({
   email: yup
@@ -109,7 +110,8 @@ export default function RegisterScreen(props: RegisterScreenProps) {
       caption={{
         title: 'Welcome to Discovrr!',
         body: "Fill in the details below to create a new account with us. It's that easy!",
-        image: constants.media.DEFAULT_AVATAR,
+        image: DISCOVRR_LOGO_MARK,
+        imageStyles: [{ backgroundColor: 'transparent' }],
       }}>
       <Formik<RegisterForm>
         initialValues={{

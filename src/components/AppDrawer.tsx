@@ -478,6 +478,7 @@ AppDrawerProfileDetails.Anonymous = () => {
       />
       <Spacer.Vertical value="lg" />
       <Text
+        maxFontSizeMultiplier={1.2}
         style={[
           constants.font.extraLargeBold,
           { textAlign: 'center', color: colors.text },
@@ -486,6 +487,7 @@ AppDrawerProfileDetails.Anonymous = () => {
       </Text>
       <Spacer.Vertical value="xs" />
       <Text
+        maxFontSizeMultiplier={1.2}
         style={[
           constants.font.medium,
           { textAlign: 'center', color: colors.text },

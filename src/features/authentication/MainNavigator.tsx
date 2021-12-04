@@ -4,6 +4,7 @@ import { SafeAreaView, useWindowDimensions } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { useHeaderHeight } from '@react-navigation/elements';
+import { useNavigation } from '@react-navigation/native';
 
 import {
   createBottomTabNavigator,
@@ -48,9 +49,20 @@ type MyProfileDetailsScreenProps = {
 
 function MyProfileDetailsScreen(props: MyProfileDetailsScreenProps) {
   const profileData = useProfile(props.myProfileId);
+
+  const navigation = useNavigation();
   const headerHeight = useHeaderHeight();
   const bottomTabBarHeight = useBottomTabBarHeight();
   const { height: windowHeight } = useWindowDimensions();
+  const { colors } = useExtendedTheme();
+
+  React.useLayoutEffect(() => {
+    if (profileData[1].status === 'fulfilled') {
+      navigation.setOptions({
+        headerTintColor: constants.color.absoluteWhite,
+      });
+    }
+  }, [navigation, colors.text, profileData]);
 
   const renderRouteError = (_error?: any) => (
     <RouteError message="We weren't able to find your profile." />
@@ -225,7 +237,6 @@ function FacadeNavigator() {
         options={{
           title: 'You',
           headerTransparent: Boolean(myProfileId),
-          headerTintColor: constants.color.defaultLightTextColor,
         }}>
         {() =>
           myProfileId ? (

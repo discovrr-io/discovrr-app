@@ -1,7 +1,7 @@
 import Parse from 'parse/react-native';
 
 import { Pagination } from 'src/models/common';
-import { Product, ProductId, VendorProfileId } from 'src/models';
+import { Product, ProductId, ProfileId, VendorProfileId } from 'src/models';
 
 import { ApiError, ApiObjectStatus, CommonApiErrorCode } from './common';
 import { UserApi } from './user';
@@ -35,9 +35,9 @@ export namespace ProductApi {
       hidden: result.get('hidden') ?? false,
       statistics: {
         didLike,
-        didSave: false,
         totalLikes: likersArray.length,
         totalViews: viewersArray.length,
+        likers: likersArray as ProfileId[],
       },
     };
   }

@@ -57,7 +57,6 @@ export const __TextInput = React.forwardRef<RNTextInput, TextInputProps>(
     } = props;
 
     const { dark, colors } = useExtendedTheme();
-    const [isFocused, setIsFocused] = React.useState(false);
 
     const textInputVariantStyles: StyleProp<ViewStyle> = React.useMemo(() => {
       switch (variant) {
@@ -65,8 +64,6 @@ export const __TextInput = React.forwardRef<RNTextInput, TextInputProps>(
           return [
             outlinedTextInputStyles.container,
             outlinedTextInputStyles.default,
-            editable &&
-              isFocused && { backgroundColor: constants.color.gray100 },
           ];
         case 'filled':
         default:
@@ -77,11 +74,6 @@ export const __TextInput = React.forwardRef<RNTextInput, TextInputProps>(
                 colors.background +
                 (editable === false ? utilities.percentToHex(0.35) : ''),
             },
-            editable &&
-              isFocused && {
-                backgroundColor:
-                  colors.highlight + (dark ? utilities.percentToHex(0.1) : ''),
-              },
             !!error && {
               backgroundColor:
                 colors.dangerDisabled + utilities.percentToHex(0.5),
@@ -92,12 +84,9 @@ export const __TextInput = React.forwardRef<RNTextInput, TextInputProps>(
       }
     }, [
       variant,
-      isFocused,
       colors.background,
-      colors.highlight,
       colors.dangerDisabled,
       colors.danger,
-      dark,
       editable,
       error,
     ]);
@@ -139,8 +128,6 @@ export const __TextInput = React.forwardRef<RNTextInput, TextInputProps>(
                 ? constants.color.red300
                 : constants.color.gray500)
             }
-            onPressIn={() => setIsFocused(true)}
-            onPressOut={() => setIsFocused(false)}
             selectionColor={
               Platform.OS === 'ios' ? constants.color.accent : undefined
             }

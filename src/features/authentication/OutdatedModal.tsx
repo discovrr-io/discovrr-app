@@ -166,14 +166,14 @@ export default function OutdatedModal() {
               <Button
                 title={`Take me to the ${appStoreName}`}
                 variant="outlined"
+                overrideTheme="light-content"
+                innerTextProps={{ allowFontScaling: false }}
+                onPress={handleGoToAppStore}
                 underlayColor={
                   constants.color.accentDisabled + utilities.percentToHex(0.25)
                 }
-                textStyle={{ color: constants.color.defaultLightTextColor }}
-                innerTextProps={{ allowFontScaling: false }}
-                onPress={handleGoToAppStore}
                 containerStyle={{
-                  borderColor: constants.color.defaultLightTextColor,
+                  borderColor: constants.color.absoluteWhite,
                 }}
               />
               <Spacer.Vertical value="sm" />
@@ -182,7 +182,7 @@ export default function OutdatedModal() {
                 size="small"
                 type="secondary"
                 variant="text"
-                textStyle={{ color: constants.color.defaultLightTextColor }}
+                overrideTheme="light-content"
                 innerTextProps={{ maxFontSizeMultiplier: 1.25 }}
                 onPress={() => setIsModalVisible(false)}
               />

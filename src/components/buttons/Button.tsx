@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import * as React from 'react';
 import { useTheme } from '@react-navigation/native';
 
 import ButtonBase from './ButtonBase';
@@ -22,12 +22,18 @@ export default function Button(props: ButtonProps) {
     variant = 'text',
     type = 'secondary',
     size = 'large',
+    overrideTheme,
     ...restProps
   } = props;
 
-  const { dark: isDarkTheme } = useTheme();
-  const sizeStyles = useMemo(() => makeSizeStyles(size), [size]);
-  const colorStyles = useMemo(() => {
+  const { dark } = useTheme();
+  const isDarkTheme = React.useMemo(() => {
+    if (overrideTheme === undefined) return dark;
+    return overrideTheme !== 'dark-content';
+  }, [dark, overrideTheme]);
+
+  const sizeStyles = React.useMemo(() => makeSizeStyles(size), [size]);
+  const colorStyles = React.useMemo(() => {
     switch (variant) {
       case 'contained':
         return makeContainedButtonColorStyles(type, isDarkTheme);
@@ -39,7 +45,7 @@ export default function Button(props: ButtonProps) {
     }
   }, [isDarkTheme, type, variant]);
 
-  const buttonStyles = useMemo(
+  const buttonStyles = React.useMemo(
     () => makeButtonStyles(sizeStyles, colorStyles),
     [sizeStyles, colorStyles],
   );

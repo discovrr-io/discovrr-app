@@ -20,23 +20,39 @@ import analytics from '@react-native-firebase/analytics';
 import messaging from '@react-native-firebase/messaging';
 
 import FastImage from 'react-native-fast-image';
+import Icon from 'react-native-vector-icons/Ionicons';
 import Parse from 'parse/react-native';
 import { useNavigation, useScrollToTop } from '@react-navigation/native';
+
+import Animated, {
+  interpolate,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+} from 'react-native-reanimated';
 
 import * as constants from 'src/constants';
 import * as utilities from 'src/utilities';
 import * as profilesSlice from 'src/features/profiles/profiles-slice';
 import ProductItemCard from 'src/features/products/ProductItemCard';
-import { useAppDispatch, useExtendedTheme, useIsMounted } from 'src/hooks';
 import { ProductId, Profile } from 'src/models';
 import { HomeStackScreenProps, RootStackNavigationProp } from 'src/navigation';
 
 import {
+  Button,
   EmptyContainer,
   LoadingContainer,
   MasonryList,
   Spacer,
 } from 'src/components';
+
+import {
+  useAppDispatch,
+  useAppSelector,
+  useExtendedTheme,
+  useIsMounted,
+} from 'src/hooks';
 
 const TILE_SPACING = constants.values.DEFAULT_TILE_SPACING;
 const EXPLORE_OUR_MAKERS_NUM_COLUMNS = 2;
@@ -62,6 +78,7 @@ type HomeFeedData = {
   limitedOfferProductId?: ProductId;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function requestNotificationPermission() {
   try {
     const authStatus = await messaging().requestPermission();
@@ -110,55 +127,6 @@ async function fetchHomeFeedData(): Promise<HomeFeedData> {
   };
 }
 
-type CallToActionProps = HomeFeedData['callToAction'];
-
-function CallToAction(props: CallToActionProps) {
-  return (
-    <View style={[callToActionStyles.container]}>
-      <Text
-        allowFontScaling={false}
-        style={[
-          constants.font.h2,
-          { color: constants.color.absoluteWhite },
-          { textAlign: 'center' },
-        ]}>
-        {props.title}
-      </Text>
-      <Spacer.Vertical value="md" />
-      <Text
-        allowFontScaling={false}
-        style={[
-          constants.font.large,
-          { color: constants.color.absoluteWhite },
-          { textAlign: 'center' },
-        ]}>
-        {props.caption}
-      </Text>
-      {/* Scroll down to learn more... */}
-    </View>
-  );
-}
-
-const callToActionStyles = StyleSheet.create({
-  container: {
-    minHeight: 280,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: constants.layout.spacing.lg,
-    // paddingBottom: constants.layout.spacing.xxl + constants.layout.spacing.sm,
-    // justifyContent: 'flex-end',
-    backgroundColor: constants.color.blue700,
-    borderRadius: constants.layout.radius.md,
-    overflow: 'hidden',
-  },
-  logo: {
-    position: 'absolute',
-    top: -70,
-    right: -70,
-    opacity: 0.15,
-  },
-});
-
 type SectionTitleProps = {
   title: string;
   style?: StyleProp<ViewStyle>;
@@ -189,6 +157,172 @@ const sectionTitleProps = StyleSheet.create({
     textAlign: 'center',
     fontSize: constants.font.size.h2 * 0.8,
   },
+});
+
+function SignInCard() {
+  const navigation = useNavigation<RootStackNavigationProp>();
+
+  const handlePressSignIn = () => {
+    navigation.navigate('AuthPrompt', { screen: 'AuthStart' });
+  };
+
+  return (
+    <TouchableOpacity
+      activeOpacity={1}
+      onPress={handlePressSignIn}
+      style={[landingScreenStyles.card, signInCardStyles.card]}>
+      <Text
+        style={[
+          constants.font.mediumBold,
+          { flex: 1, color: constants.color.absoluteWhite },
+        ]}>
+        Discovrr is better when you&apos;re signed in.
+      </Text>
+      <Spacer.Horizontal value="md" />
+      <Button
+        title="Sign In"
+        variant="contained"
+        size="medium"
+        overrideTheme="light-content"
+        onPress={handlePressSignIn}
+        containerStyle={{ backgroundColor: constants.color.absoluteWhite }}
+      />
+    </TouchableOpacity>
+  );
+}
+
+const signInCardStyles = StyleSheet.create({
+  card: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    backgroundColor: constants.color.gray700,
+  },
+});
+
+type CallToActionCardProps = HomeFeedData['callToAction'];
+
+function CallToActionCard(props: CallToActionCardProps) {
+  return (
+    <View style={[landingScreenStyles.card, callToActionCardStyles.card]}>
+      <Text
+        allowFontScaling={false}
+        style={[
+          constants.font.h2,
+          { color: constants.color.absoluteWhite },
+          { textAlign: 'center' },
+        ]}>
+        {props.title}
+      </Text>
+      <Spacer.Vertical value="md" />
+      <Text
+        allowFontScaling={false}
+        style={[
+          constants.font.large,
+          { color: constants.color.absoluteWhite },
+          { textAlign: 'center' },
+        ]}>
+        {props.caption}
+      </Text>
+      {false && <ScrollUpText />}
+    </View>
+  );
+}
+
+function ScrollUpText() {
+  const translateState = useSharedValue(0);
+
+  const translateStyles = useAnimatedStyle(() => ({
+    transform: [
+      {
+        translateY: interpolate(translateState.value, [0, 1], [0, -5]),
+      },
+    ],
+  }));
+
+  React.useEffect(() => {
+    translateState.value = withRepeat(
+      withTiming(1, { duration: 1000 }),
+      -1,
+      true,
+    );
+  }, [translateState]);
+
+  return (
+    <Animated.View
+      style={[callToActionCardStyles.scrollDownContainer, translateStyles]}>
+      <Icon name="arrow-up" size={16} color={constants.color.absoluteWhite} />
+      <Text
+        style={[
+          constants.font.smallBold,
+          callToActionCardStyles.scrollDownText,
+          { marginHorizontal: constants.layout.spacing.sm },
+        ]}>
+        Scroll up to find out more
+      </Text>
+      <Icon name="arrow-up" size={16} color={constants.color.absoluteWhite} />
+    </Animated.View>
+  );
+}
+
+const callToActionCardStyles = StyleSheet.create({
+  card: {
+    minHeight: 280,
+    backgroundColor: constants.color.blue700,
+  },
+  scrollDownContainer: {
+    position: 'absolute',
+    flexDirection: 'row',
+    bottom: constants.layout.spacing.lg,
+  },
+  scrollDownText: {
+    color: constants.color.absoluteWhite,
+  },
+});
+
+function ShopNowCard() {
+  const navigation = useNavigation<RootStackNavigationProp>();
+
+  const handleGoToNearMe = () => {
+    navigation.navigate('Main', {
+      screen: 'Facade',
+      params: {
+        screen: 'Explore',
+        params: { screen: 'Feed', params: { screen: 'NearMeFeed' } },
+      },
+    });
+  };
+
+  return (
+    <TouchableHighlight
+      underlayColor={constants.color.teal300}
+      onPress={handleGoToNearMe}
+      style={[landingScreenStyles.card, shopNowCardStyle.card]}>
+      <View style={{ alignItems: 'center' }}>
+        <Text
+          allowFontScaling={false}
+          style={[
+            constants.font.h2,
+            {
+              color: constants.color.absoluteWhite,
+              fontSize: constants.font.size.h2 * 0.8,
+            },
+          ]}>
+          Shop Now
+        </Text>
+        <Text
+          style={[
+            constants.font.mediumBold,
+            { color: constants.color.absoluteWhite },
+          ]}>
+          Tap here to browse our products
+        </Text>
+      </View>
+    </TouchableHighlight>
+  );
+}
+
+const shopNowCardStyle = StyleSheet.create({
+  card: { minHeight: 190, backgroundColor: constants.color.teal500 },
 });
 
 type MakerOfTheWeekProps = HomeFeedData['makerOfTheWeek'];
@@ -336,10 +470,10 @@ function ExploreOurMakers(props: ExploreOurMakersProps) {
     return { containerWidth, columnWidth, avatarWidth };
   }, [windowWidth]);
 
-  const navigation = useNavigation<LandingScreenProps['navigation']>();
+  const navigation = useNavigation<RootStackNavigationProp>();
 
   const handlePressMaker = (profile: Profile) => {
-    navigation.getParent<RootStackNavigationProp>().navigate('ProfileDetails', {
+    navigation.navigate('ProfileDetails', {
       profileIdOrUsername: profile.profileId,
     });
   };
@@ -416,10 +550,12 @@ const exploreOurMakersStyles = StyleSheet.create({
 
 type LandingScreenProps = HomeStackScreenProps<'Landing'>;
 
-export default function LandingScreen(props: LandingScreenProps) {
+export default function LandingScreen(_: LandingScreenProps) {
   const $FUNC = '[LandingScreen]';
   const dispatch = useAppDispatch();
   const isMounted = useIsMounted();
+
+  const currentUser = useAppSelector(state => state.auth.user);
 
   const [homeFeedData, setHomeFeedData] = React.useState<HomeFeedData>();
   const [makers, setMakers] = React.useState<Profile[]>([]);
@@ -477,20 +613,13 @@ export default function LandingScreen(props: LandingScreenProps) {
     if (!isInitialRender && !shouldRefresh) setShouldRefresh(true);
   };
 
-  const handleGoToNearMe = () => {
-    props.navigation.getParent<RootStackNavigationProp>().navigate('Main', {
-      screen: 'Facade',
-      params: {
-        screen: 'Explore',
-        params: { screen: 'Feed', params: { screen: 'NearMeFeed' } },
-      },
-    });
-  };
-
   return (
     <MasonryList
       ref={masonryListScrollViewRef}
       data={homeFeedData?.featuredProductIds ?? []}
+      contentContainerStyle={{
+        paddingVertical: constants.layout.spacing.lg,
+      }}
       refreshControl={
         <RefreshControl
           tintColor={constants.color.gray500}
@@ -501,10 +630,15 @@ export default function LandingScreen(props: LandingScreenProps) {
       ListHeaderComponent={
         <View
           style={{
-            paddingTop: constants.layout.defaultScreenMargins.vertical,
             paddingHorizontal: constants.layout.defaultScreenMargins.horizontal,
           }}>
-          <CallToAction
+          {!currentUser && (
+            <View>
+              <SignInCard />
+              <Spacer.Vertical value="lg" />
+            </View>
+          )}
+          <CallToActionCard
             title={
               homeFeedData?.callToAction.title ??
               'Get inspired by Australian creativity today!'
@@ -515,37 +649,7 @@ export default function LandingScreen(props: LandingScreenProps) {
             }
           />
           <Spacer.Vertical value="lg" />
-          <TouchableHighlight
-            underlayColor={constants.color.teal300}
-            onPress={handleGoToNearMe}
-            style={{
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: constants.color.teal500,
-              borderRadius: constants.layout.radius.md,
-              minHeight: 190,
-            }}>
-            <View style={{ alignItems: 'center' }}>
-              <Text
-                allowFontScaling={false}
-                style={[
-                  constants.font.h2,
-                  {
-                    color: constants.color.absoluteWhite,
-                    fontSize: constants.font.size.h2 * 0.8,
-                  },
-                ]}>
-                Shop Now
-              </Text>
-              <Text
-                style={[
-                  constants.font.mediumBold,
-                  { color: constants.color.absoluteWhite },
-                ]}>
-                Tap here to browse our products
-              </Text>
-            </View>
-          </TouchableHighlight>
+          <ShopNowCard />
           {(isInitialRender || shouldRefresh) && !homeFeedData ? (
             <MakerOfTheWeek.Pending />
           ) : homeFeedData ? (
@@ -591,3 +695,13 @@ export default function LandingScreen(props: LandingScreenProps) {
     />
   );
 }
+
+const landingScreenStyles = StyleSheet.create({
+  card: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: constants.layout.spacing.lg,
+    borderRadius: constants.layout.radius.md,
+    overflow: 'hidden',
+  },
+});

@@ -4,11 +4,12 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  StyleProp,
   Text,
   View,
 } from 'react-native';
 
-import FastImage, { FastImageProps } from 'react-native-fast-image';
+import FastImage, { FastImageProps, ImageStyle } from 'react-native-fast-image';
 
 import * as constants from 'src/constants';
 import { Spacer } from 'src/components';
@@ -22,6 +23,7 @@ type AuthFormContainerProps = {
     title?: string;
     body: string;
     image?: FastImageProps['source'];
+    imageStyles?: StyleProp<ImageStyle>;
   };
   children?: React.ReactChild | React.ReactChild[];
 };
@@ -66,13 +68,16 @@ export default function AuthFormContainer(props: AuthFormContainerProps) {
                 {caption.image && (
                   <FastImage
                     source={caption.image}
-                    style={{
-                      width: 40,
-                      aspectRatio: 1,
-                      borderRadius: 20,
-                      backgroundColor: colors.placeholder,
-                      marginRight: constants.layout.spacing.lg,
-                    }}
+                    style={[
+                      {
+                        width: 40,
+                        aspectRatio: 1,
+                        borderRadius: 20,
+                        backgroundColor: colors.placeholder,
+                        marginRight: constants.layout.spacing.lg,
+                      },
+                      caption.imageStyles,
+                    ]}
                   />
                 )}
                 <View style={{ flex: 1 }}>

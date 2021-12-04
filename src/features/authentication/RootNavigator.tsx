@@ -141,86 +141,84 @@ export default function RootNavigator() {
   }, [dispatch, didRegisterFCMToken, sessionId]);
 
   return (
-    <>
-      <RootStack.Navigator
-        initialRouteName="Main"
-        screenOptions={{
-          headerBackTitleVisible: false,
-          headerTintColor: colors.text,
-          headerBackAllowFontScaling: false,
-          headerTitleAllowFontScaling: false,
-          headerTitleStyle: constants.font.defaultHeaderTitleStyle,
-          headerLeft: props => <HeaderIcon.Back {...props} />,
-          headerLeftContainerStyle: {
-            paddingLeft: constants.layout.spacing.xs,
-          },
-          headerStyleInterpolator: Platform.select({
-            ios: HeaderStyleInterpolators.forUIKit,
-          }),
-        }}>
-        {/* -- Authentication -- */}
-        <RootStack.Group>
-          <RootStack.Screen
-            name="AuthPrompt"
-            component={AuthPromptNavigator}
-            options={{ headerShown: false, presentation: 'modal' }}
-          />
-        </RootStack.Group>
-
-        {/* -- Top Level Screens -- */}
-        <RootStack.Group screenOptions={{ headerShown: false }}>
-          <RootStack.Screen name="Main" component={MainNavigator} />
-          <RootStack.Screen
-            name="Create"
-            component={CreateItemNavigator}
-            options={{ presentation: 'modal' }}
-          />
-        </RootStack.Group>
-
-        {/* -- Item Navigators -- */}
-        {renderPostNavigator()}
-        {renderProfileNavigator()}
-        {renderProductNavigator()}
-
-        {/* -- Drawer Screens -- */}
-        <RootStack.Screen name="Notifications" component={PlaceholderScreen} />
+    <RootStack.Navigator
+      initialRouteName="Main"
+      screenOptions={{
+        headerBackTitleVisible: false,
+        headerTintColor: colors.text,
+        headerBackAllowFontScaling: false,
+        headerTitleAllowFontScaling: false,
+        headerTitleStyle: constants.font.defaultHeaderTitleStyle,
+        headerLeft: props => <HeaderIcon.Back {...props} />,
+        headerLeftContainerStyle: {
+          paddingLeft: constants.layout.spacing.xs,
+        },
+        headerStyleInterpolator: Platform.select({
+          ios: HeaderStyleInterpolators.forUIKit,
+        }),
+      }}>
+      {/* -- Authentication -- */}
+      <RootStack.Group>
         <RootStack.Screen
-          name="MyShopping"
-          component={PlaceholderScreen}
-          options={{ title: 'My Shopping' }}
-        />
-        <RootStack.Screen name="Saved" component={PlaceholderScreen} />
-        {renderSettingsNavigator()}
-
-        {/* -- Miscellaneous -- */}
-        <RootStack.Screen
-          name="ReportItem"
-          component={ReportItemNavigator}
+          name="AuthPrompt"
+          component={AuthPromptNavigator}
           options={{ headerShown: false, presentation: 'modal' }}
         />
+      </RootStack.Group>
+
+      {/* -- Top Level Screens -- */}
+      <RootStack.Group screenOptions={{ headerShown: false }}>
+        <RootStack.Screen name="Main" component={MainNavigator} />
         <RootStack.Screen
-          name="InAppWebView"
-          component={InAppWebViewScreen}
-          options={({ route }) => {
-            const { title, presentation } = route.params;
-            return {
-              title,
-              presentation,
-              headerLeft:
-                presentation === 'modal' || presentation === 'transparentModal'
-                  ? HeaderIcon.Close
-                  : HeaderIcon.Back,
-              headerTitleContainerStyle:
-                constants.layout.narrowHeaderTitleContainerStyle,
-            };
-          }}
+          name="Create"
+          component={CreateItemNavigator}
+          options={{ presentation: 'modal' }}
         />
-        <RootStack.Screen
-          name="RouteError"
-          component={RouteError}
-          options={{ title: 'Error' }}
-        />
-      </RootStack.Navigator>
-    </>
+      </RootStack.Group>
+
+      {/* -- Item Navigators -- */}
+      {renderPostNavigator()}
+      {renderProfileNavigator()}
+      {renderProductNavigator()}
+
+      {/* -- Drawer Screens -- */}
+      <RootStack.Screen name="Notifications" component={PlaceholderScreen} />
+      <RootStack.Screen
+        name="MyShopping"
+        component={PlaceholderScreen}
+        options={{ title: 'My Shopping' }}
+      />
+      <RootStack.Screen name="Saved" component={PlaceholderScreen} />
+      {renderSettingsNavigator()}
+
+      {/* -- Miscellaneous -- */}
+      <RootStack.Screen
+        name="ReportItem"
+        component={ReportItemNavigator}
+        options={{ headerShown: false, presentation: 'modal' }}
+      />
+      <RootStack.Screen
+        name="InAppWebView"
+        component={InAppWebViewScreen}
+        options={({ route }) => {
+          const { title, presentation } = route.params;
+          return {
+            title,
+            presentation,
+            headerLeft:
+              presentation === 'modal' || presentation === 'transparentModal'
+                ? HeaderIcon.Close
+                : HeaderIcon.Back,
+            headerTitleContainerStyle:
+              constants.layout.narrowHeaderTitleContainerStyle,
+          };
+        }}
+      />
+      <RootStack.Screen
+        name="RouteError"
+        component={RouteError}
+        options={{ title: 'Error' }}
+      />
+    </RootStack.Navigator>
   );
 }
