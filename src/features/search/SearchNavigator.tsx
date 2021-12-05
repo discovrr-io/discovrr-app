@@ -101,6 +101,7 @@ function SearchHeaderContent(props: { initialText?: string }) {
       containerStyle={{
         flexGrow: 1,
         flexShrink: 1,
+        maxHeight: constants.layout.buttonSizes.md,
       }}
     />
   );

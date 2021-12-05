@@ -279,6 +279,8 @@ const CommentCellContent = (props: CommentCellContentProps) => {
   const cellContext = useContext(CommentCellContext);
   const isMyProfile = useIsMyProfile(comment.profileId);
 
+  const currentUser = useAppSelector(state => state.auth.user);
+
   const animatableRef = useRef<Animatable.View & View>(null);
   const actionBottomSheetRef = useRef<BottomSheet>(null);
   const actionBottomSheetItems = useMemo(() => {
@@ -306,6 +308,14 @@ const CommentCellContent = (props: CommentCellContentProps) => {
   const [isProcessingLike, setIsProcessingLike] = useState(false);
 
   const handlePressLike = async () => {
+    if (!currentUser) {
+      navigation.navigate('AuthPrompt', {
+        screen: 'AuthStart',
+        params: { redirected: true },
+      });
+      return;
+    }
+
     const newDidLike = !didLike;
     try {
       setIsProcessingLike(true);
@@ -334,6 +344,14 @@ const CommentCellContent = (props: CommentCellContentProps) => {
   };
 
   const handlePressReply = async () => {
+    if (!currentUser) {
+      navigation.navigate('AuthPrompt', {
+        screen: 'AuthStart',
+        params: { redirected: true },
+      });
+      return;
+    }
+
     if (!profile) {
       console.warn($FUNC, 'Cannot reply to comment with undefined profile');
       return;
@@ -375,12 +393,21 @@ const CommentCellContent = (props: CommentCellContentProps) => {
       case 'delete':
         await handleDeleteComment();
         break;
-      case 'report':
-        navigation.navigate('ReportItem', {
-          screen: 'ReportItemReason',
-          params: { type: 'comment' },
-        });
+      case 'report': {
+        if (!currentUser) {
+          navigation.navigate('AuthPrompt', {
+            screen: 'AuthStart',
+            params: { redirected: true },
+          });
+        } else {
+          navigation.navigate('ReportItem', {
+            screen: 'ReportItemReason',
+            params: { type: 'comment' },
+          });
+        }
+
         break;
+      }
       default:
         actionBottomSheetRef.current?.close();
         break;

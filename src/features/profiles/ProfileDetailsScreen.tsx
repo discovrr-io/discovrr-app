@@ -244,7 +244,9 @@ export function LoadedProfileDetailsScreen(
     return calculatedWindowHeight;
   }, [calculatedWindowHeight, preferredWindowHeight]);
 
+  const currentUser = useAppSelector(state => state.auth.user);
   const isMyProfile = useIsMyProfile(profile.profileId);
+
   const headerHeight = useHeaderHeight();
   const headerTitleOpacity = React.useRef(new RNAnimated.Value(0)).current;
 
@@ -377,14 +379,22 @@ export function LoadedProfileDetailsScreen(
             'In the meantime, you may report this profile. Your report will be anonymous.',
         });
         break;
-      case 'report':
+      case 'report': {
         // FIXME: On iOS the status bar goes dark when the report screen is
         // visible, but it should have the light-content bar style instead.
-        navigation.navigate('ReportItem', {
-          screen: 'ReportItemReason',
-          params: { type: 'profile' },
-        });
+        if (!currentUser) {
+          navigation.navigate('AuthPrompt', {
+            screen: 'AuthStart',
+            params: { redirected: true },
+          });
+        } else {
+          navigation.navigate('ReportItem', {
+            screen: 'ReportItemReason',
+            params: { type: 'profile' },
+          });
+        }
         break;
+      }
       default:
         actionBottomSheetRef.current?.close();
         break;

@@ -125,6 +125,7 @@ const PostHeaderComponent = ({ post }: { post: Post }) => {
   const navigation = useNavigation<RootStackNavigationProp>();
   const isMounted = useIsMounted();
 
+  const currentUser = useAppSelector(state => state.auth.user);
   const isMyProfile = useIsMyProfile(post.profileId);
 
   const posterProfile = useAppSelector(state => {
@@ -198,12 +199,21 @@ const PostHeaderComponent = ({ post }: { post: Post }) => {
       case 'edit':
         navigation.push('EditPost', { postId: post.id });
         break;
-      case 'report':
-        navigation.navigate('ReportItem', {
-          screen: 'ReportItemReason',
-          params: { type: 'post' },
-        });
+      case 'report': {
+        if (!currentUser) {
+          navigation.navigate('AuthPrompt', {
+            screen: 'AuthStart',
+            params: { redirected: true },
+          });
+        } else {
+          navigation.navigate('ReportItem', {
+            screen: 'ReportItemReason',
+            params: { type: 'comment' },
+          });
+        }
+
         break;
+      }
       case 'suggest': /* FALLTHROUGH */
       default:
         actionBottomSheetRef.current?.close();
