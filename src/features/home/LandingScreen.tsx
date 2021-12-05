@@ -561,16 +561,17 @@ export default function LandingScreen(_: LandingScreenProps) {
   const isMounted = useIsMounted();
 
   const currentUser = useAppSelector(state => state.auth.user);
-  const { didCompleteMainOnboarding } = useAppSelector(s => s.onboarding);
+
+  const [isModalVisible, setIsModalVisible] = React.useState(false);
+  const { isOutdatedModalVisible } = useAppSelector(state => state.auth);
+  const shouldShowModal = useAppSelector(state => {
+    return !state.onboarding.didCompleteMainOnboarding;
+  });
 
   const [homeFeedData, setHomeFeedData] = React.useState<HomeFeedData>();
   const [makers, setMakers] = React.useState<Profile[]>([]);
   const [isInitialRender, setIsInitialRender] = React.useState(true);
   const [shouldRefresh, setShouldRefresh] = React.useState(false);
-
-  const [isModalVisible, setIsModalVisible] = React.useState(
-    !didCompleteMainOnboarding,
-  );
 
   const masonryListScrollViewRef = React.useRef<ScrollView>(null);
   useScrollToTop(masonryListScrollViewRef);
@@ -592,12 +593,14 @@ export default function LandingScreen(_: LandingScreenProps) {
   }, []);
 
   React.useEffect(() => {
+    if (!shouldShowModal) return;
+
     const timeout = setTimeout(() => {
-      if (!didCompleteMainOnboarding) setIsModalVisible(true);
-    }, 1500);
+      setIsModalVisible(true);
+    }, 1000);
 
     return () => clearTimeout(timeout);
-  }, [didCompleteMainOnboarding]);
+  }, [shouldShowModal]);
 
   React.useEffect(
     () => {
@@ -664,7 +667,7 @@ export default function LandingScreen(_: LandingScreenProps) {
         completeOnboarding: handleCompleteOnboarding,
         skipOnboarding: handleSkipOnboarding,
       }}>
-      <OnboardingModal visible={isModalVisible} />
+      <OnboardingModal visible={!isOutdatedModalVisible && isModalVisible} />
       <MasonryList
         ref={masonryListScrollViewRef}
         data={homeFeedData?.featuredProductIds ?? []}
