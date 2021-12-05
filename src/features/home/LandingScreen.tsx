@@ -22,12 +22,7 @@ import messaging from '@react-native-firebase/messaging';
 import FastImage from 'react-native-fast-image';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Parse from 'parse/react-native';
-
-import {
-  useFocusEffect,
-  useNavigation,
-  useScrollToTop,
-} from '@react-navigation/native';
+import { useNavigation, useScrollToTop } from '@react-navigation/native';
 
 import Animated, {
   interpolate,
@@ -596,15 +591,13 @@ export default function LandingScreen(_: LandingScreenProps) {
       .catch(error => console.warn($FUNC, 'Failed to log screen view:', error));
   }, []);
 
-  useFocusEffect(
-    React.useCallback(() => {
-      const timeout = setTimeout(() => {
-        if (!didCompleteMainOnboarding) setIsModalVisible(true);
-      }, 1500);
+  React.useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (!didCompleteMainOnboarding) setIsModalVisible(true);
+    }, 1500);
 
-      return () => clearTimeout(timeout);
-    }, [didCompleteMainOnboarding]),
-  );
+    return () => clearTimeout(timeout);
+  }, [didCompleteMainOnboarding]);
 
   React.useEffect(
     () => {

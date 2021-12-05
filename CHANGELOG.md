@@ -2,15 +2,19 @@
 
 ## [Unreleased]
 
+## [v3.2.0] (2021-12-05)
+
 ### Added
 
-- Ability to sign in with Apple (iOS) and Google (iOS and Android)
-- Ability to reset forgotten password
-- Basic registration screen
+- Added ability to sign in with Apple (iOS) and Google (iOS and Android)
+- Added ability to reset forgotten password
+- Recreated basic registration screen
+- Reenabled onboarding modal (will be revamped later)
 
 ### Changed
 
 - Disabled font scaling for some areas of the app (e.g. navigation headers)
+- Updated global UI colours
 
 ## [v3.1.0] (2021-11-30)
 
@@ -243,7 +247,8 @@
 
 <!-- Releases -->
 
-[unreleased]: https://github.com/discovrr-io/discovrr-app/compare/v3.1.0...HEAD
+[unreleased]: https://github.com/discovrr-io/discovrr-app/compare/v3.2.0...HEAD
+[v3.2.0]: https://github.com/discovrr-io/discovrr-app/compare/v3.1.0...v3.2.0
 [v3.1.0]: https://github.com/discovrr-io/discovrr-app/compare/v3.0.9...v3.1.0
 [v3.0.9]: https://github.com/discovrr-io/discovrr-app/compare/v3.0.8...v3.0.9
 [v3.0.8]: https://github.com/discovrr-io/discovrr-app/compare/v3.0.7...v3.0.8

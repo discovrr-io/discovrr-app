@@ -143,7 +143,7 @@ function ProductFormikForm() {
         caption={`Upload up to ${MAX_MEDIA_COUNT} photos below`}
       />
       <View style={[productFormikFormStyles.container]}>
-        <Cell.Group label="Product Details">
+        <Cell.Group label="Details">
           <FormikField
             fieldName="name"
             label="Name"
@@ -166,8 +166,16 @@ function ProductFormikForm() {
         </Cell.Group>
         <Spacer.Vertical value={CELL_GROUP_VERTICAL_SPACING} />
         <Cell.Group label="Categorisation">
-          <Cell.Navigator label="Add tags" previewValue="0 tags" />
-          <Cell.Navigator label="Add categories" previewValue="0 categories" />
+          <Cell.Navigator
+            label="Add tags"
+            previewValue="0 tags"
+            onPress={() => utilities.alertUnavailableFeature()}
+          />
+          <Cell.Navigator
+            label="Add categories"
+            previewValue="0 categories"
+            onPress={() => utilities.alertUnavailableFeature()}
+          />
         </Cell.Group>
         {/* <Spacer.Vertical value={CELL_GROUP_VERTICAL_SPACING} />
         <Cell.Group
@@ -178,7 +186,7 @@ function ProductFormikForm() {
           <Cell.Navigator label="Add another variant" />
         </Cell.Group> */}
         <Spacer.Vertical value={CELL_GROUP_VERTICAL_SPACING} />
-        <Cell.Group label="Additional Options">
+        <Cell.Group label="Options">
           <Cell.Switch
             label="Visible to everyone"
             value={!hiddenMeta.value}
