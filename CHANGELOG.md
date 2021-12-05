@@ -4,15 +4,11 @@
 
 ## [v3.2.0] (2021-12-05)
 
-### Added
-
-- Added ability to sign in with Apple (iOS) and Google (iOS and Android)
-- Added ability to reset forgotten password
-- Recreated basic registration screen
-- Reenabled onboarding modal (will be revamped later)
-
 ### Changed
 
+- Removed authentication screens from initial flow
+  - Users don't need to be signed in when they open the app
+  - The app will redirect users to an authentication prompt when required
 - Disabled font scaling for some areas of the app (e.g. navigation headers)
 - Updated global UI colours
 
