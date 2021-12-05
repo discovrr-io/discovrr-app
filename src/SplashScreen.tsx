@@ -3,18 +3,16 @@ import { ActivityIndicator, SafeAreaView, StatusBar } from 'react-native';
 
 import analytics from '@react-native-firebase/analytics';
 import FastImage from 'react-native-fast-image';
-import { Theme } from '@react-navigation/native';
 
 import { Spacer } from './components';
+import { useExtendedTheme } from './hooks';
 
 const LOGO = require('../assets/bootsplash_logo.png');
 const LOGO_WIDTH = 120;
 
-type SplashScreenProps = {
-  navigationTheme: Theme;
-};
+export default function SplashScreen() {
+  const { colors, dark } = useExtendedTheme();
 
-export default function SplashScreen(props: SplashScreenProps) {
   React.useEffect(() => {
     analytics()
       .logScreenView({
@@ -32,12 +30,12 @@ export default function SplashScreen(props: SplashScreenProps) {
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: props.navigationTheme.colors.card,
+        backgroundColor: colors.card,
       }}>
       <StatusBar
         animated
         translucent
-        barStyle={props.navigationTheme.dark ? 'light-content' : 'dark-content'}
+        barStyle={dark ? 'light-content' : 'dark-content'}
         backgroundColor="transparent"
       />
       <FastImage
@@ -47,7 +45,7 @@ export default function SplashScreen(props: SplashScreenProps) {
       <Spacer.Vertical value="lg" />
       <ActivityIndicator
         size="large"
-        color={props.navigationTheme.colors.border}
+        color={colors.caption}
         style={{ transform: [{ scale: 0.75 }] }}
       />
     </SafeAreaView>

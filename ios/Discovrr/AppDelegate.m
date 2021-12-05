@@ -42,7 +42,12 @@ static void InitializeFlipper(UIApplication *application) {
 
     RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
     RCTRootView *rootView = [[RCTRootView alloc] initWithBridge:bridge moduleName:@"discovrr" initialProperties:nil];
-    rootView.backgroundColor = UIColor.whiteColor;
+   
+    if (@available(iOS 13.0, *)) {
+        rootView.backgroundColor = UIColor.secondarySystemBackgroundColor;
+    } else {
+        rootView.backgroundColor = UIColor.whiteColor;
+    }
 
     self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
     UIViewController *rootViewController = [UIViewController new];

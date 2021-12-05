@@ -15,7 +15,6 @@ import {
 } from 'src/models/profile';
 
 import { ApiError, ApiObjectStatus, CommonApiErrorCode } from './common';
-import { UserApi } from './user';
 
 export namespace ProfileApi {
   export type ProfileApiErrorCode =
@@ -326,22 +325,4 @@ export namespace ProfileApi {
   }
 
   //#endregion UPDATE OPERATIONS
-
-  //#region MISCELLANEOUS
-
-  export type SubmitOnboardingResponse = {
-    surveyResult?: string;
-  };
-
-  export async function submitOnboardingResponse(
-    params: SubmitOnboardingResponse,
-  ) {
-    const { surveyResult: onboardingResponse } = params;
-    const currentUserProfile = await UserApi.getCurrentUserProfile();
-    if (!currentUserProfile) return;
-    if (!onboardingResponse) return;
-    await currentUserProfile.save({ onboardingResponse });
-  }
-
-  //#endregion MISCELLANEOUS
 }

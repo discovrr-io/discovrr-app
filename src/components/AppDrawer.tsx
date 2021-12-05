@@ -24,7 +24,6 @@ import * as constants from 'src/constants';
 import * as utilities from 'src/utilities';
 import * as authSlice from 'src/features/authentication/auth-slice';
 import * as profilesSlice from 'src/features/profiles/profiles-slice';
-import * as globalSelectors from 'src/global-selectors';
 import { useAppDispatch, useAppSelector, useExtendedTheme } from 'src/hooks';
 import { useProfile } from 'src/features/profiles/hooks';
 import { Profile, ProfileId } from 'src/models';
@@ -34,8 +33,6 @@ import AsyncGate from './AsyncGate';
 import Spacer from './Spacer';
 
 const AVATAR_DIAMETER = 125;
-// const DRAWER_ITEM_ICON_COLOR = constants.color.black;
-// const DRAWER_ITEM_TEXT_COLOR = constants.color.black;
 const ROLE_CHIP_HIT_SLOP_INSET = 25;
 
 type AppDrawerItemProps = {
@@ -180,7 +177,7 @@ export default function AppDrawer(props: AppDrawerProps) {
   const $FUNC = '[AppDrawer]';
 
   const dispatch = useAppDispatch();
-  const profile = useAppSelector(globalSelectors.selectCurrentUserProfile);
+  const profileId = useAppSelector(state => state.auth.user?.profileId);
   const { colors } = useExtendedTheme();
 
   const handleNavigation = (screen: keyof RootStackParamList) => {
@@ -259,7 +256,7 @@ export default function AppDrawer(props: AppDrawerProps) {
         <TouchableOpacity
           activeOpacity={constants.values.DEFAULT_ACTIVE_OPACITY}
           onPress={() => {
-            if (profile) {
+            if (profileId) {
               handleNavigation('ProfileSettings');
             } else {
               props.navigation
@@ -267,8 +264,8 @@ export default function AppDrawer(props: AppDrawerProps) {
                 .navigate('AuthPrompt', { screen: 'AuthStart' });
             }
           }}>
-          {profile ? (
-            <AppDrawerProfileDetails profileId={profile.profileId} />
+          {profileId ? (
+            <AppDrawerProfileDetails profileId={profileId} />
           ) : (
             <AppDrawerProfileDetails.Anonymous />
           )}
@@ -301,7 +298,7 @@ export default function AppDrawer(props: AppDrawerProps) {
         onPress={handleSendFeedback}
       />
 
-      {!!profile && (
+      {!!profileId && (
         <>
           <Divider />
 

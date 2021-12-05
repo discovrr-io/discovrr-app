@@ -10,7 +10,7 @@ export namespace UserApi {
 
     const currentUser = await Parse.User.currentAsync();
     if (!currentUser) {
-      console.warn($FUNC, 'User is not signed in');
+      // console.warn($FUNC, 'User is not signed in');
       return null;
     }
 

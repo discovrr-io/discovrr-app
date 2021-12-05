@@ -224,90 +224,90 @@ function PersistedApp() {
   };
 
   return (
-    <PersistGate
-      persistor={persistor}
-      loading={<SplashScreen navigationTheme={navigationTheme} />}
-      onBeforeLift={handleBeforeLift}>
-      <NavigationContainer<RootStackParamList>
-        ref={navigationRef}
-        onReady={handleNavigationReady}
-        onStateChange={handleNavigationStateChange}
-        theme={navigationTheme}
-        linking={{
-          prefixes: [
-            'discovrr://',
-            'http://discovrrio.com',
-            'https://discovrrio.com',
-          ],
-          config: {
-            initialRouteName: 'Main',
-            screens: {
-              Main: '',
-              PostDetails: 'post/:postId',
-              ProfileDetails: 'profile/:profileIdOrUsername',
-              ProductDetails: 'product/:productId',
-              MainSettings: 'settings',
-              ProfileSettings: 'settings/profile',
-              NotificationSettings: 'settings/notifications',
-              AppearanceSettings: 'settings/appearance',
-              RouteError: '*',
-            },
+    <NavigationContainer<RootStackParamList>
+      ref={navigationRef}
+      onReady={handleNavigationReady}
+      onStateChange={handleNavigationStateChange}
+      theme={navigationTheme}
+      linking={{
+        prefixes: [
+          'discovrr://',
+          'http://discovrrio.com',
+          'https://discovrrio.com',
+        ],
+        config: {
+          initialRouteName: 'Main',
+          screens: {
+            Main: '',
+            PostDetails: 'post/:postId',
+            ProfileDetails: 'profile/:profileIdOrUsername',
+            ProductDetails: 'product/:productId',
+            MainSettings: 'settings',
+            ProfileSettings: 'settings/profile',
+            NotificationSettings: 'settings/notifications',
+            AppearanceSettings: 'settings/appearance',
+            RouteError: '*',
           },
-          getInitialURL: async () => {
-            // Check if app was opened from a deep link, and return it.
-            const url = await Linking.getInitialURL();
-            if (url != null) return url;
+        },
+        getInitialURL: async () => {
+          // Check if app was opened from a deep link, and return it.
+          const url = await Linking.getInitialURL();
+          if (url != null) return url;
 
-            // Only pass the initial URL if the current user is authenticated
-            // TODO: Remove this now that authentication is optional
-            if (authStatus !== 'fulfilled') {
-              console.warn(
-                $FUNC,
-                'User is not signed in. Skipping initial URL...',
-              );
-              return;
-            }
+          // Only pass the initial URL if the current user is authenticated
+          // TODO: Remove this now that authentication is optional
+          if (authStatus !== 'fulfilled') {
+            // console.warn(
+            //   $FUNC,
+            //   'User is not signed in. Skipping initial URL...',
+            // );
+            return;
+          }
 
-            // Otherwise, check if there is an initial Firebase notification.
-            const message = await messaging().getInitialNotification();
+          // Otherwise, check if there is an initial Firebase notification.
+          const message = await messaging().getInitialNotification();
 
-            // Get the deep link from notification's data.
-            // If the return value is undefined, the app will open the first
-            // screen as normal.
-            if (message?.data?.link) {
-              // This requires the "discovrr" scheme prepended to work.
-              return 'discovrr://' + message?.data?.link;
-            }
-          },
-          subscribe: listener => {
-            const onReceiveURL = ({ url }: { url: string }) => {
+          // Get the deep link from notification's data.
+          // If the return value is undefined, the app will open the first
+          // screen as normal.
+          if (message?.data?.link) {
+            // This requires the "discovrr" scheme prepended to work.
+            return 'discovrr://' + message?.data?.link;
+          }
+        },
+        subscribe: listener => {
+          const onReceiveURL = ({ url }: { url: string }) => {
+            // This requires the "discovrr" scheme prepended to work.
+            listener('discovrr://' + url);
+          };
+
+          // Listen to incoming links from deep linking
+          const urlListener = Linking.addEventListener('url', onReceiveURL);
+
+          // Listen to Firebase push notifications
+          const unsubscribe = messaging().onNotificationOpenedApp(message => {
+            const url = message?.data?.link;
+            if (url) {
               // This requires the "discovrr" scheme prepended to work.
               listener('discovrr://' + url);
-            };
+            }
+          });
 
-            // Listen to incoming links from deep linking
-            const urlListener = Linking.addEventListener('url', onReceiveURL);
-
-            // Listen to Firebase push notifications
-            const unsubscribe = messaging().onNotificationOpenedApp(message => {
-              const url = message?.data?.link;
-              if (url) {
-                // This requires the "discovrr" scheme prepended to work.
-                listener('discovrr://' + url);
-              }
-            });
-
-            return () => {
-              urlListener.remove();
-              unsubscribe();
-            };
-          },
-        }}>
+          return () => {
+            urlListener.remove();
+            unsubscribe();
+          };
+        },
+      }}>
+      <PersistGate
+        persistor={persistor}
+        loading={<SplashScreen />}
+        onBeforeLift={handleBeforeLift}>
         <PortalProvider>
           <AuthGate />
         </PortalProvider>
-      </NavigationContainer>
-    </PersistGate>
+      </PersistGate>
+    </NavigationContainer>
   );
 }
 
