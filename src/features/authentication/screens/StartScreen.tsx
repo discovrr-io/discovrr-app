@@ -49,13 +49,24 @@ export default function StartScreen(props: StartScreenProps) {
 
   const [email, setEmail] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
-  const [isVideoPaused, setIsVideoPaused] = React.useState(false);
+  const [isVideoPaused, setIsVideoPaused] = React.useState(true);
+  const [isInitialRender, setIsInitialRender] = React.useState(true);
 
   useFocusEffect(
     React.useCallback(() => {
-      setIsVideoPaused(false);
-      return () => setIsVideoPaused(true);
-    }, []),
+      const timeout = setTimeout(
+        () => {
+          setIsVideoPaused(false);
+          if (isInitialRender) setIsInitialRender(false);
+        },
+        Platform.OS === 'ios' && isInitialRender ? 1000 : 0,
+      );
+
+      return () => {
+        clearTimeout(timeout);
+        setIsVideoPaused(true);
+      };
+    }, [isInitialRender]),
   );
 
   React.useLayoutEffect(() => {
@@ -303,7 +314,7 @@ const styles = StyleSheet.create({
   },
   dividerText: {
     color: constants.color.gray500,
-    paddingHorizontal: constants.layout.spacing.sm,
+    paddingHorizontal: constants.layout.spacing.sm * 1.5,
   },
   thirdPartyAuthButton: {
     marginBottom: constants.layout.spacing.md,
