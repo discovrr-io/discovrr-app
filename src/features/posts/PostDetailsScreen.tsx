@@ -47,6 +47,7 @@ import {
   LoadingContainer,
   LoadingOverlay,
   RouteError,
+  SignInPrompt,
 } from 'src/components';
 
 import {
@@ -255,8 +256,16 @@ const PostHeaderComponent = ({ post }: { post: Post }) => {
   );
 };
 
-const AddCommentComponent = () => {
+function AddCommentComponent() {
+  const navigation = useNavigation<RootStackNavigationProp>();
+
+  const currentUser = useAppSelector(state => state.auth.user);
   const { colors } = useExtendedTheme();
+
+  const handleSignIn = () => {
+    navigation.navigate('AuthPrompt', { screen: 'AuthStart' });
+  };
+
   return (
     <View style={{ alignItems: 'center' }}>
       <Text
@@ -265,7 +274,9 @@ const AddCommentComponent = () => {
           constants.font.mediumBold,
           { textAlign: 'center', color: colors.text },
         ]}>
-        Why not add to the conversation?
+        {currentUser
+          ? 'Why not add to the conversation?'
+          : 'Want to add to the conversation?'}
       </Text>
       <Text
         maxFontSizeMultiplier={1.2}
@@ -273,11 +284,25 @@ const AddCommentComponent = () => {
           constants.font.small,
           { textAlign: 'center', color: colors.caption },
         ]}>
-        Reply with your own comment below!
+        {currentUser
+          ? 'Reply with your own comment below!'
+          : 'Sign in to get the most out of Discovrr.'}
       </Text>
+      {!currentUser && (
+        <Button
+          title="Sign In"
+          size="medium"
+          variant="contained"
+          onPress={handleSignIn}
+          containerStyle={{
+            marginTop: constants.layout.spacing.md,
+            marginBottom: constants.layout.spacing.lg,
+          }}
+        />
+      )}
     </View>
   );
-};
+}
 
 type PostDetailsScreenProps = RootStackScreenProps<'PostDetails'>;
 
@@ -324,11 +349,13 @@ function LoadedPostDetailsScreen(props: LoadedPostDetailsScreenProps) {
   const $FUNC = '[PostDetailsScreen]';
   const { post, focusCommentBox } = props;
 
+  const dispatch = useAppDispatch();
+  const isMounted = useIsMounted();
+
   const { bottom: bottomInset } = useSafeAreaInsets();
   const { colors } = useExtendedTheme();
 
-  const dispatch = useAppDispatch();
-  const isMounted = useIsMounted();
+  const currentUser = useAppSelector(state => state.auth.user);
 
   const flatListRef = React.useRef<FlatList<CommentId>>(null);
   const textInputRef = React.useRef<TextInput>(null);
@@ -482,11 +509,13 @@ function LoadedPostDetailsScreen(props: LoadedPostDetailsScreenProps) {
                 message="We weren't able to get the comments for this post. Please try again later."
                 containerStyle={{ backgroundColor: colors.card }}
               />
-            ) : (
+            ) : currentUser ? (
               <EmptyContainer
                 message="No comments here. Be the first one!"
                 containerStyle={{ backgroundColor: colors.card }}
               />
+            ) : (
+              <SignInPrompt title="Want to add a comment?" />
             )
           }
           ListFooterComponent={
@@ -540,55 +569,57 @@ function LoadedPostDetailsScreen(props: LoadedPostDetailsScreenProps) {
               </TouchableOpacity>
             </View>
           )}
-          <View
-            style={[
-              postDetailsScreenStyles.commentBoxContainer,
-              {
-                backgroundColor: colors.background,
-                borderColor: colors.border,
-              },
-            ]}>
-            <TextInput
-              ref={textInputRef}
-              multiline
-              blurOnSubmit
-              returnKeyType="done"
-              maxLength={300}
-              value={commentTextInput}
-              onChangeText={setCommentTextInput}
-              editable={!isProcessingComment}
-              placeholder="Add a comment…"
-              placeholderTextColor={constants.color.gray500}
-              selectionColor={
-                Platform.OS === 'ios' ? constants.color.accent : undefined
-              }
+          {currentUser && (
+            <View
               style={[
-                constants.font.small,
-                { color: colors.text },
-                postDetailsScreenStyles.commentBoxTextInput,
-                isProcessingComment && { color: constants.color.gray500 },
-                Platform.OS === 'ios' && {
-                  paddingTop: constants.layout.spacing.lg * 1.2,
-                  paddingBottom: constants.layout.spacing.lg * 1.2,
-                  paddingRight:
-                    constants.layout.defaultScreenMargins.horizontal * 1.5,
-                  minHeight: COMMENT_TEXT_INPUT_MIN_HEIGHT,
-                  maxHeight: COMMENT_TEXT_INPUT_MAX_HEIGHT,
+                postDetailsScreenStyles.commentBoxContainer,
+                {
+                  backgroundColor: colors.background,
+                  borderColor: colors.border,
                 },
-              ]}
-            />
-            <Button
-              title="Post"
-              type="primary"
-              size="small"
-              variant="text"
-              disabled={commentTextInput.trim().length < 3}
-              loading={isProcessingComment}
-              onPress={handlePressPostButton}
-              containerStyle={postDetailsScreenStyles.commentBoxPostButton}
-              innerTextProps={{ maxFontSizeMultiplier: 1.2 }}
-            />
-          </View>
+              ]}>
+              <TextInput
+                ref={textInputRef}
+                multiline
+                blurOnSubmit
+                returnKeyType="done"
+                maxLength={300}
+                value={commentTextInput}
+                onChangeText={setCommentTextInput}
+                editable={!isProcessingComment}
+                placeholder="Add a comment…"
+                placeholderTextColor={constants.color.gray500}
+                selectionColor={
+                  Platform.OS === 'ios' ? constants.color.accent : undefined
+                }
+                style={[
+                  constants.font.small,
+                  { color: colors.text },
+                  postDetailsScreenStyles.commentBoxTextInput,
+                  isProcessingComment && { color: constants.color.gray500 },
+                  Platform.OS === 'ios' && {
+                    paddingTop: constants.layout.spacing.lg * 1.2,
+                    paddingBottom: constants.layout.spacing.lg * 1.2,
+                    paddingRight:
+                      constants.layout.defaultScreenMargins.horizontal * 1.5,
+                    minHeight: COMMENT_TEXT_INPUT_MIN_HEIGHT,
+                    maxHeight: COMMENT_TEXT_INPUT_MAX_HEIGHT,
+                  },
+                ]}
+              />
+              <Button
+                title="Post"
+                type="primary"
+                size="small"
+                variant="text"
+                disabled={commentTextInput.trim().length < 3}
+                loading={isProcessingComment}
+                onPress={handlePressPostButton}
+                containerStyle={postDetailsScreenStyles.commentBoxPostButton}
+                innerTextProps={{ maxFontSizeMultiplier: 1.2 }}
+              />
+            </View>
+          )}
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
