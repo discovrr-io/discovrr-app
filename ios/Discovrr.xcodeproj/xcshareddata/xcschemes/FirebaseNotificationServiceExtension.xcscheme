@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1240"
+   LastUpgradeVersion = "1250"
    wasCreatedForAppExtension = "YES"
    version = "2.0">
    <BuildAction
@@ -15,9 +15,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "03DC1B01262DE70600A0D5C5"
-               BuildableName = "OneSignalNotificationServiceExtension.appex"
-               BlueprintName = "OneSignalNotificationServiceExtension"
+               BlueprintIdentifier = "03123DFB274A160400C9D53A"
+               BuildableName = "FirebaseNotificationServiceExtension.appex"
+               BlueprintName = "FirebaseNotificationServiceExtension"
                ReferencedContainer = "container:Discovrr.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
