@@ -22,7 +22,12 @@ import messaging from '@react-native-firebase/messaging';
 import FastImage from 'react-native-fast-image';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Parse from 'parse/react-native';
-import { useNavigation, useScrollToTop } from '@react-navigation/native';
+
+import {
+  useFocusEffect,
+  useNavigation,
+  useScrollToTop,
+} from '@react-navigation/native';
 
 import Animated, {
   interpolate,
@@ -34,6 +39,7 @@ import Animated, {
 
 import * as constants from 'src/constants';
 import * as utilities from 'src/utilities';
+import * as onboardingSlice from 'src/features/onboarding/onboarding-slice';
 import * as profilesSlice from 'src/features/profiles/profiles-slice';
 import ProductItemCard from 'src/features/products/ProductItemCard';
 import { ProductId, Profile } from 'src/models';
@@ -53,6 +59,11 @@ import {
   useExtendedTheme,
   useIsMounted,
 } from 'src/hooks';
+
+import OnboardingModal, {
+  OnboardingModalContext,
+  OnboardingResult,
+} from 'src/features/onboarding/OnboardingModal';
 
 const TILE_SPACING = constants.values.DEFAULT_TILE_SPACING;
 const EXPLORE_OUR_MAKERS_NUM_COLUMNS = 2;
@@ -78,7 +89,6 @@ type HomeFeedData = {
   limitedOfferProductId?: ProductId;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function requestNotificationPermission() {
   try {
     const authStatus = await messaging().requestPermission();
@@ -556,11 +566,16 @@ export default function LandingScreen(_: LandingScreenProps) {
   const isMounted = useIsMounted();
 
   const currentUser = useAppSelector(state => state.auth.user);
+  const { didCompleteMainOnboarding } = useAppSelector(s => s.onboarding);
 
   const [homeFeedData, setHomeFeedData] = React.useState<HomeFeedData>();
   const [makers, setMakers] = React.useState<Profile[]>([]);
   const [isInitialRender, setIsInitialRender] = React.useState(true);
   const [shouldRefresh, setShouldRefresh] = React.useState(false);
+
+  const [isModalVisible, setIsModalVisible] = React.useState(
+    !didCompleteMainOnboarding,
+  );
 
   const masonryListScrollViewRef = React.useRef<ScrollView>(null);
   useScrollToTop(masonryListScrollViewRef);
@@ -580,6 +595,16 @@ export default function LandingScreen(_: LandingScreenProps) {
       })
       .catch(error => console.warn($FUNC, 'Failed to log screen view:', error));
   }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const timeout = setTimeout(() => {
+        if (!didCompleteMainOnboarding) setIsModalVisible(true);
+      }, 1500);
+
+      return () => clearTimeout(timeout);
+    }, [didCompleteMainOnboarding]),
+  );
 
   React.useEffect(
     () => {
@@ -613,86 +638,122 @@ export default function LandingScreen(_: LandingScreenProps) {
     if (!isInitialRender && !shouldRefresh) setShouldRefresh(true);
   };
 
+  const handleCompleteOnboarding = async (result: OnboardingResult) => {
+    try {
+      console.log($FUNC, 'Sending onboarding result:', result);
+
+      const survey = await new Parse.Query('Survey')
+        .equalTo('response', result.surveyResponse || 'no answer')
+        .first();
+
+      survey?.increment('count');
+      await survey?.save();
+
+      dispatch(onboardingSlice.completeMainOnboarding());
+    } catch (error) {
+      // We don't care if it fails
+      console.warn($FUNC, 'Failed to save onboarding response:', error);
+    } finally {
+      setIsModalVisible(false);
+      await requestNotificationPermission();
+    }
+  };
+
+  const handleSkipOnboarding = async () => {
+    console.log($FUNC, 'Skipped onboarding');
+    setIsModalVisible(false);
+    await requestNotificationPermission();
+  };
+
   return (
-    <MasonryList
-      ref={masonryListScrollViewRef}
-      data={homeFeedData?.featuredProductIds ?? []}
-      contentContainerStyle={{
-        paddingVertical: constants.layout.spacing.lg,
-      }}
-      refreshControl={
-        <RefreshControl
-          tintColor={constants.color.gray500}
-          refreshing={!isInitialRender && shouldRefresh}
-          onRefresh={handleRefresh}
-        />
-      }
-      ListHeaderComponent={
-        <View
-          style={{
-            paddingHorizontal: constants.layout.defaultScreenMargins.horizontal,
-          }}>
-          {!currentUser && (
-            <View>
-              <SignInCard />
-              <Spacer.Vertical value="lg" />
-            </View>
-          )}
-          <CallToActionCard
-            title={
-              homeFeedData?.callToAction.title ??
-              'Get inspired by Australian creativity today!'
-            }
-            caption={
-              homeFeedData?.callToAction.caption ??
-              'Explore our carefully curated catalogue of products made by our local makers.'
-            }
+    <OnboardingModalContext.Provider
+      value={{
+        completeOnboarding: handleCompleteOnboarding,
+        skipOnboarding: handleSkipOnboarding,
+      }}>
+      <OnboardingModal visible={isModalVisible} />
+      <MasonryList
+        ref={masonryListScrollViewRef}
+        data={homeFeedData?.featuredProductIds ?? []}
+        contentContainerStyle={{
+          paddingVertical: constants.layout.spacing.lg,
+        }}
+        refreshControl={
+          <RefreshControl
+            tintColor={constants.color.gray500}
+            refreshing={!isInitialRender && shouldRefresh}
+            onRefresh={handleRefresh}
           />
-          <Spacer.Vertical value="lg" />
-          <ShopNowCard />
-          {(isInitialRender || shouldRefresh) && !homeFeedData ? (
-            <MakerOfTheWeek.Pending />
-          ) : homeFeedData ? (
-            <MakerOfTheWeek {...homeFeedData.makerOfTheWeek} />
-          ) : null}
-          <SectionTitle title={OUR_PICKS_FOR_THE_WEEK_TITLE} />
-        </View>
-      }
-      ListFooterComponent={
-        <View
-          style={{
-            paddingBottom: constants.layout.defaultScreenMargins.vertical,
-            paddingHorizontal: constants.layout.defaultScreenMargins.horizontal,
-          }}>
-          {homeFeedData?.limitedOfferProductId && (
-            <LimitedOffer productId={homeFeedData.limitedOfferProductId} />
-          )}
-          {__DEV__ && Platform.OS === 'ios'
-            ? null
-            : (!isInitialRender || !shouldRefresh) &&
-              makers.length > 0 && <ExploreOurMakers profiles={makers} />}
-        </View>
-      }
-      ListEmptyComponent={
-        isInitialRender || shouldRefresh ? (
-          <LoadingContainer />
-        ) : (
-          <EmptyContainer message="There aren't any featured products at the moment" />
-        )
-      }
-      renderItem={({ item: productId, column, index }) => (
-        <ProductItemCard
-          key={productId}
-          productId={productId}
-          elementOptions={{ smallContent: true }}
-          style={{
-            marginTop: index < 2 ? 0 : TILE_SPACING,
-            marginLeft: column % 2 === 0 ? TILE_SPACING : TILE_SPACING / 2,
-            marginRight: column % 2 !== 0 ? TILE_SPACING : TILE_SPACING / 2,
-          }}
-        />
-      )}
-    />
+        }
+        ListHeaderComponent={
+          <View
+            style={{
+              paddingHorizontal:
+                constants.layout.defaultScreenMargins.horizontal,
+            }}>
+            {!currentUser && (
+              <View>
+                <SignInCard />
+                <Spacer.Vertical value="lg" />
+              </View>
+            )}
+            <CallToActionCard
+              title={
+                homeFeedData?.callToAction.title ??
+                'Get inspired by Australian creativity today!'
+              }
+              caption={
+                homeFeedData?.callToAction.caption ??
+                'Explore our carefully curated catalogue of products made by our local makers.'
+              }
+            />
+            <Spacer.Vertical value="lg" />
+            <ShopNowCard />
+            {(isInitialRender || shouldRefresh) && !homeFeedData ? (
+              <MakerOfTheWeek.Pending />
+            ) : homeFeedData ? (
+              <MakerOfTheWeek {...homeFeedData.makerOfTheWeek} />
+            ) : null}
+            <SectionTitle title={OUR_PICKS_FOR_THE_WEEK_TITLE} />
+          </View>
+        }
+        ListFooterComponent={
+          <View
+            style={{
+              paddingBottom: constants.layout.defaultScreenMargins.vertical,
+              paddingHorizontal:
+                constants.layout.defaultScreenMargins.horizontal,
+            }}>
+            {homeFeedData?.limitedOfferProductId && (
+              <LimitedOffer productId={homeFeedData.limitedOfferProductId} />
+            )}
+            {__DEV__ && Platform.OS === 'ios'
+              ? null
+              : (!isInitialRender || !shouldRefresh) &&
+                makers.length > 0 && <ExploreOurMakers profiles={makers} />}
+          </View>
+        }
+        ListEmptyComponent={
+          isInitialRender || shouldRefresh ? (
+            <LoadingContainer />
+          ) : (
+            <EmptyContainer message="There aren't any featured products at the moment" />
+          )
+        }
+        renderItem={({ item: productId, column, index }) => (
+          <ProductItemCard
+            key={productId}
+            productId={productId}
+            elementOptions={{ smallContent: true }}
+            style={{
+              marginTop: index < 2 ? 0 : TILE_SPACING,
+              marginLeft: column % 2 === 0 ? TILE_SPACING : TILE_SPACING / 2,
+              marginRight: column % 2 !== 0 ? TILE_SPACING : TILE_SPACING / 2,
+            }}
+          />
+        )}
+      />
+    </OnboardingModalContext.Provider>
   );
 }
 

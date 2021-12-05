@@ -20,14 +20,14 @@ import * as utilities from 'src/utilities';
 import { Button, Cell, Spacer } from 'src/components';
 import { useExtendedTheme } from 'src/hooks';
 
-type OnboardingScreen = {
+type OnboardingPage = {
   id: 'home' | 'explore' | 'survey' | 'post';
   image?: number;
   title: string;
   body: string;
 };
 
-const ONBOARDING_SCREENS: OnboardingScreen[] = [
+const ONBOARDING_PAGES: OnboardingPage[] = [
   {
     id: 'home',
     title: 'Home',
@@ -138,12 +138,12 @@ function OnboardingModalGreetingContent(props: {
         Hi there 👋
       </Text>
       <View style={{ flexGrow: 1 }}>
-        <Text style={[constants.font.medium, { color: colors.text }]}>
+        <Text style={[constants.font.large, { color: colors.text }]}>
           Welcome! Discovrr is a place where you can explore and see what local
           makers and creators are making in your community.
         </Text>
         <Spacer.Vertical value="lg" />
-        <Text style={[constants.font.medium, { color: colors.text }]}>
+        <Text style={[constants.font.large, { color: colors.text }]}>
           This is Discovrr v{constants.values.APP_VERSION}. Please report any
           bugs or give your feedback to{' '}
           <Text
@@ -153,9 +153,11 @@ function OnboardingModalGreetingContent(props: {
             }}>
             milos@discovrr.app
           </Text>
+          {'.'}
         </Text>
       </View>
       <View>
+        <Spacer.Vertical value="lg" />
         <Button
           title="Show Me Around"
           type="primary"
@@ -177,7 +179,7 @@ function OnboardingModalInfoContent() {
   const [carouselWidth, setCarouselWidth] = React.useState(1);
   const [currentIndex, setCurrentIndex] = React.useState(0);
 
-  const carouselRef = React.useRef<Carousel<OnboardingScreen> | null>(null);
+  const carouselRef = React.useRef<Carousel<OnboardingPage> | null>(null);
   const { colors } = useExtendedTheme();
 
   return (
@@ -193,7 +195,7 @@ function OnboardingModalInfoContent() {
       }>
       <Carousel
         ref={c => (carouselRef.current = c)}
-        data={ONBOARDING_SCREENS}
+        data={ONBOARDING_PAGES}
         sliderWidth={carouselWidth}
         itemWidth={carouselWidth}
         onSnapToItem={setCurrentIndex}
@@ -203,9 +205,9 @@ function OnboardingModalInfoContent() {
         activeDotIndex={currentIndex}
         dotColor={colors.caption}
         inactiveDotColor={colors.captionDisabled}
-        dotsLength={ONBOARDING_SCREENS.length}
+        dotsLength={ONBOARDING_PAGES.length}
         containerStyle={{
-          paddingTop: 0,
+          paddingTop: constants.layout.spacing.md,
           paddingBottom: constants.layout.spacing.md,
         }}
       />
@@ -219,7 +221,7 @@ function OnboardingModalInfoContent() {
           <Icon name="chevron-back-outline" size={30} color={colors.text} />
         </TouchableOpacity>
       )}
-      {currentIndex < ONBOARDING_SCREENS.length - 1 && (
+      {currentIndex < ONBOARDING_PAGES.length - 1 && (
         <TouchableOpacity
           onPress={() => carouselRef.current?.snapToNext(true)}
           style={{
@@ -233,14 +235,16 @@ function OnboardingModalInfoContent() {
   );
 }
 
-function OnboardingModalInfoContentPage(props: OnboardingScreen) {
+function OnboardingModalInfoContentPage(props: OnboardingPage) {
   const modalContext = React.useContext(OnboardingModalContext);
   const modalResultContext = React.useContext(OnboardingModalResultContext);
   const { colors } = useExtendedTheme();
 
+  const [isLoading, setIsLoading] = React.useState(false);
+
   return (
-    <View
-      style={{
+    <ScrollView
+      contentContainerStyle={{
         flexGrow: 1,
         alignItems: 'center',
         justifyContent: 'center',
@@ -299,10 +303,17 @@ function OnboardingModalInfoContentPage(props: OnboardingScreen) {
           size="medium"
           type="primary"
           variant="contained"
-          onPress={() => modalContext.completeOnboarding(modalResultContext)}
-          containerStyle={{ marginTop: constants.layout.spacing.md }}
+          loading={isLoading}
+          containerStyle={{
+            minWidth: 160,
+            marginTop: constants.layout.spacing.md,
+          }}
+          onPress={() => {
+            setIsLoading(true);
+            modalContext.completeOnboarding(modalResultContext);
+          }}
         />
       )}
-    </View>
+    </ScrollView>
   );
 }
