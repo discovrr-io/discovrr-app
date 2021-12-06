@@ -122,7 +122,7 @@ export default function RegisterScreen(props: RegisterScreenProps) {
         }}
         validationSchema={registerFormSchema}
         onSubmit={handleSubmit}>
-        {({ handleSubmit }) => (
+        {({ handleSubmit, isSubmitting }) => (
           <View>
             <View>
               <LabelledFormikTextInput
@@ -163,6 +163,7 @@ export default function RegisterScreen(props: RegisterScreenProps) {
                 title="Create Account"
                 type="primary"
                 variant="contained"
+                disabled={isSubmitting}
                 onPress={handleSubmit}
               />
               <Spacer.Vertical value="md" />

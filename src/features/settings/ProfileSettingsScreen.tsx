@@ -229,8 +229,10 @@ function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
         if (profile.avatar) {
           try {
             const filePath =
-              profile.avatar.path ||
-              `/profiles/avatars/${profile.avatar.filename}`;
+              profile.avatar.path || profile.avatar.filename
+                ? `/profiles/avatars/${profile.avatar.filename}`
+                : undefined;
+
             if (filePath) {
               console.log(
                 $FUNC,
@@ -244,23 +246,25 @@ function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
             }
           } catch (error) {
             // We'll just continue on if this fails
-            console.error('Failed to delete old avatar from Firebase:', error);
+            console.warn('Failed to delete old avatar from Firebase:', error);
 
-            try {
-              console.warn(
-                $FUNC,
-                'Resorting to deleting profile avatar from legacy directory...',
-              );
-              const reference = storage().ref(
-                `/avatars/${profile.avatar?.filename}`,
-              );
-              await reference.delete();
-            } catch (error) {
-              // We'll just continue on if this fails
-              console.error(
-                'Failed to delete old avatar from legacy directory:',
-                error,
-              );
+            if (profile.avatar.filename) {
+              try {
+                console.log(
+                  $FUNC,
+                  'Resorting to deleting profile avatar from legacy directory...',
+                );
+                const reference = storage().ref(
+                  `/avatars/${profile.avatar.filename}`,
+                );
+                await reference.delete();
+              } catch (error) {
+                // We'll just continue on if this fails
+                console.warn(
+                  'Failed to delete old avatar from legacy directory:',
+                  error,
+                );
+              }
             }
           }
         }

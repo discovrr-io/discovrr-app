@@ -523,7 +523,7 @@ function ProfileDetailsHeader(props: ProfileDetailsHeaderProps) {
   const [fallbackToImage, setFallbackToImage] = React.useState(false);
 
   const headerHeight = useHeaderHeight();
-  const avatarHeight = windowHeight * 0.13;
+  const avatarHeight = windowHeight * 0.12;
 
   const headerContentOpacity = useSharedValue(1);
   const headerContentStyle = useAnimatedStyle(() => ({

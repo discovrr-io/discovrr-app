@@ -14,6 +14,7 @@ import {
 // import FastImage from 'react-native-fast-image';
 import Video from 'react-native-video';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import auth from '@react-native-firebase/auth';
 import { appleAuth } from '@invertase/react-native-apple-authentication';
@@ -48,7 +49,7 @@ export default function StartScreen(props: StartScreenProps) {
   const { colors } = useExtendedTheme();
 
   const [email, setEmail] = React.useState('');
-  const [isLoading, setIsLoading] = React.useState(false);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [isVideoPaused, setIsVideoPaused] = React.useState(true);
   const [isInitialRender, setIsInitialRender] = React.useState(true);
 
@@ -71,18 +72,18 @@ export default function StartScreen(props: StartScreenProps) {
 
   React.useLayoutEffect(() => {
     const unsubscribe = props.navigation.addListener('beforeRemove', event => {
-      if (!isLoading) return;
+      if (!isSubmitting) return;
       event.preventDefault();
     });
 
     return unsubscribe;
-  }, [props.navigation, isLoading]);
+  }, [props.navigation, isSubmitting]);
 
   const handleSubmit = async () => {
     const trimmedEmail = email.trim();
     try {
       if (!trimmedEmail) throw undefined; // Go to catch block
-      setIsLoading(true);
+      setIsSubmitting(true);
       const profile = await ProfileApi.fetchProfileByEmail({
         email: trimmedEmail,
       });
@@ -90,7 +91,7 @@ export default function StartScreen(props: StartScreenProps) {
     } catch (_) {
       props.navigation.navigate('Register', { email: trimmedEmail });
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -143,7 +144,7 @@ export default function StartScreen(props: StartScreenProps) {
               )}
               <LabelledTextInput
                 size="large"
-                editable={!isLoading}
+                editable={!isSubmitting}
                 label="Enter your email address to sign in or register"
                 placeholder="Your email address"
                 autoCapitalize="none"
@@ -153,7 +154,7 @@ export default function StartScreen(props: StartScreenProps) {
                 onChangeText={setEmail}
                 onSubmitEditing={handleSubmit}
                 suffix={
-                  isLoading ? (
+                  isSubmitting ? (
                     <ActivityIndicator size="small" color={colors.primary} />
                   ) : (
                     <TextInput.Icon
@@ -177,7 +178,7 @@ export default function StartScreen(props: StartScreenProps) {
               <View style={[styles.dividerLine]} />
             </View>
             <Spacer.Vertical value="lg" />
-            <StartScreenThirdPartyAuthProviders />
+            <StartScreenThirdPartyAuthProviders disabled={isSubmitting} />
           </View>
         </KeyboardAvoidingView>
       </ScrollView>
@@ -185,12 +186,15 @@ export default function StartScreen(props: StartScreenProps) {
   );
 }
 
-function StartScreenThirdPartyAuthProviders() {
+function StartScreenThirdPartyAuthProviders(props: { disabled?: boolean }) {
   const $FUNC = '[StartScreenThirdPartyProviders]';
+  const { disabled = false } = props;
 
   const dispatch = useAppDispatch();
   const navigation = useNavigation<StartScreenProps['navigation']>();
   const isMounted = useIsMounted();
+
+  const { bottom: bottomInset } = useSafeAreaInsets();
 
   const [isProcessing, setIsProcessing] = React.useState(false);
 
@@ -258,7 +262,7 @@ function StartScreenThirdPartyAuthProviders() {
   };
 
   return (
-    <View>
+    <View style={{ paddingBottom: bottomInset }}>
       {Platform.OS === 'ios' && (
         <Button
           title="Continue with Apple"
@@ -266,7 +270,7 @@ function StartScreenThirdPartyAuthProviders() {
           variant="outlined"
           innerTextProps={{ allowFontScaling: false }}
           containerStyle={[styles.thirdPartyAuthButton]}
-          disabled={isProcessing}
+          disabled={disabled || isProcessing}
           onPress={handleSignInWithApple}
         />
       )}
@@ -276,7 +280,7 @@ function StartScreenThirdPartyAuthProviders() {
         variant="outlined"
         innerTextProps={{ allowFontScaling: false }}
         containerStyle={[styles.thirdPartyAuthButton]}
-        disabled={isProcessing}
+        disabled={disabled || isProcessing}
         onPress={handleSignInWithGoogle}
       />
       <Button
@@ -284,7 +288,7 @@ function StartScreenThirdPartyAuthProviders() {
         icon="logo-facebook"
         variant="outlined"
         innerTextProps={{ allowFontScaling: false }}
-        disabled={isProcessing}
+        disabled={disabled || isProcessing}
         onPress={() =>
           utilities.alertUnavailableFeature({
             message: 'Signing in with Facebook will be available soon!',

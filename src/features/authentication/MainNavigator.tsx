@@ -5,6 +5,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { useNavigation } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
   createBottomTabNavigator,
@@ -53,6 +54,7 @@ function MyProfileDetailsScreen(props: MyProfileDetailsScreenProps) {
   const navigation = useNavigation();
   const headerHeight = useHeaderHeight();
   const bottomTabBarHeight = useBottomTabBarHeight();
+
   const { height: windowHeight } = useWindowDimensions();
   const { colors } = useExtendedTheme();
 
@@ -100,7 +102,9 @@ function FacadeNavigator() {
   const $FUNC = '[FacadeNavigator]';
   const myProfileId = useMyProfileId();
 
+  const { bottom: bottomInset } = useSafeAreaInsets();
   const { colors } = useExtendedTheme();
+
   const unreadCount = useAppSelector(
     notificationsSlice.selectUnreadNotificationsCount,
   );
@@ -122,7 +126,8 @@ function FacadeNavigator() {
         tabBarInactiveTintColor: colors.caption,
         tabBarAllowFontScaling: false,
         tabBarStyle: {
-          minHeight: constants.values.DEFAULT_MIN_BOTTOM_TAB_BAR_HEIGHT,
+          height:
+            bottomInset + constants.values.DEFAULT_MIN_BOTTOM_TAB_BAR_HEIGHT,
         },
         tabBarLabelStyle: [
           constants.font.defaultBottomTabLabelStyle,

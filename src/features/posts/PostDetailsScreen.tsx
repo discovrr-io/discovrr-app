@@ -360,6 +360,7 @@ function LoadedPostDetailsScreen(props: LoadedPostDetailsScreenProps) {
   const { post, focusCommentBox } = props;
 
   const dispatch = useAppDispatch();
+  const navigation = useNavigation<PostDetailsScreenProps['navigation']>();
   const isMounted = useIsMounted();
 
   const { bottom: bottomInset } = useSafeAreaInsets();
@@ -383,6 +384,14 @@ function LoadedPostDetailsScreen(props: LoadedPostDetailsScreenProps) {
   const commentIds = useAppSelector(state => {
     return commentsSlice.selectCommentsForPost(state, post.id);
   });
+
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      cardStyle: {
+        backgroundColor: currentUser ? colors.background : colors.card,
+      },
+    });
+  }, [navigation, currentUser, colors]);
 
   React.useEffect(() => {
     // FIXME: Keyboard avoiding view doesn't work nicely on Android

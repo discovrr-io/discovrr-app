@@ -30,6 +30,10 @@ export default function ForgotPasswordScreen(props: ForgotPasswordScreenProps) {
   const handleSubmit = async (values: ForgotPasswordForm) => {
     try {
       await auth().sendPasswordResetEmail(values.email.trim());
+      Alert.alert(
+        'Reset Link Sent',
+        "We've sent you an email with instructions on how to reset your password.\n\nMake sure to check your junk mail if you don't see an email from us.",
+      );
     } catch (error: any) {
       if (error.code === 'auth/user-not-found') {
         Alert.alert(
@@ -60,9 +64,12 @@ export default function ForgotPasswordScreen(props: ForgotPasswordScreenProps) {
           <View>
             <LabelledFormikTextInput
               fieldName="email"
+              size="large"
               label="Email"
               placeholder="Enter your email address"
-              size="large"
+              returnKeyType="done"
+              editable={!isSubmitting}
+              onSubmitEditing={handleSubmit}
             />
             <Spacer.Vertical value="xl" />
             <Button

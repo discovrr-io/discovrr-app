@@ -95,7 +95,9 @@ export default function LoginScreen(props: LoginScreenProps) {
               size="large"
               label="Password"
               placeholder="Enter your password"
+              returnKeyType="done"
               editable={!isSubmitting}
+              onSubmitEditing={handleSubmit}
             />
             <Spacer.Vertical value="xl" />
             <View>
@@ -103,7 +105,7 @@ export default function LoginScreen(props: LoginScreenProps) {
                 title="Sign In"
                 type="primary"
                 variant="contained"
-                loading={isSubmitting}
+                disabled={isSubmitting}
                 onPress={handleSubmit}
               />
               <Spacer.Vertical value="md" />

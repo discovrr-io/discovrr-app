@@ -30,7 +30,7 @@ type AuthFormContainerProps = {
 
 export default function AuthFormContainer(props: AuthFormContainerProps) {
   const { title, coverImageSource, caption, children } = props;
-  const { top: topInset } = useSafeAreaInsets();
+  const { top: topInset, bottom: bottomInset } = useSafeAreaInsets();
   const { colors } = useExtendedTheme();
 
   return (
@@ -40,7 +40,8 @@ export default function AuthFormContainer(props: AuthFormContainerProps) {
       <ScrollView
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{
-          paddingVertical: constants.layout.spacing.xxl,
+          paddingTop: constants.layout.spacing.xxl,
+          paddingBottom: constants.layout.spacing.xxl + bottomInset,
         }}>
         <FastImage
           resizeMode="contain"

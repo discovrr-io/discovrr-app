@@ -205,7 +205,10 @@ export default function ProductsFeed(_: ProductsFeedProps) {
         )}
         ListFooterComponent={
           !isInitialRender && productIds.length > 0 ? (
-            <FeedFooter didReachEnd={didReachEndFeed} />
+            <FeedFooter
+              didReachEnd={didReachEndFeed}
+              message="You've reached the end!"
+            />
           ) : undefined
         }
       />

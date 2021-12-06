@@ -76,7 +76,7 @@ export const __TextInput = React.forwardRef<RNTextInput, TextInputProps>(
             },
             !!error && {
               backgroundColor:
-                colors.dangerDisabled + utilities.percentToHex(0.5),
+                colors.dangerDisabled + utilities.percentToHex(0.35),
               borderWidth: 1,
               borderColor: colors.danger,
             },
@@ -122,10 +122,10 @@ export const __TextInput = React.forwardRef<RNTextInput, TextInputProps>(
               placeholderTextColor ??
               (dark
                 ? error
-                  ? constants.color.red100
+                  ? constants.color.danger
                   : constants.color.gray700
                 : error
-                ? constants.color.red300
+                ? constants.color.danger
                 : constants.color.gray500)
             }
             selectionColor={

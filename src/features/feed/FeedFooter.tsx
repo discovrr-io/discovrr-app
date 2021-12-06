@@ -14,6 +14,7 @@ import { useExtendedTheme } from 'src/hooks';
 
 type FeedFooterProps = {
   didReachEnd?: boolean;
+  message?: string;
   style?: StyleProp<ViewStyle>;
 };
 
@@ -27,7 +28,7 @@ export default function FeedFooter(props: FeedFooterProps) {
             constants.font.largeBold,
             { textAlign: 'center', color: colors.text },
           ]}>
-          You&apos;re all caught up!
+          {props.message || "You're all caught up!"}
         </Text>
       ) : (
         <View
