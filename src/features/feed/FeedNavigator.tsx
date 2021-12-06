@@ -6,9 +6,9 @@ import { FeedTopTabParamList } from 'src/navigation';
 import { useExtendedTheme } from 'src/hooks';
 
 import DiscoverFeed from './DiscoverFeed';
-// import DiscoverFeed from './DiscoverFeed.new';
-import NearMeFeed from './NearMeFeed';
+// import NearMeFeed from './NearMeFeed';
 import FollowingFeed from './FollowingFeed';
+import ProductsFeed from './ProductsFeed';
 
 const FeedTopTab = createMaterialTopTabNavigator<FeedTopTabParamList>();
 
@@ -30,10 +30,15 @@ export default function FeedNavigator() {
         component={DiscoverFeed}
         options={{ title: 'Discover' }}
       />
-      <FeedTopTab.Screen
+      {/* <FeedTopTab.Screen
         name="NearMeFeed"
         component={NearMeFeed}
         options={{ title: 'Near Me' }}
+      /> */}
+      <FeedTopTab.Screen
+        name="ProductsFeed"
+        component={ProductsFeed}
+        options={{ title: 'Products' }}
       />
       <FeedTopTab.Screen
         name="FollowingFeed"

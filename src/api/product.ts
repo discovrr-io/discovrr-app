@@ -97,6 +97,7 @@ export namespace ProductApi {
 
     productsQuery
       .include('statistics')
+      .descending('createdAt')
       .notEqualTo('status', ApiObjectStatus.DELETED)
       .notEqualTo('hidden', true);
 

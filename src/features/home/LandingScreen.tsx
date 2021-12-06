@@ -22,7 +22,12 @@ import messaging from '@react-native-firebase/messaging';
 import FastImage from 'react-native-fast-image';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Parse from 'parse/react-native';
-import { useNavigation, useScrollToTop } from '@react-navigation/native';
+
+import {
+  useLinkTo,
+  useNavigation,
+  useScrollToTop,
+} from '@react-navigation/native';
 
 import Animated, {
   interpolate,
@@ -65,7 +70,7 @@ const EXPLORE_OUR_MAKERS_NUM_COLUMNS = 2;
 
 const MAKER_OF_THE_WEEK_TITLE = 'Maker of the week';
 const OUR_PICKS_FOR_THE_WEEK_TITLE = 'Our picks for the week';
-const LIMITED_OFFER_TITLE = 'Limited offer';
+const WEEKLY_OFFER_TITLE = 'Weekly offer';
 const EXPLORE_OUR_MAKERS_TITLE = 'Explore our makers';
 
 type HomeFeedData = {
@@ -81,7 +86,15 @@ type HomeFeedData = {
     linkTitle?: string;
   };
   featuredProductIds?: ProductId[];
-  limitedOfferProductId?: ProductId;
+  limitedOffer?:
+    | { type: 'product'; productId: ProductId }
+    | {
+        type: 'image';
+        url: string;
+        width: number;
+        height: number;
+        link?: string;
+      };
 };
 
 async function requestNotificationPermission() {
@@ -115,6 +128,15 @@ async function fetchHomeFeedData(): Promise<HomeFeedData> {
     .equalTo('kind', 'vendor')
     .equalTo('highest-role', 'verified-vendor');
 
+  const limitedOfferProductId = homeFeedData.get('limitedOfferProduct')?.id;
+
+  const {
+    limitedOfferImageUrl,
+    limitedOfferImageWidth = 1,
+    limitedOfferImageHeight = 1,
+    limitedOfferImageLink,
+  } = homeFeedData.attributes;
+
   return {
     callToAction: {
       title: homeFeedData.get('callToActionTitle'),
@@ -128,7 +150,17 @@ async function fetchHomeFeedData(): Promise<HomeFeedData> {
       linkTitle: homeFeedData.get('makerOfTheWeekLinkTitle'),
     },
     featuredProductIds: homeFeedData.get('featuredProductsArray'),
-    limitedOfferProductId: homeFeedData.get('limitedOfferProduct')?.id,
+    limitedOffer: limitedOfferImageUrl
+      ? {
+          type: 'image',
+          url: limitedOfferImageUrl,
+          width: limitedOfferImageWidth,
+          height: limitedOfferImageHeight,
+          link: limitedOfferImageLink,
+        }
+      : limitedOfferProductId
+      ? { type: 'product', productId: limitedOfferProductId }
+      : undefined,
   };
 }
 
@@ -292,7 +324,7 @@ function ShopNowCard() {
       screen: 'Facade',
       params: {
         screen: 'Explore',
-        params: { screen: 'Feed', params: { screen: 'NearMeFeed' } },
+        params: { screen: 'Feed', params: { screen: 'ProductsFeed' } },
       },
     });
   };
@@ -329,6 +361,41 @@ function ShopNowCard() {
 const shopNowCardStyle = StyleSheet.create({
   card: { minHeight: 190, backgroundColor: constants.color.teal500 },
 });
+
+type WeeklyOfferProps = NonNullable<HomeFeedData['limitedOffer']>;
+
+function WeeklyOffer(props: WeeklyOfferProps) {
+  const linkTo = useLinkTo();
+  const { colors } = useExtendedTheme();
+
+  const handlePressImage = (link?: string) => {
+    if (link) linkTo(link);
+  };
+
+  return (
+    <View>
+      <SectionTitle title={WEEKLY_OFFER_TITLE} />
+      {props.type === 'image' ? (
+        <TouchableOpacity
+          activeOpacity={1}
+          onPress={() => handlePressImage(props.link)}>
+          <FastImage
+            resizeMode="cover"
+            source={{ uri: props.url }}
+            style={{
+              width: '100%',
+              aspectRatio: props.width / props.height,
+              backgroundColor: colors.placeholder,
+              borderRadius: constants.layout.radius.md,
+            }}
+          />
+        </TouchableOpacity>
+      ) : props.productId ? (
+        <ProductItemCard productId={props.productId} />
+      ) : null}
+    </View>
+  );
+}
 
 type MakerOfTheWeekProps = HomeFeedData['makerOfTheWeek'];
 
@@ -446,19 +513,6 @@ const makerOfTheWeekStyles = StyleSheet.create({
     paddingHorizontal: constants.layout.spacing.md,
   },
 });
-
-type LimitedOfferProps = {
-  productId: NonNullable<HomeFeedData['limitedOfferProductId']>;
-};
-
-function LimitedOffer(props: LimitedOfferProps) {
-  return (
-    <View>
-      <SectionTitle title={LIMITED_OFFER_TITLE} />
-      <ProductItemCard productId={props.productId} />
-    </View>
-  );
-}
 
 type ExploreOurMakersProps = {
   profiles: Profile[];
@@ -705,6 +759,9 @@ export default function LandingScreen(_: LandingScreenProps) {
             />
             <Spacer.Vertical value="lg" />
             <ShopNowCard />
+            {homeFeedData?.limitedOffer && (
+              <WeeklyOffer {...homeFeedData.limitedOffer} />
+            )}
             {(isInitialRender || shouldRefresh) && !homeFeedData ? (
               <MakerOfTheWeek.Pending />
             ) : homeFeedData ? (
@@ -720,9 +777,6 @@ export default function LandingScreen(_: LandingScreenProps) {
               paddingHorizontal:
                 constants.layout.defaultScreenMargins.horizontal,
             }}>
-            {homeFeedData?.limitedOfferProductId && (
-              <LimitedOffer productId={homeFeedData.limitedOfferProductId} />
-            )}
             {__DEV__ && Platform.OS === 'ios'
               ? null
               : (!isInitialRender || !shouldRefresh) &&

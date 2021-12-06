@@ -100,8 +100,6 @@ type ProfileDetailsScreenProps = RootStackScreenProps<'ProfileDetails'>;
 export default function ProfileDetailsScreen(props: ProfileDetailsScreenProps) {
   const params = props.route.params;
 
-  console.log({ __ID: params.profileIdOrUsername });
-
   if (
     typeof params.profileIdOrUsername === 'string' &&
     params.profileIdOrUsername.startsWith('@')

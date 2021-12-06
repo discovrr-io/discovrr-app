@@ -180,6 +180,7 @@ export type FeedTopTabParamList = {
   NearMeFeed:
     | { latitude: number; longitude: number; searchRadius?: number }
     | undefined;
+  ProductsFeed: undefined;
   FollowingFeed: undefined;
 };
 

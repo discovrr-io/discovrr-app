@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+## [v3.2.1] (2021-12-06)
+
+### Added
+
+- Added a "Weekly offer" section in the home screen
+
+### Changed
+
+- Replaced the "Near Me" tab with a "Products" tab that just only lists products
+
 ## [v3.2.0] (2021-12-05)
 
 ### Changed
