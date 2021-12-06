@@ -94,14 +94,7 @@ type SliderImageProps = {
 };
 
 function SliderImage({ item: source }: SliderImageProps) {
-  // The default dimensions are probably not ideal, but we'll just have
-  // to make sure the `height` and `width` fields are always available when
-  // possible.
-  const {
-    width = constants.media.DEFAULT_IMAGE_DIMENSIONS.width,
-    height = constants.media.DEFAULT_IMAGE_DIMENSIONS.height,
-  } = source;
-
+  const { width, height } = source;
   const { colors } = useExtendedTheme();
 
   return (
@@ -109,9 +102,7 @@ function SliderImage({ item: source }: SliderImageProps) {
       source={{ uri: source.url }}
       resizeMode="contain"
       style={{
-        width: undefined,
-        height: undefined,
-        aspectRatio: width / height,
+        aspectRatio: width && height ? width / height : 1,
         borderRadius: constants.layout.radius.md,
         backgroundColor: colors.placeholder,
       }}
@@ -794,7 +785,6 @@ function GalleryPostDetailsContent(props: GalleryPostDetailsContentProps) {
           height: 10,
           borderRadius: 5,
           marginBottom: constants.layout.spacing.sm,
-          backgroundColor: constants.color.gray700,
         }}
         containerStyle={{
           paddingTop: constants.layout.spacing.lg,

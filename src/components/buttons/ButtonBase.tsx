@@ -27,6 +27,7 @@ type ButtonBaseProps = CommonButtonProps & {
 
 export default function ButtonBase(props: ButtonBaseProps) {
   const {
+    size = 'large',
     title,
     disabled,
     icon,
@@ -75,7 +76,7 @@ export default function ButtonBase(props: ButtonBaseProps) {
             <>
               <Icon
                 name={icon}
-                size={22}
+                size={size === 'large' ? 24 : size === 'medium' ? 20 : 16}
                 color={
                   disabled
                     ? buttonStyles?.disabledTitle.color ?? colors.textDisabled

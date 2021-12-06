@@ -19,6 +19,8 @@ export { default as PlayButton } from './PlayButton';
 export { default as RouteError } from './RouteError';
 export { default as SignInPrompt } from './SignInPrompt';
 export { default as Spacer } from './Spacer';
+export { default as Text } from './Text';
 
 export type { MasonryListProps } from './MasonryList';
 export type { SpacerProps, SpacingValue } from './Spacer';
+export type { TextProps } from './Text';
