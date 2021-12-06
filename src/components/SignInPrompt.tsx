@@ -40,7 +40,7 @@ export default function SignInPrompt(props: SignInPromptProps) {
         flexGrow: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        paddingHorizontal: constants.layout.spacing.xxl,
+        padding: constants.layout.spacing.xxl,
       }}>
       <Text
         maxFontSizeMultiplier={1.2}
