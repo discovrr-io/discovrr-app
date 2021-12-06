@@ -30,7 +30,7 @@ import {
 import FeedFooter from './FeedFooter';
 import ProductItemCard from 'src/features/products/ProductItemCard';
 
-const PRODUCT_PAGINATION_LIMIT = 18;
+const PAGINATION_LIMIT = 25;
 const TILE_SPACING = DEFAULT_TILE_SPACING;
 
 type CurrentPage = {
@@ -69,7 +69,7 @@ export default function ProductsFeed(_: ProductsFeedProps) {
             reload: shouldRefresh,
             pagination: {
               currentPage: 0,
-              limit: PRODUCT_PAGINATION_LIMIT,
+              limit: PAGINATION_LIMIT,
             },
           });
 
@@ -119,7 +119,7 @@ export default function ProductsFeed(_: ProductsFeedProps) {
             reload: shouldRefresh,
             pagination: {
               currentPage: currentPage.index,
-              limit: PRODUCT_PAGINATION_LIMIT,
+              limit: PAGINATION_LIMIT,
             },
           });
 
