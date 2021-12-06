@@ -86,15 +86,12 @@ type HomeFeedData = {
     linkTitle?: string;
   };
   featuredProductIds?: ProductId[];
-  limitedOffer?:
-    | { type: 'product'; productId: ProductId }
-    | {
-        type: 'image';
-        url: string;
-        width: number;
-        height: number;
-        link?: string;
-      };
+  weeklyOffer?: {
+    url: string;
+    width: number;
+    height: number;
+    link?: string;
+  };
 };
 
 async function requestNotificationPermission() {
@@ -128,13 +125,11 @@ async function fetchHomeFeedData(): Promise<HomeFeedData> {
     .equalTo('kind', 'vendor')
     .equalTo('highest-role', 'verified-vendor');
 
-  const limitedOfferProductId = homeFeedData.get('limitedOfferProduct')?.id;
-
   const {
-    limitedOfferImageUrl,
-    limitedOfferImageWidth = 1,
-    limitedOfferImageHeight = 1,
-    limitedOfferImageLink,
+    weeklyOfferImageUrl,
+    weeklyOfferImageWidth = 1,
+    weeklyOfferImageHeight = 1,
+    weeklyOfferImageLink,
   } = homeFeedData.attributes;
 
   return {
@@ -150,16 +145,13 @@ async function fetchHomeFeedData(): Promise<HomeFeedData> {
       linkTitle: homeFeedData.get('makerOfTheWeekLinkTitle'),
     },
     featuredProductIds: homeFeedData.get('featuredProductsArray'),
-    limitedOffer: limitedOfferImageUrl
+    weeklyOffer: weeklyOfferImageUrl
       ? {
-          type: 'image',
-          url: limitedOfferImageUrl,
-          width: limitedOfferImageWidth,
-          height: limitedOfferImageHeight,
-          link: limitedOfferImageLink,
+          url: weeklyOfferImageUrl,
+          width: weeklyOfferImageWidth,
+          height: weeklyOfferImageHeight,
+          link: weeklyOfferImageLink,
         }
-      : limitedOfferProductId
-      ? { type: 'product', productId: limitedOfferProductId }
       : undefined,
   };
 }
@@ -362,7 +354,7 @@ const shopNowCardStyle = StyleSheet.create({
   card: { minHeight: 190, backgroundColor: constants.color.teal500 },
 });
 
-type WeeklyOfferProps = NonNullable<HomeFeedData['limitedOffer']>;
+type WeeklyOfferProps = NonNullable<HomeFeedData['weeklyOffer']>;
 
 function WeeklyOffer(props: WeeklyOfferProps) {
   const linkTo = useLinkTo();
@@ -375,24 +367,20 @@ function WeeklyOffer(props: WeeklyOfferProps) {
   return (
     <View>
       <SectionTitle title={WEEKLY_OFFER_TITLE} />
-      {props.type === 'image' ? (
-        <TouchableOpacity
-          activeOpacity={1}
-          onPress={() => handlePressImage(props.link)}>
-          <FastImage
-            resizeMode="cover"
-            source={{ uri: props.url }}
-            style={{
-              width: '100%',
-              aspectRatio: props.width / props.height,
-              backgroundColor: colors.placeholder,
-              borderRadius: constants.layout.radius.md,
-            }}
-          />
-        </TouchableOpacity>
-      ) : props.productId ? (
-        <ProductItemCard productId={props.productId} />
-      ) : null}
+      <TouchableOpacity
+        activeOpacity={1}
+        onPress={() => handlePressImage(props.link)}>
+        <FastImage
+          resizeMode="cover"
+          source={{ uri: props.url }}
+          style={{
+            width: '100%',
+            aspectRatio: props.width / props.height,
+            backgroundColor: colors.placeholder,
+            borderRadius: constants.layout.radius.md,
+          }}
+        />
+      </TouchableOpacity>
     </View>
   );
 }
@@ -759,8 +747,8 @@ export default function LandingScreen(_: LandingScreenProps) {
             />
             <Spacer.Vertical value="lg" />
             <ShopNowCard />
-            {homeFeedData?.limitedOffer && (
-              <WeeklyOffer {...homeFeedData.limitedOffer} />
+            {homeFeedData?.weeklyOffer && (
+              <WeeklyOffer {...homeFeedData.weeklyOffer} />
             )}
             {(isInitialRender || shouldRefresh) && !homeFeedData ? (
               <MakerOfTheWeek.Pending />
