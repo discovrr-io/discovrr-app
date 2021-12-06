@@ -10,7 +10,7 @@
 
 ### Changed
 
-- Replaced the "Near Me" tab with a "Products" tab that just only lists products
+- Replaced the "Near Me" tab with a "Products" tab that just lists products only
 
 ## [v3.2.0] (2021-12-05)
 
@@ -253,7 +253,8 @@
 
 <!-- Releases -->
 
-[unreleased]: https://github.com/discovrr-io/discovrr-app/compare/v3.2.0...HEAD
+[unreleased]: https://github.com/discovrr-io/discovrr-app/compare/v3.2.1...HEAD
+[v3.2.1]: https://github.com/discovrr-io/discovrr-app/compare/v3.2.0...v3.2.1
 [v3.2.0]: https://github.com/discovrr-io/discovrr-app/compare/v3.1.0...v3.2.0
 [v3.1.0]: https://github.com/discovrr-io/discovrr-app/compare/v3.0.9...v3.1.0
 [v3.0.9]: https://github.com/discovrr-io/discovrr-app/compare/v3.0.8...v3.0.9
