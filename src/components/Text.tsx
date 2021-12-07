@@ -2,13 +2,14 @@ import * as React from 'react';
 import { Text as RNText, TextProps as RNTextProps } from 'react-native';
 
 import * as constants from 'src/constants';
-import { useExtendedTheme } from 'src/hooks';
+import { ExtendedTheme, useExtendedTheme } from 'src/hooks';
 
+type TextColor = keyof ExtendedTheme['colors'];
 type TextFontSize = keyof typeof constants.font.size;
-
 type TextFontWeight = '500' | '700' | '900';
 
 export type TextProps = RNTextProps & {
+  color?: TextColor;
   size?: TextFontSize | number;
   weight?: TextFontWeight;
   underlined?: boolean;
@@ -43,7 +44,7 @@ export default function Text(props: TextProps) {
       {...props}
       style={[
         props.underlined && { textDecorationLine: 'underline' },
-        { color: colors.text, fontSize, fontFamily },
+        { color: colors[props.color ?? 'text'], fontSize, fontFamily },
         props.style,
       ]}
     />

@@ -193,7 +193,7 @@ export default function DiscoverFeed() {
       }
       ListEmptyComponent={
         isInitialRender ? (
-          <LoadingContainer message="Loading your personalised feed..." />
+          <LoadingContainer message="Loading your feed..." />
         ) : (
           <EmptyContainer message="No one has posted anything yet. Be the first one!" />
         )

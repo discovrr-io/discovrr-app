@@ -1,9 +1,9 @@
-import React, { useContext, useMemo, useRef, useState } from 'react';
+import * as React from 'react';
 import {
   Alert,
   StyleProp,
   StyleSheet,
-  Text,
+  TouchableHighlight,
   TouchableOpacity,
   TouchableOpacityProps,
   View,
@@ -16,12 +16,12 @@ import FastImage from 'react-native-fast-image';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/core';
 
+import * as constants from 'src/constants';
 import * as values from 'src/constants/values';
-import { color, font, layout } from 'src/constants';
 import { DEFAULT_AVATAR } from 'src/constants/media';
 import { useIsMyProfile, useProfile } from 'src/features/profiles/hooks';
 import { selectIsCurrentUserProfile } from 'src/features/authentication/auth-slice';
-import { Comment, CommentId, Profile } from 'src/models';
+import { Comment, CommentId, CommentReply, Profile } from 'src/models';
 import { RootStackNavigationProp } from 'src/navigation';
 import { alertSomethingWentWrong, shortenLargeNumber } from 'src/utilities';
 
@@ -29,7 +29,9 @@ import {
   ActionBottomSheet,
   ActionBottomSheetItem,
   AsyncGate,
+  GlobalAutolink,
   Spacer,
+  Text,
 } from 'src/components';
 
 import {
@@ -122,19 +124,19 @@ type CommentCellContainerProps = {
 function CommentCellContainer(props: CommentCellContainerProps) {
   const { AvatarComponent, AuthorComponent, ContentComponent } = props;
   const { colors } = useExtendedTheme();
-  const cellContext = useContext(CommentCellContext);
+  const cellContext = React.useContext(CommentCellContext);
 
   return (
     <View style={[commentCellStyles.container, cellContext.style]}>
       {AvatarComponent}
-      <Spacer.Horizontal value={layout.spacing.md} />
+      <Spacer.Horizontal value={constants.layout.spacing.md} />
       <View
         style={[
           commentCellStyles.contentContainer,
           { borderBottomColor: colors.border },
         ]}>
         {AuthorComponent}
-        <Spacer.Vertical value={layout.spacing.sm} />
+        <Spacer.Vertical value={constants.layout.spacing.sm} />
         {ContentComponent}
       </View>
     </View>
@@ -216,17 +218,18 @@ const CommentCellAuthor = (props: { profile?: Profile }) => {
       onPress={handlePressAuthor}
       style={commentCellStyles.authorContainer}>
       <Text
+        size="sm"
+        weight="700"
         style={[
-          font.smallBold,
-          { color: dark ? color.gray200 : color.gray700 },
+          { color: dark ? constants.color.gray200 : constants.color.gray700 },
           isMyProfileId && { color: colors.primary },
         ]}>
         {isMyProfileId ? 'You' : profile?.__publicName || 'Anonymous'}
       </Text>
       {profile?.username && (
         <>
-          <Spacer.Horizontal value={layout.spacing.sm} />
-          <Text style={[font.small, { color: colors.caption }]}>
+          <Spacer.Horizontal value={constants.layout.spacing.sm} />
+          <Text size="sm" style={[{ color: colors.caption }]}>
             @{profile.username}
           </Text>
         </>
@@ -246,7 +249,7 @@ CommentCellAuthor.Pending = () => {
           { width: '35%', backgroundColor: colors.placeholder },
         ]}
       />
-      <Spacer.Horizontal value={layout.spacing.sm} />
+      <Spacer.Horizontal value={constants.layout.spacing.sm} />
       <View
         style={[
           commentCellStyles.placeholderText,
@@ -276,14 +279,14 @@ const CommentCellContent = (props: CommentCellContentProps) => {
   const { colors } = useExtendedTheme();
 
   const isMounted = useIsMounted();
-  const cellContext = useContext(CommentCellContext);
+  const cellContext = React.useContext(CommentCellContext);
   const isMyProfile = useIsMyProfile(comment.profileId);
 
   const currentUser = useAppSelector(state => state.auth.user);
 
-  const animatableRef = useRef<Animatable.View & View>(null);
-  const actionBottomSheetRef = useRef<BottomSheet>(null);
-  const actionBottomSheetItems = useMemo(() => {
+  const animatableRef = React.useRef<Animatable.View & View>(null);
+  const actionBottomSheetRef = React.useRef<BottomSheet>(null);
+  const actionBottomSheetItems = React.useMemo(() => {
     let items: ActionBottomSheetItem[];
 
     if (isMyProfile) {
@@ -305,7 +308,9 @@ const CommentCellContent = (props: CommentCellContentProps) => {
     return items;
   }, [isMyProfile]);
 
-  const [isProcessingLike, setIsProcessingLike] = useState(false);
+  const [isProcessingLike, setIsProcessingLike] = React.useState(false);
+  const [isExpandingReplies, setIsExpandingReplies] = React.useState(false);
+  const [replies, setReplies] = React.useState<CommentReply[]>([]);
 
   const handlePressLike = async () => {
     if (!currentUser) {
@@ -414,13 +419,19 @@ const CommentCellContent = (props: CommentCellContentProps) => {
     }
   };
 
+  const handleExpandReplies = async () => {
+    try {
+      setIsExpandingReplies(true);
+    } catch (error) {
+    } finally {
+      setIsExpandingReplies(false);
+    }
+  };
+
   return (
     <View>
-      <Text style={[font.small, { color: colors.text }]}>
-        {comment.message}
-      </Text>
-
-      <Spacer.Vertical value={layout.spacing.md * 0.75} />
+      <GlobalAutolink text={comment.message} />
+      <Spacer.Vertical value={constants.layout.spacing.md * 0.75} />
       <View style={{ flexDirection: 'row', alignItems: 'center', height: 22 }}>
         <TouchableOpacity
           disabled={isProcessingLike}
@@ -431,15 +442,15 @@ const CommentCellContent = (props: CommentCellContentProps) => {
             <Icon
               name={didLike ? 'heart' : 'heart-outline'}
               size={21}
-              color={didLike ? color.red500 : colors.caption}
+              color={didLike ? constants.color.red500 : colors.caption}
             />
           </Animatable.View>
           {totalLikes > 0 && (
             <>
-              <Spacer.Horizontal value={layout.spacing.sm} />
+              <Spacer.Horizontal value={constants.layout.spacing.sm} />
               <Text
+                size="sm"
                 style={[
-                  font.small,
                   { color: colors.caption },
                   didLike && { color: colors.text },
                 ]}>
@@ -448,18 +459,34 @@ const CommentCellContent = (props: CommentCellContentProps) => {
             </>
           )}
         </TouchableOpacity>
-        <Spacer.Horizontal value={layout.spacing.md * 1.5} />
+        <Spacer.Horizontal value={constants.layout.spacing.md * 1.5} />
         <CommentCellActionButton
           name="chatbubble-outline"
           onPress={handlePressReply}
         />
-        <Spacer.Horizontal value={layout.spacing.md * 1.5} />
+        <Spacer.Horizontal value={constants.layout.spacing.md * 1.5} />
         <CommentCellActionButton
           name="ellipsis-horizontal-outline"
           onPress={() => actionBottomSheetRef.current?.expand()}
         />
       </View>
-      <Spacer.Vertical value={layout.spacing.md} />
+      <Spacer.Vertical value={constants.layout.spacing.md} />
+      {comment.repliesCount > 0 && (
+        <TouchableHighlight
+          underlayColor={colors.highlight}
+          onPress={handleExpandReplies}
+          style={{
+            backgroundColor: colors.background,
+            paddingVertical: constants.layout.spacing.sm,
+            borderTopWidth: StyleSheet.hairlineWidth,
+            borderTopColor: colors.border,
+          }}>
+          <Text color="caption" style={{ textAlign: 'center' }}>
+            Expand {comment.repliesCount} repl
+            {comment.repliesCount > 1 ? 'ies' : 'y'}
+          </Text>
+        </TouchableHighlight>
+      )}
       <ActionBottomSheet
         ref={actionBottomSheetRef}
         items={actionBottomSheetItems}
@@ -470,7 +497,7 @@ const CommentCellContent = (props: CommentCellContentProps) => {
 };
 
 const CommentCellContentPending = () => {
-  const cellContext = useContext(CommentCellContext);
+  const cellContext = React.useContext(CommentCellContext);
   const { colors } = useExtendedTheme();
 
   return (
@@ -481,7 +508,7 @@ const CommentCellContentPending = () => {
           { width: '100%', backgroundColor: colors.placeholder },
         ]}
       />
-      <Spacer.Vertical value={layout.spacing.md * 0.75} />
+      <Spacer.Vertical value={constants.layout.spacing.md * 0.75} />
       <View style={{ flexDirection: 'row', alignItems: 'center', height: 22 }}>
         {[...Array(NUMBER_OF_ACTIONS)].map((_, idx) => (
           <View
@@ -489,12 +516,12 @@ const CommentCellContentPending = () => {
             style={{ flexDirection: 'row' }}>
             <CommentCellActionButton.Pending />
             {idx < NUMBER_OF_ACTIONS - 1 && (
-              <Spacer.Horizontal value={layout.spacing.md * 1.5} />
+              <Spacer.Horizontal value={constants.layout.spacing.md * 1.5} />
             )}
           </View>
         ))}
       </View>
-      <Spacer.Vertical value={layout.spacing.md} />
+      <Spacer.Vertical value={constants.layout.spacing.md} />
     </View>
   );
 };
@@ -518,7 +545,11 @@ const CommentCellActionButton = (props: CommentCellActionButtonProps) => (
     disabled={props.disabled}
     activeOpacity={values.DEFAULT_ACTIVE_OPACITY}
     onPress={props.onPress}>
-    <Icon name={props.name} size={props.size ?? 18} color={color.gray500} />
+    <Icon
+      name={props.name}
+      size={props.size ?? 18}
+      color={constants.color.gray500}
+    />
   </TouchableOpacity>
 );
 

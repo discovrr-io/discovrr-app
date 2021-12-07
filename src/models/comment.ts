@@ -20,7 +20,7 @@ export default interface Comment {
   readonly createdAt: string;
   readonly message: string;
   readonly statistics: Statistics;
-  readonly replies?: CommentReplyId[];
+  readonly repliesCount: number;
 }
 
 export interface CommentReply {

@@ -40,9 +40,14 @@ export default function GlobalAutolink(props: GlobalAutolinkProps) {
       {...restProps}
       textProps={{
         ...textProps,
-        style: [{ color: colors.text }, textProps?.style],
+        style: [
+          constants.font.medium,
+          { color: colors.text },
+          textProps?.style,
+        ],
       }}
       linkStyle={[
+        constants.font.medium,
         { color: colors.primary },
         linkInheritsTextStyle && textProps?.style,
         linkStyle,

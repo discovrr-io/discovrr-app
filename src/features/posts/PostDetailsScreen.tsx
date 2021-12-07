@@ -33,7 +33,13 @@ import {
 
 import * as constants from 'src/constants';
 import * as utilities from 'src/utilities';
+import * as commentsSlice from 'src/features/comments/comments-slice';
+import * as postsSlice from './posts-slice';
+import * as profilesSlice from 'src/features/profiles/profiles-slice';
+
+import CommentCell from 'src/features/comments/CommentCell';
 import { MediaSource } from 'src/api';
+import { useIsMyProfile } from 'src/features/profiles/hooks';
 import { RootStackNavigationProp, RootStackScreenProps } from 'src/navigation';
 
 import {
@@ -66,15 +72,8 @@ import {
   VideoPostContents,
 } from 'src/models';
 
-import CommentCell from 'src/features/comments/CommentCell';
-import { useIsMyProfile } from 'src/features/profiles/hooks';
-
 import { usePost } from './hooks';
 import { PostItemCardFooter } from './PostItemCard';
-
-import * as commentsSlice from 'src/features/comments/comments-slice';
-import * as postsSlice from './posts-slice';
-import * as profilesSlice from 'src/features/profiles/profiles-slice';
 
 const COMMENT_POST_BUTTON_WIDTH = 70;
 const COMMENT_REPLY_INDICATOR_HEIGHT = 50;
@@ -641,6 +640,8 @@ const postDetailsScreenStyles = StyleSheet.create({
     paddingTop: constants.layout.spacing.md,
   },
   listFooter: {
+    flex: 1,
+    justifyContent: 'center',
     paddingTop: constants.layout.spacing.md * 1.5,
     paddingBottom: constants.layout.spacing.lg,
   },
@@ -929,7 +930,7 @@ function PostDetailsContentCaption(props: PostDetailsContentCaptionProps) {
     <View style={[postDetailsContentCaptionStyles.captionContainer]}>
       <GlobalAutolink
         text={props.caption}
-        textProps={{ style: [constants.font.medium, props.style] }}
+        textProps={{ style: [props.style] }}
       />
     </View>
   );

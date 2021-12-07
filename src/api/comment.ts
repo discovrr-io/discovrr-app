@@ -6,6 +6,7 @@ import {
   Comment,
   CommentId,
   CommentReply,
+  CommentReplyId,
   PostId,
   ProfileId,
 } from 'src/models';
@@ -14,7 +15,7 @@ export namespace CommentApi {
   export type CommentApiErrorCode = CommonApiErrorCode | 'INVALID_COMMENT';
   export class CommentApiError extends ApiError<CommentApiErrorCode> {}
 
-  export function mapResultToComment(
+  function mapResultToComment(
     result: Parse.Object,
     myProfileId?: string | undefined,
   ): Comment {
@@ -29,15 +30,34 @@ export namespace CommentApi {
     return {
       id: result.id as CommentId,
       postId: result.get('post').id,
-      profileId: result.get('profile').id as ProfileId,
-      // profileId: owner.id as ProfileId,
+      profileId: result.get('profile').id,
+      createdAt: result.createdAt.toISOString(),
+      message: result.get('message'),
+      repliesCount: result.get('repliesCount') ?? 0,
+      statistics: {
+        didLike,
+        likers: likersArray as ProfileId[],
+        totalLikes: likersArray.length,
+        totalViews: viewersArray.length,
+      },
+    };
+  }
+
+  function mapResultToCommentReply(
+    result: Parse.Object,
+    _myProfileId?: string | undefined,
+  ): CommentReply {
+    return {
+      id: result.id as CommentReplyId,
+      parent: result.get('parent').id,
+      profileId: result.get('profile').id,
       createdAt: result.createdAt.toISOString(),
       message: result.get('message'),
       statistics: {
-        didLike,
-        didSave: false,
-        totalLikes: likersArray.length,
-        totalViews: viewersArray.length,
+        didLike: false,
+        likers: [],
+        totalLikes: 0,
+        totalViews: 0,
       },
     };
   }
@@ -116,9 +136,26 @@ export namespace CommentApi {
   };
 
   export async function fetchRepliesForComment(
-    _: FetchRepliesForCommentParams,
+    params: FetchRepliesForCommentParams,
   ): Promise<CommentReply[]> {
-    throw new Error('Unimplemented: CommentApi.fetchRepliesForComment');
+    const { commentId } = params;
+    const commentPointer: Parse.Pointer = {
+      __type: 'Pointer',
+      className: 'PostComment',
+      objectId: String(commentId),
+    };
+
+    const myProfile = await UserApi.getCurrentUserProfile();
+    const commentReplies = await new Parse.Query('PostCommentReply')
+      .descending('createdAt')
+      .equalTo('parent', commentPointer)
+      .include('profile', 'statistics')
+      .notEqualTo('status', ApiObjectStatus.DELETED)
+      .find();
+
+    return commentReplies.map(result =>
+      mapResultToCommentReply(result, myProfile?.id),
+    );
   }
 
   //#endregion READ OPERATIONS
