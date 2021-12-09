@@ -43,12 +43,12 @@ export namespace NotificationApi {
       return {
         id: notification.id as NotificationId,
         title,
-        message: body,
-        type: data?.type,
-        link: data?.link,
-        read: true,
+        body,
         imageUrl,
         imageShape: data?.imageShape,
+        read: true,
+        type: data?.type,
+        link: data?.link,
         receivedAt: notification.createdAt.toISOString(),
       };
     });

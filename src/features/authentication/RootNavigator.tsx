@@ -65,19 +65,20 @@ export default function RootNavigator() {
     const unsubscribe = messaging().onMessage(remoteMessage => {
       console.log($FUNC, 'New message:', remoteMessage);
 
-      const alertTitle = remoteMessage.notification?.title ?? 'New Message';
-      const alertMessage = remoteMessage.notification?.body ?? 'No body';
-
+      const notificationTitle = remoteMessage.notification?.title;
+      const notificationBody = remoteMessage.notification?.body;
       const notificationId =
         remoteMessage.data?.parseObjectId ||
         remoteMessage.messageId ||
         nanoid();
 
+      if (!notificationTitle || !notificationBody) return;
+
       dispatch(
         didReceiveNotification({
           id: notificationId as NotificationId,
-          title: alertTitle,
-          message: alertMessage,
+          title: notificationTitle,
+          body: notificationBody,
           receivedAt: new Date().toISOString(),
           type: remoteMessage.data?.type,
           link: remoteMessage.data?.link,

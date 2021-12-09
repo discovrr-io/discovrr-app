@@ -3,6 +3,7 @@ import {
   AppState,
   RefreshControl,
   SafeAreaView,
+  ScrollView,
   SectionList,
   StyleSheet,
   TouchableHighlight,
@@ -11,7 +12,7 @@ import {
 
 import FastImage from 'react-native-fast-image';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { formatDistance } from 'date-fns';
+import { formatDistance, isToday } from 'date-fns';
 import { useFocusEffect } from '@react-navigation/core';
 import { useLinkTo, useScrollToTop } from '@react-navigation/native';
 
@@ -39,15 +40,6 @@ type Section = {
   data: Notification[];
 };
 
-function isToday(date: Date): boolean {
-  const now = new Date();
-  return (
-    date.getDate() === now.getDate() &&
-    date.getMonth() === now.getMonth() &&
-    date.getFullYear() === now.getFullYear()
-  );
-}
-
 function categoriseNotifications(notifications: Notification[]): Section[] {
   return notifications.reduce(
     (result, notification) => {
@@ -73,6 +65,13 @@ export default function NotificationsScreen(props: NotificationsScreenProps) {
   const notificationSections = useAppSelector(state =>
     categoriseNotifications(notificationsSlice.selectAllNotifications(state)),
   );
+
+  const totalNotificationCount = React.useMemo(() => {
+    return notificationSections.reduce(
+      (acc, curr) => acc + curr.data.length,
+      0,
+    );
+  }, [notificationSections]);
 
   const [shouldRefresh, setShouldRefresh] = React.useState(true);
   const [shouldFetchMore, setShouldFetchMore] = React.useState(false);
@@ -102,7 +101,7 @@ export default function NotificationsScreen(props: NotificationsScreenProps) {
           title="Clear All"
           size="medium"
           type="primary"
-          disabled={notificationSections.length === 0}
+          disabled={totalNotificationCount === 0}
           textStyle={{ textAlign: 'right' }}
           innerTextProps={{ allowFontScaling: false }}
           onPress={() => dispatch(notificationsSlice.clearAllNotifications())}
@@ -114,7 +113,7 @@ export default function NotificationsScreen(props: NotificationsScreenProps) {
         />
       ),
     });
-  }, [dispatch, notificationSections.length, props.navigation]);
+  }, [props.navigation, dispatch, totalNotificationCount]);
 
   React.useEffect(() => {
     const subscription = AppState.addEventListener('change', nextAppState => {
@@ -230,52 +229,63 @@ export default function NotificationsScreen(props: NotificationsScreenProps) {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       {profile ? (
-        <SectionList
-          ref={sectionListRef}
-          sections={notificationSections}
-          contentContainerStyle={{ flexGrow: 1 }}
-          keyExtractor={item => String(item.id)}
-          onEndReached={handleFetchMore}
-          refreshControl={
-            <RefreshControl
-              refreshing={shouldRefresh}
-              onRefresh={handleRefresh}
-              tintColor={constants.color.gray500}
-            />
-          }
-          renderItem={({ item }) => <NotificationItem notification={item} />}
-          renderSectionHeader={({ section: { title, data } }) => {
-            if (data.length === 0) return null;
-            return (
-              <Text
-                size="h3"
-                weight="900"
-                style={{
-                  paddingVertical: constants.layout.spacing.md,
-                  paddingHorizontal: constants.layout.spacing.lg,
-                }}>
-                {title}
-              </Text>
-            );
-          }}
-          ItemSeparatorComponent={() => (
-            <View
-              style={{
-                width: '100%',
-                alignSelf: 'center',
-                borderWidth: StyleSheet.hairlineWidth,
-                borderColor: colors.border,
-              }}
-            />
-          )}
-          ListEmptyComponent={
+        totalNotificationCount === 0 ? (
+          <ScrollView
+            contentContainerStyle={{ flex: 1 }}
+            refreshControl={
+              <RefreshControl
+                refreshing={shouldRefresh}
+                onRefresh={handleRefresh}
+                tintColor={constants.color.gray500}
+              />
+            }>
             <EmptyContainer
               emoji="🔔"
               title="You're up to date"
               message="You don't have any notifications at the moment."
             />
-          }
-        />
+          </ScrollView>
+        ) : (
+          <SectionList
+            ref={sectionListRef}
+            sections={notificationSections}
+            contentContainerStyle={{ flexGrow: 1 }}
+            keyExtractor={item => String(item.id)}
+            onEndReached={handleFetchMore}
+            refreshControl={
+              <RefreshControl
+                refreshing={shouldRefresh}
+                onRefresh={handleRefresh}
+                tintColor={constants.color.gray500}
+              />
+            }
+            renderItem={({ item }) => <NotificationItem notification={item} />}
+            renderSectionHeader={({ section: { title, data } }) => {
+              if (data.length === 0) return null;
+              return (
+                <Text
+                  size="h3"
+                  weight="900"
+                  style={{
+                    paddingVertical: constants.layout.spacing.md,
+                    paddingHorizontal: constants.layout.spacing.lg,
+                  }}>
+                  {title}
+                </Text>
+              );
+            }}
+            ItemSeparatorComponent={() => (
+              <View
+                style={{
+                  width: '100%',
+                  alignSelf: 'center',
+                  borderWidth: StyleSheet.hairlineWidth,
+                  borderColor: colors.border,
+                }}
+              />
+            )}
+          />
+        )
       ) : (
         <SignInPrompt />
       )}
@@ -351,7 +361,7 @@ function NotificationItem(props: NotificationItemProps) {
           </Text>
           <Spacer.Vertical value="xs" />
           <Text size="sm" numberOfLines={2}>
-            {notification.message}
+            {notification.body}
           </Text>
           <Spacer.Vertical value="xs" />
           <Text size="xs" color="caption" numberOfLines={1}>
