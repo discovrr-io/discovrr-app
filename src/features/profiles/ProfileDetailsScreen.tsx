@@ -68,7 +68,7 @@ import {
 
 const MaterialTopTab = createMaterialTopTabNavigator();
 
-const HEADER_HEIGHT_RATIO = 0.58;
+const HEADER_HEIGHT_RATIO = 0.6;
 const BOTTOM_SHEET_HEIGHT_RATIO = 1 - HEADER_HEIGHT_RATIO;
 const BOTTOM_SHEET_NUDGE = 24;
 

@@ -6,10 +6,17 @@ import { StackNavigationOptions } from '@react-navigation/stack';
 import { RootStackScreenProps } from 'src/navigation';
 import { InAppWebView } from 'src/components';
 
-type InAppWebViewScreenDestination =
-  | 'about-discovrr'
-  | 'privacy-policy'
-  | 'terms-and-conditions'
+export const IN_APP_WEBVIEW_SCREEN_PREDEFINED_DESTINATIONS = [
+  'about-discovrr',
+  'privacy-policy',
+  'terms-and-conditions',
+] as const;
+
+export type InAppWebViewScreenPredefinedDestination =
+  typeof IN_APP_WEBVIEW_SCREEN_PREDEFINED_DESTINATIONS[number];
+
+export type InAppWebViewScreenDestination =
+  | InAppWebViewScreenPredefinedDestination
   | { uri: string };
 
 export type InAppWebViewNavigationScreenParams = {

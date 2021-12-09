@@ -157,7 +157,7 @@ function RoleChip(props: { label: string }) {
       style={{
         paddingVertical: constants.layout.spacing.xs,
         paddingHorizontal: constants.layout.spacing.md,
-        backgroundColor: chipColor + utilities.percentToHex(0.2),
+        backgroundColor: chipColor + utilities.percentToHex(0.15),
         borderWidth: 1,
         borderColor: chipColor,
         borderRadius: chipHeight / 2,

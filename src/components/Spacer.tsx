@@ -30,6 +30,9 @@ const Spacer = (props: SpacerProps) => {
 
   return (
     <View
+      collapsable
+      focusable={false}
+      importantForAccessibility="no-hide-descendants"
       style={[
         !!horizontalSpacing && {
           width: horizontalSpacing,

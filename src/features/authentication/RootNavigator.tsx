@@ -68,9 +68,14 @@ export default function RootNavigator() {
       const alertTitle = remoteMessage.notification?.title ?? 'New Message';
       const alertMessage = remoteMessage.notification?.body ?? 'No body';
 
+      const notificationId =
+        remoteMessage.data?.parseObjectId ||
+        remoteMessage.messageId ||
+        nanoid();
+
       dispatch(
         didReceiveNotification({
-          id: (remoteMessage.messageId || nanoid()) as NotificationId,
+          id: notificationId as NotificationId,
           title: alertTitle,
           message: alertMessage,
           receivedAt: new Date().toISOString(),
@@ -78,27 +83,14 @@ export default function RootNavigator() {
           link: remoteMessage.data?.link,
           imageUrl:
             // @ts-ignore For some reason on iOS, the value type of the
-            // `fcm_options` record is not a string, but an object (at least in
-            // this situation)
+            // `fcm_options` is not a string, but an record (at least in this
+            // situation)
             remoteMessage.data?.fcm_options?.image ||
-            remoteMessage.notification?.android?.imageUrl,
+            remoteMessage.notification?.android?.imageUrl ||
+            undefined, // Force empty strings to be undefined
+          imageShape: remoteMessage.data?.imageShape,
         }),
       );
-
-      // if (remoteMessage.data?.destination) {
-      //   const handleOnPress = () => {
-      //     /* eslint-disable @typescript-eslint/no-non-null-assertion */
-      //     console.log(`Navigating to ${remoteMessage.data!.destination}...`);
-      //     linkTo(remoteMessage.data!.destination);
-      //     /* eslint-enable @typescript-eslint/no-non-null-assertion */
-      //   };
-
-      //   Alert.alert(alertTitle, alertMessage, [
-      //     { text: 'View', onPress: handleOnPress },
-      //   ]);
-      // } else {
-      //   Alert.alert(alertTitle, alertMessage);
-      // }
     });
 
     return unsubscribe;

@@ -39,6 +39,7 @@ import Animated, {
 
 import * as constants from 'src/constants';
 import * as utilities from 'src/utilities';
+import * as authSlice from 'src/features/authentication/auth-slice';
 import * as onboardingSlice from 'src/features/onboarding/onboarding-slice';
 import * as profilesSlice from 'src/features/profiles/profiles-slice';
 import ProductItemCard from 'src/features/products/ProductItemCard';
@@ -46,10 +47,10 @@ import { ProductId, Profile } from 'src/models';
 import { HomeStackScreenProps, RootStackNavigationProp } from 'src/navigation';
 
 import {
-  Button,
   EmptyContainer,
   LoadingContainer,
   MasonryList,
+  SignInHeaderCard,
   Spacer,
 } from 'src/components';
 
@@ -185,46 +186,6 @@ const sectionTitleProps = StyleSheet.create({
   title: {
     textAlign: 'center',
     fontSize: constants.font.size.h2 * 0.8,
-  },
-});
-
-function SignInCard() {
-  const navigation = useNavigation<RootStackNavigationProp>();
-
-  const handlePressSignIn = () => {
-    navigation.navigate('AuthPrompt', { screen: 'AuthStart' });
-  };
-
-  return (
-    <TouchableOpacity
-      activeOpacity={1}
-      onPress={handlePressSignIn}
-      style={[landingScreenStyles.card, signInCardStyles.card]}>
-      <Text
-        style={[
-          constants.font.mediumBold,
-          { flex: 1, color: constants.color.absoluteWhite },
-        ]}>
-        Discovrr is better when you&apos;re signed in.
-      </Text>
-      <Spacer.Horizontal value="md" />
-      <Button
-        title="Sign In"
-        variant="contained"
-        size="medium"
-        overrideTheme="light-content"
-        onPress={handlePressSignIn}
-        containerStyle={{ backgroundColor: constants.color.absoluteWhite }}
-      />
-    </TouchableOpacity>
-  );
-}
-
-const signInCardStyles = StyleSheet.create({
-  card: {
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    backgroundColor: constants.color.gray700,
   },
 });
 
@@ -602,7 +563,7 @@ export default function LandingScreen(_: LandingScreenProps) {
   const dispatch = useAppDispatch();
   const isMounted = useIsMounted();
 
-  const currentUser = useAppSelector(state => state.auth.user);
+  const currentUser = useAppSelector(authSlice.selectCurrentUser);
 
   const [isModalVisible, setIsModalVisible] = React.useState(false);
   const { isOutdatedModalVisible } = useAppSelector(state => state.auth);
@@ -714,7 +675,7 @@ export default function LandingScreen(_: LandingScreenProps) {
         ref={masonryListScrollViewRef}
         data={homeFeedData?.featuredProductIds ?? []}
         contentContainerStyle={{
-          paddingVertical: constants.layout.spacing.lg,
+          paddingVertical: currentUser ? constants.layout.spacing.lg : 0,
         }}
         refreshControl={
           <RefreshControl
@@ -724,39 +685,40 @@ export default function LandingScreen(_: LandingScreenProps) {
           />
         }
         ListHeaderComponent={
-          <View
-            style={{
-              paddingHorizontal:
-                constants.layout.defaultScreenMargins.horizontal,
-            }}>
+          <>
             {!currentUser && (
-              <View>
-                <SignInCard />
-                <Spacer.Vertical value="lg" />
-              </View>
+              <SignInHeaderCard
+                style={{ marginBottom: constants.layout.spacing.lg }}
+              />
             )}
-            <CallToActionCard
-              title={
-                homeFeedData?.callToAction.title ??
-                'Get inspired by Australian creativity today!'
-              }
-              caption={
-                homeFeedData?.callToAction.caption ??
-                'Explore our carefully curated catalogue of products made by our local makers.'
-              }
-            />
-            <Spacer.Vertical value="lg" />
-            <ShopNowCard />
-            {homeFeedData?.weeklyOffer && (
-              <WeeklyOffer {...homeFeedData.weeklyOffer} />
-            )}
-            {(isInitialRender || shouldRefresh) && !homeFeedData ? (
-              <MakerOfTheWeek.Pending />
-            ) : homeFeedData ? (
-              <MakerOfTheWeek {...homeFeedData.makerOfTheWeek} />
-            ) : null}
-            <SectionTitle title={OUR_PICKS_FOR_THE_WEEK_TITLE} />
-          </View>
+            <View
+              style={{
+                paddingHorizontal:
+                  constants.layout.defaultScreenMargins.horizontal,
+              }}>
+              <CallToActionCard
+                title={
+                  homeFeedData?.callToAction.title ??
+                  'Get inspired by Australian creativity today!'
+                }
+                caption={
+                  homeFeedData?.callToAction.caption ??
+                  'Explore our carefully curated catalogue of products made by our local makers.'
+                }
+              />
+              <Spacer.Vertical value="lg" />
+              <ShopNowCard />
+              {homeFeedData?.weeklyOffer && (
+                <WeeklyOffer {...homeFeedData.weeklyOffer} />
+              )}
+              {(isInitialRender || shouldRefresh) && !homeFeedData ? (
+                <MakerOfTheWeek.Pending />
+              ) : homeFeedData ? (
+                <MakerOfTheWeek {...homeFeedData.makerOfTheWeek} />
+              ) : null}
+              <SectionTitle title={OUR_PICKS_FOR_THE_WEEK_TITLE} />
+            </View>
+          </>
         }
         ListFooterComponent={
           <View

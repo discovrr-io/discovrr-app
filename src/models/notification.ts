@@ -11,4 +11,5 @@ export default interface Notification {
   readonly type?: string;
   readonly link?: string;
   readonly imageUrl?: string;
+  readonly imageShape?: string;
 }

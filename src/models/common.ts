@@ -39,6 +39,12 @@ export type Pagination = {
   readonly oldestDateFetched?: Date;
 };
 
+export type ResponsePagination = {
+  readonly currentPage: number;
+  readonly didReachEnd: boolean;
+  readonly oldestDataFetched?: Date;
+};
+
 /**
  * An object that records useful social metadata of an item with a `statistics`
  * property.

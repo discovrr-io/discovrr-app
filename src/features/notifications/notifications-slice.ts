@@ -15,8 +15,13 @@ import { RootState } from 'src/store';
 //#region Notifications Async Thunks
 
 export const setFCMRegistrationTokenForSession = createAsyncThunk(
-  'settings/setFCMRegistrationTokenForSession',
+  'notifications/setFCMRegistrationTokenForSession',
   NotificationApi.setFCMRegistrationTokenForSession,
+);
+
+export const fetchNotifications = createAsyncThunk(
+  'notifications/fetchNotifications',
+  NotificationApi.fetchNotifications,
 );
 
 //#endregion Notifications Async Thunks
@@ -45,7 +50,7 @@ const notificationsSlice = createSlice({
       state,
       action: PayloadAction<Omit<Notification, 'read'>>,
     ) => {
-      notificationsAdapter.addOne(state, { ...action.payload, read: false });
+      notificationsAdapter.upsertOne(state, { ...action.payload, read: false });
     },
     markNotificationAsRead: (state, action: PayloadAction<NotificationId>) => {
       notificationsAdapter.updateOne(state, {
@@ -78,6 +83,13 @@ const notificationsSlice = createSlice({
       })
       .addCase(setFCMRegistrationTokenForSession.fulfilled, state => {
         state.didRegisterFCMToken = true;
+      })
+      .addCase(fetchNotifications.fulfilled, (state, action) => {
+        if (action.meta.arg.pagination.currentPage === 0) {
+          notificationsAdapter.setAll(state, action.payload);
+        } else {
+          notificationsAdapter.upsertMany(state, action.payload);
+        }
       })
       .addCase(signOut.fulfilled, state => {
         state.didRegisterFCMToken = false;

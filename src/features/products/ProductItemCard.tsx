@@ -267,7 +267,7 @@ function ProductItemCardBody(props: ProductItemCardBodyProps) {
                   },
               { color: colors.text, textAlign: 'right' },
             ]}>
-            ${dollars}
+            ${Number(dollars).toLocaleString()}
             {cents !== '00' && <Text>{`.${cents}`}</Text>}
           </Text>
         </View>

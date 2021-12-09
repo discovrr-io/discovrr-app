@@ -74,12 +74,15 @@ import {
 
 import { usePost } from './hooks';
 import { PostItemCardFooter } from './PostItemCard';
+import { useRoute } from '@react-navigation/native';
 
 const COMMENT_POST_BUTTON_WIDTH = 70;
 const COMMENT_REPLY_INDICATOR_HEIGHT = 50;
 const COMMENT_TEXT_INPUT_MAX_HEIGHT = 230;
 const COMMENT_TEXT_INPUT_MIN_HEIGHT =
   constants.values.DEFAULT_MIN_BOTTOM_TAB_BAR_HEIGHT;
+const COMMENT_HIGHLIGHT_COLOR =
+  constants.color.accent + utilities.percentToHex(0.2);
 
 const MEDIA_WIDTH_SCALE = 0.85;
 
@@ -307,7 +310,7 @@ function AddCommentComponent() {
 type PostDetailsScreenProps = RootStackScreenProps<'PostDetails'>;
 
 export default function PostDetailsScreen(props: PostDetailsScreenProps) {
-  const { postId, focusCommentBox } = props.route.params;
+  const { postId } = props.route.params;
   const postData = usePost(postId);
 
   return (
@@ -323,12 +326,7 @@ export default function PostDetailsScreen(props: PostDetailsScreenProps) {
       onFulfilled={post => {
         if (!post)
           return <RouteError message="There doesn't seem to be a post here" />;
-        return (
-          <LoadedPostDetailsScreen
-            post={post}
-            focusCommentBox={focusCommentBox}
-          />
-        );
+        return <LoadedPostDetailsScreen post={post} />;
       }}
       onRejected={_ => <RouteError />}
     />
@@ -342,12 +340,12 @@ type PostReplyContext =
 
 type LoadedPostDetailsScreenProps = {
   post: Post;
-  focusCommentBox?: boolean;
 };
 
-function LoadedPostDetailsScreen(props: LoadedPostDetailsScreenProps) {
+function LoadedPostDetailsScreen({ post }: LoadedPostDetailsScreenProps) {
   const $FUNC = '[PostDetailsScreen]';
-  const { post, focusCommentBox } = props;
+  const { focusCommentBox, comment: _scrollToComment } =
+    useRoute<PostDetailsScreenProps['route']>().params;
 
   const dispatch = useAppDispatch();
   const navigation = useNavigation<PostDetailsScreenProps['navigation']>();
@@ -383,6 +381,17 @@ function LoadedPostDetailsScreen(props: LoadedPostDetailsScreenProps) {
     });
   }, [navigation, currentUser, colors]);
 
+  // FIXME: This doesn't work
+  // React.useEffect(() => {
+  //   if (scrollToComment) {
+  //     flatListRef.current?.scrollToItem({
+  //       animated: true,
+  //       item: scrollToComment,
+  //       viewPosition: 0.5,
+  //     });
+  //   }
+  // }, [scrollToComment]);
+
   React.useEffect(() => {
     // FIXME: Keyboard avoiding view doesn't work nicely on Android
     if (Platform.OS === 'ios' && focusCommentBox) {
@@ -404,7 +413,6 @@ function LoadedPostDetailsScreen(props: LoadedPostDetailsScreenProps) {
 
             const fetchCommentsAction = commentsSlice.fetchCommentsForPost({
               postId: post.id,
-              previousCommentIds: commentIds,
             });
 
             await Promise.all([
@@ -548,7 +556,7 @@ function LoadedPostDetailsScreen(props: LoadedPostDetailsScreenProps) {
                 postDetailsScreenStyles.commentCell,
                 replyContext.type === 'comment' &&
                   index === replyContext.index && {
-                    backgroundColor: colors.highlight,
+                    backgroundColor: COMMENT_HIGHLIGHT_COLOR,
                   },
               ]}
             />
@@ -559,7 +567,7 @@ function LoadedPostDetailsScreen(props: LoadedPostDetailsScreenProps) {
             <View
               style={[
                 postDetailsScreenStyles.commentReplyIndicator,
-                { backgroundColor: colors.highlight },
+                { backgroundColor: COMMENT_HIGHLIGHT_COLOR },
               ]}>
               <Text
                 numberOfLines={1}

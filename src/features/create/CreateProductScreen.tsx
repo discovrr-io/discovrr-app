@@ -60,11 +60,19 @@ const productSchema = yup.object({
     //   },
     // )
     .test(
-      'has numeric value less than or equal to $1,000,000',
-      'Please input a price less than $1,000,000',
+      'has a non-negative numeric value',
+      'Please input a non-negative number',
       input => {
         if (!input) return false;
-        return Number.parseFloat(input) <= 10 ** 6;
+        return Number.parseFloat(input.replaceAll(',', '')) >= 0;
+      },
+    )
+    .test(
+      'has numeric value less than or equal to $1,000,000',
+      'Please input a price less than or equal to $1,000,000',
+      input => {
+        if (!input) return false;
+        return Number.parseFloat(input.replaceAll(',', '')) <= 1e6;
       },
     ),
   description: yup

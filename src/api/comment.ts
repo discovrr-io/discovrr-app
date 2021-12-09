@@ -178,6 +178,7 @@ export namespace CommentApi {
   export type UpdateCommentLikeStatusParams = {
     commentId: CommentId;
     didLike: boolean;
+    sendNotification?: boolean;
   };
 
   export async function updateCommentLikeStatus(

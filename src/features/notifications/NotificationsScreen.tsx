@@ -1,10 +1,10 @@
 import * as React from 'react';
 import {
-  FlatList,
+  AppState,
   RefreshControl,
   SafeAreaView,
+  SectionList,
   StyleSheet,
-  Text,
   TouchableHighlight,
   View,
 } from 'react-native';
@@ -13,16 +13,54 @@ import FastImage from 'react-native-fast-image';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { formatDistance } from 'date-fns';
 import { useFocusEffect } from '@react-navigation/core';
-import { useLinkTo } from '@react-navigation/native';
+import { useLinkTo, useScrollToTop } from '@react-navigation/native';
 
 import * as constants from 'src/constants';
 import * as globalSelectors from 'src/global-selectors';
 import * as notificationsSlice from './notifications-slice';
+
 // import FeedFooter from 'src/features/feed/FeedFooter';
-import { Button, EmptyContainer, SignInPrompt, Spacer } from 'src/components';
+import {
+  Button,
+  EmptyContainer,
+  SignInPrompt,
+  Spacer,
+  Text,
+} from 'src/components';
 import { useAppDispatch, useAppSelector, useExtendedTheme } from 'src/hooks';
 import { Notification } from 'src/models';
+import { ResponsePagination } from 'src/models/common';
 import { FacadeBottomTabScreenProps } from 'src/navigation';
+
+const PAGINATION_LIMIT = 25;
+
+type Section = {
+  title: string;
+  data: Notification[];
+};
+
+function isToday(date: Date): boolean {
+  const now = new Date();
+  return (
+    date.getDate() === now.getDate() &&
+    date.getMonth() === now.getMonth() &&
+    date.getFullYear() === now.getFullYear()
+  );
+}
+
+function categoriseNotifications(notifications: Notification[]): Section[] {
+  return notifications.reduce(
+    (result, notification) => {
+      const receivedToday = isToday(new Date(notification.receivedAt));
+      result[receivedToday ? 0 : 1].data.push(notification);
+      return result;
+    },
+    [
+      { title: 'Today', data: [] },
+      { title: 'Earlier', data: [] },
+    ] as Section[],
+  );
+}
 
 type NotificationsScreenProps = FacadeBottomTabScreenProps<'Notifications'>;
 
@@ -32,10 +70,19 @@ export default function NotificationsScreen(props: NotificationsScreenProps) {
   const { colors } = useExtendedTheme();
 
   const profile = useAppSelector(globalSelectors.selectCurrentUserProfile);
-
-  const notifications = useAppSelector(
-    notificationsSlice.selectAllNotifications,
+  const notificationSections = useAppSelector(state =>
+    categoriseNotifications(notificationsSlice.selectAllNotifications(state)),
   );
+
+  const [shouldRefresh, setShouldRefresh] = React.useState(true);
+  const [shouldFetchMore, setShouldFetchMore] = React.useState(false);
+  const [pagination, setPagination] = React.useState<ResponsePagination>({
+    currentPage: 0,
+    didReachEnd: false,
+  });
+
+  const sectionListRef = React.useRef<SectionList>(null);
+  useScrollToTop(sectionListRef);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -55,7 +102,7 @@ export default function NotificationsScreen(props: NotificationsScreenProps) {
           title="Clear All"
           size="medium"
           type="primary"
-          disabled={notifications.length === 0}
+          disabled={notificationSections.length === 0}
           textStyle={{ textAlign: 'right' }}
           innerTextProps={{ allowFontScaling: false }}
           onPress={() => dispatch(notificationsSlice.clearAllNotifications())}
@@ -67,22 +114,150 @@ export default function NotificationsScreen(props: NotificationsScreenProps) {
         />
       ),
     });
-  }, [dispatch, notifications.length, props.navigation]);
+  }, [dispatch, notificationSections.length, props.navigation]);
+
+  React.useEffect(() => {
+    const subscription = AppState.addEventListener('change', nextAppState => {
+      if (pagination.didReachEnd && nextAppState === 'active') {
+        console.log($FUNC, 'Screen active - will refresh notifications');
+        setShouldRefresh(true);
+      }
+    });
+
+    return () => subscription.remove();
+  }, [pagination]);
+
+  React.useEffect(() => {
+    async function fetchAllNotifications() {
+      try {
+        console.log($FUNC, 'Fetching all notifications...');
+        setPagination({ currentPage: 0, didReachEnd: false });
+
+        const fetched = await dispatch(
+          notificationsSlice.fetchNotifications({
+            pagination: {
+              currentPage: 0,
+              limit: PAGINATION_LIMIT,
+            },
+          }),
+        ).unwrap();
+
+        if (fetched.length < PAGINATION_LIMIT) {
+          setPagination(prev => ({
+            ...prev,
+            didReachEnd: true,
+            oldestDataFetched:
+              fetched.length > 0
+                ? new Date(fetched[fetched.length - 1].receivedAt)
+                : prev.oldestDataFetched,
+          }));
+        } else {
+          setPagination(prev => ({
+            ...prev,
+            currentPage: 1,
+            oldestDataFetched: new Date(fetched[fetched.length - 1].receivedAt),
+          }));
+        }
+      } catch (error) {
+        // It isn't important to notify the user that notifications failed to
+        // fetch. Also, since this effect may run every time the app is active,
+        // it isn't ideal to distract the user with the error in case they are
+        // on a different screen.
+        console.warn($FUNC, 'Failed to fetch notifications:', error);
+      } finally {
+        setShouldRefresh(false);
+      }
+    }
+
+    if (profile && shouldRefresh) fetchAllNotifications();
+  }, [dispatch, profile, shouldRefresh]);
+
+  React.useEffect(
+    () => {
+      async function fetchMoreNotifications() {
+        try {
+          console.log($FUNC, 'Fetching more...');
+
+          const fetched = await dispatch(
+            notificationsSlice.fetchNotifications({
+              pagination: {
+                currentPage: pagination.currentPage,
+                limit: PAGINATION_LIMIT,
+              },
+            }),
+          ).unwrap();
+
+          if (fetched.length < PAGINATION_LIMIT) {
+            setPagination(prev => ({
+              ...prev,
+              didReachEnd: true,
+              oldestDataFetched:
+                fetched.length > 0
+                  ? new Date(fetched[fetched.length - 1].receivedAt)
+                  : prev.oldestDataFetched,
+            }));
+          } else {
+            setPagination(prev => ({
+              ...prev,
+              currentPage: prev.currentPage + 1,
+              oldestDataFetched: new Date(
+                fetched[fetched.length - 1].receivedAt,
+              ),
+            }));
+          }
+        } catch (error) {
+          console.warn($FUNC, 'Failed to fetch more notifications:', error);
+        } finally {
+          setShouldFetchMore(false);
+        }
+      }
+
+      if (profile && shouldFetchMore) fetchMoreNotifications();
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [dispatch, profile, shouldFetchMore],
+  );
+
+  const handleRefresh = () => {
+    if (!shouldRefresh && !shouldFetchMore) setShouldRefresh(true);
+  };
+
+  const handleFetchMore = () => {
+    if (!shouldRefresh && !shouldFetchMore && !pagination.didReachEnd)
+      setShouldFetchMore(true);
+  };
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
       {profile ? (
-        <FlatList
-          data={notifications}
+        <SectionList
+          ref={sectionListRef}
+          sections={notificationSections}
+          contentContainerStyle={{ flexGrow: 1 }}
           keyExtractor={item => String(item.id)}
-          renderItem={({ item }) => <NotificationItem notification={item} />}
+          onEndReached={handleFetchMore}
           refreshControl={
             <RefreshControl
-              refreshing={false}
+              refreshing={shouldRefresh}
+              onRefresh={handleRefresh}
               tintColor={constants.color.gray500}
             />
           }
-          contentContainerStyle={{ flexGrow: 1 }}
+          renderItem={({ item }) => <NotificationItem notification={item} />}
+          renderSectionHeader={({ section: { title, data } }) => {
+            if (data.length === 0) return null;
+            return (
+              <Text
+                size="h3"
+                weight="900"
+                style={{
+                  paddingVertical: constants.layout.spacing.md,
+                  paddingHorizontal: constants.layout.spacing.lg,
+                }}>
+                {title}
+              </Text>
+            );
+          }}
           ItemSeparatorComponent={() => (
             <View
               style={{
@@ -100,9 +275,6 @@ export default function NotificationsScreen(props: NotificationsScreenProps) {
               message="You don't have any notifications at the moment."
             />
           }
-          // ListFooterComponent={
-          //   notifications.length > 0 ? <FeedFooter didReachEnd /> : undefined
-          // }
         />
       ) : (
         <SignInPrompt />
@@ -125,13 +297,16 @@ function NotificationItem(props: NotificationItemProps) {
   const iconName = React.useMemo(() => {
     switch (notification.type) {
       case 'post:like':
-      case 'vendor:like':
+      case 'comment:like':
       case 'product:like':
         return 'heart';
       case 'post:comment':
         return 'chatbubble';
       case 'profile:follow':
         return 'person-add';
+      case 'product:upload':
+      case 'product:verify':
+        return 'gift';
       default:
         return 'notifications';
     }
@@ -169,30 +344,24 @@ function NotificationItem(props: NotificationItemProps) {
           style={{ width: 24 }}
           color={colors.text}
         />
-        <Spacer.Horizontal value="md" />
+        <Spacer.Horizontal value={constants.layout.spacing.md * 1.5} />
         <View style={[{ flex: 1 }]}>
-          <Text
-            numberOfLines={1}
-            style={[constants.font.mediumBold, { color: colors.text }]}>
+          <Text size="md" weight="700" numberOfLines={1}>
             {notification.title}
           </Text>
           <Spacer.Vertical value="xs" />
-          <Text
-            numberOfLines={2}
-            style={[constants.font.small, { color: colors.text }]}>
+          <Text size="sm" numberOfLines={2}>
             {notification.message}
           </Text>
           <Spacer.Vertical value="xs" />
-          <Text
-            numberOfLines={1}
-            style={[constants.font.extraSmall, { color: colors.caption }]}>
+          <Text size="xs" color="caption" numberOfLines={1}>
             {formatDistance(new Date(notification.receivedAt), new Date(), {
               addSuffix: true,
               includeSeconds: true,
             })}
           </Text>
         </View>
-        {notification.imageUrl && (
+        {Boolean(notification.imageUrl) && (
           <>
             <Spacer.Horizontal value="md" />
             <FastImage
@@ -200,14 +369,21 @@ function NotificationItem(props: NotificationItemProps) {
               style={{
                 height: 40,
                 aspectRatio: 1,
-                borderRadius: constants.layout.spacing.md,
                 backgroundColor: colors.placeholder,
+                borderRadius:
+                  notification.imageShape === 'circle'
+                    ? 20
+                    : constants.layout.spacing.md,
               }}
             />
           </>
         )}
-        <Spacer.Horizontal value="md" />
-        <Icon name="chevron-forward" size={24} color={colors.text} />
+        {Boolean(notification.link) && (
+          <>
+            <Spacer.Horizontal value="md" />
+            <Icon name="chevron-forward" size={24} color={colors.text} />
+          </>
+        )}
       </View>
     </TouchableHighlight>
   );

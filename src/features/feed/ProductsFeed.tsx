@@ -44,6 +44,7 @@ export default function ProductsFeed(_: ProductsFeedProps) {
   const $FUNC = '[ProductsFeed]';
   const dispatch = useAppDispatch();
   const isMounted = useIsMounted();
+  const { colors } = useExtendedTheme();
 
   const [productIds, setProductIds] = React.useState<ProductId[]>([]);
   const [isInitialRender, setIsInitialRender] = React.useState(true);
@@ -174,7 +175,7 @@ export default function ProductsFeed(_: ProductsFeedProps) {
         contentContainerStyle={{ flexGrow: 1 }}
         refreshControl={
           <RefreshControl
-            tintColor={constants.color.gray500}
+            tintColor={colors.caption}
             refreshing={
               productIds.length > 0 &&
               !isInitialRender &&

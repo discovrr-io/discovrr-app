@@ -1,5 +1,6 @@
 import * as React from 'react';
 import {
+  ActivityIndicator,
   Alert,
   StyleProp,
   StyleSheet,
@@ -17,13 +18,11 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/core';
 
 import * as constants from 'src/constants';
-import * as values from 'src/constants/values';
-import { DEFAULT_AVATAR } from 'src/constants/media';
+import * as utilities from 'src/utilities';
+import * as authSlice from 'src/features/authentication/auth-slice';
 import { useIsMyProfile, useProfile } from 'src/features/profiles/hooks';
-import { selectIsCurrentUserProfile } from 'src/features/authentication/auth-slice';
 import { Comment, CommentId, CommentReply, Profile } from 'src/models';
 import { RootStackNavigationProp } from 'src/navigation';
-import { alertSomethingWentWrong, shortenLargeNumber } from 'src/utilities';
 
 import {
   ActionBottomSheet,
@@ -41,7 +40,7 @@ import {
   useIsMounted,
 } from 'src/hooks';
 
-import { deleteComment, updateCommentLikeStatus } from './comments-slice';
+import * as commentsSlice from './comments-slice';
 import { useComment } from './hooks';
 
 const AVATAR_DIAMETER = 32;
@@ -102,11 +101,23 @@ const CommentCell = (props: { comment: Comment }) => {
 };
 
 const CommentCellPending = () => (
-  <CommentCellContainer
-    AvatarComponent={<CommentCellAvatar />}
-    AuthorComponent={<CommentCellAuthor.Pending />}
-    ContentComponent={<CommentCellContent.Pending />}
-  />
+  <>
+    <CommentCellContainer
+      AvatarComponent={<CommentCellAvatar />}
+      AuthorComponent={<CommentCellAuthor.Pending />}
+      ContentComponent={<CommentCellContent.Pending />}
+    />
+    <View
+      style={{
+        position: 'absolute',
+        width: '100%',
+        height: '100%',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+      <ActivityIndicator size="large" color={constants.color.gray500} />
+    </View>
+  </>
 );
 
 CommentCell.Pending = CommentCellPending;
@@ -166,7 +177,7 @@ const CommentCellAvatar = (props: { profile?: Profile }) => {
   return (
     <TouchableOpacity
       disabled={!profile}
-      activeOpacity={values.DEFAULT_ACTIVE_OPACITY}
+      activeOpacity={constants.values.DEFAULT_ACTIVE_OPACITY}
       onPress={handlePressAvatar}>
       <FastImage
         source={
@@ -174,7 +185,7 @@ const CommentCellAvatar = (props: { profile?: Profile }) => {
             ? {} // No source if there is no profile (i.e. when it is loading)
             : profile.avatar
             ? { uri: profile.avatar.url }
-            : DEFAULT_AVATAR
+            : constants.media.DEFAULT_AVATAR
         }
         style={[
           commentCellStyles.avatar,
@@ -197,7 +208,7 @@ const CommentCellAuthor = (props: { profile?: Profile }) => {
 
   const isMyProfileId = useAppSelector(state => {
     if (!profile) return false;
-    return selectIsCurrentUserProfile(state, profile.profileId);
+    return authSlice.selectIsCurrentUserProfile(state, profile.profileId);
   });
 
   const handlePressAuthor = () => {
@@ -214,7 +225,7 @@ const CommentCellAuthor = (props: { profile?: Profile }) => {
   return (
     <TouchableOpacity
       disabled={!profile}
-      activeOpacity={values.DEFAULT_ACTIVE_OPACITY}
+      activeOpacity={constants.values.DEFAULT_ACTIVE_OPACITY}
       onPress={handlePressAuthor}
       style={commentCellStyles.authorContainer}>
       <Text
@@ -327,13 +338,15 @@ const CommentCellContent = (props: CommentCellContentProps) => {
 
       if (newDidLike) {
         // Imperative approach to only animate this if the icon has been pressed
-        animatableRef.current?.[values.DEFAULT_ICON_LIKE_ANIMATION]?.();
+        const animationName = constants.values.DEFAULT_ICON_LIKE_ANIMATION;
+        animatableRef.current?.[animationName]?.();
       }
 
-      const updateLikeStatusCommentAction = updateCommentLikeStatus({
-        commentId: comment.id,
-        didLike: newDidLike,
-      });
+      const updateLikeStatusCommentAction =
+        commentsSlice.updateCommentLikeStatus({
+          commentId: comment.id,
+          didLike: newDidLike,
+        });
 
       await dispatch(updateLikeStatusCommentAction).unwrap();
     } catch (error) {
@@ -342,7 +355,7 @@ const CommentCellContent = (props: CommentCellContentProps) => {
         `Failed to ${!newDidLike ? 'un' : ''}like post:`,
         error,
       );
-      alertSomethingWentWrong();
+      utilities.alertSomethingWentWrong();
     } finally {
       if (isMounted.current) setIsProcessingLike(false);
     }
@@ -370,10 +383,12 @@ const CommentCellContent = (props: CommentCellContentProps) => {
       const commitDeleteComment = async () => {
         try {
           console.log($FUNC, 'Deleting comment...');
-          await dispatch(deleteComment({ commentId: comment.id })).unwrap();
+          await dispatch(
+            commentsSlice.deleteComment({ commentId: comment.id }),
+          ).unwrap();
         } catch (error: any) {
           console.error($FUNC, 'Failed to delete comment:', error);
-          alertSomethingWentWrong(
+          utilities.alertSomethingWentWrong(
             error.message ??
               "We weren't able to delete this comment. Please try again later.",
           );
@@ -435,7 +450,7 @@ const CommentCellContent = (props: CommentCellContentProps) => {
       <View style={{ flexDirection: 'row', alignItems: 'center', height: 22 }}>
         <TouchableOpacity
           disabled={isProcessingLike}
-          activeOpacity={values.DEFAULT_ACTIVE_OPACITY}
+          activeOpacity={constants.values.DEFAULT_ACTIVE_OPACITY}
           onPress={handlePressLike}
           style={{ flexDirection: 'row', alignItems: 'center' }}>
           <Animatable.View ref={animatableRef}>
@@ -454,7 +469,7 @@ const CommentCellContent = (props: CommentCellContentProps) => {
                   { color: colors.caption },
                   didLike && { color: colors.text },
                 ]}>
-                {shortenLargeNumber(totalLikes)}
+                {utilities.shortenLargeNumber(totalLikes)}
               </Text>
             </>
           )}
@@ -543,7 +558,7 @@ type CommentCellActionButtonProps = Pick<
 const CommentCellActionButton = (props: CommentCellActionButtonProps) => (
   <TouchableOpacity
     disabled={props.disabled}
-    activeOpacity={values.DEFAULT_ACTIVE_OPACITY}
+    activeOpacity={constants.values.DEFAULT_ACTIVE_OPACITY}
     onPress={props.onPress}>
     <Icon
       name={props.name}

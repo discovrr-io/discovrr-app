@@ -18,6 +18,7 @@ export { default as PlaceholderScreen } from './PlaceholderScreen';
 export { default as PlayButton } from './PlayButton';
 export { default as RouteError } from './RouteError';
 export { default as SignInPrompt } from './SignInPrompt';
+export { default as SignInHeaderCard } from './SignInHeaderCard';
 export { default as Spacer } from './Spacer';
 export { default as Text } from './Text';
 

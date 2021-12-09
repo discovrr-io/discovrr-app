@@ -2,13 +2,24 @@ import * as React from 'react';
 import { RefreshControl } from 'react-native';
 
 import * as constants from 'src/constants';
+import * as utilities from 'src/utilities';
+import * as authSlice from 'src/features/authentication/auth-slice';
 import * as feedSlice from 'src/features/feed/feed-slice';
 import * as postsSlice from 'src/features/posts/posts-slice';
 import * as profilesSlice from 'src/features/profiles/profiles-slice';
-import { useAppDispatch, useAppSelector, useIsMounted } from 'src/hooks';
-import { alertSomethingWentWrong } from 'src/utilities';
 
-import { EmptyContainer, LoadingContainer } from 'src/components';
+import {
+  EmptyContainer,
+  LoadingContainer,
+  SignInHeaderCard,
+} from 'src/components';
+
+import {
+  useAppDispatch,
+  useAppSelector,
+  useExtendedTheme,
+  useIsMounted,
+} from 'src/hooks';
 
 import FeedFooter from './FeedFooter';
 import PostMasonryList from 'src/features/posts/PostMasonryList';
@@ -20,8 +31,10 @@ export default function DiscoverFeed() {
   const $FUNC = '[DiscoverFeed]';
   const dispatch = useAppDispatch();
   const isMounted = useIsMounted();
+  const { colors } = useExtendedTheme();
 
   const postIds = useAppSelector(state => state.feed.ids);
+  const currentUser = useAppSelector(authSlice.selectCurrentUser);
 
   const [isInitialRender, setIsInitialRender] = React.useState(true);
   const [shouldRefresh, setShouldRefresh] = React.useState(false);
@@ -83,7 +96,7 @@ export default function DiscoverFeed() {
           console.log($FUNC, 'Finished refreshing posts');
         } catch (error) {
           console.error($FUNC, 'Failed to refresh posts:', error);
-          alertSomethingWentWrong(
+          utilities.alertSomethingWentWrong(
             "We weren't able to refresh this page. Please try again later.",
           );
         } finally {
@@ -125,7 +138,7 @@ export default function DiscoverFeed() {
             ),
           );
 
-          if (nextPosts.length === 0) {
+          if (nextPosts.length < PAGINATION_LIMIT) {
             console.log($FUNC, 'No more posts to fetch');
             setPagination(prev => ({ ...prev, didReachEnd: true }));
           } else {
@@ -145,7 +158,7 @@ export default function DiscoverFeed() {
           console.log($FUNC, 'Finished fetching more posts');
         } catch (error) {
           console.error($FUNC, 'Failed to fetch more posts:', error);
-          alertSomethingWentWrong(
+          utilities.alertSomethingWentWrong(
             "We weren't able to fetch more posts. Please try again later.",
           );
         } finally {
@@ -186,10 +199,17 @@ export default function DiscoverFeed() {
       onEndReached={handleFetchMore}
       refreshControl={
         <RefreshControl
-          tintColor={constants.color.gray500}
+          tintColor={colors.caption}
           refreshing={postIds.length > 0 && (isInitialRender || shouldRefresh)}
           onRefresh={handleRefresh}
         />
+      }
+      ListHeaderComponent={
+        !currentUser ? (
+          <SignInHeaderCard
+            style={{ marginBottom: constants.layout.spacing.sm }}
+          />
+        ) : null
       }
       ListEmptyComponent={
         isInitialRender ? (

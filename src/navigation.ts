@@ -21,7 +21,7 @@ import {
   MaterialTopTabScreenProps,
 } from '@react-navigation/material-top-tabs';
 
-import { PostId, ProductId, Profile, ProfileId } from './models';
+import { CommentId, PostId, ProductId, Profile, ProfileId } from './models';
 import { InAppWebViewNavigationScreenParams } from './features/authentication/InAppWebViewScreen';
 import { CreateItemPreviewNavigationScreenParams } from './features/create/CreateItemPreviewScreen';
 
@@ -285,7 +285,11 @@ export type CreateItemDetailsTopTabScreenProps<
 //#region POST STACK
 
 export type PostStackParamList = {
-  PostDetails: { postId: PostId; focusCommentBox?: boolean };
+  PostDetails: {
+    postId: PostId;
+    comment?: CommentId;
+    focusCommentBox?: boolean;
+  };
   EditPost: { postId: PostId };
 };
 

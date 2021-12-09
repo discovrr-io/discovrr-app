@@ -53,7 +53,6 @@ export const fetchCommentById = createAsyncThunk<
 
 type FetchCommentsForPostParams = {
   postId: PostId;
-  previousCommentIds?: CommentId[];
 };
 
 export const fetchCommentsForPost = createAsyncThunk(
@@ -129,7 +128,7 @@ const commentsSlice = createSlice({
       })
       // -- fetchCommentsForPost --
       .addCase(fetchCommentsForPost.fulfilled, (state, action) => {
-        const { previousCommentIds = [] } = action.meta.arg;
+        const previousCommentIds = state.ids as CommentId[];
         const newCommentIds = action.payload.map(comment => comment.id);
 
         // First, remove any invalid comments that may have been deleted since
