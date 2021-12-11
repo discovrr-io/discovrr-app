@@ -54,7 +54,7 @@ export default function SignInPrompt(props: SignInPromptProps) {
       <Text
         maxFontSizeMultiplier={1.2}
         style={[
-          constants.font.medium,
+          constants.font.body,
           { color: colors.text, textAlign: 'center' },
         ]}>
         {props.caption ?? 'Sign in to get the most out of Discovrr.'}

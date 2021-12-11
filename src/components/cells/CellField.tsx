@@ -183,7 +183,7 @@ export const CellField = React.forwardRef<CellFieldMethods, CellFieldProps>(
                   ios: constants.color.accent,
                 })}
                 style={[
-                  constants.font.medium,
+                  constants.font.body,
                   {
                     flex: 1,
                     color: colors.text,
@@ -216,7 +216,7 @@ export const CellField = React.forwardRef<CellFieldMethods, CellFieldProps>(
             ]}>
             <Animated.Text
               numberOfLines={1}
-              style={[constants.font.medium, style, labelColorStyles]}>
+              style={[constants.font.body, style, labelColorStyles]}>
               {label}
             </Animated.Text>
           </Animated.View>

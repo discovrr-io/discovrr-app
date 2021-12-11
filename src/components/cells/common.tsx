@@ -27,7 +27,7 @@ export type CellElementOptions = {
 };
 
 const styles = StyleSheet.create({
-  defaultLabelStyle: font.medium,
+  defaultLabelStyle: font.body,
   defaultCaptionStyle: {
     ...font.small,
     color: color.gray500,

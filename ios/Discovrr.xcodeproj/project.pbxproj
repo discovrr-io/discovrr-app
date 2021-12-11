@@ -413,11 +413,11 @@
 				03ED367C26876304007B77D4 /* Info-staging.plist in Resources */,
 				03D0FE0C2665B9BE00AD22DE /* Info-release.plist in Resources */,
 				036F753F27264FE9008001F7 /* Info-testing.plist in Resources */,
-				038B7570270C108F009254F9 /* Rubik-Bold.ttf in Resources */,
+				03997AD3270C1D43001E8B6A /* DiscovrrIcons.ttf in Resources */,
+				038B7573270C108F009254F9 /* Rubik-Regular.ttf in Resources */,
 				038B7571270C108F009254F9 /* Rubik-Italic.ttf in Resources */,
 				038B7572270C108F009254F9 /* Rubik-Medium.ttf in Resources */,
-				038B7573270C108F009254F9 /* Rubik-Regular.ttf in Resources */,
-				03997AD3270C1D43001E8B6A /* DiscovrrIcons.ttf in Resources */,
+				038B7570270C108F009254F9 /* Rubik-Bold.ttf in Resources */,
 				038D071A272157B500CE5B10 /* GoogleService-Info-Debug.plist in Resources */,
 				036F75472726565F008001F7 /* GoogleService-Info-Testing.plist in Resources */,
 				038D071C272157B500CE5B10 /* GoogleService-Info-Staging.plist in Resources */,
@@ -459,7 +459,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Path of the original GoogleService-Info-*.plist file\nCONFIG_SRC=$SRCROOT/Discovrr/GoogleService-Info-$CONFIGURATION.plist\n\n# New path of copied GoogleService-Info.plist file\nBUILT_APP_DIR=$BUILT_PRODUCTS_DIR/$PRODUCT_NAME.app\nFILENAME_IN_BUNDLE=GoogleService-Info.plist\nCONFIG_DEST=$BUILT_APP_DIR/$FILENAME_IN_BUNDLE\n\n# Copy files\necho Running \"cp $CONFIG_SRC $CONFIG_DEST\"\n# These paths may have spaces, so we'll surround them in quotes\ncp \"$CONFIG_SRC\" \"$CONFIG_DEST\"\n";
+			shellScript = "# Path of the original GoogleService-Info-*.plist file\nCONFIG_SRC=$SRCROOT/Discovrr/GoogleService-Info-$CONFIGURATION.plist\n\n# New path of the copied GoogleService-Info.plist file\nBUILT_APP_DIR=$BUILT_PRODUCTS_DIR/$PRODUCT_NAME.app\nFILENAME_IN_BUNDLE=GoogleService-Info.plist\nCONFIG_DEST=$BUILT_APP_DIR/$FILENAME_IN_BUNDLE\n\n# Copy files\necho Running \"cp $CONFIG_SRC $CONFIG_DEST\"\n# These paths may have spaces, so we'll surround them in quotes\ncp \"$CONFIG_SRC\" \"$CONFIG_DEST\"\n";
 		};
 		4C0B034EC44946FC0A6CD923 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;

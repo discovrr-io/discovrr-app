@@ -1,4 +1,4 @@
-import { TextStyle } from 'react-native';
+import { Platform, TextStyle } from 'react-native';
 
 export const FONT_FAMILY_BOLD = 'Rubik-Bold';
 export const FONT_FAMILY_ITALIC = 'Rubik-Italic';
@@ -17,95 +17,121 @@ export const size = {
   xs: 12,
 };
 
-const regularFontTextStyles: TextStyle = {
+const familyRegularFontTextStyles: TextStyle = {
   fontFamily: FONT_FAMILY_REGULAR,
 };
 
-const boldFontTextStyles: TextStyle = {
-  ...regularFontTextStyles,
-  fontFamily: FONT_FAMILY_BOLD,
-};
-
-const mediumFontTextStyles: TextStyle = {
-  ...regularFontTextStyles,
+const familyMediumFontTextStyles: TextStyle = {
+  ...familyRegularFontTextStyles,
   fontFamily: FONT_FAMILY_MEDIUM,
 };
 
+const familyBoldFontTextStyles: TextStyle = {
+  ...familyRegularFontTextStyles,
+  fontFamily: FONT_FAMILY_BOLD,
+  fontWeight: Platform.select({ ios: 'bold' }),
+};
+
 export const title: TextStyle = {
-  ...boldFontTextStyles,
+  ...familyBoldFontTextStyles,
   fontSize: size.title,
 };
 
 export const h1: TextStyle = {
-  ...boldFontTextStyles,
+  ...familyBoldFontTextStyles,
   fontSize: size.h1,
 };
 
 export const h2: TextStyle = {
-  ...boldFontTextStyles,
+  ...familyBoldFontTextStyles,
   fontSize: size.h2,
 };
 
 export const h3: TextStyle = {
-  ...boldFontTextStyles,
+  ...familyBoldFontTextStyles,
   fontSize: size.h3,
 };
 
 export const extraLarge: TextStyle = {
-  ...regularFontTextStyles,
+  ...familyRegularFontTextStyles,
   fontSize: size.xl,
+};
+
+export const extraLargeMedium: TextStyle = {
+  ...extraLarge,
+  ...familyMediumFontTextStyles,
 };
 
 export const extraLargeBold: TextStyle = {
   ...extraLarge,
-  ...mediumFontTextStyles,
+  ...familyBoldFontTextStyles,
 };
 
 export const large: TextStyle = {
-  ...regularFontTextStyles,
+  ...familyRegularFontTextStyles,
   fontSize: size.lg,
+};
+
+export const largeMedium: TextStyle = {
+  ...large,
+  ...familyMediumFontTextStyles,
 };
 
 export const largeBold: TextStyle = {
   ...large,
-  ...mediumFontTextStyles,
+  ...familyBoldFontTextStyles,
 };
 
-export const medium: TextStyle = {
-  ...regularFontTextStyles,
+export const body: TextStyle = {
+  ...familyRegularFontTextStyles,
   fontSize: size.md,
 };
 
-export const mediumBold: TextStyle = {
-  ...medium,
-  ...mediumFontTextStyles,
+export const bodyMedium: TextStyle = {
+  ...body,
+  ...familyMediumFontTextStyles,
+};
+
+export const bodyBold: TextStyle = {
+  ...body,
+  ...familyBoldFontTextStyles,
 };
 
 export const small: TextStyle = {
-  ...regularFontTextStyles,
+  ...familyRegularFontTextStyles,
   fontSize: size.sm,
+};
+
+export const smallMedium: TextStyle = {
+  ...small,
+  ...familyMediumFontTextStyles,
 };
 
 export const smallBold: TextStyle = {
   ...small,
-  ...mediumFontTextStyles,
+  ...familyBoldFontTextStyles,
 };
 
 export const extraSmall: TextStyle = {
-  ...regularFontTextStyles,
+  ...familyRegularFontTextStyles,
   fontSize: size.xs,
+};
+
+export const extraSmallMedium: TextStyle = {
+  ...extraSmall,
+  ...familyMediumFontTextStyles,
 };
 
 export const extraSmallBold: TextStyle = {
   ...extraSmall,
-  ...mediumFontTextStyles,
+  ...familyBoldFontTextStyles,
 };
 
-export const defaultHeaderTitleStyle = largeBold;
+export const defaultHeaderTitleStyle = extraLargeBold;
 
-export const defaultBottomTabLabelStyle = extraSmallBold;
+export const defaultBottomTabLabelStyle = extraSmallMedium;
 
 export const defaultTopTabBarLabelStyle: TextStyle = {
-  ...medium,
+  ...bodyMedium,
   textTransform: 'none',
 };

@@ -68,8 +68,8 @@ const LoadedProfileListItem = (props: InnerProfileListItemProps) => {
             numberOfLines={1}
             style={[
               isMyProfile
-                ? [constants.font.mediumBold, { color: constants.color.accent }]
-                : [constants.font.medium, { color: colors.text }],
+                ? [constants.font.bodyBold, { color: constants.color.accent }]
+                : [constants.font.body, { color: colors.text }],
             ]}>
             {isMyProfile ? 'You' : profile.__publicName}
           </Text>

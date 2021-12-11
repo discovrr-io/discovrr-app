@@ -274,7 +274,7 @@ function AddCommentComponent() {
       <Text
         maxFontSizeMultiplier={1.2}
         style={[
-          constants.font.mediumBold,
+          constants.font.bodyBold,
           { textAlign: 'center', color: colors.text },
         ]}>
         {currentUser

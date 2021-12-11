@@ -271,7 +271,7 @@ function OnboardingModalInfoContentPage(props: OnboardingPage) {
       <Spacer.Vertical value="md" />
       <Text
         style={[
-          constants.font.medium,
+          constants.font.body,
           { color: colors.text, textAlign: 'center' },
         ]}>
         {props.body}

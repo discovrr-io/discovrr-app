@@ -132,7 +132,7 @@ export const __TextInput = React.forwardRef<RNTextInput, TextInputProps>(
               Platform.OS === 'ios' ? constants.color.accent : undefined
             }
             style={[
-              constants.font.medium,
+              constants.font.body,
               { color: colors.text },
               innerTextInputStyle,
               { flexGrow: 1, flexShrink: 1, padding: 0 },
@@ -151,7 +151,7 @@ export const __TextInput = React.forwardRef<RNTextInput, TextInputProps>(
         {error && (
           <Text
             style={[
-              constants.font.medium,
+              constants.font.body,
               {
                 color: colors.danger,
                 paddingTop: constants.layout.spacing.sm,
@@ -208,7 +208,7 @@ const TextInputAffix = (props: TextInputAffixProps) => {
     <View style={[{ justifyContent: 'center' }, containerStyle]}>
       <Text
         style={[
-          constants.font.medium,
+          constants.font.body,
           { color: dark ? constants.color.gray700 : constants.color.gray500 },
           textStyle,
         ]}>

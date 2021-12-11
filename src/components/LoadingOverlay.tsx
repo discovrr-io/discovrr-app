@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
     marginTop: layout.spacing.md * 1.5,
   },
   caption: {
-    ...font.medium,
+    ...font.body,
     color: color.white,
     textAlign: 'center',
     marginTop: layout.spacing.sm,

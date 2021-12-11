@@ -202,7 +202,7 @@ function SearchResultsHeader(props: SearchResultsHeaderProps) {
           }}>
           <Icon name="search" size={18} color={colors.text} />
           <Spacer.Horizontal value="sm" />
-          <Text style={[constants.font.medium, { color: colors.text }]}>
+          <Text style={[constants.font.body, { color: colors.text }]}>
             {query ?? 'Search for anything…'}
           </Text>
         </View>

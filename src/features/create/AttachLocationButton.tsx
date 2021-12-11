@@ -129,7 +129,7 @@ export default function AttachLocationButton() {
       }}>
       <Icon name="location" size={24} color={color.black} />
       <Spacer.Horizontal value={layout.spacing.sm} />
-      <Text style={[font.medium]}>
+      <Text style={[font.body]}>
         {location
           ? `(${location.coords.latitude},${location.coords.longitude})`
           : 'Get my current location…'}

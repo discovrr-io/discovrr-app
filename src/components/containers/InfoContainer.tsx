@@ -73,7 +73,7 @@ const emptyContainerProps = StyleSheet.create({
     textAlign: 'center',
   },
   title: {
-    ...constants.font.mediumBold,
+    ...constants.font.bodyBold,
     textAlign: 'center',
     marginTop: Platform.OS === 'android' ? constants.layout.spacing.sm : 0,
   },

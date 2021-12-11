@@ -1152,7 +1152,7 @@ function ProfileAvatarPicker(props: ProfileAvatarPickerProps) {
         />
         <View style={profileAvatarPickerStyles.editTextContainer}>
           <Text
-            style={[constants.font.medium, profileAvatarPickerStyles.editText]}>
+            style={[constants.font.body, profileAvatarPickerStyles.editText]}>
             Edit
           </Text>
         </View>

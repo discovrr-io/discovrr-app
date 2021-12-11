@@ -34,7 +34,7 @@ export default function ReportItemSuccessScreen(
         </Text>
         <Spacer.Vertical value="xs" />
         <Text
-          style={[font.medium, { textAlign: 'center', color: colors.caption }]}>
+          style={[font.body, { textAlign: 'center', color: colors.caption }]}>
           We&apos;ll let you know of the outcome soon.
         </Text>
         <Spacer.Vertical value="md" />

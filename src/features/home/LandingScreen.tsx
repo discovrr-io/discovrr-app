@@ -301,7 +301,7 @@ function ShopNowCard() {
         </Text>
         <Text
           style={[
-            constants.font.mediumBold,
+            constants.font.bodyMedium,
             { color: constants.color.absoluteWhite },
           ]}>
           Tap here to browse our products
@@ -390,7 +390,7 @@ function MakerOfTheWeek(props: MakerOfTheWeekProps) {
         <View style={makerOfTheWeekStyles.textContainer}>
           <Text
             numberOfLines={1}
-            style={[constants.font.mediumBold, { color: colors.text }]}>
+            style={[constants.font.bodyBold, { color: colors.text }]}>
             {props.title}
           </Text>
           <Spacer.Vertical value="sm" />
@@ -526,7 +526,7 @@ function ExploreOurMakers(props: ExploreOurMakersProps) {
           <Text
             numberOfLines={1}
             style={[
-              constants.font.mediumBold,
+              constants.font.bodyBold,
               { textAlign: 'center', color: colors.text },
             ]}>
             {profile.__publicName}
@@ -688,7 +688,7 @@ export default function LandingScreen(_: LandingScreenProps) {
           <>
             {!currentUser && (
               <SignInHeaderCard
-                style={{ marginBottom: constants.layout.spacing.lg }}
+                style={{ marginBottom: constants.layout.spacing.md * 1.5 }}
               />
             )}
             <View

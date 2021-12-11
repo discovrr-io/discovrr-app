@@ -110,7 +110,7 @@ function SearchHistoryItem(props: SearchHistoryItemProps) {
         <Text
           numberOfLines={1}
           style={[
-            constants.font.medium,
+            constants.font.body,
             { flexGrow: 1, flexShrink: 1, color: colors.text },
           ]}>
           {label}

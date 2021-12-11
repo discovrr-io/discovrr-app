@@ -102,7 +102,7 @@ export function makeSizeStyles(size: ButtonSize): SizeStyles {
           height: layout.buttonSizes.md,
           borderRadius: layout.buttonSizes.md / 2,
         },
-        title: font.mediumBold,
+        title: font.bodyBold,
       };
     case 'large':
       return {

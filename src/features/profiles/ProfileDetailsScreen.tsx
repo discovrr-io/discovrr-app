@@ -772,7 +772,7 @@ function ProfileDetailsHeader(props: ProfileDetailsHeaderProps) {
               // maxFontSizeMultiplier={1.2}
               allowFontScaling={false}
               style={[
-                constants.font.mediumBold,
+                constants.font.bodyBold,
                 profileDetailsHeaderStyles.headerText,
               ]}>
               @{profile.username}

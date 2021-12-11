@@ -22,6 +22,7 @@ const HomeStack = createStackNavigator<HomeStackParamList>();
 
 export default function HomeNavigator() {
   const { colors } = useExtendedTheme();
+
   return (
     <HomeStack.Navigator
       screenOptions={{

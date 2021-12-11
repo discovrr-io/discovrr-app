@@ -433,7 +433,7 @@ export default function CreateItemPreviewScreen(
         );
       default:
         return (
-          <Text style={[constants.font.medium]}>
+          <Text style={[constants.font.body]}>
             {JSON.stringify(previewContent.contents)}
           </Text>
         );

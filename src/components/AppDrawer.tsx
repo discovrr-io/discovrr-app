@@ -53,7 +53,7 @@ function AppDrawerItem(props: AppDrawerItemProps) {
         <Text
           numberOfLines={1}
           style={[
-            constants.font.medium,
+            constants.font.body,
             { color: tintColor || colors.text, marginLeft: -8 },
           ]}>
           {label}
@@ -400,7 +400,7 @@ AppDrawerProfileDetails.Fulfilled = ({ profile }: { profile: Profile }) => {
       <Text
         numberOfLines={1}
         style={[
-          constants.font.medium,
+          constants.font.body,
           { color: constants.color.gray500, textAlign: 'center' },
         ]}>
         @{profile.username || 'anonymous'}
@@ -486,7 +486,7 @@ AppDrawerProfileDetails.Anonymous = () => {
       <Text
         maxFontSizeMultiplier={1.2}
         style={[
-          constants.font.medium,
+          constants.font.body,
           { textAlign: 'center', color: colors.text },
         ]}>
         Tap here to sign in

@@ -173,7 +173,7 @@ function LocationQueryBottomSheetContent() {
         <Spacer.Vertical value="xs" />
         <Text
           style={[
-            constants.font.medium,
+            constants.font.body,
             { textAlign: 'center', color: colors.text },
           ]}>
           We&apos;re still working on this feature. We&apos;ll let you know when

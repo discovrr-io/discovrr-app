@@ -38,7 +38,7 @@ export default function ReportItemReasonScreen(
         style={{
           paddingHorizontal: constants.layout.defaultScreenMargins.horizontal,
         }}>
-        <Text style={[constants.font.mediumBold, { color: colors.text }]}>
+        <Text style={[constants.font.bodyBold, { color: colors.text }]}>
           Why are you reporting this {contentType}?
         </Text>
         <Spacer.Vertical value="sm" />

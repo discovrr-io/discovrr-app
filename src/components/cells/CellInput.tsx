@@ -114,7 +114,7 @@ const CellInput = (props: CellInputProps) => {
                   textAlignVertical: 'top',
                   paddingTop: layout.spacing.sm,
                 },
-              font.medium,
+              font.body,
               {
                 color: cellElementOptions.disabled
                   ? colors.textDisabled

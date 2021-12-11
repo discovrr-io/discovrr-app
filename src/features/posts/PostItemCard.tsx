@@ -200,7 +200,7 @@ function PostItemCardBody(props: PostItemCardBodyProps) {
             numberOfLines={cardElementProps.smallContent ? 4 : 8}
             textProps={{
               style: cardElementProps.smallContent
-                ? constants.font.medium
+                ? constants.font.body
                 : constants.font.extraLarge,
             }}
           />

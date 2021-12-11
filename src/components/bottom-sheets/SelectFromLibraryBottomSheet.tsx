@@ -112,7 +112,7 @@ function SelectFromLibraryBottomSheetContents(
       edges={['bottom', 'left', 'right']}
       style={{ alignItems: 'center' }}>
       <Text
-        style={[constants.font.mediumBold, { color: constants.color.gray500 }]}>
+        style={[constants.font.bodyBold, { color: constants.color.gray500 }]}>
         {props.caption || 'What would you like to upload?'}
       </Text>
       {props.items && (
@@ -175,7 +175,7 @@ function SelectFromLibraryBottomSheetIcon(
       <View style={{ alignItems: 'center' }}>
         <Icon name={props.iconName} size={40} color={colors.text} />
         <Spacer.Vertical value="sm" />
-        <Text style={[constants.font.mediumBold, { color: colors.text }]}>
+        <Text style={[constants.font.bodyBold, { color: colors.text }]}>
           {props.iconLabel}
         </Text>
       </View>

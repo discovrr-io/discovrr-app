@@ -58,7 +58,7 @@ function PreviewPickerInner<ItemT>(
     <View>
       <View style={previewPickerStyles.captionContainer}>
         <Text
-          style={[font.medium, { color: color.gray500, textAlign: 'center' }]}>
+          style={[font.body, { color: color.gray500, textAlign: 'center' }]}>
           {props.caption}
         </Text>
         {meta.touched && meta.error ? (
