@@ -13,13 +13,13 @@ import * as postsSlice from 'src/features/posts/posts-slice';
 import * as productsSlice from 'src/features/products/products-slice';
 import { MediaSource, ProductApi } from 'src/api';
 import { Banner, Button, Cell, LoadingOverlay } from 'src/components';
-import { useMyProfileId } from 'src/features/profiles/hooks';
 import { useAppDispatch, useAppSelector, useIsMounted } from 'src/hooks';
 import { Profile } from 'src/models';
 import { PostContents } from 'src/models/post';
 
 import { PostItemCardPreview } from 'src/features/posts/PostItemCard';
 import { ProductItemCardPreview } from 'src/features/products/ProductItemCard';
+import { useMyProfileId } from 'src/features/profiles/hooks';
 
 import {
   CreateItemStackScreenProps,
