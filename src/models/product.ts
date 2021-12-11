@@ -14,6 +14,8 @@ export default interface Product {
   readonly name: string;
   readonly description: string;
   readonly price: number;
+  /** May be `-1` if unlimited. */
+  readonly stock: number;
   readonly media: MediaSource[];
   readonly hidden: boolean;
   readonly statistics: Statistics;

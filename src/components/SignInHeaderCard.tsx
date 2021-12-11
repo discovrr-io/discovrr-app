@@ -44,8 +44,8 @@ export default function SignInHeaderCard(props: SignInHeaderCardProps) {
         <Text
           size="sm"
           style={[{ flex: 1, color: constants.color.absoluteWhite }]}>
-          Don&apos;t miss out the benefits by signing up or creating an account
-          with us today.
+          Don&apos;t miss out on the benefits by signing in or creating an
+          account with us today.
         </Text>
       </View>
       <Spacer.Horizontal value="lg" />

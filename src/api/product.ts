@@ -31,6 +31,7 @@ export namespace ProductApi {
       name: result.get('name') || 'Anonymous',
       description: result.get('description') || '<NO DESCRIPTION>',
       price: result.get('price') ?? 0.0,
+      stock: result.get('stock') ?? -1,
       media: result.get('media') ?? [],
       hidden: result.get('hidden') ?? false,
       statistics: {
@@ -46,7 +47,7 @@ export namespace ProductApi {
 
   export type CreateProductParams = Pick<
     Product,
-    'name' | 'description' | 'price'
+    'name' | 'description' | 'price' | 'stock'
   > & {
     hashtags?: string[];
     categories?: string[];

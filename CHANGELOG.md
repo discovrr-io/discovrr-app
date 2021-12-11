@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 
+## [v3.2.2] (2021-12-XX)
+
+### Added
+
+- Add ability to input stock quantity when creating a product
+
+### Changed
+
+- Notifications are now saved in the database and thus can be synced across
+  devices
+- Split notifications into "Today" and "Earlier" sections
+
 ## [v3.2.1] (2021-12-06)
 
 ### Added
@@ -253,7 +265,8 @@
 
 <!-- Releases -->
 
-[unreleased]: https://github.com/discovrr-io/discovrr-app/compare/v3.2.1...HEAD
+[unreleased]: https://github.com/discovrr-io/discovrr-app/compare/v3.2.2...HEAD
+[v3.2.2]: https://github.com/discovrr-io/discovrr-app/compare/v3.2.1...v3.2.2
 [v3.2.1]: https://github.com/discovrr-io/discovrr-app/compare/v3.2.0...v3.2.1
 [v3.2.0]: https://github.com/discovrr-io/discovrr-app/compare/v3.1.0...v3.2.0
 [v3.1.0]: https://github.com/discovrr-io/discovrr-app/compare/v3.0.9...v3.1.0

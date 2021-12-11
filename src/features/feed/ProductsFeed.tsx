@@ -166,57 +166,55 @@ export default function ProductsFeed(_: ProductsFeedProps) {
   };
 
   return (
-    <View style={{ flex: 1 }}>
-      <SearchLocationOptions />
-      <MasonryList
-        data={productIds}
-        onEndReached={handleFetchMore}
-        onEndReachedThreshold={0.25}
-        contentContainerStyle={{ flexGrow: 1 }}
-        refreshControl={
-          <RefreshControl
-            tintColor={colors.caption}
-            refreshing={
-              productIds.length > 0 &&
-              !isInitialRender &&
-              !shouldFetchMore &&
-              shouldRefresh
-            }
-            onRefresh={handleRefresh}
+    <MasonryList
+      data={productIds}
+      onEndReached={handleFetchMore}
+      onEndReachedThreshold={0.25}
+      contentContainerStyle={{ flexGrow: 1 }}
+      refreshControl={
+        <RefreshControl
+          tintColor={colors.caption}
+          refreshing={
+            productIds.length > 0 &&
+            !isInitialRender &&
+            !shouldFetchMore &&
+            shouldRefresh
+          }
+          onRefresh={handleRefresh}
+        />
+      }
+      ListEmptyComponent={
+        isInitialRender ? (
+          <LoadingContainer message="Loading products..." />
+        ) : (
+          <EmptyContainer message="We couldn't find any products. Try refining your filters." />
+        )
+      }
+      renderItem={({ item: productId, column }) => (
+        <ProductItemCard
+          key={String(productId)}
+          productId={productId}
+          elementOptions={{ smallContent: true }}
+          style={{
+            marginTop: TILE_SPACING,
+            marginLeft: column % 2 === 0 ? TILE_SPACING : TILE_SPACING / 2,
+            marginRight: column % 2 !== 0 ? TILE_SPACING : TILE_SPACING / 2,
+          }}
+        />
+      )}
+      ListFooterComponent={
+        !isInitialRender && productIds.length > 0 ? (
+          <FeedFooter
+            didReachEnd={didReachEndFeed}
+            message="You've reached the end!"
           />
-        }
-        ListEmptyComponent={
-          isInitialRender ? (
-            <LoadingContainer message="Loading products..." />
-          ) : (
-            <EmptyContainer message="We couldn't find any products. Try refining your filters." />
-          )
-        }
-        renderItem={({ item: productId, column }) => (
-          <ProductItemCard
-            key={String(productId)}
-            productId={productId}
-            elementOptions={{ smallContent: true }}
-            style={{
-              marginTop: TILE_SPACING,
-              marginLeft: column % 2 === 0 ? TILE_SPACING : TILE_SPACING / 2,
-              marginRight: column % 2 !== 0 ? TILE_SPACING : TILE_SPACING / 2,
-            }}
-          />
-        )}
-        ListFooterComponent={
-          !isInitialRender && productIds.length > 0 ? (
-            <FeedFooter
-              didReachEnd={didReachEndFeed}
-              message="You've reached the end!"
-            />
-          ) : undefined
-        }
-      />
-    </View>
+        ) : undefined
+      }
+    />
   );
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function SearchLocationOptions() {
   const _ = useAppSelector(state => state.settings.locationQueryPrefs);
   const bottomSheetRef = React.useRef<BottomSheet>(null);

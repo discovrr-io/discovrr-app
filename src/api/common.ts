@@ -72,15 +72,15 @@ export type MediaSource = {
  * NOTE: Keep this in sync with the backend.
  */
 export enum ApiObjectStatus {
-  /** This object is ready for tasks. */
-  READY = 0,
-  /** This object is in the middle of a task. */
+  /** This object is ready to be processed. */
+  OKAY = 0,
+  /** This object is being processed. Avoid reading or writing to it. */
   PENDING = 1,
-  /** This object has completed a task. */
-  FULFILLED = 2,
-  /** This object failed to complete a task. */
+  /** @ignore No status associated with this code. */
+  __UNUSED = 2,
+  /** This object is in an invalid state. */
   ERROR = 3,
-  /** This object is deleted (and may be scheduled to be removed). */
+  /** This object has been deleted (and may be scheduled to be removed). */
   DELETED = 9,
 }
 

@@ -1,13 +1,19 @@
 import * as React from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import {
+  ScrollView,
+  StyleSheet,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 
+import _ from 'lodash';
 import * as yup from 'yup';
 import { Formik, useField, useFormikContext } from 'formik';
 import { Image } from 'react-native-image-crop-picker';
 
 import * as constants from 'src/constants';
 import * as utilities from 'src/utilities';
-import { Cell, CellFieldProps, Spacer } from 'src/components';
+import { Banner, Cell, CellFieldProps, Spacer } from 'src/components';
 import { CELL_GROUP_VERTICAL_SPACING } from 'src/components/cells/CellGroup';
 import { useNavigationAlertUnsavedChangesOnRemove } from 'src/hooks';
 
@@ -48,7 +54,7 @@ const productSchema = yup.object({
       'Your price should only have digits, an optional decimal point and optional commas like "12,345.67"',
       input => {
         if (!input) return false;
-        return /^(\d(?:[\d,])*)(?:\.(\d{0,2}))?$/.test(input.trim());
+        return /^(\d(?:[\d,])*)(?:\.(\d+))?$/.test(input.trim());
       },
     )
     // .test(
@@ -68,7 +74,7 @@ const productSchema = yup.object({
       },
     )
     .test(
-      'has numeric value less than or equal to $1,000,000',
+      'has numeric value less than or equal to 1,000,000',
       'Please input a price less than or equal to $1,000,000',
       input => {
         if (!input) return false;
@@ -87,6 +93,31 @@ const productSchema = yup.object({
       return utilities.getWordCount(input) >= 3;
     }),
   hidden: yup.boolean().required(),
+  unlimited: yup.boolean().required(),
+  quantity: yup
+    .string()
+    .optional()
+    .default('1')
+    .test(
+      'has a non-negative numeric value',
+      'Please input a non-negative integer',
+      input => {
+        if (!input) return true;
+        return Number.parseFloat(input.replaceAll(',', '')) >= 0;
+      },
+    )
+    .test('it is an integer', 'Please input a whole number', input => {
+      if (!input) return true;
+      return !input.includes('.');
+    })
+    .test(
+      'has numeric value less than 1,000,000,000',
+      'Please input a price less than $1,000,000,000',
+      input => {
+        if (!input) return false;
+        return Number.parseFloat(input.replaceAll(',', '')) <= 1e9;
+      },
+    ),
 });
 
 type ProductForm = Omit<yup.InferType<typeof productSchema>, 'media'> & {
@@ -105,10 +136,13 @@ export default function CreateProductScreen(props: CreateProductScreenProps) {
       .navigate('CreateItemPreview', {
         type: 'product',
         contents: {
-          ...values,
+          hidden: values.hidden,
           name: values.name.trim(),
           description: values.description.trim(),
           price: Number.parseFloat(values.price.replaceAll(',', '')),
+          stock: values.unlimited
+            ? -1
+            : _.round(Number.parseFloat(values.quantity || '1'), 2),
           squarespaceImages: sources,
         },
       });
@@ -122,6 +156,8 @@ export default function CreateProductScreen(props: CreateProductScreenProps) {
         price: '',
         description: '',
         hidden: false,
+        unlimited: true,
+        quantity: '1',
       }}
       validationSchema={productSchema}
       onSubmit={async (values, helpers) => {
@@ -134,17 +170,32 @@ export default function CreateProductScreen(props: CreateProductScreenProps) {
 }
 
 function ProductFormikForm() {
-  const { dirty } = useFormikContext<ProductForm>();
-  const [_, hiddenMeta, hiddenHelpers] = useField<boolean>('hidden');
+  const { dirty, isValid, submitCount } = useFormikContext<ProductForm>();
+  const { height: windowHeight } = useWindowDimensions();
+
+  const [, hiddenMeta, hiddenHelpers] = useField<boolean>('hidden');
+  const [, unlimitedMeta, unlimitedHelpers] = useField<boolean>('unlimited');
 
   useNavigationAlertUnsavedChangesOnRemove(dirty);
   useHandleSubmitNavigationButton<ProductForm>();
 
-  // TODO: Add KeyboardAvoidingView (couldn't get it to work before)
   return (
     <ScrollView
       keyboardShouldPersistTaps="handled"
-      contentContainerStyle={productFormikFormStyles.scrollView}>
+      contentContainerStyle={[
+        productFormikFormStyles.scrollView,
+        { paddingBottom: windowHeight * 0.25 },
+      ]}>
+      {submitCount > 0 && !isValid && (
+        <View style={[productFormikFormStyles.container]}>
+          <Banner
+            type="error"
+            title="There are errors in your form."
+            caption="Please correct them before submitting."
+          />
+          <Spacer.Vertical value="md" />
+        </View>
+      )}
       <ImagePreviewPicker
         fieldName="media"
         maxCount={MAX_MEDIA_COUNT}
@@ -173,6 +224,33 @@ function ProductFormikForm() {
           />
         </Cell.Group>
         <Spacer.Vertical value={CELL_GROUP_VERTICAL_SPACING} />
+        <Cell.Group label="Availability">
+          <Cell.Switch
+            label="Visible to everyone"
+            caption={
+              hiddenMeta.value
+                ? 'This product is only visible to you'
+                : 'Anyone can view and purchase this product'
+            }
+            value={!hiddenMeta.value}
+            onValueChange={value => hiddenHelpers.setValue(!value)}
+          />
+          <Cell.Switch
+            label="Unlimited quantity"
+            caption="You can change this at any time"
+            value={unlimitedMeta.value}
+            onValueChange={value => unlimitedHelpers.setValue(value)}
+          />
+          {!unlimitedMeta.value && (
+            <FormikField
+              fieldName="quantity"
+              label="Quantity"
+              placeholder="1"
+              keyboardType="numeric"
+            />
+          )}
+        </Cell.Group>
+        <Spacer.Vertical value={CELL_GROUP_VERTICAL_SPACING} />
         <Cell.Group label="Categorisation">
           <Cell.Navigator
             label="Add tags"
@@ -193,14 +271,6 @@ function ProductFormikForm() {
           <Cell.Button label="Size" previewValue="No sizes" />
           <Cell.Navigator label="Add another variant" />
         </Cell.Group> */}
-        <Spacer.Vertical value={CELL_GROUP_VERTICAL_SPACING} />
-        <Cell.Group label="Options">
-          <Cell.Switch
-            label="Visible to everyone"
-            value={!hiddenMeta.value}
-            onValueChange={value => hiddenHelpers.setValue(!value)}
-          />
-        </Cell.Group>
       </View>
     </ScrollView>
   );
@@ -209,7 +279,7 @@ function ProductFormikForm() {
 const productFormikFormStyles = StyleSheet.create({
   scrollView: {
     flexGrow: 1,
-    paddingVertical: constants.layout.spacing.lg,
+    paddingTop: constants.layout.spacing.lg,
   },
   container: {
     paddingHorizontal: constants.layout.spacing.lg,
