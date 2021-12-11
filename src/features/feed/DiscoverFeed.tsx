@@ -207,7 +207,7 @@ export default function DiscoverFeed() {
       ListHeaderComponent={
         !currentUser ? (
           <SignInHeaderCard
-            style={{ marginBottom: constants.layout.spacing.sm }}
+            style={{ marginBottom: constants.layout.spacing.xs }}
           />
         ) : null
       }

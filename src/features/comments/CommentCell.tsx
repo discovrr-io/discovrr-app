@@ -230,7 +230,7 @@ const CommentCellAuthor = (props: { profile?: Profile }) => {
       style={commentCellStyles.authorContainer}>
       <Text
         size="sm"
-        weight="700"
+        weight="medium"
         style={[
           { color: dark ? constants.color.gray200 : constants.color.gray700 },
           isMyProfileId && { color: colors.primary },

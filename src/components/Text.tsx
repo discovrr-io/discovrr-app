@@ -6,7 +6,7 @@ import { ExtendedTheme, useExtendedTheme } from 'src/hooks';
 
 type TextColor = keyof ExtendedTheme['colors'];
 type TextFontSize = keyof typeof constants.font.size;
-type TextFontWeight = '500' | '700' | '900';
+type TextFontWeight = keyof constants.font.FontFamily;
 
 export type TextProps = RNTextProps & {
   color?: TextColor;
@@ -28,14 +28,10 @@ export default function Text(props: TextProps) {
   }, [props.size]);
 
   const fontFamily = React.useMemo(() => {
-    switch (props.weight) {
-      case '900':
-        return constants.font.FONT_FAMILY_BOLD;
-      case '700':
-        return constants.font.FONT_FAMILY_MEDIUM;
-      case '500': /* FALLTHROUGH */
-      default:
-        return constants.font.FONT_FAMILY_REGULAR;
+    if (props.weight) {
+      return constants.font.FONT_FAMILY[props.weight];
+    } else {
+      return constants.font.FONT_FAMILY.regular;
     }
   }, [props.weight]);
 

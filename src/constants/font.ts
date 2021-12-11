@@ -1,9 +1,42 @@
 import { Platform, TextStyle } from 'react-native';
 
-export const FONT_FAMILY_BOLD = 'Rubik-Bold';
-export const FONT_FAMILY_ITALIC = 'Rubik-Italic';
-export const FONT_FAMILY_MEDIUM = 'Rubik-Medium';
-export const FONT_FAMILY_REGULAR = 'Rubik-Regular';
+export interface FontFamily {
+  '200': string;
+  '300': string;
+  '400': string;
+  '500': string;
+  '600': string;
+  '700': string;
+  '800': string;
+  '900': string;
+
+  get regular(): string;
+  get medium(): string;
+  get bold(): string;
+}
+
+export const AirbnbCerealApp: FontFamily = {
+  '200': 'AirbnbCerealApp-Light',
+  '300': 'AirbnbCerealApp-Light',
+  '400': 'AirbnbCerealApp-Book',
+  '500': 'AirbnbCerealApp-Medium',
+  '600': 'AirbnbCerealApp-Medium',
+  '700': 'AirbnbCerealApp-Bold',
+  '800': 'AirbnbCerealApp-ExtraBold',
+  '900': 'AirbnbCerealApp-Black',
+
+  get regular() {
+    return this[400];
+  },
+  get medium() {
+    return this[500];
+  },
+  get bold() {
+    return this[700];
+  },
+};
+
+export const FONT_FAMILY = AirbnbCerealApp;
 
 export const size = {
   title: 64,
@@ -17,19 +50,21 @@ export const size = {
   xs: 12,
 };
 
-const familyRegularFontTextStyles: TextStyle = {
-  fontFamily: FONT_FAMILY_REGULAR,
+export const familyRegularFontTextStyles: TextStyle = {
+  fontFamily: FONT_FAMILY.regular,
+  fontWeight: Platform.select({ ios: '400' }),
 };
 
-const familyMediumFontTextStyles: TextStyle = {
+export const familyMediumFontTextStyles: TextStyle = {
   ...familyRegularFontTextStyles,
-  fontFamily: FONT_FAMILY_MEDIUM,
+  fontFamily: FONT_FAMILY.medium,
+  fontWeight: Platform.select({ ios: '500' }),
 };
 
-const familyBoldFontTextStyles: TextStyle = {
+export const familyBoldFontTextStyles: TextStyle = {
   ...familyRegularFontTextStyles,
-  fontFamily: FONT_FAMILY_BOLD,
-  fontWeight: Platform.select({ ios: 'bold' }),
+  fontFamily: FONT_FAMILY.bold,
+  fontWeight: Platform.select({ ios: '700' }),
 };
 
 export const title: TextStyle = {
@@ -127,9 +162,12 @@ export const extraSmallBold: TextStyle = {
   ...familyBoldFontTextStyles,
 };
 
-export const defaultHeaderTitleStyle = extraLargeBold;
+export const defaultHeaderTitleStyle: TextStyle = extraLargeBold;
 
-export const defaultBottomTabLabelStyle = extraSmallMedium;
+export const defaultBottomTabLabelStyle: TextStyle = {
+  ...extraSmallMedium,
+  fontFamily: FONT_FAMILY.bold,
+};
 
 export const defaultTopTabBarLabelStyle: TextStyle = {
   ...bodyMedium,

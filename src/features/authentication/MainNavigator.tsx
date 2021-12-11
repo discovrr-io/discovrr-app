@@ -131,7 +131,7 @@ function FacadeNavigator() {
         },
         tabBarLabelStyle: [
           constants.font.defaultBottomTabLabelStyle,
-          { marginTop: -4, marginBottom: 4 },
+          { marginTop: -5, marginBottom: 5 },
         ],
         tabBarBadgeStyle: {
           fontFamily: constants.font.small.fontFamily,
@@ -150,7 +150,7 @@ function FacadeNavigator() {
               break;
             case '__Create':
               iconName = 'add';
-              iconSize *= 1.3;
+              iconSize *= 1.35;
               break;
             case 'Notifications':
               iconName = focused ? 'notifications' : 'notifications-outline';

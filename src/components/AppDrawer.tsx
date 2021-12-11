@@ -4,7 +4,6 @@ import {
   Alert,
   Linking,
   StyleSheet,
-  Text,
   TouchableHighlight,
   TouchableOpacity,
   View,
@@ -31,6 +30,7 @@ import { RootStackNavigationProp, RootStackParamList } from 'src/navigation';
 
 import AsyncGate from './AsyncGate';
 import Spacer from './Spacer';
+import Text from './Text';
 
 const AVATAR_DIAMETER = 125;
 const ROLE_CHIP_HIT_SLOP_INSET = 25;
@@ -389,20 +389,17 @@ AppDrawerProfileDetails.Fulfilled = ({ profile }: { profile: Profile }) => {
       />
       <Spacer.Vertical value="lg" />
       <Text
+        size="xl"
+        weight="bold"
         numberOfLines={1}
-        style={[
-          constants.font.extraLargeBold,
-          { textAlign: 'center', color: colors.text },
-        ]}>
+        style={[{ textAlign: 'center' }]}>
         {profile.__publicName || 'Anonymous'}
       </Text>
       <Spacer.Vertical value="xs" />
       <Text
+        color="caption"
         numberOfLines={1}
-        style={[
-          constants.font.body,
-          { color: constants.color.gray500, textAlign: 'center' },
-        ]}>
+        style={[constants.font.body, { textAlign: 'center' }]}>
         @{profile.username || 'anonymous'}
       </Text>
       {profile.highestRole && profile.highestRole !== 'user' && (
@@ -475,20 +472,14 @@ AppDrawerProfileDetails.Anonymous = () => {
       />
       <Spacer.Vertical value="lg" />
       <Text
+        size="xl"
+        weight="bold"
         maxFontSizeMultiplier={1.2}
-        style={[
-          constants.font.extraLargeBold,
-          { textAlign: 'center', color: colors.text },
-        ]}>
+        style={[{ textAlign: 'center' }]}>
         You&apos;re not signed in
       </Text>
       <Spacer.Vertical value="xs" />
-      <Text
-        maxFontSizeMultiplier={1.2}
-        style={[
-          constants.font.body,
-          { textAlign: 'center', color: colors.text },
-        ]}>
+      <Text maxFontSizeMultiplier={1.2} style={[{ textAlign: 'center' }]}>
         Tap here to sign in
       </Text>
     </View>

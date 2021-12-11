@@ -143,7 +143,7 @@ function PersistedApp() {
     }
     StatusBar.setBarStyle(
       navigationTheme.dark ? 'light-content' : 'dark-content',
-      true,
+      false,
     );
   }, [navigationTheme]);
 

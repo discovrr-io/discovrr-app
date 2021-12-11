@@ -8,14 +8,16 @@
 
 /* Begin PBXBuildFile section */
 		00E356F31AD99517003FC87E /* DiscovrrTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* DiscovrrTests.m */; };
+		0305D5102764EB99005CA710 /* AirbnbCerealApp-Book.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0305D50A2764EB99005CA710 /* AirbnbCerealApp-Book.ttf */; };
+		0305D5112764EB99005CA710 /* AirbnbCerealApp-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0305D50B2764EB99005CA710 /* AirbnbCerealApp-Light.ttf */; };
+		0305D5122764EB99005CA710 /* AirbnbCerealApp-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0305D50C2764EB99005CA710 /* AirbnbCerealApp-Bold.ttf */; };
+		0305D5132764EB99005CA710 /* AirbnbCerealApp-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0305D50D2764EB99005CA710 /* AirbnbCerealApp-Black.ttf */; };
+		0305D5142764EB99005CA710 /* AirbnbCerealApp-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0305D50E2764EB99005CA710 /* AirbnbCerealApp-Medium.ttf */; };
+		0305D5152764EB99005CA710 /* AirbnbCerealApp-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0305D50F2764EB99005CA710 /* AirbnbCerealApp-ExtraBold.ttf */; };
 		03123E00274A160400C9D53A /* NotificationService.m in Sources */ = {isa = PBXBuildFile; fileRef = 03123DFF274A160400C9D53A /* NotificationService.m */; };
 		03123E04274A160400C9D53A /* FirebaseNotificationServiceExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 03123DFC274A160400C9D53A /* FirebaseNotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		036F753F27264FE9008001F7 /* Info-testing.plist in Resources */ = {isa = PBXBuildFile; fileRef = 036F753E27264FE9008001F7 /* Info-testing.plist */; };
 		036F75472726565F008001F7 /* GoogleService-Info-Testing.plist in Resources */ = {isa = PBXBuildFile; fileRef = 036F75462726565F008001F7 /* GoogleService-Info-Testing.plist */; };
-		038B7570270C108F009254F9 /* Rubik-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A89AF5D403EB4EE99C8FE135 /* Rubik-Bold.ttf */; };
-		038B7571270C108F009254F9 /* Rubik-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 55A5083853CC448D9C114EBB /* Rubik-Italic.ttf */; };
-		038B7572270C108F009254F9 /* Rubik-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 940759826B744C8B9A60048C /* Rubik-Medium.ttf */; };
-		038B7573270C108F009254F9 /* Rubik-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D884BA1806B441D6938CB325 /* Rubik-Regular.ttf */; };
 		038D0719272157B500CE5B10 /* GoogleService-Info-Release.plist in Resources */ = {isa = PBXBuildFile; fileRef = 038D0715272157B500CE5B10 /* GoogleService-Info-Release.plist */; };
 		038D071A272157B500CE5B10 /* GoogleService-Info-Debug.plist in Resources */ = {isa = PBXBuildFile; fileRef = 038D0716272157B500CE5B10 /* GoogleService-Info-Debug.plist */; };
 		038D071C272157B500CE5B10 /* GoogleService-Info-Staging.plist in Resources */ = {isa = PBXBuildFile; fileRef = 038D0718272157B500CE5B10 /* GoogleService-Info-Staging.plist */; };
@@ -67,6 +69,12 @@
 		00E356EE1AD99517003FC87E /* DiscovrrTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DiscovrrTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* DiscovrrTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DiscovrrTests.m; sourceTree = "<group>"; };
+		0305D50A2764EB99005CA710 /* AirbnbCerealApp-Book.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "AirbnbCerealApp-Book.ttf"; path = "../assets/fonts/AirbnbCerealApp-Book.ttf"; sourceTree = "<group>"; };
+		0305D50B2764EB99005CA710 /* AirbnbCerealApp-Light.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "AirbnbCerealApp-Light.ttf"; path = "../assets/fonts/AirbnbCerealApp-Light.ttf"; sourceTree = "<group>"; };
+		0305D50C2764EB99005CA710 /* AirbnbCerealApp-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "AirbnbCerealApp-Bold.ttf"; path = "../assets/fonts/AirbnbCerealApp-Bold.ttf"; sourceTree = "<group>"; };
+		0305D50D2764EB99005CA710 /* AirbnbCerealApp-Black.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "AirbnbCerealApp-Black.ttf"; path = "../assets/fonts/AirbnbCerealApp-Black.ttf"; sourceTree = "<group>"; };
+		0305D50E2764EB99005CA710 /* AirbnbCerealApp-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "AirbnbCerealApp-Medium.ttf"; path = "../assets/fonts/AirbnbCerealApp-Medium.ttf"; sourceTree = "<group>"; };
+		0305D50F2764EB99005CA710 /* AirbnbCerealApp-ExtraBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "AirbnbCerealApp-ExtraBold.ttf"; path = "../assets/fonts/AirbnbCerealApp-ExtraBold.ttf"; sourceTree = "<group>"; };
 		03123DFC274A160400C9D53A /* FirebaseNotificationServiceExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = FirebaseNotificationServiceExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		03123DFE274A160400C9D53A /* NotificationService.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NotificationService.h; sourceTree = "<group>"; };
 		03123DFF274A160400C9D53A /* NotificationService.m */ = {isa = PBXFileReference; indentWidth = 4; lastKnownFileType = sourcecode.c.objc; path = NotificationService.m; sourceTree = "<group>"; tabWidth = 4; };
@@ -97,16 +105,12 @@
 		25E30185216EE2F23A6F2CBA /* Pods-Discovrr.staging.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Discovrr.staging.xcconfig"; path = "Target Support Files/Pods-Discovrr/Pods-Discovrr.staging.xcconfig"; sourceTree = "<group>"; };
 		2C57480AF4492B5219581780 /* Pods-FirebaseNotificationServiceExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FirebaseNotificationServiceExtension.release.xcconfig"; path = "Target Support Files/Pods-FirebaseNotificationServiceExtension/Pods-FirebaseNotificationServiceExtension.release.xcconfig"; sourceTree = "<group>"; };
 		44B9A8AFB24247519B7FF1F3 /* MaterialCommunityIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = MaterialCommunityIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf"; sourceTree = "<group>"; };
-		55A5083853CC448D9C114EBB /* Rubik-Italic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-Italic.ttf"; path = "../assets/fonts/Rubik-Italic.ttf"; sourceTree = "<group>"; };
 		6BD3252C05399F570B904D15 /* Pods-FirebaseNotificationServiceExtension.staging.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FirebaseNotificationServiceExtension.staging.xcconfig"; path = "Target Support Files/Pods-FirebaseNotificationServiceExtension/Pods-FirebaseNotificationServiceExtension.staging.xcconfig"; sourceTree = "<group>"; };
 		75477CA55F569F109F8392C8 /* Pods-FirebaseNotificationServiceExtension.testing.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FirebaseNotificationServiceExtension.testing.xcconfig"; path = "Target Support Files/Pods-FirebaseNotificationServiceExtension/Pods-FirebaseNotificationServiceExtension.testing.xcconfig"; sourceTree = "<group>"; };
-		940759826B744C8B9A60048C /* Rubik-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-Medium.ttf"; path = "../assets/fonts/Rubik-Medium.ttf"; sourceTree = "<group>"; };
 		A7CEB5C8B529BCD249C1B8CD /* Pods-Discovrr-DiscovrrTests.testing.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Discovrr-DiscovrrTests.testing.xcconfig"; path = "Target Support Files/Pods-Discovrr-DiscovrrTests/Pods-Discovrr-DiscovrrTests.testing.xcconfig"; sourceTree = "<group>"; };
-		A89AF5D403EB4EE99C8FE135 /* Rubik-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-Bold.ttf"; path = "../assets/fonts/Rubik-Bold.ttf"; sourceTree = "<group>"; };
 		AC4F6A7ABEB31227BEB5F8C8 /* Pods-FirebaseNotificationServiceExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FirebaseNotificationServiceExtension.debug.xcconfig"; path = "Target Support Files/Pods-FirebaseNotificationServiceExtension/Pods-FirebaseNotificationServiceExtension.debug.xcconfig"; sourceTree = "<group>"; };
 		AFAA6F5BC1342DBCE5924A88 /* libPods-OneSignalNotificationServiceExtension.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-OneSignalNotificationServiceExtension.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B402E75D12184583A6F1494C /* Ionicons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Ionicons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Ionicons.ttf"; sourceTree = "<group>"; };
-		D884BA1806B441D6938CB325 /* Rubik-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-Regular.ttf"; path = "../assets/fonts/Rubik-Regular.ttf"; sourceTree = "<group>"; };
 		D8CDED8E30D54BD9AE648079 /* MaterialIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = MaterialIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/MaterialIcons.ttf"; sourceTree = "<group>"; };
 		DF95F2E265D50C6E5EDC5F4B /* Pods-Discovrr-DiscovrrTests.staging.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Discovrr-DiscovrrTests.staging.xcconfig"; path = "Target Support Files/Pods-Discovrr-DiscovrrTests/Pods-Discovrr-DiscovrrTests.staging.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
@@ -147,10 +151,12 @@
 		0086AC63C35A48299C56A9E5 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				A89AF5D403EB4EE99C8FE135 /* Rubik-Bold.ttf */,
-				55A5083853CC448D9C114EBB /* Rubik-Italic.ttf */,
-				940759826B744C8B9A60048C /* Rubik-Medium.ttf */,
-				D884BA1806B441D6938CB325 /* Rubik-Regular.ttf */,
+				0305D50D2764EB99005CA710 /* AirbnbCerealApp-Black.ttf */,
+				0305D50C2764EB99005CA710 /* AirbnbCerealApp-Bold.ttf */,
+				0305D50A2764EB99005CA710 /* AirbnbCerealApp-Book.ttf */,
+				0305D50F2764EB99005CA710 /* AirbnbCerealApp-ExtraBold.ttf */,
+				0305D50B2764EB99005CA710 /* AirbnbCerealApp-Light.ttf */,
+				0305D50E2764EB99005CA710 /* AirbnbCerealApp-Medium.ttf */,
 				B402E75D12184583A6F1494C /* Ionicons.ttf */,
 				D8CDED8E30D54BD9AE648079 /* MaterialIcons.ttf */,
 				44B9A8AFB24247519B7FF1F3 /* MaterialCommunityIcons.ttf */,
@@ -414,15 +420,17 @@
 				03D0FE0C2665B9BE00AD22DE /* Info-release.plist in Resources */,
 				036F753F27264FE9008001F7 /* Info-testing.plist in Resources */,
 				03997AD3270C1D43001E8B6A /* DiscovrrIcons.ttf in Resources */,
-				038B7573270C108F009254F9 /* Rubik-Regular.ttf in Resources */,
-				038B7571270C108F009254F9 /* Rubik-Italic.ttf in Resources */,
-				038B7572270C108F009254F9 /* Rubik-Medium.ttf in Resources */,
-				038B7570270C108F009254F9 /* Rubik-Bold.ttf in Resources */,
 				038D071A272157B500CE5B10 /* GoogleService-Info-Debug.plist in Resources */,
 				036F75472726565F008001F7 /* GoogleService-Info-Testing.plist in Resources */,
 				038D071C272157B500CE5B10 /* GoogleService-Info-Staging.plist in Resources */,
 				038D0719272157B500CE5B10 /* GoogleService-Info-Release.plist in Resources */,
 				038D071E2721582000CE5B10 /* BootSplash.storyboard in Resources */,
+				0305D5112764EB99005CA710 /* AirbnbCerealApp-Light.ttf in Resources */,
+				0305D5102764EB99005CA710 /* AirbnbCerealApp-Book.ttf in Resources */,
+				0305D5142764EB99005CA710 /* AirbnbCerealApp-Medium.ttf in Resources */,
+				0305D5122764EB99005CA710 /* AirbnbCerealApp-Bold.ttf in Resources */,
+				0305D5152764EB99005CA710 /* AirbnbCerealApp-ExtraBold.ttf in Resources */,
+				0305D5132764EB99005CA710 /* AirbnbCerealApp-Black.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

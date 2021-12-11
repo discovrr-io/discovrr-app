@@ -36,7 +36,7 @@ export default function SignInHeaderCard(props: SignInHeaderCardProps) {
       <View style={{ flex: 1 }}>
         <Text
           size="md"
-          weight="700"
+          weight="bold"
           style={[{ flex: 1, color: constants.color.absoluteWhite }]}>
           You&apos;re not signed in
         </Text>

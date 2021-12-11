@@ -8,7 +8,6 @@ import {
   ScrollView,
   StyleProp,
   StyleSheet,
-  Text,
   TouchableHighlight,
   TouchableOpacity,
   useWindowDimensions,
@@ -52,6 +51,7 @@ import {
   MasonryList,
   SignInHeaderCard,
   Spacer,
+  Text,
 } from 'src/components';
 
 import {
@@ -163,16 +163,13 @@ type SectionTitleProps = {
 };
 
 function SectionTitle(props: SectionTitleProps) {
-  const { colors } = useExtendedTheme();
   return (
     <View style={[sectionTitleProps.container, props.style]}>
       <Text
+        size="h2"
+        weight="800"
         allowFontScaling={false}
-        style={[
-          constants.font.h2,
-          sectionTitleProps.title,
-          { color: colors.text },
-        ]}>
+        style={[sectionTitleProps.title]}>
         {props.title}
       </Text>
     </View>
@@ -198,7 +195,10 @@ function CallToActionCard(props: CallToActionCardProps) {
         allowFontScaling={false}
         style={[
           constants.font.h2,
-          { color: constants.color.absoluteWhite },
+          {
+            color: constants.color.absoluteWhite,
+            fontSize: constants.font.size.h2,
+          },
           { textAlign: 'center' },
         ]}>
         {props.title}
@@ -388,15 +388,11 @@ function MakerOfTheWeek(props: MakerOfTheWeekProps) {
         </View>
         <Spacer.Vertical value="md" />
         <View style={makerOfTheWeekStyles.textContainer}>
-          <Text
-            numberOfLines={1}
-            style={[constants.font.bodyBold, { color: colors.text }]}>
+          <Text weight="bold" numberOfLines={1}>
             {props.title}
           </Text>
           <Spacer.Vertical value="sm" />
-          <Text
-            numberOfLines={3}
-            style={[constants.font.small, { color: colors.text }]}>
+          <Text size="sm" numberOfLines={3}>
             {props.caption}
           </Text>
         </View>

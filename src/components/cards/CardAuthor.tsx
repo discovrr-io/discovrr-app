@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   StyleSheet,
-  Text,
+  // Text,
   TouchableOpacity,
   TouchableOpacityProps,
   View,
@@ -15,8 +15,9 @@ import { DEFAULT_AVATAR } from 'src/constants/media';
 import { useExtendedTheme } from 'src/hooks';
 import { DEFAULT_ACTIVE_OPACITY } from 'src/constants/values';
 
-import * as constants from './constants';
 import Spacer from '../Spacer';
+import Text from '../Text';
+import * as constants from './constants';
 import { useCardElementOptionsContext } from './hooks';
 
 import {
@@ -176,12 +177,10 @@ const CardAuthorName = (props: CardAuthorNameProps) => {
       style={[
         cardAuthorStyles.displayName,
         props.elementOptions.captionTextStyle,
-        { color: colors.text },
         props.isMyProfile && {
-          fontFamily: globalConstants.font.FONT_FAMILY_MEDIUM,
           color: colors.primary,
+          ...globalConstants.font.familyBoldFontTextStyles,
         },
-        ,
       ]}>
       {props.isMyProfile ? 'You' : props.displayName || 'Anonymous'}
     </Text>

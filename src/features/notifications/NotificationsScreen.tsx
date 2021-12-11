@@ -17,10 +17,16 @@ import { useFocusEffect } from '@react-navigation/core';
 import { useLinkTo, useScrollToTop } from '@react-navigation/native';
 
 import * as constants from 'src/constants';
+import * as utilities from 'src/utilities';
 import * as globalSelectors from 'src/global-selectors';
 import * as notificationsSlice from './notifications-slice';
 
-// import FeedFooter from 'src/features/feed/FeedFooter';
+import FeedFooter from 'src/features/feed/FeedFooter';
+import { useAppDispatch, useAppSelector, useExtendedTheme } from 'src/hooks';
+import { Notification } from 'src/models';
+import { ResponsePagination } from 'src/models/common';
+import { FacadeBottomTabScreenProps } from 'src/navigation';
+
 import {
   Button,
   EmptyContainer,
@@ -28,10 +34,6 @@ import {
   Spacer,
   Text,
 } from 'src/components';
-import { useAppDispatch, useAppSelector, useExtendedTheme } from 'src/hooks';
-import { Notification } from 'src/models';
-import { ResponsePagination } from 'src/models/common';
-import { FacadeBottomTabScreenProps } from 'src/navigation';
 
 const PAGINATION_LIMIT = 25;
 
@@ -263,15 +265,21 @@ export default function NotificationsScreen(props: NotificationsScreenProps) {
             renderSectionHeader={({ section: { title, data } }) => {
               if (data.length === 0) return null;
               return (
-                <Text
-                  size="h3"
-                  weight="900"
+                <View
                   style={{
-                    paddingVertical: constants.layout.spacing.md,
-                    paddingHorizontal: constants.layout.spacing.lg,
+                    backgroundColor:
+                      colors.background + utilities.percentToHex(0.75),
                   }}>
-                  {title}
-                </Text>
+                  <Text
+                    size="lg"
+                    weight="bold"
+                    style={{
+                      paddingVertical: constants.layout.spacing.md,
+                      paddingHorizontal: constants.layout.spacing.lg,
+                    }}>
+                    {title}
+                  </Text>
+                </View>
               );
             }}
             ItemSeparatorComponent={() => (
@@ -284,6 +292,7 @@ export default function NotificationsScreen(props: NotificationsScreenProps) {
                 }}
               />
             )}
+            ListFooterComponent={<FeedFooter didReachEnd />}
           />
         )
       ) : (
@@ -356,7 +365,7 @@ function NotificationItem(props: NotificationItemProps) {
         />
         <Spacer.Horizontal value={constants.layout.spacing.md * 1.5} />
         <View style={[{ flex: 1 }]}>
-          <Text size="md" weight="700" numberOfLines={1}>
+          <Text size="md" weight="medium" numberOfLines={1}>
             {notification.title}
           </Text>
           <Spacer.Vertical value="xs" />

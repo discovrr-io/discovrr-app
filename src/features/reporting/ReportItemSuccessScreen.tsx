@@ -1,6 +1,7 @@
 import React from 'react';
 import { SafeAreaView, Text, View } from 'react-native';
 
+import * as Animatable from 'react-native-animatable';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 import { Button, Spacer } from 'src/components';
@@ -26,7 +27,9 @@ export default function ReportItemSuccessScreen(
         { flex: 1, alignContent: 'center', justifyContent: 'center' },
       ]}>
       <View style={{ alignItems: 'center' }}>
-        <Icon name="checkmark-circle" color={color.green500} size={100} />
+        <Animatable.View animation="bounceIn" delay={200}>
+          <Icon name="checkmark-circle" color={color.green500} size={100} />
+        </Animatable.View>
         <Spacer.Vertical value="xs" />
         <Text
           style={[font.largeBold, { textAlign: 'center', color: colors.text }]}>
