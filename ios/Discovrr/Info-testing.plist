@@ -104,10 +104,12 @@
 	<string>Discovrr uses your photo library to select images and video for posts, products and workshops you share.</string>
 	<key>UIAppFonts</key>
 	<array>
-		<string>Rubik-Bold.ttf</string>
-		<string>Rubik-Italic.ttf</string>
-		<string>Rubik-Medium.ttf</string>
-		<string>Rubik-Regular.ttf</string>
+		<string>AirbnbCerealApp-Light.ttf</string>
+		<string>AirbnbCerealApp-Book.ttf</string>
+		<string>AirbnbCerealApp-Medium.ttf</string>
+		<string>AirbnbCerealApp-Bold.ttf</string>
+		<string>AirbnbCerealApp-ExtraBold.ttf</string>
+		<string>AirbnbCerealApp-Black.ttf</string>
 		<string>Ionicons.ttf</string>
 		<string>MaterialIcons.ttf</string>
 		<string>MaterialCommunityIcons.ttf</string>
