@@ -1,5 +1,5 @@
 {
-  "name": "",
+  "name": "discovrr-icons",
   "css_prefix_text": "icon-",
   "css_use_suffix": false,
   "hinting": true,
@@ -7,8 +7,8 @@
   "ascent": 850,
   "glyphs": [
     {
-      "uid": "920066a89d76e5d3e3685e5938d39588",
-      "css": "discovrr-logo",
+      "uid": "961f19a7d28aad7389abf88908302589",
+      "css": "logo",
       "code": 59392,
       "src": "custom_icons",
       "selected": true,
