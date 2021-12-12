@@ -401,11 +401,7 @@ function PostItemCardCaption(props: PostItemCardCaptionProps) {
         paddingHorizontal: cardElementOptions.insetHorizontal,
         paddingVertical: cardElementOptions.insetVertical,
       }}>
-      <GlobalAutolink
-        text={props.caption}
-        numberOfLines={2}
-        textProps={{ style: cardElementOptions.captionTextStyle }}
-      />
+      <GlobalAutolink text={props.caption} numberOfLines={2} />
     </View>
   );
 }

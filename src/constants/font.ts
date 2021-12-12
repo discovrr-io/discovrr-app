@@ -1,6 +1,7 @@
 import { Platform, TextStyle } from 'react-native';
 
 export interface FontFamily {
+  '100': string;
   '200': string;
   '300': string;
   '400': string;
@@ -16,6 +17,7 @@ export interface FontFamily {
 }
 
 export const AirbnbCerealApp: FontFamily = {
+  '100': 'AirbnbCerealApp-Light',
   '200': 'AirbnbCerealApp-Light',
   '300': 'AirbnbCerealApp-Light',
   '400': 'AirbnbCerealApp-Book',
@@ -36,7 +38,51 @@ export const AirbnbCerealApp: FontFamily = {
   },
 };
 
-export const FONT_FAMILY = AirbnbCerealApp;
+export const Rubik: FontFamily = {
+  '100': 'Rubik-Light',
+  '200': 'Rubik-Light',
+  '300': 'Rubik-Light',
+  '400': 'Rubik-Regular',
+  '500': 'Rubik-Medium',
+  '600': 'Rubik-SemiBold',
+  '700': 'Rubik-Bold',
+  '800': 'Rubik-ExtraBold',
+  '900': 'Rubik-Black',
+
+  get regular() {
+    return this[400];
+  },
+  get medium() {
+    return this[500];
+  },
+  get bold() {
+    return this[700];
+  },
+};
+
+export const WorkSans: FontFamily = {
+  '100': 'WorkSans-Thin',
+  '200': 'WorkSans-ExtraLight',
+  '300': 'WorkSans-Light',
+  '400': 'WorkSans-Regular',
+  '500': 'WorkSans-Medium',
+  '600': 'WorkSans-SemiBold',
+  '700': 'WorkSans-Bold',
+  '800': 'WorkSans-ExtraBold',
+  '900': 'WorkSans-Black',
+
+  get regular() {
+    return this[400];
+  },
+  get medium() {
+    return this[500];
+  },
+  get bold() {
+    return this[700];
+  },
+};
+
+export const FONT_FAMILY = WorkSans;
 
 export const size = {
   title: 64,

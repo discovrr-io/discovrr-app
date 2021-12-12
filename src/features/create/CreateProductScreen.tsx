@@ -251,6 +251,25 @@ function ProductFormikForm() {
           )}
         </Cell.Group>
         <Spacer.Vertical value={CELL_GROUP_VERTICAL_SPACING} />
+        <Cell.Group
+          label="Variants (coming soon!)"
+          elementOptions={{ disabled: true }}>
+          <Cell.Button
+            label="Color"
+            previewValue="No colors"
+            onPress={() => utilities.alertUnavailableFeature()}
+          />
+          <Cell.Button
+            label="Size"
+            previewValue="No sizes"
+            onPress={() => utilities.alertUnavailableFeature()}
+          />
+          <Cell.Navigator
+            label="Add another variant"
+            onPress={() => utilities.alertUnavailableFeature()}
+          />
+        </Cell.Group>
+        <Spacer.Vertical value={CELL_GROUP_VERTICAL_SPACING} />
         <Cell.Group label="Categorisation">
           <Cell.Navigator
             label="Add tags"
@@ -263,14 +282,6 @@ function ProductFormikForm() {
             onPress={() => utilities.alertUnavailableFeature()}
           />
         </Cell.Group>
-        {/* <Spacer.Vertical value={CELL_GROUP_VERTICAL_SPACING} />
-        <Cell.Group
-          label="Variants (Preview)"
-          elementOptions={{ disabled: true }}>
-          <Cell.Button label="Color" previewValue="No colors" />
-          <Cell.Button label="Size" previewValue="No sizes" />
-          <Cell.Navigator label="Add another variant" />
-        </Cell.Group> */}
       </View>
     </ScrollView>
   );
