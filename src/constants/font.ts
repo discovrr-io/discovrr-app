@@ -82,7 +82,7 @@ export const WorkSans: FontFamily = {
   },
 };
 
-export const FONT_FAMILY = WorkSans;
+export const FONT_FAMILY = AirbnbCerealApp;
 
 export const size = {
   title: 64,
