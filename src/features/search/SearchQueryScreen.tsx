@@ -12,6 +12,7 @@ import {
   View,
 } from 'react-native';
 
+import analytics from '@react-native-firebase/analytics';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 import * as constants from 'src/constants';
@@ -31,6 +32,7 @@ export default function SearchQueryScreen(props: SearchQueryScreenProps) {
   const handlePressSearchHistoryItem = (query: string) => {
     dispatch(searchSlice.addToSearchQueryHistory(query));
     props.navigation.push('SearchResults', { query });
+    analytics().logSearch({ search_term: query });
   };
 
   const handleRemoveSearchHistoryItem = (index: number) => {

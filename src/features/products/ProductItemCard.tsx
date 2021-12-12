@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { ActivityIndicator, Alert, StyleSheet, Text, View } from 'react-native';
 
+import analytics from '@react-native-firebase/analytics';
 import FastImage from 'react-native-fast-image';
 import { useNavigation } from '@react-navigation/core';
 
@@ -81,6 +82,19 @@ const LoadedProductItemCard = (props: InnerProductItemCardProps) => {
     navigation.push('ProductDetails', {
       productId: product.id,
       productName: product.name,
+    });
+
+    analytics().logSelectItem({
+      item_list_id: 'products_list',
+      item_list_name: 'Products List',
+      content_type: '',
+      items: [
+        {
+          item_id: String(product.id),
+          item_name: product.name,
+          price: product.price,
+        },
+      ],
     });
   };
 

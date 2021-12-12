@@ -4,6 +4,9 @@ import { Image, View } from 'react-native';
 import * as yup from 'yup';
 import { Formik } from 'formik';
 
+import analytics from '@react-native-firebase/analytics';
+import crashlytics from '@react-native-firebase/crashlytics';
+
 import * as constants from 'src/constants';
 import * as utilities from 'src/utilities';
 import * as authSlice from 'src/features/authentication/auth-slice';
@@ -53,11 +56,14 @@ export default function LoginScreen(props: LoginScreenProps) {
         email: profileDetails.email.trim(),
         password: values.password,
       });
-      await dispatch(loginAction).unwrap();
 
+      await dispatch(loginAction).unwrap();
+      await analytics().logLogin({ method: 'password' });
       props.navigation.getParent<RootStackNavigationProp>().goBack();
-    } catch (error) {
+    } catch (e: any) {
+      const error = e instanceof Error ? e : new Error(e);
       console.error('Failed to login with email and password:', error);
+      crashlytics().recordError(error);
       utilities.alertFirebaseAuthError(
         error,
         "We weren't able to sign you in at this time. Please try again later.",

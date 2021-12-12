@@ -1,5 +1,7 @@
 import React from 'react';
 
+import analytics from '@react-native-firebase/analytics';
+
 import {
   CardStyleInterpolators,
   createStackNavigator,
@@ -11,6 +13,7 @@ import LandingScreen from './LandingScreen';
 import SearchNavigator from 'src/features/search/SearchNavigator';
 import { HeaderIcon, PlaceholderScreen } from 'src/components';
 import { useExtendedTheme } from 'src/hooks';
+
 import {
   FacadeBottomTabNavigationProp,
   HomeStackNavigationProp,
@@ -55,9 +58,10 @@ export default function HomeNavigator() {
               {...props}
               name="search"
               size={24}
-              onPress={() =>
-                navigation.navigate('__Search', { screen: 'SearchQuery' })
-              }
+              onPress={() => {
+                navigation.navigate('__Search', { screen: 'SearchQuery' });
+                analytics().logEvent('tap_search');
+              }}
             />
           ),
           headerLeftContainerStyle: {

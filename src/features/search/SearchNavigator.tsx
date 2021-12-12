@@ -10,6 +10,7 @@ import {
   Keyboard,
 } from 'react-native';
 
+import analytics from '@react-native-firebase/analytics';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { getDefaultHeaderHeight } from '@react-navigation/elements';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -67,6 +68,7 @@ function SearchHeaderContent(props: { initialText?: string }) {
     if (query.length > 0) {
       dispatch(addToSearchQueryHistory(query));
       navigation.navigate('SearchResults', { query });
+      analytics().logSearch({ search_term: query });
     }
   };
 

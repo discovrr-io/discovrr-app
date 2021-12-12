@@ -360,6 +360,7 @@ function MakerOfTheWeek(props: MakerOfTheWeekProps) {
         destination: { uri: props.link },
         title: props.linkTitle || 'Maker of the Week',
       });
+      analytics().logEvent('view_blog', { title: props.title });
     }
   };
 

@@ -1,5 +1,7 @@
 import * as React from 'react';
 
+import analytics from '@react-native-firebase/analytics';
+
 import {
   CardStyleInterpolators,
   createStackNavigator,
@@ -52,12 +54,13 @@ export default function ExploreNavigator() {
           headerLeft: props => (
             <HeaderIcon.Menu
               {...props}
-              onPress={() =>
+              onPress={() => {
                 navigation
                   .getParent<FacadeBottomTabNavigationProp>()
                   .getParent<MainDrawerNavigationProp>()
-                  .openDrawer()
-              }
+                  .openDrawer();
+                analytics().logEvent('tap_hamburger_menu');
+              }}
             />
           ),
           headerRight: props => (
@@ -65,9 +68,10 @@ export default function ExploreNavigator() {
               {...props}
               name="search"
               size={24}
-              onPress={() =>
-                navigation.navigate('Search', { screen: 'SearchQuery' })
-              }
+              onPress={() => {
+                navigation.navigate('Search', { screen: 'SearchQuery' });
+                analytics().logEvent('tap_search');
+              }}
             />
           ),
           headerLeftContainerStyle: {

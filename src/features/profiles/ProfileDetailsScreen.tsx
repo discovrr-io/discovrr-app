@@ -936,7 +936,7 @@ const profileDetailsHeaderStatisticStyles = StyleSheet.create({
     width: 80,
   },
   label: {
-    ...constants.font.small,
+    ...constants.font.smallBold,
     textAlign: 'center',
     color: constants.color.white,
   },
