@@ -38,7 +38,6 @@ export default function OutdatedModal() {
       (async () => {
         try {
           const config = await Parse.Config.get();
-          const version = constants.values.APP_VERSION.replace('-native', '');
           const supportedRange = config.get('SUPPORTED_CLIENT_RANGE');
 
           if (!supportedRange) {
@@ -49,10 +48,11 @@ export default function OutdatedModal() {
             return;
           }
 
+          const version = constants.values.APP_VERSION.replace('-native', '');
           const satisfies = semver.satisfies(version, supportedRange);
           setIsOutdated(!satisfies);
         } catch (error) {
-          console.error($FUNC, 'Failed to get oldest support version:', error);
+          console.warn($FUNC, 'Failed to get oldest supported version:', error);
         }
       })();
     } else if (isOutdated) {
