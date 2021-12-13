@@ -114,22 +114,6 @@
 		<string>MaterialIcons.ttf</string>
 		<string>MaterialCommunityIcons.ttf</string>
 		<string>DiscovrrIcons.ttf</string>
-		<string>Rubik-Light.ttf</string>
-		<string>Rubik-Regular.ttf</string>
-		<string>Rubik-Medium.ttf</string>
-		<string>Rubik-SemiBold.ttf</string>
-		<string>Rubik-Bold.ttf</string>
-		<string>Rubik-ExtraBold.ttf</string>
-		<string>Rubik-Black.ttf</string>
-		<string>WorkSans-Thin.ttf</string>
-		<string>WorkSans-ExtraLight.ttf</string>
-		<string>WorkSans-Light.ttf</string>
-		<string>WorkSans-Regular.ttf</string>
-		<string>WorkSans-Medium.ttf</string>
-		<string>WorkSans-SemiBold.ttf</string>
-		<string>WorkSans-Bold.ttf</string>
-		<string>WorkSans-ExtraBold.ttf</string>
-		<string>WorkSans-Black.ttf</string>
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>

@@ -16,38 +16,6 @@
 		0305D5152764EB99005CA710 /* AirbnbCerealApp-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0305D50F2764EB99005CA710 /* AirbnbCerealApp-ExtraBold.ttf */; };
 		03123E00274A160400C9D53A /* NotificationService.m in Sources */ = {isa = PBXBuildFile; fileRef = 03123DFF274A160400C9D53A /* NotificationService.m */; };
 		03123E04274A160400C9D53A /* FirebaseNotificationServiceExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 03123DFC274A160400C9D53A /* FirebaseNotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		0317CBB82765A8DB00348C17 /* WorkSans-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0317CB982765A8D500348C17 /* WorkSans-ExtraBold.ttf */; };
-		0317CBB92765A8DB00348C17 /* WorkSans-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0317CB992765A8D500348C17 /* WorkSans-Light.ttf */; };
-		0317CBBA2765A8DB00348C17 /* WorkSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0317CB9A2765A8D600348C17 /* WorkSans-Regular.ttf */; };
-		0317CBBB2765A8DB00348C17 /* Rubik-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0317CB9B2765A8D600348C17 /* Rubik-SemiBold.ttf */; };
-		0317CBBC2765A8DB00348C17 /* Rubik-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0317CB9C2765A8D600348C17 /* Rubik-Medium.ttf */; };
-		0317CBBD2765A8DB00348C17 /* Rubik-LightItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0317CB9D2765A8D600348C17 /* Rubik-LightItalic.ttf */; };
-		0317CBBE2765A8DB00348C17 /* WorkSans-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0317CB9E2765A8D600348C17 /* WorkSans-BoldItalic.ttf */; };
-		0317CBBF2765A8DB00348C17 /* Rubik-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0317CB9F2765A8D600348C17 /* Rubik-Bold.ttf */; };
-		0317CBC02765A8DB00348C17 /* Rubik-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0317CBA02765A8D700348C17 /* Rubik-Regular.ttf */; };
-		0317CBC12765A8DB00348C17 /* WorkSans-ExtraLight.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0317CBA12765A8D700348C17 /* WorkSans-ExtraLight.ttf */; };
-		0317CBC22765A8DB00348C17 /* WorkSans-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0317CBA22765A8D700348C17 /* WorkSans-SemiBold.ttf */; };
-		0317CBC32765A8DB00348C17 /* Rubik-BlackItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0317CBA32765A8D700348C17 /* Rubik-BlackItalic.ttf */; };
-		0317CBC42765A8DB00348C17 /* Rubik-ExtraBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0317CBA42765A8D700348C17 /* Rubik-ExtraBoldItalic.ttf */; };
-		0317CBC52765A8DB00348C17 /* Rubik-MediumItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0317CBA52765A8D800348C17 /* Rubik-MediumItalic.ttf */; };
-		0317CBC62765A8DB00348C17 /* Rubik-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0317CBA62765A8D800348C17 /* Rubik-Black.ttf */; };
-		0317CBC72765A8DB00348C17 /* WorkSans-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0317CBA72765A8D800348C17 /* WorkSans-Italic.ttf */; };
-		0317CBC82765A8DB00348C17 /* WorkSans-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0317CBA82765A8D800348C17 /* WorkSans-Medium.ttf */; };
-		0317CBC92765A8DB00348C17 /* WorkSans-ExtraBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0317CBA92765A8D800348C17 /* WorkSans-ExtraBoldItalic.ttf */; };
-		0317CBCA2765A8DB00348C17 /* Rubik-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0317CBAA2765A8D800348C17 /* Rubik-BoldItalic.ttf */; };
-		0317CBCB2765A8DB00348C17 /* WorkSans-SemiBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0317CBAB2765A8D800348C17 /* WorkSans-SemiBoldItalic.ttf */; };
-		0317CBCC2765A8DB00348C17 /* Rubik-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0317CBAC2765A8D900348C17 /* Rubik-ExtraBold.ttf */; };
-		0317CBCD2765A8DB00348C17 /* WorkSans-MediumItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0317CBAD2765A8D900348C17 /* WorkSans-MediumItalic.ttf */; };
-		0317CBCE2765A8DB00348C17 /* Rubik-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0317CBAE2765A8D900348C17 /* Rubik-Light.ttf */; };
-		0317CBCF2765A8DB00348C17 /* WorkSans-Thin.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0317CBAF2765A8D900348C17 /* WorkSans-Thin.ttf */; };
-		0317CBD02765A8DB00348C17 /* WorkSans-ExtraLightItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0317CBB02765A8D900348C17 /* WorkSans-ExtraLightItalic.ttf */; };
-		0317CBD12765A8DB00348C17 /* WorkSans-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0317CBB12765A8D900348C17 /* WorkSans-Black.ttf */; };
-		0317CBD22765A8DB00348C17 /* WorkSans-LightItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0317CBB22765A8DA00348C17 /* WorkSans-LightItalic.ttf */; };
-		0317CBD32765A8DB00348C17 /* WorkSans-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0317CBB32765A8DA00348C17 /* WorkSans-Bold.ttf */; };
-		0317CBD42765A8DB00348C17 /* Rubik-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0317CBB42765A8DA00348C17 /* Rubik-Italic.ttf */; };
-		0317CBD52765A8DB00348C17 /* WorkSans-BlackItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0317CBB52765A8DA00348C17 /* WorkSans-BlackItalic.ttf */; };
-		0317CBD62765A8DB00348C17 /* Rubik-SemiBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0317CBB62765A8DA00348C17 /* Rubik-SemiBoldItalic.ttf */; };
-		0317CBD72765A8DB00348C17 /* WorkSans-ThinItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0317CBB72765A8DB00348C17 /* WorkSans-ThinItalic.ttf */; };
 		036F75472726565F008001F7 /* GoogleService-Info-Testing.plist in Resources */ = {isa = PBXBuildFile; fileRef = 036F75462726565F008001F7 /* GoogleService-Info-Testing.plist */; };
 		038D0719272157B500CE5B10 /* GoogleService-Info-Release.plist in Resources */ = {isa = PBXBuildFile; fileRef = 038D0715272157B500CE5B10 /* GoogleService-Info-Release.plist */; };
 		038D071A272157B500CE5B10 /* GoogleService-Info-Debug.plist in Resources */ = {isa = PBXBuildFile; fileRef = 038D0716272157B500CE5B10 /* GoogleService-Info-Debug.plist */; };
@@ -108,38 +76,6 @@
 		03123DFE274A160400C9D53A /* NotificationService.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NotificationService.h; sourceTree = "<group>"; };
 		03123DFF274A160400C9D53A /* NotificationService.m */ = {isa = PBXFileReference; indentWidth = 4; lastKnownFileType = sourcecode.c.objc; path = NotificationService.m; sourceTree = "<group>"; tabWidth = 4; };
 		03123E01274A160400C9D53A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		0317CB982765A8D500348C17 /* WorkSans-ExtraBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "WorkSans-ExtraBold.ttf"; path = "../assets/fonts/WorkSans-ExtraBold.ttf"; sourceTree = "<group>"; };
-		0317CB992765A8D500348C17 /* WorkSans-Light.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "WorkSans-Light.ttf"; path = "../assets/fonts/WorkSans-Light.ttf"; sourceTree = "<group>"; };
-		0317CB9A2765A8D600348C17 /* WorkSans-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "WorkSans-Regular.ttf"; path = "../assets/fonts/WorkSans-Regular.ttf"; sourceTree = "<group>"; };
-		0317CB9B2765A8D600348C17 /* Rubik-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Rubik-SemiBold.ttf"; path = "../assets/fonts/Rubik-SemiBold.ttf"; sourceTree = "<group>"; };
-		0317CB9C2765A8D600348C17 /* Rubik-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Rubik-Medium.ttf"; path = "../assets/fonts/Rubik-Medium.ttf"; sourceTree = "<group>"; };
-		0317CB9D2765A8D600348C17 /* Rubik-LightItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Rubik-LightItalic.ttf"; path = "../assets/fonts/Rubik-LightItalic.ttf"; sourceTree = "<group>"; };
-		0317CB9E2765A8D600348C17 /* WorkSans-BoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "WorkSans-BoldItalic.ttf"; path = "../assets/fonts/WorkSans-BoldItalic.ttf"; sourceTree = "<group>"; };
-		0317CB9F2765A8D600348C17 /* Rubik-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Rubik-Bold.ttf"; path = "../assets/fonts/Rubik-Bold.ttf"; sourceTree = "<group>"; };
-		0317CBA02765A8D700348C17 /* Rubik-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Rubik-Regular.ttf"; path = "../assets/fonts/Rubik-Regular.ttf"; sourceTree = "<group>"; };
-		0317CBA12765A8D700348C17 /* WorkSans-ExtraLight.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "WorkSans-ExtraLight.ttf"; path = "../assets/fonts/WorkSans-ExtraLight.ttf"; sourceTree = "<group>"; };
-		0317CBA22765A8D700348C17 /* WorkSans-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "WorkSans-SemiBold.ttf"; path = "../assets/fonts/WorkSans-SemiBold.ttf"; sourceTree = "<group>"; };
-		0317CBA32765A8D700348C17 /* Rubik-BlackItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Rubik-BlackItalic.ttf"; path = "../assets/fonts/Rubik-BlackItalic.ttf"; sourceTree = "<group>"; };
-		0317CBA42765A8D700348C17 /* Rubik-ExtraBoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Rubik-ExtraBoldItalic.ttf"; path = "../assets/fonts/Rubik-ExtraBoldItalic.ttf"; sourceTree = "<group>"; };
-		0317CBA52765A8D800348C17 /* Rubik-MediumItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Rubik-MediumItalic.ttf"; path = "../assets/fonts/Rubik-MediumItalic.ttf"; sourceTree = "<group>"; };
-		0317CBA62765A8D800348C17 /* Rubik-Black.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Rubik-Black.ttf"; path = "../assets/fonts/Rubik-Black.ttf"; sourceTree = "<group>"; };
-		0317CBA72765A8D800348C17 /* WorkSans-Italic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "WorkSans-Italic.ttf"; path = "../assets/fonts/WorkSans-Italic.ttf"; sourceTree = "<group>"; };
-		0317CBA82765A8D800348C17 /* WorkSans-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "WorkSans-Medium.ttf"; path = "../assets/fonts/WorkSans-Medium.ttf"; sourceTree = "<group>"; };
-		0317CBA92765A8D800348C17 /* WorkSans-ExtraBoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "WorkSans-ExtraBoldItalic.ttf"; path = "../assets/fonts/WorkSans-ExtraBoldItalic.ttf"; sourceTree = "<group>"; };
-		0317CBAA2765A8D800348C17 /* Rubik-BoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Rubik-BoldItalic.ttf"; path = "../assets/fonts/Rubik-BoldItalic.ttf"; sourceTree = "<group>"; };
-		0317CBAB2765A8D800348C17 /* WorkSans-SemiBoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "WorkSans-SemiBoldItalic.ttf"; path = "../assets/fonts/WorkSans-SemiBoldItalic.ttf"; sourceTree = "<group>"; };
-		0317CBAC2765A8D900348C17 /* Rubik-ExtraBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Rubik-ExtraBold.ttf"; path = "../assets/fonts/Rubik-ExtraBold.ttf"; sourceTree = "<group>"; };
-		0317CBAD2765A8D900348C17 /* WorkSans-MediumItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "WorkSans-MediumItalic.ttf"; path = "../assets/fonts/WorkSans-MediumItalic.ttf"; sourceTree = "<group>"; };
-		0317CBAE2765A8D900348C17 /* Rubik-Light.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Rubik-Light.ttf"; path = "../assets/fonts/Rubik-Light.ttf"; sourceTree = "<group>"; };
-		0317CBAF2765A8D900348C17 /* WorkSans-Thin.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "WorkSans-Thin.ttf"; path = "../assets/fonts/WorkSans-Thin.ttf"; sourceTree = "<group>"; };
-		0317CBB02765A8D900348C17 /* WorkSans-ExtraLightItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "WorkSans-ExtraLightItalic.ttf"; path = "../assets/fonts/WorkSans-ExtraLightItalic.ttf"; sourceTree = "<group>"; };
-		0317CBB12765A8D900348C17 /* WorkSans-Black.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "WorkSans-Black.ttf"; path = "../assets/fonts/WorkSans-Black.ttf"; sourceTree = "<group>"; };
-		0317CBB22765A8DA00348C17 /* WorkSans-LightItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "WorkSans-LightItalic.ttf"; path = "../assets/fonts/WorkSans-LightItalic.ttf"; sourceTree = "<group>"; };
-		0317CBB32765A8DA00348C17 /* WorkSans-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "WorkSans-Bold.ttf"; path = "../assets/fonts/WorkSans-Bold.ttf"; sourceTree = "<group>"; };
-		0317CBB42765A8DA00348C17 /* Rubik-Italic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Rubik-Italic.ttf"; path = "../assets/fonts/Rubik-Italic.ttf"; sourceTree = "<group>"; };
-		0317CBB52765A8DA00348C17 /* WorkSans-BlackItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "WorkSans-BlackItalic.ttf"; path = "../assets/fonts/WorkSans-BlackItalic.ttf"; sourceTree = "<group>"; };
-		0317CBB62765A8DA00348C17 /* Rubik-SemiBoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Rubik-SemiBoldItalic.ttf"; path = "../assets/fonts/Rubik-SemiBoldItalic.ttf"; sourceTree = "<group>"; };
-		0317CBB72765A8DB00348C17 /* WorkSans-ThinItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "WorkSans-ThinItalic.ttf"; path = "../assets/fonts/WorkSans-ThinItalic.ttf"; sourceTree = "<group>"; };
 		036F753E27264FE9008001F7 /* Info-testing.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "Info-testing.plist"; path = "Discovrr/Info-testing.plist"; sourceTree = "<group>"; };
 		036F75462726565F008001F7 /* GoogleService-Info-Testing.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info-Testing.plist"; path = "Discovrr/GoogleService-Info-Testing.plist"; sourceTree = "<group>"; };
 		038584352665EA38005DECD2 /* Discovrr.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; name = Discovrr.entitlements; path = Discovrr/Discovrr.entitlements; sourceTree = "<group>"; };
@@ -222,38 +158,6 @@
 				D8CDED8E30D54BD9AE648079 /* MaterialIcons.ttf */,
 				44B9A8AFB24247519B7FF1F3 /* MaterialCommunityIcons.ttf */,
 				03997AD2270C1D43001E8B6A /* DiscovrrIcons.ttf */,
-				0317CBA62765A8D800348C17 /* Rubik-Black.ttf */,
-				0317CBA32765A8D700348C17 /* Rubik-BlackItalic.ttf */,
-				0317CB9F2765A8D600348C17 /* Rubik-Bold.ttf */,
-				0317CBAA2765A8D800348C17 /* Rubik-BoldItalic.ttf */,
-				0317CBAC2765A8D900348C17 /* Rubik-ExtraBold.ttf */,
-				0317CBA42765A8D700348C17 /* Rubik-ExtraBoldItalic.ttf */,
-				0317CBB42765A8DA00348C17 /* Rubik-Italic.ttf */,
-				0317CBAE2765A8D900348C17 /* Rubik-Light.ttf */,
-				0317CB9D2765A8D600348C17 /* Rubik-LightItalic.ttf */,
-				0317CB9C2765A8D600348C17 /* Rubik-Medium.ttf */,
-				0317CBA52765A8D800348C17 /* Rubik-MediumItalic.ttf */,
-				0317CBA02765A8D700348C17 /* Rubik-Regular.ttf */,
-				0317CB9B2765A8D600348C17 /* Rubik-SemiBold.ttf */,
-				0317CBB62765A8DA00348C17 /* Rubik-SemiBoldItalic.ttf */,
-				0317CBB12765A8D900348C17 /* WorkSans-Black.ttf */,
-				0317CBB52765A8DA00348C17 /* WorkSans-BlackItalic.ttf */,
-				0317CBB32765A8DA00348C17 /* WorkSans-Bold.ttf */,
-				0317CB9E2765A8D600348C17 /* WorkSans-BoldItalic.ttf */,
-				0317CB982765A8D500348C17 /* WorkSans-ExtraBold.ttf */,
-				0317CBA92765A8D800348C17 /* WorkSans-ExtraBoldItalic.ttf */,
-				0317CBA12765A8D700348C17 /* WorkSans-ExtraLight.ttf */,
-				0317CBB02765A8D900348C17 /* WorkSans-ExtraLightItalic.ttf */,
-				0317CBA72765A8D800348C17 /* WorkSans-Italic.ttf */,
-				0317CB992765A8D500348C17 /* WorkSans-Light.ttf */,
-				0317CBB22765A8DA00348C17 /* WorkSans-LightItalic.ttf */,
-				0317CBA82765A8D800348C17 /* WorkSans-Medium.ttf */,
-				0317CBAD2765A8D900348C17 /* WorkSans-MediumItalic.ttf */,
-				0317CB9A2765A8D600348C17 /* WorkSans-Regular.ttf */,
-				0317CBA22765A8D700348C17 /* WorkSans-SemiBold.ttf */,
-				0317CBAB2765A8D800348C17 /* WorkSans-SemiBoldItalic.ttf */,
-				0317CBAF2765A8D900348C17 /* WorkSans-Thin.ttf */,
-				0317CBB72765A8DB00348C17 /* WorkSans-ThinItalic.ttf */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -508,51 +412,19 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0317CBD12765A8DB00348C17 /* WorkSans-Black.ttf in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
-				0317CBCD2765A8DB00348C17 /* WorkSans-MediumItalic.ttf in Resources */,
-				0317CBD52765A8DB00348C17 /* WorkSans-BlackItalic.ttf in Resources */,
 				03997AD3270C1D43001E8B6A /* DiscovrrIcons.ttf in Resources */,
-				0317CBB82765A8DB00348C17 /* WorkSans-ExtraBold.ttf in Resources */,
-				0317CBD02765A8DB00348C17 /* WorkSans-ExtraLightItalic.ttf in Resources */,
-				0317CBBE2765A8DB00348C17 /* WorkSans-BoldItalic.ttf in Resources */,
-				0317CBC42765A8DB00348C17 /* Rubik-ExtraBoldItalic.ttf in Resources */,
-				0317CBBF2765A8DB00348C17 /* Rubik-Bold.ttf in Resources */,
-				0317CBC32765A8DB00348C17 /* Rubik-BlackItalic.ttf in Resources */,
 				038D071A272157B500CE5B10 /* GoogleService-Info-Debug.plist in Resources */,
-				0317CBCC2765A8DB00348C17 /* Rubik-ExtraBold.ttf in Resources */,
-				0317CBD32765A8DB00348C17 /* WorkSans-Bold.ttf in Resources */,
-				0317CBB92765A8DB00348C17 /* WorkSans-Light.ttf in Resources */,
 				036F75472726565F008001F7 /* GoogleService-Info-Testing.plist in Resources */,
-				0317CBC62765A8DB00348C17 /* Rubik-Black.ttf in Resources */,
-				0317CBCE2765A8DB00348C17 /* Rubik-Light.ttf in Resources */,
-				0317CBBB2765A8DB00348C17 /* Rubik-SemiBold.ttf in Resources */,
 				038D071C272157B500CE5B10 /* GoogleService-Info-Staging.plist in Resources */,
-				0317CBC82765A8DB00348C17 /* WorkSans-Medium.ttf in Resources */,
-				0317CBC92765A8DB00348C17 /* WorkSans-ExtraBoldItalic.ttf in Resources */,
-				0317CBBA2765A8DB00348C17 /* WorkSans-Regular.ttf in Resources */,
-				0317CBD72765A8DB00348C17 /* WorkSans-ThinItalic.ttf in Resources */,
-				0317CBCB2765A8DB00348C17 /* WorkSans-SemiBoldItalic.ttf in Resources */,
 				038D0719272157B500CE5B10 /* GoogleService-Info-Release.plist in Resources */,
-				0317CBCA2765A8DB00348C17 /* Rubik-BoldItalic.ttf in Resources */,
 				038D071E2721582000CE5B10 /* BootSplash.storyboard in Resources */,
 				0305D5112764EB99005CA710 /* AirbnbCerealApp-Light.ttf in Resources */,
 				0305D5102764EB99005CA710 /* AirbnbCerealApp-Book.ttf in Resources */,
-				0317CBCF2765A8DB00348C17 /* WorkSans-Thin.ttf in Resources */,
 				0305D5142764EB99005CA710 /* AirbnbCerealApp-Medium.ttf in Resources */,
 				0305D5122764EB99005CA710 /* AirbnbCerealApp-Bold.ttf in Resources */,
-				0317CBC52765A8DB00348C17 /* Rubik-MediumItalic.ttf in Resources */,
-				0317CBD42765A8DB00348C17 /* Rubik-Italic.ttf in Resources */,
-				0317CBC02765A8DB00348C17 /* Rubik-Regular.ttf in Resources */,
-				0317CBD62765A8DB00348C17 /* Rubik-SemiBoldItalic.ttf in Resources */,
-				0317CBC72765A8DB00348C17 /* WorkSans-Italic.ttf in Resources */,
-				0317CBBD2765A8DB00348C17 /* Rubik-LightItalic.ttf in Resources */,
-				0317CBBC2765A8DB00348C17 /* Rubik-Medium.ttf in Resources */,
 				0305D5152764EB99005CA710 /* AirbnbCerealApp-ExtraBold.ttf in Resources */,
-				0317CBC22765A8DB00348C17 /* WorkSans-SemiBold.ttf in Resources */,
 				0305D5132764EB99005CA710 /* AirbnbCerealApp-Black.ttf in Resources */,
-				0317CBC12765A8DB00348C17 /* WorkSans-ExtraLight.ttf in Resources */,
-				0317CBD22765A8DB00348C17 /* WorkSans-LightItalic.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
