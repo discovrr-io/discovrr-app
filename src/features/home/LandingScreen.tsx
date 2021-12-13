@@ -192,9 +192,10 @@ function CallToActionCard(props: CallToActionCardProps) {
   return (
     <View style={[landingScreenStyles.card, callToActionCardStyles.card]}>
       <Text
+        size="h2"
+        weight="800"
         allowFontScaling={false}
         style={[
-          constants.font.h2,
           {
             color: constants.color.absoluteWhite,
             fontSize: constants.font.size.h2,
@@ -205,9 +206,9 @@ function CallToActionCard(props: CallToActionCardProps) {
       </Text>
       <Spacer.Vertical value="md" />
       <Text
+        size="lg"
         allowFontScaling={false}
         style={[
-          constants.font.large,
           { color: constants.color.absoluteWhite },
           { textAlign: 'center' },
         ]}>
@@ -242,8 +243,9 @@ function ScrollUpText() {
       style={[callToActionCardStyles.scrollDownContainer, translateStyles]}>
       <Icon name="arrow-up" size={16} color={constants.color.absoluteWhite} />
       <Text
+        size="sm"
+        weight="bold"
         style={[
-          constants.font.smallBold,
           callToActionCardStyles.scrollDownText,
           { marginHorizontal: constants.layout.spacing.sm },
         ]}>
@@ -289,9 +291,9 @@ function ShopNowCard() {
       style={[landingScreenStyles.card, shopNowCardStyle.card]}>
       <View style={{ alignItems: 'center' }}>
         <Text
+          weight="bold"
           allowFontScaling={false}
           style={[
-            constants.font.h2,
             {
               color: constants.color.absoluteWhite,
               fontSize: constants.font.size.h2 * 0.8,
@@ -300,10 +302,8 @@ function ShopNowCard() {
           Shop Now
         </Text>
         <Text
-          style={[
-            constants.font.bodyMedium,
-            { color: constants.color.absoluteWhite },
-          ]}>
+          weight="medium"
+          style={[{ color: constants.color.absoluteWhite }]}>
           Tap here to browse our products
         </Text>
       </View>
@@ -521,18 +521,16 @@ function ExploreOurMakers(props: ExploreOurMakersProps) {
           />
           <Spacer.Vertical value="md" />
           <Text
+            weight="bold"
             numberOfLines={1}
-            style={[
-              constants.font.bodyBold,
-              { textAlign: 'center', color: colors.text },
-            ]}>
+            style={[{ textAlign: 'center' }]}>
             {profile.__publicName}
           </Text>
           <Text
+            size="xs"
             numberOfLines={2}
             style={[
-              constants.font.extraSmall,
-              { textAlign: 'center', color: colors.text },
+              { textAlign: 'center' },
               !profile.biography && { fontStyle: 'italic' },
             ]}>
             {profile.biography || 'No biography'}
@@ -758,7 +756,7 @@ const landingScreenStyles = StyleSheet.create({
   card: {
     alignItems: 'center',
     justifyContent: 'center',
-    padding: constants.layout.spacing.lg,
+    padding: constants.layout.spacing.xl,
     borderRadius: constants.layout.radius.md,
     overflow: 'hidden',
   },

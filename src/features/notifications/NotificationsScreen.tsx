@@ -27,13 +27,7 @@ import { Notification } from 'src/models';
 import { ResponsePagination } from 'src/models/common';
 import { FacadeBottomTabScreenProps } from 'src/navigation';
 
-import {
-  Button,
-  EmptyContainer,
-  SignInPrompt,
-  Spacer,
-  Text,
-} from 'src/components';
+import { EmptyContainer, SignInPrompt, Spacer, Text } from 'src/components';
 
 const PAGINATION_LIMIT = 25;
 
@@ -58,7 +52,7 @@ function categoriseNotifications(notifications: Notification[]): Section[] {
 
 type NotificationsScreenProps = FacadeBottomTabScreenProps<'Notifications'>;
 
-export default function NotificationsScreen(props: NotificationsScreenProps) {
+export default function NotificationsScreen(_: NotificationsScreenProps) {
   const $FUNC = '[NotificationsScreen]';
   const dispatch = useAppDispatch();
   const { colors } = useExtendedTheme();
@@ -96,26 +90,26 @@ export default function NotificationsScreen(props: NotificationsScreenProps) {
     }, [dispatch]),
   );
 
-  React.useLayoutEffect(() => {
-    props.navigation.setOptions({
-      headerRight: ({}) => (
-        <Button
-          title="Clear All"
-          size="medium"
-          type="primary"
-          disabled={totalNotificationCount === 0}
-          textStyle={{ textAlign: 'right' }}
-          innerTextProps={{ allowFontScaling: false }}
-          onPress={() => dispatch(notificationsSlice.clearAllNotifications())}
-          containerStyle={{
-            alignItems: 'flex-end',
-            paddingHorizontal: 0,
-            marginRight: constants.layout.defaultScreenMargins.horizontal,
-          }}
-        />
-      ),
-    });
-  }, [props.navigation, dispatch, totalNotificationCount]);
+  // React.useLayoutEffect(() => {
+  //   props.navigation.setOptions({
+  //     headerRight: ({}) => (
+  //       <Button
+  //         title="Clear All"
+  //         size="medium"
+  //         type="primary"
+  //         disabled={totalNotificationCount === 0}
+  //         textStyle={{ textAlign: 'right' }}
+  //         innerTextProps={{ allowFontScaling: false }}
+  //         onPress={() => dispatch(notificationsSlice.clearAllNotifications())}
+  //         containerStyle={{
+  //           alignItems: 'flex-end',
+  //           paddingHorizontal: 0,
+  //           marginRight: constants.layout.defaultScreenMargins.horizontal,
+  //         }}
+  //       />
+  //     ),
+  //   });
+  // }, [props.navigation, dispatch, totalNotificationCount]);
 
   React.useEffect(() => {
     const subscription = AppState.addEventListener('change', nextAppState => {

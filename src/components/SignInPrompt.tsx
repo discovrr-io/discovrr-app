@@ -40,7 +40,7 @@ export default function SignInPrompt(props: SignInPromptProps) {
         flexGrow: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        padding: constants.layout.spacing.xxl,
+        padding: constants.layout.spacing.xxl * 1.5,
       }}>
       <Text
         maxFontSizeMultiplier={1.2}
@@ -57,18 +57,21 @@ export default function SignInPrompt(props: SignInPromptProps) {
           constants.font.body,
           { color: colors.text, textAlign: 'center' },
         ]}>
-        {props.caption ?? 'Sign in to get the most out of Discovrr.'}
+        {props.caption ??
+          'Sign in or create an account to get the most out of Discovrr.'}
       </Text>
       <Spacer.Vertical value="md" />
       <Button
-        title="Sign In"
+        title="Get Started"
         variant="contained"
         innerTextProps={{ allowFontScaling: false }}
         onPress={handlePressSignIn}
         underlayColor={constants.color.gray300}
         containerStyle={[
-          { width: 120 },
-          !dark && { backgroundColor: constants.color.gray200 },
+          { minWidth: '70%' },
+          !dark && {
+            backgroundColor: constants.color.gray200,
+          },
         ]}
       />
     </ScrollView>
