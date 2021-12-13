@@ -81,7 +81,7 @@
     "react-native-masonry-list": "^2.16.1",
     "react-native-pager-view": "^5.4.6",
     "react-native-permissions": "^3.2.0",
-    "react-native-reanimated": "^2.3.0",
+    "react-native-reanimated": "~2.2.0",
     "react-native-safe-area-context": "^3.3.2",
     "react-native-screens": "^3.10.0",
     "react-native-snap-carousel": "^3.9.1",
