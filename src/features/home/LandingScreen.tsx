@@ -2,7 +2,6 @@ import * as React from 'react';
 import {
   ActivityIndicator,
   FlatList,
-  LogBox,
   Platform,
   RefreshControl,
   ScrollView,
@@ -568,9 +567,6 @@ export default function LandingScreen(_: LandingScreenProps) {
   // NOTE: This will log this screen twice if the user starts from the Auth
   // screen and then navigates to the Landing screen.
   React.useEffect(() => {
-    // Temporarily disable error from VirtualizedLists
-    LogBox.ignoreLogs(['VirtualizedLists']);
-
     analytics()
       .logScreenView({
         screen_name: 'Landing',

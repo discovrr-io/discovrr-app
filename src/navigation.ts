@@ -36,6 +36,8 @@ declare global {
 //#region ROOT STACK
 
 export type RootStackParamList = {
+  // -- Onboarding --
+  Onboarding: NavigatorScreenParams<OnboardingStackParamList>;
   // -- Authentication --
   AuthPrompt: NavigatorScreenParams<AuthPromptStackParamList>;
   // -- Top Level --
@@ -78,6 +80,27 @@ export const RootStack = createStackNavigator<RootStackParamList>();
 
 //#endregion
 
+//#region ONBOARDING STACK
+
+export type OnboardingStackParamList = {
+  OnboardingStart: undefined;
+  OnboardingAccountType: undefined;
+  OnboardingPersonalDetails: undefined;
+  OnboardingProfileDetails: undefined;
+  OnboardingPushNotifications: undefined;
+};
+
+export type OnboardingStackNavigationProp = StackNavigationProp<
+  OnboardingStackParamList,
+  'OnboardingStart'
+>;
+
+export type OnboardingStackScreenProps<
+  K extends keyof OnboardingStackParamList,
+> = StackScreenProps<OnboardingStackParamList, K>;
+
+//#endregion ONBOARDING STACK
+
 //#region AUTH PROMPT STACK
 
 export type AuthPromptStackParamList = {
@@ -88,7 +111,7 @@ export type AuthPromptStackParamList = {
   TermsAndConditions: undefined;
 };
 
-export type AuthPromptStackNavigationPrompt = StackNavigationProp<
+export type AuthPromptStackNavigationProp = StackNavigationProp<
   AuthPromptStackParamList,
   'AuthStart'
 >;

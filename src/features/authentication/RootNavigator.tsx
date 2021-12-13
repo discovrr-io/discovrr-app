@@ -21,9 +21,10 @@ import {
 
 import MainNavigator from './MainNavigator';
 import AuthPromptNavigator from './AuthPromptNavigator';
+import InAppWebViewScreen from './InAppWebViewScreen';
+import OnboardingNavigator from 'src/features/onboarding/OnboardingNavigator';
 import CreateItemNavigator from 'src/features/create/CreateItemNavigator';
 import ReportItemNavigator from 'src/features/reporting/ReportItemNavigator';
-import InAppWebViewScreen from './InAppWebViewScreen';
 
 import renderPostNavigator from 'src/features/posts/PostNavigator';
 import renderProfileNavigator from 'src/features/profiles/ProfileNavigator';
@@ -53,6 +54,10 @@ export default function RootNavigator() {
   const didRegisterFCMToken = useAppSelector(state => {
     return state.notifications.didRegisterFCMToken;
   });
+
+  const { didCompleteMainOnboarding } = useAppSelector(
+    state => state.onboarding,
+  );
 
   React.useEffect(() => {
     // Allow restarts from this point on. If there is an update available, it'll
@@ -135,7 +140,7 @@ export default function RootNavigator() {
 
   return (
     <RootStack.Navigator
-      initialRouteName="Main"
+      initialRouteName={didCompleteMainOnboarding ? 'Main' : 'Onboarding'}
       screenOptions={{
         headerBackTitleVisible: false,
         headerTintColor: colors.text,
@@ -150,6 +155,15 @@ export default function RootNavigator() {
           ios: HeaderStyleInterpolators.forUIKit,
         }),
       }}>
+      {/* -- Onboarding -- */}
+      <RootStack.Group>
+        <RootStack.Screen
+          name="Onboarding"
+          component={OnboardingNavigator}
+          options={{ headerShown: false, presentation: 'modal' }}
+        />
+      </RootStack.Group>
+
       {/* -- Authentication -- */}
       <RootStack.Group>
         <RootStack.Screen
