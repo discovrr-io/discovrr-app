@@ -39,7 +39,6 @@ import Animated, {
 import * as constants from 'src/constants';
 import * as utilities from 'src/utilities';
 import * as authSlice from 'src/features/authentication/auth-slice';
-import * as onboardingSlice from 'src/features/onboarding/onboarding-slice';
 import * as profilesSlice from 'src/features/profiles/profiles-slice';
 import ProductItemCard from 'src/features/products/ProductItemCard';
 import { ProductId, Profile } from 'src/models';
@@ -60,11 +59,6 @@ import {
   useExtendedTheme,
   useIsMounted,
 } from 'src/hooks';
-
-import OnboardingModal, {
-  OnboardingModalContext,
-  OnboardingResult,
-} from 'src/features/onboarding/OnboardingModal';
 
 const TILE_SPACING = constants.values.DEFAULT_TILE_SPACING;
 const EXPLORE_OUR_MAKERS_NUM_COLUMNS = 2;
@@ -95,6 +89,7 @@ type HomeFeedData = {
   };
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function requestNotificationPermission() {
   try {
     const authStatus = await messaging().requestPermission();
@@ -560,12 +555,6 @@ export default function LandingScreen(_: LandingScreenProps) {
 
   const currentUser = useAppSelector(authSlice.selectCurrentUser);
 
-  const [isModalVisible, setIsModalVisible] = React.useState(false);
-  const { isOutdatedModalVisible } = useAppSelector(state => state.auth);
-  const shouldShowModal = useAppSelector(state => {
-    return !state.onboarding.didCompleteMainOnboarding;
-  });
-
   const [homeFeedData, setHomeFeedData] = React.useState<HomeFeedData>();
   const [makers, setMakers] = React.useState<Profile[]>([]);
   const [isInitialRender, setIsInitialRender] = React.useState(true);
@@ -589,16 +578,6 @@ export default function LandingScreen(_: LandingScreenProps) {
       })
       .catch(error => console.warn($FUNC, 'Failed to log screen view:', error));
   }, []);
-
-  React.useEffect(() => {
-    if (!shouldShowModal) return;
-
-    const timeout = setTimeout(() => {
-      setIsModalVisible(true);
-    }, 1000);
-
-    return () => clearTimeout(timeout);
-  }, [shouldShowModal]);
 
   React.useEffect(
     () => {
@@ -632,123 +611,88 @@ export default function LandingScreen(_: LandingScreenProps) {
     if (!isInitialRender && !shouldRefresh) setShouldRefresh(true);
   };
 
-  const handleCompleteOnboarding = async (result: OnboardingResult) => {
-    try {
-      console.log($FUNC, 'Sending onboarding result:', result);
-
-      const survey = await new Parse.Query('Survey')
-        .equalTo('response', result.surveyResponse || 'no answer')
-        .first();
-
-      survey?.increment('count');
-      await survey?.save();
-
-      dispatch(onboardingSlice.completeMainOnboarding());
-    } catch (error) {
-      // We don't care if it fails
-      console.warn($FUNC, 'Failed to save onboarding response:', error);
-    } finally {
-      setIsModalVisible(false);
-      await requestNotificationPermission();
-    }
-  };
-
-  const handleSkipOnboarding = async () => {
-    console.log($FUNC, 'Skipped onboarding');
-    setIsModalVisible(false);
-    await requestNotificationPermission();
-  };
-
   return (
-    <OnboardingModalContext.Provider
-      value={{
-        completeOnboarding: handleCompleteOnboarding,
-        skipOnboarding: handleSkipOnboarding,
-      }}>
-      <OnboardingModal visible={!isOutdatedModalVisible && isModalVisible} />
-      <MasonryList
-        ref={masonryListScrollViewRef}
-        data={homeFeedData?.featuredProductIds ?? []}
-        contentContainerStyle={{
-          paddingVertical: currentUser ? constants.layout.spacing.lg : 0,
-        }}
-        refreshControl={
-          <RefreshControl
-            tintColor={constants.color.gray500}
-            refreshing={!isInitialRender && shouldRefresh}
-            onRefresh={handleRefresh}
-          />
-        }
-        ListHeaderComponent={
-          <>
-            {!currentUser && (
-              <SignInHeaderCard
-                style={{ marginBottom: constants.layout.spacing.md * 1.5 }}
-              />
-            )}
-            <View
-              style={{
-                paddingHorizontal:
-                  constants.layout.defaultScreenMargins.horizontal,
-              }}>
-              <CallToActionCard
-                title={
-                  homeFeedData?.callToAction.title ??
-                  'Get inspired by Australian creativity today!'
-                }
-                caption={
-                  homeFeedData?.callToAction.caption ??
-                  'Explore our carefully curated catalogue of products made by our local makers.'
-                }
-              />
-              <Spacer.Vertical value="lg" />
-              <ShopNowCard />
-              {homeFeedData?.weeklyOffer && (
-                <WeeklyOffer {...homeFeedData.weeklyOffer} />
-              )}
-              {(isInitialRender || shouldRefresh) && !homeFeedData ? (
-                <MakerOfTheWeek.Pending />
-              ) : homeFeedData ? (
-                <MakerOfTheWeek {...homeFeedData.makerOfTheWeek} />
-              ) : null}
-              <SectionTitle title={OUR_PICKS_FOR_THE_WEEK_TITLE} />
-            </View>
-          </>
-        }
-        ListFooterComponent={
+    <MasonryList
+      ref={masonryListScrollViewRef}
+      data={homeFeedData?.featuredProductIds ?? []}
+      contentContainerStyle={{
+        paddingVertical: currentUser ? constants.layout.spacing.lg : 0,
+      }}
+      refreshControl={
+        <RefreshControl
+          tintColor={constants.color.gray500}
+          refreshing={!isInitialRender && shouldRefresh}
+          onRefresh={handleRefresh}
+        />
+      }
+      ListHeaderComponent={
+        <>
+          {!currentUser && (
+            <SignInHeaderCard
+              style={{ marginBottom: constants.layout.spacing.md * 1.5 }}
+            />
+          )}
           <View
             style={{
-              paddingBottom: constants.layout.defaultScreenMargins.vertical,
               paddingHorizontal:
                 constants.layout.defaultScreenMargins.horizontal,
             }}>
-            {__DEV__ && Platform.OS === 'ios'
-              ? null
-              : (!isInitialRender || !shouldRefresh) &&
-                makers.length > 0 && <ExploreOurMakers profiles={makers} />}
+            <CallToActionCard
+              title={
+                homeFeedData?.callToAction.title ??
+                'Get inspired by Australian creativity today!'
+              }
+              caption={
+                homeFeedData?.callToAction.caption ??
+                'Explore our carefully curated catalogue of products made by our local makers.'
+              }
+            />
+            <Spacer.Vertical value="lg" />
+            <ShopNowCard />
+            {homeFeedData?.weeklyOffer && (
+              <WeeklyOffer {...homeFeedData.weeklyOffer} />
+            )}
+            {(isInitialRender || shouldRefresh) && !homeFeedData ? (
+              <MakerOfTheWeek.Pending />
+            ) : homeFeedData ? (
+              <MakerOfTheWeek {...homeFeedData.makerOfTheWeek} />
+            ) : null}
+            <SectionTitle title={OUR_PICKS_FOR_THE_WEEK_TITLE} />
           </View>
-        }
-        ListEmptyComponent={
-          isInitialRender || shouldRefresh ? (
-            <LoadingContainer />
-          ) : (
-            <EmptyContainer message="There aren't any featured products at the moment" />
-          )
-        }
-        renderItem={({ item: productId, column, index }) => (
-          <ProductItemCard
-            key={productId}
-            productId={productId}
-            elementOptions={{ smallContent: true }}
-            style={{
-              marginTop: index < 2 ? 0 : TILE_SPACING,
-              marginLeft: column % 2 === 0 ? TILE_SPACING : TILE_SPACING / 2,
-              marginRight: column % 2 !== 0 ? TILE_SPACING : TILE_SPACING / 2,
-            }}
-          />
-        )}
-      />
-    </OnboardingModalContext.Provider>
+        </>
+      }
+      ListFooterComponent={
+        <View
+          style={{
+            paddingBottom: constants.layout.defaultScreenMargins.vertical,
+            paddingHorizontal: constants.layout.defaultScreenMargins.horizontal,
+          }}>
+          {__DEV__ && Platform.OS === 'ios'
+            ? null
+            : (!isInitialRender || !shouldRefresh) &&
+              makers.length > 0 && <ExploreOurMakers profiles={makers} />}
+        </View>
+      }
+      ListEmptyComponent={
+        isInitialRender || shouldRefresh ? (
+          <LoadingContainer />
+        ) : (
+          <EmptyContainer message="There aren't any featured products at the moment" />
+        )
+      }
+      renderItem={({ item: productId, column, index }) => (
+        <ProductItemCard
+          key={productId}
+          productId={productId}
+          elementOptions={{ smallContent: true }}
+          style={{
+            marginTop: index < 2 ? 0 : TILE_SPACING,
+            marginLeft: column % 2 === 0 ? TILE_SPACING : TILE_SPACING / 2,
+            marginRight: column % 2 !== 0 ? TILE_SPACING : TILE_SPACING / 2,
+          }}
+        />
+      )}
+    />
   );
 }
 
