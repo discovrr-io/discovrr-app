@@ -6,15 +6,14 @@ apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.grad
 
 import com.android.build.OutputFile
 
-// NOTE: This isn't working at the moment. Setting the ENVFILE environment
-// variable also doesn't work. As a workaround, replace all contents of the
-// `.env` file with the appropriate `.env.*` file.
+// NOTE: This isn't working at the moment. As a workaround, we'll set the
+// ENVFILE environment variable instead.
 // https://github.com/luggit/react-native-config/issues/616#issuecomment-947623280
-project.ext.envConfigFiles = [
-    debug: ".env.debug",
-    releaseStaging: ".env.staging",
-    release: ".env.release",
-]
+// project.ext.envConfigFiles = [
+//     debug: ".env.debug",
+//     releaseStaging: ".env.staging",
+//     release: ".env.release",
+// ]
 
 project.ext.react = [
     enableHermes: true, // clean and rebuild if changed
