@@ -11,6 +11,7 @@ import { OnboardingStackParamList } from 'src/navigation';
 
 import OnboardingStartScreen from './OnboardingStartScreen';
 import OnboardingAccountTypeScreen from './OnboardingAccountTypeScreen';
+import OnboardingPushNotifications from './OnboardingPushNotificationsScreen';
 
 const OnboardingStack = createStackNavigator<OnboardingStackParamList>();
 
@@ -22,8 +23,16 @@ export default function OnboardingNavigator() {
         headerTransparent: true,
         headerTintColor: constants.color.absoluteWhite,
         headerTitle: () => null, // Explicity don't render title
-        headerLeft: props => <HeaderIcon.Back {...props} />,
-        cardStyle: { backgroundColor: constants.color.blue700 },
+        headerLeft: props => <HeaderIcon.Back name="arrow-back" {...props} />,
+        headerLeftContainerStyle: {
+          paddingLeft: constants.layout.defaultScreenMargins.horizontal,
+        },
+        headerRightContainerStyle: {
+          paddingRight: constants.layout.defaultScreenMargins.horizontal,
+        },
+        cardStyle: {
+          backgroundColor: constants.color.accentFocused,
+        },
         cardStyleInterpolator: CardStyleInterpolators.forFadeFromCenter,
       }}>
       <OnboardingStack.Screen
@@ -45,7 +54,7 @@ export default function OnboardingNavigator() {
       />
       <OnboardingStack.Screen
         name="OnboardingPushNotifications"
-        component={PlaceholderScreen}
+        component={OnboardingPushNotifications}
       />
     </OnboardingStack.Navigator>
   );

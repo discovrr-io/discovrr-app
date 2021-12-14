@@ -90,6 +90,7 @@ export default function ButtonBase(props: ButtonBaseProps) {
             {...innerTextProps}
             testID={'btn-text'}
             style={[
+              { textAlign: 'center' },
               disabled
                 ? buttonStyles?.disabledTitle
                 : buttonStyles?.defaultTitle,

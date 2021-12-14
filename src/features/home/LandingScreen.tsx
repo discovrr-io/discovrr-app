@@ -253,7 +253,7 @@ function ScrollUpText() {
 const callToActionCardStyles = StyleSheet.create({
   card: {
     minHeight: 280,
-    backgroundColor: constants.color.blue700,
+    backgroundColor: constants.color.accentFocused,
   },
   scrollDownContainer: {
     position: 'absolute',

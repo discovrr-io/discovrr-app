@@ -1,17 +1,12 @@
 import * as React from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  TouchableHighlight,
-  View,
-} from 'react-native';
+import { StyleSheet, TouchableHighlight, View } from 'react-native';
 
 import Icon from 'react-native-vector-icons/Ionicons';
 
 import * as constants from 'src/constants';
 import { Button, Spacer, Text } from 'src/components';
 import { OnboardingStackScreenProps } from 'src/navigation';
+import { OnboardingContentContainer } from './components';
 
 type OnboardingAccountTypeScreenProps =
   OnboardingStackScreenProps<'OnboardingAccountType'>;
@@ -19,6 +14,9 @@ type OnboardingAccountTypeScreenProps =
 export default function OnboardingAccountTypeScreen(
   props: OnboardingAccountTypeScreenProps,
 ) {
+  const [selectedValue, setSelectedValue] = React.useState('user');
+  const [isProcessing, setIsProcessing] = React.useState(false);
+
   React.useLayoutEffect(() => {
     props.navigation.setOptions({
       headerRight: () => (
@@ -26,6 +24,7 @@ export default function OnboardingAccountTypeScreen(
           title="Maybe Later"
           size="medium"
           overrideTheme="light-content"
+          textStyle={{ textAlign: 'right' }}
           containerStyle={{
             flex: 1,
             alignItems: 'flex-end',
@@ -37,49 +36,50 @@ export default function OnboardingAccountTypeScreen(
     });
   }, [props.navigation]);
 
+  const handlePressNext = async () => {
+    const handleSwitchToMaker = async () => {
+      try {
+        setIsProcessing(true);
+      } catch (error) {
+        console.error('Failed to switch to maker:', error);
+      } finally {
+        setIsProcessing(false);
+      }
+    };
+
+    if (selectedValue === 'maker') {
+      await handleSwitchToMaker();
+    }
+
+    props.navigation.navigate('OnboardingPushNotifications');
+  };
+
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <ScrollView
-        contentContainerStyle={{
-          flexGrow: 1,
-          justifyContent: 'flex-end',
-          padding: constants.layout.spacing.xxl,
-        }}>
-        <View>
-          <Text size="h2" weight="800" style={[styles.text]}>
-            What best describes you?
-          </Text>
-          <Spacer.Vertical value="lg" />
-          <Text style={[styles.text]}>You can always change this later</Text>
-        </View>
-        <Spacer.Vertical value="xl" />
-        <OptionGroup
-          value="user"
-          onValueChanged={() => {}}
-          options={[
-            {
-              label: "I'm a user",
-              caption:
-                'I want to purchase and engage in content by other users and makers.',
-              value: 'user',
-            },
-            {
-              label: "I'm a maker",
-              caption:
-                'I want to sell my products to an engaged local community.',
-              value: 'maker',
-            },
-          ]}
-        />
-        <Spacer.Vertical value="xl" />
-        <Button
-          title="Next"
-          variant="outlined"
-          overrideTheme="light-content"
-          containerStyle={{ borderColor: constants.color.absoluteWhite }}
-        />
-      </ScrollView>
-    </SafeAreaView>
+    <OnboardingContentContainer
+      title="What best describes you?"
+      body="You can always change this later."
+      footerActions={[
+        { title: 'Next', onPress: handlePressNext, loading: isProcessing },
+      ]}>
+      <OptionGroup
+        value="user"
+        onValueChanged={newValue => setSelectedValue(newValue)}
+        options={[
+          {
+            label: "I'm a user",
+            caption:
+              'I want to purchase and engage in content by other users and makers.',
+            value: 'user',
+          },
+          {
+            label: "I'm a maker",
+            caption:
+              'I want to sell my products to an engaged local community.',
+            value: 'maker',
+          },
+        ]}
+      />
+    </OnboardingContentContainer>
   );
 }
 

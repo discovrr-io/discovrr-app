@@ -24,20 +24,28 @@ export default function OnboardingStartScreen(
           title="Continue as Guest"
           size="medium"
           overrideTheme="light-content"
+          textStyle={{ textAlign: 'right' }}
           containerStyle={{
-            flex: 1,
+            flexGrow: 1,
             alignItems: 'flex-end',
+            alignSelf: 'flex-end',
             paddingHorizontal: 0,
             marginRight: constants.layout.defaultScreenMargins.horizontal,
           }}
         />
       ),
+      headerLeftContainerStyle: {
+        flexGrow: 0,
+      },
+      headerTitleContainerStyle: {
+        flexGrow: 0,
+      },
     });
   }, [props.navigation]);
 
   return (
     <SafeAreaView style={[{ flex: 1, marginTop: headerHeight }]}>
-      <StatusBar animated barStyle="light-content" />
+      <StatusBar barStyle="light-content" />
       <FastImage
         resizeMode="contain"
         source={COVER_IMAGE}
@@ -64,7 +72,8 @@ export default function OnboardingStartScreen(
             title="Get Started"
             variant="contained"
             overrideTheme="light-content"
-            textStyle={{ color: constants.color.blue700 }}
+            textStyle={{ color: constants.color.accentFocused }}
+            containerStyle={{ backgroundColor: constants.color.absoluteWhite }}
             onPress={() => props.navigation.navigate('OnboardingAccountType')}
           />
           <Spacer.Vertical value="md" />

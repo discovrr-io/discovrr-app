@@ -24,30 +24,35 @@ const HeaderIcon = (props: HeaderIconProps) => {
   );
 };
 
-type HeaderIconHelperProps = Omit<HeaderIconProps, 'name'>;
+type HeaderIconHelperProps = Omit<HeaderIconProps, 'name'> & {
+  name?: string;
+};
 
 const HeaderIconMenu = (props: HeaderIconHelperProps) => {
+  const { name, ...restProps } = props;
   const navigation = useNavigation<MainDrawerNavigationProp>();
   return (
     <HeaderIcon
-      name={'menu-outline'}
+      name={name || 'menu-outline'}
       onPress={() => navigation.openDrawer()}
-      {...props}
+      {...restProps}
     />
   );
 };
 
 const HeaderIconClose = (props: HeaderIconHelperProps) => {
-  return <HeaderIcon name="close" {...props} />;
+  const { name, ...restProps } = props;
+  return <HeaderIcon name={name || 'close'} {...restProps} />;
 };
 
 const HeaderIconBack = (props: HeaderIconHelperProps) => {
+  const { name, ...restProps } = props;
   const navigation = useNavigation();
   return (
     <HeaderIcon
-      name="chevron-back"
+      name={name || 'chevron-back'}
       onPress={() => navigation.goBack()}
-      {...props}
+      {...restProps}
     />
   );
 };

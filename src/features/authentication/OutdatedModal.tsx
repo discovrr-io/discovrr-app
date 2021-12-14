@@ -37,6 +37,7 @@ export default function OutdatedModal() {
     if (isOutdated === undefined) {
       (async () => {
         try {
+          console.log($FUNC, 'Fetching supported range from Parse...');
           const config = await Parse.Config.get();
           const supportedRange = config.get('SUPPORTED_CLIENT_RANGE');
 
@@ -46,6 +47,8 @@ export default function OutdatedModal() {
               'Supported client range not found. Aborting...',
             );
             return;
+          } else {
+            console.log($FUNC, 'Got supported range:', supportedRange);
           }
 
           const version = constants.values.APP_VERSION.replace('-native', '');
@@ -98,7 +101,9 @@ export default function OutdatedModal() {
       presentationStyle="fullScreen"
       visible={isModalVisible}>
       <SafeAreaView
-        style={[{ flexGrow: 1, backgroundColor: constants.color.blue700 }]}>
+        style={[
+          { flexGrow: 1, backgroundColor: constants.color.accentFocused },
+        ]}>
         <View
           style={[
             { flexGrow: 1, padding: constants.layout.spacing.xxl },
