@@ -38,28 +38,6 @@ const registerFormSchema = yup.object({
     .string()
     .required('Please provide a password.')
     .min(8, 'Your password should have at least 8 characters.'),
-  displayName: yup
-    .string()
-    .trim()
-    .required('Please provide your personal or business name.'),
-  username: yup
-    .string()
-    .trim()
-    .required('Please provide a unique username.')
-    .min(3, 'Your username should have at least 3 characters.')
-    .max(30, 'Your username should not be more than 30 characters')
-    .matches(
-      constants.regex.USERNAME_REGEX,
-      'Your username should only contains letters, numbers, dots and underscores with no spaces.',
-    )
-    .test(
-      'it is not a repeated set of dots or underscores',
-      "Please choose a more identifiable username that's easier for everyone to read and type.",
-      input => {
-        if (!input) return false;
-        return !/^(?:\.|_){3,}$/.test(input);
-      },
-    ),
 });
 
 type RegisterForm = yup.InferType<typeof registerFormSchema>;
@@ -81,8 +59,6 @@ export default function RegisterScreen(props: RegisterScreenProps) {
       const registerAction = authSlice.registerNewAccount({
         ...values,
         email: values.email.trim(),
-        displayName: values.displayName.trim(),
-        username: values.username.trim(),
       });
       await dispatch(registerAction).unwrap();
 
@@ -117,8 +93,6 @@ export default function RegisterScreen(props: RegisterScreenProps) {
         initialValues={{
           email: props.route.params?.email ?? '',
           password: '',
-          displayName: '',
-          username: '',
         }}
         validationSchema={registerFormSchema}
         onSubmit={handleSubmit}>
@@ -137,24 +111,6 @@ export default function RegisterScreen(props: RegisterScreenProps) {
                 size="large"
                 label="Password"
                 placeholder="Type in a secure password"
-              />
-              <Spacer.Vertical value="lg" />
-              <LabelledFormikTextInput
-                fieldName="displayName"
-                size="large"
-                label="Personal or Business Name"
-                placeholder="How should we call you?"
-                autoCapitalize="words"
-              />
-              <Spacer.Vertical value="lg" />
-              <LabelledFormikTextInput
-                fieldName="username"
-                size="large"
-                label="Username"
-                placeholder="Type in a unique username"
-                autoCapitalize="none"
-                autoComplete="off"
-                autoCorrect={false}
               />
             </View>
             <Spacer.Vertical value="xl" />

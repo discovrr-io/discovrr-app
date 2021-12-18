@@ -1,12 +1,12 @@
 import * as React from 'react';
-import { StyleSheet, TouchableHighlight, View } from 'react-native';
 
-import Icon from 'react-native-vector-icons/Ionicons';
-
-import * as constants from 'src/constants';
-import { Button, Spacer, Text } from 'src/components';
+import * as globalSelectors from 'src/global-selectors';
+import * as profilesSlice from 'src/features/profiles/profiles-slice';
+import { useAppDispatch, useAppSelector } from 'src/hooks';
+import { ProfileKind } from 'src/models';
 import { OnboardingStackScreenProps } from 'src/navigation';
-import { OnboardingContentContainer } from './components';
+
+import { OnboardingContentContainer, OptionGroup } from './components';
 
 type OnboardingAccountTypeScreenProps =
   OnboardingStackScreenProps<'OnboardingAccountType'>;
@@ -14,161 +14,62 @@ type OnboardingAccountTypeScreenProps =
 export default function OnboardingAccountTypeScreen(
   props: OnboardingAccountTypeScreenProps,
 ) {
-  const [selectedValue, setSelectedValue] = React.useState('user');
-  const [isProcessing, setIsProcessing] = React.useState(false);
+  const dispatch = useAppDispatch();
+  const myProfile = useAppSelector(globalSelectors.selectCurrentUserProfile);
 
-  React.useLayoutEffect(() => {
-    props.navigation.setOptions({
-      headerRight: () => (
-        <Button
-          title="Maybe Later"
-          size="medium"
-          overrideTheme="light-content"
-          textStyle={{ textAlign: 'right' }}
-          containerStyle={{
-            flex: 1,
-            alignItems: 'flex-end',
-            paddingHorizontal: 0,
-            marginRight: constants.layout.defaultScreenMargins.horizontal,
-          }}
-        />
-      ),
-    });
-  }, [props.navigation]);
+  React.useEffect(() => {
+    console.log({ myProfile });
+  }, [myProfile]);
+
+  const [isProcessing, setIsProcessing] = React.useState(false);
+  const [selectedValue, setSelectedValue] = React.useState<ProfileKind>(
+    myProfile?.kind ?? 'personal',
+  );
 
   const handlePressNext = async () => {
-    const handleSwitchToMaker = async () => {
+    if (selectedValue !== myProfile?.kind) {
       try {
         setIsProcessing(true);
+        await dispatch(
+          profilesSlice.changeProfileKind({ kind: selectedValue }),
+        ).unwrap();
       } catch (error) {
         console.error('Failed to switch to maker:', error);
+        return myProfile;
       } finally {
         setIsProcessing(false);
       }
-    };
-
-    if (selectedValue === 'maker') {
-      await handleSwitchToMaker();
     }
 
-    props.navigation.navigate('OnboardingPushNotifications');
+    props.navigation.navigate('OnboardingPersonalName');
   };
 
   return (
     <OnboardingContentContainer
+      page={1}
       title="What best describes you?"
       body="You can always change this later."
       footerActions={[
         { title: 'Next', onPress: handlePressNext, loading: isProcessing },
       ]}>
-      <OptionGroup
-        value="user"
+      <OptionGroup<ProfileKind>
+        value={selectedValue}
         onValueChanged={newValue => setSelectedValue(newValue)}
         options={[
           {
             label: "I'm a user",
             caption:
               'I want to purchase and engage in content by other users and makers.',
-            value: 'user',
+            value: 'personal',
           },
           {
             label: "I'm a maker",
             caption:
               'I want to sell my products to an engaged local community.',
-            value: 'maker',
+            value: 'vendor',
           },
         ]}
       />
     </OnboardingContentContainer>
   );
 }
-
-type OptionGroupItem = {
-  label: string;
-  caption: string;
-  value: string;
-};
-
-type OptionGroupProps = {
-  value: string;
-  onValueChanged: (newValue: string) => void | Promise<void>;
-  options: (false | OptionGroupItem)[];
-};
-
-function OptionGroup(props: OptionGroupProps) {
-  const [value, setValue] = React.useState(props.value);
-
-  React.useEffect(() => {
-    setValue(props.value);
-  }, [props.value]);
-
-  const handleValueChanged = (newValue: string) => {
-    setValue(newValue);
-    props.onValueChanged(newValue);
-  };
-
-  return (
-    <View
-      style={{
-        borderColor: constants.color.absoluteWhite,
-        borderWidth: constants.layout.border.thick,
-        borderRadius: constants.layout.radius.lg,
-        overflow: 'hidden',
-      }}>
-      {props.options
-        .filter((option): option is OptionGroupItem => Boolean(option))
-        .map((option, index, array) => (
-          <View key={`${index}`}>
-            <TouchableHighlight
-              underlayColor={constants.color.accent}
-              onPress={() => handleValueChanged(option.value)}
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                padding: constants.layout.spacing.lg,
-              }}>
-              <React.Fragment>
-                <View style={{ flexGrow: 1, flexShrink: 1 }}>
-                  <Text size="xl" weight="bold" style={[styles.text]}>
-                    {option.label}
-                  </Text>
-                  <Text size="sm" style={[styles.text]}>
-                    {option.caption}
-                  </Text>
-                </View>
-                <Spacer.Horizontal value="md" />
-                <Icon
-                  name={
-                    value === option.value
-                      ? 'checkmark-circle'
-                      : 'ellipse-outline'
-                  }
-                  color={
-                    value === option.value
-                      ? constants.color.green300
-                      : constants.color.absoluteWhite
-                  }
-                  size={36}
-                />
-              </React.Fragment>
-            </TouchableHighlight>
-            {index < array.length - 1 && (
-              <View
-                style={{
-                  borderColor: constants.color.absoluteWhite,
-                  borderBottomWidth: constants.layout.border.thick,
-                  marginHorizontal: constants.layout.spacing.lg,
-                }}
-              />
-            )}
-          </View>
-        ))}
-    </View>
-  );
-}
-
-const styles = StyleSheet.create({
-  text: {
-    color: constants.color.absoluteWhite,
-  },
-});

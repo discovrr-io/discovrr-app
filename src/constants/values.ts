@@ -25,7 +25,7 @@ export const APP_VERSION: string =
 // Store version 3.0.0.11 (3000011)
 export const STORE_VERSION = createVersionString([3, 0, 0, 11] as const);
 // Set this to the appropriate option any time the `STORE_VERSION` is changed
-export const STORE_SHOULD_SIGN_OUT = false;
+export const STORE_SHOULD_SIGN_OUT = true;
 
 function createVersionString(
   version: readonly [number, number, number, number],

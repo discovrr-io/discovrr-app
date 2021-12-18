@@ -1,6 +1,7 @@
 import * as React from 'react';
 import {
   ActivityIndicator,
+  Alert,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -11,7 +12,6 @@ import {
   View,
 } from 'react-native';
 
-// import FastImage from 'react-native-fast-image';
 import Video from 'react-native-video';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -46,6 +46,7 @@ const LOGIN_POSTER_ASSET_SOURCE = Image.resolveAssetSource(LOGIN_POSTER_SOURCE);
 type StartScreenProps = AuthPromptStackScreenProps<'AuthStart'>;
 
 export default function StartScreen(props: StartScreenProps) {
+  const $FUNC = '[StartScreen]';
   const { colors } = useExtendedTheme();
 
   const [email, setEmail] = React.useState('');
@@ -84,6 +85,31 @@ export default function StartScreen(props: StartScreenProps) {
     try {
       if (!trimmedEmail) throw undefined; // Go to catch block
       setIsSubmitting(true);
+
+      const methods = await auth().fetchSignInMethodsForEmail(trimmedEmail);
+      console.log($FUNC, 'Sign in methods for email:', methods);
+
+      if (methods.length === 0) throw undefined; // Go to catch block
+
+      if (!methods.includes('password')) {
+        const providers = methods.map(method => {
+          const methodName = method.replace('.com', '');
+          return methodName.charAt(0).toUpperCase() + methodName.slice(1);
+        });
+
+        const providersList =
+          providers.length === 1
+            ? providers[0]
+            : providers.slice(0, -1).join(', ') + ' or ' + providers.slice(-1);
+
+        Alert.alert(
+          `Please sign in with ${providersList}`,
+          'This account does not have the option to sign in with a password.',
+        );
+
+        return;
+      }
+
       const profile = await ProfileApi.fetchProfileByEmail({
         email: trimmedEmail,
       });
@@ -104,14 +130,6 @@ export default function StartScreen(props: StartScreenProps) {
           behavior="padding"
           style={{ flexGrow: 1 }}
           keyboardVerticalOffset={Platform.select({ android: -100 })}>
-          {/* <FastImage
-            source={LOGIN_POSTER_SOURCE}
-            style={{
-              flexGrow: 1,
-              width: '100%',
-              backgroundColor: colors.placeholder,
-            }}
-          /> */}
           <Video
             muted
             repeat

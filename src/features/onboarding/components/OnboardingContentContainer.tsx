@@ -1,53 +1,124 @@
 import * as React from 'react';
 import {
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
   SafeAreaView,
   ScrollView,
   StatusBar,
   StyleSheet,
+  TouchableWithoutFeedback,
   View,
 } from 'react-native';
 
 import * as constants from 'src/constants';
 import { Button, ButtonProps, Spacer, Text } from 'src/components';
+import { useExtendedTheme } from 'src/hooks';
+
+const DEBUG = false;
 
 type OnboardingContentContainerAction = Pick<
   ButtonProps,
-  'title' | 'onPress' | 'loading' | 'loadingIndicatorColor' | 'underlayColor'
-> & {
-  mode?: 'persuasive' | 'hidden';
-};
+  | 'disabled'
+  | 'loading'
+  | 'title'
+  | 'onPress'
+  | 'loading'
+  | 'loadingIndicatorColor'
+  | 'underlayColor'
+>;
+
+type OnboardingContentContainerFooterActions = (
+  | false
+  | OnboardingContentContainerAction
+)[];
 
 export type OnboardingContentContainerProps = {
   title: string;
   body: string | (false | string)[];
-  renderHeader?: () => React.ReactNode;
-  footerActions?: (false | OnboardingContentContainerAction)[];
-  children?: React.ReactChild | React.ReactChild[];
+  page: number;
+  useKeyboardAvoidingView?: boolean;
+  footerActions?: OnboardingContentContainerFooterActions;
+  children?: React.ReactNode;
 };
 
 export default function OnboardingContentContainer(
   props: OnboardingContentContainerProps,
 ) {
+  const { useKeyboardAvoidingView = false } = props;
+  const { dark } = useExtendedTheme();
+
   const bodyText = React.useMemo(() => {
     return typeof props.body === 'string'
       ? props.body
       : props.body.filter(Boolean).join('\n');
   }, [props.body]);
 
+  const ContainerView = React.useCallback(
+    (props: { children: React.ReactNode }) => {
+      if (useKeyboardAvoidingView) {
+        return (
+          <KeyboardAvoidingView
+            behavior={Platform.select({
+              ios: 'padding',
+              default: 'height',
+            })}
+            style={[
+              { flex: 1 },
+              DEBUG && { borderWidth: 1, borderColor: 'blue' },
+            ]}>
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+              <View
+                style={[
+                  {
+                    flex: 1,
+                    justifyContent: 'space-between',
+                    padding: constants.layout.spacing.xxl,
+                  },
+                  DEBUG && { borderWidth: 1, borderColor: 'green' },
+                ]}>
+                {props.children}
+              </View>
+            </TouchableWithoutFeedback>
+          </KeyboardAvoidingView>
+        );
+      } else {
+        return (
+          <ScrollView
+            style={[DEBUG && { borderWidth: 1, borderColor: 'red' }]}
+            contentContainerStyle={[
+              {
+                flexGrow: 1,
+                justifyContent: 'space-between',
+                padding: constants.layout.spacing.xxl,
+              },
+              DEBUG && { borderWidth: 1, borderColor: 'green' },
+            ]}>
+            {props.children}
+          </ScrollView>
+        );
+      }
+    },
+    [useKeyboardAvoidingView],
+  );
+
   return (
     <SafeAreaView style={styles.safeAreaView}>
-      <StatusBar barStyle="light-content" />
-      <ScrollView contentContainerStyle={styles.scrollView}>
-        {props.renderHeader?.()}
+      <StatusBar barStyle={dark ? 'light-content' : 'dark-content'} />
+      <ContainerView>
         <View>
-          <Text size="h2" weight="800" style={styles.text}>
+          <Text size="sm" color="caption">
+            {props.page} of {5 + Platform.select({ ios: 1, default: 0 })}
+          </Text>
+          <Spacer.Vertical value="sm" />
+          <Text size="h3" weight="800" allowFontScaling={false}>
             {props.title}
           </Text>
-          <Spacer.Vertical value="lg" />
+          <Spacer.Vertical value="md" />
           <View>
             {bodyText.split('\n').map((text, index, array) => (
               <View key={`onboarding-content-container-body-${index}`}>
-                <Text style={styles.text}>{text}</Text>
+                <Text allowFontScaling={false}>{text}</Text>
                 {index < array.length - 1 && <Spacer.Vertical value="md" />}
               </View>
             ))}
@@ -69,29 +140,20 @@ export default function OnboardingContentContainer(
               .map((action, index, array) => (
                 <View key={`onboarding-content-container-footer-${index}`}>
                   <Button
+                    type="primary"
+                    variant="contained"
                     title={action.title}
+                    disabled={action.disabled}
+                    loading={action.loading}
+                    textStyle={{ color: constants.color.absoluteWhite }}
                     onPress={action.onPress}
-                    overrideTheme="light-content"
-                    {...(action.mode === 'hidden'
-                      ? {
-                          size: 'small',
-                          variant: 'text',
-                        }
-                      : {
-                          size: 'large',
-                          variant: 'outlined',
-                          underlayColor: constants.color.accent,
-                          containerStyle: {
-                            borderColor: constants.color.absoluteWhite,
-                          },
-                        })}
                   />
                   {index < array.length - 1 && <Spacer.Vertical value="md" />}
                 </View>
               ))}
           </>
         )}
-      </ScrollView>
+      </ContainerView>
     </SafeAreaView>
   );
 }
@@ -100,12 +162,9 @@ const styles = StyleSheet.create({
   safeAreaView: {
     flex: 1,
   },
-  scrollView: {
-    flexGrow: 1,
-    justifyContent: 'flex-end',
-    padding: constants.layout.spacing.xxl,
-  },
-  text: {
-    color: constants.color.absoluteWhite,
-  },
+  // scrollView: {
+  //   flexGrow: 1,
+  //   justifyContent: 'space-between',
+  //   padding: constants.layout.spacing.xxl,
+  // },
 });

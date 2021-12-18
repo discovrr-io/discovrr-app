@@ -4,6 +4,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  StatusBar,
   StyleProp,
   Text,
   View,
@@ -31,12 +32,15 @@ type AuthFormContainerProps = {
 export default function AuthFormContainer(props: AuthFormContainerProps) {
   const { title, coverImageSource, caption, children } = props;
   const { top: topInset, bottom: bottomInset } = useSafeAreaInsets();
-  const { colors } = useExtendedTheme();
+  const { colors, dark } = useExtendedTheme();
 
   return (
     <KeyboardAvoidingView
       behavior={Platform.select({ ios: 'position' })}
       style={{ flex: 1 }}>
+      {Platform.OS !== 'ios' && (
+        <StatusBar barStyle={dark ? 'light-content' : 'light-content'} />
+      )}
       <ScrollView
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{

@@ -25,8 +25,8 @@ export default function AuthGate() {
   React.useEffect(() => {
     if (didAbortSignOut) {
       Alert.alert(
-        'We had to sign you out',
-        'Due to security reasons, we had to sign you out. Please sign back in again.',
+        'You have been signed out',
+        'Due to security reasons, we signed you out. Please sign back in again.',
         [
           {
             text: 'Dismiss',

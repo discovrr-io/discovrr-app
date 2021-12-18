@@ -12,7 +12,7 @@ import {
 export function alertSomethingWentWrong(message?: string) {
   Alert.alert(
     strings.SOMETHING_WENT_WRONG.title,
-    message ?? strings.SOMETHING_WENT_WRONG.message,
+    message || strings.SOMETHING_WENT_WRONG.message,
   );
 }
 

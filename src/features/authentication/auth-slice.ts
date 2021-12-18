@@ -84,7 +84,7 @@ export const abortSignOut = createAsyncThunk(
   },
   {
     condition: (_, { getState }: BaseThunkAPI<RootState, unknown>) => {
-      // Only run this thunk if we haven't already aborted sign out
+      // Only run this thunk if we haven't already forcefully signed out
       return !getState().auth.didAbortSignOut;
     },
   },

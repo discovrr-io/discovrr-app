@@ -30,7 +30,7 @@ export namespace ProfileApi {
     return {
       id: object.id as Id,
       profileId: profileId as ProfileId,
-      status: object.get('status') ?? ApiObjectStatus.READY,
+      status: object.get('status') ?? ApiObjectStatus.OKAY,
     };
   }
 
@@ -48,6 +48,8 @@ export namespace ProfileApi {
       following: result.get('followingArray') ?? [],
       blocked: result.get('blockedArray') ?? [],
       highestRole: result.get('highestRole'),
+      didCompleteMainOnboarding:
+        result.get('didCompleteMainOnboarding') ?? false,
     };
 
     const kind: string | undefined = result.get('kind');
@@ -65,10 +67,6 @@ export namespace ProfileApi {
           result.id,
           profilePersonal,
         );
-
-      if (!commonProfileDetails.profileId) {
-        console.error('NO PROFILE ID SET:', result.id);
-      }
 
       return {
         kind: 'personal',
@@ -295,7 +293,8 @@ export namespace ProfileApi {
   };
 
   export async function updateProfile(params: UpdateProfileParams) {
-    await Parse.Cloud.run('updateProfile', params);
+    const updatedProfile = await Parse.Cloud.run('updateProfile', params);
+    return mapResultToProfile(updatedProfile);
   }
 
   export type UpdateProfileFollowStatusParams = {

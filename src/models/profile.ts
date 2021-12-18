@@ -15,6 +15,7 @@ export interface SharedProfileDetails {
   readonly username: string;
   readonly displayName: string;
   readonly biography?: string;
+  readonly highestRole: string;
 
   /**
    * An object representing information about the avatar of this profile.
@@ -38,7 +39,7 @@ export interface SharedProfileDetails {
   readonly following: ProfileId[];
   readonly blocked: ProfileId[];
 
-  readonly highestRole: string;
+  readonly didCompleteMainOnboarding: boolean;
 }
 
 /**
@@ -74,17 +75,16 @@ export interface VendorProfile
   readonly statistics?: Statistics;
 }
 
-type ProfilePublicName = {
+interface ProfilePublicName {
   /**
-   * Auto-generated property that will conveniently return the appropriate
-   * public name of the profile (either the business name of a vendor, if
-   * available, otherwise the display name).
+   * Returns the appropriate public name of the profile (either the business
+   * name of a vendor, if available, otherwise the display name).
    *
    * This property will not do anything special in the case that both strings
    * are falsy (i.e. they are both empty strings).
    */
   readonly __publicName: string;
-};
+}
 
 type PersonalOrVendorProfile =
   | ({ kind: 'personal' } & PersonalProfile)

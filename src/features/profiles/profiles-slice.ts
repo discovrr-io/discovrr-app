@@ -291,14 +291,20 @@ const profilesSlice = createSlice({
         const changesDraft: Partial<Writeable<Profile>> =
           state.entities[profileId] ?? {};
 
-        if (changes.displayName) changesDraft.displayName = changes.displayName;
         if (changes.username) changesDraft.username = changes.username;
         if (changes.biography) changesDraft.biography = changes.biography;
+
+        if (changes.displayName) {
+          changesDraft.displayName = changes.displayName;
+          changesDraft.__publicName = changesDraft.displayName;
+        }
 
         if (changesDraft.kind === 'vendor') {
           changesDraft.businessName = changes.businessName;
           changesDraft.businessEmail = changes.businessEmail;
           changesDraft.businessAddress = changes.businessAddress;
+          changesDraft.__publicName =
+            changesDraft.businessName || changesDraft.displayName;
         }
 
         // Explicitly set a defined or null value if the avatar was changed

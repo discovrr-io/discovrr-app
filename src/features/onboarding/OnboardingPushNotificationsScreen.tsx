@@ -12,8 +12,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import * as constants from 'src/constants';
-import { Button } from 'src/components';
-import { OnboardingContentContainer } from './components';
+import { OnboardingContentContainer, SkipButton } from './components';
 
 import {
   OnboardingStackScreenProps,
@@ -36,12 +35,6 @@ export default function OnboardingPushNotifications(
     return iconHeight * 0.3;
   }, [iconHeight]);
 
-  const notificationDotBellIconSize = React.useMemo(() => {
-    return (
-      NOTIFICATION_ICON_DEFAULT_SIZE * (iconHeight / APP_ICON_DEFAULT_HEIGHT)
-    );
-  }, [iconHeight]);
-
   const notificationDotState = useSharedValue(0);
   const notificationDotStyle = useAnimatedStyle(() => ({
     opacity: notificationDotState.value,
@@ -50,20 +43,7 @@ export default function OnboardingPushNotifications(
 
   React.useLayoutEffect(() => {
     props.navigation.setOptions({
-      headerRight: () => (
-        <Button
-          title="Maybe Later"
-          size="medium"
-          overrideTheme="light-content"
-          textStyle={{ textAlign: 'right' }}
-          containerStyle={{
-            flex: 1,
-            alignItems: 'flex-end',
-            paddingHorizontal: 0,
-            marginRight: constants.layout.defaultScreenMargins.horizontal,
-          }}
-        />
-      ),
+      headerRight: () => <SkipButton onPress={() => {}} />,
     });
 
     const unsubscribe = props.navigation.addListener('transitionEnd', () => {
@@ -86,10 +66,12 @@ export default function OnboardingPushNotifications(
         console.log('Authorization status:', authStatus);
       }
 
-      props.navigation.getParent<RootStackNavigationProp>().navigate('Main', {
-        screen: 'Facade',
-        params: { screen: 'Home', params: { screen: 'Landing' } },
-      });
+      // props.navigation.getParent<RootStackNavigationProp>().navigate('Main', {
+      //   screen: 'Facade',
+      //   params: { screen: 'Home', params: { screen: 'Landing' } },
+      // });
+
+      props.navigation.navigate('OnboardingSurvey');
     } catch (error) {
       console.error('Failed to request permission', error);
     }
@@ -97,60 +79,64 @@ export default function OnboardingPushNotifications(
 
   return (
     <OnboardingContentContainer
+      page={5}
       title="Don’t miss out!"
       body={[
-        'Allow push notifications to get real-time updates from your feed as well as product recommendations we’ll think you’ll love.',
-        'You can always change or customise this later in the app settings.',
+        'Allow push notifications from Discovrr to get real-time updates on your feed and product recommendations we think you’ll love.',
+        'You can always customise your notification  settings later.',
       ]}
-      renderHeader={() => (
-        <View
-          style={{
-            flexGrow: 1,
-            flexShrink: 1,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}>
-          <View
-            onLayout={({ nativeEvent }) =>
-              setIconHeight(nativeEvent.layout.height)
-            }
-            style={{
-              aspectRatio: 1,
-              height: '50%',
-              maxHeight: APP_ICON_DEFAULT_HEIGHT,
-            }}>
-            <FastImage
-              resizeMode="contain"
-              source={APP_ICON}
-              style={{ flexGrow: 1 }}
-            />
-            <Animated.View
-              style={[
-                notificationDotStyle,
-                {
-                  position: 'absolute',
-                  top: -(notificationDotDiameter * 0.3),
-                  right: -(notificationDotDiameter * 0.3),
-                  width: notificationDotDiameter,
-                  aspectRatio: 1,
-                  borderRadius: notificationDotDiameter / 2,
-                  backgroundColor: constants.color.red500,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                },
-              ]}>
-              <Icon
-                name="notifications"
-                color={constants.color.absoluteWhite}
-                size={notificationDotBellIconSize}
-              />
-            </Animated.View>
-          </View>
-        </View>
-      )}
       footerActions={[
-        { title: 'Allow Push Notifications', onPress: handlePressNext },
-      ]}
-    />
+        {
+          title: 'Allow Notifications',
+          onPress: handlePressNext,
+        },
+      ]}>
+      <View
+        style={{
+          flexGrow: 1,
+          flexShrink: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+        <View
+          onLayout={({ nativeEvent }) =>
+            setIconHeight(nativeEvent.layout.height)
+          }
+          style={{
+            aspectRatio: 1,
+            height: '50%',
+            maxHeight: APP_ICON_DEFAULT_HEIGHT,
+          }}>
+          <FastImage
+            resizeMode="contain"
+            source={APP_ICON}
+            style={{ flexGrow: 1 }}
+          />
+          <Animated.View
+            style={[
+              notificationDotStyle,
+              {
+                position: 'absolute',
+                top: -(notificationDotDiameter * 0.3),
+                right: -(notificationDotDiameter * 0.3),
+                width: notificationDotDiameter,
+                aspectRatio: 1,
+                borderRadius: notificationDotDiameter / 2,
+                backgroundColor: constants.color.red500,
+                alignItems: 'center',
+                justifyContent: 'center',
+              },
+            ]}>
+            <Icon
+              adjustsFontSizeToFit
+              name="notifications"
+              color={constants.color.absoluteWhite}
+              size={NOTIFICATION_ICON_DEFAULT_SIZE}
+              style={{ padding: notificationDotDiameter * 0.15 }}
+            />
+          </Animated.View>
+        </View>
+      </View>
+    </OnboardingContentContainer>
   );
 }

@@ -60,13 +60,15 @@ export default function LoginScreen(props: LoginScreenProps) {
       await dispatch(loginAction).unwrap();
       await analytics().logLogin({ method: 'password' });
       props.navigation.getParent<RootStackNavigationProp>().goBack();
-    } catch (e: any) {
-      const error = e instanceof Error ? e : new Error(e);
+    } catch (error: any) {
       console.error('Failed to login with email and password:', error);
-      crashlytics().recordError(error);
       utilities.alertFirebaseAuthError(
         error,
         "We weren't able to sign you in at this time. Please try again later.",
+      );
+
+      crashlytics().recordError(
+        error instanceof Error ? error : new Error(error.message || error),
       );
     } finally {
       if (isMounted.current) setDidSubmit(false);

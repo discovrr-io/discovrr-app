@@ -20,13 +20,13 @@ export type CommonButtonProps = Omit<ViewProps, 'style'> & {
   disabled?: boolean;
   icon?: string;
   loading?: boolean;
-  onPress?: () => void;
+  loadingIndicatorColor?: ColorValue | undefined;
   overrideTheme?: 'light-content' | 'dark-content' | undefined;
   underlayColor?: ColorValue | undefined;
-  loadingIndicatorColor?: ColorValue | undefined;
-  containerStyle?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
   innerTextProps?: Omit<TextProps, 'style' | 'testID'>;
+  containerStyle?: StyleProp<ViewStyle>;
+  onPress?: () => void;
 };
 
 export type SizeStyles = {

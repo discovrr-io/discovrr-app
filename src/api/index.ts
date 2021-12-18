@@ -2,6 +2,7 @@ export * from './common';
 export { AuthApi } from './auth';
 export { CommentApi } from './comment';
 export { NotificationApi } from './notification';
+export { OnboardingApi } from './onboarding';
 export { PostApi } from './post';
 export { ProductApi } from './product';
 export { ProfileApi } from './profile';

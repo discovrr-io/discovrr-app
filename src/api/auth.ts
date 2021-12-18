@@ -328,8 +328,6 @@ export namespace AuthApi {
   }
 
   export type RegisterNewAccountParams = {
-    displayName: string;
-    username: string;
     email: string;
     password: string;
   };
@@ -338,26 +336,16 @@ export namespace AuthApi {
     params: RegisterNewAccountParams,
   ): Promise<AuthenticatedResult> {
     const $FUNC = `[${$PREFIX}.registerNewAccount]`;
-    const { displayName, username, email, password } = params;
+    const { /* displayName, username, */ email, password } = params;
 
     let didLoginViaFirebase = false;
     let didLoginViaParse = false;
 
     try {
-      if (!(await checkIfUsernameAvailable(username))) {
-        throw new AuthApiError(
-          'USERNAME_TAKEN',
-          'The provided username is already taken.',
-        );
-      }
-
       console.log($FUNC, 'Creating new user via Firebase...');
       const { user: firebaseUser } =
         await auth().createUserWithEmailAndPassword(email, password);
       didLoginViaFirebase = true;
-
-      console.log($FUNC, 'Updating Firebase profile');
-      await firebaseUser.updateProfile({ displayName });
 
       const authData = {
         access_token: await firebaseUser.getIdToken(),
@@ -373,16 +361,14 @@ export namespace AuthApi {
         firebaseUser.providerData[0]?.providerId;
 
       // We'll update the profile here as the server will automatically generate
-      // a profile for us when signing up
+      // a profile for us when signing up.
       console.log($FUNC, `Updating new profile...`);
       const updatedProfile: Parse.Object = await Parse.Cloud.run(
         'updateProfileForCurrentUser',
         {
           changes: {
-            email: email.trim(),
-            displayName: displayName.trim(),
-            username: username.trim(),
             provider,
+            email: email.trim(),
           },
         },
       );
