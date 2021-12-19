@@ -963,6 +963,8 @@ function ProfileBackgroundPicker() {
         {backgroundSource.type === 'image' ? (
           <FastImage
             resizeMode="cover"
+            onLoadStart={() => setIsLoading(true)}
+            onLoadEnd={() => setIsLoading(false)}
             tintColor={
               typeof backgroundSource.source === 'number'
                 ? dark
@@ -977,8 +979,6 @@ function ProfileBackgroundPicker() {
                 backgroundColor: colors.placeholder,
               },
             ]}
-            onLoadStart={() => setIsLoading(true)}
-            onLoadEnd={() => setIsLoading(false)}
           />
         ) : (
           <Video
@@ -1041,7 +1041,7 @@ function ProfileAvatarPicker(props: ProfileAvatarPickerProps) {
   const { colors } = useExtendedTheme();
   const [containerWidth, setContainerWidth] = React.useState(100);
 
-  const avatarSource: FastImageProps['source'] = React.useMemo(() => {
+  const avatarSource = React.useMemo<FastImageProps['source']>(() => {
     if (meta.value === undefined) {
       return currentProfile.avatar?.url
         ? { uri: currentProfile.avatar.url }
@@ -1075,20 +1075,21 @@ function ProfileAvatarPicker(props: ProfileAvatarPickerProps) {
   }, [meta.value, currentProfile.avatar]);
 
   const handleSelectActionItem = async (selectedItemId: string) => {
+    const commonImageOptions: Options = {
+      mediaType: 'photo',
+      forceJpg: true,
+      cropping: true,
+      cropperCircleOverlay: true,
+      width: AVATAR_COMPRESSION_MAX_WIDTH,
+      height: AVATAR_COMPRESSION_MAX_HEIGHT,
+      compressImageQuality: IMAGE_COMPRESSION_QUALITY,
+      compressImageMaxWidth: AVATAR_COMPRESSION_MAX_WIDTH,
+      compressImageMaxHeight: AVATAR_COMPRESSION_MAX_HEIGHT,
+    };
+
     const handleTakePhoto = async () => {
       try {
-        const image = await ImageCropPicker.openCamera({
-          mediaType: 'photo',
-          cropping: true,
-          cropperCircleOverlay: true,
-          forceJpg: true,
-          width: AVATAR_COMPRESSION_MAX_WIDTH,
-          height: AVATAR_COMPRESSION_MAX_HEIGHT,
-          compressImageQuality: IMAGE_COMPRESSION_QUALITY,
-          compressImageMaxWidth: AVATAR_COMPRESSION_MAX_WIDTH,
-          compressImageMaxHeight: AVATAR_COMPRESSION_MAX_HEIGHT,
-        });
-
+        const image = await ImageCropPicker.openCamera(commonImageOptions);
         helpers.setValue(image);
       } catch (error: any) {
         utilities.alertImageCropPickerError(error);
@@ -1097,18 +1098,7 @@ function ProfileAvatarPicker(props: ProfileAvatarPickerProps) {
 
     const handleSelectFromPhotoLibrary = async () => {
       try {
-        const image = await ImageCropPicker.openPicker({
-          mediaType: 'photo',
-          cropping: true,
-          cropperCircleOverlay: true,
-          forceJpg: true,
-          width: AVATAR_COMPRESSION_MAX_WIDTH,
-          height: AVATAR_COMPRESSION_MAX_HEIGHT,
-          compressImageQuality: IMAGE_COMPRESSION_QUALITY,
-          compressImageMaxWidth: AVATAR_COMPRESSION_MAX_WIDTH,
-          compressImageMaxHeight: AVATAR_COMPRESSION_MAX_HEIGHT,
-        });
-
+        const image = await ImageCropPicker.openPicker(commonImageOptions);
         helpers.setValue(image);
       } catch (error: any) {
         utilities.alertImageCropPickerError(error);

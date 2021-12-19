@@ -6,10 +6,8 @@ import { useHeaderHeight } from '@react-navigation/elements';
 
 import * as constants from 'src/constants';
 import * as authSlice from 'src/features/authentication/auth-slice';
-import * as profilesSlice from 'src/features/profiles/profiles-slice';
 import { Button, Spacer, Text } from 'src/components';
 import { useAppDispatch, useAppSelector } from 'src/hooks';
-import { User } from 'src/models';
 
 import {
   OnboardingStackScreenProps,
@@ -25,7 +23,13 @@ export default function OnboardingStartScreen(
 ) {
   const dispatch = useAppDispatch();
   const headerHeight = useHeaderHeight();
-  const { user } = useAppSelector(state => state.auth);
+
+  const { user, didSetUpProfile } = useAppSelector(state => {
+    return {
+      user: state.auth.user,
+      didSetUpProfile: state.onboarding.didSetUpProfile,
+    };
+  });
 
   React.useLayoutEffect(() => {
     props.navigation.setOptions({
@@ -35,14 +39,7 @@ export default function OnboardingStartScreen(
           size="medium"
           overrideTheme="light-content"
           textStyle={{ textAlign: 'right' }}
-          onPress={() =>
-            props.navigation
-              .getParent<RootStackNavigationProp>()
-              .navigate('Main', {
-                screen: 'Facade',
-                params: { screen: 'Home', params: { screen: 'Landing' } },
-              })
-          }
+          onPress={() => props.navigation.goBack()}
           containerStyle={{
             flexGrow: 1,
             alignItems: 'flex-end',
@@ -59,52 +56,27 @@ export default function OnboardingStartScreen(
         flexGrow: 0,
       },
     });
-  }, [props.navigation]);
-
-  const handleStartOnboarding = React.useCallback(
-    async (user: User) => {
-      try {
-        const myProfile = await dispatch(
-          profilesSlice.fetchProfileById({
-            profileId: user.profileId,
-            reload: true,
-          }),
-        ).unwrap();
-        console.log('ONBOARDING START', { myProfile });
-        if (!myProfile.didCompleteMainOnboarding) {
-          props.navigation.navigate('OnboardingAccountType');
-        } else {
-          props.navigation
-            .getParent<RootStackNavigationProp>()
-            .navigate('Main', {
-              screen: 'Facade',
-              params: { screen: 'Home', params: { screen: 'Landing' } },
-            });
-        }
-      } catch (error) {
-        console.error('Failed to fetch profile for current user:', error);
-      }
-    },
-    [dispatch, props.navigation],
-  );
+  }, [props.navigation, user]);
 
   const handlePressGetStarted = React.useCallback(() => {
     if (user) {
-      handleStartOnboarding(user);
+      if (!didSetUpProfile) {
+        props.navigation.navigate('OnboardingAccountType');
+      } else {
+        props.navigation.goBack();
+      }
     } else {
       props.navigation
         .getParent<RootStackNavigationProp>()
         .navigate('AuthPrompt', { screen: 'AuthStart' });
     }
-  }, [props.navigation, user, handleStartOnboarding]);
+  }, [props.navigation, user, didSetUpProfile]);
 
   React.useEffect(() => {
-    console.log({ user });
-    if (user) {
-      console.log('GOT VALID USER:', user);
-      handleStartOnboarding(user);
+    if (user && didSetUpProfile) {
+      props.navigation.goBack();
     }
-  }, [props.navigation, user, handleStartOnboarding]);
+  }, [props.navigation, user, didSetUpProfile]);
 
   return (
     <SafeAreaView style={[{ flex: 1, marginTop: headerHeight }]}>

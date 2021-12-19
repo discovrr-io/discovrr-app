@@ -3,6 +3,7 @@ import * as React from 'react';
 import {
   CardStyleInterpolators,
   createStackNavigator,
+  HeaderStyleInterpolators,
 } from '@react-navigation/stack';
 
 import * as constants from 'src/constants';
@@ -17,6 +18,7 @@ import OnboardingUsernameScreen from './OnboardingUsernameScreen';
 import OnboardingProfilePictureScreen from './OnboardingProfilePictureScreen';
 import OnboardingPushNotifications from './OnboardingPushNotificationsScreen';
 import OnboardingSurveyScreen from './OnboardingSurveyScreen';
+import OnboardingWelcomeScreen from './OnboardingWelcome';
 
 const OnboardingStack = createStackNavigator<OnboardingStackParamList>();
 
@@ -38,6 +40,7 @@ export default function OnboardingNavigator() {
         headerRightContainerStyle: {
           paddingRight: constants.layout.defaultScreenMargins.horizontal,
         },
+        headerStyleInterpolator: HeaderStyleInterpolators.forFade,
         cardStyleInterpolator: CardStyleInterpolators.forFadeFromCenter,
       }}>
       <OnboardingStack.Group>
@@ -47,6 +50,7 @@ export default function OnboardingNavigator() {
           options={{
             headerTransparent: true,
             headerTintColor: constants.color.absoluteWhite,
+            headerLeft: () => null,
             headerTitle: () => null, // Explicity don't render title
             cardStyle: {
               backgroundColor: constants.color.accentFocused,
@@ -63,12 +67,14 @@ export default function OnboardingNavigator() {
           },
         }}>
         <OnboardingStack.Screen
+          name="OnboardingWelcome"
+          component={OnboardingWelcomeScreen}
+          options={{ title: 'Welcome', headerShown: false }}
+        />
+        <OnboardingStack.Screen
           name="OnboardingAccountType"
           component={OnboardingAccountTypeScreen}
-          options={{
-            title: 'Getting Started',
-            headerLeft: () => null,
-          }}
+          options={{ title: 'Getting Started' }}
         />
         <OnboardingStack.Screen
           name="OnboardingPersonalName"

@@ -1,12 +1,12 @@
 import * as React from 'react';
-import { StyleSheet, Text, TouchableHighlight, View } from 'react-native';
+import { StyleSheet, TouchableHighlight, View } from 'react-native';
 
 import FastImage from 'react-native-fast-image';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 
 import * as constants from 'src/constants';
-import { AsyncGate, Spacer } from 'src/components';
+import { AsyncGate, Spacer, Text } from 'src/components';
 import { DEFAULT_AVATAR } from 'src/constants/media';
 import { Profile, ProfileId } from 'src/models';
 import { RootStackNavigationProp } from 'src/navigation';
@@ -66,17 +66,12 @@ const LoadedProfileListItem = (props: InnerProfileListItemProps) => {
         <View style={profileListItemStyles.innerContainer}>
           <Text
             numberOfLines={1}
-            style={[
-              isMyProfile
-                ? [constants.font.bodyBold, { color: constants.color.accent }]
-                : [constants.font.body, { color: colors.text }],
-            ]}>
+            weight="500"
+            color={isMyProfile ? 'primary' : 'text'}>
             {isMyProfile ? 'You' : profile.__publicName}
           </Text>
           <Spacer.Vertical value={constants.layout.spacing.xs} />
-          <Text
-            numberOfLines={2}
-            style={[constants.font.small, { color: colors.text }]}>
+          <Text numberOfLines={2} size="sm" color="caption">
             {profile.biography || 'No biography'}
           </Text>
         </View>

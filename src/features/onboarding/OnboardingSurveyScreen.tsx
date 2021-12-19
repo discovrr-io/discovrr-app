@@ -3,7 +3,13 @@ import { Platform } from 'react-native';
 
 import * as onboardingSlice from './onboarding-slice';
 import * as globalSelectors from 'src/global-selectors';
+import { OnboardingApi } from 'src/api';
 import { useAppDispatch, useAppSelector } from 'src/hooks';
+
+import {
+  OnboardingStackScreenProps,
+  RootStackNavigationProp,
+} from 'src/navigation';
 
 import {
   OnboardingContentContainer,
@@ -11,11 +17,6 @@ import {
   OptionGroupProps,
 } from './components';
 
-import {
-  OnboardingStackScreenProps,
-  RootStackNavigationProp,
-} from 'src/navigation';
-import { OnboardingApi } from 'src/api';
 type OnboardingSurveyScreenProps =
   OnboardingStackScreenProps<'OnboardingAccountType'>;
 
@@ -73,10 +74,7 @@ export default function OnboardingSurveyScreen(
       console.warn('Failed to save onboarding survey response:', error);
     } finally {
       setIsProcessing(false);
-      props.navigation.getParent<RootStackNavigationProp>().navigate('Main', {
-        screen: 'Facade',
-        params: { screen: 'Home', params: { screen: 'Landing' } },
-      });
+      props.navigation.getParent<RootStackNavigationProp>().goBack();
     }
   };
 

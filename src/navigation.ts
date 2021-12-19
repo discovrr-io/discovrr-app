@@ -84,6 +84,7 @@ export const RootStack = createStackNavigator<RootStackParamList>();
 
 export type OnboardingStackParamList = {
   OnboardingStart: undefined;
+  OnboardingWelcome: undefined;
   OnboardingAccountType: undefined;
   OnboardingPersonalName: undefined;
   OnboardingUsername: undefined;

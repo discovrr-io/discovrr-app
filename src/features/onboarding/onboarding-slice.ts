@@ -1,8 +1,14 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
-import { resetAppState } from 'src/global-actions';
-import { signOut } from 'src/features/authentication/auth-slice';
 import { OnboardingApi } from 'src/api';
+import { resetAppState } from 'src/global-actions';
+
+import {
+  registerNewAccount,
+  signInWithCredential,
+  signInWithEmailAndPassword,
+  signOut,
+} from 'src/features/authentication/auth-slice';
 
 export const saveOnboardingSurveyResult = createAsyncThunk(
   'onboarding/saveOnboardingSurveyResult',
@@ -10,11 +16,11 @@ export const saveOnboardingSurveyResult = createAsyncThunk(
 );
 
 export type OnboardingState = {
-  didCompleteMainOnboarding: boolean;
+  didSetUpProfile: boolean;
 };
 
 const initialState: OnboardingState = {
-  didCompleteMainOnboarding: false,
+  didSetUpProfile: false,
 };
 
 const onboardingSlice = createSlice({
@@ -28,7 +34,19 @@ const onboardingSlice = createSlice({
         Object.assign(state, initialState);
       })
       .addCase(saveOnboardingSurveyResult.fulfilled, state => {
-        state.didCompleteMainOnboarding = true;
+        state.didSetUpProfile = true;
+      })
+      .addCase(signInWithCredential.fulfilled, (state, action) => {
+        const { profile } = action.payload;
+        state.didSetUpProfile = profile.didSetUpProfile;
+      })
+      .addCase(signInWithEmailAndPassword.fulfilled, (state, action) => {
+        const { profile } = action.payload;
+        state.didSetUpProfile = profile.didSetUpProfile;
+      })
+      .addCase(registerNewAccount.fulfilled, (state, action) => {
+        const { profile } = action.payload;
+        state.didSetUpProfile = profile.didSetUpProfile;
       })
       // We'll assume that no one will frequently switch accounts on the same
       // device for now

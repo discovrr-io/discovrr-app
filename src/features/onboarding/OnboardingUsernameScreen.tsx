@@ -8,7 +8,7 @@ import {
 import _ from 'lodash';
 import * as yup from 'yup';
 import { Formik, useField } from 'formik';
-import { useFocusEffect } from '@react-navigation/native';
+// import { useFocusEffect } from '@react-navigation/native';
 
 import * as constants from 'src/constants';
 import * as utilities from 'src/utilities';
@@ -53,9 +53,6 @@ export default function OnboardingUsernameScreen(
 ) {
   const dispatch = useAppDispatch();
   const myProfile = useAppSelector(globalSelectors.selectCurrentUserProfile);
-  React.useEffect(() => {
-    console.log({ myProfile });
-  }, [myProfile]);
 
   const handleSubmitForm = async ({ username }: UsernameForm) => {
     try {
@@ -93,7 +90,7 @@ export default function OnboardingUsernameScreen(
           page={3}
           useKeyboardAvoidingView
           title="Choose a username"
-          body="We’ve suggested one for you. Or, you can choose your own if you want."
+          body="We’ve suggested one for you below. Or you can choose your own if you want."
           footerActions={[
             {
               title: 'Next',
@@ -119,11 +116,11 @@ function UsernameFormikTextInput({ myProfile }: UsernameFormikTextInputProps) {
 
   const [field, meta, _helpers] = useField('username');
 
-  useFocusEffect(
-    React.useCallback(() => {
-      textInputRef.current?.focus();
-    }, []),
-  );
+  // useFocusEffect(
+  //   React.useCallback(() => {
+  //     textInputRef.current?.focus();
+  //   }, []),
+  // );
 
   const [isAvailable, setIsAvailable] = React.useState(true);
   const [isChecking, setIsChecking] = React.useState(false);
@@ -159,7 +156,7 @@ function UsernameFormikTextInput({ myProfile }: UsernameFormikTextInputProps) {
     <View>
       <TextInput
         ref={textInputRef}
-        autoFocus
+        // autoFocus
         size="large"
         placeholder="Type in a unique username"
         autoCorrect={false}

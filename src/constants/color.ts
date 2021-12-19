@@ -69,8 +69,8 @@ export const surfaceDark200 = gray800;
 export const surfaceDark300 = gray900;
 export const surfaceDarkest = black;
 
-export const defaultDarkTextColor = black;
+export const defaultDarkTextColor = absoluteBlack;
 export const disabledDarkTextColor = gray300;
 
-export const defaultLightTextColor = white;
+export const defaultLightTextColor = absoluteWhite;
 export const disabledLightTextColor = gray100;

@@ -10,7 +10,6 @@ import {
 import { useNavigation } from '@react-navigation/native';
 
 import * as constants from 'src/constants';
-import * as utilities from 'src/utilities';
 import { RootStackNavigationProp } from 'src/navigation';
 
 import Spacer from './Spacer';
@@ -38,14 +37,14 @@ export default function SignInHeaderCard(props: SignInHeaderCardProps) {
           size="md"
           weight="bold"
           style={[{ flex: 1, color: constants.color.absoluteWhite }]}>
-          You&apos;re not signed in
+          You’re not signed in!
         </Text>
         <Spacer.Vertical value="xs" />
         <Text
           size="sm"
           style={[{ flex: 1, color: constants.color.absoluteWhite }]}>
-          Don&apos;t miss out on the benefits by signing in or creating an
-          account with us today.
+          Don’t miss out on the benefits by signing in or creating an account
+          with us today.
         </Text>
       </View>
       <Spacer.Horizontal value="lg" />
@@ -68,6 +67,6 @@ const signInCardStyles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'flex-start',
     padding: constants.layout.spacing.lg,
-    backgroundColor: constants.color.gray700 + utilities.percentToHex(1),
+    backgroundColor: constants.color.gray500,
   },
 });

@@ -8,7 +8,6 @@ import {
 } from '@reduxjs/toolkit';
 import { BaseThunkAPI } from '@reduxjs/toolkit/dist/createAsyncThunk';
 
-import { selectCurrentUserProfileId } from 'src/features/authentication/auth-slice';
 import { resetAppState } from 'src/global-actions';
 import { AppDispatch, RootState } from 'src/store';
 
@@ -18,6 +17,13 @@ import {
   ProfileApi,
   Reloadable,
 } from 'src/api';
+
+import {
+  registerNewAccount,
+  selectCurrentUserProfileId,
+  signInWithCredential,
+  signInWithEmailAndPassword,
+} from 'src/features/authentication/auth-slice';
 
 import {
   PersonalProfile,
@@ -341,6 +347,21 @@ const profilesSlice = createSlice({
           id: updatedProfile.profileId,
           changes: updatedProfile,
         });
+      })
+      .addCase(signInWithCredential.fulfilled, (state, action) => {
+        const { profile } = action.payload;
+        console.log(action.type, 'Upsert new profile!');
+        profilesAdapter.upsertOne(state, profile);
+      })
+      .addCase(signInWithEmailAndPassword.fulfilled, (state, action) => {
+        const { profile } = action.payload;
+        console.log(action.type, 'Upsert new profile!');
+        profilesAdapter.upsertOne(state, profile);
+      })
+      .addCase(registerNewAccount.fulfilled, (state, action) => {
+        const { profile } = action.payload;
+        console.log(action.type, 'Upsert new profile!');
+        profilesAdapter.upsertOne(state, profile);
       });
   },
 });

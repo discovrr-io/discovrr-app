@@ -116,7 +116,7 @@ const authSlice = createSlice({
         state.status = 'signing-in';
       })
       .addCase(signInWithEmailAndPassword.fulfilled, (state, action) => {
-        const [user, sessionId] = action.payload;
+        const { user, sessionId } = action.payload;
         state.status = 'fulfilled';
         state.isAuthenticated = true;
         state.user = user;
@@ -134,7 +134,7 @@ const authSlice = createSlice({
         state.status = 'signing-in';
       })
       .addCase(signInWithCredential.fulfilled, (state, action) => {
-        const [user, sessionId] = action.payload;
+        const { user, sessionId } = action.payload;
         state.status = 'fulfilled';
         state.isAuthenticated = true;
         state.user = user;
@@ -152,7 +152,7 @@ const authSlice = createSlice({
         state.status = 'registering';
       })
       .addCase(registerNewAccount.fulfilled, (state, action) => {
-        const [user, sessionId] = action.payload;
+        const { user, sessionId } = action.payload;
         state.status = 'fulfilled';
         state.isAuthenticated = true;
         state.user = user;

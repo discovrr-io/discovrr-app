@@ -256,6 +256,27 @@ function FacadeNavigator() {
 }
 
 export default function MainNavigator() {
+  const navigation = useNavigation<RootStackNavigationProp>();
+
+  const { user, didSetUpProfile } = useAppSelector(state => {
+    return {
+      user: state.auth.user,
+      didSetUpProfile: state.onboarding.didSetUpProfile,
+    };
+  });
+
+  React.useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (!didSetUpProfile) {
+        navigation.navigate('Onboarding', {
+          screen: user ? 'OnboardingWelcome' : 'OnboardingStart',
+        });
+      }
+    }, 500);
+
+    return () => clearTimeout(timeout);
+  }, [navigation, user, didSetUpProfile]);
+
   return (
     <RootDrawer.Navigator
       initialRouteName="Facade"

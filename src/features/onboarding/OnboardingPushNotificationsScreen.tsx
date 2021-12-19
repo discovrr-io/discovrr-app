@@ -12,12 +12,8 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import * as constants from 'src/constants';
+import { OnboardingStackScreenProps } from 'src/navigation';
 import { OnboardingContentContainer, SkipButton } from './components';
-
-import {
-  OnboardingStackScreenProps,
-  RootStackNavigationProp,
-} from 'src/navigation';
 
 const APP_ICON = require('../../../assets/images/app-icon.png');
 const APP_ICON_DEFAULT_HEIGHT = 180;

@@ -4,7 +4,11 @@ import { Platform } from 'react-native';
 import codePush from 'react-native-code-push';
 import messaging from '@react-native-firebase/messaging';
 import { nanoid } from '@reduxjs/toolkit';
-import { HeaderStyleInterpolators } from '@react-navigation/stack';
+
+import {
+  CardStyleInterpolators,
+  HeaderStyleInterpolators,
+} from '@react-navigation/stack';
 
 import * as constants from 'src/constants';
 import { SessionApi } from 'src/api';
@@ -54,10 +58,6 @@ export default function RootNavigator() {
   const didRegisterFCMToken = useAppSelector(state => {
     return state.notifications.didRegisterFCMToken;
   });
-
-  const { didCompleteMainOnboarding } = useAppSelector(
-    state => state.onboarding,
-  );
 
   React.useEffect(() => {
     // Allow restarts from this point on. If there is an update available, it'll
@@ -140,7 +140,7 @@ export default function RootNavigator() {
 
   return (
     <RootStack.Navigator
-      initialRouteName={didCompleteMainOnboarding ? 'Main' : 'Onboarding'}
+      initialRouteName="Main"
       screenOptions={{
         headerBackTitleVisible: false,
         headerTintColor: colors.text,
@@ -160,7 +160,11 @@ export default function RootNavigator() {
         <RootStack.Screen
           name="Onboarding"
           component={OnboardingNavigator}
-          options={{ headerShown: false, presentation: 'modal' }}
+          options={{
+            headerShown: false,
+            presentation: 'modal',
+            cardStyleInterpolator: CardStyleInterpolators.forFadeFromCenter,
+          }}
         />
       </RootStack.Group>
 
@@ -175,7 +179,13 @@ export default function RootNavigator() {
 
       {/* -- Top Level Screens -- */}
       <RootStack.Group screenOptions={{ headerShown: false }}>
-        <RootStack.Screen name="Main" component={MainNavigator} />
+        <RootStack.Screen
+          name="Main"
+          component={MainNavigator}
+          options={{
+            cardStyleInterpolator: CardStyleInterpolators.forFadeFromCenter,
+          }}
+        />
         <RootStack.Screen
           name="Create"
           component={CreateItemNavigator}

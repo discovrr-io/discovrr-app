@@ -39,7 +39,7 @@ export interface SharedProfileDetails {
   readonly following: ProfileId[];
   readonly blocked: ProfileId[];
 
-  readonly didCompleteMainOnboarding: boolean;
+  readonly didSetUpProfile: boolean;
 }
 
 /**

@@ -145,7 +145,6 @@ export default function OnboardingContentContainer(
                     title={action.title}
                     disabled={action.disabled}
                     loading={action.loading}
-                    textStyle={{ color: constants.color.absoluteWhite }}
                     onPress={action.onPress}
                   />
                   {index < array.length - 1 && <Spacer.Vertical value="md" />}

@@ -34,7 +34,7 @@ export namespace ProfileApi {
     };
   }
 
-  function mapResultToProfile(result: Parse.Object): Profile {
+  export function mapResultToProfile(result: Parse.Object): Profile {
     const sharedProfileDetails: SharedProfileDetails = {
       email: result.get('email') ?? '',
       username: result.get('username') ?? '',
@@ -48,8 +48,7 @@ export namespace ProfileApi {
       following: result.get('followingArray') ?? [],
       blocked: result.get('blockedArray') ?? [],
       highestRole: result.get('highestRole'),
-      didCompleteMainOnboarding:
-        result.get('didCompleteMainOnboarding') ?? false,
+      didSetUpProfile: result.get('didSetUpProfile') ?? false,
     };
 
     const kind: string | undefined = result.get('kind');

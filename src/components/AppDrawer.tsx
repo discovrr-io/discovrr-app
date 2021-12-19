@@ -52,10 +52,7 @@ function AppDrawerItem(props: AppDrawerItemProps) {
       label={() => (
         <Text
           numberOfLines={1}
-          style={[
-            constants.font.body,
-            { color: tintColor || colors.text, marginLeft: -8 },
-          ]}>
+          style={[{ color: tintColor || colors.text, marginLeft: -8 }]}>
           {label}
         </Text>
       )}
@@ -163,8 +160,10 @@ function RoleChip(props: { label: string }) {
         borderRadius: chipHeight / 2,
       }}>
       <Text
+        size="sm"
+        weight="bold"
         numberOfLines={1}
-        style={[constants.font.smallBold, { color: chipColor }]}>
+        style={[{ color: chipColor }]}>
         {humanReadableRoleLabel}
       </Text>
     </TouchableHighlight>
@@ -397,9 +396,10 @@ AppDrawerProfileDetails.Fulfilled = ({ profile }: { profile: Profile }) => {
       </Text>
       <Spacer.Vertical value="xs" />
       <Text
+        weight="500"
         color="caption"
         numberOfLines={1}
-        style={[constants.font.body, { textAlign: 'center' }]}>
+        style={[{ textAlign: 'center' }]}>
         @{profile.username || 'anonymous'}
       </Text>
       {profile.highestRole && profile.highestRole !== 'user' && (

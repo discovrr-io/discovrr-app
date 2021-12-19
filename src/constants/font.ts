@@ -166,10 +166,7 @@ export const extraSmallBold: TextStyle = {
 
 export const defaultHeaderTitleStyle: TextStyle = extraLargeBold;
 
-export const defaultBottomTabLabelStyle: TextStyle = {
-  ...extraSmallMedium,
-  fontFamily: FONT_FAMILY.bold,
-};
+export const defaultBottomTabLabelStyle: TextStyle = extraSmallBold;
 
 export const defaultTopTabBarLabelStyle: TextStyle = {
   ...bodyMedium,

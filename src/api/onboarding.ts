@@ -31,6 +31,6 @@ export namespace OnboardingApi {
     }
 
     const myProfile = await UserApi.getCurrentUserProfile();
-    await myProfile?.save({ didCompleteMainOnboarding: true });
+    await myProfile?.save({ didSetUpProfile: true });
   }
 }

@@ -17,10 +17,6 @@ export default function OnboardingAccountTypeScreen(
   const dispatch = useAppDispatch();
   const myProfile = useAppSelector(globalSelectors.selectCurrentUserProfile);
 
-  React.useEffect(() => {
-    console.log({ myProfile });
-  }, [myProfile]);
-
   const [isProcessing, setIsProcessing] = React.useState(false);
   const [selectedValue, setSelectedValue] = React.useState<ProfileKind>(
     myProfile?.kind ?? 'personal',
@@ -57,7 +53,7 @@ export default function OnboardingAccountTypeScreen(
         onValueChanged={newValue => setSelectedValue(newValue)}
         options={[
           {
-            label: "I'm a user",
+            label: "I'm a member",
             caption:
               'I want to purchase and engage in content by other users and makers.',
             value: 'personal',

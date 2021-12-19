@@ -8,7 +8,8 @@ import Parse from 'parse/react-native';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
 import * as constants from 'src/constants';
-import { ProfileId, SessionId, User, UserId } from 'src/models';
+import { ProfileApi } from './profile';
+import { Profile, ProfileId, SessionId, User, UserId } from 'src/models';
 
 import {
   ApiError,
@@ -22,8 +23,14 @@ export namespace AuthApi {
     | CommonApiErrorCode
     | 'USERNAME_TAKEN'
     | 'NO_PROFILE_FOUND';
+
   export class AuthApiError extends ApiError<AuthApiErrorCode> {}
-  export type AuthenticatedResult = readonly [User, SessionId];
+
+  export type AuthenticatedResult = {
+    user: User;
+    profile: Profile;
+    sessionId: SessionId;
+  };
 
   const $PREFIX = 'AuthApi';
 
@@ -140,11 +147,13 @@ export namespace AuthApi {
       }
     }
 
-    return {
-      id: currentUserId,
+    const user: User = {
+      id: currentUserId as UserId,
       provider: firebaseProviderId,
-      profileId: profile.id,
-    } as User;
+      profileId: profile.id as ProfileId,
+    };
+
+    return user;
   }
 
   async function attemptToFetchProfileForUser(
@@ -156,6 +165,7 @@ export namespace AuthApi {
     console.log($FUNC, 'Querying profile...');
     const query = new Parse.Query(Parse.Object.extend('Profile'));
     query.notEqualTo('status', ApiObjectStatus.DELETED);
+    query.include('profilePersonal', 'profileVendor');
     query.equalTo('user', currentUser.toPointer());
 
     let profile = await query.first();
@@ -180,7 +190,7 @@ export namespace AuthApi {
 
   async function authenticateViaParse(
     firebaseUser: FirebaseAuthTypes.User,
-  ): Promise<User> {
+  ): Promise<readonly [User, Profile]> {
     const $FUNC = `[${$PREFIX}.authenticateViaParse]`;
 
     const authData = {
@@ -213,7 +223,10 @@ export namespace AuthApi {
       );
     }
 
-    return await syncAndConstructUser(currentUser.id, profile, firebaseUser);
+    return [
+      await syncAndConstructUser(currentUser.id, profile, firebaseUser),
+      ProfileApi.mapResultToProfile(profile),
+    ] as const;
   }
 
   //#region SIGN IN WITH EMAIL AND PASSWORD
@@ -248,11 +261,11 @@ export namespace AuthApi {
       }
 
       console.log($FUNC, 'Authenticating via Parse...');
-      const authenticatedUser = await authenticateViaParse(firebaseUser);
+      const [user, profile] = await authenticateViaParse(firebaseUser);
       const currentSession = await Parse.Session.current();
       didLoginViaParse = true;
 
-      return [authenticatedUser, currentSession.id as SessionId];
+      return { user, profile, sessionId: currentSession.id as SessionId };
     } catch (error) {
       console.warn($FUNC, 'Aborting authentication. Signing out...');
       await signOut({
@@ -284,15 +297,17 @@ export namespace AuthApi {
 
     try {
       console.log($FUNC, 'Authenticating via Firebase...');
-      const { user } = await auth().signInWithCredential(credential);
+      const { user: firebaseUser } = await auth().signInWithCredential(
+        credential,
+      );
       didLoginViaFirebase = true;
 
       console.log($FUNC, 'Authenticating via Parse...');
-      const authenticatedUser = await authenticateViaParse(user);
+      const [user, profile] = await authenticateViaParse(firebaseUser);
       const currentSession = await Parse.Session.current();
       didLoginViaParse = true;
 
-      return [authenticatedUser, currentSession.id as SessionId];
+      return { user, profile, sessionId: currentSession.id as SessionId };
     } catch (error) {
       console.warn($FUNC, 'Aborting authentication. Signing out...');
       await signOut({
@@ -336,7 +351,7 @@ export namespace AuthApi {
     params: RegisterNewAccountParams,
   ): Promise<AuthenticatedResult> {
     const $FUNC = `[${$PREFIX}.registerNewAccount]`;
-    const { /* displayName, username, */ email, password } = params;
+    const { email, password } = params;
 
     let didLoginViaFirebase = false;
     let didLoginViaParse = false;
@@ -360,8 +375,8 @@ export namespace AuthApi {
       const provider: string | undefined =
         firebaseUser.providerData[0]?.providerId;
 
-      // We'll update the profile here as the server will automatically generate
-      // a profile for us when signing up.
+      // We'll update the profile here as the server would have automatically
+      // generated a profile for us when signing up.
       console.log($FUNC, `Updating new profile...`);
       const updatedProfile: Parse.Object = await Parse.Cloud.run(
         'updateProfileForCurrentUser',
@@ -379,9 +394,10 @@ export namespace AuthApi {
         profileId: updatedProfile.id as ProfileId,
       };
 
+      const profile = ProfileApi.mapResultToProfile(updatedProfile);
       const currentSession = await Parse.Session.current();
 
-      return [user, currentSession.id as SessionId] as const;
+      return { user, profile, sessionId: currentSession.id as SessionId };
     } catch (error) {
       console.warn($FUNC, 'Aborting authentication. Signing out...');
       await signOut({

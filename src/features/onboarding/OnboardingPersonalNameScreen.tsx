@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { TextInput as RNTextInput, View } from 'react-native';
 
-import { useFocusEffect } from '@react-navigation/native';
+// import { useFocusEffect } from '@react-navigation/native';
 
 import * as constants from 'src/constants';
 import * as utilities from 'src/utilities';
@@ -21,20 +21,17 @@ export default function OnboardingPersonalNameScreen(
 ) {
   const dispatch = useAppDispatch();
   const myProfile = useAppSelector(globalSelectors.selectCurrentUserProfile);
-  React.useEffect(() => {
-    console.log({ myProfile });
-  }, [myProfile]);
 
   const textInputRef = React.useRef<RNTextInput>(null);
 
   const [displayName, setDisplayName] = React.useState(myProfile?.displayName);
   const [isSaving, setIsSaving] = React.useState(false);
 
-  useFocusEffect(
-    React.useCallback(() => {
-      textInputRef.current?.focus();
-    }, []),
-  );
+  // useFocusEffect(
+  //   React.useCallback(() => {
+  //     textInputRef.current?.focus();
+  //   }, []),
+  // );
 
   const handlePressNext = async () => {
     try {
@@ -72,7 +69,7 @@ export default function OnboardingPersonalNameScreen(
       body={
         myProfile?.kind === 'vendor'
           ? 'This will only be visible to the Discovrr team for identification purposes.'
-          : 'This will be displayed on your public profile.'
+          : 'Choose a name that you’re most comfortable with. It’ll be displayed on your public profile.'
       }
       footerActions={[
         {
@@ -85,7 +82,7 @@ export default function OnboardingPersonalNameScreen(
       <View>
         <TextInput
           ref={textInputRef}
-          autoFocus
+          // autoFocus
           size="large"
           placeholder="Enter your name"
           autoCapitalize="words"
