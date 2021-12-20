@@ -7,6 +7,7 @@ import { ProfileKind } from 'src/models';
 import { OnboardingStackScreenProps } from 'src/navigation';
 
 import { OnboardingContentContainer, OptionGroup } from './components';
+import { useDisableGoBackOnSubmitting } from './hooks';
 
 type OnboardingAccountTypeScreenProps =
   OnboardingStackScreenProps<'OnboardingAccountType'>;
@@ -16,16 +17,19 @@ export default function OnboardingAccountTypeScreen(
 ) {
   const dispatch = useAppDispatch();
   const myProfile = useAppSelector(globalSelectors.selectCurrentUserProfile);
+  const { nextIndex } = props.route.params;
 
-  const [isProcessing, setIsProcessing] = React.useState(false);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [selectedValue, setSelectedValue] = React.useState<ProfileKind>(
     myProfile?.kind ?? 'personal',
   );
 
+  useDisableGoBackOnSubmitting(isSubmitting);
+
   const handlePressNext = async () => {
     if (selectedValue !== myProfile?.kind) {
       try {
-        setIsProcessing(true);
+        setIsSubmitting(true);
         await dispatch(
           profilesSlice.changeProfileKind({ kind: selectedValue }),
         ).unwrap();
@@ -33,20 +37,22 @@ export default function OnboardingAccountTypeScreen(
         console.error('Failed to switch to maker:', error);
         return myProfile;
       } finally {
-        setIsProcessing(false);
+        setIsSubmitting(false);
       }
     }
 
-    props.navigation.navigate('OnboardingPersonalName');
+    props.navigation.navigate('OnboardingPersonalName', {
+      nextIndex: nextIndex + 1,
+    });
   };
 
   return (
     <OnboardingContentContainer
-      page={1}
+      page={nextIndex}
       title="What best describes you?"
       body="You can always change this later."
       footerActions={[
-        { title: 'Next', onPress: handlePressNext, loading: isProcessing },
+        { title: 'Next', onPress: handlePressNext, loading: isSubmitting },
       ]}>
       <OptionGroup<ProfileKind>
         value={selectedValue}

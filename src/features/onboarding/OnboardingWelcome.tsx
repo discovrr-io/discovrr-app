@@ -62,7 +62,9 @@ export default function OnboardingWelcomeScreen(
         title="Let’s Go"
         type="primary"
         variant="contained"
-        onPress={() => props.navigation.navigate('OnboardingAccountType')}
+        onPress={() =>
+          props.navigation.navigate('OnboardingAccountType', { nextIndex: 1 })
+        }
       />
     </SafeAreaView>
   );

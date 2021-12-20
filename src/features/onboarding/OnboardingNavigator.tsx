@@ -14,6 +14,7 @@ import { OnboardingStackParamList } from 'src/navigation';
 import OnboardingStartScreen from './OnboardingStartScreen';
 import OnboardingAccountTypeScreen from './OnboardingAccountTypeScreen';
 import OnboardingPersonalNameScreen from './OnboardingPersonalNameScreen';
+import OnboardingBusinessNameScreen from './OnboardingBusinessNameScreen';
 import OnboardingUsernameScreen from './OnboardingUsernameScreen';
 import OnboardingProfilePictureScreen from './OnboardingProfilePictureScreen';
 import OnboardingPushNotifications from './OnboardingPushNotificationsScreen';
@@ -42,6 +43,7 @@ export default function OnboardingNavigator() {
         },
         headerStyleInterpolator: HeaderStyleInterpolators.forFade,
         cardStyleInterpolator: CardStyleInterpolators.forFadeFromCenter,
+        gestureEnabled: false,
       }}>
       <OnboardingStack.Group>
         <OnboardingStack.Screen
@@ -80,6 +82,11 @@ export default function OnboardingNavigator() {
           name="OnboardingPersonalName"
           component={OnboardingPersonalNameScreen}
           options={{ title: 'Name' }}
+        />
+        <OnboardingStack.Screen
+          name="OnboardingBusinessName"
+          component={OnboardingBusinessNameScreen}
+          options={{ title: 'Business Name' }}
         />
         <OnboardingStack.Screen
           name="OnboardingUsername"

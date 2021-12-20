@@ -1,10 +1,8 @@
 import * as React from 'react';
-import { Platform } from 'react-native';
 
 import * as onboardingSlice from './onboarding-slice';
-import * as globalSelectors from 'src/global-selectors';
 import { OnboardingApi } from 'src/api';
-import { useAppDispatch, useAppSelector } from 'src/hooks';
+import { useAppDispatch } from 'src/hooks';
 
 import {
   OnboardingStackScreenProps,
@@ -24,13 +22,8 @@ export default function OnboardingSurveyScreen(
   props: OnboardingSurveyScreenProps,
 ) {
   const dispatch = useAppDispatch();
-  const myProfile = useAppSelector(globalSelectors.selectCurrentUserProfile);
+  const { nextIndex } = props.route.params;
 
-  React.useEffect(() => {
-    console.log({ myProfile });
-  }, [myProfile]);
-
-  const [isProcessing, setIsProcessing] = React.useState(false);
   const [selectedValue, setSelectedValue] =
     React.useState<OnboardingApi.OnboardingSurveyResponse>();
 
@@ -64,34 +57,34 @@ export default function OnboardingSurveyScreen(
     }));
   }, [optionLabel]);
 
-  const handlePressFinish = async () => {
-    try {
-      setIsProcessing(true);
-      await dispatch(
-        onboardingSlice.saveOnboardingSurveyResult({ response: selectedValue }),
-      ).unwrap();
-    } catch (error) {
-      console.warn('Failed to save onboarding survey response:', error);
-    } finally {
-      setIsProcessing(false);
-      props.navigation.getParent<RootStackNavigationProp>().goBack();
-    }
-  };
+  const handleFinishOnboarding = React.useCallback(async () => {
+    props.navigation.getParent<RootStackNavigationProp>().goBack();
+
+    const saveOnboardingSurveyResultAction =
+      onboardingSlice.saveOnboardingSurveyResult({ response: selectedValue });
+
+    dispatch(saveOnboardingSurveyResultAction)
+      .unwrap()
+      .catch(error => {
+        console.warn('Failed to save onboarding survey response:', error);
+      })
+      .finally(() => {
+        console.log('DONE');
+      });
+  }, [dispatch, props.navigation, selectedValue]);
 
   return (
     <OnboardingContentContainer
-      page={Platform.select({ ios: 6, default: 5 })}
+      page={nextIndex}
       title="One last thing"
       body="Where did you hear about us?"
-      footerActions={[
-        { title: 'Finish', onPress: handlePressFinish, loading: isProcessing },
-      ]}>
+      footerActions={[{ title: 'Finish', onPress: handleFinishOnboarding }]}>
       <OptionGroup<OnboardingApi.OnboardingSurveyResponse>
         size="small"
         value={selectedValue}
         onValueChanged={newValue => setSelectedValue(newValue)}
         options={options}
-        labelProps={{ weight: 'regular' }}
+        labelProps={{ weight: 'normal' }}
       />
     </OnboardingContentContainer>
   );

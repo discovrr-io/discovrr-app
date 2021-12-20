@@ -14,11 +14,11 @@ import { OnboardingStackScreenProps } from 'src/navigation';
 import { OnboardingContentContainer } from './components';
 import { useDisableGoBackOnSubmitting } from './hooks';
 
-type OnboardingPersonalNameScreenProps =
-  OnboardingStackScreenProps<'OnboardingPersonalName'>;
+type OnboardingBusinessNameScreenProps =
+  OnboardingStackScreenProps<'OnboardingBusinessName'>;
 
-export default function OnboardingPersonalNameScreen(
-  props: OnboardingPersonalNameScreenProps,
+export default function OnboardingBusinessNameScreen(
+  props: OnboardingBusinessNameScreenProps,
 ) {
   const dispatch = useAppDispatch();
   const myProfile = useAppSelector(globalSelectors.selectCurrentUserProfile);
@@ -26,8 +26,18 @@ export default function OnboardingPersonalNameScreen(
 
   const textInputRef = React.useRef<RNTextInput>(null);
 
-  const [displayName, setDisplayName] = React.useState(myProfile?.displayName);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [businessName, setBusinessName] = React.useState(() => {
+    console.log({ __KIND: myProfile?.kind, __BN: myProfile['businessName'] });
+
+    if (myProfile?.kind === 'vendor') {
+      return myProfile.businessName || myProfile.displayName;
+    } else {
+      // There shouldn't be a case where we don't receive a vendor profile here
+      // but we'll handle it here anyway
+      return myProfile?.displayName;
+    }
+  });
 
   // useFocusEffect(
   //   React.useCallback(() => {
@@ -39,30 +49,27 @@ export default function OnboardingPersonalNameScreen(
 
   const handlePressNext = async () => {
     try {
-      const trimmedDisplayName = displayName?.trim();
+      const trimmedBusinessName = businessName?.trim();
 
-      if (!myProfile || !trimmedDisplayName)
+      if (!myProfile || !trimmedBusinessName || myProfile.kind === 'personal')
         throw new Error(
-          "We weren't able to change your name right now. " +
+          "We weren't able to change your business name right now. " +
             'You can try again later by going to your profile settings.',
         );
 
-      if (trimmedDisplayName !== myProfile.displayName) {
+      if (trimmedBusinessName !== myProfile.businessName) {
         setIsSubmitting(true);
         await dispatch(
           profilesSlice.updateProfile({
             profileId: myProfile.profileId,
-            changes: { displayName: trimmedDisplayName },
+            changes: { businessName: trimmedBusinessName },
           }),
         ).unwrap();
       }
 
-      props.navigation.navigate(
-        myProfile.kind === 'vendor'
-          ? 'OnboardingBusinessName'
-          : 'OnboardingUsername',
-        { nextIndex: nextIndex + 1 },
-      );
+      props.navigation.navigate('OnboardingUsername', {
+        nextIndex: nextIndex + 1,
+      });
     } catch (error: any) {
       utilities.alertSomethingWentWrong(error.message);
     } finally {
@@ -74,17 +81,13 @@ export default function OnboardingPersonalNameScreen(
     <OnboardingContentContainer
       page={nextIndex}
       useKeyboardAvoidingView
-      title="What’s your name?"
-      body={
-        myProfile?.kind === 'vendor'
-          ? 'This will only be visible to the Discovrr team for identification purposes.'
-          : 'Choose a name that you’re most comfortable with. It’ll be displayed on your public profile.'
-      }
+      title="What’s your business name?"
+      body="Your business name will be visible in your public profile. You can use your personal name."
       footerActions={[
         {
           title: 'Next',
           loading: isSubmitting,
-          disabled: !Boolean(displayName?.trim()),
+          disabled: !Boolean(businessName?.trim()),
           onPress: handlePressNext,
         },
       ]}>
@@ -98,8 +101,8 @@ export default function OnboardingPersonalNameScreen(
           autoCorrect={false}
           autoComplete="name"
           returnKeyType="done"
-          value={displayName}
-          onChangeText={setDisplayName}
+          value={businessName}
+          onChangeText={setBusinessName}
           onSubmitEditing={handlePressNext}
         />
         <Spacer.Vertical value="md" />
@@ -108,9 +111,8 @@ export default function OnboardingPersonalNameScreen(
           color="caption"
           allowFontScaling={false}
           style={{ marginLeft: constants.layout.spacing.md }}>
-          {myProfile?.kind === 'vendor'
-            ? 'Because you are a maker, your name will not be visible to others. It will only be kept by us for internal bookkeeping purposes.'
-            : `Your name will be displayed in your public profile and in any forms of communication we make to you. You can always change it later.`}
+          We’ll use your business name in any forms of formal communication you
+          make to customers. You can always change it later.
         </Text>
       </View>
     </OnboardingContentContainer>

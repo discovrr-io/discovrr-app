@@ -2,7 +2,6 @@ import BottomSheet from '@gorhom/bottom-sheet';
 import * as React from 'react';
 import {
   ActivityIndicator,
-  Platform,
   TouchableOpacity,
   useWindowDimensions,
   View,
@@ -23,10 +22,10 @@ import ImageCropPicker, {
 import * as constants from 'src/constants';
 import * as utilities from 'src/utilities';
 import * as globalSelectors from 'src/global-selectors';
+import * as notificationsSlice from 'src/features/notifications/notifications-slice';
 import * as profilesSlice from 'src/features/profiles/profiles-slice';
 import { useAppDispatch, useAppSelector, useExtendedTheme } from 'src/hooks';
 import { OnboardingStackScreenProps } from 'src/navigation';
-import { OnboardingContentContainer, SkipButton } from './components';
 
 import {
   ActionBottomSheet,
@@ -34,6 +33,9 @@ import {
   LoadingOverlay,
   LoadingOverlayState,
 } from 'src/components';
+
+import { OnboardingContentContainer, SkipButton } from './components';
+import { useDisableGoBackOnSubmitting } from './hooks';
 
 const profilePictureForm = yup.object({
   avatar: yup.object().nullable().notRequired(),
@@ -64,24 +66,32 @@ export default function OnboardingProfilePictureScreen(
   const $FUNC = '[OnboardingProfilePictureScreen]';
   const dispatch = useAppDispatch();
   const myProfile = useAppSelector(globalSelectors.selectCurrentUserProfile);
+  const { nextIndex } = props.route.params;
+
+  const shouldRequestNotificationPermissions = useAppSelector(
+    notificationsSlice.selectShouldRequestNotificationPermissions,
+  );
 
   const currentUploadProgress = useSharedValue(0);
   const [overlayContent, setOverlayContent] =
     React.useState<LoadingOverlayState>();
 
   const handleGoToNextScreen = React.useCallback(() => {
-    if (Platform.OS === 'ios') {
-      props.navigation.navigate('OnboardingPushNotifications');
-    } else {
-      props.navigation.navigate('OnboardingSurvey');
-    }
-  }, [props.navigation]);
+    props.navigation.navigate(
+      shouldRequestNotificationPermissions
+        ? 'OnboardingPushNotifications'
+        : 'OnboardingSurvey',
+      { nextIndex: nextIndex + 1 },
+    );
+  }, [props.navigation, shouldRequestNotificationPermissions, nextIndex]);
 
   React.useLayoutEffect(() => {
     props.navigation.setOptions({
       headerRight: () => <SkipButton onPress={handleGoToNextScreen} />,
     });
   }, [props.navigation, handleGoToNextScreen]);
+
+  useDisableGoBackOnSubmitting(overlayContent !== undefined);
 
   const handleSubmitForm = async ({ avatar }: ProfilePictureForm) => {
     try {
@@ -151,7 +161,7 @@ export default function OnboardingProfilePictureScreen(
       onSubmit={handleSubmitForm}>
       {({ handleSubmit }) => (
         <OnboardingContentContainer
-          page={4}
+          page={nextIndex}
           title="Almost there!"
           body="Let’s set a profile picture so everyone can recognise you. You can always change it later."
           footerActions={[{ title: 'Next', onPress: handleSubmit }]}>

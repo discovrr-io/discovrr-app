@@ -82,15 +82,20 @@ export const RootStack = createStackNavigator<RootStackParamList>();
 
 //#region ONBOARDING STACK
 
+export type CommonOnboardingStackParams = {
+  nextIndex: number;
+};
+
 export type OnboardingStackParamList = {
   OnboardingStart: undefined;
-  OnboardingWelcome: undefined;
-  OnboardingAccountType: undefined;
-  OnboardingPersonalName: undefined;
-  OnboardingUsername: undefined;
-  OnboardingProfilePicture: undefined;
-  OnboardingPushNotifications: undefined;
-  OnboardingSurvey: undefined;
+  OnboardingWelcome: CommonOnboardingStackParams;
+  OnboardingAccountType: CommonOnboardingStackParams;
+  OnboardingPersonalName: CommonOnboardingStackParams;
+  OnboardingBusinessName: CommonOnboardingStackParams;
+  OnboardingUsername: CommonOnboardingStackParams;
+  OnboardingProfilePicture: CommonOnboardingStackParams;
+  OnboardingPushNotifications: CommonOnboardingStackParams;
+  OnboardingSurvey: CommonOnboardingStackParams;
 };
 
 export type OnboardingStackNavigationProp = StackNavigationProp<

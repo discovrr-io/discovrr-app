@@ -157,7 +157,7 @@ function ProfileByUsernameDetailsScreen(
   }, [dispatch, shouldFetch, props.username, isMounted]);
 
   if (error) {
-    return <RouteError message="We couldn't find anyone with that username" />;
+    return <RouteError message="We couldn't find anyone with that username." />;
   } else if (shouldFetch || !profile) {
     return (
       <SafeAreaView

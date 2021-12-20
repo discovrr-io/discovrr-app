@@ -12,8 +12,9 @@ import {
 } from 'react-native';
 
 import * as constants from 'src/constants';
+import * as onboardingSlice from '../onboarding-slice';
 import { Button, ButtonProps, Spacer, Text } from 'src/components';
-import { useExtendedTheme } from 'src/hooks';
+import { useAppSelector, useExtendedTheme } from 'src/hooks';
 
 const DEBUG = false;
 
@@ -47,6 +48,8 @@ export default function OnboardingContentContainer(
 ) {
   const { useKeyboardAvoidingView = false } = props;
   const { dark } = useExtendedTheme();
+
+  const pagesCount = useAppSelector(onboardingSlice.selectOnboardingPagesCount);
 
   const bodyText = React.useMemo(() => {
     return typeof props.body === 'string'
@@ -108,7 +111,7 @@ export default function OnboardingContentContainer(
       <ContainerView>
         <View>
           <Text size="sm" color="caption">
-            {props.page} of {5 + Platform.select({ ios: 1, default: 0 })}
+            {props.page} of {pagesCount}
           </Text>
           <Spacer.Vertical value="sm" />
           <Text size="h3" weight="800" allowFontScaling={false}>

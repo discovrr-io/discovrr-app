@@ -164,6 +164,7 @@ export default function RootNavigator() {
             headerShown: false,
             presentation: 'modal',
             cardStyleInterpolator: CardStyleInterpolators.forFadeFromCenter,
+            gestureEnabled: false,
           }}
         />
       </RootStack.Group>

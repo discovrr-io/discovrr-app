@@ -1,4 +1,8 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import {
+  createAsyncThunk,
+  createSelector,
+  createSlice,
+} from '@reduxjs/toolkit';
 
 import { OnboardingApi } from 'src/api';
 import { resetAppState } from 'src/global-actions';
@@ -9,6 +13,9 @@ import {
   signInWithEmailAndPassword,
   signOut,
 } from 'src/features/authentication/auth-slice';
+import { selectShouldRequestNotificationPermissions } from '../notifications/notifications-slice';
+import { Platform } from 'react-native';
+import { selectCurrentUserProfileKind } from 'src/global-selectors';
 
 export const saveOnboardingSurveyResult = createAsyncThunk(
   'onboarding/saveOnboardingSurveyResult',
@@ -60,3 +67,22 @@ const onboardingSlice = createSlice({
 export const {} = onboardingSlice.actions;
 
 export default onboardingSlice.reducer;
+
+export const selectOnboardingPagesCount = createSelector(
+  [selectShouldRequestNotificationPermissions, selectCurrentUserProfileKind],
+  (requestNotificationPermission, currentUserProfileKind) => {
+    console.log({ currentUserProfileKind, requestNotificationPermission });
+    const defaultPageCount = 5;
+    if (currentUserProfileKind === 'vendor') {
+      return (
+        defaultPageCount +
+        Platform.select({
+          ios: requestNotificationPermission ? 2 : 1,
+          default: 1,
+        })
+      );
+    } else {
+      return defaultPageCount;
+    }
+  },
+);

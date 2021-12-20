@@ -62,16 +62,25 @@ export namespace AuthApi {
     }
 
     const displayName: string | undefined = profile.get('displayName');
-    if ((!displayName || displayName === '---') && firebaseUser.displayName) {
+    if (!Boolean(displayName?.trim()) && firebaseUser.displayName) {
+      console.log(
+        $FUNC,
+        'Setting profile display name to Firebase display name' +
+          `'${firebaseUser.displayName}'...`,
+      );
       profile.set('displayName', firebaseUser.displayName);
       syncProfile = true;
     } else if (displayName) {
       console.log($FUNC, 'Updating Firebase display name...');
-      await firebaseUser.updateProfile({ displayName });
+      await firebaseUser.updateProfile({ displayName: displayName.trim() });
     } else {
       const username: string = profile.get('username');
       profile.set('displayName', username);
-      console.log($FUNC, 'Setting Firebase display name to username...');
+      console.warn(
+        $FUNC,
+        'Setting Firebase display name to username because no display name',
+        'was found...',
+      );
       await firebaseUser.updateProfile({ displayName: username });
     }
 

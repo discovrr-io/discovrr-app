@@ -291,40 +291,10 @@ const profilesSlice = createSlice({
       })
       // -- updateProfile --
       .addCase(updateProfile.fulfilled, (state, action) => {
-        type Writeable<T> = { -readonly [P in keyof T]: T[P] };
-
         const { profileId, changes } = action.meta.arg;
-        const changesDraft: Partial<Writeable<Profile>> =
-          state.entities[profileId] ?? {};
-
-        if (changes.username) changesDraft.username = changes.username;
-        if (changes.biography) changesDraft.biography = changes.biography;
-
-        if (changes.displayName) {
-          changesDraft.displayName = changes.displayName;
-          changesDraft.__publicName = changesDraft.displayName;
-        }
-
-        if (changesDraft.kind === 'vendor') {
-          changesDraft.businessName = changes.businessName;
-          changesDraft.businessEmail = changes.businessEmail;
-          changesDraft.businessAddress = changes.businessAddress;
-          changesDraft.__publicName =
-            changesDraft.businessName || changesDraft.displayName;
-        }
-
-        // Explicitly set a defined or null value if the avatar was changed
-        if (changes.avatar !== undefined) changesDraft.avatar = changes.avatar;
-        // Explicitly set a defined or null value if the background was changed
-        if (changes.background !== undefined)
-          changesDraft.background = changes.background;
-        // Explicitly set a defined or null value if the background was changed
-        if (changes.backgroundThumbnail !== undefined)
-          changesDraft.backgroundThumbnail = changes.backgroundThumbnail;
-
         profilesAdapter.updateOne(state, {
           id: profileId,
-          changes: changesDraft,
+          changes,
         });
       })
       // -- updateProfileFollowStatus --

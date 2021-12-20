@@ -5,9 +5,8 @@ import FastImage from 'react-native-fast-image';
 import { useHeaderHeight } from '@react-navigation/elements';
 
 import * as constants from 'src/constants';
-import * as authSlice from 'src/features/authentication/auth-slice';
 import { Button, Spacer, Text } from 'src/components';
-import { useAppDispatch, useAppSelector } from 'src/hooks';
+import { useAppSelector } from 'src/hooks';
 
 import {
   OnboardingStackScreenProps,
@@ -21,7 +20,6 @@ type OnboardingStartScreenProps = OnboardingStackScreenProps<'OnboardingStart'>;
 export default function OnboardingStartScreen(
   props: OnboardingStartScreenProps,
 ) {
-  const dispatch = useAppDispatch();
   const headerHeight = useHeaderHeight();
 
   const { user, didSetUpProfile } = useAppSelector(state => {
@@ -61,7 +59,7 @@ export default function OnboardingStartScreen(
   const handlePressGetStarted = React.useCallback(() => {
     if (user) {
       if (!didSetUpProfile) {
-        props.navigation.navigate('OnboardingAccountType');
+        props.navigation.navigate('OnboardingAccountType', { nextIndex: 1 });
       } else {
         props.navigation.goBack();
       }
@@ -112,23 +110,6 @@ export default function OnboardingStartScreen(
             containerStyle={{ backgroundColor: constants.color.absoluteWhite }}
             onPress={handlePressGetStarted}
           />
-          {__DEV__ && Boolean(user) && (
-            <>
-              <Spacer.Vertical value="md" />
-              <Button
-                title="Sign Out"
-                type="danger"
-                variant="contained"
-                onPress={async () => {
-                  try {
-                    await dispatch(authSlice.signOut()).unwrap();
-                  } catch (error) {
-                    console.warn('Failed to sign out:', error);
-                  }
-                }}
-              />
-            </>
-          )}
         </View>
       </View>
     </SafeAreaView>

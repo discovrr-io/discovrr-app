@@ -268,9 +268,14 @@ export default function MainNavigator() {
   React.useEffect(() => {
     const timeout = setTimeout(() => {
       if (!didSetUpProfile) {
-        navigation.navigate('Onboarding', {
-          screen: user ? 'OnboardingWelcome' : 'OnboardingStart',
-        });
+        if (user) {
+          navigation.navigate('Onboarding', {
+            screen: 'OnboardingWelcome',
+            params: { nextIndex: 1 },
+          });
+        } else {
+          navigation.navigate('Onboarding', { screen: 'OnboardingStart' });
+        }
       }
     }, 500);
 

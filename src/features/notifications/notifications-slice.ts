@@ -6,6 +6,10 @@ import {
   PayloadAction,
 } from '@reduxjs/toolkit';
 
+import messaging, {
+  FirebaseMessagingTypes,
+} from '@react-native-firebase/messaging';
+
 import { NotificationApi } from 'src/api';
 import { abortSignOut, signOut } from 'src/features/authentication/auth-slice';
 import { resetAppState } from 'src/global-actions';
@@ -36,6 +40,7 @@ const notificationsAdapter = createEntityAdapter<Notification>({
 
 const initialState = notificationsAdapter.getInitialState({
   didRegisterFCMToken: false,
+  authorizationStatus: messaging.AuthorizationStatus.NOT_DETERMINED,
 });
 
 //#endregion Notifications Adapter Initialization
@@ -51,6 +56,12 @@ const notificationsSlice = createSlice({
       action: PayloadAction<Omit<Notification, 'read'>>,
     ) => {
       notificationsAdapter.upsertOne(state, { ...action.payload, read: false });
+    },
+    setAuthorizationStatus: (
+      state,
+      action: PayloadAction<FirebaseMessagingTypes.AuthorizationStatus>,
+    ) => {
+      state.authorizationStatus = action.payload;
     },
     markNotificationAsRead: (state, action: PayloadAction<NotificationId>) => {
       notificationsAdapter.updateOne(state, {
@@ -102,6 +113,7 @@ const notificationsSlice = createSlice({
 
 export const {
   didReceiveNotification,
+  setAuthorizationStatus,
   markNotificationAsRead,
   markAllNotificationsAsRead,
   clearAllNotifications,
@@ -118,6 +130,13 @@ export const selectUnreadNotificationsCount = createSelector(
   notifications => {
     return notifications.filter(it => !it.read).length;
   },
+);
+
+export const selectShouldRequestNotificationPermissions = createSelector(
+  [(state: RootState) => state.notifications.authorizationStatus],
+  authorizationStatus =>
+    authorizationStatus === messaging.AuthorizationStatus.NOT_DETERMINED ||
+    authorizationStatus === messaging.AuthorizationStatus.DENIED,
 );
 
 //#endregion Notifications Slice
