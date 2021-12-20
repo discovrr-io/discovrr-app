@@ -12,19 +12,28 @@ import * as yup from 'yup';
 import { Formik, useField } from 'formik';
 
 import FastImage, { FastImageProps } from 'react-native-fast-image';
+import Icon from 'react-native-vector-icons/Ionicons';
+import { useSharedValue } from 'react-native-reanimated';
+
 import ImageCropPicker, {
   Image,
   Options,
 } from 'react-native-image-crop-picker';
-import Icon from 'react-native-vector-icons/Ionicons';
 
 import * as constants from 'src/constants';
 import * as utilities from 'src/utilities';
 import * as globalSelectors from 'src/global-selectors';
-import { ActionBottomSheet, ActionBottomSheetItem } from 'src/components';
-import { useAppSelector, useExtendedTheme } from 'src/hooks';
+import * as profilesSlice from 'src/features/profiles/profiles-slice';
+import { useAppDispatch, useAppSelector, useExtendedTheme } from 'src/hooks';
 import { OnboardingStackScreenProps } from 'src/navigation';
 import { OnboardingContentContainer, SkipButton } from './components';
+
+import {
+  ActionBottomSheet,
+  ActionBottomSheetItem,
+  LoadingOverlay,
+  LoadingOverlayState,
+} from 'src/components';
 
 const profilePictureForm = yup.object({
   avatar: yup.object().nullable().notRequired(),
@@ -34,7 +43,7 @@ type ProfilePictureForm = Omit<
   yup.InferType<typeof profilePictureForm>,
   'avatar'
 > & {
-  avatar?: Image | null;
+  avatar?: Image;
 };
 
 const MAX_IMAGE_HEIGHT = 220;
@@ -52,6 +61,14 @@ type OnboardingProfilePictureScreenProps =
 export default function OnboardingProfilePictureScreen(
   props: OnboardingProfilePictureScreenProps,
 ) {
+  const $FUNC = '[OnboardingProfilePictureScreen]';
+  const dispatch = useAppDispatch();
+  const myProfile = useAppSelector(globalSelectors.selectCurrentUserProfile);
+
+  const currentUploadProgress = useSharedValue(0);
+  const [overlayContent, setOverlayContent] =
+    React.useState<LoadingOverlayState>();
+
   const handleGoToNextScreen = React.useCallback(() => {
     if (Platform.OS === 'ios') {
       props.navigation.navigate('OnboardingPushNotifications');
@@ -66,8 +83,64 @@ export default function OnboardingProfilePictureScreen(
     });
   }, [props.navigation, handleGoToNextScreen]);
 
-  const handleSubmitForm = async (values: ProfilePictureForm) => {
-    handleGoToNextScreen();
+  const handleSubmitForm = async ({ avatar }: ProfilePictureForm) => {
+    try {
+      if (!myProfile) {
+        throw new Error('No profile found');
+      }
+
+      // Avatar was NOT changed
+      if (avatar) {
+        console.log($FUNC, 'Uploading avatar...');
+        setOverlayContent({
+          message: 'Uploading avatar…',
+          caption: 'This won’t take long',
+          isUploading: true,
+        });
+
+        const avatarSource = utilities.mapPickerImageToMediaSource(avatar);
+        const [filename, task, reference] =
+          utilities.createFirebaseUploadFileTask(
+            avatarSource,
+            ({ filename }) => `/profiles/avatars/${filename}`,
+          );
+
+        task.on('state_changed', snapshot => {
+          currentUploadProgress.value =
+            snapshot.bytesTransferred / snapshot.totalBytes;
+        });
+
+        await task.then(() => {
+          console.log($FUNC, 'Successfully uploaded avatar');
+        });
+
+        const avatarDownloadUrl = await reference.getDownloadURL();
+        await dispatch(
+          profilesSlice.updateProfile({
+            profileId: myProfile.profileId,
+            changes: {
+              avatar: {
+                ...avatarSource,
+                filename,
+                url: avatarDownloadUrl,
+                path: reference.fullPath,
+              },
+            },
+          }),
+        );
+      }
+
+      handleGoToNextScreen();
+    } catch (error) {
+      console.error($FUNC, 'Failed to upload avatar:', error);
+      utilities.alertSomethingWentWrong(
+        "We weren't able to change your avatar right now. " +
+          'You can try again later by going to your profile settings.',
+        () => handleGoToNextScreen(),
+      );
+    } finally {
+      setOverlayContent(undefined);
+    }
   };
 
   return (
@@ -83,6 +156,14 @@ export default function OnboardingProfilePictureScreen(
           body="Let’s set a profile picture so everyone can recognise you. You can always change it later."
           footerActions={[{ title: 'Next', onPress: handleSubmit }]}>
           <ProfilePicturePicker />
+          {overlayContent && (
+            <LoadingOverlay
+              {...overlayContent}
+              progress={
+                overlayContent.isUploading ? currentUploadProgress : undefined
+              }
+            />
+          )}
         </OnboardingContentContainer>
       )}
     </Formik>

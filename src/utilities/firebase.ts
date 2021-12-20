@@ -4,18 +4,30 @@ import { nanoid } from '@reduxjs/toolkit';
 import { MediaSource } from 'src/api';
 
 type GenerateStoragePathConfig = {
-  /** The name of the new file, including the extension. */
+  /**
+   * The name of the new file, including the extension.
+   */
   filename: string;
-  /** Whether the `mime` of the given source contains the string `"video"`. */
+  /**
+   * Whether the `mime` of the given source contains the string `"video"`.
+   */
   isVideo: boolean;
-  /** The name of the new file, WITHOUT the extension. */
+  /**
+   * The name of the new file, WITHOUT the extension.
+   */
   fileId: string;
-  /** The file extension of the new file, without the dot (e.g. `"jpg"` or `"mp4"`). */
+  /**
+   * The file extension of the new file, WITHOUT the dot (e.g. `"jpg"` or
+   * `"mp4"`).
+   */
   fileExtension: string;
 };
 
 export type GenerateStoragePath = (config: GenerateStoragePathConfig) => string;
 
+/**
+ * TODO: Maybe prefer to immediately upload and return a `MediaSource` object.
+ */
 export function createFirebaseUploadFileTask(
   source: MediaSource,
   generateStoragePath: GenerateStoragePath,

@@ -13,15 +13,32 @@ type OnboardingWelcomeScreenProps =
 export default function OnboardingWelcomeScreen(
   props: OnboardingWelcomeScreenProps,
 ) {
+  const animatableRef = React.useRef<Animatable.View & View>(null);
+
+  React.useEffect(() => {
+    let timeout: NodeJS.Timeout;
+
+    const unsubscribe = props.navigation.addListener('transitionEnd', () => {
+      timeout = setTimeout(() => {
+        animatableRef.current?.tada?.();
+      }, 200);
+    });
+
+    return () => {
+      unsubscribe();
+      clearTimeout(timeout);
+    };
+  }, [props.navigation]);
+
   return (
     <SafeAreaView style={{ flex: 1, margin: constants.layout.spacing.xxl }}>
       <Animatable.View
-        animation="tada"
+        ref={animatableRef}
         style={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center' }}>
         <Text
           adjustsFontSizeToFit
           allowFontScaling={false}
-          size={120}
+          size={150}
           style={{ textAlign: 'center' }}>
           🎉
         </Text>

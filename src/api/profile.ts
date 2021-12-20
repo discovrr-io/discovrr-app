@@ -1,3 +1,4 @@
+import auth from '@react-native-firebase/auth';
 import Parse from 'parse/react-native';
 import { EntityId } from '@reduxjs/toolkit';
 
@@ -292,6 +293,14 @@ export namespace ProfileApi {
   };
 
   export async function updateProfile(params: UpdateProfileParams) {
+    const { displayName, businessName, avatar } = params.changes;
+
+    // Undefined values will be ignored.
+    await auth().currentUser?.updateProfile({
+      displayName: displayName || businessName || undefined,
+      photoURL: avatar === null ? null : avatar?.url,
+    });
+
     const updatedProfile = await Parse.Cloud.run('updateProfile', params);
     return mapResultToProfile(updatedProfile);
   }

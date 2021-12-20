@@ -129,8 +129,7 @@ type CreateProductScreenProps =
 
 export default function CreateProductScreen(props: CreateProductScreenProps) {
   const handleNavigateToPreview = (values: ProductForm) => {
-    const sources = values.media.map(utilities.mapImageToMediaSource);
-
+    const sources = values.media.map(utilities.mapPickerImageToMediaSource);
     props.navigation
       .getParent<CreateItemStackNavigationProp>()
       .navigate('CreateItemPreview', {

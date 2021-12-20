@@ -148,7 +148,7 @@ export async function getMediaSourceForFile(
   });
 }
 
-export function mapImageToMediaSource(image: Image): MediaSource {
+export function mapPickerImageToMediaSource(image: Image): MediaSource {
   return {
     mime: image.mime,
     url: image.path, // Already has `file://` prefix
@@ -160,9 +160,9 @@ export function mapImageToMediaSource(image: Image): MediaSource {
   };
 }
 
-export function mapVideoToMediaSource(video: Video): MediaSource {
+export function mapPickerVideoToMediaSource(video: Video): MediaSource {
   return {
-    ...mapImageToMediaSource(video),
+    ...mapPickerImageToMediaSource(video),
     // TODO: Prefer higher quality source with sourceURL (only available on iOS)
     // path: /* video.sourceURL ?? */ video.path.replace('file://', ''),
     duration: video.duration,

@@ -1,17 +1,17 @@
 import { Platform, TextStyle } from 'react-native';
 
 export interface FontFamily {
-  '100': string;
-  '200': string;
-  '300': string;
-  '400': string;
-  '500': string;
-  '600': string;
-  '700': string;
-  '800': string;
-  '900': string;
+  readonly '100': string;
+  readonly '200': string;
+  readonly '300': string;
+  readonly '400': string;
+  readonly '500': string;
+  readonly '600': string;
+  readonly '700': string;
+  readonly '800': string;
+  readonly '900': string;
 
-  get regular(): string;
+  get normal(): string;
   get medium(): string;
   get bold(): string;
 }
@@ -27,7 +27,7 @@ export const AirbnbCerealApp: FontFamily = {
   '800': 'AirbnbCerealApp-ExtraBold',
   '900': 'AirbnbCerealApp-Black',
 
-  get regular() {
+  get normal() {
     return this[400];
   },
   get medium() {
@@ -53,7 +53,7 @@ export const size = {
 };
 
 export const familyRegularFontTextStyles: TextStyle = {
-  fontFamily: FONT_FAMILY.regular,
+  fontFamily: FONT_FAMILY.normal,
   fontWeight: Platform.select({ ios: '400' }),
 };
 
@@ -164,7 +164,7 @@ export const extraSmallBold: TextStyle = {
   ...familyBoldFontTextStyles,
 };
 
-export const defaultHeaderTitleStyle: TextStyle = extraLargeBold;
+export const defaultHeaderTitleStyle: TextStyle = largeBold;
 
 export const defaultBottomTabLabelStyle: TextStyle = extraSmallBold;
 

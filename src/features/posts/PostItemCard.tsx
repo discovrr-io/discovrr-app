@@ -370,7 +370,7 @@ function PostItemCardBodyVideoPreview(
         onLoadStart={() => setIsPreviewLoaded(false)}
         onReadyForDisplay={() => setIsPreviewLoaded(true)}
         resizeMode="cover"
-        source={{ uri: source.url, type: source.type }}
+        source={{ uri: source.url }}
         style={{
           width: '100%',
           aspectRatio: (source.width ?? 1) / (source.height ?? 1),

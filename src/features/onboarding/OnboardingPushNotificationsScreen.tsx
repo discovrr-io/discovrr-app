@@ -39,9 +39,15 @@ export default function OnboardingPushNotifications(
 
   React.useLayoutEffect(() => {
     props.navigation.setOptions({
-      headerRight: () => <SkipButton onPress={() => {}} />,
+      headerRight: () => (
+        <SkipButton
+          onPress={() => props.navigation.navigate('OnboardingSurvey')}
+        />
+      ),
     });
+  }, [props.navigation]);
 
+  React.useEffect(() => {
     const unsubscribe = props.navigation.addListener('transitionEnd', () => {
       notificationDotState.value = withSpring(1);
     });
@@ -61,11 +67,6 @@ export default function OnboardingPushNotifications(
         // settings)
         console.log('Authorization status:', authStatus);
       }
-
-      // props.navigation.getParent<RootStackNavigationProp>().navigate('Main', {
-      //   screen: 'Facade',
-      //   params: { screen: 'Home', params: { screen: 'Landing' } },
-      // });
 
       props.navigation.navigate('OnboardingSurvey');
     } catch (error) {

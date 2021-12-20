@@ -48,13 +48,16 @@ export type MediaSource = {
   readonly mime: string;
   /**
    * The location of the media source, which may reside on the internet or
-   * locally. If a local file, it may have the `file://` scheme prepended.
+   * locally.
+   *
+   * If dealing with a local file on the client side, it may have the `file://`
+   * scheme prepended. DO NOT upload this object to the internet if the url path
+   * includes the `file://` scheme.
    */
   readonly url: string;
   readonly path?: string;
   readonly filename?: string;
   readonly size?: number;
-  readonly type?: string;
   readonly width?: number;
   readonly height?: number;
   /**

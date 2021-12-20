@@ -10,6 +10,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 
 import * as constants from 'src/constants';
+import { useExtendedTheme } from 'src/hooks';
 import { RootStackNavigationProp } from 'src/navigation';
 
 import Spacer from './Spacer';
@@ -22,6 +23,7 @@ type SignInHeaderCardProps = {
 
 export default function SignInHeaderCard(props: SignInHeaderCardProps) {
   const navigation = useNavigation<RootStackNavigationProp>();
+  const { dark } = useExtendedTheme();
 
   const handlePressSignIn = () => {
     navigation.navigate('AuthPrompt', { screen: 'AuthStart' });
@@ -31,7 +33,15 @@ export default function SignInHeaderCard(props: SignInHeaderCardProps) {
     <TouchableOpacity
       activeOpacity={1}
       onPress={handlePressSignIn}
-      style={[signInCardStyles.card, props.style]}>
+      style={[
+        signInCardStyles.card,
+        {
+          backgroundColor: dark
+            ? constants.color.gray700
+            : constants.color.gray500,
+        },
+        props.style,
+      ]}>
       <View style={{ flex: 1 }}>
         <Text
           size="md"
@@ -67,6 +77,5 @@ const signInCardStyles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'flex-start',
     padding: constants.layout.spacing.lg,
-    backgroundColor: constants.color.gray500,
   },
 });

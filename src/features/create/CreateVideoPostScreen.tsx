@@ -117,7 +117,7 @@ export default function CreateVideoPostScreen(
       setGeneratingPreview(true);
       const video = values.video[0];
       const thumbnail = await generateThumbnailPreview(video);
-      const source = utilities.mapVideoToMediaSource(video);
+      const source = utilities.mapPickerVideoToMediaSource(video);
       props.navigation
         .getParent<CreateItemStackNavigationProp>()
         .navigate('CreateItemPreview', {

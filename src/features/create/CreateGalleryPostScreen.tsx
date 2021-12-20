@@ -56,7 +56,7 @@ export default function CreateGalleryPostScreen(
   props: CreateGalleryPostScreenProps,
 ) {
   const handleNavigateToPreview = (values: GalleryPostForm) => {
-    const sources = values.media.map(utilities.mapImageToMediaSource);
+    const sources = values.media.map(utilities.mapPickerImageToMediaSource);
     props.navigation
       .getParent<CreateItemStackNavigationProp>()
       .navigate('CreateItemPreview', {

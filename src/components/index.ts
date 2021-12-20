@@ -22,6 +22,10 @@ export { default as SignInHeaderCard } from './SignInHeaderCard';
 export { default as Spacer } from './Spacer';
 export { default as Text } from './Text';
 
+export type {
+  LoadingOverlayProps,
+  LoadingOverlayState,
+} from './LoadingOverlay';
 export type { MasonryListProps } from './MasonryList';
 export type { SpacerProps, SpacingValue } from './Spacer';
 export type { TextProps } from './Text';

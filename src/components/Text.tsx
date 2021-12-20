@@ -31,7 +31,7 @@ export default function Text(props: TextProps) {
     if (props.weight) {
       return constants.font.FONT_FAMILY[props.weight];
     } else {
-      return constants.font.FONT_FAMILY.regular;
+      return constants.font.FONT_FAMILY.normal;
     }
   }, [props.weight]);
 

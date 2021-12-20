@@ -7,18 +7,15 @@ import {
   ScrollView,
   StyleProp,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
   ViewStyle,
 } from 'react-native';
 
-import auth from '@react-native-firebase/auth';
-import storage from '@react-native-firebase/storage';
-
 import * as yup from 'yup';
 import BottomSheet from '@gorhom/bottom-sheet';
 import FastImage, { FastImageProps, ImageStyle } from 'react-native-fast-image';
+import storage from '@react-native-firebase/storage';
 import Video, { VideoProperties } from 'react-native-video';
 import { FFmpegKit } from 'ffmpeg-kit-react-native';
 import { Formik, useField, useFormikContext } from 'formik';
@@ -57,9 +54,11 @@ import {
   Cell,
   LoadingContainer,
   LoadingOverlay,
+  LoadingOverlayState,
   RouteError,
   SelectFromLibraryBottomSheet,
   Spacer,
+  Text,
 } from 'src/components';
 
 import {
@@ -183,20 +182,15 @@ function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
   const dispatch = useAppDispatch();
   const isMounted = useIsMounted();
 
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [overlayContent, setOverlayContent] = React.useState<{
-    message?: string;
-    caption?: string;
-    isUploading?: boolean;
-    canCancel?: boolean;
-  }>({
-    message: 'Getting ready…',
-    caption: "This won't take long",
-    isUploading: false,
-    canCancel: false,
-  });
-
   const currentUploadProgress = useSharedValue(0);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [overlayContent, setOverlayContent] =
+    React.useState<LoadingOverlayState>({
+      message: 'Getting ready…',
+      caption: "This won't take long",
+      isUploading: false,
+      canCancel: false,
+    });
 
   const handleSaveChanges = async (changes: ProfileChangesForm) => {
     try {
@@ -222,16 +216,14 @@ function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
         console.log($FUNC, 'Removing current avatar...');
         processedAvatar = null;
 
-        // First, remove it from the Firebase profile
-        await auth().currentUser?.updateProfile({ photoURL: null });
-
         // Then delete it from Firebase Cloud Storage
         if (profile.avatar) {
           try {
             const filePath =
-              profile.avatar.path || profile.avatar.filename
+              profile.avatar.path ||
+              (profile.avatar.filename
                 ? `/profiles/avatars/${profile.avatar.filename}`
-                : undefined;
+                : undefined);
 
             if (filePath) {
               console.log(
@@ -337,7 +329,9 @@ function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
           isUploading: true,
         });
 
-        const avatarSource = utilities.mapImageToMediaSource(changes.avatar);
+        const avatarSource = utilities.mapPickerImageToMediaSource(
+          changes.avatar,
+        );
 
         const [filename, task, reference] =
           utilities.createFirebaseUploadFileTask(
@@ -355,25 +349,6 @@ function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
         });
 
         const avatarDownloadURL = await reference.getDownloadURL();
-        const firebaseCurrentUser = auth().currentUser;
-
-        // We'll apply the avatar to the Firebase profile
-        if (firebaseCurrentUser) {
-          setOverlayContent(prev => ({
-            ...prev,
-            message: 'Applying avatar…',
-          }));
-
-          await firebaseCurrentUser.updateProfile({
-            photoURL: avatarDownloadURL,
-          });
-        } else {
-          console.warn(
-            $FUNC,
-            'Firebase user is null, which is unexpected.',
-            'Skipping profile photo URL update...',
-          );
-        }
 
         // We'll set the download URL to the `url` property and replace
         // `filename` with its filename in Cloud Storage (so we can easily
@@ -391,7 +366,7 @@ function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
         let backgroundThumbnailSource: MediaSource;
 
         if (changes.background.mime.includes('video')) {
-          const uncompressed = utilities.mapVideoToMediaSource(
+          const uncompressed = utilities.mapPickerVideoToMediaSource(
             // @ts-ignore We'll ignore the fact that duration may not exist (it
             // can be undefined anyway)
             changes.background,
@@ -456,7 +431,7 @@ function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
 
           clearTimeout(timer);
         } else {
-          backgroundSource = utilities.mapImageToMediaSource(
+          backgroundSource = utilities.mapPickerImageToMediaSource(
             changes.background,
           );
         }
@@ -584,12 +559,11 @@ function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
       </SafeAreaView>
       {isSubmitting && (
         <LoadingOverlay
-          message={overlayContent.message}
-          caption={overlayContent.caption}
+          {...overlayContent}
+          onCancel={overlayContent.canCancel ? handleCancel : undefined}
           progress={
             overlayContent.isUploading ? currentUploadProgress : undefined
           }
-          onCancel={overlayContent.canCancel ? handleCancel : undefined}
         />
       )}
     </ProfileSettingsFormContext.Provider>
@@ -1145,8 +1119,7 @@ function ProfileAvatarPicker(props: ProfileAvatarPickerProps) {
           ]}
         />
         <View style={profileAvatarPickerStyles.editTextContainer}>
-          <Text
-            style={[constants.font.body, profileAvatarPickerStyles.editText]}>
+          <Text weight="600" style={[profileAvatarPickerStyles.editText]}>
             Edit
           </Text>
         </View>

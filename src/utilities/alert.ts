@@ -1,4 +1,4 @@
-import { Alert } from 'react-native';
+import { Alert, AlertButton } from 'react-native';
 import { PickerErrorCode, Video } from 'react-native-image-crop-picker';
 import { AuthApi } from 'src/api';
 
@@ -9,10 +9,14 @@ import {
   MAX_VID_DURATION_SECONDS,
 } from 'src/constants/values';
 
-export function alertSomethingWentWrong(message?: string) {
+export function alertSomethingWentWrong(
+  message?: string,
+  onPress?: AlertButton['onPress'],
+) {
   Alert.alert(
     strings.SOMETHING_WENT_WRONG.title,
     message || strings.SOMETHING_WENT_WRONG.message,
+    [{ text: 'Dismiss', onPress }],
   );
 }
 

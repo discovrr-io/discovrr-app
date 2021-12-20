@@ -95,7 +95,6 @@ export namespace AuthApi {
         const photoURL = firebaseUser.photoURL.replace('s96-c', 's300-c');
         avatar = {
           mime: 'image/jpeg',
-          type: 'image/jpeg',
           url: photoURL,
           width: 300,
           height: 300,
@@ -114,7 +113,6 @@ export namespace AuthApi {
 
         avatar = {
           mime: 'image/jpeg',
-          type: 'image/jpeg',
           url: firebaseUser.photoURL,
           ...imageSize,
         };

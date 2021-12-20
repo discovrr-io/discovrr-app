@@ -23,7 +23,15 @@ import { color, font, layout } from 'src/constants';
 
 const PROGRESS_BAR_HEIGHT = 5;
 
-type LoadingOverlayProps = {
+export type LoadingOverlayState = Pick<
+  LoadingOverlayProps,
+  'message' | 'caption'
+> & {
+  isUploading?: boolean;
+  canCancel?: boolean;
+};
+
+export type LoadingOverlayProps = {
   message?: string;
   caption?: string;
   progress?: Animated.SharedValue<number>;
