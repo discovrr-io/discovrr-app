@@ -292,10 +292,15 @@ const profilesSlice = createSlice({
       // -- updateProfile --
       .addCase(updateProfile.fulfilled, (state, action) => {
         const { profileId, changes } = action.meta.arg;
-        profilesAdapter.updateOne(state, {
-          id: profileId,
-          changes,
+
+        // Delete all properties with `undefine`s. We still want to keep `null`s
+        // to explicitly unset fields (such as the avatar).
+        Object.keys(changes).forEach(key => {
+          const typedKey = key as keyof typeof changes;
+          if (changes[typedKey] === undefined) delete changes[typedKey];
         });
+
+        profilesAdapter.updateOne(state, { id: profileId, changes });
       })
       // -- updateProfileFollowStatus --
       .addCase(updateProfileFollowStatus.pending, (state, action) => {

@@ -12,6 +12,7 @@ import { Formik, useField } from 'formik';
 
 import FastImage, { FastImageProps } from 'react-native-fast-image';
 import Icon from 'react-native-vector-icons/Ionicons';
+import storage from '@react-native-firebase/storage';
 import { useSharedValue } from 'react-native-reanimated';
 
 import ImageCropPicker, {
@@ -95,16 +96,20 @@ export default function OnboardingProfilePictureScreen(
 
   const handleSubmitForm = async ({ avatar }: ProfilePictureForm) => {
     try {
-      if (!myProfile) {
-        throw new Error('No profile found');
-      }
+      if (!myProfile) throw new Error('No profile found');
 
-      // Avatar was NOT changed
       if (avatar) {
-        console.log($FUNC, 'Uploading avatar...');
+        if (myProfile.avatar) {
+          console.log($FUNC, 'Removing current profile picture...');
+          setOverlayContent({ message: 'Getting ready…' });
+          const reference = storage().refFromURL(myProfile.avatar.url);
+          await reference.delete();
+        }
+
+        console.log($FUNC, 'Uploading profile picture...');
         setOverlayContent({
-          message: 'Uploading avatar…',
-          caption: 'This won’t take long',
+          message: 'Uploading profile picture…',
+          caption: 'This may take a while',
           isUploading: true,
         });
 

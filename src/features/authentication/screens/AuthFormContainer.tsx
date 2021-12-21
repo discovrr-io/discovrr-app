@@ -6,14 +6,13 @@ import {
   ScrollView,
   StatusBar,
   StyleProp,
-  Text,
   View,
 } from 'react-native';
 
 import FastImage, { FastImageProps, ImageStyle } from 'react-native-fast-image';
 
 import * as constants from 'src/constants';
-import { Spacer } from 'src/components';
+import { Spacer, Text } from 'src/components';
 import { useExtendedTheme } from 'src/hooks';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -59,9 +58,7 @@ export default function AuthFormContainer(props: AuthFormContainerProps) {
         <Spacer.Vertical value="xxl" />
         <View style={{ paddingHorizontal: constants.layout.spacing.xl }}>
           <View>
-            <Text
-              allowFontScaling={false}
-              style={[constants.font.h2, { color: colors.text }]}>
+            <Text size="h2" weight="800">
               {title}
             </Text>
             {caption && (
@@ -87,18 +84,11 @@ export default function AuthFormContainer(props: AuthFormContainerProps) {
                 )}
                 <View style={{ flex: 1 }}>
                   {caption.title && (
-                    <Text
-                      maxFontSizeMultiplier={1.2}
-                      style={[
-                        constants.font.largeBold,
-                        { color: colors.text },
-                      ]}>
+                    <Text size="lg" weight="bold" maxFontSizeMultiplier={1.2}>
                       {caption.title}
                     </Text>
                   )}
-                  <Text
-                    maxFontSizeMultiplier={1.2}
-                    style={[constants.font.small, { color: colors.text }]}>
+                  <Text size="sm" maxFontSizeMultiplier={1.2}>
                     {caption.body}
                   </Text>
                 </View>

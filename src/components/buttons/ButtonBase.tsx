@@ -55,9 +55,11 @@ export default function ButtonBase(props: ButtonBaseProps) {
       activeOpacity={DEFAULT_ACTIVE_OPACITY}
       underlayColor={underlayColor}
       style={[
-        disabled
-          ? buttonStyles?.disabledContainer
-          : buttonStyles?.defaultContainer,
+        // disabled
+        //   ? buttonStyles?.disabledContainer
+        //   : buttonStyles?.defaultContainer,
+        buttonStyles?.defaultContainer,
+        disabled && { opacity: 0.5 },
         containerStyle,
       ]}>
       {loading ? (
@@ -91,9 +93,10 @@ export default function ButtonBase(props: ButtonBaseProps) {
             testID={'btn-text'}
             style={[
               { textAlign: 'center' },
-              disabled
-                ? buttonStyles?.disabledTitle
-                : buttonStyles?.defaultTitle,
+              // disabled
+              //   ? buttonStyles?.disabledTitle
+              //   : buttonStyles?.defaultTitle,
+              buttonStyles?.defaultTitle,
               textStyle,
             ]}>
             {title}

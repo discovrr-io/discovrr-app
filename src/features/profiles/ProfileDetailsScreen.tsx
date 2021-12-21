@@ -523,7 +523,16 @@ function ProfileDetailsHeader(props: ProfileDetailsHeaderProps) {
   const [fallbackToImage, setFallbackToImage] = React.useState(false);
 
   const headerHeight = useHeaderHeight();
-  const avatarHeight = windowHeight * 0.12;
+  const { avatarHeight, verifiedIconHeight } = React.useMemo(() => {
+    const avatarHeight = windowHeight * 0.12;
+    return { avatarHeight, verifiedIconHeight: avatarHeight * 0.3 };
+  }, [windowHeight]);
+
+  const showVerifiedIcon = React.useMemo(() => {
+    return ['administrator', 'moderator', 'verified-vendor'].includes(
+      profile.highestRole,
+    );
+  }, [profile.highestRole]);
 
   const headerContentOpacity = useSharedValue(1);
   const headerContentStyle = useAnimatedStyle(() => ({
@@ -743,18 +752,41 @@ function ProfileDetailsHeader(props: ProfileDetailsHeaderProps) {
             profileDetailsHeaderStyles.headerContentContainer,
           ]}>
           <View style={profileDetailsHeaderStyles.headerTextContainer}>
-            <FastImage
-              source={
-                profile.avatar
-                  ? { uri: profile.avatar.url }
-                  : constants.media.DEFAULT_AVATAR
-              }
-              style={[
-                profileDetailsHeaderStyles.avatar,
-                { height: avatarHeight, borderRadius: avatarHeight / 2 },
-                { backgroundColor: colors.placeholder },
-              ]}
-            />
+            <View>
+              <FastImage
+                source={
+                  profile.avatar
+                    ? { uri: profile.avatar.url }
+                    : constants.media.DEFAULT_AVATAR
+                }
+                style={[
+                  profileDetailsHeaderStyles.avatar,
+                  { height: avatarHeight, borderRadius: avatarHeight / 2 },
+                  { backgroundColor: colors.placeholder },
+                ]}
+              />
+              {showVerifiedIcon && (
+                <View
+                  style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    right: 0,
+                    aspectRatio: 1,
+                    height: verifiedIconHeight,
+                    borderRadius: verifiedIconHeight / 2,
+                    backgroundColor: constants.color.teal500,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}>
+                  <Icon
+                    adjustsFontSizeToFit
+                    name="checkmark"
+                    size={24}
+                    color={constants.color.absoluteWhite}
+                  />
+                </View>
+              )}
+            </View>
             <Spacer.Vertical value="sm" />
             <Text
               numberOfLines={2}

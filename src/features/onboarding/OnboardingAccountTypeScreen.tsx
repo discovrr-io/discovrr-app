@@ -61,7 +61,7 @@ export default function OnboardingAccountTypeScreen(
           {
             label: "I'm a member",
             caption:
-              'I want to purchase and engage in content by other users and makers.',
+              'I want to purchase and engage in content made by other users and makers.',
             value: 'personal',
           },
           {

@@ -170,14 +170,14 @@ function AccountTypeForm() {
         value={meta.value}
         onValueChanged={handleChangeSelection}>
         <Cell.Option
-          label="I'm a user"
+          label="I'm a member"
           value="personal"
-          caption="Post, share and like content created by other users and makers"
+          caption="I want to purchase and engage in content made by other users and makers."
         />
         <Cell.Option
           label="I'm a maker"
           value="vendor"
-          caption="Advertise products and workshops to help your business grow"
+          caption="I want to sell my products to an engaged local community."
         />
       </Cell.OptionGroup>
     </Cell.Group>

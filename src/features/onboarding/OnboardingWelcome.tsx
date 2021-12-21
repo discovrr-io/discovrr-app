@@ -1,11 +1,15 @@
 import * as React from 'react';
-import { SafeAreaView, View } from 'react-native';
+import { SafeAreaView, StatusBar, View } from 'react-native';
 
 import * as Animatable from 'react-native-animatable';
+import FastImage from 'react-native-fast-image';
 
 import * as constants from 'src/constants';
 import { Button, Spacer, Text } from 'src/components';
+import { useExtendedTheme } from 'src/hooks';
 import { OnboardingStackScreenProps } from 'src/navigation';
+
+const CELEBRATE_EMOJI = require('../../../assets/images/onboarding/celebrate-emoji.png');
 
 type OnboardingWelcomeScreenProps =
   OnboardingStackScreenProps<'OnboardingWelcome'>;
@@ -13,6 +17,8 @@ type OnboardingWelcomeScreenProps =
 export default function OnboardingWelcomeScreen(
   props: OnboardingWelcomeScreenProps,
 ) {
+  const { dark } = useExtendedTheme();
+
   const animatableRef = React.useRef<Animatable.View & View>(null);
 
   React.useEffect(() => {
@@ -32,16 +38,14 @@ export default function OnboardingWelcomeScreen(
 
   return (
     <SafeAreaView style={{ flex: 1, margin: constants.layout.spacing.xxl }}>
+      <StatusBar animated barStyle={dark ? 'light-content' : 'dark-content'} />
       <Animatable.View
         ref={animatableRef}
         style={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <Text
-          adjustsFontSizeToFit
-          allowFontScaling={false}
-          size={150}
-          style={{ textAlign: 'center' }}>
-          🎉
-        </Text>
+        <FastImage
+          source={CELEBRATE_EMOJI}
+          style={{ height: '50%', maxHeight: 180, aspectRatio: 1 }}
+        />
       </Animatable.View>
       <View>
         <Text size="h3" weight="800">

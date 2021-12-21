@@ -76,7 +76,7 @@ export default function OnboardingSurveyScreen(
   return (
     <OnboardingContentContainer
       page={nextIndex}
-      title="One last thing"
+      title="One last question"
       body="Where did you hear about us?"
       footerActions={[{ title: 'Finish', onPress: handleFinishOnboarding }]}>
       <OptionGroup<OnboardingApi.OnboardingSurveyResponse>

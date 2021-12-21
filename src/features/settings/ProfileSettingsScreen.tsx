@@ -219,45 +219,12 @@ function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
         // Then delete it from Firebase Cloud Storage
         if (profile.avatar) {
           try {
-            const filePath =
-              profile.avatar.path ||
-              (profile.avatar.filename
-                ? `/profiles/avatars/${profile.avatar.filename}`
-                : undefined);
-
-            if (filePath) {
-              console.log(
-                $FUNC,
-                'Deleting old avatar from Cloud Storage:',
-                filePath,
-              );
-              const reference = storage().ref(filePath);
-              await reference.delete();
-            } else {
-              console.warn($FUNC, 'There is no way to delete the old avatar');
-            }
+            console.log($FUNC, 'Deleting old avatar from Cloud Storage...');
+            const reference = storage().refFromURL(profile.avatar.url);
+            await reference.delete();
           } catch (error) {
             // We'll just continue on if this fails
-            console.warn('Failed to delete old avatar from Firebase:', error);
-
-            if (profile.avatar.filename) {
-              try {
-                console.log(
-                  $FUNC,
-                  'Resorting to deleting profile avatar from legacy directory...',
-                );
-                const reference = storage().ref(
-                  `/avatars/${profile.avatar.filename}`,
-                );
-                await reference.delete();
-              } catch (error) {
-                // We'll just continue on if this fails
-                console.warn(
-                  'Failed to delete old avatar from legacy directory:',
-                  error,
-                );
-              }
-            }
+            console.error('Failed to delete old avatar from Firebase:', error);
           }
         }
       }
@@ -269,21 +236,9 @@ function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
 
         if (profile.background) {
           try {
-            const filePath = profile.background.path;
-            if (filePath) {
-              console.log(
-                $FUNC,
-                'Deleting old background from Cloud Storage:',
-                filePath,
-              );
-              const reference = storage().ref(filePath);
-              await reference.delete();
-            } else {
-              console.warn(
-                $FUNC,
-                'There is no way to delete the old background',
-              );
-            }
+            console.log($FUNC, 'Deleting old background from Cloud Storage...');
+            const reference = storage().refFromURL(profile.background.url);
+            await reference.delete();
           } catch (error) {
             // We'll just continue on if this fails
             console.error(
@@ -295,21 +250,14 @@ function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
 
         if (profile.backgroundThumbnail) {
           try {
-            const filePath = profile.backgroundThumbnail.path;
-            if (filePath) {
-              console.log(
-                $FUNC,
-                'Deleting old background thumbnail from Cloud Storage:',
-                filePath,
-              );
-              const reference = storage().ref(filePath);
-              await reference.delete();
-            } else {
-              console.warn(
-                $FUNC,
-                'There is no way to delete the old background thumbnail',
-              );
-            }
+            console.log(
+              $FUNC,
+              'Deleting old background thumbnail from Cloud Storage...',
+            );
+            const reference = storage().refFromURL(
+              profile.backgroundThumbnail.url,
+            );
+            await reference.delete();
           } catch (error) {
             // We'll just continue on if this fails
             console.error(
@@ -324,7 +272,7 @@ function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
       if (changes.avatar) {
         console.log($FUNC, 'Uploading avatar...');
         setOverlayContent({
-          message: 'Uploading avatar…',
+          message: 'Uploading profile picture…',
           caption: 'This may take a while',
           isUploading: true,
         });

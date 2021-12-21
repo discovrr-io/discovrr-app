@@ -75,7 +75,7 @@ export default function LoadingOverlay(props: LoadingOverlayProps) {
           />
           <Text style={styles.message}>{message || 'Loading…'}</Text>
           <Text style={styles.caption}>
-            {caption || "This won't take long"}
+            {caption || 'This won’t take long'}
           </Text>
           {progress && <ProgressBar progress={progress} />}
           {onCancel && <CancelButton onCancel={onCancel} />}

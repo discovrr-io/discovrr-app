@@ -1,3 +1,5 @@
+import { Platform } from 'react-native';
+
 import {
   createAsyncThunk,
   createEntityAdapter,
@@ -134,9 +136,13 @@ export const selectUnreadNotificationsCount = createSelector(
 
 export const selectShouldRequestNotificationPermissions = createSelector(
   [(state: RootState) => state.notifications.authorizationStatus],
-  authorizationStatus =>
-    authorizationStatus === messaging.AuthorizationStatus.NOT_DETERMINED ||
-    authorizationStatus === messaging.AuthorizationStatus.DENIED,
+  authorizationStatus => {
+    if (Platform.OS !== 'ios') return false;
+    return (
+      authorizationStatus === messaging.AuthorizationStatus.NOT_DETERMINED ||
+      authorizationStatus === messaging.AuthorizationStatus.DENIED
+    );
+  },
 );
 
 //#endregion Notifications Slice
