@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 
-## [v3.2.2] (2021-12-21)
+## [v3.3.0] (2021-12-21)
 
 ### Added
 
@@ -269,8 +269,8 @@
 
 <!-- Releases -->
 
-[unreleased]: https://github.com/discovrr-io/discovrr-app/compare/v3.2.2...HEAD
-[v3.2.2]: https://github.com/discovrr-io/discovrr-app/compare/v3.2.1...v3.2.2
+[unreleased]: https://github.com/discovrr-io/discovrr-app/compare/v3.3.0...HEAD
+[v3.3.0]: https://github.com/discovrr-io/discovrr-app/compare/v3.2.1...v3.3.0
 [v3.2.1]: https://github.com/discovrr-io/discovrr-app/compare/v3.2.0...v3.2.1
 [v3.2.0]: https://github.com/discovrr-io/discovrr-app/compare/v3.1.0...v3.2.0
 [v3.1.0]: https://github.com/discovrr-io/discovrr-app/compare/v3.0.9...v3.1.0
