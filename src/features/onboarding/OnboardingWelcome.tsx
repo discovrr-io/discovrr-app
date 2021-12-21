@@ -1,8 +1,9 @@
 import * as React from 'react';
-import { SafeAreaView, StatusBar, View } from 'react-native';
+import { StatusBar, View } from 'react-native';
 
 import * as Animatable from 'react-native-animatable';
 import FastImage from 'react-native-fast-image';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import * as constants from 'src/constants';
 import { Button, Spacer, Text } from 'src/components';
@@ -37,7 +38,7 @@ export default function OnboardingWelcomeScreen(
   }, [props.navigation]);
 
   return (
-    <SafeAreaView style={{ flex: 1, margin: constants.layout.spacing.xxl }}>
+    <SafeAreaView style={[{ flex: 1, padding: constants.layout.spacing.xxl }]}>
       <StatusBar animated barStyle={dark ? 'light-content' : 'dark-content'} />
       <Animatable.View
         ref={animatableRef}

@@ -28,8 +28,6 @@ export default function OnboardingBusinessNameScreen(
 
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [businessName, setBusinessName] = React.useState(() => {
-    console.log({ __KIND: myProfile?.kind, __BN: myProfile['businessName'] });
-
     if (myProfile?.kind === 'vendor') {
       return myProfile.businessName || myProfile.displayName;
     } else {

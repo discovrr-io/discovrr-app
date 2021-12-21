@@ -325,17 +325,14 @@ const profilesSlice = createSlice({
       })
       .addCase(signInWithCredential.fulfilled, (state, action) => {
         const { profile } = action.payload;
-        console.log(action.type, 'Upsert new profile!');
         profilesAdapter.upsertOne(state, profile);
       })
       .addCase(signInWithEmailAndPassword.fulfilled, (state, action) => {
         const { profile } = action.payload;
-        console.log(action.type, 'Upsert new profile!');
         profilesAdapter.upsertOne(state, profile);
       })
       .addCase(registerNewAccount.fulfilled, (state, action) => {
         const { profile } = action.payload;
-        console.log(action.type, 'Upsert new profile!');
         profilesAdapter.upsertOne(state, profile);
       });
   },

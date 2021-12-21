@@ -12,16 +12,18 @@ import {
   View,
 } from 'react-native';
 
-import Video from 'react-native-video';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
 import auth from '@react-native-firebase/auth';
+import analytics from '@react-native-firebase/analytics';
+
 import { appleAuth } from '@invertase/react-native-apple-authentication';
 import {
   GoogleSignin,
   statusCodes,
 } from '@react-native-google-signin/google-signin';
+
+import Video from 'react-native-video';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import * as constants from 'src/constants';
 import * as utilities from 'src/utilities';
@@ -211,7 +213,6 @@ function StartScreenThirdPartyAuthProviders(props: { disabled?: boolean }) {
   const dispatch = useAppDispatch();
   const navigation = useNavigation<StartScreenProps['navigation']>();
   const isMounted = useIsMounted();
-
   const { bottom: bottomInset } = useSafeAreaInsets();
 
   const [isProcessing, setIsProcessing] = React.useState(false);
@@ -240,9 +241,12 @@ function StartScreenThirdPartyAuthProviders(props: { disabled?: boolean }) {
 
       console.log($FUNC, 'Signing in with Apple credential...');
       setIsProcessing(true);
-      await dispatch(authSlice.signInWithCredential({ credential })).unwrap();
 
-      console.log($FUNC, 'Successfully authenticated. Dismissing prompt...');
+      await dispatch(authSlice.signInWithCredential({ credential })).unwrap();
+      analytics()
+        .logLogin({ method: 'apple.com' })
+        .catch(utilities.warnLogEventFailure);
+
       navigation.goBack();
     } catch (error: any) {
       if (error.code === appleAuth.Error.CANCELED) return;
@@ -266,9 +270,12 @@ function StartScreenThirdPartyAuthProviders(props: { disabled?: boolean }) {
 
       console.log($FUNC, 'Signing in with Google credential...');
       setIsProcessing(true);
-      await dispatch(authSlice.signInWithCredential({ credential })).unwrap();
 
-      console.log($FUNC, 'Successfully authenticated. Dismissing prompt...');
+      await dispatch(authSlice.signInWithCredential({ credential })).unwrap();
+      analytics()
+        .logLogin({ method: 'google.com' })
+        .catch(utilities.warnLogEventFailure);
+
       navigation.goBack();
     } catch (error: any) {
       if (error.code === statusCodes.SIGN_IN_CANCELLED) return;

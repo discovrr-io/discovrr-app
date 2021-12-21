@@ -190,11 +190,9 @@ export default function AppDrawer(props: AppDrawerProps) {
     const address = 'milos@discovrr.app';
     const link = `mailto:${address}?subject=${subject}&body=${body}`;
 
-    const errorMessage =
-      `Please send your feedback to ${address} instead. We'll get back to ` +
-      `you shortly.\n\nThank you for considering sending us feedback.`;
+    const errorMessage = `Please send your feedback to ${address} instead.\n\nThank you for considering sending us feedback.`;
 
-    if (!(await Linking.canOpenURL(link))) {
+    if (!(await Linking.canOpenURL(link).catch(_ => false))) {
       Alert.alert(
         'Cannot Open Link',
         "Looks like your device doesn't support email links. " + errorMessage,

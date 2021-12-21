@@ -27,6 +27,8 @@ import {
 } from '@react-navigation/native';
 
 import * as constants from './constants';
+import * as notificationsSlice from './features/notifications/notifications-slice';
+
 import store from './store';
 import SplashScreen from './SplashScreen';
 import { RootStackParamList } from './navigation';
@@ -98,7 +100,11 @@ function App() {
     inAppMessaging()
       .setMessagesDisplaySuppressed(true)
       .catch(error => {
-        console.error($FUNC, 'Failed to suppress in app messages:', error);
+        console.error(
+          $FUNC,
+          'Failed to suppress In App Messaging messages:',
+          error,
+        );
       });
   }, []);
 
@@ -135,6 +141,17 @@ function PersistedApp() {
         return systemScheme === 'dark' ? darkTheme : lightTheme;
     }
   }, [systemScheme, selectedAppearance]);
+
+  React.useEffect(() => {
+    messaging()
+      .hasPermission()
+      .then(authStatus => {
+        dispatch(notificationsSlice.setAuthorizationStatus(authStatus));
+      })
+      .catch(error => {
+        console.warn($FUNC, 'Failed to check notification permission:', error);
+      });
+  }, [dispatch]);
 
   React.useEffect(() => {
     if (Platform.OS === 'android') {

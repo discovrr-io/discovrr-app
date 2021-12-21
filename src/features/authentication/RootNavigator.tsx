@@ -11,17 +11,12 @@ import {
 } from '@react-navigation/stack';
 
 import * as constants from 'src/constants';
+import * as notificationsSlice from 'src/features/notifications/notifications-slice';
 import { SessionApi } from 'src/api';
-import { useAppDispatch, useAppSelector, useExtendedTheme } from 'src/hooks';
-import { NotificationId } from 'src/models';
-import { RootStack } from 'src/navigation';
-
 import { HeaderIcon, PlaceholderScreen, RouteError } from 'src/components';
-
-import {
-  didReceiveNotification,
-  setFCMRegistrationTokenForSession,
-} from 'src/features/notifications/notifications-slice';
+import { useAppDispatch, useAppSelector, useExtendedTheme } from 'src/hooks';
+import { NotificationId, SessionId } from 'src/models';
+import { RootStack } from 'src/navigation';
 
 import MainNavigator from './MainNavigator';
 import AuthPromptNavigator from './AuthPromptNavigator';
@@ -34,20 +29,6 @@ import renderPostNavigator from 'src/features/posts/PostNavigator';
 import renderProfileNavigator from 'src/features/profiles/ProfileNavigator';
 import renderProductNavigator from 'src/features/products/ProductNavigator';
 import renderSettingsNavigator from 'src/features/settings/SettingsNavigator';
-
-async function getFCMToken(): Promise<string> {
-  const $FUNC = '[getFCMToken]';
-
-  if (!messaging().isDeviceRegisteredForRemoteMessages) {
-    // TODO: Does this throw an error if the user doesn't accept?
-    console.log($FUNC, 'Registering device for remote messages...');
-    await messaging().registerDeviceForRemoteMessages();
-  }
-
-  const token = await messaging().getToken();
-  console.log($FUNC, 'Got FCM token:', token);
-  return token;
-}
 
 export default function RootNavigator() {
   const $FUNC = '[RootNavigator]';
@@ -80,7 +61,7 @@ export default function RootNavigator() {
       if (!notificationTitle || !notificationBody) return;
 
       dispatch(
-        didReceiveNotification({
+        notificationsSlice.didReceiveNotification({
           id: notificationId as NotificationId,
           title: notificationTitle,
           body: notificationBody,
@@ -118,24 +99,36 @@ export default function RootNavigator() {
   }, [sessionId]);
 
   React.useEffect(() => {
-    if (!didRegisterFCMToken && sessionId)
-      (async () => {
-        try {
-          console.log($FUNC, 'Setting FCM registration token...');
-          const token = await getFCMToken();
-          const action = setFCMRegistrationTokenForSession({
-            sessionId,
-            registrationToken: token,
-            // FIXME: This won't be updated if FCM token is already set (which
-            // only happens if the user signs in)
-            appVersion: constants.values.APP_VERSION,
-            storeVersion: constants.values.STORE_VERSION,
-          });
-          await dispatch(action).unwrap();
-        } catch (error) {
-          console.warn($FUNC, 'Failed to register FCM token:', error);
-        }
-      })();
+    async function getFCMToken(): Promise<string> {
+      if (!messaging().isDeviceRegisteredForRemoteMessages) {
+        // TODO: Does this throw an error if the user doesn't accept?
+        console.log($FUNC, 'Registering device for remote messages...');
+        await messaging().registerDeviceForRemoteMessages();
+      }
+
+      const token = await messaging().getToken();
+      return token;
+    }
+
+    async function saveSessionFCMToken(sessionId: SessionId) {
+      try {
+        console.log($FUNC, 'Setting FCM registration token...');
+        const token = await getFCMToken();
+        const action = notificationsSlice.setFCMRegistrationTokenForSession({
+          sessionId,
+          registrationToken: token,
+          // FIXME: This won't be updated if FCM token is already set (which
+          // only happens if the user signs in)
+          appVersion: constants.values.APP_VERSION,
+          storeVersion: constants.values.STORE_VERSION,
+        });
+        await dispatch(action).unwrap();
+      } catch (error) {
+        console.warn($FUNC, 'Failed to register FCM token:', error);
+      }
+    }
+
+    if (!didRegisterFCMToken && sessionId) saveSessionFCMToken(sessionId);
   }, [dispatch, didRegisterFCMToken, sessionId]);
 
   return (

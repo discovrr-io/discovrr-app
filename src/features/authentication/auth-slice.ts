@@ -22,8 +22,6 @@ export type AuthFetchStatus = Pick<ApiFetchStatus, 'error'> & {
 export type AuthState = AuthFetchStatus & {
   user: User | undefined;
   sessionId: SessionId | undefined;
-  isAuthenticated: boolean;
-  isFirstLogin: boolean;
   didAbortSignOut: boolean;
   isOutdatedModalVisible: boolean;
 };
@@ -33,8 +31,6 @@ const initialState: AuthState = {
   sessionId: undefined,
   error: undefined,
   user: undefined,
-  isAuthenticated: false,
-  isFirstLogin: false,
   didAbortSignOut: false,
   isOutdatedModalVisible: false,
 };
@@ -98,10 +94,6 @@ const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    // TODO: Remove this
-    dismissInfoModal: state => {
-      state.isFirstLogin = false;
-    },
     dismissAbortSignOutAlert: state => {
       state.didAbortSignOut = false;
     },
@@ -118,16 +110,13 @@ const authSlice = createSlice({
       .addCase(signInWithEmailAndPassword.fulfilled, (state, action) => {
         const { user, sessionId } = action.payload;
         state.status = 'fulfilled';
-        state.isAuthenticated = true;
         state.user = user;
         state.sessionId = sessionId;
-        state.isFirstLogin = true;
       })
       .addCase(signInWithEmailAndPassword.rejected, (state, action) => {
         state.status = 'rejected';
         state.error = action.error;
         state.user = undefined;
-        state.isFirstLogin = false;
       })
       // -- signInWithCredential --
       .addCase(signInWithCredential.pending, state => {
@@ -136,16 +125,13 @@ const authSlice = createSlice({
       .addCase(signInWithCredential.fulfilled, (state, action) => {
         const { user, sessionId } = action.payload;
         state.status = 'fulfilled';
-        state.isAuthenticated = true;
         state.user = user;
         state.sessionId = sessionId;
-        state.isFirstLogin = true;
       })
       .addCase(signInWithCredential.rejected, (state, action) => {
         state.status = 'rejected';
         state.error = action.error;
         state.user = undefined;
-        state.isFirstLogin = false;
       })
       // -- registerNewAccount --
       .addCase(registerNewAccount.pending, state => {
@@ -154,16 +140,13 @@ const authSlice = createSlice({
       .addCase(registerNewAccount.fulfilled, (state, action) => {
         const { user, sessionId } = action.payload;
         state.status = 'fulfilled';
-        state.isAuthenticated = true;
         state.user = user;
         state.sessionId = sessionId;
-        state.isFirstLogin = true;
       })
       .addCase(registerNewAccount.rejected, (state, action) => {
         state.status = 'rejected';
         state.error = action.error;
         state.user = undefined;
-        state.isFirstLogin = false;
       })
       // -- signOut --
       .addCase(signOut.pending, state => {
@@ -188,11 +171,8 @@ const authSlice = createSlice({
   },
 });
 
-export const {
-  dismissInfoModal,
-  dismissAbortSignOutAlert,
-  setOutdatedModalVisibility,
-} = authSlice.actions;
+export const { dismissAbortSignOutAlert, setOutdatedModalVisibility } =
+  authSlice.actions;
 
 //#endregion Authentication Slice
 

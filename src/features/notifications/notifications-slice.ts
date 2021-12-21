@@ -89,6 +89,7 @@ const notificationsSlice = createSlice({
         console.log('Should reset FCM token?', shouldResetFCMRegistrationToken);
         Object.assign(state, {
           ...initialState,
+          authorizationStatus: state.authorizationStatus,
           didRegisterFCMToken: shouldResetFCMRegistrationToken
             ? false
             : state.didRegisterFCMToken,

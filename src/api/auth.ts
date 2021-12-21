@@ -2,6 +2,7 @@ import { Image } from 'react-native';
 
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import analytics from '@react-native-firebase/analytics';
+import crashlytics from '@react-native-firebase/crashlytics';
 import messaging from '@react-native-firebase/messaging';
 
 import Parse from 'parse/react-native';
@@ -70,18 +71,9 @@ export namespace AuthApi {
       );
       profile.set('displayName', firebaseUser.displayName);
       syncProfile = true;
-    } else if (displayName) {
+    } else if (displayName?.trim()) {
       console.log($FUNC, 'Updating Firebase display name...');
       await firebaseUser.updateProfile({ displayName: displayName.trim() });
-    } else {
-      const username: string = profile.get('username');
-      profile.set('displayName', username);
-      console.warn(
-        $FUNC,
-        'Setting Firebase display name to username because no display name',
-        'was found...',
-      );
-      await firebaseUser.updateProfile({ displayName: username });
     }
 
     // const avatar: MediaSource | undefined = profile.get('avatar');
@@ -229,6 +221,16 @@ export namespace AuthApi {
         'No profile was found with the given user ID.',
       );
     }
+
+    analytics()
+      .setUserId(currentUser.id)
+      .catch(error => console.warn('Failed to set Analytics user ID:', error));
+
+    crashlytics()
+      .setUserId(currentUser.id)
+      .catch(error =>
+        console.warn('Failed to set Crashlytics user ID:', error),
+      );
 
     return [
       await syncAndConstructUser(currentUser.id, profile, firebaseUser),
@@ -404,6 +406,18 @@ export namespace AuthApi {
       const profile = ProfileApi.mapResultToProfile(updatedProfile);
       const currentSession = await Parse.Session.current();
 
+      analytics()
+        .setUserId(parseUser.id)
+        .catch(error =>
+          console.warn('Failed to set Analytics user ID:', error),
+        );
+
+      crashlytics()
+        .setUserId(parseUser.id)
+        .catch(error =>
+          console.warn('Failed to set Crashlytics user ID:', error),
+        );
+
       return { user, profile, sessionId: currentSession.id as SessionId };
     } catch (error) {
       console.warn($FUNC, 'Aborting authentication. Signing out...');
@@ -438,6 +452,8 @@ export namespace AuthApi {
     if (logoutFirebase) {
       console.log($FUNC, 'Signing out of Firebase...');
       await auth().signOut();
+      // This doesn't seem to work at the moment
+      // https://github.com/invertase/react-native-firebase/issues/4931
       await analytics().setUserId(null);
     }
 

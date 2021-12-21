@@ -2,10 +2,8 @@ import * as React from 'react';
 import { Image, View } from 'react-native';
 
 import * as yup from 'yup';
-import { Formik } from 'formik';
-
 import analytics from '@react-native-firebase/analytics';
-import crashlytics from '@react-native-firebase/crashlytics';
+import { Formik } from 'formik';
 
 import * as constants from 'src/constants';
 import * as utilities from 'src/utilities';
@@ -41,6 +39,7 @@ type LoginForm = yup.InferType<typeof loginFormSchema>;
 type LoginScreenProps = AuthPromptStackScreenProps<'Login'>;
 
 export default function LoginScreen(props: LoginScreenProps) {
+  const $FUNC = '[LoginScreen]';
   const { profileDetails } = props.route.params;
 
   const dispatch = useAppDispatch();
@@ -51,6 +50,7 @@ export default function LoginScreen(props: LoginScreenProps) {
   const handleSubmit = async (values: LoginForm) => {
     try {
       setDidSubmit(true);
+      console.log($FUNC, 'Logging in...');
 
       const loginAction = authSlice.signInWithEmailAndPassword({
         email: profileDetails.email.trim(),
@@ -58,17 +58,16 @@ export default function LoginScreen(props: LoginScreenProps) {
       });
 
       await dispatch(loginAction).unwrap();
-      await analytics().logLogin({ method: 'password' });
+      analytics()
+        .logLogin({ method: 'password' })
+        .catch(utilities.warnLogEventFailure);
+
       props.navigation.getParent<RootStackNavigationProp>().goBack();
     } catch (error: any) {
-      console.error('Failed to login with email and password:', error);
+      console.error($FUNC, 'Failed to login with email and password:', error);
       utilities.alertFirebaseAuthError(
         error,
         "We weren't able to sign you in at this time. Please try again later.",
-      );
-
-      crashlytics().recordError(
-        error instanceof Error ? error : new Error(error.message || error),
       );
     } finally {
       if (isMounted.current) setDidSubmit(false);
@@ -86,7 +85,11 @@ export default function LoginScreen(props: LoginScreenProps) {
       title="Login"
       coverImageSource={COVER_IMAGE_ASSET_SOURCE}
       caption={{
-        title: `Welcome back, ${profileDetails.__publicName}!`,
+        // This may be empty/undefined if the user hasn't finished setting up
+        // their profile
+        title: Boolean(profileDetails.__publicName)
+          ? `Welcome back, ${profileDetails.__publicName}!`
+          : 'Welcome back!',
         body: 'Enter your password below to continue.',
         image: profileDetails.avatar
           ? { uri: profileDetails.avatar.url }

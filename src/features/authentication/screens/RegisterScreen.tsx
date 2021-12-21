@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Image, Text, View } from 'react-native';
 
 import * as yup from 'yup';
+import analytics from '@react-native-firebase/analytics';
 import { Formik } from 'formik';
 
 import * as constants from 'src/constants';
@@ -45,6 +46,7 @@ type RegisterForm = yup.InferType<typeof registerFormSchema>;
 type RegisterScreenProps = AuthPromptStackScreenProps<'Register'>;
 
 export default function RegisterScreen(props: RegisterScreenProps) {
+  const $FUNC = '[RegisterScreen]';
   const dispatch = useAppDispatch();
   const isMounted = useIsMounted();
   const { colors } = useExtendedTheme();
@@ -54,18 +56,21 @@ export default function RegisterScreen(props: RegisterScreenProps) {
   const handleSubmit = async (values: RegisterForm) => {
     try {
       setDidSubmit(true);
-      console.log('Creating new account...');
+      console.log($FUNC, 'Creating new account...');
 
       const registerAction = authSlice.registerNewAccount({
         ...values,
         email: values.email.trim(),
       });
+
       await dispatch(registerAction).unwrap();
+      analytics()
+        .logSignUp({ method: 'password' })
+        .catch(utilities.warnLogEventFailure);
 
       props.navigation.getParent<RootStackNavigationProp>().goBack();
-      console.log('Finished creating account');
-    } catch (error) {
-      console.error('Failed to create account:', error);
+    } catch (error: any) {
+      console.error($FUNC, 'Failed to create account:', error);
       utilities.alertFirebaseAuthError(
         error,
         "We weren't able to create your account at this time. Please try again later",

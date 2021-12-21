@@ -1,5 +1,7 @@
+import crashlytics from '@react-native-firebase/crashlytics';
 import { Alert, AlertButton } from 'react-native';
 import { PickerErrorCode, Video } from 'react-native-image-crop-picker';
+
 import { AuthApi } from 'src/api';
 
 import * as strings from 'src/constants/strings';
@@ -168,13 +170,18 @@ function constructAlertFromFirebaseError(
   }
 }
 
-export function alertFirebaseAuthError(
-  authError: any,
-  defaultMessage?: string,
-) {
+export function alertFirebaseAuthError(error: any, defaultMessage?: string) {
   const { title, message } = constructAlertFromFirebaseError(
-    authError,
+    error,
     defaultMessage,
   );
+
   Alert.alert(title, message);
+  crashlytics().recordError(
+    error instanceof Error ? error : new Error(error.message || error),
+  );
+}
+
+export function warnLogEventFailure(error: any) {
+  console.warn('Failed to log even:', error);
 }

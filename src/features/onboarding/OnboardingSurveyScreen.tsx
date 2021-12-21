@@ -67,9 +67,6 @@ export default function OnboardingSurveyScreen(
       .unwrap()
       .catch(error => {
         console.warn('Failed to save onboarding survey response:', error);
-      })
-      .finally(() => {
-        console.log('DONE');
       });
   }, [dispatch, props.navigation, selectedValue]);
 

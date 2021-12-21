@@ -2,6 +2,7 @@ import * as React from 'react';
 import { SafeAreaView, useWindowDimensions } from 'react-native';
 
 import Icon from 'react-native-vector-icons/Ionicons';
+import inAppMessaging from '@react-native-firebase/in-app-messaging';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { useNavigation } from '@react-navigation/native';
@@ -256,6 +257,7 @@ function FacadeNavigator() {
 }
 
 export default function MainNavigator() {
+  const $FUNC = '[MainNavigator]';
   const navigation = useNavigation<RootStackNavigationProp>();
 
   const { user, didSetUpProfile } = useAppSelector(state => {
@@ -266,7 +268,7 @@ export default function MainNavigator() {
   });
 
   React.useEffect(() => {
-    const timeout = setTimeout(() => {
+    const timeout = setTimeout(async () => {
       if (!didSetUpProfile) {
         if (user) {
           navigation.navigate('Onboarding', {
@@ -276,6 +278,17 @@ export default function MainNavigator() {
         } else {
           navigation.navigate('Onboarding', { screen: 'OnboardingStart' });
         }
+      } else {
+        console.log($FUNC, 'Allowing In App Messaging messages...');
+        await inAppMessaging()
+          .setMessagesDisplaySuppressed(false)
+          .catch(error => {
+            console.warn(
+              $FUNC,
+              'Failed to disable suppression of In App Messaging messages:',
+              error,
+            );
+          });
       }
     }, 500);
 

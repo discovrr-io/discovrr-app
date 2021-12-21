@@ -1,21 +1,16 @@
+import { Platform } from 'react-native';
+
 import {
   createAsyncThunk,
   createSelector,
   createSlice,
 } from '@reduxjs/toolkit';
 
+import * as authSlice from 'src/features/authentication/auth-slice';
+import * as notificationsSlice from 'src/features/notifications/notifications-slice';
+import * as globalSelectors from 'src/global-selectors';
+import * as globalActions from 'src/global-actions';
 import { OnboardingApi } from 'src/api';
-import { resetAppState } from 'src/global-actions';
-
-import {
-  registerNewAccount,
-  signInWithCredential,
-  signInWithEmailAndPassword,
-  signOut,
-} from 'src/features/authentication/auth-slice';
-import { selectShouldRequestNotificationPermissions } from '../notifications/notifications-slice';
-import { Platform } from 'react-native';
-import { selectCurrentUserProfileKind } from 'src/global-selectors';
 
 export const saveOnboardingSurveyResult = createAsyncThunk(
   'onboarding/saveOnboardingSurveyResult',
@@ -36,29 +31,31 @@ const onboardingSlice = createSlice({
   reducers: {},
   extraReducers: builder => {
     builder
-      .addCase(resetAppState, state => {
+      .addCase(globalActions.resetAppState, state => {
         console.log('Purging onboarding...');
         Object.assign(state, initialState);
       })
       .addCase(saveOnboardingSurveyResult.fulfilled, state => {
         state.didSetUpProfile = true;
       })
-      .addCase(signInWithCredential.fulfilled, (state, action) => {
+      .addCase(authSlice.signInWithCredential.fulfilled, (state, action) => {
         const { profile } = action.payload;
         state.didSetUpProfile = profile.didSetUpProfile;
       })
-      .addCase(signInWithEmailAndPassword.fulfilled, (state, action) => {
-        const { profile } = action.payload;
-        state.didSetUpProfile = profile.didSetUpProfile;
-      })
-      .addCase(registerNewAccount.fulfilled, (state, action) => {
+      .addCase(
+        authSlice.signInWithEmailAndPassword.fulfilled,
+        (state, action) => {
+          const { profile } = action.payload;
+          state.didSetUpProfile = profile.didSetUpProfile;
+        },
+      )
+      .addCase(authSlice.registerNewAccount.fulfilled, (state, action) => {
         const { profile } = action.payload;
         state.didSetUpProfile = profile.didSetUpProfile;
       })
       // We'll assume that no one will frequently switch accounts on the same
       // device for now
-      .addCase(signOut.fulfilled, state => {
-        console.log('Resetting onboarding state on sign out...');
+      .addCase(authSlice.signOut.fulfilled, state => {
         Object.assign(state, initialState);
       });
   },
@@ -69,14 +66,18 @@ export const {} = onboardingSlice.actions;
 export default onboardingSlice.reducer;
 
 export const selectOnboardingPagesCount = createSelector(
-  [selectShouldRequestNotificationPermissions, selectCurrentUserProfileKind],
+  [
+    notificationsSlice.selectShouldRequestNotificationPermissions,
+    globalSelectors.selectCurrentUserProfileKind,
+  ],
   (requestNotificationPermission, currentUserProfileKind) => {
-    console.log({ currentUserProfileKind, requestNotificationPermission });
     const defaultPageCount = 5;
     if (currentUserProfileKind === 'vendor') {
+      // Add extra page count to set business name
       return (
         defaultPageCount +
         Platform.select({
+          // Add extra page count if we need to request notification permission
           ios: requestNotificationPermission ? 2 : 1,
           default: 1,
         })
