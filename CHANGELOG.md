@@ -2,17 +2,21 @@
 
 ## [Unreleased]
 
-## [v3.2.2] (2021-12-XX)
+## [v3.2.2] (2021-12-21)
 
 ### Added
 
-- Add ability to input stock quantity when creating a product
+- Redesigned a new onboarding flow with step-by-step instructions
+- Add ability to provide stock quantity when creating a new product
+- Notifications are now saved in the database and thus can be synced across
+  devices
 
 ### Changed
 
-- Notifications are now saved in the database and thus can be synced across
-  devices
-- Split notifications into "Today" and "Earlier" sections
+- Upgrade package dependencies
+- Notifications are split into "Today" and "Earlier" sections
+- Changed app font from "Rubik" to "Airbnb Cereal App"
+- Add basic Firebase Analytics event logs
 
 ## [v3.2.1] (2021-12-06)
 
