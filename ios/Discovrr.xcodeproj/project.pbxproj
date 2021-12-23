@@ -354,7 +354,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 1250;
-				LastUpgradeCheck = 1240;
+				LastUpgradeCheck = 1320;
 				TargetAttributes = {
 					00E356ED1AD99517003FC87E = {
 						CreatedOnToolsVersion = 6.2;
@@ -797,7 +797,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Discovrr.app/Discovrr";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Discovrr D.app/Discovrr D";
 			};
 			name = Debug;
 		};
@@ -820,7 +820,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Discovrr.app/Discovrr";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Discovrr D.app/Discovrr D";
 			};
 			name = Release;
 		};
@@ -1058,7 +1058,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Discovrr.app/Discovrr";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Discovrr D.app/Discovrr D";
 			};
 			name = Testing;
 		};
@@ -1170,7 +1170,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Discovrr.app/Discovrr";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Discovrr D.app/Discovrr D";
 			};
 			name = Staging;
 		};
