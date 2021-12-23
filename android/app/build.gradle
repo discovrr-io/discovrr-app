@@ -4,8 +4,6 @@ apply plugin: 'com.google.firebase.crashlytics'
 apply plugin: 'com.google.firebase.firebase-perf'
 apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"
 
-import com.android.build.OutputFile
-
 // NOTE: This isn't working at the moment. As a workaround, we'll set the
 // ENVFILE environment variable instead.
 // https://github.com/luggit/react-native-config/issues/616#issuecomment-947623280
@@ -70,7 +68,7 @@ def jscFlavor = 'org.webkit:android-jsc:+'
  * on project.ext.react, JavaScript will not be compiled to Hermes Bytecode
  * and the benefits of using Hermes will therefore be sharply reduced.
  */
-def enableHermes = project.ext.react.get("enableHermes", true);
+def enableHermes = project.ext.react.get("enableHermes", true)
 
 def versionMajor = 3 // Can be more than 2 digits
 def versionMinor = 3 // Must be between 0 and 99
@@ -139,7 +137,7 @@ android {
             applicationIdSuffix ".releaseStaging"
             signingConfig signingConfigs.release
             resValue "string", "CodePushDeploymentKey", '"pjAas8K6vagmVLbl2HIUQ1eK7L1_GtpZX4VR6"'
-            // resValue "string", "fbProviderId", "com.facebook.app.FacebookContentProvider{**enjaga**}"
+            // resValue "string", "fbProviderId", "com.facebook.app.FacebookContentProviderXXXXXXXXXXXXXXX"
 
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
@@ -164,12 +162,11 @@ android {
             // For each separate APK per architecture, set a unique version code as described here:
             // https://developer.android.com/studio/build/configure-apk-splits.html
             def versionCodes = ["armeabi-v7a": 1, "x86": 2, "arm64-v8a": 3, "x86_64": 4]
-            def abi = output.getFilter(OutputFile.ABI)
+            def abi = output.getFilter(com.android.build.OutputFile.ABI)
             if (abi != null) {  // null for the universal-debug, universal-release variants
                 output.versionCodeOverride =
                         versionCodes.get(abi) * 1048576 + defaultConfig.versionCode
             }
-
         }
     }
 
@@ -188,7 +185,7 @@ dependencies {
     // runtime error that occurs when Android tries to initialise Fresco.
     implementation 'com.facebook.fresco:animated-gif:2.2.0'
 
-    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
 
     implementation "androidx.core:core-splashscreen:1.0.0-alpha02"
 
@@ -206,7 +203,7 @@ dependencies {
     }
 
     if (enableHermes) {
-        def hermesPath = "../../node_modules/hermes-engine/android/";
+        def hermesPath = "../../node_modules/hermes-engine/android/"
         debugImplementation files(hermesPath + "hermes-debug.aar")
         releaseImplementation files(hermesPath + "hermes-release.aar")
         releaseStagingImplementation files(hermesPath + "hermes-release.aar")
