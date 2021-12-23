@@ -39,5 +39,5 @@ target 'Discovrr' do
 end
 
 target 'FirebaseNotificationServiceExtension' do
-  pod 'Firebase/Messaging', '~> 8.9.0'
+  pod 'Firebase/Messaging', '~> 8.10.0'
 end
