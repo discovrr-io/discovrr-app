@@ -2070,10 +2070,10 @@
   resolved "https://registry.yarnpkg.com/@react-native-firebase/storage/-/storage-14.1.0.tgz#a956f702ad0cc77e191d2d2d8294839776cef8ee"
   integrity sha512-+zSQ9+7KFprslkfpufCo7X1ZDEdyihG0ge0WHxOpHvvpv5q0ByprjmSZ5JSMPVvEzDDpOvy/YvERrCPxarKHig==
 
-"@react-native-google-signin/google-signin@^6.0.1":
-  version "6.0.1"
-  resolved "https://registry.yarnpkg.com/@react-native-google-signin/google-signin/-/google-signin-6.0.1.tgz#c953c24c74c42009f59213015d4bdd4e58133c54"
-  integrity sha512-8Kyt3v6JcAQoJqZau3z4Mj+8R5Zv1yB8TfL/iCrB6ZI9lIR7gm4wuNzgpNSjX7OwNTboyhBek9Tjx8qJj7a6Mw==
+"@react-native-google-signin/google-signin@^7.0.3":
+  version "7.0.3"
+  resolved "https://registry.yarnpkg.com/@react-native-google-signin/google-signin/-/google-signin-7.0.3.tgz#9fbf739d7b9fd44ec89c87d2bacebcec69bdbc9e"
+  integrity sha512-wwTy7TvJhVALb3jIgZjCiQPUCzktz1FDe4wSqS61ocU/kC7ZEEI/AeIlk/7fanGViXdX94f4sdPUbasMb59xjQ==
 
 "@react-native/assets@1.0.0":
   version "1.0.0"
@@ -2115,7 +2115,7 @@
     query-string "^7.0.0"
     react-is "^16.13.0"
 
-"@react-navigation/devtools@^6.0.4":
+"@react-navigation/devtools@^6.0.0":
   version "6.0.4"
   resolved "https://registry.yarnpkg.com/@react-navigation/devtools/-/devtools-6.0.4.tgz#6b67cc958e9b1857ce0bb8c795c7886894bf33a6"
   integrity sha512-YFSQRyv1LSwW1jQxLsploHUwifplu7CMODC21+0kb4x5gJjlwLteG1r9MW6JluGnQBUw2WdSM2NUL1o4uIOEzQ==
@@ -2133,7 +2133,7 @@
     color "^3.1.3"
     warn-once "^0.1.0"
 
-"@react-navigation/elements@^1.1.0", "@react-navigation/elements@^1.2.1":
+"@react-navigation/elements@^1.0.0", "@react-navigation/elements@^1.2.1":
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/@react-navigation/elements/-/elements-1.2.1.tgz#86f19781c6f34a5c9dd25dca99915e0306f477d1"
   integrity sha512-EnmAbKMsptrliRKf95rdgS6BhMjML+mIns06+G1Vdih6BrEo7/0iytThUv3WBf99AI76dyEq/cqLUwHPiFzXWg==
@@ -8921,10 +8921,10 @@ react-native-fast-image@^8.5.11:
   resolved "https://registry.yarnpkg.com/react-native-fast-image/-/react-native-fast-image-8.5.11.tgz#e3dc969d0e4e8df026646bf18194465aa55cbc2b"
   integrity sha512-cNW4bIJg3nvKaheG8vGMfqCt5LMWX9MS5+wMudgKIHbGO51spRr4sgnlhVgwHLcZ5aeNOVJ8CPRxDIWKRq/0QA==
 
-react-native-flipper@^0.125.0:
-  version "0.125.0"
-  resolved "https://registry.yarnpkg.com/react-native-flipper/-/react-native-flipper-0.125.0.tgz#684ded2b43cf62bb037a47e4098f590ceb22c699"
-  integrity sha512-Ahql6yMRcI/ZHrf8YlIyyaWdv6X4be9uRYVgYphYHtHPuaTpINXOu+Sqhb+OhRzb7wqa2lvCU8bo7AgG33iSyg==
+react-native-flipper@^0.127.0:
+  version "0.127.0"
+  resolved "https://registry.yarnpkg.com/react-native-flipper/-/react-native-flipper-0.127.0.tgz#4d4040c0d0a45136b9bbabdc801d3e32d385de73"
+  integrity sha512-qloUyUOs9MoMVncIDDWeOxAPbomWJ3e4y0SgyCgq8joJEOXC7RvPWeEfUXp0EPyNhHGQV9a4RwzF6BWKFCR3Kg==
 
 react-native-fs@^2.18.0:
   version "2.18.0"

@@ -220,8 +220,8 @@ PODS:
     - GoogleUtilities/Environment (~> 7.2)
     - nanopb (~> 2.30908.0)
     - PromisesObjC (< 3.0, >= 1.2)
-  - GoogleSignIn (5.0.2):
-    - AppAuth (~> 1.2)
+  - GoogleSignIn (6.0.2):
+    - AppAuth (~> 1.4)
     - GTMAppAuth (~> 1.0)
     - GTMSessionFetcher/Core (~> 1.1)
   - GoogleUtilities/AppDelegateSwizzler (7.6.0):
@@ -477,7 +477,7 @@ PODS:
     - react-native-config/App (= 1.4.5)
   - react-native-config/App (1.4.5):
     - React-Core
-  - react-native-flipper (0.125.0):
+  - react-native-flipper (0.127.0):
     - React-Core
   - react-native-geolocation-service (5.2.0):
     - React
@@ -610,8 +610,8 @@ PODS:
     - React
   - RNGestureHandler (1.10.3):
     - React-Core
-  - RNGoogleSignin (6.0.1):
-    - GoogleSignIn (~> 5.0.0)
+  - RNGoogleSignin (7.0.3):
+    - GoogleSignIn (~> 6.0.0)
     - React-Core
   - RNImageCropPicker (0.37.2):
     - React-Core
@@ -987,7 +987,7 @@ SPEC CHECKSUMS:
   glog: 5337263514dd6f09803962437687240c5dc39aa4
   GoogleAppMeasurement: a3311dbcf3ea651e5a070fe8559b57c174ada081
   GoogleDataTransport: 629c20a4d363167143f30ea78320d5a7eb8bd940
-  GoogleSignIn: 7137d297ddc022a7e0aa4619c86d72c909fa7213
+  GoogleSignIn: fd381840dbe7c1137aa6dc30849a5c3e070c034a
   GoogleUtilities: 684ee790a24f73ebb2d1d966e9711c203f2a4237
   GTMAppAuth: ad5c2b70b9a8689e1a04033c9369c4915bfcbe89
   GTMSessionFetcher: 43748f93435c2aa068b1cbe39655aaf600652e91
@@ -1014,7 +1014,7 @@ SPEC CHECKSUMS:
   react-native-blob-util: 600972b1782380a5a7d5db61a3817ea32349dae9
   react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
   react-native-config: 6502b1879f97ed5ac570a029961fc35ea606cd14
-  react-native-flipper: 3d9e214b412b3ce81e0d73bdcdc8097c0b0e8578
+  react-native-flipper: b9e2e817604af8da0d5a9ba20a8516e780e30f3c
   react-native-geolocation-service: 7c9436da6dfdecd9526c62eac62ea2bc3f0cc8ea
   react-native-maps: a421fe6aeb74279597c4ea9598f25796108e2d89
   react-native-pager-view: 3ee7d4c7697fb3ef788346e834a60cca97ed8540
@@ -1050,7 +1050,7 @@ SPEC CHECKSUMS:
   RNFBStorage: 77eafd785a3a2d4e4ceaac707ebc1abe57537773
   RNFS: 3ab21fa6c56d65566d1fb26c2228e2b6132e5e32
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
-  RNGoogleSignin: e64616a4080cf7d83f4b292fad82d174587444e2
+  RNGoogleSignin: aa9bb821ffb396bc64b4b6befc60bf41e6ae625f
   RNImageCropPicker: 448d3c6e923fde3466b49caf3c2457c2a0ba02dd
   RNPermissions: f7ebe52db07c00901127966ca080b4ec6a6ceb0a
   RNReanimated: 65583befd5706cc9c86ae9a081786181ced37b93
