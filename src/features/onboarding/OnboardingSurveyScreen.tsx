@@ -27,7 +27,7 @@ export default function OnboardingSurveyScreen(
   const [selectedValue, setSelectedValue] =
     React.useState<OnboardingApi.OnboardingSurveyResponse>();
 
-  const optionLabel = React.useCallback(
+  const optionLabelForValue = React.useCallback(
     (option: OnboardingApi.OnboardingSurveyResponse) => {
       switch (option) {
         case 'facebook':
@@ -51,11 +51,11 @@ export default function OnboardingSurveyScreen(
   const options = React.useMemo<
     OptionGroupProps<OnboardingApi.OnboardingSurveyResponse>['options']
   >(() => {
-    return OnboardingApi.ONBOARDING_SURVEY_RESPONSE_ARRAY.map(option => ({
-      value: option,
-      label: optionLabel(option),
+    return OnboardingApi.ONBOARDING_SURVEY_RESPONSE_ARRAY.map(value => ({
+      value,
+      label: optionLabelForValue(value),
     }));
-  }, [optionLabel]);
+  }, [optionLabelForValue]);
 
   const handleFinishOnboarding = React.useCallback(async () => {
     props.navigation.getParent<RootStackNavigationProp>().goBack();
