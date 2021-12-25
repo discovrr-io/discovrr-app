@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Alert } from 'react-native';
 
+import crashlytics from '@react-native-firebase/crashlytics';
 import { Theme, useNavigation, useTheme } from '@react-navigation/native';
 import { AsyncThunkAction } from '@reduxjs/toolkit';
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
@@ -109,11 +110,11 @@ export function useAsyncItem<ItemId, Item, AsyncThunkReturned, AsyncThunkArg>(
           // cancelled because it is already running. We'll ignore that error
           // and instead report any other error we get.
           if (error.name !== 'ConditionError') {
-            console.error(
-              $FUNC,
-              `Failed to fetch ${description}:`,
-              error.message ?? error,
-            );
+            const message = `Failed to fetch ${description}: ${
+              error.message || error
+            }`;
+            console.error($FUNC, message);
+            crashlytics().recordError(new Error(message));
           }
         }
       })();
