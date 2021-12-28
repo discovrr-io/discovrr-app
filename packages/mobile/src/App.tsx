@@ -27,6 +27,7 @@ import {
 } from '@react-navigation/native';
 
 import * as constants from './constants';
+import * as authSlice from './features/authentication/auth-slice';
 import * as notificationsSlice from './features/notifications/notifications-slice';
 
 import store from './store';
@@ -36,7 +37,6 @@ import { useAppDispatch, useAppSelector } from './hooks';
 import { resetAppState } from './global-actions';
 
 import AuthGate from './features/authentication/AuthGate';
-import { signOut } from './features/authentication/auth-slice';
 
 // Redeclare forwardRef to allow generics
 declare module 'react' {
@@ -209,7 +209,7 @@ function PersistedApp() {
         // NOTE: User will only be signed out if the version has changed.
         // Subsequent app launches will not be affected.
         if (constants.values.STORE_SHOULD_SIGN_OUT) {
-          await dispatch(signOut()).unwrap();
+          await dispatch(authSlice.signOut({})).unwrap();
         }
       }
     } catch (error) {
