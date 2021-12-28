@@ -673,7 +673,7 @@ export default function LandingScreen(_: LandingScreenProps) {
         isInitialRender || shouldRefresh ? (
           <LoadingContainer />
         ) : (
-          <EmptyContainer message="There aren't any featured products at the moment" />
+          <EmptyContainer message="There aren’t any featured products at the moment" />
         )
       }
       renderItem={({ item: productId, column, index }) => (

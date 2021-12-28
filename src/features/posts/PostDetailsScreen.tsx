@@ -168,7 +168,7 @@ const PostHeaderComponent = ({ post }: { post: Post }) => {
           console.error($FUNC, 'Failed to delete post:', error);
           utilities.alertSomethingWentWrong(
             error.message ??
-              "We weren't able to delete this post. Please try again later.",
+              'We weren’t able to delete this post. Please try again later.',
           );
         } finally {
           if (isMounted.current) setIsDeletingPost(false);
@@ -325,7 +325,7 @@ export default function PostDetailsScreen(props: PostDetailsScreenProps) {
       )}
       onFulfilled={post => {
         if (!post)
-          return <RouteError message="There doesn't seem to be a post here" />;
+          return <RouteError message="There doesn’t seem to be a post here" />;
         return <LoadedPostDetailsScreen post={post} />;
       }}
       onRejected={_ => <RouteError />}
@@ -523,7 +523,7 @@ function LoadedPostDetailsScreen({ post }: LoadedPostDetailsScreenProps) {
               />
             ) : error ? (
               <ErrorContainer
-                message="We weren't able to get the comments for this post. Please try again later."
+                message="We weren’t able to get the comments for this post. Please try again later."
                 containerStyle={{ backgroundColor: colors.card }}
               />
             ) : currentUser ? (

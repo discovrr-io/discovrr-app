@@ -372,7 +372,7 @@ export function LoadedProfileDetailsScreen(
     switch (selectedItemId) {
       case 'block':
         utilities.alertUnavailableFeature({
-          title: "We're still working on this",
+          title: 'We’re still working on this',
           message:
             'In the meantime, you may report this profile. Your report will be anonymous.',
         });
@@ -393,8 +393,8 @@ export function LoadedProfileDetailsScreen(
         }
         break;
       }
-      default:
-        actionBottomSheetRef.current?.close();
+      case 'share':
+        utilities.alertUnavailableFeature();
         break;
     }
   };
@@ -592,7 +592,7 @@ function ProfileDetailsHeader(props: ProfileDetailsHeaderProps) {
         // FIXME: This doesn't work on Android
         if (Platform.OS === 'android') {
           utilities.alertUnavailableFeature({
-            message: "This feature isn't available for Android yet",
+            message: 'This feature isn’t available for Android yet',
           });
           return;
         }
@@ -1016,7 +1016,7 @@ function ProfileDetailsContentProductsTab() {
         } catch (error) {
           console.error($FUNC, 'Failed to fetch products:', error);
           utilities.alertSomethingWentWrong(
-            "We weren't able to fetch products for this profile at this time. " +
+            'We weren’t able to fetch products for this profile at this time. ' +
               'Please try again later.',
           );
         } finally {
@@ -1061,7 +1061,7 @@ function ProfileDetailsContentProductsTab() {
           <EmptyContainer
             justifyContentToCenter={false}
             message={`${
-              isMyProfile ? "You haven't uploaded" : "This user doesn't have"
+              isMyProfile ? 'You haven’t uploaded' : 'This user doesn’t have'
             } any products yet`}
             actionButtonType="primary"
             actionTitle={isMyProfile ? 'Upload a product' : undefined}
@@ -1154,7 +1154,7 @@ function ProfileDetailsContentPostsTab() {
           <EmptyContainer
             justifyContentToCenter={false}
             message={`${
-              isMyProfile ? "You haven't" : "This user hasn't"
+              isMyProfile ? 'You haven’t' : 'This user hasn’t'
             } posted anything yet`}
             actionButtonType="primary"
             actionTitle={isMyProfile ? 'Create a new post' : undefined}
@@ -1233,7 +1233,7 @@ function ProfileDetailsContentLikedTab() {
           <EmptyContainer
             justifyContentToCenter={false}
             message={`${
-              isMyProfile ? "You haven't" : "This user hasn't"
+              isMyProfile ? 'You haven’t' : 'This user hasn’t'
             } liked any posts yet`}
             containerStyle={profileDetailsContentCommonTabStyles.container}
           />

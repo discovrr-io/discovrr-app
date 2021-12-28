@@ -73,7 +73,7 @@ export default function RegisterScreen(props: RegisterScreenProps) {
       console.error($FUNC, 'Failed to create account:', error);
       utilities.alertFirebaseAuthError(
         error,
-        "We weren't able to create your account at this time. Please try again later",
+        'We weren’t able to create your account at this time. Please try again later',
       );
     } finally {
       if (isMounted.current) setDidSubmit(false);
@@ -90,7 +90,7 @@ export default function RegisterScreen(props: RegisterScreenProps) {
       coverImageSource={COVER_IMAGE_ASSET_SOURCE}
       caption={{
         title: 'Welcome to Discovrr!',
-        body: "Fill in the details below to create a new account with us. It's that easy!",
+        body: 'Fill in the details below to create a new account with us. It’s that easy!',
         image: DISCOVRR_LOGO_MARK,
         imageStyles: [{ backgroundColor: 'transparent' }],
       }}>

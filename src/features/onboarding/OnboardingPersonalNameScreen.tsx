@@ -43,7 +43,7 @@ export default function OnboardingPersonalNameScreen(
 
       if (!myProfile || !trimmedDisplayName)
         throw new Error(
-          "We weren't able to change your name right now. " +
+          'We weren’t able to change your name right now. ' +
             'You can try again later by going to your profile settings.',
         );
 

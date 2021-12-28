@@ -79,7 +79,7 @@ export default function OutdatedModal() {
     });
 
     const errorTitle = 'Cannot Open Link';
-    const errorMessage = `Sorry, we weren't able to take you to the ${appStoreName} for you.`;
+    const errorMessage = `Sorry, we weren’t able to take you to the ${appStoreName} for you.`;
 
     if (!(await Linking.canOpenURL(appStoreLink))) {
       Alert.alert(errorTitle, errorMessage);

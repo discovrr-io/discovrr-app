@@ -53,7 +53,7 @@ export default function OnboardingNavigator() {
             headerTransparent: true,
             headerTintColor: constants.color.absoluteWhite,
             headerLeft: () => null,
-            headerTitle: () => null, // Explicity don't render title
+            headerTitle: () => null,
             cardStyle: {
               backgroundColor: constants.color.accentFocused,
             },

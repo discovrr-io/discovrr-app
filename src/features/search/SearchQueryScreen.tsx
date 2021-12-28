@@ -67,7 +67,7 @@ export default function SearchQueryScreen(props: SearchQueryScreenProps) {
           ListEmptyComponent={
             <EmptyContainer
               emoji="🔍"
-              message="You haven't searched for anything (yet!)"
+              message="You haven’t searched for anything (yet!)"
               containerStyle={{ backgroundColor: colors.card }}
             />
           }

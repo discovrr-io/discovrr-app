@@ -187,7 +187,7 @@ export default function ProductsFeed(_: ProductsFeedProps) {
         isInitialRender ? (
           <LoadingContainer message="Loading products..." />
         ) : (
-          <EmptyContainer message="We couldn't find any products. Try refining your filters." />
+          <EmptyContainer message="We couldn’t find any products. Try refining your filters." />
         )
       }
       renderItem={({ item: productId, column }) => (
@@ -206,7 +206,7 @@ export default function ProductsFeed(_: ProductsFeedProps) {
         !isInitialRender && productIds.length > 0 ? (
           <FeedFooter
             didReachEnd={didReachEndFeed}
-            message="You've reached the end!"
+            message="You’ve reached the end!"
           />
         ) : undefined
       }

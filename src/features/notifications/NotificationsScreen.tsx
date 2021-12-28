@@ -237,8 +237,8 @@ export default function NotificationsScreen(_: NotificationsScreenProps) {
             }>
             <EmptyContainer
               emoji="🔔"
-              title="You're up to date"
-              message="You don't have any notifications at the moment."
+              title="You’re up to date"
+              message="You don’t have any notifications at the moment."
             />
           </ScrollView>
         ) : (

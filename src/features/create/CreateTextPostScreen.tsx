@@ -92,7 +92,7 @@ function TextPostFormikForm() {
 
   return (
     <View style={[layout.defaultScreenStyle, { flex: 1 }]}>
-      <TextArea placeholder="What's on your mind?" />
+      <TextArea placeholder="What’s on your mind?" />
     </View>
   );
 }

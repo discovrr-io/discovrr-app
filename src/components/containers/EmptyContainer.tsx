@@ -7,8 +7,8 @@ type EmptyContainerProps = InfoContainerProps;
 export default function EmptyContainer(props: EmptyContainerProps) {
   const {
     emoji = '🤔',
-    title = "It's quiet here",
-    message = "There doesn't seem to be anything here at the moment.",
+    title = 'It’s quiet here',
+    message = 'There doesn’t seem to be anything here at the moment.',
     ...restProps
   } = props;
 

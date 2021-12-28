@@ -33,7 +33,7 @@ export default function AppearanceSettingsScreen(
             <Cell.Option
               label="Follow System"
               value="system"
-              caption="Automatically changes the theme to match your device's current theme"
+              caption="Automatically changes the theme to match your device’s current theme"
             />
             <Cell.Option label="Light" value="light" />
             <Cell.Option label="Dark" value="dark" />

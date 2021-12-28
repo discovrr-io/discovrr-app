@@ -51,11 +51,11 @@ export default function ReportItemReasonScreen(
       <Cell.Group>
         <Cell.OptionGroup value={selection} onValueChanged={setSelection}>
           <Cell.Option
-            label={`I'm not interested in this ${contentType}`}
+            label={`I’m not interested in this ${contentType}`}
             value="not-interested"
           />
-          <Cell.Option label="It's suspicious or spam" value="spam" />
-          <Cell.Option label="It's abusive or harmful" value="abusive" />
+          <Cell.Option label="It’s suspicious or spam" value="spam" />
+          <Cell.Option label="It’s abusive or harmful" value="abusive" />
           <Cell.Option
             label="It contains sexually explicit material"
             value="explicit"

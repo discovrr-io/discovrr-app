@@ -74,7 +74,7 @@ const LoadedProductItemCard = (props: InnerProductItemCardProps) => {
     if (product.hidden) {
       Alert.alert(
         'This product is hidden',
-        "You'll be able to manage this product soon.",
+        'You’ll be able to manage this product soon.',
       );
       return;
     }

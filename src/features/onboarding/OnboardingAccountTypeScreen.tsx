@@ -59,13 +59,13 @@ export default function OnboardingAccountTypeScreen(
         onValueChanged={newValue => setSelectedValue(newValue)}
         options={[
           {
-            label: "I'm a member",
+            label: 'I’m a member',
             caption:
               'I want to purchase and engage in content made by other users and makers.',
             value: 'personal',
           },
           {
-            label: "I'm a maker",
+            label: 'I’m a maker',
             caption:
               'I want to sell my products to an engaged local community.',
             value: 'vendor',

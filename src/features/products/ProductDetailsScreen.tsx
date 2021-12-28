@@ -18,7 +18,7 @@ export default function ProductDetailsScreen(props: ProductDetailsScreenProps) {
 
   const renderRouteError = () => {
     return (
-      <RouteError message="We weren't able to find this product. It may have been deleted or set to hidden." />
+      <RouteError message="We weren’t able to find this product. It may have been deleted or set to hidden." />
     );
   };
 

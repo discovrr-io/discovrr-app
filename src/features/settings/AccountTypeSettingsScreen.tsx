@@ -39,7 +39,7 @@ type AccountTypeSettingsScreenProps =
   RootStackScreenProps<'AccountTypeSettings'>;
 
 function ProfileNotFoundRouteError() {
-  return <RouteError message="We weren't able to find your profile." />;
+  return <RouteError message="We weren’t able to find your profile." />;
 }
 
 export default function AccountTypeSettingsScreen(
@@ -92,7 +92,7 @@ function LoadedAccountTypeSettingsScreen(
     } catch (error) {
       console.error($FUNC, 'Failed to change profile kind:', error);
       utilities.alertSomethingWentWrong(
-        "We weren't able to change your account type. Please try again later.",
+        'We weren’t able to change your account type. Please try again later.',
       );
     } finally {
       if (isMounted.current) setIsSubmitting(false);
@@ -170,12 +170,12 @@ function AccountTypeForm() {
         value={meta.value}
         onValueChanged={handleChangeSelection}>
         <Cell.Option
-          label="I'm a member"
+          label="I’m a member"
           value="personal"
           caption="I want to purchase and engage in content made by other users and makers."
         />
         <Cell.Option
-          label="I'm a maker"
+          label="I’m a maker"
           value="vendor"
           caption="I want to sell my products to an engaged local community."
         />

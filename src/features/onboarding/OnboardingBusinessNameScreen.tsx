@@ -51,7 +51,7 @@ export default function OnboardingBusinessNameScreen(
 
       if (!myProfile || !trimmedBusinessName || myProfile.kind === 'personal')
         throw new Error(
-          "We weren't able to change your business name right now. " +
+          'We weren’t able to change your business name right now. ' +
             'You can try again later by going to your profile settings.',
         );
 

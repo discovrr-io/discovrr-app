@@ -272,7 +272,7 @@ export default function NearMeFeed(_: NearMeFeedProps) {
           isInitialRender ? (
             <LoadingContainer message="Loading activity near you..." />
           ) : (
-            <EmptyContainer message="We couldn't find anything near you. Try refining your search to somewhere more specific" />
+            <EmptyContainer message="We couldn’t find anything near you. Try refining your search to somewhere more specific" />
           )
         }
         renderItem={({ item: nearMeItem, column }) => {

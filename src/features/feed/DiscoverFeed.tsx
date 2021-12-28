@@ -100,7 +100,7 @@ export default function DiscoverFeed() {
         } catch (error) {
           console.error($FUNC, 'Failed to refresh posts:', error);
           utilities.alertSomethingWentWrong(
-            "We weren't able to refresh this page. Please try again later.",
+            'We weren’t able to refresh this page. Please try again later.',
           );
         } finally {
           if (isMounted.current) {

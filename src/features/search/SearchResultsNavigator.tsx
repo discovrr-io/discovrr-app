@@ -175,7 +175,7 @@ function SearchResultsTabWrapper<ItemT>(
             <LoadingContainer />
           ) : (
             <EmptyContainer
-              title={`We couldn't find anything for '${query}'`}
+              title={`We couldn’t find anything for '${query}'`}
               message="Try refining your search to something more specific"
             />
           )

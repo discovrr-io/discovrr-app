@@ -139,7 +139,7 @@ type ProfileChangesForm = Omit<
 };
 
 function ProfileNotFoundRouteError() {
-  return <RouteError message="We weren't able to find your profile." />;
+  return <RouteError message="We weren’t able to find your profile." />;
 }
 
 type ProfileSettingsScreenProps = RootStackScreenProps<'ProfileSettings'>;
@@ -187,7 +187,7 @@ function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
   const [overlayContent, setOverlayContent] =
     React.useState<LoadingOverlayState>({
       message: 'Getting ready…',
-      caption: "This won't take long",
+      caption: 'This won’t take long',
       isUploading: false,
       canCancel: false,
     });
@@ -323,7 +323,7 @@ function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
           console.log($FUNC, 'Generating thumbnail for background...');
           setOverlayContent({
             message: 'Generating thumbnail…',
-            caption: `This won't take long`,
+            caption: `This won’t take long`,
             canCancel: true,
           });
 
@@ -334,7 +334,7 @@ function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
           console.log($FUNC, 'Uploading thumbnail for background...');
           setOverlayContent({
             message: 'Uploading thumbnail…',
-            caption: `This won't take too long`,
+            caption: `This won’t take too long`,
             isUploading: true,
           });
 
@@ -463,7 +463,7 @@ function LoadedProfileSettingsScreen(props: LoadedProfileSettingsScreenProps) {
       console.error($FUNC, 'Failed to update profile:', error);
       utilities.alertSomethingWentWrong(
         error.message ??
-          "We weren't able to update your profile at the moment. Please try again later.",
+          'We weren’t able to update your profile at the moment. Please try again later.',
       );
     } finally {
       setIsSubmitting(false);
@@ -556,7 +556,7 @@ function ProfileSettingsFormikForm() {
     } catch (error) {
       console.error($FUNC, 'Failed to generate random username:', error);
       utilities.alertSomethingWentWrong(
-        "We weren't able to generate a username for you. Please try again later.",
+        'We weren’t able to generate a username for you. Please try again later.',
       );
     } finally {
       if (isMounted.current) setIsGeneratingUsername(false);

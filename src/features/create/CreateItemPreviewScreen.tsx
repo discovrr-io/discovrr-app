@@ -80,7 +80,7 @@ export default function CreateItemPreviewScreen(
     canCancel?: boolean;
   }>({
     message: 'Getting ready…',
-    caption: "This won't take long",
+    caption: 'This won’t take long',
     isUploading: false,
     canCancel: false,
   });
@@ -500,8 +500,8 @@ export default function CreateItemPreviewScreen(
         {previewContent.type !== 'post' &&
           myProfileDetails.highestRole !== 'verified-vendor' && (
             <Banner
-              title="You're not a verified vendor yet"
-              caption="Your product won't be visible to anyone until we verify you. To be verified, start by posting this product. We'll let you know of the outcome shortly."
+              title="You’re not a verified vendor yet"
+              caption="Your product won’t be visible to anyone until we verify you. To be verified, start by posting this product. We’ll let you know of the outcome shortly."
             />
           )}
         <View

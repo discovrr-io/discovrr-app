@@ -231,8 +231,8 @@ function MainSettingsScreenFooter() {
       );
     } else if (checkUpdateStatus.state !== 'checking') {
       Alert.alert(
-        "You're Up To Date",
-        "You're currently using the latest version of Discovrr.",
+        'You’re Up To Date',
+        'You’re currently using the latest version of Discovrr.',
       );
     }
   }, [checkUpdateStatus]);

@@ -32,7 +32,7 @@ export default function ForgotPasswordScreen(props: ForgotPasswordScreenProps) {
       await auth().sendPasswordResetEmail(values.email.trim());
       Alert.alert(
         'Reset Link Sent',
-        "We've sent you an email with instructions on how to reset your password.\n\nMake sure to check your junk mail if you don't see an email from us.",
+        'We’ve sent you an email with instructions on how to reset your password.\n\nMake sure to check your junk mail if you don’t see an email from us.',
       );
     } catch (error: any) {
       if (error.code === 'auth/user-not-found') {
@@ -43,7 +43,7 @@ export default function ForgotPasswordScreen(props: ForgotPasswordScreenProps) {
       } else {
         utilities.alertFirebaseAuthError(
           error,
-          "We weren't able to reset your password for you at this time. Please try again later.",
+          'We weren’t able to reset your password for you at this time. Please try again later.',
         );
       }
     }
@@ -54,7 +54,7 @@ export default function ForgotPasswordScreen(props: ForgotPasswordScreenProps) {
       title="Forgot your password?"
       coverImageSource={COVER_IMAGE_ASSET_SOURCE}
       caption={{
-        body: "Don't worry, it happens! Just enter your email address below and we'll send you a reset link.",
+        body: 'Don’t worry, it happens! Just enter your email address below and we’ll send you a reset link.',
       }}>
       <Formik<ForgotPasswordForm>
         initialValues={{ email: props.route.params?.email ?? '' }}

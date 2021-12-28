@@ -114,25 +114,25 @@ function RoleChip(props: { label: string }) {
 
     switch (props.label) {
       case 'administrator':
-        title = "You're an Administrator";
+        title = 'You’re an Administrator';
         message =
           'You have the highest level of power over the content and users of Discovrr.';
         break;
       case 'moderator':
-        title = "You're a Moderator";
+        title = 'You’re a Moderator';
         message =
           'You have been granted the ability to moderate the content of Discovrr to make it a safe and open place for everyone.';
         break;
       case 'verified-vendor':
-        title = "You're a Verified Maker";
-        message = `You may upload as many products as you desire. As a loyal partner, we'll handle the transactions for you.`;
+        title = 'You’re a Verified Maker';
+        message = `You may upload as many products as you desire. As a loyal partner, we’ll handle the transactions for you.`;
         break;
       case 'vendor':
-        title = "You're an Unverified Maker";
-        message = `Your products will remain hidden from the public until you're verified.\n\nTo be verified, start by uploading a new product. We'll let you know of the outcome shortly after.`;
+        title = 'You’re an Unverified Maker';
+        message = `Your products will remain hidden from the public until you’re verified.\n\nTo be verified, start by uploading a new product. We’ll let you know of the outcome shortly after.`;
         break;
       case 'banned':
-        title = "You've Been Banned";
+        title = 'You’ve Been Banned';
         message = `We believe you broke our terms and thus we have removed all privileges from you. Please contact us for more information.`;
         break;
     }
@@ -186,7 +186,7 @@ export default function AppDrawer(props: AppDrawerProps) {
 
   const handleSendFeedback = async () => {
     const subject = `Feedback for Discovrr v${constants.values.APP_VERSION}`;
-    const body = `Hi Discovrr Team, I've been using your app and would like to share some feedback to you.`;
+    const body = `Hi Discovrr Team, I’ve been using your app and would like to share some feedback to you.`;
     const address = 'milos@discovrr.app';
     const link = `mailto:${address}?subject=${subject}&body=${body}`;
 
@@ -195,7 +195,7 @@ export default function AppDrawer(props: AppDrawerProps) {
     if (!(await Linking.canOpenURL(link).catch(_ => false))) {
       Alert.alert(
         'Cannot Open Link',
-        "Looks like your device doesn't support email links. " + errorMessage,
+        'Looks like your device doesn’t support email links. ' + errorMessage,
       );
       return;
     }
@@ -206,7 +206,7 @@ export default function AppDrawer(props: AppDrawerProps) {
       console.warn($FUNC, 'Failed to open link:', error);
       Alert.alert(
         'Cannot Open Link',
-        "We couldn't open this link for you. " + errorMessage,
+        'We couldn’t open this link for you. ' + errorMessage,
       );
     }
   };
@@ -235,7 +235,7 @@ export default function AppDrawer(props: AppDrawerProps) {
               console.error($FUNC, 'Failed to sign out:', error);
               Alert.alert(
                 'Something went wrong',
-                "We weren't able to sign you out right now. Please try again later.",
+                'We weren’t able to sign you out right now. Please try again later.',
               );
             });
           },

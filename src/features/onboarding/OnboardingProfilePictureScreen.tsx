@@ -149,7 +149,7 @@ export default function OnboardingProfilePictureScreen(
     } catch (error) {
       console.error($FUNC, 'Failed to upload avatar:', error);
       utilities.alertSomethingWentWrong(
-        "We weren't able to change your avatar right now. " +
+        'We weren’t able to change your avatar right now. ' +
           'You can try again later by going to your profile settings.',
         () => handleGoToNextScreen(),
       );

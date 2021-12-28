@@ -390,7 +390,7 @@ const CommentCellContent = (props: CommentCellContentProps) => {
           console.error($FUNC, 'Failed to delete comment:', error);
           utilities.alertSomethingWentWrong(
             error.message ??
-              "We weren't able to delete this comment. Please try again later.",
+              'We weren’t able to delete this comment. Please try again later.',
           );
         }
       };

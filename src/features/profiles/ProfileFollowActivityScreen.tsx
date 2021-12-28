@@ -103,7 +103,7 @@ function LoadedProfileFollowActivityScreen(
         } catch (error) {
           console.error($FUNC, 'Failed to refresh profile:', error);
           utilities.alertSomethingWentWrong(
-            "We weren't able to refresh this profile. Please try again.",
+            'We weren’t able to refresh this profile. Please try again.',
           );
         } finally {
           if (isMounted.current) {
@@ -144,8 +144,8 @@ function LoadedProfileFollowActivityScreen(
           <EmptyContainer
             message={`${
               isMyProfile
-                ? "You aren't"
-                : (profile.__publicName || 'This user') + " isn't"
+                ? 'You aren’t'
+                : (profile.__publicName || 'This user') + ' isn’t'
             } ${
               selector === 'followers'
                 ? 'followed by anyone'
