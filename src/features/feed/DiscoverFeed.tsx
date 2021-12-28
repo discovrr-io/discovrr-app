@@ -89,7 +89,10 @@ export default function DiscoverFeed() {
 
           dispatch(
             feedSlice.refreshFeed(
-              refreshedPosts.map(post => [post.id, post.createdAt] as const),
+              refreshedPosts.map(post => ({
+                postId: post.id,
+                createdAt: post.createdAt,
+              })),
             ),
           );
 
@@ -151,7 +154,10 @@ export default function DiscoverFeed() {
 
           dispatch(
             feedSlice.addPostIdsToFeed(
-              nextPosts.map(post => [post.id, post.createdAt] as const),
+              nextPosts.map(post => ({
+                postId: post.id,
+                createdAt: post.createdAt,
+              })),
             ),
           );
 
@@ -159,7 +165,7 @@ export default function DiscoverFeed() {
         } catch (error) {
           console.error($FUNC, 'Failed to fetch more posts:', error);
           utilities.alertSomethingWentWrong(
-            "We weren't able to fetch more posts. Please try again later.",
+            'We weren’t able to fetch more posts. Please try again later.',
           );
         } finally {
           if (isMounted.current) {

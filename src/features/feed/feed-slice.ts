@@ -8,31 +8,31 @@ import {
 import { PostId } from 'src/models';
 import { createPost } from 'src/features/posts/posts-slice';
 
-export type TimestampedPostId = readonly [PostId, string];
+export type TimestampedPostId = { postId: PostId; createdAt: string };
 export type FeedState = EntityState<TimestampedPostId>;
 
-const postIdsAdapter = createEntityAdapter<TimestampedPostId>({
-  selectId: item => item[0],
-  sortComparer: (a, b) => b[1].localeCompare(a[1]),
+const feedAdapter = createEntityAdapter<TimestampedPostId>({
+  selectId: item => item.postId,
+  sortComparer: (a, b) => b.createdAt.localeCompare(a.createdAt),
 });
 
-const initialState = postIdsAdapter.getInitialState();
+const initialState = feedAdapter.getInitialState();
 
 const feedSlice = createSlice({
   name: 'feed',
   initialState,
   reducers: {
     refreshFeed: (state, action: PayloadAction<TimestampedPostId[]>) => {
-      postIdsAdapter.setAll(state, action.payload);
+      feedAdapter.setAll(state, action.payload);
     },
     addPostIdsToFeed: (state, action: PayloadAction<TimestampedPostId[]>) => {
-      postIdsAdapter.upsertMany(state, action.payload);
+      feedAdapter.upsertMany(state, action.payload);
     },
   },
   extraReducers: builder => {
     builder.addCase(createPost.fulfilled, (state, action) => {
       const { id, createdAt } = action.payload;
-      postIdsAdapter.upsertOne(state, [id, createdAt]);
+      feedAdapter.upsertOne(state, { postId: id, createdAt });
     });
   },
 });
