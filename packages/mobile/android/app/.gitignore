@@ -1,2 +1,4 @@
-# This file will change depending on what Android variant you build
-google-services.json
+# Don't version control the root `google-services.json` file as it will change
+# depending on what Android variant you build
+# TODO: Should we instead ignore all `google-services.json`?
+./google-services.json

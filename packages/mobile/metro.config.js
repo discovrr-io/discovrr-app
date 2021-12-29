@@ -21,6 +21,7 @@ const androidAssetsResolutionFix = getMetroAndroidAssetsResolutionFix();
 
 module.exports = {
   transformer: {
+    publicPath: androidAssetsResolutionFix.publicPath,
     getTransformOptions: async () => ({
       transform: {
         experimentalImportSupport: false,

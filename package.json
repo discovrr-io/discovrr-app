@@ -9,8 +9,14 @@
       "**/react",
       "**/react-dom",
       "**/react-native",
-      "**/react-native/**"
+      "**/react-native/**",
+      "**/react-native-code-push",
+      "**/react-native-vector-icons",
+      "**/@react-native-firebase/*"
     ]
+  },
+  "scripts": {
+    "reset:deps": "find . -type dir -name node_modules | xargs rm -rf && yarn"
   },
   "devDependencies": {
     "eslint": "^7.32.0",

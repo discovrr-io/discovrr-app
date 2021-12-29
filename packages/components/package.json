@@ -4,14 +4,14 @@
   "license": "Apache-2.0",
   "author": "Discovrr Development Team",
   "main": "lib/index.ts",
-  "peerDependencies": {
-    "react": "*",
-    "react-native": "*"
-  },
   "devDependencies": {
     "@types/react-native": "^0.66.10",
     "react": "17.0.2",
     "react-native": "0.66.4"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "react-native": "*"
   },
   "resolutions": {
     "@types/react": "^17"
