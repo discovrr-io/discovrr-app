@@ -22,10 +22,10 @@ export const ANDROID_PLAY_STORE_LINK =
 export const APP_VERSION: string =
   nodePackage.version || `${getVersion()}-native` || '<unknown-version>';
 
-// Store version 3.3.0.0 (3030000)
-export const STORE_VERSION = createVersionString([3, 3, 0, 0]);
+// Store version 3.4.0.0 (3040000)
+export const STORE_VERSION = createVersionString([3, 4, 0, 0]);
 // Set this to the appropriate option any time the `STORE_VERSION` is changed
-export const STORE_SHOULD_SIGN_OUT = true;
+export const STORE_SHOULD_SIGN_OUT = false;
 
 function createVersionString(
   version: readonly [number, number, number, number],
