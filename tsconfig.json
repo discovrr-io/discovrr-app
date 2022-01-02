@@ -1,17 +1,5 @@
 {
-  "compilerOptions": {
-    "allowJs": true,
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "isolatedModules": true,
-    "jsx": "react",
-    "lib": ["esnext"],
-    "moduleResolution": "node",
-    "noEmit": true,
-    "resolveJsonModule": true,
-    "skipLibCheck": false,
-    "strict": true
-  },
+  "extends": "./tsconfig.base.json",
+  "include": ["**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules"]
 }

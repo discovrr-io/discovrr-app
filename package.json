@@ -10,7 +10,6 @@
       "**/react-dom",
       "**/react-native",
       "**/react-native/**",
-      "**/react-native-web",
       "**/react-native-code-push",
       "**/react-native-vector-icons",
       "**/@react-native-firebase/*"
@@ -26,6 +25,8 @@
     "ios:release": "yarn workspace @discovrr/mobile ios:release",
     "ios:deploy": "yarn workspace @discovrr/mobile ios:deploy",
     "mobile:start": "yarn workspace @discovrr/mobile start",
+    "web:start": "yarn workspace @discovrr/web start",
+    "web:build": "yarn workspace @discovrr/web build",
     "reset:deps": "find . -type dir -name node_modules | xargs rm -rf && yarn"
   },
   "devDependencies": {
