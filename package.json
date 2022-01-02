@@ -16,6 +16,15 @@
     ]
   },
   "scripts": {
+    "android": "yarn workspace @discovrr/mobile android",
+    "android:staging": "yarn workspace @discovrr/mobile android:staging",
+    "android:release": "yarn workspace @discovrr/mobile android:release",
+    "android:deploy": "yarn workspace @discovrr/mobile android:deploy",
+    "ios": "yarn workspace @discovrr/mobile ios",
+    "ios:staging": "yarn workspace @discovrr/mobile ios:staging",
+    "ios:release": "yarn workspace @discovrr/mobile ios:release",
+    "ios:deploy": "yarn workspace @discovrr/mobile ios:deploy",
+    "mobile:start": "yarn workspace @discovrr/mobile start",
     "reset:deps": "find . -type dir -name node_modules | xargs rm -rf && yarn"
   },
   "devDependencies": {
