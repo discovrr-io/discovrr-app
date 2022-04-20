@@ -3,16 +3,6 @@
   "workspaces": {
     "packages": [
       "packages/*"
-    ],
-    "nohoist": [
-      "**/parse",
-      "**/react",
-      "**/react-dom",
-      "**/react-native",
-      "**/react-native/**",
-      "**/react-native-code-push",
-      "**/react-native-vector-icons",
-      "**/@react-native-firebase/*"
     ]
   },
   "scripts": {
